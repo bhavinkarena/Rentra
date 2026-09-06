@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# .env.example is a template and SHOULD be committed
+!.env.example
+
+# development seed photography — regenerate with `npm run seed:images`
+/public/seed

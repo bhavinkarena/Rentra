@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rentra — Phased Implementation Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Frank+Ruhl+Libre:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme:light;
+    --steel:#233028;
+    --steel-2:#314136;
+    --steel-3:#42544a;
+    --paper:#efeade;
+    --panel:#fbf8f0;
+    --panel-2:#f4f0e5;
+    --safety:#c8792a;
+    --safety-dark:#95571a;
+    --ink:#221f1a;
+    --line:#cbc3ae;
+    --line-soft:#ded6c2;
+    --green:#3f6b4a;
+    --red:#a3392f;
+    --blue:#2f5570;
+    --blue-soft:#e8eef2;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth; scroll-padding-top:4.2rem;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Frank Ruhl Libre', Georgia, 'Times New Roman', serif;
+    line-height:1.58;
+  }
+  h1,h2,h3,h4,h5{
+    font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+    font-weight:700; letter-spacing:0.01em; color:var(--steel);
+    margin:0 0 0.4em 0; text-wrap:balance;
+  }
+  p,li{ font-size:1rem; }
+  a{ color:var(--safety-dark); }
+  a:focus-visible, summary:focus-visible, input:focus-visible, button:focus-visible{
+    outline:3px solid var(--safety); outline-offset:2px;
+  }
+  code,.mono{ font-family:'IBM Plex Mono',Consolas,monospace; font-size:0.86em; }
+
+  /* ---------- sticky rail ---------- */
+  .rail{
+    position:sticky; top:0; z-index:50;
+    background:var(--steel); border-bottom:3px solid var(--safety);
+    font-family:'Barlow Condensed',sans-serif;
+  }
+  .rail .inner{
+    max-width:1040px; margin:0 auto; padding:0 4vw;
+    display:flex; align-items:center; gap:0.35rem; overflow-x:auto;
+    min-height:3.1rem;
+  }
+  .rail .brand{ color:#fdfaf3; font-weight:700; letter-spacing:0.08em; font-size:0.95rem; margin-right:0.8rem; white-space:nowrap; }
+  .rail a{
+    color:#c3cbc4; text-decoration:none; font-size:0.9rem; font-weight:600;
+    padding:0.34rem 0.6rem; white-space:nowrap; letter-spacing:0.03em;
+  }
+  .rail a:hover{ color:#fdfaf3; background:var(--steel-2); }
+  .rail a.sep{ pointer-events:none; color:#5d6d62; padding:0 0.2rem; }
+
+  /* ---------- masthead ---------- */
+  header.hero{
+    background:
+      repeating-linear-gradient(135deg, rgba(0,0,0,0.05) 0 2px, transparent 2px 14px),
+      linear-gradient(180deg, var(--steel) 0%, var(--steel-2) 100%);
+    color:var(--paper); padding:3.4rem 6vw 2.6rem; border-bottom:8px solid var(--safety);
+  }
+  header.hero .tag{
+    font-family:'Barlow Condensed',sans-serif; color:var(--safety);
+    font-size:1.02rem; font-weight:600; margin-bottom:0.6rem; letter-spacing:0.05em;
+  }
+  header.hero h1{ color:#fdfaf3; font-size:clamp(2rem,4.6vw,3.3rem); line-height:1.05; max-width:24ch; }
+  header.hero .sub{ color:#cfd4d0; font-family:'Frank Ruhl Libre',serif; font-size:1.12rem; max-width:66ch; margin-top:1.05rem; }
+  header.hero .metaRow{
+    display:flex; gap:2.4rem; flex-wrap:wrap; margin-top:2rem;
+    padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.18);
+  }
+  header.hero .metaRow div{ min-width:126px; }
+  header.hero .metaRow .n{
+    font-family:'Barlow Condensed',sans-serif; color:var(--safety);
+    font-size:1.85rem; font-weight:700; display:block; line-height:1;
+  }
+  header.hero .metaRow .l{ font-size:0.84rem; color:#b6bdb7; }
+
+  .wrap{ max-width:1000px; margin:0 auto; padding:0 5vw; }
+
+  /* ---------- generic sections ---------- */
+  .block{ padding:2.8rem 0; border-bottom:1px solid var(--line); }
+  .block:last-child{ border-bottom:none; }
+  .kicker{
+    font-family:'Barlow Condensed',sans-serif; color:var(--safety-dark);
+    font-weight:700; font-size:0.92rem; margin-bottom:0.3rem; letter-spacing:0.06em;
+  }
+  .block h2{ font-size:1.95rem; margin-bottom:0.9rem; }
+  .block h3{ font-size:1.28rem; margin-top:1.8rem; color:var(--steel-2); }
+  .block h4{ font-size:1.06rem; margin-top:1.2rem; }
+  .lede{ max-width:68ch; }
+
+  /* ---------- callouts ---------- */
+  .note{ border-left:4px solid var(--red);  background:#f7ece9; padding:0.85rem 1rem; margin-top:1rem; font-size:0.93rem; }
+  .tip{  border-left:4px solid var(--green);background:#edf2ec; padding:0.85rem 1rem; margin-top:1rem; font-size:0.93rem; }
+  .info{ border-left:4px solid var(--blue); background:var(--blue-soft); padding:0.85rem 1rem; margin-top:1rem; font-size:0.93rem; }
+  .note p,.tip p,.info p{ font-size:inherit; margin:0.5rem 0 0; }
+  .note p:first-child,.tip p:first-child,.info p:first-child{ margin-top:0; }
+
+  /* ---------- tables ---------- */
+  .tableScroll{ overflow-x:auto; }
+  table{ width:100%; border-collapse:collapse; margin-top:1rem; font-size:0.92rem; background:var(--panel); min-width:560px; }
+  caption{ text-align:left; font-family:'Barlow Condensed',sans-serif; color:var(--safety-dark); font-weight:700; margin-bottom:0.4rem; letter-spacing:0.03em; }
+  th,td{ border:1px solid var(--line); padding:0.55rem 0.7rem; text-align:left; vertical-align:top; }
+  th{ background:var(--steel); color:#fdfaf3; font-family:'Barlow Condensed',sans-serif; font-weight:600; letter-spacing:0.02em; }
+  tbody tr:nth-child(even) td{ background:var(--panel-2); }
+  td.num{ font-variant-numeric:tabular-nums; white-space:nowrap; }
+
+  /* ---------- phase band ---------- */
+  .phaseSec{ padding:0; border:none; margin-top:2.6rem; }
+  .band{
+    background:var(--steel); color:#fdfaf3; padding:1.5rem 1.7rem 1.4rem;
+    border-top:7px solid var(--safety);
+  }
+  .band.later{ border-top-color:var(--blue); }
+  .band .pnum{
+    font-family:'Barlow Condensed',sans-serif; font-size:0.86rem; font-weight:700;
+    letter-spacing:0.12em; color:var(--safety);
+  }
+  .band.later .pnum{ color:#9fc0d8; }
+  .band h2{ color:#fdfaf3; font-size:clamp(1.6rem,3.2vw,2.15rem); margin:0.15rem 0 0.15rem; }
+  .band .dur{ font-family:'Barlow Condensed',sans-serif; color:#b6bdb7; font-size:0.95rem; letter-spacing:0.04em; }
+  .band .goal{ font-family:'Frank Ruhl Libre',serif; color:#dde2dd; font-size:1.02rem; max-width:70ch; margin:0.85rem 0 0; }
+  .band .gate{
+    margin-top:1.1rem; padding-top:0.9rem; border-top:1px solid rgba(255,255,255,0.18);
+    font-size:0.95rem; color:#dde2dd; max-width:74ch;
+  }
+  .band .gate b{ font-family:'Barlow Condensed',sans-serif; color:var(--safety); letter-spacing:0.05em; }
+  .band.later .gate b{ color:#9fc0d8; }
+
+  .progress{ display:flex; align-items:center; gap:0.8rem; margin-top:1.15rem; }
+  .progress-track{ flex:1 1 auto; height:7px; background:rgba(255,255,255,0.16); overflow:hidden; }
+  .progress-fill{ height:100%; width:0; background:var(--safety); transition:width 0.18s ease; }
+  .band.later .progress-fill{ background:#9fc0d8; }
+  .progress-count{
+    font-family:'IBM Plex Mono',monospace; font-size:0.82rem; color:#fdfaf3;
+    font-variant-numeric:tabular-nums; white-space:nowrap;
+  }
+
+  .phaseBody{ background:var(--panel); border:1px solid var(--line); border-top:none; padding:0.4rem 1.7rem 1.6rem; }
+
+  .group{ margin-top:1.5rem; }
+  .group > h4{
+    font-family:'Barlow Condensed',sans-serif; font-size:1.02rem; letter-spacing:0.06em;
+    color:var(--safety-dark); text-transform:uppercase; margin:0 0 0.15rem;
+    padding-bottom:0.35rem; border-bottom:2px solid var(--line-soft);
+  }
+  .group > p.gnote{ font-size:0.9rem; color:var(--steel-3); margin:0.5rem 0 0; max-width:72ch; }
+
+  ul.checklist{ list-style:none; margin:0.6rem 0 0; padding:0; }
+  ul.checklist > li{ border-bottom:1px dashed var(--line-soft); }
+  ul.checklist > li:last-child{ border-bottom:none; }
+  ul.checklist label{
+    display:flex; gap:0.7rem; align-items:flex-start;
+    padding:0.5rem 0; cursor:pointer; font-size:0.95rem;
+  }
+  ul.checklist input[type=checkbox]{
+    flex:0 0 auto; margin:0.32rem 0 0; width:1.05rem; height:1.05rem;
+    accent-color:var(--green); cursor:pointer;
+  }
+  ul.checklist label > span{ flex:1 1 auto; }
+  ul.checklist input:checked + span{ color:#7f8b81; text-decoration:line-through; text-decoration-thickness:1px; }
+  ul.checklist code{ background:var(--panel-2); padding:0.05rem 0.28rem; border:1px solid var(--line-soft); }
+  ul.checklist .sub{ display:block; font-size:0.86rem; color:var(--steel-3); margin-top:0.18rem; }
+  ul.checklist input:checked + span .sub{ color:#98a29a; }
+
+  .pill{
+    font-family:'Barlow Condensed',sans-serif; font-weight:600; font-size:0.7rem;
+    letter-spacing:0.06em; padding:0.1rem 0.4rem; color:#fdfaf3; white-space:nowrap;
+    display:inline-block; vertical-align:0.08em; margin-right:0.3rem;
+  }
+  .p-block{ background:var(--red); }
+  .p-seo{ background:var(--blue); }
+  .p-lock{ background:var(--steel); }
+  .p-ops{ background:var(--safety-dark); }
+  .p-new{ background:var(--green); }
+
+  .dont{
+    margin-top:1.6rem; background:#f7ece9; border-left:4px solid var(--red);
+    padding:0.9rem 1.1rem;
+  }
+  .dont h4{
+    font-family:'Barlow Condensed',sans-serif; font-size:0.98rem; letter-spacing:0.06em;
+    text-transform:uppercase; color:var(--red); margin:0 0 0.4rem;
+  }
+  .dont ul{ margin:0; padding-left:1.15rem; }
+  .dont li{ font-size:0.92rem; margin-bottom:0.25rem; }
+  .dont li:last-child{ margin-bottom:0; }
+
+  /* ---------- code / schema ---------- */
+  .schema{
+    margin-top:1.1rem; background:var(--steel); color:#dde2dd;
+    padding:1.1rem 1.2rem; overflow-x:auto; border-left:6px solid var(--safety);
+    font-family:'IBM Plex Mono',Consolas,monospace; font-size:0.82rem; line-height:1.72;
+  }
+  .schema pre{ margin:0; white-space:pre; }
+  .schema .t{ color:var(--safety); font-weight:600; }
+  .schema .k{ color:#fdfaf3; font-weight:600; }
+  .schema .c{ color:#8f9c92; }
+  .schema .s{ color:#9fc0d8; }
+
+  /* ---------- quadrant ---------- */
+  .quadWrap{ overflow-x:auto; margin-top:1.3rem; }
+  .quad{ min-width:660px; display:grid; grid-template-columns:8.5rem 1fr 1fr; gap:0.55rem; }
+  .quad .axisTop{
+    font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.85rem;
+    letter-spacing:0.06em; color:var(--safety-dark); align-self:end; padding:0 0 0.1rem 0.1rem;
+  }
+  .quad .axisTop small{ display:block; font-weight:500; letter-spacing:0; color:var(--steel-2); font-size:0.79rem; }
+  .quad .axisSide{
+    font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.88rem;
+    letter-spacing:0.05em; color:#fdfaf3; background:var(--steel); padding:0.9rem 0.7rem;
+    display:flex; flex-direction:column; justify-content:center;
+  }
+  .quad .axisSide small{ font-weight:500; letter-spacing:0; color:#b6bdb7; font-size:0.78rem; margin-top:0.25rem; }
+  .quad .corner{ background:transparent; }
+  .cell{ background:var(--panel); border:1px solid var(--line); padding:0.9rem 1rem 1rem; }
+  .cell.fixed{ border-top:5px solid var(--safety); }
+  .cell.movable{ border-top:5px solid var(--blue); }
+  .cell .mode{
+    font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:1.22rem;
+    color:var(--steel); display:flex; align-items:baseline; gap:0.5rem; flex-wrap:wrap;
+  }
+  .cell .when{
+    font-family:'Barlow Condensed',sans-serif; font-size:0.7rem; font-weight:600;
+    letter-spacing:0.05em; padding:0.12rem 0.42rem; color:#fdfaf3; background:var(--steel-2);
+  }
+  .cell .when.now{ background:var(--green); }
+  .cell .cats{ font-size:0.88rem; margin:0.35rem 0 0.7rem; }
+  .cell dl{ margin:0; font-size:0.83rem; display:grid; gap:0.3rem; }
+  .cell dl > div{ display:flex; gap:0.5rem; justify-content:space-between; border-top:1px dashed var(--line); padding-top:0.3rem; }
+  .cell dt{ font-family:'Barlow Condensed',sans-serif; color:var(--safety-dark); font-weight:600; flex:0 0 auto; }
+  .cell dd{ margin:0; text-align:right; color:var(--steel-2); }
+
+  /* ---------- route map ---------- */
+  .routes{
+    margin-top:1.1rem; background:var(--panel); border:1px solid var(--line);
+    border-left:6px solid var(--blue); overflow-x:auto;
+  }
+  .routes table{ margin:0; background:transparent; border:none; min-width:640px; }
+  .routes th{ background:var(--blue); }
+  .routes td:first-child{ font-family:'IBM Plex Mono',monospace; font-size:0.8rem; white-space:nowrap; }
+  .routes td{ border-left:none; border-right:none; }
+
+  /* ---------- screen ref ---------- */
+  .screen{
+    background:var(--panel); border:1px solid var(--line); border-top:4px solid var(--blue);
+    padding:1rem 1.2rem; margin-top:1rem; font-family:'Barlow Condensed',sans-serif;
+  }
+  .screen .head{ color:var(--safety-dark); font-weight:700; margin-bottom:0.4rem; font-size:0.88rem; letter-spacing:0.05em; }
+  .screen .row{ display:flex; justify-content:space-between; gap:1rem; border-bottom:1px dashed var(--line); padding:0.34rem 0; font-size:0.94rem; }
+  .screen .row:last-child{ border-bottom:none; }
+  .screen .row span:last-child{ font-weight:700; color:var(--steel); font-variant-numeric:tabular-nums; }
+  .screen .masked{ color:var(--red); font-weight:600; }
+  .screen .good{ color:var(--green); }
+
+  /* ---------- flow ---------- */
+  .flow{ counter-reset:step; margin-top:1rem; }
+  .flow .step{
+    counter-increment:step; position:relative; padding:0.85rem 0 0.85rem 3.1rem;
+    border-left:2px solid var(--line); margin-left:0.9rem;
+  }
+  .flow .step:last-child{ border-left:2px solid transparent; }
+  .flow .step::before{
+    content:counter(step); position:absolute; left:-1.15rem; top:0.55rem;
+    width:2.2rem; height:2.2rem; border-radius:50%;
+    background:var(--steel); color:#fdfaf3;
+    font-family:'Barlow Condensed',sans-serif; font-weight:700;
+    display:flex; align-items:center; justify-content:center; border:2px solid var(--panel);
+  }
+  .flow .step h4{ margin:0 0 0.2rem; font-size:1.05rem; color:var(--steel); }
+  .flow .step p{ margin:0; font-size:0.94rem; }
+  .flow.alt .step::before{ background:var(--safety); }
+  .flow.blue .step::before{ background:var(--blue); }
+
+  /* ---------- appendix accordions ---------- */
+  details.ref{
+    background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--steel-2);
+    margin-top:0.55rem; padding:0.75rem 1.1rem;
+  }
+  details.ref > summary{
+    cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-weight:700;
+    font-size:1.08rem; color:var(--steel); display:flex; gap:0.6rem; align-items:baseline; flex-wrap:wrap;
+  }
+  details.ref[open]{ border-left-color:var(--safety); }
+  details.ref > summary .src{
+    font-size:0.72rem; font-weight:600; letter-spacing:0.05em; color:var(--safety-dark);
+    font-family:'Barlow Condensed',sans-serif;
+  }
+  details.ref p{ font-size:0.94rem; }
+  details.ref ul{ font-size:0.94rem; padding-left:1.15rem; }
+  details.ref table{ min-width:520px; }
+
+  footer{ padding:2.4rem 6vw 3.4rem; background:var(--steel); color:#b6bdb7; font-family:'Barlow Condensed',sans-serif; margin-top:3rem; }
+  footer p{ max-width:74ch; }
+  footer strong{ color:#fdfaf3; }
+  footer .rule{ height:4px; background:var(--safety); width:80px; margin-bottom:1.3rem; }
+  #resetAll{
+    margin-top:1.3rem; background:transparent; color:#b6bdb7; border:1px solid #5d6d62;
+    font-family:'Barlow Condensed',sans-serif; font-size:0.88rem; letter-spacing:0.05em;
+    padding:0.42rem 0.9rem; cursor:pointer;
+  }
+  #resetAll:hover{ color:#fdfaf3; border-color:var(--safety); }
+
+  @media (prefers-reduced-motion:reduce){
+    html{ scroll-behavior:auto; }
+    *{ transition:none !important; animation:none !important; }
+  }
+  @media (max-width:680px){
+    header.hero{ padding:2.5rem 6vw 2.1rem; }
+    .phaseBody{ padding:0.4rem 1.1rem 1.4rem; }
+    .band{ padding:1.2rem 1.1rem; }
+    .cell dl > div{ flex-direction:column; gap:0.1rem; }
+    .cell dd{ text-align:left; }
+  }
+</style>
+</head>
+<body>
+
+<div class="rail">
+  <div class="inner">
+    <span class="brand">RENTRA</span>
+    <a href="#foundations">Foundations</a>
+    <a href="#seo">SEO Architecture</a>
+    <a class="sep">/</a>
+    <a href="#phase0">Phase 0</a>
+    <a href="#phase1">Phase 1</a>
+    <a href="#phase2">Phase 2</a>
+    <a href="#phase3">Phase 3</a>
+    <a href="#phase4">Phase 4</a>
+    <a class="sep">/</a>
+    <a href="#appendix">Reference</a>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="tag">PHASED IMPLEMENTATION PLAN — PARTS 1 &amp; 2 COMBINED</div>
+  <h1>Build a verified farmhouse booking platform. Build it so goods can arrive later without a rewrite.</h1>
+  <p class="sub">One working document, organised as an implementation flow rather than a set of topics. Five gated phases, each with the features and steps that belong in it, what must be locked before you write a route, and what to refuse to build yet. Next.js and App Router throughout, with SEO treated as an architectural decision in Phase&nbsp;1 rather than an optimisation later.</p>
+  <div class="metaRow">
+    <div><span class="n">5</span><span class="l">Gated phases, 0&ndash;4</span></div>
+    <div><span class="n">4</span><span class="l">Rental modes in the schema</span></div>
+    <div><span class="n">3</span><span class="l">Columns that prevent a rewrite</span></div>
+    <div><span class="n">1</span><span class="l">District at launch</span></div>
+    <div><span class="n">1</span><span class="l">Category at launch</span></div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ===================== HOW TO USE ===================== -->
+<section class="block" id="howto">
+  <div class="kicker">HOW TO USE THIS DOCUMENT</div>
+  <h2>Read the foundations once. Then work one phase at a time.</h2>
+  <p class="lede">Every checkbox below is tickable and your progress is saved in this browser, so this file works as a build tracker and not only as a plan. The phase bars show how far each phase has come.</p>
+  <p class="lede" style="margin-top:0.7rem;"><strong>The three rules that make the sequence work:</strong></p>
+  <ol class="lede">
+    <li><strong>Do not open a phase until the previous phase's gate is met.</strong> The gates are not guesses — they are the evidence that the last phase actually worked. Durations are guesses; ignore them if the gate is not met.</li>
+    <li><strong>Anything marked <span class="pill p-lock">LOCK</span> is a decision that is cheap now and expensive later.</strong> Those are schema names, URL shapes and money-flow structure. Get them right in Phase 1 or pay for them in year two.</li>
+    <li><strong>Anything in a "do not build" box stays unbuilt.</strong> Each phase ends with one. Building ahead is the most common way a plan like this dies.</li>
+  </ol>
+  <div class="info"><strong>What is not in this pass:</strong> this version carries the phase-wise features and steps, plus the reference material from both earlier documents in the appendix. Detailed requirements per feature — screen-by-screen specs, API contracts, vendor comparisons, cost models — come next, phase by phase, starting with Phase 1.</div>
+</section>
+
+<!-- ===================== FOUNDATIONS ===================== -->
+<section class="block" id="foundations">
+  <div class="kicker">FOUNDATIONS &middot; DECIDE ONCE, BEFORE PHASE 1</div>
+  <h2>The four decisions everything else hangs on</h2>
+  <p class="lede">These are not build tasks. They are positions you take before the first commit, because each one is either free now or a migration later.</p>
+
+  <h3>1 &middot; The promise is narrow, the name is broad</h3>
+  <p>Market yourself as &ldquo;rent anything&rdquo; and the idea is a 5/10 — four sets of owners, four pricing models, four legal flows, zero bookings. Market yourself as <em>&ldquo;book a verified farmhouse in your district, transparent price, money held safely, no broker&rdquo;</em> and it is an 8&ndash;9/10, because that is a door you can actually open.</p>
+  <p style="margin-top:0.6rem;">But name the company for where it ends up. <strong>Rentra</strong> carries no category in it. A name like RentSpace forces a re-brand at exactly the moment you can least afford it — mid-expansion, with SEO equity, WhatsApp templates, an Instagram handle and 120 owner relationships attached to the old word.</p>
+  <div class="tip"><strong>Position:</strong> broad name, narrow homepage. Register <code>rentra.in</code>, the social handles and the trademark classes for both rental of immovable property and rental of goods now, while it costs nothing. Until Phase 3 the homepage says <em>farmhouses in your district</em> and nothing else.</div>
+
+  <h3>2 &middot; The rental quadrant — where every future category lands</h3>
+  <p>Two axes, not one. Short-versus-long is the obvious axis. The one that decides your architecture is: <strong>does the renter travel to the thing, or does the thing travel to the renter?</strong> Cross them and every category you will ever consider lands in exactly one box — each with its own availability object, money flow, paperwork and dominant risk. Those four differences are precisely the things that are expensive to retrofit.</p>
+
+  <div class="quadWrap">
+    <div class="quad">
+      <div class="corner"></div>
+      <div class="axisTop">BY DATE OR SLOT<small>Short, discrete, repeatable</small></div>
+      <div class="axisTop">BY MONTH, RECURRING<small>Long, continuous, one decision</small></div>
+
+      <div class="axisSide">FIXED<small>The renter travels to it. It cannot be stolen.</small></div>
+      <div class="cell fixed">
+        <div class="mode">MODE A <span class="when now">PHASE 1&ndash;2</span></div>
+        <p class="cats">Farmhouse, farm, lawn, banquet terrace, small hall, shoot location</p>
+        <dl>
+          <div><dt>Availability</dt><dd>Date &times; slot calendar</dd></div>
+          <div><dt>Money held</dt><dd>Advance + fee + deposit</dd></div>
+          <div><dt>Paperwork</dt><dd>Tick-box booking terms</dd></div>
+          <div><dt>Main risk</dt><dd>Double-booking, owner no-show</dd></div>
+        </dl>
+      </div>
+      <div class="cell fixed">
+        <div class="mode">MODE B <span class="when">PHASE 4</span></div>
+        <p class="cats">Flat, house, shop, office, shed, godown, land</p>
+        <dl>
+          <div><dt>Availability</dt><dd>Available-from date</dd></div>
+          <div><dt>Money held</dt><dd>Visit token + success fee</dd></div>
+          <div><dt>Paperwork</dt><dd>E-stamped rent agreement</dd></div>
+          <div><dt>Main risk</dt><dd>Bypass after the site visit</dd></div>
+        </dl>
+      </div>
+
+      <div class="axisSide">MOVABLE<small>It travels to the renter. It can be damaged in transit &mdash; or never come back.</small></div>
+      <div class="cell movable">
+        <div class="mode">MODE C <span class="when">PHASE 3</span></div>
+        <p class="cats">Chairs, tents, sound &amp; DJ, generator, projector, camera gear, tempo traveller, tools</p>
+        <dl>
+          <div><dt>Availability</dt><dd>Unit count &times; date, per SKU</dd></div>
+          <div><dt>Money held</dt><dd>Full rent + fee + security</dd></div>
+          <div><dt>Paperwork</dt><dd>Signed handover challan + ID</dd></div>
+          <div><dt>Main risk</dt><dd><strong>Non-return and theft</strong></dd></div>
+        </dl>
+      </div>
+      <div class="cell movable">
+        <div class="mode">MODE D <span class="when">NOT YOUR BUSINESS</span></div>
+        <p class="cats">Furniture, appliances, laptop and phone subscriptions</p>
+        <dl>
+          <div><dt>Availability</dt><dd>Stock on hand</dd></div>
+          <div><dt>Money held</dt><dd>UPI Autopay e-mandate</dd></div>
+          <div><dt>Paperwork</dt><dd>Contract + credit check</dd></div>
+          <div><dt>Main risk</dt><dd>Default &mdash; it is lending</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <p style="margin-top:1.1rem;"><strong>Two conclusions the quadrant hands you.</strong> Mode D is an asset-heavy lending business wearing a rental costume — you buy the stock, carry the depreciation and underwrite the customer's credit. It shares a website with your marketplace and nothing else; if you want it, start it later as a different company. And Mode C should overtake Mode B in the roadmap: Mode B is the quadrant where you cannot hold the money, cannot take a clean commission, and lose the customer after one transaction, while Mode C is where you hold the full amount and the same customer comes back for every function.</p>
+
+  <div class="info"><strong>One flag, not a fifth mode: <code>requires_operator</code>.</strong> In India rented goods usually arrive with a person — a sound system with an operator, a generator with a technician, a tempo traveller with a driver. That changes pricing, liability and verification. Make it a boolean on the asset with an operator-charge field, not a separate flow.</div>
+
+  <h3>3 &middot; The schema — three columns that prevent a rewrite <span class="pill p-lock">LOCK</span></h3>
+  <p>The shortest, most load-bearing decision in this document. If your first migration creates a <code>properties</code> table with a <code>calendar</code>, every future category becomes a schema fight. Name the core object for what it is — a <em>rentable thing</em> — and add three columns you will not use for eighteen months.</p>
+
+  <div class="schema">
+<pre><span class="c">-- The core object. Not "properties". Everything you will ever rent lives here.</span>
+<span class="t">rentable</span> (
+  id, owner_id, title, slug, description, status,
+
+  <span class="c">-- COLUMN 1 &middot; fixed or movable. Decides the whole fulfilment flow.</span>
+  <span class="k">form</span>              enum(<span class="s">'fixed'</span>,<span class="s">'movable'</span>),
+
+  <span class="c">-- COLUMN 2 &middot; how possession transfers. 'visit_site' is a VALUE, not an absence.</span>
+  <span class="k">fulfilment</span>        enum(<span class="s">'visit_site'</span>,<span class="s">'pickup_from_owner'</span>,<span class="s">'delivered'</span>),
+
+  <span class="c">-- COLUMN 3 &middot; how time is sold. One enum, not per-category hardcoding.</span>
+  <span class="k">rental_unit</span>       enum(<span class="s">'slot'</span>,<span class="s">'night'</span>,<span class="s">'day'</span>,<span class="s">'week'</span>,<span class="s">'month'</span>),
+
+  category_id,       <span class="c">-- farmhouse | lawn | chairs | tempo_traveller | dslr ...</span>
+  city_id, area_id,  <span class="c">-- drives the SEO route tree, see below</span>
+  requires_operator  bool,
+  total_units        int      <span class="c">-- 1 for a farmhouse. 800 for a tent-house's chairs.</span>
+)
+
+<span class="c">-- Availability is units-over-time, which degrades correctly to a calendar.</span>
+<span class="c">-- Farmhouse: total_units = 1, so "1 unit consumed" == "that slot is blocked".</span>
+<span class="c">-- Chairs:    total_units = 800, so 40 consumed still leaves 760 bookable.</span>
+<span class="t">availability</span> (rentable_id, date, slot, units_available, price_override)
+   <span class="c">UNIQUE (rentable_id, date, slot)   &lt;- the lock that prevents double-booking</span>
+
+<span class="c">-- Serial-numbered physical items. Movable goods only; empty for places.</span>
+<span class="t">unit</span> (id, rentable_id, serial_no, condition_grade, status)
+
+<span class="t">booking</span> (
+  id, rentable_id, seeker_id, starts_at, ends_at, slot,
+  units_booked        int,
+  amount_rent, amount_fee, amount_deposit,
+  <span class="k">amount_advance_paid</span>,    <span class="c">-- part-payment is the Indian norm; see Phase 1</span>
+  <span class="k">balance_mode</span>         enum(<span class="s">'online_before'</span>,<span class="s">'cash_on_arrival'</span>,<span class="s">'none'</span>),
+  state               enum(<span class="s">'requested'</span>,<span class="s">'confirmed'</span>,<span class="s">'handed_over'</span>,
+                           <span class="s">'returned'</span>,<span class="s">'completed'</span>,<span class="s">'cancelled'</span>,<span class="s">'disputed'</span>)
+)
+
+<span class="c">-- Payout fields exist from day one even if the values are zero.</span>
+<span class="c">-- Retrofitting tax deduction onto a live payout pipeline is genuinely painful.</span>
+<span class="t">payout</span> (booking_id, gross, commission, <span class="k">tds_194o</span>, <span class="k">gst_tcs</span>, net, status, utr)</pre>
+  </div>
+
+  <p style="margin-top:1rem;">Note the state machine. A person checking into a farmhouse and a camera leaving a shop are the same seven states — <code>handed_over</code> and <code>returned</code> describe both. Check-in <em>is</em> the handover of a place. Nothing else needs to change to support goods later.</p>
+  <div class="tip"><strong>Cost of doing this now:</strong> about half a day of naming discipline. <strong>Cost of doing it in year two:</strong> rewriting the booking engine, the availability lock, the search index, the pricing calculator and every admin screen, while paying customers use the old one.</div>
+
+  <h3>4 &middot; Roles — three, and one account is one role <span class="pill p-lock">LOCK</span></h3>
+  <p>Every action in the product belongs to one of three roles. <strong>An account carries exactly one role.</strong> A Client who wants to rent something as a Customer opens a separate Customer account — roles never mix on one login, and there is no role switcher anywhere in the product.</p>
+  <div class="tableScroll">
+  <table>
+    <caption>The three roles &mdash; for every phase</caption>
+    <thead><tr><th>Role</th><th>Who they are</th><th>What they do</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Customer</strong></td><td>The person renting</td><td>Searches, compares, asks questions in masked chat, books and pays, checks in, checks out, reviews.</td></tr>
+      <tr><td><strong>Client</strong><br><span class="mono">owner &middot; authorised agent</span></td><td>The person listing</td><td>KYC + ownership proof, creates listings, sets price and calendar, accepts bookings, hosts check-in and check-out, receives payout.</td></tr>
+      <tr><td><strong>Super Admin</strong></td><td>You</td><td>KYC approval, listing moderation, chat-flag review, dispute decisions, payouts and refunds, owner recruitment &mdash; <em>and</em> field verification, which is a task you perform, not a role you build a screen for.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h4>What single-role means in the schema</h4>
+  <p>Three consequences, each cheap to handle now and painful later.</p>
+  <div class="schema">
+<pre><span class="c">-- Customers and Clients share auth, sessions, notifications and chat,</span>
+<span class="c">-- so they share one table. The role is fixed at signup and never changes.</span>
+<span class="t">user</span> (
+  id, phone, name, email,
+  <span class="k">role</span>          enum(<span class="s">'customer'</span>,<span class="s">'client'</span>),   <span class="c">-- immutable after creation</span>
+  <span class="k">person_id</span>     NULL,  <span class="c">-- optional link between the same human's two accounts</span>
+  client_type   enum(<span class="s">'owner'</span>,<span class="s">'authorised_agent'</span>) NULL,  <span class="c">-- Clients only</span>
+  ...
+)
+   <span class="k">UNIQUE (phone, role)</span>   <span class="c">&lt;- NOT unique on phone alone</span>
+
+<span class="c">-- Super Admin is a different table with different auth. No self-signup,</span>
+<span class="c">-- no public login route, and never a 'role' value on the user table.</span>
+<span class="t">admin_user</span> (id, email, password_hash, totp_secret, name, last_login_at)
+
+<span class="c">-- One verified human, created from the KYC vendor's result.</span>
+<span class="c">-- Lets you reuse a completed verification across that person's two accounts.</span>
+<span class="t">person</span> (id, kyc_ref, verified_name, verified_at)</pre>
+  </div>
+  <ul>
+    <li><strong>Uniqueness is on <code>(phone, role)</code>, not on phone.</strong> A Client who wants to book someone else's farmhouse for his son's birthday has only one phone number. If phone is globally unique he simply cannot sign up as a Customer, and you will discover this from a support call rather than from a test.</li>
+    <li><strong>Separate login entry points, since the role cannot be inferred:</strong> <code>/login</code> for Customers, <code>/partner/login</code> for Clients. This is a benefit — the two onboardings share almost nothing, and the partner side gets its own landing page to rank for &ldquo;list your farmhouse&rdquo;.</li>
+    <li><strong>Link the two accounts by <code>person_id</code> so KYC is done once.</strong> Same human, two logins, one verification — otherwise you pay the KYC vendor twice and ask a verified owner to photograph his Aadhaar again, which is exactly the friction that loses him.</li>
+  </ul>
+  <div class="info"><strong>Every later role is a child of Client, not a fourth role.</strong> The caretaker in Phase 2 becomes <code>client_staff(client_id, phone, permissions)</code>. The vendor business in Phase 3 becomes another <code>client_type</code> value with inventory tables hanging off it. The logistics partner is the same. That keeps the role count at three permanently, which is the real payoff of this decision — the permission model never grows a fourth branch.</div>
+  <div class="note"><strong>The field verifier is your real moat, and the caretaker is the reason your dispute process will or will not work.</strong> Anyone can copy a website; nobody copies a person who has physically stood on all 60 farms in your district. And every operational step this plan assigns to the Client — check-in, condition photos, inspection — is physically done by the caretaker, because the owner lives in the city and visits on Sundays. Budget &#8377;300&ndash;&#8377;800 per verification visit and treat it as acquisition cost, not overhead.</div>
+</section>
+
+<!-- ===================== SEO ARCHITECTURE ===================== -->
+<section class="block" id="seo">
+  <div class="kicker">FOUNDATIONS &middot; SEO ARCHITECTURE</div>
+  <h2>Decide the URL tree before you write a single route <span class="pill p-lock">LOCK</span></h2>
+  <p class="lede">For a rental marketplace, organic search is a primary acquisition channel, not an optimisation. Somebody typing <em>&ldquo;farmhouse on rent in Kamrej&rdquo;</em> is the cheapest customer you will ever get, and they compound for years. But URL structure is the one SEO decision you cannot redo cheaply — every change costs redirects, lost rankings and a re-crawl. So it belongs here, in the foundations, not in a later optimisation pass.</p>
+
+  <h3>The route tree</h3>
+  <p>The rule: <strong>anything you want indexed lives in the path; anything you do not lives in a query string.</strong> City, category, area and search intent are path segments because each one deserves its own ranking page. Price, guest count and dates are query parameters because you never want them indexed.</p>
+
+  <div class="routes">
+  <table>
+    <thead><tr><th>Route</th><th>What it is</th><th>Rendering</th><th>Indexed</th></tr></thead>
+    <tbody>
+      <tr><td>/</td><td>Home &mdash; city chooser, trust proof, top listings</td><td>Static</td><td>Yes</td></tr>
+      <tr><td>/[city]</td><td><code>/surat</code> &mdash; city landing, all categories</td><td>ISR 1h</td><td>Yes</td></tr>
+      <tr><td>/[city]/[category]</td><td><code>/surat/farmhouse</code> &mdash; the money page</td><td>ISR 1h</td><td>Yes</td></tr>
+      <tr><td>/[city]/[category]/[area]</td><td><code>/surat/farmhouse/kamrej</code></td><td>ISR 1h</td><td>If &ge;3 listings</td></tr>
+      <tr><td>/[city]/[category]/[intent]</td><td><code>/surat/farmhouse/day-picnic</code>, <code>/with-pool</code>, <code>/for-pre-wedding-shoot</code></td><td>ISR 1h</td><td>If &ge;3 listings</td></tr>
+      <tr><td>/listing/[slug]-[id]</td><td>The listing detail page</td><td>ISR + on-demand</td><td>Yes</td></tr>
+      <tr><td>/search?&hellip;</td><td>Dated, filtered results</td><td>Dynamic</td><td><strong>No</strong> &mdash; noindex, follow</td></tr>
+      <tr><td>/guide/[slug]</td><td>Real editorial: how to pick a farmhouse, price guides</td><td>Static</td><td>Yes</td></tr>
+      <tr><td>/(app)/&hellip;</td><td>Booking, chat, dashboard, owner, admin</td><td>Dynamic</td><td><strong>No</strong></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="note"><strong>Three traps to avoid on day one.</strong> <em>Facet explosion:</em> never let every filter combination generate an indexable URL — whitelist the combinations worth a page and send everything else <code>noindex, follow</code> with a canonical to the parent. <em>Thin pages:</em> an area page with zero listings is a doorway page and Google will treat your whole site accordingly, so auto-<code>noindex</code> any landing page under three live listings and auto-flip it to indexed when it crosses. <em>Dead listings:</em> when a listing is delisted, never leave a 404 wall — 301 it to its area page and keep the link equity.</div>
+
+  <h3>What Next.js gives you, and where to use it</h3>
+  <div class="tableScroll">
+  <table>
+    <caption>App Router mapping</caption>
+    <thead><tr><th>Concern</th><th>Mechanism</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td>Landing pages built ahead of time</td><td><code>generateStaticParams</code> + <code>export const revalidate</code></td><td>City, category, area and intent pages. Content changes slowly; serve them from cache.</td></tr>
+      <tr><td>Listing page freshness</td><td>ISR + <code>revalidatePath()</code> on owner edit</td><td>Static shell carries price and the next three available dates. Live availability for the date picker is fetched client-side, so the cached page never shows a stale calendar.</td></tr>
+      <tr><td>Per-page title and description</td><td><code>generateMetadata</code></td><td>Must include real data &mdash; listing count, price band, area name. A templated title with no numbers in it ranks like a template.</td></tr>
+      <tr><td>Structured data</td><td>JSON-LD in the server component</td><td><code>LodgingBusiness</code> or <code>Product</code> + <code>Offer</code> on listings, <code>BreadcrumbList</code> everywhere, <code>FAQPage</code> on landing pages, <code>Organization</code> on home. Only emit <code>AggregateRating</code> when real reviews exist.</td></tr>
+      <tr><td>WhatsApp and social previews</td><td><code>opengraph-image.tsx</code> via <code>next/og</code></td><td>Farmhouse discovery happens by someone forwarding a link into a group of eight friends. Generate a card carrying the price and next available date &mdash; that card is seen by more people than your homepage. WhatsApp runs no JavaScript, so the tags must be server-rendered.</td></tr>
+      <tr><td>Sitemaps and robots</td><td><code>app/sitemap.ts</code>, <code>app/robots.ts</code></td><td>Split by type (listings, landing pages, guides); move to a sitemap index past 50k URLs.</td></tr>
+      <tr><td>Language routing</td><td><code>/[locale]/</code> segment + middleware</td><td>Scaffold with one locale loaded. Set <code>alternates.languages</code> for hreflang. Do not machine-translate listing copy into three languages &mdash; that is duplicate content, not reach.</td></tr>
+      <tr><td>Images &mdash; your biggest LCP risk</td><td><code>next/image</code>, AVIF first, explicit dimensions, <code>images.qualities</code> allowlist in <code>next.config</code></td><td>Listing pages are photo-heavy. In Next&nbsp;16 <code>priority</code> is deprecated: give the hero <code>preload</code> and leave every card lazy with a blur placeholder. <strong>Never preload a card grid</strong> &mdash; several images could be the LCP element depending on viewport, and competing preloads starve the hero. Store sources large and clean (w&nbsp;2400, q&nbsp;82) and let the optimizer downscale: re-encoding an already-lossy file at higher quality makes it <em>bigger</em>. Measured on this build: a full-bleed hero lands at 96KB AVIF on desktop and 27KB on mobile. Always set <code>sizes</code>.</td></tr>
+      <tr><td>Fonts</td><td><code>next/font</code></td><td>Self-hosts at build time and removes a render-blocking third-party request.</td></tr>
+      <tr><td>Keeping pages server-rendered</td><td>Server Components by default</td><td>Only the date picker, chat and booking widget are Client Components. Every <code>"use client"</code> at the top of a listing page is shipped JavaScript and lost Core Web Vitals.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tip"><strong>The programmatic SEO machine, stated plainly:</strong> one page per <em>area &times; category &times; intent</em>, each with live listings, real prices, genuine local content (how to reach, typical price band, what is nearby), an FAQ block, and internal links to sibling areas. That is a few hundred pages from one district and it compounds silently for eighteen months. Plant it in Phase 1 — SEO pays late, so it has to be planted early.</div>
+</section>
+
+<!-- ===================== PHASE 0 ===================== -->
+<section class="phaseSec" id="phase0" data-phase="0">
+  <div class="band">
+    <div class="pnum">PHASE 0</div>
+    <h2>Prove it by hand</h2>
+    <div class="dur">6 weeks &middot; almost no code &middot; costs you a few thousand rupees</div>
+    <p class="goal">Complete real bookings with no product at all, using an Instagram page, a Google Form and WhatsApp. You are buying information, not scaling. Every friction you find here is a feature or a policy in Phase 1 — and you will find frictions that are not in any plan.</p>
+    <div class="progress">
+      <div class="progress-track"><div class="progress-fill"></div></div>
+      <span class="progress-count">0 / 0</span>
+    </div>
+    <div class="gate"><b>GATE TO EXIT &rarr;</b> 10 completed bookings coordinated by hand, a written problem log, a price dataset for your district, and an answer to the add-on question below. If you cannot do this manually in six weeks, a website will not fix it.</div>
+  </div>
+
+  <div class="phaseBody">
+    <div class="group">
+      <h4>Pick the ground</h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span>Choose <strong>one district</strong> — one city plus its 40 km weekend belt. Not a state, not a region. Somewhere you can personally drive to every property.<span class="sub">Gujarat's Surat–Ahmedabad–Vadodara belt, Pune, Nashik, Lonavala, Bangalore outskirts and Hyderabad outskirts all work.</span></span></label></li>
+        <li><label><input type="checkbox"><span>Register <code>rentra.in</code>, the Instagram and WhatsApp Business handles, and the matching social names before anything else.</span></label></li>
+        <li><label><input type="checkbox"><span>File trademark classes covering both rental of immovable property and rental of goods.<span class="sub">Cheap now; the whole point of a category-neutral name is not having to redo this.</span></span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h4>Hand-recruit the first owners <span class="pill p-ops">OPS</span></h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span>Find 10&ndash;15 real farmhouses: Instagram, Facebook city groups, JustDial, and by asking at the local tea stall and at existing farmhouse gates.</span></label></li>
+        <li><label><input type="checkbox"><span>Visit each one. Photograph it yourself with a phone, in daylight, to a fixed shot list — entrance, full exterior, each room, washroom, kitchen, pool or lawn, parking, approach road.<span class="sub">Consistency in photography is a surprisingly large part of why a marketplace feels trustworthy.</span></span></label></li>
+        <li><label><input type="checkbox"><span>Offer to do everything for them: photos, listing copy, price setting, calendar. Zero fee for the first three months.</span></label></li>
+        <li><label><input type="checkbox"><span>Record every owner's actual pricing — weekday, weekend, peak season, day slot versus overnight, extra-guest charge, deposit. <strong>This spreadsheet is your pricing engine for the first 100 listings.</strong></span></label></li>
+        <li><label><input type="checkbox"><span>Note who actually runs each property — owner or caretaker — and get the caretaker's number. You are learning the operational reality that Phase 2 has to support.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h4>The manual funnel</h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span>Instagram page with reels of each property. The product is visual and this genuinely works for farmhouses.</span></label></li>
+        <li><label><input type="checkbox"><span>A Google Form as the enquiry channel and a spreadsheet as the entire back office.</span></label></li>
+        <li><label><input type="checkbox"><span>Coordinate every booking over WhatsApp yourself. Take a 10% cut. Collect the advance with a Razorpay or UPI payment link in your own name.</span></label></li>
+        <li><label><input type="checkbox"><span>Call both sides before and after every single booking. Fix problems personally.</span></label></li>
+        <li><label><input type="checkbox"><span>Keep a written problem log — every friction, every question you could not answer, every argument you had to settle. This log <em>is</em> the Phase 1 backlog.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h4>The two tests that shape the roadmap <span class="pill p-new">DECIDES PHASE 3</span></h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span><strong>The add-on test.</strong> After confirming each booking, ask one question: <em>&ldquo;Do you need chairs, sound or a tempo traveller? I can arrange it.&rdquo;</em> Arrange it by hand, take 15%. Record the yes rate.<span class="sub">8 of 20 saying yes means Phase 3 is real and you have found your vendors. 2 of 20 means you have just saved a quarter of engineering.</span></span></label></li>
+        <li><label><input type="checkbox"><span><strong>The slot test.</strong> Count how many owners sell a day picnic and an overnight stay separately on the same date, and at what two prices. This confirms the slot model in Phase 1 and tells you the price gap.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="dont">
+      <h4>Do not build in Phase 0</h4>
+      <ul>
+        <li>Anything. No repo, no schema, no design system, no logo exploration. A domain and an Instagram page is the entire tech stack.</li>
+        <li>The one exception: if you cannot resist writing code, write the <em>seed data importer</em> for the price spreadsheet you are filling. That work survives.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PHASE 1 ===================== -->
+<section class="phaseSec" id="phase1" data-phase="1">
+  <div class="band">
+    <div class="pnum">PHASE 1</div>
+    <h2>The thin SEO site</h2>
+    <div class="dur">6&ndash;8 weeks &middot; Next.js App Router &middot; still mostly manual ops</div>
+    <p class="goal">A real website that ranks, shows honest listings and takes an advance payment — with a spreadsheet still doing the back office. Two things in this phase are permanent and must be right: <strong>the schema</strong> and <strong>the URL tree</strong>. Everything else here is deliberately disposable.</p>
+    <div class="progress">
+      <div class="progress-track"><div class="progress-fill"></div></div>
+      <span class="progress-count">0 / 0</span>
+    </div>
+    <div class="gate"><b>GATE TO EXIT &rarr;</b> 25&ndash;30 completed bookings through the site, landing pages indexed and appearing for long-tail district queries, zero disputes mishandled, and an updated problem log. Do not start Phase 2 from the plan — start it from that log.</div>
+  </div>
+
+  <div class="phaseBody">
+    <div class="group">
+      <h4>Repo &amp; project structure <span class="pill p-lock">LOCK</span></h4>
+      <p class="gnote"><strong>One repo, one Next.js app, two deployables.</strong> Next.js <em>is</em> the backend &mdash; route handlers and Server Actions are your Node layer. A separate backend repo buys nothing here and costs you a shared domain layer, which is the one thing a money flow cannot afford to have two copies of.</p>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span>A single repository, with the Next.js app at the root and a <code>worker/</code> folder beside it. Not two repos, and no monorepo tooling yet.<span class="sub">Revisit only in Phase 4 when the mobile app needs a shared API &mdash; and even then the answer is a monorepo (apps/web, apps/mobile, apps/worker, packages/domain), not two repos. You can migrate to that later painlessly; you cannot un-duplicate business logic later painlessly.</span></span></label></li>
+        <li><label><input type="checkbox"><span><strong>Do not write <code>/api/*</code> endpoints for your own frontend.</strong> Reads go through Server Components querying the database directly; writes go through Server Actions. Route handlers are for <em>external</em> callers only &mdash; the Razorpay webhook, the WhatsApp webhook, cron triggers, and the mobile app in Phase 4.<span class="sub">This is the habit that costs the most coming from a React + Node split. A controller to service to JSON to useEffect round trip for your own listing page is shipped JavaScript, a loading state, and a page Google cannot read &mdash; which defeats the reason you chose Next.js.</span></span></label></li>
+        <li><label><input type="checkbox"><span>Put every business rule in <code>lib/domain/</code> as plain functions &mdash; pricing, cancellation refund calculation, availability locking, commission split. Imported by the checkout page, the webhook handler <em>and</em> the worker.<span class="sub">The refund calculator must be one function. A refund rule that disagrees with itself across two codebases is the one bug a money flow cannot survive.</span></span></label></li>
+        <li><label><input type="checkbox"><span>A <code>worker/</code> process (BullMQ + Redis) for everything Next.js cannot hold open: booking-expiry timers, deposit auto-refund after the inspection window, payout retries, the 30-day freshness auto-hide, WhatsApp nudges.<span class="sub">Deployed separately &mdash; Next.js on Vercel, worker on Railway, Render or a small VM &mdash; but versioned in the same repo and importing the same lib/domain and lib/db.</span></span></label></li>
+        <li><label><input type="checkbox"><span>Route groups from the start: <code>(marketing)</code> for indexable pages, <code>(app)</code> for Customer booking and chat, <code>(partner)</code> for the Client side, <code>(admin)</code> for Super Admin.</span></label></li>
+      </ul>
+      <div class="schema">
+<pre>rentra/
+  app/
+    (marketing)/            <span class="c"># indexed: home, city, category, area, listing</span>
+    (app)/                  <span class="c"># Customer: booking, chat, trips &mdash; noindex</span>
+    (partner)/              <span class="c"># Client: listings, calendar, earnings &mdash; noindex</span>
+    (admin)/                <span class="c"># Super Admin &mdash; separate auth, noindex</span>
+    api/webhooks/razorpay/route.js
+    api/webhooks/whatsapp/route.js
+    sitemap.js  robots.js
+  lib/
+    db/                     <span class="c"># drizzle schema + client</span>
+    <span class="k">domain/</span>                <span class="c"># pricing, refunds, availability lock, commission</span>
+    payments/  whatsapp/  kyc/
+  worker/
+    index.js                <span class="c"># BullMQ consumers + cron</span>
+  drizzle/                  <span class="c"># migrations</span>
+  jsconfig.json
+  package.json              <span class="c"># one</span></pre>
+      </div>
+    </div>
+
+    <div class="group">
+      <h4>Foundation &amp; data model <span class="pill p-lock">LOCK</span></h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span>Next.js (App Router) + JavaScript + Tailwind. Server Components by default; <code>"use client"</code> only where interaction demands it.</span></label></li>
+        <li><label><input type="checkbox"><span>Plain JavaScript, with two guardrails that matter more than compile-time types in a payments app: a <code>jsconfig.json</code> with <code>checkJs</code> and JSDoc on the domain functions for editor autocomplete, and <strong>Zod validation at every boundary</strong> &mdash; webhook payloads, form input, query params.<span class="sub">A Razorpay webhook is untrusted input arriving at your money flow. Runtime validation is what protects it; a type annotation would not have.</span></span></label></li>
+        <li><label><input type="checkbox"><span>PostgreSQL with PostGIS, hosted in an Indian region. PostGIS handles &ldquo;within 25 km of me&rdquo; natively and you will want it in week three.</span></label></li>
+        <li><label><input type="checkbox"><span>Drizzle or Prisma for migrations. Prefer Drizzle if you expect raw PostGIS queries, which you do.</span></label></li>
+        <li><label><input type="checkbox"><span><strong>Write the <code>rentable</code> schema from Foundations exactly as specified</strong> — <code>form</code>, <code>fulfilment</code>, <code>rental_unit</code>, <code>total_units</code>. Nothing named <code>properties</code>. Nothing named <code>calendar</code>.</span></label></li>
+        <li><label><input type="checkbox"><span><strong>Slot-based availability from the first migration:</strong> <code>availability(rentable_id, date, slot)</code> with <code>slot ∈ {day, night, full_day}</code>, and a unique constraint on that triple.<span class="sub">Farmhouses genuinely sell a 9am–6pm day picnic and a 6pm–10am overnight to different customers at different prices on the same Saturday. A day-granular calendar quietly halves every owner's earnings and your commission — and it is the hardest thing in this document to retrofit, because it changes the availability primary key.</span></span></label></li>
+        <li><label><input type="checkbox"><span>Create the <code>payout</code> table with <code>tds_194o</code> and <code>gst_tcs</code> columns now, set to zero, pending your CA's advice.</span></label></li>
+        <li><label><input type="checkbox"><span>Seed cities, areas and categories as real tables — they drive both search and the SEO route tree, so they cannot be hardcoded strings.</span></label></li>
+        <li><label><input type="checkbox"><span>A <code>redirects</code> table from day one, so a changed area or listing slug 301s instead of 404ing.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h4>SEO architecture <span class="pill p-lock">LOCK</span> <span class="pill p-seo">SEO</span></h4>
+      <p class="gnote">Build the machine, not the pages. Every item here is structural and each one is painful to add after launch.</p>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span>Implement the exact route tree from Foundations, including the route groups that separate indexable marketing routes from the dynamic app.</span></label></li>
+        <li><label><input type="checkbox"><span>Listing URLs as <code>/listing/[slug]-[id]</code> so a title edit never breaks a link, with a 301 on slug drift.</span></label></li>
+        <li><label><input type="checkbox"><span><code>generateStaticParams</code> + ISR on every city, category, area and intent page.</span></label></li>
+        <li><label><input type="checkbox"><span><code>generateMetadata</code> on every route, with real data in the title and description — listing counts, price bands, area names.</span></label></li>
+        <li><label><input type="checkbox"><span>JSON-LD: <code>LodgingBusiness</code>/<code>Product</code> + <code>Offer</code> on listings, <code>BreadcrumbList</code> sitewide, <code>FAQPage</code> on landing pages, <code>Organization</code> on home. No <code>AggregateRating</code> until real reviews exist.</span></label></li>
+        <li><label><input type="checkbox"><span><code>app/sitemap.ts</code> generated from the database, and <code>app/robots.ts</code>.</span></label></li>
+        <li><label><input type="checkbox"><span>Dynamic OG images via <code>opengraph-image.tsx</code>, carrying price and the next available date.<span class="sub">This is your real storefront — a forwarded WhatsApp card is seen by more people than your homepage. "₹8,000 · Sat 14 Feb available" converts; "Rentra — book verified farmhouses" does not.</span></span></label></li>
+        <li><label><input type="checkbox"><span><strong>The thin-page guard:</strong> auto-<code>noindex</code> any landing page with fewer than three live listings, auto-flip to indexed when it crosses. Enforced in <code>generateMetadata</code>, not by hand.</span></label></li>
+        <li><label><input type="checkbox"><span><code>noindex, follow</code> plus a canonical to the parent on all dated and filtered search results.</span></label></li>
+        <li><label><input type="checkbox"><span>Delisted listings 301 to their area page. Never a 404 wall.</span></label></li>
+        <li><label><input type="checkbox"><span>i18n scaffolding with one locale loaded, hreflang alternates wired, ready for the owner-side language in Phase 2.</span></label></li>
+        <li><label><input type="checkbox"><span><code>next/font</code>, <code>next/image</code> with AVIF/WebP and explicit dimensions, <code>priority</code> on hero images only. Set a Core Web Vitals budget in CI and fail the build on regression.</span></label></li>
+        <li><label><input type="checkbox"><span>Google Search Console verified, sitemap submitted, and a weekly look at Performance and Coverage. Watch indexed-page count, not traffic, for the first three months.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h4>Seeker-facing</h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span><strong>Search works with no login.</strong> Never gate discovery behind a signup wall — that is exactly the behaviour people hate about existing portals.</span></label></li>
+        <li><label><input type="checkbox"><span>Search by area, date, slot, guest count and price. Postgres full-text + PostGIS is more than enough at this scale; do not deploy Elasticsearch for 60 listings.</span></label></li>
+        <li><label><input type="checkbox"><span>List view and map view. Sort by price, distance, rating and recently verified.</span></label></li>
+        <li><label><input type="checkbox"><span>Listing detail page: gallery, walkthrough video, amenities, house rules, capacity, <strong>approximate location as an area circle rather than an exact pin</strong>, owner badge, full price breakdown, cancellation policy stated in rupees and days.</span></label></li>
+        <li><label><input type="checkbox"><span>Enquiry form that hands off to WhatsApp. No in-app chat this phase — you are the chat.</span></label></li>
+        <li><label><input type="checkbox"><span>Shareable listing links with a live WhatsApp preview card.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h4>Owner-facing &mdash; deliberately minimal</h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span>No owner self-serve listing builder yet. You create every listing from the back office. Self-serve signup will not produce inventory at this stage and building it wastes the phase.</span></label></li>
+        <li><label><input type="checkbox"><span>A one-tap availability block over WhatsApp: a daily message reading <em>&ldquo;Sat 14th is open. Reply BLOCK to close it.&rdquo;</em><span class="sub">Owners will keep taking offline bookings for years. Without an effortless block, double-booking is guaranteed — and "the platform booking overrides the offline one" is not prevention, it is choosing which customer to destroy.</span></span></label></li>
+        <li><label><input type="checkbox"><span>Manual KYC over WhatsApp: ID plus one ownership document — electricity bill, property tax receipt, 7/12 extract, index-II, or a signed authorisation letter — name-matched by eye. Store the result, not the raw ID image.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h4>Money <span class="pill p-block">BLOCKER</span></h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span><strong>Call Razorpay and Cashfree before designing the money flow</strong> and ask one specific question: <em>what is the maximum period you will hold a split payment before mandatory settlement, for a rental marketplace?</em><span class="sub">A farmhouse booked in August for Diwali means holding funds 70+ days. Aggregators operate under RBI rules with limits on un-settled funds, and those limits are commercial terms you negotiate, not a documented API feature. Design the flow after you have the answer.</span></span></label></li>
+        <li><label><input type="checkbox"><span><strong>Collect an advance, not the full amount</strong> — 20&ndash;30% of rent <em>plus your entire platform fee</em>, at booking.<span class="sub">Indian rental convention is an advance with the balance on arrival. Asking a first-time visitor to a brand-new site for ₹11,640 up front will send a large share of them to the owner's phone instead. Taking your full fee in the advance means your revenue is never at risk.</span></span></label></li>
+        <li><label><input type="checkbox"><span>Offer the balance as either <em>online before check-in</em> (nudge this) or <em>cash on arrival, confirmed in the app by both sides</em>. Record cash rather than forbidding it — fighting cash loses, instrumenting it wins.</span></label></li>
+        <li><label><input type="checkbox"><span>UPI, card and netbanking. Prefer UPI for high-value bookings: no chargeback mechanism is a genuine risk advantage for a young marketplace.</span></label></li>
+        <li><label><input type="checkbox"><span>Show the price breakdown in rupees, always, with brokerage stated as zero. That line is the whole pitch.</span></label></li>
+        <li><label><input type="checkbox"><span><strong>Never hold customer money in your own current account.</strong> Use the aggregator's split-payment and hold mechanism from the first transaction — retrofitting this is painful and the grey zone is not one to sit in.</span></label></li>
+      </ul>
+      <div class="screen">
+        <div class="head">CHECKOUT — PHASE 1 SHAPE</div>
+        <div class="row"><span>Farmhouse &middot; overnight slot &middot; Sat</span><span>&#8377;8,000</span></div>
+        <div class="row"><span>Platform fee (8%)</span><span>&#8377;640</span></div>
+        <div class="row"><span>Advance to confirm now (25% + fee)</span><span>&#8377;2,640</span></div>
+        <div class="row"><span>Balance &middot; online or cash at check-in</span><span>&#8377;6,000</span></div>
+        <div class="row"><span>Refundable deposit &middot; collected by owner</span><span>&#8377;3,000</span></div>
+        <div class="row"><span>Brokerage</span><span class="good">&#8377;0</span></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <h4>Ops &amp; instrumentation</h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span>A spreadsheet remains the admin panel. Add one password-protected internal page only for things a sheet genuinely cannot do.</span></label></li>
+        <li><label><input type="checkbox"><span>WhatsApp Business API through a provider (Gupshup, Interakt or AiSensy) for booking confirmations and reminders; SMS for OTP.<span class="sub">Template approval takes days and each language is approved separately — start this early, not the week before launch.</span></span></label></li>
+        <li><label><input type="checkbox"><span>Reverse-image search every uploaded photo before publishing, and strip phone numbers, Instagram handles and the board on the gate in photo #4.</span></label></li>
+        <li><label><input type="checkbox"><span>Analytics on the funnel — search &rarr; listing view &rarr; enquiry &rarr; booking request &rarr; confirmed — not page views. PostHog or Mixpanel, plus Sentry.</span></label></li>
+        <li><label><input type="checkbox"><span>Publish a real privacy policy, terms of service positioning you clearly as an <strong>intermediary and not the operator of any property</strong>, and a named grievance officer with contact details.</span></label></li>
+        <li><label><input type="checkbox"><span>Auto-hide any listing whose availability has not been confirmed in 30 days.<span class="sub">A seeker who books three properties and finds all three unavailable never comes back. Stale listings kill rental marketplaces more quietly than anything else on the risk list.</span></span></label></li>
+      </ul>
+    </div>
+
+    <div class="dont">
+      <h4>Do not build in Phase 1</h4>
+      <ul>
+        <li><strong>Masked chat.</strong> You are the chat. Build it once you have seen what people actually ask.</li>
+        <li><strong>Escrow, the dispute engine, the trust-score algorithm, automated payouts.</strong> All of it after you have watched 30 bookings by hand.</li>
+        <li><strong>An owner self-serve listing builder.</strong> Inventory comes from your feet in Phase 1, not from a signup form.</li>
+        <li><strong>A mobile app.</strong> Your audience arrives through a forwarded WhatsApp link and opens it in a browser.</li>
+        <li><strong>A composite trust score.</strong> Show the raw signals — completed bookings, response time, cancellations, rating. They are more convincing precisely because nobody has to trust your weighting.</li>
+        <li><strong>Anything for goods, vehicles or flats.</strong> The schema leaves room for them. That is the entire preparation required.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PHASE 2 ===================== -->
+<section class="phaseSec" id="phase2" data-phase="2">
+  <div class="band">
+    <div class="pnum">PHASE 2</div>
+    <h2>The real MVP</h2>
+    <div class="dur">3&ndash;4 months &middot; one category, one district, 80&ndash;120 live listings</div>
+    <p class="goal">Turn the manual operation into a product: owners onboard themselves, money moves automatically, disputes have a process, and the trust machinery that lets a stranger send &#8377;8,000 online actually exists. Build this phase from your Phase 1 problem log, using the list below as the checklist — not the other way round.</p>
+    <div class="progress">
+      <div class="progress-track"><div class="progress-fill"></div></div>
+      <span class="progress-count">0 / 0</span>
+    </div>
+    <div class="gate"><b>GATE TO EXIT &rarr;</b> Owners signing up without you calling them, repeat seekers inside 90 days, owner-side cancellation under 2%, dispute rate under 3 per 100 bookings, and 90%+ of listings confirmed fresh within 30 days.</div>
+  </div>
+
+  <div class="phaseBody">
+    <div class="group">
+      <h4>Identity &amp; trust</h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span>Phone OTP login and Google login, with <strong>separate entry points per role</strong> — <code>/login</code> for Customers, <code>/partner/login</code> for Clients. One account carries one role, fixed at signup.<span class="sub">Uniqueness on <code>(phone, role)</code>, not on phone alone, so the same number can hold one Customer and one Client account. Link them by <code>person_id</code> so a completed KYC is never repeated.</span></span></label></li>
+        <li><label><input type="checkbox"><span><strong>Super Admin in its own table with its own auth</strong> — email + password + TOTP, no self-signup, no publicly reachable login route, and never a <code>role</code> value on the user table.<span class="sub">If admin is a row alongside 30,000 customers, one privilege-escalation bug hands over every payout and refund control you have.</span></span></label></li>
+        <li><label><input type="checkbox"><span>Owner KYC through a provider (DigiLocker, Signzy, HyperVerge, IDfy or Cashfree Verification): Aadhaar or PAN plus selfie match. No verified ID, no listing, ever.<span class="sub">Store verification results and vendor reference IDs. Never store raw Aadhaar images yourself.</span></span></label></li>
+        <li><label><input type="checkbox"><span>Ownership proof upload with name-matching against KYC, and an admin approval queue.<span class="sub">This single filter is what keeps brokers from posting as owners, and it is the distinguishing difference from every existing Indian portal. Display "Owner verified" versus "Authorised manager" honestly.</span></span></label></li>
+        <li><label><input type="checkbox"><span>Seeker KYC required above a booking-value threshold (around &#8377;5,000). This is also what makes an owner comfortable handing a property to a stranger.</span></label></li>
+        <li><label><input type="checkbox"><span>Verification badges: Verified, Physically Verified, Fast Responder. Show the raw signals beside them, not a computed score.</span></label></li>
+        <li><label><input type="checkbox"><span>Video verification as the cheap default — a scheduled live call where the owner walks the property while you screen-record. Roughly 70% as convincing as a physical visit, free and remote. Reserve physical visits for high-value listings and dense clusters.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h4>Owner onboarding &mdash; where you will actually win or lose <span class="pill p-block">BLOCKER</span></h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span><strong>WhatsApp-first listing intake with an AI draft.</strong> The owner sends 8 photos and a voice note in his own language to your WhatsApp number. You transcribe the note, run the photos through a vision model, draft title, description, amenities and a suggested price, and reply with one message: <em>&ldquo;Is this right? Reply 1 to publish, 2 to change the price.&rdquo;</em> Ops fixes the map pin.<span class="sub">This is the highest-leverage feature in the entire plan. A 55-year-old farm owner in Kamrej will not complete a web form with map pins, amenity checkboxes, house rules, a cancellation-tier selector and a pricing matrix. Ever. Meet him in the app he already uses.</span></span></label></li>
+        <li><label><input type="checkbox"><span><strong>The entire owner experience in the district's language</strong> — Gujarati, Hindi or Marathi — with voice input everywhere text is expected. The seeker side can survive in English; the owner side cannot.</span></label></li>
+        <li><label><input type="checkbox"><span>A web listing builder as the secondary path, for owners who want it: category, sub-type, map pin with hidden exact address, 6&ndash;15 photos with auto-compression, walkthrough video, capacity, amenities, house rules, cancellation tier, pricing, deposit, availability.</span></label></li>
+        <li><label><input type="checkbox"><span><strong>Price recommendation during listing creation</strong>, pre-filled: <em>&ldquo;Farmhouses with a pool near Kamrej get &#8377;9,500 on Saturday nights and &#8377;5,000 on weekdays.&rdquo;</em><span class="sub">Owners write "price on request" because they genuinely do not know what to ask, and a wrong number in public feels worse than no number. Your Phase 0 spreadsheet is the pricing engine until you have real data.</span></span></label></li>
+        <li><label><input type="checkbox"><span>Weekday and off-season price suggestions, to attack seasonality directly.</span></label></li>
+        <li><label><input type="checkbox"><span><strong>Staff sub-accounts under the owner account</strong> — phone login, scoped permissions: can check guests in, can capture condition photos, cannot see earnings, cannot change prices.<span class="sub">The owner lives in the city and visits on Sundays. The caretaker unlocks the gate, shows guests around and takes the cash. Every operational step this plan assigns to the owner is physically done by him — and without an account he simply will not comply with the photo requirement your whole dispute process rests on. Build this primitive once: it serves the caretaker now and the vendor's delivery driver in Phase 3.</span></span></label></li>
+        <li><label><input type="checkbox"><span>Owner dashboard, simple version: earnings, upcoming bookings, occupancy, views versus enquiries versus bookings, payout history with visible status so nobody has to call and ask.</span></label></li>
+        <li><label><input type="checkbox"><span>One-tap calendar block, bulk block, and a WhatsApp freshness nudge with one-tap reactivate.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h4>Booking engine</h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span>Availability lock enforced <strong>at the database level</strong>, not in the UI. A farmhouse double-booked on a Saturday is an unrecoverable trust failure.</span></label></li>
+        <li><label><input type="checkbox"><span>Request &rarr; accept or decline, with an expiry timer (around 12 hours). On expiry, auto-refund in full and no questions asked. Repeated declines and expiries lower ranking.</span></label></li>
+        <li><label><input type="checkbox"><span>Booking voucher with a check-in code; the seven-state machine from the schema.</span></label></li>
+        <li><label><input type="checkbox"><span>Pricing engine: base per slot, weekend and peak-season tiers, extra-guest charge, extra-hours charge for overstay, minimum duration, deposit amount.</span></label></li>
+        <li><label><input type="checkbox"><span><strong>Contact details unlock at the moment of confirmation, not one minute earlier</strong> — then both sides get phone numbers, exact address and map directions. Contact stays visible for 7 days after check-out, then hides again.</span></label></li>
+        <li><label><input type="checkbox"><span><strong>Group split-pay.</strong> The booker enters a headcount; the platform generates per-person UPI collect links to drop into the group's WhatsApp; the booking confirms when the advance threshold is met.<span class="sub">A day picnic is eight friends splitting ₹8,000, and one person chasing the other seven is exactly the friction that pushes the whole transaction to cash. It is also a customer acquisition channel disguised as a payment feature — everyone in that group now has your link in their chat history.</span></span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h4>Masked chat &amp; anti-bypass</h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span>In-platform messaging with contact-pattern filtering: 10-digit numbers, numbers spelled in words, numbers with spaces or dashes, emails, Instagram and WhatsApp handles.<span class="sub">Show the sender "Contact details are hidden until booking" rather than deleting silently — silent deletion makes people think the platform is broken.</span></span></label></li>
+        <li><label><input type="checkbox"><span>Block image and file sharing in pre-booking chat, or OCR-scan images. A screenshot of a visiting card is the most common workaround.</span></label></li>
+        <li><label><input type="checkbox"><span>Canned questions to reduce typing, and an admin flag queue where the system flags and a human decides.</span></label></li>
+        <li><label><input type="checkbox"><span>Escalating consequences: two strikes to a warning, three to de-ranking or suspension. Throttle the account, not just the message.</span></label></li>
+        <li><label><input type="checkbox"><span><strong>Design the incentive, not only the wall:</strong> a lower commission slab as an owner's completed bookings rise, and a small credit for repeat seekers. Both sides then lose something real by going off-platform.<span class="sub">Be realistic — once two people have met at a property, nothing technical stops them dealing directly next time. Enforcement buys you the first transaction; value keeps them. Keep commission at 8–12%, not 25%. In a marketplace, a high commission does not increase revenue, it increases leakage.</span></span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h4>Money, automated</h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span>Split payments through Razorpay Route or Cashfree Easy Split: commission retained automatically, owner's share settled to a verified bank account or UPI on T+1 or T+2. Automatic, auditable, no manual transfers.</span></label></li>
+        <li><label><input type="checkbox"><span>Funds held until the seeker has actually checked in. This protects against &ldquo;paid, but the gate was locked.&rdquo;</span></label></li>
+        <li><label><input type="checkbox"><span><strong>Deposit or damage waiver, offered as a choice at checkout:</strong> block &#8377;3,000 refundable, or pay a &#8377;249 non-refundable waiver covering up to &#8377;5,000 of accidental damage.<span class="sub">A ₹3,000 hold is the second-biggest checkout drop-off after the total itself, and it generates your entire refund-and-dispute ops load. Most people will pick the ₹249. Get the terms drafted by a lawyer and cap the cover explicitly — self-underwriting is a contractual liability on your books until you move it to a licensed insurance partner.</span></span></label></li>
+        <li><label><input type="checkbox"><span>Deposit auto-refund to the original payment method when the inspection window closes with no claim (24&ndash;48 hours after check-out).</span></label></li>
+        <li><label><input type="checkbox"><span>Cancellation engine computing refunds automatically from the listing's tier — never negotiated in chat. Owner-side cancellation penalties, and the calendar auto-reopens. See the tiers in the appendix.</span></label></li>
+        <li><label><input type="checkbox"><span>GST-compliant invoice for your commission; the policy shown at checkout must be exactly the policy the code applies.</span></label></li>
+        <li><label><input type="checkbox"><span>TDS under section 194-O and GST TCS wired into the payout pipeline, with your CA's confirmed rates and the quarterly and monthly filings scheduled.<span class="sub">194-O applies from your first commercial payout, not from a turnover threshold, and the rate was reduced to 0.1% with effect from October 2024. A higher rate applies where the owner has no PAN. Confirm all of it with a CA — but build the fields now.</span></span></label></li>
+        <li><label><input type="checkbox"><span><strong>Fraud controls on the first booking:</strong> velocity limits per device and per card, a value ceiling on a first-ever booking from a new account, strict KYC enforcement above the threshold on card payments, and no same-day payout on a new owner's first booking.<span class="sub">Stolen card in, payout out, chargeback lands 40 days later — you eat both sides.</span></span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h4>Proof, reviews &amp; disputes</h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span><strong>Condition proof capture: in-app camera only, gallery blocked</strong>, timestamped and geotagged, at check-in and check-out, with a side-by-side comparison view.<span class="sub">This one feature kills most "it was already broken" arguments before they begin, and the check-in and check-out sets decide most disputes on their own.</span></span></label></li>
+        <li><label><input type="checkbox"><span>On-arrival complaint window (around 60 minutes) with photos, resolved platform-side instead of argued on the spot. A material mismatch is treated as an owner cancellation: full refund, owner penalised, listing reviewed.</span></label></li>
+        <li><label><input type="checkbox"><span>Two-way reviews, released only when both sides submit or after 14 days. Sub-scores for cleanliness, listing accuracy, value and owner behaviour.</span></label></li>
+        <li><label><input type="checkbox"><span>Dispute flow: claim with evidence, automatic deposit freeze, fixed 48-hour evidence window, admin decision, and the same written reasoning shown to both sides.<span class="sub">Transparency here is what stops a dispute becoming a public complaint on social media. Write down the reasoning for every case — after 20 cases you will see which rules can be automated.</span></span></label></li>
+        <li><label><input type="checkbox"><span><strong>Instant-rebook guarantee:</strong> if an owner cancels a confirmed booking, ops finds a comparable property in the same belt and Rentra pays the price difference up to a cap.<span class="sub">Penalties punish the owner but do nothing for the family with no venue on Saturday morning. This costs you perhaps four times a year and it is the best story your brand will ever have — the one thing a broker categorically cannot offer.</span></span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h4>Demand engine</h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span><strong>Requirement broadcast.</strong> A seeker posts the need — <em>&ldquo;14 Feb, 30 people, under &#8377;15,000&rdquo;</em> — it goes to matching owners on WhatsApp, owners respond with a price, the seeker picks.<span class="sub">Search assumes supply already exists in the shape the seeker wants; in month three it will not, and a seeker who searches and sees nothing does not return. This is already how Indians rent things in society and Facebook groups, so the behaviour needs no teaching — and it doubles as your supply-gap map. It works best precisely when your inventory is thinnest.</span></span></label></li>
+        <li><label><input type="checkbox"><span><strong>Corporate and production-house accounts:</strong> GST invoice in the company's name, a purchase-order reference field, a named contact and payment terms.<span class="sub">They book weekdays — exactly the seasonality hole — pay higher rates, do not haggle and book repeatedly. An ad agency booking four farmhouses a month for shoots is worth more than forty families and costs almost nothing to serve. Get one and their production circle follows.</span></span></label></li>
+        <li><label><input type="checkbox"><span>Scale the programmatic SEO machine: a real page per area &times; category &times; intent, each with live listings, local content, FAQ blocks and internal links to sibling areas.</span></label></li>
+        <li><label><input type="checkbox"><span>Referral rewards — owner refers owner, seeker gets credit — plus a public Top Host badge.<span class="sub">Farmhouse owners in a district know each other. One owner earning ₹40,000 a month through you brings the next three for free. This flywheel is the actual product; the website is the machinery that lets it run without you.</span></span></label></li>
+        <li><label><input type="checkbox"><span>Local Instagram reels of every property, city Facebook groups, and Google search ads on &ldquo;farmhouse on rent in [city]&rdquo;. Instagram plus SEO will outperform paid search early.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h4>Admin panel &mdash; built last, on purpose</h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span>Build it only after 20 manual KYC reviews, 20 manual disputes and 20 manual payouts. The rules you would have coded in month one are wrong, and doing it badly by hand is the only way to find out.</span></label></li>
+        <li><label><input type="checkbox"><span>Queues for KYC, listing moderation, verification assignment and chat flags; a booking browser; dispute cases; payout and refund controls; basic funnel analytics.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="dont">
+      <h4>Do not build in Phase 2</h4>
+      <ul>
+        <li><strong>Anything for goods, vehicles or flats.</strong> Phase 3 is gated on the attach-rate evidence, not on enthusiasm.</li>
+        <li><strong>A composite trust score.</strong> Still show raw signals. Compute a score when you have enough history for the weights to mean something.</li>
+        <li><strong>A mobile app.</strong> Mobile web camera capture is good enough for condition proof until you have real volume.</li>
+        <li><strong>Masked calling.</strong> Proxy numbers are Phase 3; masked chat covers you until then.</li>
+        <li><strong>Featured and boosted listings.</strong> Meaningless until listing density makes ranking worth paying for.</li>
+        <li><strong>A second city.</strong> Depth in one belt beats thin coverage across five, and a seeker who searches your site should find <em>every</em> farmhouse in it.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PHASE 3 ===================== -->
+<section class="phaseSec" id="phase3" data-phase="3">
+  <div class="band later">
+    <div class="pnum">PHASE 3</div>
+    <h2>Attach goods, and open the second region</h2>
+    <div class="dur">4&ndash;6 months &middot; Mode C through vendor businesses &middot; places product replicated</div>
+    <p class="goal">Enter goods rental the cheap way — by selling into bookings you already own, not by cold-starting a category. Someone who has just booked a farmhouse for a 60-person function needs chairs, tents, sound, a generator and a tempo traveller, and is arranging all of it on WhatsApp right now. You are standing in the middle of that conversation holding a confirmed booking with a date, a headcount and a location.</p>
+    <div class="progress">
+      <div class="progress-track"><div class="progress-fill"></div></div>
+      <span class="progress-count">0 / 0</span>
+    </div>
+    <div class="gate"><b>GATE TO ENTER &rarr;</b> Phase 0's add-on test came back positive (roughly 8 in 20). <b>GATE TO EXIT &rarr;</b> 40%+ attach rate on place bookings, non-return under 0.5%, fulfilment SLA above 95%, and a second region reaching profitability faster than the first — that ratio is what proves the model repeats.</div>
+  </div>
+
+  <div class="phaseBody">
+    <div class="group">
+      <h4>Why add-ons and not flats &mdash; the arithmetic</h4>
+      <p class="gnote">Part 1's ladder expands by asking <em>what else is rentable?</em> Each rung is then a fresh cold-start. The better question is <em>what does the customer I already have need in the next ten minutes?</em></p>
+      <div class="screen">
+        <div class="head">ONE BOOKING, WITH ADD-ONS ATTACHED</div>
+        <div class="row"><span>Farmhouse &middot; 1 night &middot; Saturday</span><span>&#8377;8,000</span></div>
+        <div class="row"><span>Commission at 10%</span><span>&#8377;800</span></div>
+        <div class="row"><span>60 chairs + 8 tables &middot; local tent-house</span><span>&#8377;2,400</span></div>
+        <div class="row"><span>Sound system with operator &middot; 5 hrs</span><span>&#8377;3,500</span></div>
+        <div class="row"><span>Add-on commission at 15%</span><span class="good">&#8377;885</span></div>
+        <div class="row"><span>Revenue from this one booking</span><span>&#8377;1,685</span></div>
+        <div class="row"><span>Extra customer acquisition cost</span><span class="good">&#8377;0</span></div>
+      </div>
+      <p class="gnote" style="margin-top:0.9rem;">Add-on commission can run higher than the place commission — the vendor is getting demand for free and has no discovery cost — and it lands on a customer you have already paid to acquire. Break-even of roughly 220 bookings a month for &#8377;1 lakh becomes about <strong>105 bookings a month at a 50% attach rate.</strong> That single change is the difference between needing a whole second district and not.</p>
+    </div>
+
+    <div class="group">
+      <h4>Vendor supply &mdash; businesses, not individuals <span class="pill p-block">CRITICAL</span></h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span><strong>Recruit existing rental businesses, never peer-to-peer individuals:</strong> tent-houses with 800 chairs and shamiana, sound and DJ suppliers, generator hire shops, mandap decorators, catering equipment suppliers, camera rental stores.<span class="sub">They already price by the day, already take deposits, already deliver, already handle damage, already have a van and staff. What they do not have is discovery — they live on the caretaker's phone recommendation and a JustDial listing from 2016. And an individual lending their own camera to a stranger through you has exactly one bad outcome, which lands on a real person who trusted you.</span></span></label></li>
+        <li><label><input type="checkbox"><span>Vendor account type: GSTIN, firm PAN, shop photo, proprietor KYC, and purchase invoices as the ownership proof for the inventory.</span></label></li>
+        <li><label><input type="checkbox"><span>Multi-SKU inventory with unit counts and stock arithmetic, using the <code>total_units</code> and <code>availability.units_available</code> columns already in the schema.</span></label></li>
+        <li><label><input type="checkbox"><span>Per-unit-per-day pricing with quantity slab discounts, plus the <code>requires_operator</code> flag and an operator charge.</span></label></li>
+        <li><label><input type="checkbox"><span>Vendor staff logins reusing the Phase 2 staff sub-account primitive — counter staff and delivery driver, scoped.</span></label></li>
+        <li><label><input type="checkbox"><span>Vendor GST tax invoice to the customer, distinct from your commission invoice to the vendor.</span></label></li>
+        <li><label><input type="checkbox"><span>Verification for vendors is different: one visit to the godown to confirm the business and inventory volume exist, then ongoing verification through <strong>fulfilment performance</strong> — did it arrive, on time, in the condition promised. Reliability data replaces the site visit after the first check.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h4>Mode C mechanics</h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span>The attach flow: after a place booking is confirmed, offer matching add-ons filtered by date, headcount and the property's location and rules.</span></label></li>
+        <li><label><input type="checkbox"><span>Fulfilment states on the booking — <code>delivered</code>, <code>handed_over</code>, <code>returned</code> — reusing the state machine unchanged from Phase 1.</span></label></li>
+        <li><label><input type="checkbox"><span><strong>The handover challan, generated automatically at handover:</strong> item, serial number, accessory checklist, condition photos both directions, the renter's verified name and address, return date, and both signatures captured in-app. Both parties get a PDF.<span class="sub">This is the feature that makes Mode C possible at all. If a rented item is not returned, the owner's remedy is a criminal complaint for breach of trust — and whether the police register it depends almost entirely on whether a clean document shows this specific item, with this serial, handed to this identified person, for return on that date, signed for. A chat log will not do it. It also doubles as the delivery challan the movement of goods requires. About a week to build; everything else in Mode C is inventory arithmetic.</span></span></label></li>
+        <li><label><input type="checkbox"><span>Scale seeker verification to asset value: KYC plus a <strong>verified current address</strong> plus a second contact for high-value items. A &#8377;5,000 deposit against a &#8377;90,000 camera is decorative.</span></label></li>
+        <li><label><input type="checkbox"><span>Goods-in-transit and equipment breakdown cover through a broker. Different products from different desks than the liability cover a property needs — talk to them before this phase, not during it.</span></label></li>
+        <li><label><input type="checkbox"><span>Logistics partner role, only where a vendor genuinely cannot deliver. Start with the vendor's own van.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h4>Group transport &mdash; the second movable rung</h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span>Tempo traveller and bus <strong>with driver</strong>, to reach the property just booked — onboarded as licensed operators, never as private vehicle owners.<span class="sub">A privately registered vehicle cannot legally be rented out in India. Self-drive requires the vehicle to be registered for that use with commercial insurance. The operator holds the permit, the policy and the driver — which is exactly why "tempo with driver" is a far easier rung than a self-drive car.</span></span></label></li>
+        <li><label><input type="checkbox"><span>Driver licence and background verification, and a declaration on hypothecation for financed vehicles.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h4>Second region, and platform maturity</h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span>Open region two on the <em>places</em> product only, replaying Phase 0 and Phase 1 there while Phase 3 goods run in region one. Measure how much faster it reaches profitability.</span></label></li>
+        <li><label><input type="checkbox"><span>Masked calling through Exotel, Knowlarity or Twilio proxy numbers, with call recordings as dispute evidence.</span></label></li>
+        <li><label><input type="checkbox"><span>Move to Meilisearch or Typesense once you are past a few thousand listings — and not before.</span></label></li>
+        <li><label><input type="checkbox"><span>Professional photography as a paid service for owners. It improves your inventory quality too, so it pays twice.</span></label></li>
+        <li><label><input type="checkbox"><span>Extend the SEO route tree to the add-on categories: <code>/surat/chairs-on-rent</code>, <code>/surat/sound-system-on-rent</code>. Same machine, new category rows.</span></label></li>
+        <li><label><input type="checkbox"><span>One paid CA hour on GST and TDS treatment for <em>renting goods specifically</em> — generally a supply of service at 18%, treated differently when an operator is included. Do not assume the farmhouse treatment carries over to chairs.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="dont">
+      <h4>Do not build in Phase 3</h4>
+      <ul>
+        <li><strong>A category-agnostic homepage.</strong> The schema is category-neutral; the front page is not. Add-ons appear inside a booking flow, not as a second shop window.</li>
+        <li><strong>Peer-to-peer goods rental.</strong> Businesses or nothing.</li>
+        <li><strong>Self-drive vehicles.</strong> Only in Phase 4, and only if a licensed-operator supply base actually exists in your district.</li>
+        <li><strong>Mode D subscriptions.</strong> Furniture and laptop rental on a monthly mandate is asset-heavy lending with depreciation and credit underwriting. Different company, different money.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PHASE 4 ===================== -->
+<section class="phaseSec" id="phase4" data-phase="4">
+  <div class="band later">
+    <div class="pnum">PHASE 4</div>
+    <h2>The wide product</h2>
+    <div class="dur">12 months+ &middot; standalone goods demand, Mode B, mobile app</div>
+    <p class="goal">Only now does the platform look like the &ldquo;rent anything&rdquo; idea you started with — and only because every rung underneath it is carrying its own weight. This is the phase where Mode B finally opens, deliberately last, because it is the quadrant with the weakest retention and the hardest revenue capture on the entire ladder.</p>
+    <div class="progress">
+      <div class="progress-track"><div class="progress-fill"></div></div>
+      <span class="progress-count">0 / 0</span>
+    </div>
+    <div class="gate"><b>GATE TO ENTER &rarr;</b> Two regions profitable on places, a working goods attach business, and dispute rules you can automate because you have written the reasoning for a hundred real cases.</div>
+  </div>
+
+  <div class="phaseBody">
+    <div class="group">
+      <h4>Standalone goods demand</h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span>Camera, drone and lens rental; power tools; event lighting — the first goods demand you must acquire on its own rather than attach to a booking.</span></label></li>
+        <li><label><input type="checkbox"><span>Self-drive vehicles, <em>only</em> through operators registered for rental use with commercial insurance. If that supply base does not exist in your district, skip this permanently.</span></label></li>
+        <li><label><input type="checkbox"><span>Pickup-from-owner fulfilment, using the <code>fulfilment</code> enum value that has been in the schema since Phase 1.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h4>Mode B &mdash; flats, shops, sheds</h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span>A genuinely separate flow, chosen by category at listing time. <strong>Never force a house rental into a date-picker</strong> — one booking flow bolted onto categories that behave nothing alike is the most common failure of &ldquo;rent anything&rdquo; platforms in India.</span></label></li>
+        <li><label><input type="checkbox"><span>Mode B filters: rent range, BHK and carpet area, furnishing, floor, available-from date, tenant preference.</span></label></li>
+        <li><label><input type="checkbox"><span>Site-visit scheduling: the seeker proposes two or three slots, the owner confirms one, a small refundable visit token (&#8377;99&ndash;&#8377;199) filters out time-wasters and is adjusted against the success fee.</span></label></li>
+        <li><label><input type="checkbox"><span>Visit outcome marking — interested, not interested, negotiating. This is your only visibility into Mode B, so make marking it easy and rewarded.</span></label></li>
+        <li><label><input type="checkbox"><span>Rent agreement generation with an e-stamp and e-sign partner. Stamp duty varies by state, and police verification of tenants is required in several cities. Never generate unstamped agreements.</span></label></li>
+        <li><label><input type="checkbox"><span>Flat success fee, priced deliberately far below one month's brokerage. That price gap is your entire pitch.</span></label></li>
+        <li><label><input type="checkbox"><span>Move-in confirmation from both sides, and the listing auto-marked rented so search results stay honest.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h4>Platform</h4>
+      <ul class="checklist">
+        <li><label><input type="checkbox"><span>React Native or Flutter app — genuinely needed by now for in-app camera capture and push notifications.</span></label></li>
+        <li><label><input type="checkbox"><span>Automated dispute rules, derived from the written reasoning of your Phase 2&ndash;3 case history.</span></label></li>
+        <li><label><input type="checkbox"><span>Composite trust score, now that there is enough history for the weights to mean something.</span></label></li>
+        <li><label><input type="checkbox"><span>Insurance partner for optional damage cover at checkout, on a revenue share.</span></label></li>
+        <li><label><input type="checkbox"><span>Featured and boosted listings, now that density makes ranking worth paying for.</span></label></li>
+        <li><label><input type="checkbox"><span>Owner subscription for multi-property owners: lower commission, more photos, priority support, analytics.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="dont">
+      <h4>Do not build, even in Phase 4</h4>
+      <ul>
+        <li><strong>Mode D subscription rental.</strong> Still a different company.</li>
+        <li><strong>A third region before the second one is profitable.</strong> The ratio between region one and region two is the number that proves the model repeats; a third region tells you nothing new and costs three times as much to learn it.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== APPENDIX ===================== -->
+<section class="block" id="appendix" style="margin-top:3rem;">
+  <div class="kicker">REFERENCE APPENDIX</div>
+  <h2>Policies, rules and analysis behind the phases</h2>
+  <p class="lede">The material from both earlier documents that is <em>referenced</em> by the phases rather than being a build step. Open what you need; these are the rules the phase checklists implement.</p>
+
+  <details class="ref">
+    <summary>Why farmhouses, and who you are competing with <span class="src">PART 1 &sect;1&ndash;2</span></summary>
+    <p><strong>&ldquo;Rent anything&rdquo; is not workable as a first product.</strong> Four categories on day one needs four sets of owners, four pricing models and four legal flows, all before a single booking. But the pain is real: in India most rental discovery still runs through brokers, watchmen, WhatsApp groups and &ldquo;my cousin knows someone,&rdquo; and people pay one to two months' rent as brokerage for information that should be free.</p>
+    <div class="tableScroll">
+    <table>
+      <caption>Why farm/farmhouse is the right first category</caption>
+      <thead><tr><th>Factor</th><th>Farmhouse</th><th>House/Flat</th><th>Shop/Shed</th></tr></thead>
+      <tbody>
+        <tr><td>Transaction closes</td><td><strong>Same day, online</strong></td><td>Weeks, offline</td><td>Weeks to months</td></tr>
+        <tr><td>Repeat usage</td><td>High &mdash; 3&ndash;5 times a year</td><td>Once in 2&ndash;3 years</td><td>Once in 3&ndash;9 years</td></tr>
+        <tr><td>Online payment normal?</td><td>Yes &mdash; UPI advance already the norm</td><td>No</td><td>No</td></tr>
+        <tr><td>Legal paperwork</td><td>Minimal &mdash; booking terms</td><td>Agreement, e-stamp, police verification</td><td>Lease deed, GST, registration</td></tr>
+        <tr><td>Clean commission?</td><td><strong>Yes, at booking</strong></td><td>Hard &mdash; payment is off-platform</td><td>Hard</td></tr>
+        <tr><td>Bypass risk</td><td>Moderate &mdash; repeat bookings hold them</td><td><strong>Very high</strong></td><td>Very high</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="tableScroll">
+    <table>
+      <caption>Competitive landscape and the gap</caption>
+      <thead><tr><th>Player</th><th>Where they leave a gap</th></tr></thead>
+      <tbody>
+        <tr><td>Farmhouse and stay sites &mdash; BookMyFarm, StayVista, Airbnb</td><td>Thin coverage outside a few metros, weak verification, most owners off-platform. Airbnb is premium-skewed and uninterested in day-picnic farm rentals.</td></tr>
+        <tr><td>Portals &mdash; MagicBricks, 99acres, Housing, NoBroker</td><td><em>Lead-generation</em> businesses, not booking businesses. You get a phone number, then negotiate offline. Listings go stale; brokers post as owners.</td></tr>
+        <tr><td>Local brokers</td><td>High fee, zero transparency, no inventory visibility, no accountability after the deal.</td></tr>
+        <tr><td>WhatsApp and Facebook groups</td><td>Free but chaotic &mdash; no search, no verification, no proof, no recourse.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="tip"><strong>The gap:</strong> nobody in India has made <em>end-to-end booking with money held safely</em> the default for rentable spaces outside hotels. Portals stop at the phone number; you continue past it.</div>
+    <div class="note"><strong>The honest hard part:</strong> this is a trust business, not a technology business. The website is maybe 25% of the work. The other 75% is convincing owners to list, keeping listings fresh, and stopping people from taking the deal off-platform after they meet. Plan your time accordingly.</div>
+  </details>
+
+  <details class="ref">
+    <summary>Information release ladder &mdash; what unlocks when <span class="src">PART 1 &sect;9</span></summary>
+    <div class="tableScroll">
+    <table>
+      <thead><tr><th>Stage</th><th>Seeker sees</th><th>Owner sees</th></tr></thead>
+      <tbody>
+        <tr><td>Browsing, no login</td><td>Photos, amenities, price, area circle, reviews</td><td>&mdash;</td></tr>
+        <tr><td>Logged in, enquiring</td><td>Owner's first name, badge, response time. <span class="masked" style="color:#a3392f;font-weight:600;">Phone and exact address hidden.</span></td><td>Seeker's first name, badge, past bookings. <span style="color:#a3392f;font-weight:600;">Phone hidden.</span></td></tr>
+        <tr><td>Booking requested and paid</td><td>Still masked &mdash; awaiting acceptance</td><td>Seeker's profile and trust signals. <span style="color:#a3392f;font-weight:600;">Phone still hidden.</span></td></tr>
+        <tr><td><strong>Booking confirmed</strong></td><td><strong>Exact address, map directions, owner's phone, check-in code</strong></td><td><strong>Seeker's phone, guest count, ETA</strong></td></tr>
+        <tr><td>After check-out</td><td>Contact available 7 days, then hidden again</td><td>Same</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </details>
+
+  <details class="ref">
+    <summary>Cancellation &amp; refund tiers <span class="src">PART 1 &sect;12</span></summary>
+    <p>The owner picks one tier when listing. It is displayed in plain language and the refund is computed automatically — never negotiated in chat.</p>
+    <div class="tableScroll">
+    <table>
+      <caption>Seeker-side tiers (illustrative &mdash; tune with real data)</caption>
+      <thead><tr><th>Tier</th><th>7+ days before</th><th>3&ndash;7 days</th><th>Under 48 hrs</th><th>No-show</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Flexible</strong></td><td>100% rent</td><td>100% rent</td><td>50% rent</td><td>None</td></tr>
+        <tr><td><strong>Moderate</strong> (default)</td><td>100% rent</td><td>50% rent</td><td>None</td><td>None</td></tr>
+        <tr><td><strong>Strict</strong> (peak dates)</td><td>50% rent</td><td>None</td><td>None</td><td>None</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <ul>
+      <li><strong>The security deposit is always refunded in full</strong> on cancellation, in every tier. It is not a penalty instrument.</li>
+      <li>The platform fee is refundable on flexible-tier full cancellations and on any owner-side cancellation; otherwise retained. Say so at checkout.</li>
+      <li><strong>Owner cancels a confirmed booking:</strong> seeker gets 100% back plus a platform credit, dates auto-block, listing de-ranks temporarily, repeated cancellations lead to suspension. Price this painfully — owner-side cancellation is the fastest way to destroy a rental marketplace's reputation.</li>
+      <li><strong>On-arrival mismatch</strong> reported within 60 minutes with photos is treated as an owner cancellation.</li>
+      <li><strong>Force majeure</strong> (flood, bandh, curfew, government order): full refund, no owner penalty. Write it into the terms so you are not improvising during the next monsoon.</li>
+    </ul>
+    <div class="tip"><strong>Show the refund in rupees, not policy language.</strong> &ldquo;You will receive &#8377;9,140 back. &#8377;2,500 is non-refundable under this listing's Moderate policy.&rdquo; Nobody reads a policy table; everybody reads a number.</div>
+  </details>
+
+  <details class="ref">
+    <summary>Trust signals that feed the score <span class="src">PART 1 &sect;13</span></summary>
+    <div class="tableScroll">
+    <table>
+      <thead><tr><th>Signal</th><th>Owner</th><th>Seeker</th></tr></thead>
+      <tbody>
+        <tr><td>KYC + ownership verified</td><td>Yes</td><td>KYC only</td></tr>
+        <tr><td>Physically or video verified property</td><td>Yes</td><td>&mdash;</td></tr>
+        <tr><td>Completed bookings</td><td>Yes</td><td>Yes</td></tr>
+        <tr><td>Average rating</td><td>Yes</td><td>Yes</td></tr>
+        <tr><td>Response rate and time</td><td>Yes</td><td>&mdash;</td></tr>
+        <tr><td>Cancellation rate</td><td>Yes (heavily weighted)</td><td>Yes</td></tr>
+        <tr><td>Dispute rate</td><td>Yes</td><td>Yes</td></tr>
+        <tr><td>Bypass-attempt flags</td><td>Yes (negative)</td><td>Yes (negative)</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="screen">
+      <div class="head">OWNER PROFILE &mdash; SCREEN REFERENCE</div>
+      <div class="row"><span>Bhavin P. &middot; Owner</span><span>&#9733; 4.8</span></div>
+      <div class="row"><span>Identity &amp; ownership</span><span>Verified &#10003;</span></div>
+      <div class="row"><span>Property</span><span>Physically Verified &#10003;</span></div>
+      <div class="row"><span>Completed bookings</span><span>23</span></div>
+      <div class="row"><span>Response rate</span><span>96% &middot; under 2 hrs</span></div>
+      <div class="row"><span>Cancellations by owner</span><span>0</span></div>
+      <div class="row"><span>Phone number</span><span class="masked">Hidden until booking</span></div>
+    </div>
+  </details>
+
+  <details class="ref">
+    <summary>Mode A vs Mode C &mdash; the trust delta when things can be stolen <span class="src">PART 2 &sect;28</span></summary>
+    <p>Every trust mechanism designed for places assumes <em>a stranger arriving at your property</em>. Mode C inverts it: <em>your property leaves with a stranger.</em> The owner's exposure is no longer a broken chair, it is the entire asset value.</p>
+    <div class="tableScroll">
+    <table>
+      <thead><tr><th>&nbsp;</th><th>MODE A &mdash; places</th><th>MODE C &mdash; movable goods</th></tr></thead>
+      <tbody>
+        <tr><td>Worst case for the owner</td><td>Damage, capped by the property's resilience</td><td><strong>Total loss of the asset</strong></td></tr>
+        <tr><td>Deposit vs exposure</td><td>&#8377;3,000 against something nobody can remove</td><td>&#8377;5,000 against a &#8377;90,000 camera &mdash; decorative</td></tr>
+        <tr><td>Seeker verification</td><td>KYC above &#8377;5,000 booking value</td><td>KYC + <strong>verified current address</strong> + second contact, scaled to asset value</td></tr>
+        <tr><td>Condition proof</td><td>Room photos at check-in and check-out</td><td>Photos <em>and serial numbers</em>, both directions, plus accessories</td></tr>
+        <tr><td>Handover record</td><td>A check-in code</td><td><strong>Signed challan naming item, serial and ID</strong></td></tr>
+        <tr><td>Recovery if it fails</td><td>Deduct from deposit; small claim</td><td>Police complaint for criminal breach of trust &mdash; needs documentation designed in advance</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </details>
+
+  <details class="ref">
+    <summary>Monetisation &amp; unit economics <span class="src">PART 1 &sect;17 &middot; PART 2 &sect;26</span></summary>
+    <div class="tableScroll">
+    <table>
+      <thead><tr><th>Line</th><th>How it works</th><th>Phase</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Booking commission (Mode A)</strong></td><td>8&ndash;12% of rent, never of the deposit. Charge the seeker visibly and keep the owner's payout clean — it makes owner recruitment much easier.</td><td><strong>1 &mdash; your entire early revenue</strong></td></tr>
+        <tr><td><strong>Add-on commission (Mode C)</strong></td><td>~15% on event goods and transport attached to an existing booking. Higher than the place commission, at zero acquisition cost.</td><td>3</td></tr>
+        <tr><td>Damage waiver</td><td>&#8377;249 non-refundable instead of a &#8377;3,000 hold. Conversion win and revenue line.</td><td>2</td></tr>
+        <tr><td>Professional photography</td><td>Paid shoot for owners. Improves your inventory quality too, so it pays twice.</td><td>3</td></tr>
+        <tr><td>Success fee (Mode B)</td><td>Flat fee on a closed flat/shop deal, far under one month's brokerage. That comparison <em>is</em> the marketing.</td><td>4</td></tr>
+        <tr><td>Site-visit token</td><td>Small refundable amount to filter serious seekers; adjusted against the success fee.</td><td>4</td></tr>
+        <tr><td>Featured listings</td><td>Paid placement. Only once density makes ranking meaningful.</td><td>4</td></tr>
+        <tr><td>Owner subscription</td><td>Multi-property plan: lower commission, more photos, priority support, analytics.</td><td>4</td></tr>
+        <tr><td>Protection plan share</td><td>Revenue share from a licensed insurer on optional cover at checkout.</td><td>4</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="info"><strong>Unit economics check.</strong> Average booking &#8377;8,000 at 10% &rarr; &#8377;800. Verification &#8377;500 once per listing across 6 bookings a year &rarr; &#8377;83. Gateway ~2% &rarr; &#8377;160. Support and ops ~&#8377;100. You net roughly <strong>&#8377;450 per booking</strong> before marketing. &#8377;1 lakh a month needs about 220 bookings, which in one region means 80&ndash;120 active listings at decent occupancy. <strong>With a 50% add-on attach rate that drops to about 105 bookings.</strong> Either way the lesson is the same: the business works only if listings are <em>active</em>, not merely present. Occupancy per listing, not listing count.</div>
+  </details>
+
+  <details class="ref">
+    <summary>Legal &amp; compliance &mdash; both documents combined <span class="src">PART 1 &sect;16 &middot; PART 2 &sect;31</span></summary>
+    <div class="tableScroll">
+    <table>
+      <caption>Get these right early &mdash; retrofitting is expensive</caption>
+      <thead><tr><th>Area</th><th>What to handle</th><th>Phase</th></tr></thead>
+      <tbody>
+        <tr><td>Business entity</td><td>Private Limited once you handle other people's money or plan to raise. An LLP works bootstrapped. Either way you need a current account and gateway onboarding.</td><td>1</td></tr>
+        <tr><td>Marketplace positioning</td><td>Terms must state clearly that you are an <strong>intermediary facilitating a transaction, not the owner, lessor or operator of any property</strong>. This matters enormously if an accident happens at a property. Never describe yourself as an operator, ever.</td><td>1</td></tr>
+        <tr><td>Booking terms per transaction</td><td>Auto-generate a short agreement per confirmed booking — duration, capacity, house rules, damage liability, cancellation — accepted by tick-box with timestamp and IP log. This is your evidence in any dispute.</td><td>1</td></tr>
+        <tr><td>Holding deposits</td><td>Use the payment aggregator's escrow and settlement mechanism. Holding customer deposits in your own account puts you in RBI payment-aggregator territory you do not want to be in. Confirm the maximum hold window before designing the money flow.</td><td>1</td></tr>
+        <tr><td>Data protection (DPDP Act)</td><td>Aadhaar and PAN data is sensitive personal data. Store verification <em>results</em> and vendor reference IDs, not raw ID images. Publish a privacy policy, collect consent, define retention periods.</td><td>1</td></tr>
+        <tr><td>IT Rules &mdash; intermediary safe harbour</td><td>Publish a grievance officer's name and contact, respond within statutory timelines, keep a takedown process for fraudulent listings.</td><td>1</td></tr>
+        <tr><td>Consumer Protection (E-Commerce) Rules</td><td>Mandatory display of supplier details, published grievance timelines, no misleading representation, clear refund process. Your automatic refund engine already puts you ahead — just make sure the policy shown at checkout is the policy the code applies.</td><td>1&ndash;2</td></tr>
+        <tr><td>GST</td><td>Registration mandatory past the threshold and effectively needed earlier to invoice commission properly. GST applies to <em>your commission</em>; whether it applies to the rent depends on property type and the owner's own registration. Accommodation and place rental have their own rate structure. One CA view per quadrant, before you launch that quadrant.</td><td>1&ndash;2</td></tr>
+        <tr><td><strong>TDS &mdash; section 194-O</strong></td><td>An e-commerce operator deducts tax at source on the gross amount credited to a seller or service provider through its platform. Rate reduced to 0.1% with effect from October 2024; a higher rate applies with no PAN. <strong>Applies from your first commercial payout, not from a turnover threshold.</strong> Build the field into the payout record now.</td><td>2</td></tr>
+        <tr><td><strong>TCS under GST &sect;52</strong></td><td>An e-commerce operator collecting consideration for suppliers collects tax at source and files monthly (GSTR-8). Ask your CA specifically whether collecting the rent and remitting to the owner makes you an ECO — the answer shapes whether you collect the rent at all or only the fee.</td><td>2</td></tr>
+        <tr><td>Insurance</td><td>Damage protection only through a licensed insurer as partner. Never informally promise &ldquo;we'll cover it&rdquo; — that is unlimited liability on your balance sheet. Places need premises liability; movable goods need goods-in-transit and equipment breakdown; vehicles need a commercial motor policy.</td><td>2&ndash;3</td></tr>
+        <tr><td>Local permissions</td><td>Farmhouses hosting events may need local body permission, noise compliance and fire safety. You are not liable for the owner's compliance, but your terms should require them to declare it — and you should ask during verification.</td><td>1</td></tr>
+        <tr><td><strong>Motor Vehicles Act &mdash; the vehicle blocker</strong></td><td>A privately registered vehicle cannot legally be rented out. Self-drive requires registration for that use — historically the Rent-a-Cab Scheme 1989, or a state self-drive or aggregator scheme — with commercial insurance. Motorcycles sit under separate state schemes. <strong>This kills peer-to-peer vehicle rental in India:</strong> the Turo model is not available to you. Vehicles arrive as licensed operators.</td><td>3&ndash;4</td></tr>
+        <tr><td>GST on renting goods</td><td>Renting movable goods is a supply of service, generally 18%; renting with an operator can be treated differently. Do not assume the farmhouse treatment carries over to chairs.</td><td>3</td></tr>
+        <tr><td>Movement of goods</td><td>Moving goods above a value threshold generally requires a delivery challan and, where applicable, an e-way bill — including for movement that is not a sale. Another reason the handover challan should be platform-generated: it does double duty as the compliance document and the evidence document.</td><td>3</td></tr>
+        <tr><td>Hypothecated assets</td><td>Financed goods are typically hypothecated to the lender, and loan terms often bar commercial use or sub-letting without consent. Add a declaration to vendor onboarding rather than discovering it after a claim.</td><td>3</td></tr>
+        <tr><td>Rent agreements (Mode B)</td><td>Integrate an e-stamp and e-sign partner rather than generating unstamped agreements. Stamp duty varies by state; police verification of tenants is required in several cities.</td><td>4</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="note">This is general information, not legal advice. Before launch, spend one paid session with a CA and one with a lawyer who has worked with marketplaces — it costs a fraction of what a wrong structure costs to unwind. Two rules of thumb: <strong>anything touching a payout is expensive to retrofit</strong>, so build the tax fields now even at zero; and <strong>never launch a new quadrant without one paid CA hour on that quadrant's GST and TDS treatment</strong>, because each quadrant genuinely differs.</div>
+  </details>
+
+  <details class="ref">
+    <summary>Tech stack, layer by layer <span class="src">PART 1 &sect;15</span></summary>
+    <div class="tableScroll">
+    <table>
+      <thead><tr><th>Layer</th><th>Choice</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Frontend</td><td>Next.js App Router + Tailwind</td><td>Server-rendered listing pages mean Google indexes &ldquo;farmhouse on rent in Kamrej&rdquo; and sends free traffic. Large hiring pool in India.</td></tr>
+        <tr><td>Backend</td><td><strong>Next.js itself</strong> &mdash; Server Components for reads, Server Actions for writes, route handlers for webhooks. Plus a <code>worker/</code> process in the same repo.</td><td>One repo, one language, no CORS, no duplicated DTOs, and a single <code>lib/domain/</code> shared by the app and the worker. Do not add a second runtime or a second repo in Phase 1; revisit only when the Phase 4 mobile app needs a shared API.</td></tr>
+        <tr><td>Language</td><td>JavaScript, with <code>checkJs</code> + JSDoc on domain functions and Zod at every input boundary</td><td>Validation at the boundary is what actually protects a money flow &mdash; webhook payloads and form input are untrusted regardless of how the code is typed.</td></tr>
+        <tr><td>Background jobs</td><td>BullMQ on Redis, run from <code>worker/</code></td><td>Booking-expiry timers, deposit auto-refunds, payout retries, freshness auto-hide and WhatsApp nudges all outlive a serverless request. Deployed separately, versioned together.</td></tr>
+        <tr><td>Database</td><td>PostgreSQL + PostGIS</td><td>Bookings, availability and disputes need relational integrity and transactional locking. PostGIS handles &ldquo;within 25 km&rdquo; natively.</td></tr>
+        <tr><td>Cache / queues</td><td>Redis</td><td>OTP throttling, sessions, booking-expiry timers, background jobs for notifications and payout retries.</td></tr>
+        <tr><td>Media</td><td>S3 (ap-south-1) or Cloudflare R2 + CDN</td><td>Condition-proof photos are dispute evidence — versioning and lifecycle rules, never an app server disk.</td></tr>
+        <tr><td>Payments</td><td>Razorpay Route or Cashfree Easy Split</td><td>UPI, cards, netbanking <em>and</em> the split payments and hold-release you need. This is the deciding feature — do not pick a gateway without it.</td></tr>
+        <tr><td>KYC</td><td>Signzy, HyperVerge, IDfy or Cashfree Verification</td><td>Purpose-built for Indian ID. Never build in-house, never store raw Aadhaar images.</td></tr>
+        <tr><td>Notifications</td><td>WhatsApp Business API via Gupshup / Interakt / AiSensy, + MSG91 or Twilio for SMS, Firebase push later</td><td>WhatsApp open rates in India are far above email. Confirmations, reminders and payout alerts all belong there.</td></tr>
+        <tr><td>Maps</td><td>Google Maps Platform, or MapmyIndia/Mappls for cheaper Indian coverage</td><td>Area circle pre-booking, exact pin and directions post-booking.</td></tr>
+        <tr><td>Search</td><td>Postgres full-text + PostGIS; Meilisearch or Typesense past a few thousand listings</td><td>Do not deploy Elasticsearch for 60 listings.</td></tr>
+        <tr><td>AI listing assistant</td><td>Vision-capable LLM API from the backend, plus speech-to-text for voice notes</td><td>Drafts title, description, amenities and price from photos and a voice note. Listing creation is the highest owner drop-off — every pre-filled field raises completion.</td></tr>
+        <tr><td>Masked calling</td><td>Exotel, Knowlarity or Twilio proxy numbers</td><td>Both sides talk without exposing numbers; recordings become dispute evidence. Phase 3.</td></tr>
+        <tr><td>Hosting</td><td>AWS or GCP Mumbai; Vercel for the frontend is fine</td><td>Low latency for Indian users, and data residency matters once you touch KYC data.</td></tr>
+        <tr><td>Analytics &amp; errors</td><td>PostHog or Mixpanel + Sentry</td><td>Track the funnel, not page views.</td></tr>
+        <tr><td>Mobile app</td><td>React Native or Flutter, <strong>Phase 4</strong></td><td>Needed eventually for in-app camera and push, not for the first 100 bookings.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="tip"><strong>The Phase 1 shortcut, stated plainly:</strong> a Next.js site with listings, search and enquiry, Razorpay payment links, WhatsApp for coordination, and a Google Sheet as your admin panel. That is enough to complete 30 real bookings and learn everything. Do not build the escrow, dispute engine and trust-score algorithm before you have watched 30 bookings happen by hand.</div>
+  </details>
+
+  <details class="ref">
+    <summary>Metrics &mdash; both documents combined <span class="src">PART 1 &sect;20 &middot; PART 2 &sect;33</span></summary>
+    <div class="tableScroll">
+    <table>
+      <caption>Watch weekly, from the phase noted</caption>
+      <thead><tr><th>Metric</th><th>Why it matters</th><th>Healthy</th><th>From</th></tr></thead>
+      <tbody>
+        <tr><td>Live listings in the launch region</td><td>Supply depth &mdash; below a threshold, search feels empty</td><td class="num">80+ before demand spend</td><td>1</td></tr>
+        <tr><td><strong>Occupancy per listing</strong></td><td>The real economics. Listing count alone is vanity.</td><td>Owners earning enough to stay engaged</td><td>1</td></tr>
+        <tr><td>Slot utilisation &mdash; day vs night sold</td><td>Whether the slot model is earning its keep, and where to push price</td><td>Both slots selling</td><td>1</td></tr>
+        <tr><td>Search &rarr; enquiry rate</td><td>Are your listings good enough to act on?</td><td>Rising after photo and price fixes</td><td>1</td></tr>
+        <tr><td>Enquiry &rarr; confirmed booking</td><td>Owner responsiveness and pricing sanity</td><td class="num">Above 20% early</td><td>1</td></tr>
+        <tr><td>Indexed landing pages</td><td>The SEO machine actually working. Watch this, not traffic, for three months.</td><td>Climbing steadily</td><td>1</td></tr>
+        <tr><td><strong>Owner response time</strong></td><td>The number one cause of lost bookings in Indian rental platforms</td><td class="num">Median under 2 hrs</td><td>1</td></tr>
+        <tr><td>Listing freshness</td><td>Stale calendars kill the marketplace silently</td><td class="num">90%+ within 30 days</td><td>1</td></tr>
+        <tr><td>Owner listing completion &mdash; started vs published</td><td>Direct measure of whether WhatsApp intake works</td><td class="num">70%+</td><td>2</td></tr>
+        <tr><td>Advance-to-balance conversion</td><td>Share of balances paid online. Falling means lost completion visibility.</td><td>Rising</td><td>2</td></tr>
+        <tr><td>Damage waiver take-up</td><td>Validates and sizes the waiver as a revenue line</td><td>Most seekers choose it</td><td>2</td></tr>
+        <tr><td>Requirement-broadcast fill rate</td><td>Also your supply-gap map</td><td class="num">60%+</td><td>2</td></tr>
+        <tr><td>Repeat seeker rate (90 days)</td><td>Proves the category has genuine repeat demand</td><td>Any meaningful number validates the choice</td><td>2</td></tr>
+        <tr><td>Bypass-attempt flags per 100 chats</td><td>Early warning on leakage</td><td>Falling as your value beyond discovery grows</td><td>2</td></tr>
+        <tr><td>Dispute rate per 100 bookings</td><td>Trust infrastructure health</td><td class="num">Under 3, trending down</td><td>2</td></tr>
+        <tr><td><strong>Owner-side cancellation rate</strong></td><td>The single most damaging failure mode</td><td class="num">Under 2%</td><td>2</td></tr>
+        <tr><td>Corporate and repeat-account share</td><td>Weekday fill; the counter to seasonality</td><td>Growing</td><td>2</td></tr>
+        <tr><td><strong>Attach rate</strong> &mdash; bookings carrying an add-on</td><td>Decides whether goods is a revenue multiplier or a distraction</td><td class="num">40%+</td><td>3</td></tr>
+        <tr><td><strong>Non-return rate</strong> &mdash; not back within 48h of due</td><td>The failure mode that can end Mode C. Watch per vendor and per value band.</td><td class="num">Under 0.5%</td><td>3</td></tr>
+        <tr><td>Fulfilment SLA &mdash; delivered on the promised slot</td><td>An add-on arriving after the guests is worse than none. Replaces the site visit as a vendor's verification.</td><td class="num">95%+</td><td>3</td></tr>
+        <tr><td>Revenue per acquired customer</td><td>Proves adjacency beats new categories &mdash; should climb with attach rate while acquisition cost stays flat</td><td>Climbing</td><td>3</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </details>
+
+  <details class="ref">
+    <summary>Risks &amp; mitigations <span class="src">PART 1 &sect;21 &middot; PART 2</span></summary>
+    <div class="tableScroll">
+    <table>
+      <thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Off-platform bypass</strong> &mdash; they meet once, deal directly next time</td><td>Masking pre-booking, fair commission (8&ndash;12%), value only the platform provides (calendar, deposit handling, reviews, dispute support), loyalty slabs both sides. <strong>Accept some leakage as structural; never respond by raising fees.</strong></td></tr>
+        <tr><td>Fake listings, brokers posing as owners</td><td>Mandatory KYC + ownership document + physical or video verification before going live; reverse-image checks; report button; suspension on the first confirmed fake.</td></tr>
+        <tr><td>Property damage or unruly guests</td><td>Deposit sized to the property, seeker KYC above a threshold, condition photos both ends, capacity enforced in the booking, insurance partner for high-value venues.</td></tr>
+        <tr><td>Owner cancels last minute</td><td>Heavy penalty, temporary de-ranking, platform credit, and the instant-rebook guarantee as the ops answer.</td></tr>
+        <tr><td>Double-booking</td><td>Database-level locking on <code>(rentable, date, slot)</code>, effortless offline-block for owners, and the override policy only as a last resort.</td></tr>
+        <tr><td>Stale listings, unresponsive owners</td><td>Auto-hide after 30 days without confirmation, one-tap reactivate over WhatsApp, response rate shown publicly and used in ranking.</td></tr>
+        <tr><td>Seasonality &mdash; monsoon, exams, off-peak weekdays</td><td>Weekday and off-season pricing tools, corporate offsite and shoot-location demand to fill weekdays, event spaces as a partial counter-cycle.</td></tr>
+        <tr><td>Low liquidity at launch</td><td>One district, manual owner recruitment, founder-led first 20 bookings, requirement broadcast, and no demand spend until supply is deep.</td></tr>
+        <tr><td>Payment and regulatory exposure on deposits</td><td>Gateway escrow and split payments from day one; never hold customer money in your own account; confirm the hold window in advance.</td></tr>
+        <tr><td>Chargeback fraud on a young platform</td><td>Velocity limits, first-booking value ceiling, strict KYC on cards, no same-day payout on a new owner's first booking, UPI preferred at high value.</td></tr>
+        <tr><td>Liability if something happens at a property</td><td>Clear intermediary positioning in ToS, per-booking terms, owner declarations on local permissions, insurance partner. Never describe yourself as an operator.</td></tr>
+        <tr><td><strong>Non-return of goods (Phase 3)</strong></td><td>Vendor-only supply, address-verified renters, deposits scaled to asset value, and the platform-generated signed handover challan that makes a police complaint actionable.</td></tr>
+        <tr><td>A funded competitor copies you</td><td>Your defensibility is not the software — it is district-level supply depth, verified inventory and owner relationships. Those take feet on the ground and cannot be bought quickly. Go deep in one belt before going wide.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </details>
+</section>
+
+</div>
+
+<footer>
+  <div class="rule"></div>
+  <p><strong>Bottom line:</strong> &ldquo;Rent anything&rdquo; is a 5/10 idea. &ldquo;Book a verified farmhouse in your district online, at a transparent price, with your money held safely and no broker in the middle&rdquo; is an 8&ndash;9/10 idea — and it is the same platform, aimed at a door you can actually open. Prove it manually with 30 bookings. Then build the machine that does it 3,000 times.</p>
+  <p style="margin-top:0.9rem;"><strong>The three things to get right before you write application code:</strong> the schema names (<span class="mono">rentable</span>, not <span class="mono">properties</span>; <span class="mono">form</span> / <span class="mono">fulfilment</span> / <span class="mono">rental_unit</span>), the URL tree, and the slot-based availability key. Half a day of discipline against a rewrite in year two.</p>
+  <p style="margin-top:0.9rem;"><strong>Positioning &mdash; don't say:</strong> &ldquo;A marketplace to rent anything.&rdquo; <strong>Say:</strong> &ldquo;Find and book a place directly from the owner &mdash; verified, transparent, no brokerage.&rdquo;</p>
+  <p style="margin-top:0.9rem;">Combines <strong>Part 1 — End-to-End Product Plan</strong> and <strong>Part 2 — Gaps, Additions &amp; the Multi-Category Future</strong>. Legal and tax content is general information, not advice. Next pass: detailed requirements per feature, phase by phase, starting with Phase 1.</p>
+  <button id="resetAll" type="button">Clear all ticked items</button>
+</footer>
+
+<script>
+(function(){
+  var KEY = 'rentra_plan_progress_v1';
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { state = {}; }
+
+  function save(){
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* file:// or blocked storage */ }
+  }
+
+  // Stable key derived from the item's own text, so ticks survive re-ordering and edits elsewhere.
+  function keyOf(input){
+    var span = input.nextElementSibling;
+    var s = ((span && span.textContent) || '').replace(/\s+/g, ' ').trim().slice(0, 90);
+    var h = 5381;
+    for (var i = 0; i < s.length; i++) { h = ((h * 33) ^ s.charCodeAt(i)) | 0; }
+    return 'k' + (h >>> 0).toString(36);
+  }
+
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('ul.checklist input[type=checkbox]'));
+
+  boxes.forEach(function(b){
+    var k = keyOf(b);
+    b.setAttribute('data-k', k);
+    if (state[k]) { b.checked = true; }
+    b.addEventListener('change', function(){
+      if (b.checked) { state[k] = 1; } else { delete state[k]; }
+      save();
+      tally();
+    });
+  });
+
+  function tally(){
+    var sections = document.querySelectorAll('[data-phase]');
+    Array.prototype.forEach.call(sections, function(sec){
+      var bs = sec.querySelectorAll('ul.checklist input[type=checkbox]');
+      var total = bs.length, done = 0;
+      Array.prototype.forEach.call(bs, function(b){ if (b.checked) { done++; } });
+      var count = sec.querySelector('.progress-count');
+      if (count) { count.textContent = done + ' / ' + total; }
+      var fill = sec.querySelector('.progress-fill');
+      if (fill) { fill.style.width = (total ? (done / total * 100) : 0) + '%'; }
+    });
+  }
+
+  tally();
+
+  var reset = document.getElementById('resetAll');
+  if (reset) {
+    reset.addEventListener('click', function(){
+      if (!window.confirm('Clear every ticked item in this plan?')) { return; }
+      state = {};
+      save();
+      boxes.forEach(function(b){ b.checked = false; });
+      tally();
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

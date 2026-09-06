@@ -1,1 +1,282 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ==========================================================================
+   shadcn semantic token mapping — DO NOT EDIT.
+   These map shadcn's component API to the runtime vars set in :root below.
+   ========================================================================== */
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: var(--font-sans);
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+}
+
+/* ==========================================================================
+   RENTRA DESIGN SYSTEM v1  ·  see docs/rentra-design-system.html
+   Every value here is WCAG-verified. Do not add a token without checking
+   its contrast and writing down its single job in the design system file.
+   ========================================================================== */
+@theme {
+    /* --- Brand: deep field green. The ONLY colour that means "act". --- */
+    --color-brand-50:  #F1F7F3;
+    --color-brand-100: #DDEBE2;
+    --color-brand-200: #BCD8C7;
+    --color-brand-300: #90BCA3;
+    --color-brand-400: #629B7D;   /* non-text: decorative fills only */
+    --color-brand-500: #3F7D5F;
+    --color-brand-600: #2E6449;   /* PRIMARY ACTION · 6.92:1 on white */
+    --color-brand-700: #26503C;   /* hover + brand text · 9.15:1 AAA */
+    --color-brand-800: #1F4031;
+    --color-brand-900: #1A3529;
+    --color-brand-950: #0D1D16;
+
+    /* --- Accent: harvest amber. Star ratings + peak pricing ONLY. --- */
+    --color-amber-100: #FDF2DE;
+    --color-amber-300: #F3C77E;
+    --color-amber-500: #D98A1F;   /* non-text: star fill · 2.76:1 */
+    --color-amber-700: #A6640F;   /* amber TEXT · 4.72:1 */
+
+    /* --- Neutrals: warm, biased a few degrees toward the brand green --- */
+    --color-ink-0:   #FFFFFF;
+    --color-ink-25:  #FAFBFA;     /* page ground */
+    --color-ink-50:  #F5F7F5;
+    --color-ink-100: #EBEEEB;
+    --color-ink-200: #DCE1DD;     /* dividers, card outlines */
+    --color-ink-300: #C0C7C2;     /* input borders */
+    --color-ink-400: #9AA39D;     /* non-text · 2.59:1 */
+    --color-ink-500: #6E7871;     /* meta text · 4.58:1 AA */
+    --color-ink-600: #5A635D;     /* secondary text · 6.22:1 AA */
+    --color-ink-700: #414843;
+    --color-ink-800: #2A2F2B;
+    --color-ink-900: #171A18;     /* all primary text · 16.91:1 AAA */
+
+    /* --- Semantic: deliberately not the brand hue, except success --- */
+    --color-success:    #2E6449;
+    --color-success-bg: #F1F7F3;
+    --color-warning:    #B45309;
+    --color-warning-bg: #FDF3E7;
+    --color-danger:     #C0362C;
+    --color-danger-bg:  #FBEDEC;
+    --color-info:       #2563A5;
+    --color-info-bg:    #EAF1F8;
+    --color-whatsapp:   #1FA855;  /* the ONE permitted second accent */
+
+    /* --- Type scale --- */
+    --text-display: 2.75rem;
+    --text-display--line-height: 1.06;
+    --text-display--letter-spacing: -0.035em;
+    --text-display--font-weight: 800;
+
+    --text-h1: 2.125rem;
+    --text-h1--line-height: 1.15;
+    --text-h1--letter-spacing: -0.03em;
+    --text-h1--font-weight: 700;
+
+    --text-h2: 1.625rem;
+    --text-h2--line-height: 1.22;
+    --text-h2--letter-spacing: -0.025em;
+    --text-h2--font-weight: 700;
+
+    --text-h3: 1.25rem;
+    --text-h3--line-height: 1.32;
+    --text-h3--letter-spacing: -0.02em;
+    --text-h3--font-weight: 600;
+
+    --text-h4: 1.0625rem;
+    --text-h4--line-height: 1.4;
+    --text-h4--font-weight: 600;
+
+    --text-body-lg: 1.0625rem;
+    --text-body-lg--line-height: 1.62;
+
+    --text-body: 1rem;
+    --text-body--line-height: 1.62;
+
+    --text-meta: 0.875rem;
+    --text-meta--line-height: 1.5;
+
+    --text-tiny: 0.75rem;
+    --text-tiny--line-height: 1.4;
+    --text-tiny--font-weight: 500;
+
+    /* --- Radius: exact Rentra values, overriding shadcn's ratio scale --- */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+
+    /* --- Elevation: soft and low. Depth comes from photography. --- */
+    --shadow-xs:    0 1px 2px rgba(23, 26, 24, 0.05);
+    --shadow-sm:    0 1px 3px rgba(23, 26, 24, 0.08), 0 1px 2px rgba(23, 26, 24, 0.04);
+    --shadow-md:    0 4px 12px rgba(23, 26, 24, 0.08);
+    --shadow-lg:    0 8px 28px rgba(23, 26, 24, 0.12);
+    --shadow-focus: 0 0 0 3px rgba(46, 100, 73, 0.32);
+
+    /* --- Layout --- */
+    --container-page: 1160px;
+}
+
+/* ==========================================================================
+   Runtime values. Rentra palette wired into shadcn's semantic slots so every
+   shadcn component is on-brand with no per-component overrides.
+   ========================================================================== */
+:root {
+    --font-sans: var(--font-jakarta), "Noto Sans Devanagari",
+                 "Noto Sans Gujarati", system-ui, -apple-system, sans-serif;
+
+    --background: #FAFBFA;              /* ink-25 */
+    --foreground: #171A18;              /* ink-900 */
+    --card: #FFFFFF;
+    --card-foreground: #171A18;
+    --popover: #FFFFFF;
+    --popover-foreground: #171A18;
+
+    --primary: #2E6449;                 /* brand-600 — the one action colour */
+    --primary-foreground: #FFFFFF;
+    --secondary: #F5F7F5;               /* ink-50 */
+    --secondary-foreground: #171A18;
+    --muted: #EBEEEB;                   /* ink-100 */
+    --muted-foreground: #6E7871;        /* ink-500 — AA at 4.58:1 */
+    --accent: #F1F7F3;                  /* brand-50 */
+    --accent-foreground: #26503C;       /* brand-700 */
+    --destructive: #C0362C;
+
+    --border: #DCE1DD;                  /* ink-200 */
+    --input: #C0C7C2;                   /* ink-300 */
+    --ring: #2E6449;                    /* brand-600 */
+
+    --chart-1: #2E6449;
+    --chart-2: #629B7D;
+    --chart-3: #BCD8C7;
+    --chart-4: #D98A1F;
+    --chart-5: #6E7871;
+
+    --radius: 1rem;
+
+    /* Partner dashboard shell */
+    --sidebar: #FFFFFF;
+    --sidebar-foreground: #171A18;
+    --sidebar-primary: #2E6449;
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: #F1F7F3;
+    --sidebar-accent-foreground: #26503C;
+    --sidebar-border: #DCE1DD;
+    --sidebar-ring: #2E6449;
+}
+
+/* --------------------------------------------------------------------------
+   Dark mode is OPT-IN and scoped, never on <html>.
+   Public booking and marketing surfaces ship light-only on purpose: the
+   content IS photography, and dark chrome fights a sunlit farmhouse photo.
+   Add `className="dark"` to the (partner) / (admin) shells only — those are
+   utility screens read for long stretches, with almost no imagery.
+   -------------------------------------------------------------------------- */
+.dark {
+    --background: #171A18;
+    --foreground: #F5F7F5;
+    --card: #1F2320;
+    --card-foreground: #F5F7F5;
+    --popover: #1F2320;
+    --popover-foreground: #F5F7F5;
+
+    --primary: #629B7D;                 /* lifted so it reads on dark ground */
+    --primary-foreground: #0D1D16;
+    --secondary: #2A2F2B;
+    --secondary-foreground: #F5F7F5;
+    --muted: #2A2F2B;
+    --muted-foreground: #9AA39D;
+    --accent: #1F4031;
+    --accent-foreground: #DDEBE2;
+    --destructive: #E5766B;
+
+    --border: rgba(245, 247, 245, 0.12);
+    --input: rgba(245, 247, 245, 0.18);
+    --ring: #629B7D;
+
+    --sidebar: #1F2320;
+    --sidebar-foreground: #F5F7F5;
+    --sidebar-primary: #629B7D;
+    --sidebar-primary-foreground: #0D1D16;
+    --sidebar-accent: #1F4031;
+    --sidebar-accent-foreground: #DDEBE2;
+    --sidebar-border: rgba(245, 247, 245, 0.12);
+    --sidebar-ring: #629B7D;
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+    html {
+        @apply font-sans;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* Devanagari and Gujarati need ~15-20% more leading or the matras clip. */
+    [lang="hi"],
+    [lang="gu"] {
+        line-height: 1.75;
+    }
+
+    /* Money, dates and timers must never jitter or look ragged in a column. */
+    [data-money],
+    time,
+    table td,
+    .tabular {
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* One brand-tinted focus style, everywhere. */
+    :is(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+        outline: none;
+        box-shadow: var(--shadow-focus);
+        border-radius: var(--radius-sm);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+}

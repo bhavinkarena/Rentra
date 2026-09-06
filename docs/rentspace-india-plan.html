@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RentSpace India — End-to-End Product Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Frank+Ruhl+Libre:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --steel:#233028;
+    --steel-2:#314136;
+    --paper:#efeade;
+    --safety:#c8792a;
+    --safety-dark:#95571a;
+    --ink:#221f1a;
+    --line:#cbc3ae;
+    --green:#3f6b4a;
+    --red:#a3392f;
+    --blue:#2f5570;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Frank Ruhl Libre', Georgia, 'Times New Roman', serif;
+    line-height:1.58;
+  }
+  h1,h2,h3,h4,h5{
+    font-family:'Barlow Condensed', 'Arial Narrow', sans-serif;
+    font-weight:700;
+    letter-spacing:0.01em;
+    color:var(--steel);
+    margin:0 0 0.4em 0;
+  }
+  p, li{ font-size:1rem; }
+  a{ color:var(--safety-dark); }
+
+  header.hero{
+    background:
+      repeating-linear-gradient(135deg, rgba(0,0,0,0.05) 0 2px, transparent 2px 14px),
+      linear-gradient(180deg, var(--steel) 0%, var(--steel-2) 100%);
+    color:var(--paper);
+    padding:4.5rem 6vw 3.5rem;
+    border-bottom:8px solid var(--safety);
+  }
+  header.hero .tag{
+    font-family:'Barlow Condensed', sans-serif;
+    color:var(--safety);
+    font-size:1.05rem; font-weight:600; margin-bottom:0.6rem;
+  }
+  header.hero h1{
+    color:#fdfaf3;
+    font-size:clamp(2.2rem, 5vw, 3.7rem);
+    line-height:1.04;
+    max-width:19ch;
+  }
+  header.hero .sub{
+    color:#cfd4d0;
+    font-family:'Frank Ruhl Libre', serif;
+    font-size:1.15rem; max-width:64ch; margin-top:1.1rem;
+  }
+  header.hero .metaRow{
+    display:flex; gap:2.5rem; flex-wrap:wrap;
+    margin-top:2.2rem; padding-top:1.6rem;
+    border-top:1px solid rgba(255,255,255,0.18);
+  }
+  header.hero .metaRow div{ min-width:140px; }
+  header.hero .metaRow .n{
+    font-family:'Barlow Condensed', sans-serif;
+    color:var(--safety); font-size:1.9rem; font-weight:700; display:block;
+  }
+  header.hero .metaRow .l{ font-size:0.85rem; color:#b6bdb7; }
+
+  .wrap{ max-width:920px; margin:0 auto; padding:0 6vw; }
+  nav.toc{ max-width:920px; margin:-1.6rem auto 0; padding:1.4rem 6vw; }
+  nav.toc ol{
+    background:#fbf8f0; border:1px solid var(--line);
+    border-left:6px solid var(--safety);
+    padding:1.3rem 1.6rem 1.3rem 2.6rem;
+    columns:2; column-gap:2.2rem;
+    font-family:'Barlow Condensed', sans-serif; font-size:1.02rem;
+  }
+  nav.toc li{ margin-bottom:0.5rem; break-inside:avoid; }
+  nav.toc a{ text-decoration:none; color:var(--steel); }
+  nav.toc a:hover{ color:var(--safety-dark); }
+
+  section{ padding:3.2rem 0; border-bottom:1px solid var(--line); }
+  section:last-of-type{ border-bottom:none; }
+  .kicker{
+    font-family:'Barlow Condensed', sans-serif;
+    color:var(--safety-dark); font-weight:700; font-size:0.95rem; margin-bottom:0.3rem;
+  }
+  section h2{ font-size:2rem; margin-bottom:1rem; }
+  section h3{ font-size:1.32rem; margin-top:1.9rem; color:var(--steel-2);}
+  section h4{ font-size:1.1rem; margin-top:1.3rem; }
+
+  .verdict{
+    display:flex; gap:1.5rem; align-items:flex-start;
+    background:#fbf8f0; border:1px solid var(--line);
+    padding:1.4rem 1.6rem; margin-top:1rem;
+  }
+  .verdict .stamp{
+    font-family:'Barlow Condensed', sans-serif;
+    font-weight:700; font-size:1.05rem; color:#fff; background:var(--green);
+    padding:0.3rem 0.9rem; white-space:nowrap;
+    transform:rotate(-3deg); border:2px solid var(--steel);
+  }
+
+  .roles{ display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:1.1rem; margin-top:1.2rem;}
+  .role{
+    background:#fbf8f0; border:1px solid var(--line); border-top:4px solid var(--steel);
+    padding:1.1rem 1.2rem;
+  }
+  .role h4{ font-size:1.15rem; margin:0 0 0.3rem; color:var(--steel);}
+  .role .who{ font-size:0.85rem; color:var(--safety-dark); font-family:'Barlow Condensed',sans-serif; font-weight:700; margin-bottom:0.5rem;}
+  .role ul{ margin:0; padding-left:1.1rem; font-size:0.93rem; }
+
+  .flow{ counter-reset:step; margin-top:1rem; }
+  .flow .step{
+    counter-increment:step; position:relative;
+    padding:0.9rem 0 0.9rem 3.2rem;
+    border-left:2px solid var(--line); margin-left:0.9rem;
+  }
+  .flow .step:last-child{ border-left:2px solid transparent; }
+  .flow .step::before{
+    content:counter(step);
+    position:absolute; left:-1.15rem; top:0.6rem;
+    width:2.2rem; height:2.2rem; border-radius:50%;
+    background:var(--steel); color:#fdfaf3;
+    font-family:'Barlow Condensed',sans-serif; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+    border:2px solid var(--paper);
+  }
+  .flow .step h4{ margin:0 0 0.2rem; font-size:1.08rem; color:var(--steel);}
+  .flow .step p{ margin:0; font-size:0.95rem; }
+  .flow.alt .step::before{ background:var(--safety); }
+  .flow.blue .step::before{ background:var(--blue); }
+
+  .tableScroll{ overflow-x:auto; }
+  table{ width:100%; border-collapse:collapse; margin-top:1rem; font-size:0.93rem; background:#fbf8f0; min-width:520px;}
+  caption{ text-align:left; font-family:'Barlow Condensed',sans-serif; color:var(--safety-dark); font-weight:700; margin-bottom:0.4rem;}
+  th, td{ border:1px solid var(--line); padding:0.6rem 0.7rem; text-align:left; vertical-align:top;}
+  th{ background:var(--steel); color:#fdfaf3; font-family:'Barlow Condensed',sans-serif; font-weight:600; letter-spacing:0.02em;}
+  tr:nth-child(even) td{ background:#f4f0e5; }
+
+  .note{ border-left:4px solid var(--red); background:#f7ece9; padding:0.85rem 1rem; margin-top:1rem; font-size:0.93rem; }
+  .tip{ border-left:4px solid var(--green); background:#edf2ec; padding:0.85rem 1rem; margin-top:1rem; font-size:0.93rem; }
+  .info{ border-left:4px solid var(--blue); background:#eaeff3; padding:0.85rem 1rem; margin-top:1rem; font-size:0.93rem; }
+
+  .phasebar{ display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:1rem;}
+  .phase{ flex:1 1 210px; background:var(--steel); color:#fdfaf3; padding:1rem; }
+  .phase h5{ font-family:'Barlow Condensed',sans-serif; color:var(--safety); margin:0 0 0.4rem; font-size:1rem;}
+  .phase p{ font-size:0.85rem; margin:0; color:#dde2dd;}
+
+  .ladder{ display:flex; flex-wrap:wrap; gap:0.5rem; align-items:stretch; margin-top:1.1rem;}
+  .rung{
+    flex:1 1 150px; background:#fbf8f0; border:1px solid var(--line);
+    border-bottom:4px solid var(--safety); padding:0.9rem;
+  }
+  .rung .num{ font-family:'Barlow Condensed',sans-serif; color:var(--safety-dark); font-weight:700; font-size:0.82rem;}
+  .rung h5{ margin:0.2rem 0 0.3rem; font-size:1.1rem;}
+  .rung p{ margin:0; font-size:0.85rem; }
+
+  .screen{
+    background:#fbf8f0; border:1px solid var(--line); border-top:4px solid var(--blue);
+    padding:1rem 1.2rem; margin-top:1rem; font-family:'Barlow Condensed',sans-serif;
+  }
+  .screen .row{ display:flex; justify-content:space-between; border-bottom:1px dashed var(--line); padding:0.35rem 0; font-size:0.95rem;}
+  .screen .row:last-child{ border-bottom:none; }
+  .screen .row span:last-child{ font-weight:700; color:var(--steel); }
+  .screen .head{ color:var(--safety-dark); font-weight:700; margin-bottom:0.4rem; font-size:0.9rem; letter-spacing:0.03em;}
+  .masked{ color:var(--red); }
+
+  footer{ padding:2.5rem 6vw 3.5rem; background:var(--steel); color:#b6bdb7; font-family:'Barlow Condensed',sans-serif; }
+  footer strong{ color:#fdfaf3; }
+
+  @media (max-width:640px){
+    nav.toc ol{ columns:1; }
+    header.hero{ padding:3rem 6vw 2.5rem;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="tag">END-TO-END PRODUCT PLAN — INDIA</div>
+  <h1>Find and book a place to rent — without a broker in the middle.</h1>
+  <p class="sub">Full breakdown of the property rental marketplace idea: start with farms and farmhouses, then expand to houses, shops and sheds. Roles, end-to-end flows, every feature, contact-masking rules, deposits, cancellation and refunds, tech stack, legal, and how to actually get the first listings.</p>
+  <div class="metaRow">
+    <div><span class="n">1</span><span class="l">Launch category</span></div>
+    <div><span class="n">1</span><span class="l">Launch city / region</span></div>
+    <div><span class="n">4</span><span class="l">Product roles</span></div>
+    <div><span class="n">2</span><span class="l">Rental modes</span></div>
+    <div><span class="n">3</span><span class="l">Build phases</span></div>
+  </div>
+</header>
+
+<nav class="toc">
+  <ol>
+    <li><a href="#verdict">1. Verdict — does this work in India?</a></li>
+    <li><a href="#ladder">2. Category ladder — the expansion order</a></li>
+    <li><a href="#modes">3. Two rental modes (the key decision)</a></li>
+    <li><a href="#roles">4. Roles in the system</a></li>
+    <li><a href="#owner-flow">5. Owner — end-to-end flow</a></li>
+    <li><a href="#seeker-flow">6. Seeker / renter — end-to-end flow</a></li>
+    <li><a href="#admin-flow">7. Admin / Ops — end-to-end flow</a></li>
+    <li><a href="#verifier-flow">8. Field verifier — end-to-end flow</a></li>
+    <li><a href="#masking">9. Contact masking &amp; anti-bypass</a></li>
+    <li><a href="#features">10. Full functionality, module by module</a></li>
+    <li><a href="#money-flow">11. Money flow — payment, deposit, payout</a></li>
+    <li><a href="#cancel">12. Cancellation &amp; refund policy</a></li>
+    <li><a href="#trust">13. Trust, KYC &amp; fake-listing control</a></li>
+    <li><a href="#disputes">14. Dispute resolution</a></li>
+    <li><a href="#techstack">15. Tech stack</a></li>
+    <li><a href="#legal">16. Legal &amp; compliance in India</a></li>
+    <li><a href="#money">17. Monetisation</a></li>
+    <li><a href="#liquidity">18. Chicken-and-egg problem</a></li>
+    <li><a href="#roadmap">19. Build roadmap — 3 phases</a></li>
+    <li><a href="#metrics">20. Metrics that matter</a></li>
+    <li><a href="#risks">21. Risks &amp; mitigations</a></li>
+  </ol>
+</nav>
+
+<div class="wrap">
+
+<!-- 01 -->
+<section id="verdict">
+  <div class="kicker">Section 01</div>
+  <h2>Does this work in India?</h2>
+  <div class="verdict">
+    <div class="stamp">WORKABLE, NARROWED</div>
+    <div>
+      <p><strong>"Rent anything" is not workable as a first product.</strong> A platform that lists farmhouses, flats, shops and sheds on day one needs four completely different sets of owners, four different pricing models, and four different legal flows — all before it has a single booking. You will spread thin and win none of them.</p>
+      <p style="margin-top:0.7rem;"><strong>But one category, one region, done properly is a real business.</strong> The pain you described is real: in India most rental discovery still runs through brokers, dalals, watchmen, WhatsApp groups and "my cousin knows someone." People pay one to two months' rent as brokerage for information that should be free, and farmhouse bookings are still a phone-call-and-advance-on-UPI business with no protection on either side.</p>
+      <p style="margin-top:0.7rem;">Your edge is not "we list everything." It is: <em>verified owners, real photographs of the actual property, transparent price with no hidden brokerage, safe payment, and a booking you can cancel with a known refund rule</em> — for farms and farmhouses, in one region, first.</p>
+    </div>
+  </div>
+
+  <h3>Who you are actually competing with</h3>
+  <div class="tableScroll">
+  <table>
+    <caption>Competitive landscape</caption>
+    <thead><tr><th>Player type</th><th>Examples</th><th>Where they leave a gap</th></tr></thead>
+    <tbody>
+      <tr><td>Farmhouse / stay booking sites</td><td>BookMyFarm, Farmhouse-booking pages, Airbnb (partial), StayVista</td><td>Thin coverage outside a few metros, weak verification, most owners still off-platform. Airbnb is premium-skewed and takes no interest in day-picnic farm rentals.</td></tr>
+      <tr><td>Property listing portals</td><td>MagicBricks, 99acres, Housing, NoBroker</td><td>They are <em>lead-generation</em> businesses, not booking businesses. You get a phone number, then negotiate offline. Listings go stale; brokers post as owners.</td></tr>
+      <tr><td>Local brokers / dalals</td><td>Offline, per-locality</td><td>High fee, zero transparency, no inventory visibility, no accountability after the deal.</td></tr>
+      <tr><td>WhatsApp &amp; Facebook groups</td><td>Society groups, city rental groups</td><td>Free but chaotic — no search, no verification, no proof, no recourse.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tip"><strong>The gap you fit into:</strong> nobody in India has made <em>end-to-end booking with money held safely</em> the default for rentable spaces outside hotels. Portals stop at the phone number. You continue past it.</div>
+
+  <div class="note"><strong>The honest hard part:</strong> this is a trust business, not a technology business. The website is maybe 25% of the work. The other 75% is convincing owners to list, keeping listings fresh, and stopping people from taking the deal off-platform after they meet. Plan your time accordingly.</div>
+</section>
+
+<!-- 02 -->
+<section id="ladder">
+  <div class="kicker">Section 02</div>
+  <h2>Category ladder — the expansion order</h2>
+  <p>Same platform, same trust infrastructure, released one rung at a time. Do <strong>not</strong> open the next rung until the current one has repeat bookings and organic owner sign-ups.</p>
+  <div class="ladder">
+    <div class="rung"><div class="num">RUNG 1 — LAUNCH</div><h5>Farm / Farmhouse</h5><p>Day picnics, one-night stays, small functions, pre-wedding shoots. Short duration, online payment already normal, no rent agreement needed.</p></div>
+    <div class="rung"><div class="num">RUNG 2</div><h5>Event &amp; party spaces</h5><p>Banquet lawns, terrace venues, small halls. Same booking model as farmhouses — pure calendar reuse, almost no new code.</p></div>
+    <div class="rung"><div class="num">RUNG 3</div><h5>House / Flat</h5><p>Long-term residential rent. Different beast: agreements, police verification, monthly rent, no calendar. Needs a separate flow.</p></div>
+    <div class="rung"><div class="num">RUNG 4</div><h5>Shop / Office</h5><p>Commercial lease. Higher value, longer decision cycle, GST and lease-deed complexity.</p></div>
+    <div class="rung"><div class="num">RUNG 5</div><h5>Shed / Godown / Land</h5><p>Industrial and storage. Small owner base, but very high ticket size and low competition.</p></div>
+  </div>
+
+  <div class="tableScroll">
+  <table>
+    <caption>Why Farm/Farmhouse is the right rung 1</caption>
+    <thead><tr><th>Factor</th><th>Farmhouse</th><th>House/Flat</th><th>Shop/Shed</th></tr></thead>
+    <tbody>
+      <tr><td>Transaction closes</td><td><strong>Same day, online</strong></td><td>Weeks, offline</td><td>Weeks to months, offline</td></tr>
+      <tr><td>Repeat usage</td><td>High — people rent 3–5 times a year</td><td>Once every 2–3 years</td><td>Once every 3–9 years</td></tr>
+      <tr><td>Online payment already accepted?</td><td>Yes — advance on UPI is already the norm</td><td>No — rent is offline/NEFT direct</td><td>No</td></tr>
+      <tr><td>Legal paperwork needed</td><td>Minimal — booking terms only</td><td>Rent agreement, e-stamp, police verification</td><td>Lease deed, GST, registration</td></tr>
+      <tr><td>Can you take a commission?</td><td><strong>Yes — cleanly, at booking</strong></td><td>Hard — payment happens off-platform</td><td>Hard</td></tr>
+      <tr><td>Bypass risk (going off-platform)</td><td>Moderate — but repeat bookings keep them on</td><td><strong>Very high</strong> — one deal, then done</td><td>Very high</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="tip"><strong>Recommendation:</strong> launch Farm/Farmhouse in one region where you personally can drive to properties and photograph them — Gujarat (Surat / Ahmedabad / Vadodara belt), Pune, Nashik, Bangalore outskirts, Lonavala, or Hyderabad outskirts all work. Hand-onboard the first 40–60 farms yourself.</div>
+
+  <div class="info"><strong>Why the ladder matters commercially:</strong> Rungs 1–2 are a <em>booking</em> business (you hold money, you earn commission per transaction, revenue is automatic). Rungs 3–5 are a <em>lead + agreement</em> business (you cannot hold the rent, so you earn a listing/success fee instead). Those are two different revenue engines under one brand. Build the booking engine first — it's the one that pays you without chasing anyone.</div>
+</section>
+
+<!-- 03 -->
+<section id="modes">
+  <div class="kicker">Section 03</div>
+  <h2>Two rental modes — the single most important product decision</h2>
+  <p>Your idea covers both short bookings and long tenancies. They are not the same product and must never share one flow. Build Mode A now; design the database so Mode B can be added later without a rewrite.</p>
+  <div class="tableScroll">
+  <table>
+    <caption>Mode A vs Mode B</caption>
+    <thead><tr><th>&nbsp;</th><th>MODE A — Book by date (Rung 1–2)</th><th>MODE B — Lease by month (Rung 3–5)</th></tr></thead>
+    <tbody>
+      <tr><td>Used for</td><td>Farmhouse, farm, lawn, event space</td><td>House, flat, shop, shed, godown</td></tr>
+      <tr><td>Core object</td><td>Availability calendar with per-date pricing</td><td>Available-from date + monthly rent</td></tr>
+      <tr><td>Money on platform</td><td>Full booking amount + refundable deposit, held in escrow</td><td>Only a token/booking fee. Rent and deposit are settled between the parties.</td></tr>
+      <tr><td>Platform revenue</td><td>Commission % per booking, taken automatically</td><td>Flat success fee or paid listing plan</td></tr>
+      <tr><td>Visit needed before deciding?</td><td>Usually no — photos and reviews are enough</td><td><strong>Always yes</strong> — needs a scheduled site-visit flow</td></tr>
+      <tr><td>Paperwork</td><td>Auto-generated booking terms, accepted with a tick</td><td>Rent agreement, e-stamp, ID of both parties, sometimes police verification</td></tr>
+      <tr><td>Closing the loop</td><td>Check-out → deposit refund → two-way review</td><td>Agreement signed → success fee → move-in confirmation</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note"><strong>Do not try to force a house rental into a date-picker.</strong> The most common failure of "rent anything" platforms in India is one booking flow bolted onto categories that behave nothing alike. One codebase, two clearly separated flows, chosen by category at listing time.</div>
+</section>
+
+<!-- 04 -->
+<section id="roles">
+  <div class="kicker">Section 04</div>
+  <h2>Roles in the system — 4 total</h2>
+  <p>Every action in the product belongs to one of these four. There is <strong>no delivery role</strong> — nothing is shipped. People travel to the property; the property does not travel to them.</p>
+  <div class="roles">
+    <div class="role">
+      <div class="who">ROLE 1</div>
+      <h4>Owner (Lister)</h4>
+      <ul>
+        <li>Completes KYC and property-ownership proof</li>
+        <li>Creates the listing: photos, amenities, rules, capacity</li>
+        <li>Sets price, deposit, calendar (Mode A) or rent and available-from (Mode B)</li>
+        <li>Accepts or declines booking requests</li>
+        <li>Chats with seekers through the platform only</li>
+        <li>Hosts check-in and check-out, marks condition</li>
+        <li>Receives payout after check-out</li>
+      </ul>
+    </div>
+    <div class="role">
+      <div class="who">ROLE 2</div>
+      <h4>Seeker (Renter / Guest)</h4>
+      <ul>
+        <li>Searches by area, dates, capacity, budget, amenities</li>
+        <li>Compares, shortlists, asks questions in masked chat</li>
+        <li>Books and pays online (Mode A) or requests a site visit (Mode B)</li>
+        <li>Gets exact address and contact only after confirmation</li>
+        <li>Checks in, uses the property, checks out</li>
+        <li>Gets deposit back and leaves a review</li>
+      </ul>
+    </div>
+    <div class="role">
+      <div class="who">ROLE 3</div>
+      <h4>Admin / Ops (you, internally)</h4>
+      <ul>
+        <li>Approves owner KYC and ownership documents</li>
+        <li>Moderates every listing before it goes live</li>
+        <li>Watches masked chat for contact-sharing attempts</li>
+        <li>Resolves disputes and damage claims</li>
+        <li>Releases payouts and refunds</li>
+        <li>Runs owner onboarding and calendar-freshness follow-ups</li>
+      </ul>
+    </div>
+    <div class="role">
+      <div class="who">ROLE 4</div>
+      <h4>Field Verifier (part-time / freelance)</h4>
+      <ul>
+        <li>Visits the property once before it goes live</li>
+        <li>Shoots standard photo set and a walkthrough video</li>
+        <li>Confirms the property physically exists and matches the listing</li>
+        <li>Confirms the lister is actually the owner or authorised</li>
+        <li>Uploads a signed verification report</li>
+      </ul>
+    </div>
+  </div>
+  <div class="tip"><strong>Role 4 is your real moat.</strong> Anyone can copy a website. Nobody copies a person who has physically stood on all 60 farms in your district and photographed them. "Verified by our team" is what makes a stranger send ₹8,000 online. Budget ₹300–₹800 per verification visit and treat it as customer acquisition cost, not overhead.</div>
+  <p style="margin-top:1rem;">At true MVP (first 50 listings), <strong>you personally are Roles 3 and 4</strong>. Do not build automation for KYC review, dispute rules, or payout scheduling before you have done 20 of each by hand and seen the actual edge cases.</p>
+</section>
+
+<!-- 05 -->
+<section id="owner-flow">
+  <div class="kicker">Section 05</div>
+  <h2>Owner — what they do, end to end</h2>
+  <div class="flow">
+    <div class="step">
+      <h4>Sign up &amp; verify identity</h4>
+      <p>Phone OTP login. Then Aadhaar or PAN verification through a KYC provider (DigiLocker, Signzy, HyperVerge, IDfy or Cashfree Verification) plus a selfie match. Bank/UPI details are collected here for payouts. No verified ID, no listing — ever.</p>
+    </div>
+    <div class="step">
+      <h4>Prove the property is theirs</h4>
+      <p>Upload any one of: electricity bill, property tax receipt, 7/12 extract or index-II (for farm land), sale deed page, or a signed authorisation letter if they manage it on the owner's behalf. Admin matches the name against the KYC name. This is the single filter that keeps brokers from posting as owners.</p>
+    </div>
+    <div class="step">
+      <h4>Create the listing</h4>
+      <p>Category → sub-type → location (map pin + area name, exact address hidden) → 6–15 photos → capacity and area in sq ft/acres → amenities checklist (pool, kitchen, parking, AC rooms, power backup, water, washroom count, DJ allowed, bonfire allowed) → house rules (pets, alcohol, loud music, timing) → cancellation policy choice → price (per day, per night, weekday/weekend, peak season) → refundable deposit → available dates. An AI assistant can draft the title, description and amenity list from the uploaded photos; owner edits and confirms.</p>
+    </div>
+    <div class="step">
+      <h4>Field verification visit</h4>
+      <p>Owner picks a slot. A verifier visits, shoots the standard photo set and a 60-second walkthrough video, confirms the property matches, and files the report. Listing carries a <strong>"Physically Verified"</strong> badge on approval.</p>
+    </div>
+    <div class="step">
+      <h4>Listing goes live after moderation</h4>
+      <p>Admin checks photos are real (reverse-image search catches stock and stolen photos), price is sane, and no phone number or Instagram handle is hidden in the description or photos. Then publish.</p>
+    </div>
+    <div class="step">
+      <h4>Answer enquiries in masked chat</h4>
+      <p>Seekers ask questions inside the platform. Owner's phone number is never shown. Response time and response rate are tracked and displayed publicly on the listing.</p>
+    </div>
+    <div class="step">
+      <h4>Receive and accept a booking</h4>
+      <p>Owner sees the seeker's verification badge, past bookings and reviews before accepting. Accept within a time window (e.g. 12 hours) or the request auto-expires and the money is auto-refunded. Repeated declines and expiries lower the listing's ranking.</p>
+    </div>
+    <div class="step">
+      <h4>Contact details unlock</h4>
+      <p>The moment payment is confirmed and the booking is accepted, both sides see each other's phone number and the exact address with map directions. Not one minute earlier.</p>
+    </div>
+    <div class="step">
+      <h4>Check-in</h4>
+      <p>Owner marks arrival in the app and captures timestamped condition photos of key areas through the in-app camera (not the gallery). Seeker co-confirms. This one feature kills most "it was already broken" arguments before they begin.</p>
+    </div>
+    <div class="step">
+      <h4>Check-out &amp; inspection</h4>
+      <p>Owner inspects, compares against check-in photos side by side in the app, and marks "All OK" or raises a damage claim with evidence within the inspection window (e.g. 24 hours).</p>
+    </div>
+    <div class="step">
+      <h4>Payout &amp; review</h4>
+      <p>If no dispute, the booking amount minus commission is settled to the owner's bank/UPI on T+1 or T+2. Owner reviews the seeker. Deposit auto-refunds to the seeker when the window closes with no claim.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 06 -->
+<section id="seeker-flow">
+  <div class="kicker">Section 06</div>
+  <h2>Seeker / renter — what they do, end to end</h2>
+  <div class="flow alt">
+    <div class="step">
+      <h4>Search &amp; filter</h4>
+      <p>By city or area, date range, guest count, budget, and amenities. Map view plus list view. Sort by price, distance, rating, or "recently verified." Search must work without login — never gate discovery behind a signup wall, that is exactly the behaviour people hate about existing portals.</p>
+    </div>
+    <div class="step">
+      <h4>Evaluate the listing</h4>
+      <p>Photo gallery, walkthrough video, amenity list, house rules, capacity, approximate location on the map (area circle, not exact pin), owner's verification badge and response time, reviews from past guests, full price breakdown, and the cancellation policy stated plainly in rupees and days.</p>
+    </div>
+    <div class="step">
+      <h4>Ask questions in masked chat</h4>
+      <p>Requires login. Contact details stay hidden on both sides. Seeker can shortlist and compare up to N properties.</p>
+    </div>
+    <div class="step">
+      <h4>Book and pay</h4>
+      <p>Pick dates → see the full breakdown → complete KYC if the booking value is above a threshold → pay by UPI, card or netbanking. Money is <strong>held by the platform</strong>, not sent to the owner yet. Booking sits as "Pending owner acceptance."</p>
+      <div class="screen">
+        <div class="head">PRICE BREAKDOWN — SAMPLE</div>
+        <div class="row"><span>Farmhouse rent · 1 night · Sat</span><span>₹8,000</span></div>
+        <div class="row"><span>Platform fee (8%)</span><span>₹640</span></div>
+        <div class="row"><span>Refundable security deposit</span><span>₹3,000</span></div>
+        <div class="row"><span>Total payable now</span><span>₹11,640</span></div>
+        <div class="row"><span>Refunded after check-out</span><span>₹3,000</span></div>
+        <div class="row"><span>Brokerage</span><span>₹0</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <h4>Owner accepts → details unlock</h4>
+      <p>Exact address, map directions, owner's phone number, and a booking voucher with a check-in code are released. If the owner declines or the window expires, the full amount is auto-refunded, no questions asked.</p>
+    </div>
+    <div class="step">
+      <h4>Arrive and check in</h4>
+      <p>Reaches the property, verifies the check-in code, co-confirms the condition photos captured by the owner. If reality does not match the listing, the seeker can raise an on-arrival complaint within a short window (e.g. 60 minutes) and get a platform-side resolution instead of arguing on the spot.</p>
+    </div>
+    <div class="step">
+      <h4>Use the property, then check out</h4>
+      <p>The app sends check-out reminders. Overstay beyond the booked slot triggers an extra-hours charge, stated upfront in the listing terms.</p>
+    </div>
+    <div class="step">
+      <h4>Deposit refund &amp; review</h4>
+      <p>Deposit returns to the original payment method automatically when the inspection window closes with no claim. Seeker rates the property on cleanliness, accuracy of the listing, value, and the owner's behaviour.</p>
+    </div>
+  </div>
+
+  <h3>Mode B variation — house, shop, shed</h3>
+  <div class="flow blue">
+    <div class="step"><h4>Search &amp; shortlist</h4><p>Same discovery, but filters are rent range, BHK / carpet area, furnishing, floor, available-from date, and tenant preference.</p></div>
+    <div class="step"><h4>Request a site visit</h4><p>Seeker picks two or three slots. Owner confirms one. A small refundable visit token (e.g. ₹99–₹199) can be charged to filter out time-wasters — refunded or adjusted if a deal happens.</p></div>
+    <div class="step"><h4>Visit happens, both mark the outcome</h4><p>"Interested / not interested / negotiating." This is your only visibility into Mode B, so make marking it easy and rewarded.</p></div>
+    <div class="step"><h4>Agreement &amp; success fee</h4><p>If it converts, the platform generates a rent agreement, offers e-stamping and e-signature through a partner, and charges a flat success fee — far below the one-month brokerage they would otherwise pay. That price gap is your entire pitch.</p></div>
+    <div class="step"><h4>Move-in confirmation &amp; review</h4><p>Both parties confirm, review each other, and the listing is auto-marked rented so the search results stay honest.</p></div>
+  </div>
+</section>
+
+<!-- 07 -->
+<section id="admin-flow">
+  <div class="kicker">Section 07</div>
+  <h2>Admin / Ops — what they do</h2>
+  <div class="tableScroll">
+  <table>
+    <caption>Admin responsibilities at MVP stage</caption>
+    <thead><tr><th>Task</th><th>Trigger</th><th>Manual at MVP?</th></tr></thead>
+    <tbody>
+      <tr><td>Approve owner KYC + ownership proof</td><td>New owner signs up</td><td>Yes — eyeball every one for the first few hundred</td></tr>
+      <tr><td>Moderate listings before publishing</td><td>Listing submitted</td><td>Yes — reverse-image check, price sanity, hidden contact details</td></tr>
+      <tr><td>Schedule and assign verification visits</td><td>Listing passes moderation</td><td>Yes — simple assignment queue</td></tr>
+      <tr><td>Monitor masked chat for bypass attempts</td><td>Automated flag fires</td><td>Semi — system flags, human decides</td></tr>
+      <tr><td>Resolve on-arrival complaints</td><td>Seeker reports a mismatch at check-in</td><td>Yes — needs a fast human on the phone, this is time-critical</td></tr>
+      <tr><td>Resolve damage disputes</td><td>Claim raised in inspection window</td><td>Yes — this is where you learn the rules to encode later</td></tr>
+      <tr><td>Release payouts and refunds</td><td>Booking completes or cancels</td><td>Semi-automated via gateway payouts API, admin handles exceptions</td></tr>
+      <tr><td>Chase calendar freshness</td><td>Listing not updated in 21 days</td><td>Automated nudge, manual follow-up call</td></tr>
+      <tr><td>Onboard new owners actively</td><td>Ongoing, always</td><td>Yes — founder work, not a feature</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note"><strong>Stale listings kill rental marketplaces.</strong> A seeker who books three properties and finds all three unavailable never comes back. Auto-hide any listing whose owner has not confirmed availability in 30 days, and make re-activating it a single tap in a WhatsApp message.</div>
+</section>
+
+<!-- 08 -->
+<section id="verifier-flow">
+  <div class="kicker">Section 08</div>
+  <h2>Field verifier — what they do</h2>
+  <div class="flow">
+    <div class="step"><h4>Gets assigned a visit</h4><p>Sees property area, owner's name, slot, and a checklist. Paid per completed verification.</p></div>
+    <div class="step"><h4>Reaches the property, geo-checks in</h4><p>App records GPS location and time so you know the visit actually happened at the property.</p></div>
+    <div class="step"><h4>Shoots the standard photo set</h4><p>A fixed list — entrance, full exterior, each room, washroom, kitchen, pool/lawn, parking, approach road — so every listing on your platform looks consistent. Consistency in photography is a surprisingly large part of why a marketplace feels trustworthy.</p></div>
+    <div class="step"><h4>Verifies identity and ownership on site</h4><p>Confirms the person present matches the KYC and that the ownership document belongs to this property.</p></div>
+    <div class="step"><h4>Files the report</h4><p>Amenities present vs claimed, condition rating, mobile network availability, approach-road quality, any red flags. Admin approves and the listing goes live with the verified badge.</p></div>
+  </div>
+  <div class="info"><strong>Cheaper alternative to start:</strong> before you hire anyone, do a <em>video verification</em> — a scheduled live video call where the owner walks you through the property while you screen-record it. Free, remote, and roughly 70% as convincing as a physical visit. Upgrade to physical visits for high-value listings and once you have volume in a cluster.</div>
+</section>
+
+<!-- 09 -->
+<section id="masking">
+  <div class="kicker">Section 09</div>
+  <h2>Contact masking &amp; anti-bypass — your core rule</h2>
+  <p>You said contact details must stay hidden until booking. That is correct, and it is also the hardest rule to actually enforce. Here is how it is done in practice.</p>
+
+  <h3>What is hidden and when it unlocks</h3>
+  <div class="tableScroll">
+  <table>
+    <caption>Information release ladder</caption>
+    <thead><tr><th>Stage</th><th>Seeker sees</th><th>Owner sees</th></tr></thead>
+    <tbody>
+      <tr><td>Browsing (no login)</td><td>Photos, amenities, price, area circle on map, reviews</td><td>—</td></tr>
+      <tr><td>Logged in, enquiring</td><td>Owner's first name, badge, response time. <span class="masked">Phone hidden. Exact address hidden.</span></td><td>Seeker's first name, badge, past bookings. <span class="masked">Phone hidden.</span></td></tr>
+      <tr><td>Booking requested &amp; paid</td><td>Still masked — awaiting acceptance</td><td>Seeker's profile, trust signals. <span class="masked">Phone still hidden.</span></td></tr>
+      <tr><td><strong>Booking confirmed</strong></td><td><strong>Exact address, map directions, owner's phone, check-in code</strong></td><td><strong>Seeker's phone, guest count, ETA</strong></td></tr>
+      <tr><td>After check-out</td><td>Contact stays available for 7 days, then hides again</td><td>Same</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>How to stop people sharing numbers in chat</h3>
+  <ul>
+    <li><strong>Pattern filtering.</strong> Block or mask 10-digit numbers, "nine eight seven six…" spelled in words, numbers written with spaces or dashes, email addresses, and Instagram/WhatsApp handles. Show the sender "Contact details are hidden until booking" rather than silently deleting — silent deletion makes people think the platform is broken.</li>
+    <li><strong>Block image and file sharing in pre-booking chat</strong>, or OCR-scan images for numbers. A screenshot of a visiting card is the most common workaround.</li>
+    <li><strong>Strip contact details from listings too</strong> — description text, photo watermarks, and the board hanging on the gate in photo #4. Check this during moderation.</li>
+    <li><strong>Masked calling (optional, Phase 3).</strong> A proxy number via Exotel, Knowlarity or Twilio lets both sides speak without seeing each other's number, and gives you a call recording if a dispute follows.</li>
+    <li><strong>Flag and act.</strong> Repeated attempts should throttle the account, not just the message. Two strikes → warning; three → listing de-ranked or account suspended.</li>
+  </ul>
+
+  <div class="note"><strong>Be realistic: you cannot win this by enforcement alone.</strong> Once two people have met at a property, nothing technical stops them transacting directly next time. Enforcement buys you the first transaction. What keeps them is value: <em>the calendar that prevents double-booking, the deposit handling neither party wants to manage personally, the review that brings the owner four more bookings, and the protection if something goes wrong.</em> Keep commission fair (8–12%, not 25%) so bypassing is not worth the risk they take on. A high commission does not increase revenue in a marketplace — it increases leakage.</div>
+
+  <div class="tip"><strong>Design the incentive, not just the wall:</strong> give owners a lower commission slab as their completed-booking count rises, and give repeat seekers a small credit. Both sides then lose something real by going off-platform.</div>
+</section>
+
+<!-- 10 -->
+<section id="features">
+  <div class="kicker">Section 10</div>
+  <h2>Full functionality, module by module</h2>
+  <div class="tableScroll">
+  <table>
+    <caption>Core modules and what each must do</caption>
+    <thead><tr><th>Module</th><th>Must-have functionality</th><th>MVP?</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Auth &amp; identity</strong></td><td>Phone OTP login, Google login, role selection (owner/seeker — one account can be both), Aadhaar/PAN KYC with selfie match, verification badge.</td><td>Yes</td></tr>
+      <tr><td><strong>Ownership proof</strong></td><td>Document upload, name matching against KYC, admin approval queue, re-verification on suspicion.</td><td>Yes</td></tr>
+      <tr><td><strong>Listings</strong></td><td>Create/edit/pause/duplicate, 6–15 photo upload with auto-compression, walkthrough video, category taxonomy, amenity checklist, house rules, capacity, map pin with a hidden exact address, AI-drafted description from photos.</td><td>Yes</td></tr>
+      <tr><td><strong>Pricing engine</strong></td><td>Base price per day/night, weekend and peak-season pricing, extra-guest charge, extra-hours charge, refundable deposit amount, minimum booking duration.</td><td>Yes (keep simple)</td></tr>
+      <tr><td><strong>Availability calendar</strong></td><td>Block/unblock dates, bulk block, auto-block on confirmed booking, sync reminder for owners, prevents double-booking at the database level (not just in the UI).</td><td>Yes</td></tr>
+      <tr><td><strong>Search &amp; discovery</strong></td><td>Location, dates, guests, price range, amenity filters; map + list view; sort options; SEO-friendly listing pages so Google sends you free traffic.</td><td>Yes</td></tr>
+      <tr><td><strong>Masked chat</strong></td><td>In-platform messaging, contact-pattern filtering, image blocking or OCR scan, admin flag queue, canned questions to reduce typing.</td><td>Yes</td></tr>
+      <tr><td><strong>Booking engine</strong></td><td>Date-range availability lock, price calculator, request → accept/decline with expiry timer, booking states (pending/confirmed/checked-in/completed/cancelled/disputed), booking voucher with check-in code.</td><td>Yes</td></tr>
+      <tr><td><strong>Payments</strong></td><td>UPI/card/netbanking, escrow-style hold via gateway split payments, deposit hold and auto-refund, commission deduction, owner payout, refunds by policy, GST-compliant invoice for the commission.</td><td>Yes</td></tr>
+      <tr><td><strong>Condition proof</strong></td><td>In-app camera only (gallery blocked), timestamp and geotag, check-in and check-out sets, side-by-side comparison view for disputes.</td><td>Yes</td></tr>
+      <tr><td><strong>Cancellation &amp; refunds</strong></td><td>Owner picks a policy tier at listing time; system computes the refund automatically; owner-side cancellation penalties; calendar auto-reopens.</td><td>Yes</td></tr>
+      <tr><td><strong>Reviews &amp; trust score</strong></td><td>Two-way reviews released only after both submit (or after 14 days), rating sub-scores, computed trust score, badges (Verified, Physically Verified, Fast Responder, Superhost-equivalent).</td><td>Yes</td></tr>
+      <tr><td><strong>Disputes</strong></td><td>Claim filing with evidence, deposit freeze, admin case queue, decision with written reasoning shared to both sides.</td><td>Yes</td></tr>
+      <tr><td><strong>Notifications</strong></td><td>WhatsApp Business API (highest open rate in India by far) + SMS for OTP and critical alerts + push once the app exists + email for invoices.</td><td>Yes</td></tr>
+      <tr><td><strong>Admin panel</strong></td><td>KYC queue, listing moderation, verification assignment, chat flags, booking browser, dispute cases, payout and refund controls, basic analytics.</td><td>Yes</td></tr>
+      <tr><td><strong>Site-visit scheduling (Mode B)</strong></td><td>Slot proposal and confirmation, visit token payment, outcome marking, auto rent-agreement generation with e-stamp partner.</td><td>Phase 3</td></tr>
+      <tr><td><strong>Masked calling</strong></td><td>Proxy number via Exotel/Knowlarity, call logs for dispute evidence.</td><td>Phase 3</td></tr>
+      <tr><td><strong>Owner dashboard</strong></td><td>Earnings, upcoming bookings, occupancy rate, listing views vs enquiries vs bookings, payout history.</td><td>Simple version at MVP</td></tr>
+      <tr><td><strong>Referral &amp; growth</strong></td><td>Owner-refers-owner rewards, seeker referral credit, shareable listing links with WhatsApp preview cards.</td><td>Phase 2</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- 11 -->
+<section id="money-flow">
+  <div class="kicker">Section 11</div>
+  <h2>Money flow — payment, deposit, payout</h2>
+  <div class="flow blue">
+    <div class="step"><h4>Seeker pays the full amount</h4><p>Rent + platform fee + refundable deposit, in one transaction. Money lands in the platform's gateway account, not the owner's.</p></div>
+    <div class="step"><h4>Money is held until the owner accepts</h4><p>If declined or expired, the entire amount is auto-refunded within the gateway's standard window (typically 5–7 working days to the source account — state this plainly so nobody panics).</p></div>
+    <div class="step"><h4>Held through check-in</h4><p>Funds stay held until the seeker has actually checked in. This protects against "paid but the gate was locked."</p></div>
+    <div class="step"><h4>After check-out, commission is split</h4><p>Gateway split-payment (Razorpay Route or Cashfree Easy Split) sends rent-minus-commission to the owner and keeps your commission in your account. Automatic, auditable, no manual transfers.</p></div>
+    <div class="step"><h4>Owner payout on T+1 / T+2</h4><p>To the owner's verified bank account or UPI ID. Payout status is visible in the owner dashboard so nobody has to call and ask.</p></div>
+    <div class="step"><h4>Deposit released after the inspection window</h4><p>Auto-refund to the seeker's original payment method if no claim is raised within 24–48 hours of check-out.</p></div>
+  </div>
+  <div class="note"><strong>Never hold customer deposits in your own current account.</strong> In India, holding other people's money outside a licensed escrow or a payment aggregator's settlement account is a regulatory grey zone under the RBI's payment aggregator rules. Use the gateway's split-payment and hold features from day one — this is not optional, and retrofitting it later is painful.</div>
+</section>
+
+<!-- 12 -->
+<section id="cancel">
+  <div class="kicker">Section 12</div>
+  <h2>Cancellation &amp; refund policy</h2>
+  <p>The owner picks one of three policy tiers when listing. The tier is displayed on the listing in plain language, and the refund is computed automatically — never negotiated in chat.</p>
+  <div class="tableScroll">
+  <table>
+    <caption>Seeker-side cancellation tiers (illustrative — tune with real data)</caption>
+    <thead><tr><th>Tier</th><th>7+ days before</th><th>3–7 days before</th><th>Under 48 hours</th><th>No-show</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Flexible</strong></td><td>100% rent refund</td><td>100% rent refund</td><td>50% rent refund</td><td>No rent refund</td></tr>
+      <tr><td><strong>Moderate</strong> (default)</td><td>100% rent refund</td><td>50% rent refund</td><td>No rent refund</td><td>No rent refund</td></tr>
+      <tr><td><strong>Strict</strong> (peak dates, big venues)</td><td>50% rent refund</td><td>No rent refund</td><td>No rent refund</td><td>No rent refund</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <ul>
+    <li><strong>The security deposit is always refunded in full</strong> on cancellation, in every tier. It is not a penalty instrument.</li>
+    <li><strong>The platform fee</strong> is refundable on flexible-tier full cancellations and on any owner-side cancellation; otherwise it is retained. Say so clearly at checkout.</li>
+    <li><strong>Owner cancels a confirmed booking:</strong> seeker gets 100% back <em>plus</em> a platform credit for the trouble, and the owner takes a penalty — those dates are auto-blocked, the listing is de-ranked temporarily, and repeated cancellations lead to suspension. Owner-side cancellation is the fastest way to destroy a rental marketplace's reputation; price it painfully.</li>
+    <li><strong>On-arrival mismatch:</strong> if the property materially differs from the listing and the seeker reports it within 60 minutes of check-in with photos, treat it as an owner cancellation — full refund, owner penalised, listing reviewed.</li>
+    <li><strong>Force majeure</strong> (flood, bandh, curfew, government order): full refund to the seeker, no penalty to the owner. Write this into the terms so you are not improvising during the next monsoon.</li>
+  </ul>
+  <div class="tip"><strong>Show the refund in rupees, not in policy language.</strong> On the cancellation screen: "You will receive ₹9,140 back. ₹2,500 is non-refundable under this listing's Moderate policy." Nobody reads a policy table; everybody reads a number.</div>
+</section>
+
+<!-- 13 -->
+<section id="trust">
+  <div class="kicker">Section 13</div>
+  <h2>Trust, KYC &amp; fake-listing control</h2>
+  <p>This business lives or dies on trust, not on feature count. Five things must be right before anything else.</p>
+
+  <h3>1. Identity verification</h3>
+  <p>Owners: mandatory Aadhaar or PAN verification plus selfie match before the first listing goes live. Seekers: phone verification is enough for browsing and enquiring, but full KYC becomes mandatory above a booking-value threshold (say ₹5,000) — this is also what makes owners comfortable handing over a property to a stranger.</p>
+
+  <h3>2. Ownership proof</h3>
+  <p>The distinguishing filter versus every existing portal in India, where roughly half the "owner" listings are brokers. Electricity bill, tax receipt, 7/12 extract or index-II, or a signed authorisation letter — name-matched to the KYC. Display "Owner verified" versus "Authorised manager" honestly; do not pretend an agent is an owner.</p>
+
+  <h3>3. Physical or video verification</h3>
+  <p>Every listing gets a real human check before going live. This is slow and unglamorous and it is exactly why people will trust you over a free classifieds site.</p>
+
+  <h3>4. Photo integrity</h3>
+  <p>Reverse-image search on upload to catch photos lifted from other websites. Prefer verifier-shot photos as the primary gallery. Watermark subtly with the listing ID so your photos are traceable if a competitor scrapes them.</p>
+
+  <h3>5. Trust score — visible, earned, hard to fake</h3>
+  <div class="tableScroll">
+  <table>
+    <caption>What feeds the score</caption>
+    <thead><tr><th>Signal</th><th>Owner</th><th>Seeker</th></tr></thead>
+    <tbody>
+      <tr><td>KYC + ownership verified</td><td>Yes</td><td>KYC only</td></tr>
+      <tr><td>Physically/video verified property</td><td>Yes</td><td>—</td></tr>
+      <tr><td>Completed bookings count</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Average review rating</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Response rate &amp; time</td><td>Yes</td><td>—</td></tr>
+      <tr><td>Cancellation rate</td><td>Yes (heavily weighted)</td><td>Yes</td></tr>
+      <tr><td>Dispute rate</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Bypass-attempt flags</td><td>Yes (negative)</td><td>Yes (negative)</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="screen">
+    <div class="head">OWNER PROFILE — SCREEN REFERENCE</div>
+    <div class="row"><span>Bhavin P. · Owner</span><span>★ 4.8</span></div>
+    <div class="row"><span>Identity &amp; ownership</span><span>Verified ✓</span></div>
+    <div class="row"><span>Property</span><span>Physically Verified ✓</span></div>
+    <div class="row"><span>Completed bookings</span><span>23</span></div>
+    <div class="row"><span>Response rate</span><span>96% · under 2 hrs</span></div>
+    <div class="row"><span>Cancellations by owner</span><span>0</span></div>
+    <div class="row"><span>Trust Score</span><span>94 / 100</span></div>
+    <div class="row"><span>Phone number</span><span class="masked">Hidden until booking</span></div>
+  </div>
+</section>
+
+<!-- 14 -->
+<section id="disputes">
+  <div class="kicker">Section 14</div>
+  <h2>Dispute resolution</h2>
+  <div class="flow alt">
+    <div class="step"><h4>Claim filed</h4><p>Either side opens a case within the inspection window, with photos and a written description. Common cases: damage, extra guests beyond capacity, overstay, property not as described, owner denied entry.</p></div>
+    <div class="step"><h4>Deposit freezes automatically</h4><p>No money moves either way until resolution. Neither side can act unilaterally.</p></div>
+    <div class="step"><h4>Both sides submit evidence</h4><p>Fixed window (e.g. 48 hours). The check-in and check-out condition photos are already on file — those decide most cases on their own.</p></div>
+    <div class="step"><h4>Admin decides</h4><p>Full deposit to owner, partial split, or full refund to seeker. At MVP scale this is human judgment; write down the reasoning for every case and after 20 cases you will see the rules that can be automated.</p></div>
+    <div class="step"><h4>Decision communicated with reasoning</h4><p>Both sides see the same written outcome. Transparency here is what stops a dispute from becoming a public complaint on social media.</p></div>
+    <div class="step"><h4>Escalation</h4><p>Damage above the deposit goes to the insurance partner if the seeker opted into a protection plan; otherwise it becomes a recovery case, and finally consumer-forum guidance. Design so this is rare — deposits sized correctly for the property value are the real prevention.</p></div>
+  </div>
+</section>
+
+<!-- 15 -->
+<section id="techstack">
+  <div class="kicker">Section 15</div>
+  <h2>Tech stack</h2>
+  <p>The right stack is not the trendiest — it is the one that ships a working two-sided marketplace fast, with strong support for Indian payments, KYC and messaging, and good SEO on listing pages.</p>
+  <div class="tableScroll">
+  <table>
+    <caption>Recommended stack</caption>
+    <thead><tr><th>Layer</th><th>Recommendation</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Frontend (web)</td><td>Next.js (React) + Tailwind CSS</td><td>Server-rendered listing pages mean Google indexes "farmhouse on rent in Kamrej" and sends you free traffic — for a rental marketplace, SEO is a primary acquisition channel, not an afterthought. Large hiring pool in India.</td></tr>
+      <tr><td>Backend</td><td>Node.js (NestJS) <em>or</em> Django (Python)</td><td>NestJS gives one language end-to-end with the Next.js frontend. Django gives you a usable admin panel free on day one, which is a genuine time-saver given how much manual ops this product needs. Pick what your team already knows.</td></tr>
+      <tr><td>Database</td><td>PostgreSQL (+ PostGIS)</td><td>Bookings, availability and disputes need real relational integrity and transactional locking — a double-booked farmhouse on a Saturday is an unrecoverable trust failure. PostGIS handles "within 25 km of me" natively.</td></tr>
+      <tr><td>Cache / queues</td><td>Redis</td><td>OTP throttling, session data, booking-expiry timers, background jobs (notifications, payout retries).</td></tr>
+      <tr><td>Photo &amp; video storage</td><td>AWS S3 (Mumbai, ap-south-1) or Cloudflare R2 + a CDN</td><td>Condition-proof photos are dispute evidence — store with versioning and lifecycle rules, never on an app server disk.</td></tr>
+      <tr><td>Payments</td><td>Razorpay Route or Cashfree Easy Split</td><td>Both support UPI, cards, netbanking, <em>and</em> the split payments and hold-and-release needed for commission and deposits. This is the deciding feature — do not pick a gateway without it.</td></tr>
+      <tr><td>KYC / verification</td><td>Signzy, HyperVerge, IDfy, or Cashfree Verification (Aadhaar/PAN + selfie, DigiLocker)</td><td>Purpose-built for Indian ID. Never build this in-house and never store raw Aadhaar images yourself.</td></tr>
+      <tr><td>Notifications</td><td>WhatsApp Business API via Gupshup / Interakt / AiSensy, + MSG91 or Twilio for SMS OTP, + Firebase push later</td><td>WhatsApp open rates in India are far above email. Booking confirmations, reminders and payout alerts all belong there.</td></tr>
+      <tr><td>Maps</td><td>Google Maps Platform, or MapmyIndia/Mappls for cheaper Indian coverage</td><td>Area-circle display pre-booking, exact pin and directions post-booking.</td></tr>
+      <tr><td>Search</td><td>PostgreSQL full-text + PostGIS at MVP; Meilisearch or Typesense past a few thousand listings</td><td>Do not deploy Elasticsearch for 60 listings.</td></tr>
+      <tr><td>AI listing assistant</td><td>A vision-capable LLM API called from the backend on photo upload</td><td>Drafts title, description and amenity list from photos. Listing creation is the highest drop-off step for owners — every field you can pre-fill raises listing completion.</td></tr>
+      <tr><td>Masked calling (Phase 3)</td><td>Exotel, Knowlarity, or Twilio proxy numbers</td><td>Lets both sides talk without exposing numbers, and records calls for dispute evidence.</td></tr>
+      <tr><td>Hosting</td><td>AWS or GCP Mumbai region; Vercel for the frontend is fine</td><td>Low latency for Indian users, and data residency matters once you touch KYC data.</td></tr>
+      <tr><td>Analytics &amp; errors</td><td>PostHog or Mixpanel + Sentry</td><td>Track the funnel — search → listing view → enquiry → booking request → confirmed — not page views.</td></tr>
+      <tr><td>Mobile app</td><td>React Native or Flutter, <strong>after</strong> the web MVP proves demand</td><td>You need it eventually for in-app camera capture and push notifications, but not for the first 100 bookings. A good mobile web experience carries you there.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tip"><strong>Practical shortcut for Phase 1:</strong> a Next.js site with listings, search and an enquiry form, plus Razorpay payment links and WhatsApp for coordination, plus a Google Sheet as your admin panel. That is enough to complete 30 real bookings and learn everything. Do not build the escrow, dispute engine and trust-score algorithm before you have watched 30 bookings happen by hand.</div>
+</section>
+
+<!-- 16 -->
+<section id="legal">
+  <div class="kicker">Section 16</div>
+  <h2>Legal &amp; compliance in India</h2>
+  <div class="tableScroll">
+  <table>
+    <caption>Get these right early — retrofitting is expensive</caption>
+    <thead><tr><th>Area</th><th>What to handle</th></tr></thead>
+    <tbody>
+      <tr><td>Business entity</td><td>A Private Limited company is the practical choice once you are handling other people's money or plan to raise capital. An LLP works for a bootstrapped start. You will need a current account and gateway onboarding either way.</td></tr>
+      <tr><td>GST</td><td>Registration is mandatory past the turnover threshold, and effectively needed earlier to invoice your commission properly. GST applies to <em>your commission</em>; whether it applies to the rent itself depends on the property type and the owner's own registration — take an accountant's view on this before launch, it is category-specific.</td></tr>
+      <tr><td>Marketplace positioning</td><td>Terms of Service must state clearly that you are an intermediary facilitating a transaction between owner and seeker, not the owner, lessor or operator of any property. This matters enormously if an accident happens at a property.</td></tr>
+      <tr><td>Booking terms per transaction</td><td>Auto-generate a short booking agreement per confirmed booking — duration, capacity, house rules, damage liability, cancellation terms — accepted by tick-box with a timestamp and IP log. This is your evidence in any dispute.</td></tr>
+      <tr><td>Rent agreements (Mode B)</td><td>For house/shop/shed, integrate an e-stamp and e-sign partner rather than generating unstamped agreements. Stamp duty varies by state; police verification of tenants is required in several cities.</td></tr>
+      <tr><td>Holding deposits</td><td>Use the payment aggregator's escrow/settlement mechanism. Holding customer deposits in your own account puts you in RBI payment-aggregator territory that you do not want to be in.</td></tr>
+      <tr><td>Data protection (DPDP Act)</td><td>Aadhaar/PAN data is sensitive personal data. Store verification <em>results</em> and reference IDs from your KYC vendor, not raw ID images. Publish a privacy policy, collect consent, and define retention periods.</td></tr>
+      <tr><td>IT Rules / intermediary safe harbour</td><td>Publish a grievance officer's name and contact, respond within statutory timelines, and keep a takedown process for fraudulent listings. This is what preserves your intermediary protection.</td></tr>
+      <tr><td>Insurance</td><td>If you offer damage protection, do it through a licensed insurer as a partner. Never informally promise "we'll cover it" — that is unlimited liability sitting on your balance sheet.</td></tr>
+      <tr><td>Local permissions</td><td>Farmhouses hosting events may need local body permissions, noise-limit compliance, and fire safety for larger gatherings. You are not liable for the owner's compliance, but your terms should require them to declare it — and you should ask during verification.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note">This section is general information, not legal advice. Before launch, spend one paid session with a CA and one with a lawyer who has worked with marketplaces. It costs a fraction of what a wrong structure costs to unwind later.</div>
+</section>
+
+<!-- 17 -->
+<section id="money">
+  <div class="kicker">Section 17</div>
+  <h2>Monetisation</h2>
+  <div class="tableScroll">
+  <table>
+    <caption>Revenue model</caption>
+    <thead><tr><th>Line</th><th>How it works</th><th>Priority</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Booking commission (Mode A)</strong></td><td>8–12% of the rent (never of the deposit). Charge the seeker, the owner, or split — most Indian marketplaces charge the seeker visibly and keep the owner's payout clean, which makes owner recruitment much easier.</td><td><strong>Primary — your entire early revenue</strong></td></tr>
+      <tr><td>Success fee (Mode B)</td><td>Flat fee on a closed house/shop/shed deal — deliberately priced far under one month's brokerage. That comparison <em>is</em> the marketing.</td><td>Phase 3</td></tr>
+      <tr><td>Site-visit token</td><td>Small refundable amount to filter serious seekers in Mode B; adjusted against the success fee.</td><td>Phase 3</td></tr>
+      <tr><td>Featured / boosted listings</td><td>Owners pay for higher placement in search for a period.</td><td>Only once listing density makes ranking meaningful</td></tr>
+      <tr><td>Owner subscription</td><td>Monthly plan for multi-property owners: lower commission, more photos, priority support, analytics.</td><td>Once owners exceed ~10 bookings/month</td></tr>
+      <tr><td>Professional photography</td><td>Paid shoot for owners who want it — also improves your inventory quality, so it pays twice.</td><td>Phase 2</td></tr>
+      <tr><td>Protection plan commission</td><td>Revenue share from a licensed insurance partner on optional damage cover at checkout.</td><td>Once volume justifies a partnership</td></tr>
+      <tr><td>Rent agreement &amp; e-stamp fee</td><td>Small margin on agreement generation and e-stamping in Mode B.</td><td>Phase 3</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="info"><strong>Unit economics check.</strong> Say average booking is ₹8,000 and commission is 10% → ₹800 per booking. If verification costs ₹500 once per listing and a listing generates 6 bookings a year, verification costs ₹83 per booking. Payment gateway takes roughly 2% → ₹160. Support and ops, say ₹100. You net around ₹450 per booking before marketing. To reach ₹1 lakh a month you need roughly 220 bookings a month — which in one region means about 80–120 active listings running decent occupancy. That is a reachable number, and it tells you the business only works if listings are <em>active</em>, not merely present. Occupancy per listing, not listing count, is the metric.</div>
+</section>
+
+<!-- 18 -->
+<section id="liquidity">
+  <div class="kicker">Section 18</div>
+  <h2>The chicken-and-egg problem</h2>
+  <p>You identified this correctly as the real difficulty. No listings means no seekers; no seekers means no owners bother listing. You break it manually, in this order, before writing any growth code.</p>
+  <div class="flow">
+    <div class="step">
+      <h4>Pick one district and saturate it</h4>
+      <p>Not "India," not even one state. One city plus its 40 km weekend belt. A seeker who searches your site should find <em>every</em> farmhouse in that belt. Depth in one area beats thin coverage across five.</p>
+    </div>
+    <div class="step">
+      <h4>Hand-recruit the first 40–60 owners</h4>
+      <p>Drive out. Find existing farmhouses on Instagram, Facebook groups, JustDial, and by asking at the local tea stall. Offer to do everything for them: photograph the property, write the listing, set the calendar, zero fee for the first three months. Do not wait for self-serve signup to produce inventory — it will not.</p>
+    </div>
+    <div class="step">
+      <h4>Take the listings live with real photos and honest prices</h4>
+      <p>Nothing kills a new marketplace faster than a search result page of five listings with blurry photos and "price on request."</p>
+    </div>
+    <div class="step">
+      <h4>Now go get seekers — where they already are</h4>
+      <p>Local Instagram reels of the properties (this genuinely works for farmhouses — the product is visual), city Facebook groups, college and corporate WhatsApp groups, Google search ads on "farmhouse on rent in [city]", and SEO listing pages from day one. Instagram plus SEO will outperform paid search early on.</p>
+    </div>
+    <div class="step">
+      <h4>Personally shepherd the first 20 bookings</h4>
+      <p>Call both sides before and after. Fix problems yourself. You are buying information here, not scaling — every friction you find in these 20 is a feature or a policy in the next release.</p>
+    </div>
+    <div class="step">
+      <h4>Turn happy owners into recruiters</h4>
+      <p>Farmhouse owners in a district know each other. One owner earning ₹40,000 a month through you brings the next three for free. Give them a referral reward and a public "Top Host" badge. This flywheel is the actual product; the website is just the machinery that lets it run without you.</p>
+    </div>
+  </div>
+  <div class="tip"><strong>Before you build anything, do this test:</strong> make one Instagram page and one Google Form. List 10 real farmhouses (with the owners' permission). Try to get 10 real bookings coordinated over WhatsApp, and take a 10% cut. If you cannot do this manually in six weeks, a website will not fix it — and if you can, you will know exactly what to build. This costs you almost nothing and is the highest-value week of work in the entire plan.</div>
+</section>
+
+<!-- 19 -->
+<section id="roadmap">
+  <div class="kicker">Section 19</div>
+  <h2>Build roadmap — 3 phases</h2>
+  <div class="phasebar">
+    <div class="phase">
+      <h5>PHASE 1 — PROVE IT MANUALLY (4–8 weeks)</h5>
+      <p>Instagram page + simple Next.js listing site with search and an enquiry form. Manual KYC over WhatsApp. Razorpay payment links. Google Sheet as admin. 10–20 listings. <strong>Goal: 25–30 completed bookings, zero disputes mishandled, and a written list of every problem you hit.</strong></p>
+    </div>
+    <div class="phase">
+      <h5>PHASE 2 — REAL MVP (3–4 months)</h5>
+      <p>Owner KYC and ownership proof, listing builder with calendar, search with filters and map, masked chat, booking engine with accept/decline, escrow payments and split payouts, deposits, cancellation engine, condition-proof capture, two-way reviews and trust score, admin panel, WhatsApp notifications. One category, one region, 80–120 live listings. <strong>Goal: repeat seekers and owners signing up without you calling them.</strong></p>
+    </div>
+    <div class="phase">
+      <h5>PHASE 3 — EXPAND (6–12 months)</h5>
+      <p>Second region or Rung 2 (event spaces), mobile app, masked calling, Mode B for house/shop/shed with site visits and e-stamped rent agreements, insurance partner, featured listings and owner subscriptions, automated dispute rules based on Phase 1–2 case history. <strong>Goal: a second region reaching profitability faster than the first — that ratio is what proves the model repeats.</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- 20 -->
+<section id="metrics">
+  <div class="kicker">Section 20</div>
+  <h2>Metrics that matter</h2>
+  <div class="tableScroll">
+  <table>
+    <caption>Watch these weekly from day one</caption>
+    <thead><tr><th>Metric</th><th>Why it matters</th><th>Healthy signal</th></tr></thead>
+    <tbody>
+      <tr><td>Live listings in the launch region</td><td>Supply depth — below a threshold, search feels empty</td><td>80+ before spending on demand marketing</td></tr>
+      <tr><td>Occupancy per listing</td><td>The real economics; listing count alone is vanity</td><td>Owners earning enough to stay engaged</td></tr>
+      <tr><td>Search → enquiry rate</td><td>Are your listings good enough to act on?</td><td>Rising after photo and price improvements</td></tr>
+      <tr><td>Enquiry → confirmed booking rate</td><td>Owner responsiveness and pricing sanity</td><td>Above 20% is healthy early</td></tr>
+      <tr><td>Owner response time</td><td>The number one cause of lost bookings in Indian rental platforms</td><td>Median under 2 hours</td></tr>
+      <tr><td>Repeat seeker rate (90 days)</td><td>Proves the category has genuine repeat demand</td><td>Any meaningful number validates Rung 1</td></tr>
+      <tr><td>Bypass-attempt flags per 100 chats</td><td>Early warning on leakage</td><td>Falling as your value beyond discovery grows</td></tr>
+      <tr><td>Dispute rate per 100 bookings</td><td>Trust infrastructure health</td><td>Under 3, trending down</td></tr>
+      <tr><td>Owner-side cancellation rate</td><td>The single most damaging failure mode</td><td>Under 2%</td></tr>
+      <tr><td>Listing freshness</td><td>Stale calendars silently kill the marketplace</td><td>90%+ confirmed within 30 days</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- 21 -->
+<section id="risks">
+  <div class="kicker">Section 21</div>
+  <h2>Risks &amp; mitigations</h2>
+  <div class="tableScroll">
+  <table>
+    <caption>Key risks</caption>
+    <thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Off-platform bypass</strong> — they meet once and deal directly next time</td><td>Contact masking pre-booking, fair commission (8–12%), value that only the platform provides (calendar, deposit handling, reviews, dispute support), loyalty slabs for both sides. Accept some leakage as structural; do not respond by raising fees.</td></tr>
+      <tr><td>Fake listings or brokers posing as owners</td><td>Mandatory KYC + ownership document + physical/video verification before going live; reverse-image checks; report button; suspension on the first confirmed fake.</td></tr>
+      <tr><td>Property damage or unruly guests</td><td>Refundable deposit sized to the property, seeker KYC above a value threshold, condition photos at check-in and check-out, capacity limits enforced in the booking, insurance partner for high-value venues.</td></tr>
+      <tr><td>Owner cancels last minute</td><td>Heavy penalty, temporary de-ranking, platform credit to the seeker, and an ops process to find a replacement property in the same belt.</td></tr>
+      <tr><td>Double-booking</td><td>Database-level locking on the availability calendar, and a policy that any booking confirmed on the platform overrides any offline booking the owner took.</td></tr>
+      <tr><td>Stale listings / unresponsive owners</td><td>Auto-hide after 30 days without confirmation, one-tap reactivate over WhatsApp, response rate shown publicly and used in ranking.</td></tr>
+      <tr><td>Seasonality (monsoon, exam season, off-peak weekdays)</td><td>Weekday and off-season pricing tools, corporate offsite and shoot-location demand to fill weekdays, and Rung 2 event spaces as a partial counter-cycle.</td></tr>
+      <tr><td>Low liquidity at launch</td><td>One district, manual owner recruitment, founder-led first 20 bookings, no demand spend until supply is deep.</td></tr>
+      <tr><td>Payment / regulatory exposure on deposits</td><td>Gateway escrow and split payments from day one; never hold customer money in your own account.</td></tr>
+      <tr><td>Liability if something happens at a property</td><td>Clear intermediary positioning in ToS, per-booking terms, owner declarations on local permissions, insurance partner. Do not describe yourself as the operator of any property, ever.</td></tr>
+      <tr><td>A funded competitor copies you</td><td>Your defensibility is not the software — it is district-level supply depth, verified inventory, and owner relationships. Those take feet on the ground and cannot be bought quickly. Go deep in one belt before going wide.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <p><strong>Bottom line:</strong> "Rent anything" is a 5/10 idea. "Book a verified farmhouse in your district online, at a transparent price, with your money held safely and no broker in the middle" is an 8–9/10 idea — and it is the same platform, just aimed at a door you can actually open. Prove it manually with 30 bookings first. Then build the machine that does it 3,000 times.</p>
+  <p style="margin-top:0.8rem;"><strong>Positioning — don't say:</strong> "A marketplace to rent anything." <strong>Say:</strong> "Find and book a place directly from the owner — verified, transparent, no brokerage."</p>
+</footer>
+
+</body>
+</html>
