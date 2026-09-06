@@ -123,3 +123,9 @@ BullMQ queues in `worker/` · listing detail and city/area pages.
 is the maximum period you will hold a split payment before mandatory
 settlement, for a rental marketplace?* A Diwali booking made in August means
 holding funds 70+ days. That answer shapes the schema.
+
+> **Never run `drizzle-kit push` against this database.** It diffs the schema
+> and applies changes directly, bypassing `./drizzle` migrations — which means
+> no reviewable SQL, no backfills, and a real chance of dropping a constraint
+> or a column with data behind it. Always `db:generate` then `db:migrate`, and
+> read the generated SQL before applying it.

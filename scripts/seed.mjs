@@ -148,10 +148,13 @@ const guests = await db.insert(s.users).values([
   { phone: '9898980005', role: 'customer', name: 'Mehul V.',  kycStatus: 'none' },
 ]).returning();
 
-await db.insert(s.adminUsers).values({
-  email: 'ops@rentra.in', name: 'Rentra Ops',
-  passwordHash: 'REPLACE_ME_WITH_ARGON2_HASH',
-});
+// Admin accounts are deliberately NOT seeded here. There is no self-signup for
+// admins, and a row carrying a placeholder password hash is dead data that can
+// never authenticate — confusing rather than useful.
+//   npm run seed:admin -- admin@gmail.com "Your Name" [--totp]
+//
+// NOTE: this script TRUNCATEs admin_user, so re-seeding wipes your admin.
+// Re-run seed:admin afterwards.
 
 // The caretaker who actually runs the properties — a child of the Client.
 await db.insert(s.clientStaff).values({

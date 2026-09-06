@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rentra Role Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Frank+Ruhl+Libre:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme:light;
+    --steel:#233028; --steel-2:#314136; --steel-3:#42544a;
+    --paper:#efeade; --panel:#fbf8f0; --panel-2:#f4f0e5;
+    --safety:#c8792a; --safety-dark:#95571a;
+    --ink:#221f1a; --line:#cbc3ae; --line-soft:#ded6c2;
+    --green:#3f6b4a; --red:#a3392f; --blue:#2f5570; --violet:#5b4a72;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth; scroll-padding-top:4.4rem;}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:'Frank Ruhl Libre',Georgia,serif;line-height:1.58;}
+  h1,h2,h3,h4,h5{font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+    font-weight:700;letter-spacing:.01em;color:var(--steel);margin:0 0 .4em;text-wrap:balance;}
+  p,li{font-size:1rem;} a{color:var(--safety-dark);}
+  a:focus-visible,summary:focus-visible{outline:3px solid var(--safety);outline-offset:2px;}
+  code,.mono{font-family:'IBM Plex Mono',Consolas,monospace;font-size:.86em;}
+
+  .rail{position:sticky;top:0;z-index:60;background:var(--steel);
+    border-bottom:3px solid var(--safety);font-family:'Barlow Condensed',sans-serif;}
+  .rail .in{max-width:1080px;margin:0 auto;padding:0 4vw;min-height:3.1rem;
+    display:flex;align-items:center;gap:.3rem;overflow-x:auto;}
+  .rail .brand{color:#fdfaf3;font-weight:700;letter-spacing:.09em;font-size:.92rem;
+    margin-right:.9rem;white-space:nowrap;}
+  .rail a{color:#c3cbc4;text-decoration:none;font-size:.88rem;font-weight:600;
+    padding:.32rem .6rem;white-space:nowrap;letter-spacing:.03em;}
+  .rail a:hover{color:#fdfaf3;background:var(--steel-2);}
+  .rail .sep{color:#5d6d62;padding:0 .15rem;pointer-events:none;}
+
+  header.hero{background:repeating-linear-gradient(135deg,rgba(0,0,0,.05) 0 2px,transparent 2px 14px),
+    linear-gradient(180deg,var(--steel) 0%,var(--steel-2) 100%);
+    color:var(--paper);padding:3.4rem 6vw 2.6rem;border-bottom:8px solid var(--safety);}
+  header.hero .tag{font-family:'Barlow Condensed',sans-serif;color:var(--safety);
+    font-size:1rem;font-weight:600;margin-bottom:.6rem;letter-spacing:.06em;}
+  header.hero h1{color:#fdfaf3;font-size:clamp(2rem,4.4vw,3.1rem);line-height:1.06;max-width:26ch;}
+  header.hero .sub{color:#cfd4d0;font-size:1.1rem;max-width:68ch;margin-top:1rem;}
+  header.hero .metaRow{display:flex;gap:2.2rem;flex-wrap:wrap;margin-top:1.9rem;
+    padding-top:1.4rem;border-top:1px solid rgba(255,255,255,.18);}
+  header.hero .metaRow div{min-width:120px;}
+  header.hero .metaRow .n{font-family:'Barlow Condensed',sans-serif;color:var(--safety);
+    font-size:1.8rem;font-weight:700;display:block;line-height:1;}
+  header.hero .metaRow .l{font-size:.82rem;color:#b6bdb7;}
+
+  .wrap{max-width:1080px;margin:0 auto;padding:0 5vw;}
+  .block{padding:2.8rem 0;border-bottom:1px solid var(--line);}
+  .block:last-child{border-bottom:none;}
+  .kick{font-family:'Barlow Condensed',sans-serif;color:var(--safety-dark);font-weight:700;
+    font-size:.9rem;margin-bottom:.3rem;letter-spacing:.07em;}
+  .block h2{font-size:1.95rem;margin-bottom:.8rem;}
+  .block h3{font-size:1.26rem;margin-top:1.9rem;color:var(--steel-2);}
+  .block h4{font-size:1.04rem;margin-top:1.3rem;}
+  .lede{max-width:70ch;}
+
+  .note{border-left:4px solid var(--red);background:#f7ece9;padding:.85rem 1rem;margin-top:1rem;font-size:.93rem;}
+  .tip{border-left:4px solid var(--green);background:#edf2ec;padding:.85rem 1rem;margin-top:1rem;font-size:.93rem;}
+  .info{border-left:4px solid var(--blue);background:#eaeff3;padding:.85rem 1rem;margin-top:1rem;font-size:.93rem;}
+  .note p,.tip p,.info p{font-size:inherit;margin:.5rem 0 0;}
+
+  .tscroll{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;margin-top:1rem;font-size:.9rem;background:var(--panel);min-width:640px;}
+  caption{text-align:left;font-family:'Barlow Condensed',sans-serif;color:var(--safety-dark);
+    font-weight:700;margin-bottom:.4rem;letter-spacing:.04em;}
+  th,td{border:1px solid var(--line);padding:.55rem .65rem;text-align:left;vertical-align:top;}
+  th{background:var(--steel);color:#fdfaf3;font-family:'Barlow Condensed',sans-serif;
+    font-weight:600;letter-spacing:.02em;}
+  tbody tr:nth-child(even) td{background:var(--panel-2);}
+  td.mono{font-family:'IBM Plex Mono',monospace;font-size:.8rem;white-space:nowrap;}
+  td.ctr{text-align:center;}
+
+  .roleBand{padding:1.4rem 1.7rem;color:#fdfaf3;border-top:7px solid;margin-top:2.6rem;}
+  .roleBand.client{background:var(--steel);border-top-color:var(--safety);}
+  .roleBand.admin{background:#2b2536;border-top-color:var(--violet);}
+  .roleBand.customer{background:#1f3340;border-top-color:var(--blue);}
+  .roleBand .who{font-family:'Barlow Condensed',sans-serif;font-size:.82rem;font-weight:700;
+    letter-spacing:.14em;}
+  .roleBand.client .who{color:var(--safety);}
+  .roleBand.admin .who{color:#b9a6d6;}
+  .roleBand.customer .who{color:#8fc0d8;}
+  .roleBand h2{color:#fdfaf3;font-size:clamp(1.5rem,3vw,2rem);margin:.1rem 0 .2rem;}
+  .roleBand .goal{color:#dde2dd;font-size:1rem;max-width:72ch;margin:.7rem 0 0;}
+  .roleBand .gate{margin-top:1rem;padding-top:.8rem;border-top:1px solid rgba(255,255,255,.18);
+    font-size:.93rem;color:#dde2dd;max-width:76ch;}
+  .roleBand .gate b{font-family:'Barlow Condensed',sans-serif;letter-spacing:.05em;}
+  .roleBand.client .gate b{color:var(--safety);}
+  .roleBand.admin .gate b{color:#b9a6d6;}
+  .roleBand.customer .gate b{color:#8fc0d8;}
+  .roleBody{background:var(--panel);border:1px solid var(--line);border-top:none;padding:.5rem 1.7rem 1.6rem;}
+
+  .flow{counter-reset:step;margin-top:1.2rem;}
+  .flow .step{counter-increment:step;position:relative;padding:.85rem 0 .85rem 3.1rem;
+    border-left:2px solid var(--line);margin-left:.9rem;}
+  .flow .step:last-child{border-left:2px solid transparent;}
+  .flow .step::before{content:counter(step);position:absolute;left:-1.15rem;top:.55rem;
+    width:2.2rem;height:2.2rem;border-radius:50%;background:var(--steel);color:#fdfaf3;
+    font-family:'Barlow Condensed',sans-serif;font-weight:700;display:flex;
+    align-items:center;justify-content:center;border:2px solid var(--panel);}
+  .flow.alt .step::before{background:var(--safety);}
+  .flow.violet .step::before{background:var(--violet);}
+  .flow.blue .step::before{background:var(--blue);}
+  .flow .step h4{margin:0 0 .2rem;font-size:1.04rem;color:var(--steel);}
+  .flow .step p{margin:0;font-size:.94rem;}
+  .flow .step .actor{font-family:'Barlow Condensed',sans-serif;font-size:.74rem;font-weight:700;
+    letter-spacing:.06em;padding:.1rem .4rem;color:#fdfaf3;margin-left:.5rem;vertical-align:.12em;}
+  .a-client{background:var(--safety-dark);} .a-admin{background:var(--violet);}
+  .a-cust{background:var(--blue);} .a-sys{background:var(--steel-3);}
+
+  .sm{margin-top:1.2rem;overflow-x:auto;}
+  .smRow{display:flex;align-items:center;gap:.5rem;min-width:660px;padding:.3rem 0;flex-wrap:nowrap;}
+  .smState{font-family:'IBM Plex Mono',monospace;font-size:.76rem;font-weight:600;
+    padding:.45rem .7rem;border-radius:3px;white-space:nowrap;border:1px solid;}
+  .s-start{background:#eef1ee;border-color:var(--line);color:var(--steel-3);}
+  .s-wait{background:#fdf3e7;border-color:#e6c79b;color:var(--safety-dark);}
+  .s-live{background:#edf2ec;border-color:#a8c4ae;color:var(--green);}
+  .s-dead{background:#f7ece9;border-color:#ddb3ad;color:var(--red);}
+  .s-hold{background:#eaeff3;border-color:#a9bfd0;color:var(--blue);}
+  .smArrow{font-family:'Barlow Condensed',sans-serif;font-size:.7rem;color:var(--steel-3);
+    white-space:nowrap;letter-spacing:.03em;text-align:center;padding:0 .1rem;}
+  .smArrow b{display:block;color:var(--safety-dark);font-size:.72rem;}
+
+  .fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.8rem;margin-top:1rem;}
+  .fieldCard{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--safety);padding:.85rem 1rem;}
+  .fieldCard h5{font-family:'Barlow Condensed',sans-serif;font-size:.94rem;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--safety-dark);margin:0 0 .45rem;}
+  .fieldCard ul{margin:0;padding-left:1.05rem;font-size:.88rem;}
+  .fieldCard li{margin-bottom:.22rem;}
+  .fieldCard .req{color:var(--red);font-weight:700;}
+
+  .schema{margin-top:1.1rem;background:var(--steel);color:#dde2dd;padding:1.05rem 1.2rem;
+    overflow-x:auto;border-left:6px solid var(--safety);
+    font-family:'IBM Plex Mono',monospace;font-size:.79rem;line-height:1.72;}
+  .schema pre{margin:0;white-space:pre;}
+  .schema .t{color:var(--safety);font-weight:600;}
+  .schema .k{color:#fdfaf3;font-weight:600;}
+  .schema .c{color:#8f9c92;}
+  .schema .s{color:#9fc0d8;}
+
+  .pill{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:.7rem;
+    letter-spacing:.06em;padding:.1rem .42rem;color:#fdfaf3;white-space:nowrap;display:inline-block;}
+  .p-new{background:var(--green);} .p-exists{background:var(--steel-3);}
+  .p-change{background:var(--safety-dark);} .p-gap{background:var(--red);}
+
+  details.gapd{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--red);
+    margin-top:.5rem;padding:.7rem 1rem;}
+  details.gapd>summary{cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;
+    font-size:1.02rem;color:var(--steel);display:flex;gap:.55rem;align-items:baseline;flex-wrap:wrap;}
+  details.gapd>summary .n{color:var(--red);font-variant-numeric:tabular-nums;}
+  details.gapd[open]{border-left-color:var(--green);}
+  details.gapd p{font-size:.92rem;margin:.55rem 0 0;}
+  details.gapd p.fix{color:var(--steel-2);}
+  details.gapd p.fix b{color:var(--green);}
+
+  /* completion stepper */
+  .stepper{background:var(--panel);border:1px solid var(--line);margin-top:1.1rem;padding:1.1rem 1.2rem;}
+  .bar{height:8px;background:var(--line-soft);overflow:hidden;display:flex;margin:.6rem 0 1rem;}
+  .bar i{display:block;height:100%;}
+  .bar .fillDone{background:var(--green);}
+  .bar .fillReview{background:var(--safety);}
+  .barLabel{font-family:'Barlow Condensed',sans-serif;font-size:.82rem;letter-spacing:.04em;
+    color:var(--steel-2);display:flex;justify-content:space-between;gap:1rem;}
+  .barLabel b{color:var(--steel);}
+  .stepRow{display:flex;gap:.7rem;align-items:flex-start;padding:.45rem 0;
+    border-bottom:1px dashed var(--line-soft);font-size:.92rem;}
+  .stepRow:last-child{border-bottom:none;}
+  .stepNum{flex:0 0 1.4rem;height:1.4rem;border-radius:50%;font-size:.7rem;font-weight:700;
+    font-family:'Barlow Condensed',sans-serif;display:flex;align-items:center;justify-content:center;
+    color:#fdfaf3;margin-top:.1rem;}
+  .n-done{background:var(--green);} .n-todo{background:var(--line);color:var(--steel-2);}
+  .n-review{background:var(--safety);}
+  .stepRow .txt{flex:1 1 auto;line-height:1.45;}
+  .stepRow .txt em{color:var(--steel-3);font-size:.86rem;}
+  .phaseTag{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--safety-dark);
+    margin:1rem 0 .2rem;padding-top:.7rem;border-top:2px solid var(--line-soft);}
+  .phaseTag:first-of-type{margin-top:0;padding-top:0;border-top:none;}
+
+  /* gated CTA demo */
+  .ctaDemo{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:1.1rem;}
+  .ctaCard{border:1px solid var(--line);padding:1rem 1.1rem;background:var(--panel);}
+  .ctaCard.bad{border-left:4px solid var(--red);}
+  .ctaCard.good{border-left:4px solid var(--green);}
+  .ctaCard h5{font-family:'Barlow Condensed',sans-serif;font-size:.86rem;letter-spacing:.08em;
+    text-transform:uppercase;margin:0 0 .6rem;}
+  .ctaCard.bad h5{color:var(--red);} .ctaCard.good h5{color:var(--green);}
+  .fakeBtn{display:inline-flex;align-items:center;gap:.45rem;font-family:'Barlow Condensed',sans-serif;
+    font-weight:700;font-size:.92rem;letter-spacing:.02em;padding:.55rem 1rem;color:#fdfaf3;
+    background:var(--steel);border:none;}
+  .fakeBtn.locked{background:var(--steel-2);}
+  .fakeSheet{margin-top:.7rem;background:#fff;border:1px solid var(--line);padding:.7rem .85rem;font-size:.86rem;}
+  .fakeSheet ul{margin:.4rem 0 0;padding-left:1.1rem;}
+  .fakeSheet li{margin-bottom:.2rem;}
+  .fakeToast{margin-top:.7rem;background:var(--steel);color:#fdfaf3;padding:.5rem .8rem;
+    font-size:.84rem;font-family:'Barlow Condensed',sans-serif;letter-spacing:.03em;}
+
+  footer{padding:2.4rem 6vw 3.4rem;background:var(--steel);color:#b6bdb7;
+    font-family:'Barlow Condensed',sans-serif;margin-top:2rem;}
+  footer p{max-width:74ch;font-size:1rem;} footer strong{color:#fdfaf3;}
+  footer .rule{height:4px;background:var(--safety);width:76px;margin-bottom:1.2rem;}
+
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}*{transition:none!important;}}
+  @media (max-width:700px){
+    .roleBody{padding:.5rem 1.05rem 1.4rem;} .roleBand{padding:1.15rem 1.05rem;}
+    header.hero{padding:2.5rem 6vw 2.1rem;}
+  }
+</style>
+</head>
+<body>
+
+<div class="rail">
+  <div class="in">
+    <span class="brand">RENTRA FLOW</span>
+    <a href="#principle">Principle</a>
+    <a href="#matrix">Permissions</a>
+    <span class="sep">/</span>
+    <a href="#stage1">1 &middot; Client onboarding</a>
+    <a href="#stage2">2 &middot; Listing approval</a>
+    <a href="#stage3">3 &middot; Customer</a>
+    <span class="sep">/</span>
+    <a href="#docs">Documents</a>
+    <a href="#devotp">Dev OTP</a>
+    <a href="#gaps">Gap register</a>
+    <a href="#schema">Schema</a>
+    <a href="#build">Build order</a>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="tag">END-TO-END ROLE FLOW &middot; THREE ROLES, TWO APPROVAL GATES</div>
+  <h1>Nothing goes live until a human has looked at it twice.</h1>
+  <p class="sub">The complete operational flow, role by role, in the order the roles actually come online. Every state, every transition, every actor, and an explicit register of the 30 edge cases that otherwise become support calls. Written so there is no step where the answer is &ldquo;we&rsquo;ll figure it out.&rdquo;</p>
+  <div class="metaRow">
+    <div><span class="n">3</span><span class="l">Roles</span></div>
+    <div><span class="n">2</span><span class="l">Approval gates</span></div>
+    <div><span class="n">4</span><span class="l">State machines</span></div>
+    <div><span class="n">30</span><span class="l">Gaps closed</span></div>
+    <div><span class="n">7</span><span class="l">New tables</span></div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- =================== PRINCIPLE =================== -->
+<section class="block" id="principle">
+  <div class="kick">THE SEQUENCING PRINCIPLE</div>
+  <h2>Supply first, and two gates, not one.</h2>
+  <p class="lede">The roles do not come online at the same time, and the order is not a preference &mdash; it is forced. A Customer who lands on an empty search page never returns, so <strong>Client onboarding must work before Customer signup exists at all.</strong> And Super Admin has to exist before either, because both gates are staffed by a person.</p>
+
+  <h3>Why two gates and not one</h3>
+  <p>You identified this correctly and it is the single most important structural decision in the flow. <strong>Approving a person is not the same as approving a property.</strong></p>
+  <div class="tscroll">
+  <table>
+    <caption>The two gates do different jobs</caption>
+    <thead><tr><th>&nbsp;</th><th>Gate 1 &mdash; Client account</th><th>Gate 2 &mdash; Each listing</th></tr></thead>
+    <tbody>
+      <tr><td>Question it answers</td><td>Is this a real, identifiable person we are willing to pay money to?</td><td>Does this specific property exist, match its photos, and belong to this person?</td></tr>
+      <tr><td>Evidence</td><td>Email + phone verified, PAN/Aadhaar KYC, selfie match, bank/UPI for payout</td><td>Ownership document name-matched to KYC, photo integrity, price sanity, verification visit</td></tr>
+      <tr><td>Happens</td><td>Once per person</td><td>Once per property, and again after any trust-field edit</td></tr>
+      <tr><td>If skipped</td><td>You are wiring payouts to an unverified stranger</td><td>Anyone approved once can list any property in India, including one they have never seen</td></tr>
+      <tr><td>Outcome</td><td><code>account_status = active</code></td><td><code>listing_status = live</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note"><strong>One gate is the failure mode to avoid.</strong> If you only approve accounts, an approved Client can publish a farmhouse they found on Instagram. If you only approve listings, you have no verified party to pay, no KYC on file, and no recourse when a payout is disputed. Both gates, always, and Gate 2 re-fires on edits &mdash; see <a href="#trustfields">trust fields</a>.</div>
+
+  <h3>Login is per role, because an account is one role</h3>
+  <p>An account carries exactly one role, fixed at signup, so the role cannot be inferred from a credential. Each role therefore gets its own entry point and its own credential type.</p>
+  <div class="tscroll">
+  <table>
+    <caption>Authentication by role</caption>
+    <thead><tr><th>Role</th><th>Route</th><th>Credential</th><th>Also verified</th><th>Self-signup?</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Client</strong></td>
+        <td class="mono">/partner/login</td>
+        <td><strong>Email + 6-digit OTP</strong></td>
+        <td>Phone, by SMS OTP, during onboarding</td>
+        <td class="ctr">Yes &mdash; but lands in <code>pending_application</code></td>
+      </tr>
+      <tr>
+        <td><strong>Customer</strong></td>
+        <td class="mono">/login</td>
+        <td><strong>Phone + 6-digit OTP</strong></td>
+        <td>Email optional; KYC above &#8377;5,000 booking value</td>
+        <td class="ctr">Yes &mdash; instantly active</td>
+      </tr>
+      <tr>
+        <td><strong>Super Admin</strong></td>
+        <td class="mono">/admin/login</td>
+        <td>Email + password + TOTP</td>
+        <td>&mdash;</td>
+        <td class="ctr"><strong>Never.</strong> Seeded or invited only</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="info"><strong>Email for the Client, phone for the Customer &mdash; and phone for the Client too.</strong> Email as the Client credential is right: it is what a document-heavy onboarding needs, it survives a SIM change, and rejection reasons and approval notices are long-form. But <em>every operational step after approval runs on WhatsApp</em> &mdash; booking alerts with a 12-hour accept window, check-in coordination, the one-tap availability BLOCK reply, payout notices. A farm owner in Kamrej reads WhatsApp; he does not read email. So phone is collected and OTP-verified during onboarding and is <strong>not optional</strong>. Email is the credential, phone is the channel.</div>
+
+  <h3 id="devotp">Dev mode &mdash; OTP without an SMS bill</h3>
+  <p>Transactional SMS in India is metered per message and email is effectively free, so paying for a gateway while building the login screen is money spent on nothing. In development, <strong><code>123456</code> verifies any email or any phone number.</strong></p>
+  <p style="margin-top:.7rem;">Real generated codes keep working alongside it, and are <strong>printed to the server terminal</strong> rather than sent. That matters: it means the actual code path &mdash; generate, hash, store, expire, count attempts, consume &mdash; is exercised every time you develop, instead of being skipped and discovered broken on the day you switch the gateway on.</p>
+
+  <div class="tscroll">
+  <table>
+    <caption>OTP behaviour per environment</caption>
+    <thead><tr><th>Environment</th><th><code>123456</code> accepted?</th><th>Real code</th><th>Delivery</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>development</strong></td>
+        <td class="ctr">Yes</td>
+        <td class="ctr">Also works</td>
+        <td>Printed to the terminal. Nothing is sent, nothing is billed.</td>
+      </tr>
+      <tr>
+        <td><strong>staging</strong></td>
+        <td class="ctr">Only for allow-listed test numbers</td>
+        <td class="ctr">Works</td>
+        <td>Real gateway, real SMS &mdash; so you find out delivery is broken before customers do</td>
+      </tr>
+      <tr>
+        <td><strong>production</strong></td>
+        <td class="ctr"><strong>Never. The app refuses to boot if enabled.</strong></td>
+        <td class="ctr">Only path</td>
+        <td>Real gateway</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="note"><strong>Why an <code>if (NODE_ENV !== 'production')</code> is not enough on its own.</strong> A universal OTP is a <em>total authentication bypass</em> &mdash; with it enabled, anyone can log in as any email or phone on the platform, including an admin&rsquo;s. A single misconfigured deploy with <code>NODE_ENV</code> unset would hand over the whole system silently, and nothing would look broken. So the guard is three layers, and the third is the one that actually saves you: <strong>the app must refuse to start</strong>, not merely decline to use the bypass. A crash on boot is loud, immediate and impossible to ignore; a silently-enabled bypass is none of those things.</div>
+
+  <div class="schema">
+<pre><span class="c">// lib/validation/joi/env.js — the existing boot-time env schema.</span>
+<span class="c">// Joi already guards server-only config here, so this is where it belongs.</span>
+
+  NODE_ENV: Joi.string()
+    .valid(<span class="s">'development'</span>, <span class="s">'test'</span>, <span class="s">'staging'</span>, <span class="s">'production'</span>)
+    .default(<span class="s">'development'</span>),
+
+  <span class="c">// Layer 1: opt-in. Absent means off — never default a bypass to on.</span>
+  <span class="k">DEV_OTP_BYPASS</span>: Joi.boolean().default(false)
+    <span class="c">// Layer 3: in production this value MUST be false. Joi throws on boot</span>
+    <span class="c">// otherwise, so a bad deploy crashes loudly instead of silently</span>
+    <span class="c">// accepting 123456 for every account on the platform.</span>
+    .when(<span class="s">'NODE_ENV'</span>, {
+      is: <span class="s">'production'</span>,
+      then: Joi.valid(false).messages({
+        <span class="s">'any.only'</span>: <span class="s">'DEV_OTP_BYPASS must be false in production'</span>,
+      }),
+    }),
+
+<span class="c">// ---------------------------------------------------------------------</span>
+<span class="c">// lib/auth/otp.js</span>
+
+<span class="k">const</span> DEV_CODE = <span class="s">'123456'</span>;
+
+<span class="c">// Layer 2: both conditions, every time. Never cached in a module const,</span>
+<span class="c">// so it cannot be captured at import time before env is validated.</span>
+<span class="k">function</span> bypassEnabled() {
+  <span class="k">const</span> env = getEnv();
+  <span class="k">return</span> env.NODE_ENV !== <span class="s">'production'</span> &amp;&amp; env.DEV_OTP_BYPASS === true;
+}
+
+<span class="k">export async function</span> verifyOtp({ identifier, purpose, code }) {
+  <span class="k">if</span> (bypassEnabled() &amp;&amp; code === DEV_CODE) {
+    console.warn(<span class="s">'[otp] DEV BYPASS used for %s (%s)'</span>, identifier, purpose);
+    <span class="k">return</span> { ok: <span class="k">true</span>, viaBypass: <span class="k">true</span> };
+  }
+  <span class="k">return</span> verifyRealCode({ identifier, purpose, code });  <span class="c">// hash, expiry, attempts</span>
+}</pre>
+  </div>
+
+  <div class="tip"><strong>Two more cheap safeguards.</strong> Log a warning on <em>every</em> bypass use, so an accidentally-enabled flag is visible in any log you look at. And render a persistent <code>DEV MODE &middot; OTP 123456</code> banner on the login screens whenever the bypass is live &mdash; it stops someone demoing the app and believing they just saw real authentication, which is a mistake that gets made surprisingly often.</div>
+
+  <div class="note"><strong>The real reason to sort this out now is schedule, not money.</strong> You cannot simply switch on transactional SMS in India when you feel ready. TRAI requires registration on the <strong>DLT platform</strong> first &mdash; register as a Principal Entity, register your sender header, and register each message template &mdash; and approvals take days to weeks. <strong>WhatsApp Business API templates are approved separately, per template and per language</strong>, which the implementation plan already flags. So the dev bypass is not just a cost saving; it is what lets you build the entire login and notification flow while those registrations sit in a queue. <strong>Start the DLT and WhatsApp registrations this week, in parallel with development</strong> &mdash; they are a lead-time dependency, and discovering that the week before launch is the expensive version of this problem.</div>
+</section>
+
+<!-- =================== MATRIX =================== -->
+<section class="block" id="matrix">
+  <div class="kick">PERMISSIONS</div>
+  <h2>What each role can do, at each stage of its life.</h2>
+  <p class="lede">The rows are capabilities; the columns are the state the actor is in. This table <em>is</em> the authorisation spec &mdash; every server action checks a cell in it.</p>
+  <div class="tscroll">
+  <table>
+    <caption>Capability &times; account state</caption>
+    <thead><tr>
+      <th>Capability</th>
+      <th>Client<br><span class="mono">pending</span></th>
+      <th>Client<br><span class="mono">active</span></th>
+      <th>Client<br><span class="mono">suspended</span></th>
+      <th>Customer</th>
+      <th>Super<br>Admin</th>
+    </tr></thead>
+    <tbody>
+      <tr><td>Browse and search listings <em>(no login at all)</em></td><td class="ctr">&#10003;</td><td class="ctr">&#10003;</td><td class="ctr">&#10003;</td><td class="ctr">&#10003;</td><td class="ctr">&#10003;</td></tr>
+      <tr><td>Submit / edit own onboarding application</td><td class="ctr">&#10003;</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td></tr>
+      <tr><td>Create a listing draft</td><td class="ctr">&#8212;</td><td class="ctr">&#10003;</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td></tr>
+      <tr><td>Submit a listing for review</td><td class="ctr">&#8212;</td><td class="ctr">&#10003;</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td></tr>
+      <tr><td>Edit price / calendar on a live listing</td><td class="ctr">&#8212;</td><td class="ctr">&#10003;</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#10003;</td></tr>
+      <tr><td>Edit a <a href="#trustfields">trust field</a> (re-triggers Gate&nbsp;2)</td><td class="ctr">&#8212;</td><td class="ctr">&#10003;</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#10003;</td></tr>
+      <tr><td>Accept / decline a booking request</td><td class="ctr">&#8212;</td><td class="ctr">&#10003;</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#10003;</td></tr>
+      <tr><td>Add caretaker staff sub-accounts</td><td class="ctr">&#8212;</td><td class="ctr">&#10003;</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#10003;</td></tr>
+      <tr><td>See own earnings and payouts</td><td class="ctr">&#8212;</td><td class="ctr">&#10003;</td><td class="ctr">read-only</td><td class="ctr">&#8212;</td><td class="ctr">&#10003;</td></tr>
+      <tr><td>Make a booking</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#10003;</td><td class="ctr">&#8212;</td></tr>
+      <tr><td>Message in masked chat</td><td class="ctr">&#8212;</td><td class="ctr">&#10003;</td><td class="ctr">&#8212;</td><td class="ctr">&#10003;</td><td class="ctr">read-only</td></tr>
+      <tr><td>Approve / reject a Client application</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#10003;</td></tr>
+      <tr><td>Approve / reject a listing</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#10003;</td></tr>
+      <tr><td>Suspend an account, hide a listing</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#10003;</td></tr>
+      <tr><td>Release payouts, decide disputes</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#8212;</td><td class="ctr">&#10003;</td></tr>
+      <tr><td>View a raw uploaded document</td><td class="ctr">own only</td><td class="ctr">own only</td><td class="ctr">own only</td><td class="ctr">&#8212;</td><td class="ctr">&#10003;</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tip"><strong>Read this as a deny-by-default table.</strong> Every server action starts by resolving <code>(actorRole, accountStatus)</code> and looking up the cell. A capability with no explicit tick is denied &mdash; including capabilities added later, which is the point of writing it this way rather than scattering <code>if</code> statements.</div>
+</section>
+
+<!-- =================== STAGE 1 =================== -->
+<section id="stage1">
+  <div class="roleBand client">
+    <div class="who">STAGE 1 &middot; ROLE: CLIENT</div>
+    <h2>Onboarding &mdash; from a stranger to a payable, verified person</h2>
+    <p class="goal">A person who owns a farmhouse arrives, proves who they are, proves they can be paid, and waits for a human decision. <strong>They are logged in from the first minute</strong> &mdash; what they cannot do yet is publish a property. Nothing here touches a property at all; this gate is about the <em>person</em>.</p>
+    <div class="gate"><b>EXIT CONDITION &rarr;</b> <code>account_status = active</code>, set only by a Super Admin decision, never by the system. Email verified, phone verified, KYC verified, payout destination on file, at least one identity document reviewed.</div>
+  </div>
+
+  <div class="roleBody">
+    <div class="flow alt">
+      <div class="step">
+        <h4>Enter email at <code>/partner/login</code><span class="actor a-client">CLIENT</span></h4>
+        <p>One field. We do not ask for a password, ever &mdash; there is no password to forget, phish or reset. Submitting creates nothing yet; it only issues an OTP.</p>
+      </div>
+      <div class="step">
+        <h4>Email OTP issued and verified<span class="actor a-sys">SYSTEM</span></h4>
+        <p>6-digit code, valid <strong>10 minutes</strong>, maximum <strong>5 verification attempts</strong>, resend allowed after <strong>60 seconds</strong> and at most <strong>3 times per hour per email</strong>. Only the hash of the code is stored. On success the <code>user</code> row is created with <code>role='client'</code>, <code>account_status='pending_application'</code>, <code>email_verified_at</code> set.</p>
+      </div>
+      <div class="step">
+        <h4>Logged in straight away, into a dashboard<span class="actor a-sys">SYSTEM</span></h4>
+        <p><strong>No waiting room, no &ldquo;we&rsquo;ll email you when you&rsquo;re approved&rdquo; dead end.</strong> A verified email is enough to be inside the product. The row now exists in our database with a reachable identity, which is the difference between a nudgeable lead and an invisible bounce &mdash; and the dashboard itself becomes the thing that pulls them through the rest.</p>
+      </div>
+      <div class="step">
+        <h4>The dashboard shows a completion stepper, not an empty shell<span class="actor a-sys">SYSTEM</span></h4>
+        <p>Landing on a bare dashboard teaches nothing. Landing on <em>&ldquo;Farms near Kamrej earn &#8377;8,000&ndash;14,500 a night &mdash; 2 of 6 steps done&rdquo;</em> gives a number to chase and a reason to chase it. See <a href="#stepper">the stepper design</a> below.</p>
+      </div>
+      <div class="step">
+        <h4>Verify phone by SMS OTP<span class="actor a-client">CLIENT</span></h4>
+        <p>A step in the stepper, not a gate before it. Same rules as the email code. This is the channel every booking alert, accept-window reminder and payout notice will use, so an unverified phone blocks <em>submission</em> &mdash; it does not block access.</p>
+      </div>
+      <div class="step">
+        <h4>Work through the profile steps, in any order<span class="actor a-client">CLIENT</span></h4>
+        <p>Saved on every field, resumable from the same email OTP on any device. Order is the Client&rsquo;s choice &mdash; someone who has their PAN to hand but not their bank details should not be blocked by our sequencing. Fields are listed below.</p>
+      </div>
+      <div class="step">
+        <h4>&ldquo;Add place for rent&rdquo; is visible the whole time &mdash; and gated on click<span class="actor a-client">CLIENT</span></h4>
+        <p>The primary call to action is never hidden, because hiding it hides the point of the product. It carries a lock, and clicking it opens a sheet naming <strong>exactly which steps remain</strong>, each deep-linking to that step. See <a href="#gatedcta">the gated CTA pattern</a>.</p>
+      </div>
+      <div class="step">
+        <h4>Upload identity and payout evidence<span class="actor a-client">CLIENT</span></h4>
+        <p>PAN or Aadhaar through the KYC provider (never a raw image stored by us &mdash; only the vendor&rsquo;s reference and result), a selfie for face match, and bank account or UPI ID for payouts. See <a href="#docs">the document vault</a>.</p>
+      </div>
+      <div class="step">
+        <h4>Submit for review &rarr; enters the Super Admin queue<span class="actor a-sys">SYSTEM</span></h4>
+        <p><code>application_status</code> moves <code>draft &rarr; submitted</code>, and the stepper enters its second phase: <em>&ldquo;6 of 6 submitted &middot; in review. We reply within 2 working days, by email and WhatsApp.&rdquo;</em> The Client stays logged in, with full read access to everything they built.</p>
+      </div>
+      <div class="step">
+        <h4>Super Admin reviews<span class="actor a-admin">SUPER ADMIN</span></h4>
+        <p>Against a fixed checklist, with a written reason recorded either way. Three outcomes, never two: <strong>approve</strong>, <strong>reject</strong>, or <strong>request more information</strong> &mdash; the third is what stops a fixable typo from becoming a permanent rejection.</p>
+      </div>
+      <div class="step">
+        <h4>Decision delivered<span class="actor a-sys">SYSTEM</span></h4>
+        <p>Approved &rarr; <code>account_status='active'</code>, email + WhatsApp, and the dashboard now shows <em>Add your first property</em>. Rejected &rarr; reason shown verbatim, resubmission allowed. Info requested &rarr; back to <code>draft</code> with the specific fields flagged.</p>
+      </div>
+      <div class="step">
+        <h4>Client logs in again &mdash; now with full access<span class="actor a-client">CLIENT</span></h4>
+        <p>Same email-OTP route. The only thing that changed is <code>account_status</code>, which is what the permission matrix reads. There is no second credential and no &ldquo;approved user&rdquo; login.</p>
+      </div>
+    </div>
+
+    <h3>The onboarding form &mdash; every field</h3>
+    <div class="fields">
+      <div class="fieldCard">
+        <h5>Identity</h5>
+        <ul>
+          <li><span class="req">*</span> Full name, as printed on the ID</li>
+          <li><span class="req">*</span> Email <em>(already verified)</em></li>
+          <li><span class="req">*</span> Mobile <em>(already verified)</em></li>
+          <li>WhatsApp number, if different</li>
+          <li><span class="req">*</span> Preferred language &mdash; Gujarati / Hindi / English</li>
+        </ul>
+      </div>
+      <div class="fieldCard">
+        <h5>Who they are to the property</h5>
+        <ul>
+          <li><span class="req">*</span> <code>client_type</code>: <strong>Owner</strong> or <strong>Authorised agent</strong></li>
+          <li>If agent: the owner&rsquo;s name and relationship</li>
+          <li>Number of properties they intend to list</li>
+        </ul>
+      </div>
+      <div class="fieldCard">
+        <h5>KYC</h5>
+        <ul>
+          <li><span class="req">*</span> PAN <em>or</em> Aadhaar, via the KYC vendor</li>
+          <li><span class="req">*</span> Selfie, for face match</li>
+          <li>Result and vendor reference stored &mdash; <strong>never the raw ID image</strong></li>
+        </ul>
+      </div>
+      <div class="fieldCard">
+        <h5>Payout destination</h5>
+        <ul>
+          <li><span class="req">*</span> UPI ID <em>or</em> account number + IFSC</li>
+          <li><span class="req">*</span> Account holder name</li>
+          <li>Penny-drop verification; the name it returns must match the KYC name</li>
+        </ul>
+      </div>
+      <div class="fieldCard">
+        <h5>Address</h5>
+        <ul>
+          <li><span class="req">*</span> Residential address + pincode</li>
+          <li>Used for correspondence and for the agent path</li>
+        </ul>
+      </div>
+      <div class="fieldCard">
+        <h5>Consent</h5>
+        <ul>
+          <li><span class="req">*</span> Terms + privacy, with timestamp and IP</li>
+          <li><span class="req">*</span> Declaration that they are entitled to let the properties they will list</li>
+        </ul>
+      </div>
+    </div>
+    <div class="info"><strong>Note what is <em>not</em> here: anything about a property.</strong> Address of the farmhouse, photos, price, amenities &mdash; none of it belongs in onboarding. Mixing the two is the most common way this flow goes wrong: it makes Gate 1 impossible to decide cleanly, and it means a Client with three farmhouses has to re-do KYC three times.</div>
+
+    <h3 id="stepper">The completion stepper &mdash; two phases, deliberately</h3>
+    <p>This is the whole Client dashboard until they are approved. It has to do two jobs at once: show progress on the part they control, and set an honest expectation about the part they do not.</p>
+
+    <div class="stepper">
+      <div class="barLabel"><span><b>4 of 6 steps done</b> &middot; about 4 minutes left</span><span>Not yet submitted</span></div>
+      <div class="bar">
+        <i class="fillDone" style="width:67%"></i>
+      </div>
+
+      <div class="phaseTag">Phase 1 &mdash; yours to complete</div>
+      <div class="stepRow"><span class="stepNum n-done">&#10003;</span><span class="txt"><strong>Email verified</strong> <em>&mdash; done at sign-in</em></span></div>
+      <div class="stepRow"><span class="stepNum n-done">&#10003;</span><span class="txt"><strong>Mobile verified</strong> <em>&mdash; where booking alerts will arrive</em></span></div>
+      <div class="stepRow"><span class="stepNum n-done">&#10003;</span><span class="txt"><strong>Your details</strong> <em>&mdash; name, address, language, owner or agent</em></span></div>
+      <div class="stepRow"><span class="stepNum n-done">&#10003;</span><span class="txt"><strong>Identity check</strong> <em>&mdash; PAN or Aadhaar, plus a selfie</em></span></div>
+      <div class="stepRow"><span class="stepNum n-todo">5</span><span class="txt"><strong>Where we should pay you</strong> <em>&mdash; UPI ID or bank account</em></span></div>
+      <div class="stepRow"><span class="stepNum n-todo">6</span><span class="txt"><strong>Agree to the terms</strong> <em>&mdash; one tick</em></span></div>
+
+      <div class="phaseTag">Phase 2 &mdash; ours</div>
+      <div class="stepRow"><span class="stepNum n-review">&#8226;</span><span class="txt"><strong>Rentra reviews your application</strong> <em>&mdash; 2 working days. We reply either way, by email and WhatsApp.</em></span></div>
+    </div>
+
+    <div class="note"><strong>The trap this two-phase split exists to avoid.</strong> A single bar that fills to 100% and leaves the <em>Add place</em> button still locked is worse than showing no bar at all &mdash; the Client has done everything asked and the product still says no, with no explanation. So the review step is <strong>rendered as a step, in its own phase, from the very first visit</strong>. The bar never reads &ldquo;100% complete&rdquo;; it reads <em>&ldquo;6 of 6 submitted &middot; in review&rdquo;</em> with the second phase highlighted in <span style="color:var(--safety-dark);font-weight:700;">amber</span> rather than green. Nobody is surprised, because the wait was on screen before they started.</div>
+
+    <div class="tscroll">
+    <table>
+      <caption>What each step blocks &mdash; and what it does not</caption>
+      <thead><tr><th>Step</th><th>Blocks submitting the application?</th><th>Blocks publishing a listing?</th><th>Blocks logging in?</th></tr></thead>
+      <tbody>
+        <tr><td>Email verified</td><td class="ctr">&#8212; <em>is the login</em></td><td class="ctr">Yes</td><td class="ctr">Yes</td></tr>
+        <tr><td>Mobile verified</td><td class="ctr">Yes</td><td class="ctr">Yes</td><td class="ctr"><strong>No</strong></td></tr>
+        <tr><td>Your details</td><td class="ctr">Yes</td><td class="ctr">Yes</td><td class="ctr"><strong>No</strong></td></tr>
+        <tr><td>Identity check (KYC)</td><td class="ctr">Yes</td><td class="ctr">Yes</td><td class="ctr"><strong>No</strong></td></tr>
+        <tr><td>Payout destination</td><td class="ctr">Yes</td><td class="ctr">Yes</td><td class="ctr"><strong>No</strong></td></tr>
+        <tr><td>Terms &amp; declaration</td><td class="ctr">Yes</td><td class="ctr">Yes</td><td class="ctr"><strong>No</strong></td></tr>
+        <tr><td><strong>Rentra review</strong></td><td class="ctr">&#8212;</td><td class="ctr"><strong>Yes</strong></td><td class="ctr"><strong>No</strong></td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="tip"><strong>Derive the progress, never store a step counter.</strong> A stored <code>current_step = 4</code> silently goes wrong the moment reality changes underneath it &mdash; a penny-drop that fails on retry, a KYC result that comes back rejected, an admin who requests more information on one field. Compute completion from the data on every render: <code>emailVerifiedAt</code>, <code>phoneVerifiedAt</code>, the required application fields, <code>kycStatus === 'verified'</code>, <code>payoutNameMatch</code>, <code>consentAt</code>. Then the bar cannot lie, and a step can legitimately go <em>backwards</em> when something is invalidated.</div>
+
+    <h3 id="gatedcta">The gated CTA &mdash; visible, locked, and specific</h3>
+    <p><strong>Add place for rent</strong> is on the dashboard from the first second. Hiding it hides the entire point of the product; a Client who cannot see what they are working toward has no reason to finish. But the click has a right and a wrong form, and the difference is measurable.</p>
+
+    <div class="ctaDemo">
+      <div class="ctaCard bad">
+        <h5>&#10005; Wrong</h5>
+        <button class="fakeBtn" type="button">Add place for rent</button>
+        <div class="fakeToast">Please complete your profile first.</div>
+        <p style="font-size:.88rem;margin-top:.7rem;">The button looks fully enabled, so the click reads as a <em>failure</em>. The message names nothing, links nowhere, and leaves the Client to hunt for what is missing. This is how a motivated owner becomes a closed tab.</p>
+      </div>
+      <div class="ctaCard good">
+        <h5>&#10003; Right</h5>
+        <button class="fakeBtn locked" type="button">&#128274; Add place for rent</button>
+        <div class="fakeSheet">
+          <strong>Two things left before you can add a property</strong>
+          <ul>
+            <li><a href="#stepper">Add your payout account</a> &mdash; 1 min</li>
+            <li><a href="#stepper">Agree to the terms</a> &mdash; 10 sec</li>
+          </ul>
+          <p style="margin:.5rem 0 0;font-size:.84rem;color:var(--steel-3);">Then we review within 2 working days.</p>
+        </div>
+        <p style="font-size:.88rem;margin-top:.7rem;">The lock sets the expectation <em>before</em> the click. The sheet names the exact remaining steps, deep-links to each, estimates the effort, and states the review wait honestly. Nothing is a surprise.</p>
+      </div>
+    </div>
+
+    <div class="info"><strong>Same pattern, three other places.</strong> Once a Client is approved but has no listing yet, <em>&ldquo;Add place&rdquo;</em> becomes the unlocked primary action. Once a listing sits in <code>pending_review</code>, the dashboard shows it with the same honest phase language rather than pretending it is live. And on the Customer side, <em>Book</em> stays visible to a logged-out visitor and opens the phone-OTP sheet on click &mdash; never a redirect to a login page that loses the dates they had picked.</div>
+
+    <h3>State machine &mdash; <code>user.account_status</code></h3>
+    <div class="sm">
+      <div class="smRow">
+        <span class="smState s-start">anonymous</span>
+        <span class="smArrow">&rarr;<b>email OTP ok</b></span>
+        <span class="smState s-wait">pending_application</span>
+        <span class="smArrow">&rarr;<b>admin approve</b></span>
+        <span class="smState s-live">active</span>
+        <span class="smArrow">&rarr;<b>admin suspend</b></span>
+        <span class="smState s-hold">suspended</span>
+        <span class="smArrow">&rarr;<b>admin block</b></span>
+        <span class="smState s-dead">blocked</span>
+      </div>
+    </div>
+    <div class="tscroll">
+    <table>
+      <caption>Every transition, and what it does</caption>
+      <thead><tr><th>From</th><th>To</th><th>Who</th><th>Trigger</th><th>Side effects</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">anonymous</td><td class="mono">pending_application</td><td>System</td><td>Email OTP verified</td><td>Create <code>user</code> + empty <code>client_application</code> draft</td></tr>
+        <tr><td class="mono">pending_application</td><td class="mono">active</td><td>Super Admin</td><td>Approve application</td><td>Email + WhatsApp; unlock listing creation; audit row</td></tr>
+        <tr><td class="mono">pending_application</td><td class="mono">pending_application</td><td>Super Admin</td><td>Request more info</td><td>Application back to <code>draft</code> with flagged fields; notify</td></tr>
+        <tr><td class="mono">pending_application</td><td class="mono">pending_application</td><td>Super Admin</td><td>Reject</td><td>Reason recorded and shown; <code>strike_count++</code>; resubmit allowed until 3 strikes</td></tr>
+        <tr><td class="mono">pending_application</td><td class="mono">blocked</td><td>System</td><td>3rd rejection</td><td>No further resubmission; manual appeal only</td></tr>
+        <tr><td class="mono">active</td><td class="mono">suspended</td><td>Super Admin</td><td>Fraud flag, repeated owner-side cancellations, bypass strikes</td><td><strong>All listings &rarr; <code>hidden</code></strong>; confirmed bookings still honoured; payouts frozen</td></tr>
+        <tr><td class="mono">suspended</td><td class="mono">active</td><td>Super Admin</td><td>Resolved</td><td>Listings return to their prior status, not automatically to <code>live</code></td></tr>
+        <tr><td class="mono">suspended</td><td class="mono">blocked</td><td>Super Admin</td><td>Confirmed fraud</td><td>Listings &rarr; <code>hidden</code> permanently; future bookings cancelled with full refunds</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="note"><strong>The transition that people forget: <code>suspended &rarr; active</code> must not blanket-restore to <code>live</code>.</strong> A listing that was <code>paused</code> by its owner before suspension should come back <code>paused</code>. Store the prior status when hiding, and restore it. Otherwise reinstating one Client silently republishes properties whose owners had deliberately taken them down.</div>
+  </div>
+</section>
+
+<!-- =================== STAGE 2 =================== -->
+<section id="stage2">
+  <div class="roleBand client">
+    <div class="who">STAGE 2 &middot; ROLE: CLIENT, THEN SUPER ADMIN</div>
+    <h2>Adding a place &mdash; and proving it is theirs</h2>
+    <p class="goal">This is the part you were unsure about, and it splits into two genuinely separate problems: <strong>what the Client types in</strong> (a long form, best broken into steps), and <strong>how we know the property is theirs</strong> (a document, name-matched to their KYC). The second one is the whole moat.</p>
+    <div class="gate"><b>EXIT CONDITION &rarr;</b> <code>listing_status = live</code>. Requires: complete listing, 6&ndash;15 photos, ownership document name-matched, moderation checklist passed, and a completed verification visit (physical or video).</div>
+  </div>
+
+  <div class="roleBody">
+    <h3>The listing builder, in 9 steps</h3>
+    <p>One long form has a terrible completion rate. Nine short steps with a saved draft has a good one. Steps 1&ndash;8 are the Client&rsquo;s; step 9 hands it to the Super Admin.</p>
+
+    <div class="fields">
+      <div class="fieldCard">
+        <h5>1 &middot; What it is</h5>
+        <ul>
+          <li><span class="req">*</span> Category &mdash; Farmhouse / Lawn / Villa / Banquet</li>
+          <li><span class="req">*</span> Title, 8&ndash;90 characters</li>
+          <li><span class="req">*</span> Description, 40&ndash;4000 characters</li>
+          <li class="mono">form=fixed, fulfilment=visit_site, rental_unit=slot</li>
+        </ul>
+      </div>
+      <div class="fieldCard">
+        <h5>2 &middot; Where it is</h5>
+        <ul>
+          <li><span class="req">*</span> City, then Area &mdash; both from our own tables, not free text</li>
+          <li><span class="req">*</span> Map pin &rarr; <code>location</code> geometry</li>
+          <li><span class="req">*</span> Exact address + landmark &mdash; <strong>stored, never shown</strong> until a booking is confirmed</li>
+          <li>Approach-road note</li>
+        </ul>
+      </div>
+      <div class="fieldCard">
+        <h5>3 &middot; Size &amp; capacity</h5>
+        <ul>
+          <li><span class="req">*</span> Max guests</li>
+          <li><span class="req">*</span> Bedrooms, bathrooms</li>
+          <li>Farm size + unit &mdash; <strong>vigha</strong> / var / acre / sqft</li>
+          <li>Pool dimensions, e.g. <code>15x25</code></li>
+        </ul>
+      </div>
+      <div class="fieldCard">
+        <h5>4 &middot; Amenity tags</h5>
+        <ul>
+          <li>Picked from a <strong>fixed taxonomy</strong>, never typed</li>
+          <li>Grouped into 8 sections &mdash; see below</li>
+          <li>Some tags carry a value: parking <em>(count)</em>, pool <em>(size)</em></li>
+        </ul>
+      </div>
+      <div class="fieldCard">
+        <h5>5 &middot; House rules &amp; permissions</h5>
+        <ul>
+          <li>Structured toggles, not prose: pets, alcohol, loud music cut-off, stag groups</li>
+          <li><span class="req">*</span> Check-in window and check-out window</li>
+          <li>Free-text notes &mdash; <strong>moderated</strong>, see the reject rule below</li>
+        </ul>
+      </div>
+      <div class="fieldCard">
+        <h5>6 &middot; Slots &amp; pricing</h5>
+        <ul>
+          <li><span class="req">*</span> At least one slot priced: day / night / full&nbsp;day</li>
+          <li><span class="req">*</span> Weekday and weekend rate for each</li>
+          <li>Extra-guest charge, extra-hours charge</li>
+          <li>Suggested price shown from local data</li>
+        </ul>
+      </div>
+      <div class="fieldCard">
+        <h5>7 &middot; Deposit &amp; cancellation</h5>
+        <ul>
+          <li><span class="req">*</span> Refundable deposit amount</li>
+          <li><span class="req">*</span> Cancellation tier &mdash; flexible / moderate / strict</li>
+          <li>Shown to guests in rupees, never as policy prose</li>
+        </ul>
+      </div>
+      <div class="fieldCard">
+        <h5>8 &middot; Photos</h5>
+        <ul>
+          <li><span class="req">*</span> 6&ndash;15 photos, auto-compressed</li>
+          <li><span class="req">*</span> One marked as the hero shot</li>
+          <li>Walkthrough video, optional but ranked higher</li>
+          <li>Reverse-image checked on upload</li>
+        </ul>
+      </div>
+      <div class="fieldCard" style="border-left-color:#a3392f;">
+        <h5>9 &middot; Ownership proof <span class="pill p-gap">THE GATE</span></h5>
+        <ul>
+          <li><span class="req">*</span> One document from the accepted list</li>
+          <li><span class="req">*</span> Name on it must match the KYC name</li>
+          <li>If it does not &rarr; the Authorised-agent path</li>
+          <li>See <a href="#docs">the document section</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Amenity taxonomy &mdash; fixed list, eight groups</h3>
+    <p>Tags must come from a table, not a text box. Free-typed amenities cannot be filtered on, cannot be translated, and turn into 40 spellings of &ldquo;swimming pool&rdquo;. Each tag has a slug, a label per language, a group, and optionally a value type.</p>
+    <div class="tscroll">
+    <table>
+      <caption>Amenity groups and representative tags</caption>
+      <thead><tr><th>Group</th><th>Tags</th><th>Carries a value?</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Water &amp; pool</strong></td><td>Swimming pool, kids&rsquo; pool, rain dance, RO drinking water, borewell, 24hr water</td><td>Pool &rarr; dimensions</td></tr>
+        <tr><td><strong>Comfort</strong></td><td>AC bedrooms, fans, geyser, heater, extra mattresses</td><td>AC &rarr; number of rooms</td></tr>
+        <tr><td><strong>Kitchen &amp; food</strong></td><td>Modular kitchen, kitchenette, utensils provided, cook available, barbecue setup, gas connection</td><td>Cook &rarr; charge</td></tr>
+        <tr><td><strong>Power</strong></td><td>Generator backup, inverter, solar</td><td>&mdash;</td></tr>
+        <tr><td><strong>Outdoor</strong></td><td>Open lawn, garden, orchard, bonfire allowed, cricket pitch, kids&rsquo; play area, gazebo, floodlights</td><td>Lawn &rarr; area</td></tr>
+        <tr><td><strong>Entertainment</strong></td><td>DJ / music allowed, sound system, projector or TV, indoor games, swing</td><td>&mdash;</td></tr>
+        <tr><td><strong>Practical</strong></td><td>Parking, caretaker on site, CCTV at entrance, wifi, first-aid, wheelchair access</td><td>Parking &rarr; car count</td></tr>
+        <tr><td><strong>Event</strong></td><td>Stage, green room, banquet lawn, mandap space, bulk parking</td><td>Capacity</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="note"><strong>A moderation rule you will need on day one, from real market research.</strong> Live listings on competing Surat-belt sites carry house rules such as <em>&ldquo;Only Hindu can book this property&rdquo;</em>. Your moderation checklist must have an <strong>explicit reject for discriminatory terms</strong> &mdash; religion, caste, marital status, region, or single-women restrictions. It is legal exposure under the Consumer Protection (E-Commerce) Rules, and one screenshot turns it into a news story. Legitimate owner preferences that <em>are</em> allowed and should be structured toggles instead: vegetarian-cooking-only, no alcohol, no loud music after a time, no stag groups.</div>
+
+    <h3 id="trustfields">Trust fields &mdash; the edits that re-open Gate 2</h3>
+    <p>A live listing must stay editable or Clients will not maintain it. But not every field is equally load-bearing. Split them.</p>
+    <div class="tscroll">
+    <table>
+      <caption>Edit classification on a <code>live</code> listing</caption>
+      <thead><tr><th>Class</th><th>Fields</th><th>Effect of an edit</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Free</strong></td>
+          <td>Price, weekday/weekend rates, availability, blocked dates, deposit amount, extra-guest charge, description wording</td>
+          <td>Applies immediately. Stays <code>live</code>. Logged.</td>
+        </tr>
+        <tr>
+          <td><strong>Trust</strong> <span class="pill p-gap">RE-REVIEW</span></td>
+          <td>Photos, hero photo, address or map pin, capacity, bedrooms, category, amenity tags, house rules, title</td>
+          <td><code>live &rarr; pending_review</code>. <strong>Existing confirmed bookings are untouched;</strong> the listing simply leaves search until re-approved.</td>
+        </tr>
+        <tr>
+          <td><strong>Locked</strong></td>
+          <td>Owning Client, ownership document, city/area</td>
+          <td>Not editable. A different owner or a different property is a new listing, not an edit.</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="tip"><strong>Why photos are a trust field and price is not.</strong> A Client who swaps in photos of a nicer farm after approval has defeated the entire verification. A Client who raises Saturday pricing by &#8377;500 has done something completely normal. Treating both the same either blocks routine pricing work behind a review queue, or leaves the biggest fraud vector wide open.</div>
+
+    <h3>Super Admin listing review &mdash; the checklist</h3>
+    <div class="flow violet">
+      <div class="step"><h4>Ownership document name-match<span class="actor a-admin">ADMIN</span></h4><p>Does the name on the 7/12 extract, light bill or Index-II match the KYC name? Exact, family-partial, or no match &mdash; each has a different path. This is the single check that keeps brokers from posting as owners.</p></div>
+      <div class="step"><h4>Photo integrity<span class="actor a-admin">ADMIN</span></h4><p>Reverse-image search each photo. Catch stock photography and photos lifted from other listing sites. Check for a phone number or Instagram handle on a gate board or watermark in photo #4.</p></div>
+      <div class="step"><h4>Hidden contact details<span class="actor a-admin">ADMIN</span></h4><p>Scan title, description and rules for phone numbers, numbers spelled in words, emails and social handles. Automated flag, human decision.</p></div>
+      <div class="step"><h4>Price sanity<span class="actor a-admin">ADMIN</span></h4><p>Compare against the area&rsquo;s band. A 3BR farm in Kamrej at &#8377;900 a night is either a typo or bait.</p></div>
+      <div class="step"><h4>Discriminatory or unlawful terms<span class="actor a-admin">ADMIN</span></h4><p>Explicit reject. See the rule above.</p></div>
+      <div class="step"><h4>Local permissions declared<span class="actor a-admin">ADMIN</span></h4><p>For event-capable properties: has the Client declared they hold the local body permission and meet noise limits? We are not liable for their compliance, but the declaration must be on file and was asked for.</p></div>
+      <div class="step"><h4>Assign the verification visit<span class="actor a-admin">ADMIN</span></h4><p><code>pending_review &rarr; pending_verification</code>. Video walkthrough by default &mdash; a scheduled live call, screen-recorded, roughly 70% as convincing as a physical visit and free. Physical visit for high-value listings and once a cluster has volume.</p></div>
+      <div class="step"><h4>Visit completed and filed<span class="actor a-sys">VERIFIER</span></h4><p>GPS + timestamp so you know the visit happened at the property. Standard photo set, amenities present vs claimed, condition rating, mobile network, approach-road quality, red flags.</p></div>
+      <div class="step"><h4>Publish<span class="actor a-admin">ADMIN</span></h4><p><code>pending_verification &rarr; live</code>, with the <strong>Physically Verified</strong> or <strong>Video Verified</strong> badge. The listing enters search, the sitemap, and its area page&rsquo;s live count.</p></div>
+    </div>
+
+    <h3>State machine &mdash; <code>rentable.status</code></h3>
+    <div class="sm">
+      <div class="smRow">
+        <span class="smState s-start">draft</span>
+        <span class="smArrow">&rarr;<b>client submits</b></span>
+        <span class="smState s-wait">pending_review</span>
+        <span class="smArrow">&rarr;<b>admin ok</b></span>
+        <span class="smState s-wait">pending_verification</span>
+        <span class="smArrow">&rarr;<b>visit passed</b></span>
+        <span class="smState s-live">live</span>
+      </div>
+      <div class="smRow" style="margin-top:.4rem;">
+        <span class="smState s-live">live</span>
+        <span class="smArrow">&rarr;<b>owner pauses</b></span>
+        <span class="smState s-hold">paused</span>
+        <span class="smArrow">&rarr;<b>trust-field edit</b></span>
+        <span class="smState s-wait">pending_review</span>
+        <span class="smArrow">&rarr;<b>admin / suspension</b></span>
+        <span class="smState s-hold">hidden</span>
+        <span class="smArrow">&rarr;<b>rejected twice</b></span>
+        <span class="smState s-dead">rejected</span>
+      </div>
+    </div>
+    <div class="tscroll">
+    <table>
+      <caption>Listing transitions</caption>
+      <thead><tr><th>From</th><th>To</th><th>Who</th><th>Trigger</th><th>Side effects</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">&mdash;</td><td class="mono">draft</td><td>Client</td><td>Start a listing</td><td>Requires <code>account_status='active'</code></td></tr>
+        <tr><td class="mono">draft</td><td class="mono">pending_review</td><td>Client</td><td>Submit</td><td>All required fields + 6 photos + ownership doc present, else blocked with field errors</td></tr>
+        <tr><td class="mono">pending_review</td><td class="mono">draft</td><td>Super Admin</td><td>Request changes</td><td>Reason + flagged fields; notify; not counted as a rejection</td></tr>
+        <tr><td class="mono">pending_review</td><td class="mono">rejected</td><td>Super Admin</td><td>Reject</td><td>Reason recorded; Client may fix and resubmit once</td></tr>
+        <tr><td class="mono">pending_review</td><td class="mono">pending_verification</td><td>Super Admin</td><td>Checklist passed</td><td>Verification visit created and assigned</td></tr>
+        <tr><td class="mono">pending_verification</td><td class="mono">live</td><td>Super Admin</td><td>Visit report accepted</td><td>Badge set, <code>verified_at</code> stamped, enters search + sitemap, area count recomputed</td></tr>
+        <tr><td class="mono">pending_verification</td><td class="mono">rejected</td><td>Super Admin</td><td>Property does not match, or does not exist</td><td>Reason recorded; Client&rsquo;s other listings flagged for re-check</td></tr>
+        <tr><td class="mono">live</td><td class="mono">pending_review</td><td>Client</td><td>Trust-field edit</td><td>Leaves search. <strong>Confirmed bookings unaffected.</strong> Previous approved version retained for comparison</td></tr>
+        <tr><td class="mono">live</td><td class="mono">paused</td><td>Client</td><td>Pause listing</td><td>Leaves search; calendar preserved; existing bookings honoured</td></tr>
+        <tr><td class="mono">live</td><td class="mono">hidden</td><td>System</td><td>Availability unconfirmed 30 days</td><td>Auto-hide + WhatsApp nudge with one-tap reactivate</td></tr>
+        <tr><td class="mono">live / paused</td><td class="mono">hidden</td><td>Super Admin</td><td>Client suspended, or a report upheld</td><td><strong>Prior status stored</strong> so reinstatement restores it correctly</td></tr>
+        <tr><td class="mono">hidden</td><td class="mono">live / paused</td><td>Super Admin / Client</td><td>Reinstated, or reactivated</td><td>Restores the stored prior status, not blanket <code>live</code></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+<!-- =================== DOCUMENTS =================== -->
+<section class="block" id="docs">
+  <div class="kick">THE QUESTION YOU ASKED</div>
+  <h2>&ldquo;What document proves this place belongs to this user?&rdquo;</h2>
+  <p class="lede">You were right to assume something like this exists &mdash; it does, and in India it is unusually well defined. For farm land in Gujarat there is a specific record for exactly this purpose. Here is the accepted list, easiest to obtain at the top.</p>
+
+  <div class="tscroll">
+  <table>
+    <caption>Accepted ownership documents, and what each actually proves</caption>
+    <thead><tr><th>Document</th><th>Local name</th><th>Proves</th><th>Strength</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Electricity bill</strong></td>
+        <td>Light bill</td>
+        <td>Possession and a name-to-address link. Easiest to get, and every owner has one.</td>
+        <td>Weak alone &mdash; accept for low-value listings, pair with a second doc otherwise</td>
+      </tr>
+      <tr>
+        <td><strong>Property tax receipt</strong></td>
+        <td>Municipal tax bill</td>
+        <td>Municipality records this person as liable for the property.</td>
+        <td>Good, for built property inside municipal limits</td>
+      </tr>
+      <tr>
+        <td><strong>7/12 extract</strong></td>
+        <td>Satbara &middot; VF-7 &amp; VF-12</td>
+        <td><strong>The document for agricultural land.</strong> Survey number, area, and the recorded holder&rsquo;s name. This is what a farmhouse on farm land is actually held under.</td>
+        <td><strong>Strong &mdash; prefer this for farms</strong></td>
+      </tr>
+      <tr>
+        <td><strong>8-A extract</strong></td>
+        <td>Khata extract</td>
+        <td>All land held by one khatedar in a village. Useful when a family holds several survey numbers.</td>
+        <td>Strong, pairs with 7/12</td>
+      </tr>
+      <tr>
+        <td><strong>Index-II</strong></td>
+        <td>Index 2 &middot; registration index</td>
+        <td>Summary index of a registered sale deed: parties, property, date. Far easier to obtain than the full deed.</td>
+        <td>Strong</td>
+      </tr>
+      <tr>
+        <td><strong>Registered sale deed</strong></td>
+        <td>Vechan dastavej</td>
+        <td>The transfer itself. Definitive but long, and owners are reluctant to share it.</td>
+        <td>Strongest &mdash; do not demand it by default</td>
+      </tr>
+      <tr>
+        <td><strong>NA order</strong></td>
+        <td>Non-Agricultural permission</td>
+        <td>That agricultural land has been permitted for non-agricultural use. <em>Not</em> ownership &mdash; but relevant to whether commercial letting is lawful.</td>
+        <td>Supplementary; ask for event-capable properties</td>
+      </tr>
+      <tr>
+        <td><strong>Authorisation letter</strong></td>
+        <td>&mdash;</td>
+        <td>That the owner permits this person to let the property. <strong>Must be accompanied by the owner&rsquo;s ID and the owner&rsquo;s own ownership document.</strong></td>
+        <td>The only route for <code>client_type='authorised_agent'</code></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>The name-match decision &mdash; three outcomes, not two</h3>
+  <div class="tscroll">
+  <table>
+    <thead><tr><th>Document name vs KYC name</th><th>Decision</th><th>Badge shown publicly</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Exact match</strong></td><td>Approve as <code>owner</code></td><td><strong>Owner verified</strong></td></tr>
+      <tr><td><strong>Partial / family match</strong> &mdash; e.g. document in a father&rsquo;s or HUF name</td><td>Request one more document: relationship proof plus a signed no-objection from the recorded holder</td><td><strong>Owner verified</strong> once satisfied, else the agent path</td></tr>
+      <tr><td><strong>No match</strong></td><td>Cannot be <code>owner</code>. Only path is <code>authorised_agent</code> with an authorisation letter + the owner&rsquo;s ID + the owner&rsquo;s ownership document</td><td><strong>Authorised manager</strong> &mdash; stated honestly, never dressed up as the owner</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tip"><strong>Display the difference honestly and it becomes a feature.</strong> Every existing Indian portal blurs owner and broker, which is exactly why nobody trusts them. A listing that says <em>&ldquo;Authorised manager &mdash; not the owner&rdquo;</em> is more trustworthy than one that pretends, and it costs you nothing to say.</div>
+
+  <h3>The document vault &mdash; one table, strict rules</h3>
+  <p>All uploads, whoever they belong to and whatever they prove, go through one polymorphic store with one review lifecycle. Identity documents are the exception: those never reach us as images.</p>
+  <div class="tscroll">
+  <table>
+    <thead><tr><th>Rule</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Never store a raw Aadhaar or PAN image.</strong> Store the KYC vendor&rsquo;s reference and its verdict.</td><td>Aadhaar and PAN are sensitive personal data under the DPDP Act. Holding the images makes you a target and a liability for no benefit.</td></tr>
+      <tr><td>Ownership documents <em>are</em> stored, in a private bucket, server-side encrypted, never public-read.</td><td>They are the evidence behind a listing badge and may be needed in a dispute.</td></tr>
+      <tr><td>Access is by short-lived signed URL, minted per request, logged.</td><td>A leaked permanent URL is a leaked land record.</td></tr>
+      <tr><td>Every view of a document by a Super Admin writes an audit row.</td><td>You will eventually need to answer &ldquo;who looked at this, and when&rdquo;.</td></tr>
+      <tr><td>Documents carry <code>issued_at</code> and a freshness rule: a light bill older than <strong>3 months</strong> is re-requested.</td><td>A two-year-old bill proves possession two years ago.</td></tr>
+      <tr><td>Define a retention period and honour deletion requests, except where a live dispute needs the record.</td><td>DPDP Act. Write the period down before launch, not after the first request.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- =================== STAGE 3 =================== -->
+<section id="stage3">
+  <div class="roleBand customer">
+    <div class="who">STAGE 3 &middot; ROLE: CUSTOMER</div>
+    <h2>Browse, book, arrive, review</h2>
+    <p class="goal">The Customer is last to be built and first to be considered. Everything above exists so that when a Customer searches, every result is a real property owned by an identified person who can be paid and held accountable. The Customer side is deliberately the lightest: <strong>no login to search, ever.</strong></p>
+    <div class="gate"><b>EXIT CONDITION &rarr;</b> <code>booking.state = completed</code>, deposit returned, both reviews submitted.</div>
+  </div>
+
+  <div class="roleBody">
+    <div class="flow blue">
+      <div class="step"><h4>Search, with no account<span class="actor a-cust">CUSTOMER</span></h4><p>Area, date, slot, guests, price, amenities. Map and list. This is also the SEO surface, so it must render server-side and must never be gated behind a signup wall &mdash; that is precisely the behaviour people hate about existing portals.</p></div>
+      <div class="step"><h4>Evaluate the listing<span class="actor a-cust">CUSTOMER</span></h4><p>Gallery, walkthrough video, amenity tags, house rules, capacity, <strong>area circle on the map &mdash; not the exact pin</strong>, the Client&rsquo;s badge and response time, reviews, full price breakdown with <code>&#8377;0 brokerage</code>, and the cancellation policy in rupees.</p></div>
+      <div class="step"><h4>Sign up with phone OTP, only when acting<span class="actor a-cust">CUSTOMER</span></h4><p>First required at enquiry or booking, never at browse. Account is <code>active</code> immediately &mdash; there is no Gate for Customers. KYC becomes mandatory above a &#8377;5,000 booking value, which is also what makes a Client comfortable handing over a property.</p></div>
+      <div class="step"><h4>Ask questions in masked chat<span class="actor a-cust">CUSTOMER</span></h4><p>Contact details hidden on both sides. Phone numbers, numbers spelled in words, emails and social handles filtered, with the sender told why rather than silently stripped.</p></div>
+      <div class="step"><h4>Pick date + slot, pay the advance<span class="actor a-cust">CUSTOMER</span></h4><p>Advance is <strong>25% of rent plus the entire platform fee</strong>, so revenue is never at risk. Balance either online before check-in or cash on arrival, recorded in-app. Money is held by the platform, not sent to the Client. Booking sits at <code>requested</code>.</p></div>
+      <div class="step"><h4>Client accepts within 12 hours<span class="actor a-client">CLIENT</span></h4><p>Sees the Customer&rsquo;s badge, past bookings and reviews first. On accept &rarr; <code>confirmed</code>, and only now do the exact address, both phone numbers and a check-in code unlock. On decline or expiry &rarr; automatic full refund, no questions.</p></div>
+      <div class="step"><h4>Arrive and check in<span class="actor a-cust">CUSTOMER</span></h4><p>Check-in code verified. The Client or their caretaker captures timestamped condition photos through the in-app camera &mdash; gallery blocked &mdash; and the Customer co-confirms. A material mismatch reported within 60 minutes is treated as a Client cancellation: full refund, Client penalised.</p></div>
+      <div class="step"><h4>Check out, inspect, settle<span class="actor a-client">CLIENT</span></h4><p>Side-by-side comparison against the check-in set. All-OK or a damage claim with evidence inside the inspection window. Deposit auto-refunds when the window closes clean. Payout to the Client on T+1/T+2 with commission, TDS and TCS recorded.</p></div>
+      <div class="step"><h4>Two-way review<span class="actor a-sys">BOTH</span></h4><p>Released only when both sides submit, or after 14 days. Sub-scores for cleanliness, listing accuracy, value and behaviour. This is what feeds the Client&rsquo;s public signals.</p></div>
+    </div>
+
+    <h3>State machine &mdash; <code>booking.state</code></h3>
+    <div class="sm">
+      <div class="smRow">
+        <span class="smState s-wait">requested</span>
+        <span class="smArrow">&rarr;<b>client accepts</b></span>
+        <span class="smState s-live">confirmed</span>
+        <span class="smArrow">&rarr;<b>check-in</b></span>
+        <span class="smState s-live">handed_over</span>
+        <span class="smArrow">&rarr;<b>check-out</b></span>
+        <span class="smState s-live">returned</span>
+        <span class="smArrow">&rarr;<b>window clean</b></span>
+        <span class="smState s-live">completed</span>
+      </div>
+      <div class="smRow" style="margin-top:.4rem;">
+        <span class="smState s-wait">requested</span>
+        <span class="smArrow">&rarr;<b>decline / 12h expiry</b></span>
+        <span class="smState s-dead">cancelled</span>
+        <span class="smArrow">&nbsp;&nbsp;&nbsp;</span>
+        <span class="smState s-live">returned</span>
+        <span class="smArrow">&rarr;<b>claim filed</b></span>
+        <span class="smState s-hold">disputed</span>
+        <span class="smArrow">&rarr;<b>admin decides</b></span>
+        <span class="smState s-live">completed</span>
+      </div>
+    </div>
+    <div class="info"><strong>Note the deliberate asymmetry.</strong> <code>requested &rarr; cancelled</code> is free and automatic for the Customer &mdash; nothing has been promised yet. <code>confirmed &rarr; cancelled</code> by the <em>Client</em> is the most damaging event in the whole system: full refund plus a platform credit to the Customer, dates auto-blocked, listing de-ranked, and ops attempts an instant rebook at a comparable property with Rentra paying the difference.</div>
+  </div>
+</section>
+
+<!-- =================== GAPS =================== -->
+<section class="block" id="gaps">
+  <div class="kick">THE ZERO-GAP REGISTER</div>
+  <h2>Thirty things that will happen, and what the system does.</h2>
+  <p class="lede">A flow diagram is the happy path. These are the branches that turn into support calls if nobody decided them in advance. Each one has a defined answer. Open any.</p>
+
+  <h3>Onboarding &amp; identity</h3>
+  <details class="gapd"><summary><span class="n">01</span> Client fills half the application and disappears</summary>
+    <p class="fix"><b>Saved as a draft, resumable from the same email OTP.</b> WhatsApp nudge at day 2 and day 7. Purged at day 30 with a final notice, because a stale half-application containing a bank account is a liability, not an asset.</p></details>
+  <details class="gapd"><summary><span class="n">02</span> Email OTP never arrives</summary>
+    <p class="fix"><b>Resend after 60 seconds, 3 per hour.</b> After the second failed resend, offer the phone-OTP fallback for <em>login only</em> &mdash; the email still has to be verified before the application can be submitted, because that is where rejection reasons go.</p></details>
+  <details class="gapd"><summary><span class="n">03</span> The same email applies twice</summary>
+    <p class="fix"><b>Impossible by constraint</b> &mdash; unique on <code>(email, role)</code>. The second attempt just logs them into the existing application and shows its status. Never create a duplicate; never show &ldquo;email already exists&rdquo; as an error on a login-by-OTP flow.</p></details>
+  <details class="gapd"><summary><span class="n">04</span> One person wants to be both Client and Customer</summary>
+    <p class="fix"><b>Two accounts, one verified human.</b> Uniqueness is on <code>(email, role)</code> and <code>(phone, role)</code>, so the same address and number can hold one of each. Both link to a single <code>person</code> row, so <b>KYC is done once</b> &mdash; otherwise you pay the vendor twice and ask a verified owner to photograph his PAN again.</p></details>
+  <details class="gapd"><summary><span class="n">05</span> Penny-drop name does not match the KYC name</summary>
+    <p class="fix"><b>Application cannot be approved.</b> Either a payout destination in their own verified name, or a documented explanation reviewed by hand. Paying out to a third-party account is how a marketplace becomes a laundering route.</p></details>
+  <details class="gapd"><summary><span class="n">06</span> Application rejected &mdash; can they try again?</summary>
+    <p class="fix"><b>Yes, twice.</b> Reason is shown verbatim so the fix is knowable. Third rejection sets <code>blocked</code> and only a manual appeal reopens it. Rejections must always carry a written reason &mdash; a silent no generates a support call and a bad review.</p></details>
+  <details class="gapd"><summary><span class="n">07</span> Approved Client never lists anything</summary>
+    <p class="fix"><b>WhatsApp nudge at day 3, 10 and 30, then an ops call.</b> An approved Client with no listing is a recruitment failure, not a product one &mdash; treat it as a founder task, and offer to build the listing for them from photos and a voice note.</p></details>
+  <details class="gapd"><summary><span class="n">08</span> Super Admin approves by mistake</summary>
+    <p class="fix"><b>Every decision is reversible and audited.</b> <code>active &rarr; suspended</code> hides all listings while honouring confirmed bookings. The audit row records who, when and why, for both the original decision and the reversal.</p></details>
+
+  <h3>The stepper &amp; the gated CTA</h3>
+  <details class="gapd"><summary><span class="n">09</span> Client logs in, completes nothing, never returns</summary>
+    <p class="fix"><b>This is the case letting them in early exists to catch.</b> The row is in the database with a verified email, and often a verified phone, so it is a lead rather than a bounce. WhatsApp nudge at day 2 and day 7 naming the <em>specific</em> remaining step &mdash; &ldquo;you&rsquo;re one field from being able to list&rdquo; converts far better than &ldquo;complete your profile&rdquo;. Full purge at day 30, because a dormant half-application holding a bank account is a liability.</p></details>
+  <details class="gapd"><summary><span class="n">10</span> KYC comes back rejected <em>after</em> that step showed as done</summary>
+    <p class="fix"><b>The step goes backwards and the bar shrinks &mdash; by design.</b> This is precisely why completion is derived from the data rather than stored as a counter. Explain it in place: <em>&ldquo;Your PAN check did not pass. Re-check with the name exactly as printed.&rdquo;</em> A bar that silently stays at 4/6 while the underlying check has failed is the worst outcome, because submission then fails for a reason nothing on screen explained.</p></details>
+  <details class="gapd"><summary><span class="n">11</span> Client edits their application after submitting it</summary>
+    <p class="fix"><b>A submitted application is read-only.</b> Editing requires <em>Withdraw and edit</em>, which moves it back to <code>draft</code>, removes it from the admin queue, and does <strong>not</strong> count as a strike. Silently allowing edits under a reviewer is how an admin approves a version that no longer exists.</p></details>
+  <details class="gapd"><summary><span class="n">12</span> Client clicks the locked &ldquo;Add place&rdquo; button five times</summary>
+    <p class="fix"><b>Log it &mdash; it is the strongest intent signal you will get.</b> Someone hammering a locked CTA is telling you they have a property ready and are stuck on paperwork. Surface it in the admin queue as a priority sort, and treat repeated clicks as a trigger for an ops call rather than another automated nudge. At MVP scale that call is the highest-value use of your time.</p></details>
+
+  <h3>Listings &amp; ownership</h3>
+  <details class="gapd"><summary><span class="n">13</span> Ownership document is in a father&rsquo;s or HUF name</summary>
+    <p class="fix"><b>The most common real case, and it is not a rejection.</b> Request relationship proof plus a signed no-objection from the recorded holder. If unavailable, the Client proceeds as <code>authorised_agent</code> and the listing says <em>Authorised manager</em> publicly. Never approve as owner on a mismatched name.</p></details>
+  <details class="gapd"><summary><span class="n">14</span> Client uploads someone else&rsquo;s photos</summary>
+    <p class="fix"><b>Reverse-image search on upload, before review.</b> A hit blocks submission with the reason. Confirmed intentional theft suspends the account on the first offence. Prefer verifier-shot photos as the primary gallery precisely because it removes this vector.</p></details>
+  <details class="gapd"><summary><span class="n">15</span> Phone number hidden in a photo, on a gate board</summary>
+    <p class="fix"><b>Part of the moderation checklist, not an afterthought.</b> Also OCR the images. This is the most common bypass attempt and it is invisible to text filters.</p></details>
+  <details class="gapd"><summary><span class="n">16</span> Client edits photos on a live listing</summary>
+    <p class="fix"><b><code>live &rarr; pending_review</code>.</b> Photos are a trust field. The listing leaves search; <b>confirmed bookings are untouched</b>. The previously approved version is retained so the admin can compare, which is how you catch a swap rather than a genuine reshoot.</p></details>
+  <details class="gapd"><summary><span class="n">17</span> Client changes only the Saturday price</summary>
+    <p class="fix"><b>Applies immediately, stays live.</b> Price is a free field. Putting routine pricing work behind a review queue guarantees stale prices, which is worse for everyone than the risk it avoids.</p></details>
+  <details class="gapd"><summary><span class="n">18</span> Verification visit finds the property does not match</summary>
+    <p class="fix"><b>Listing rejected with the report attached, and <em>every other listing by that Client is flagged for re-check</em>.</b> One fabricated listing is strong evidence about the rest &mdash; this is the check most systems miss.</p></details>
+  <details class="gapd"><summary><span class="n">19</span> Two Clients list the same property</summary>
+    <p class="fix"><b>Detected on map pin proximity plus address similarity at submission.</b> Both go to manual review; the one with the stronger ownership document wins, the other is rejected. Without this check a broker and an owner can both list one farm and double-book it.</p></details>
+  <details class="gapd"><summary><span class="n">20</span> House rules contain a discriminatory restriction</summary>
+    <p class="fix"><b>Explicit reject, with the rule quoted back.</b> Religion, caste, marital status, region, single-women restrictions. Offer the legitimate structured alternatives instead. This is live on competitor sites today &mdash; do not inherit it.</p></details>
+
+  <h3>Bookings, money &amp; suspension</h3>
+  <details class="gapd"><summary><span class="n">21</span> Two Customers book the same slot at the same instant</summary>
+    <p class="fix"><b>Postgres decides, not the UI.</b> The composite primary key on <code>availability(rentable_id, day, slot)</code> means the second write fails inside the transaction. The loser sees &ldquo;just taken &mdash; here are 3 similar farms on that date&rdquo;, and is never charged.</p></details>
+  <details class="gapd"><summary><span class="n">22</span> Client never responds to a booking request</summary>
+    <p class="fix"><b>12-hour timer in the worker.</b> On expiry: full automatic refund, slot reopened, response rate reduced, listing de-ranked. Repeated non-response is a suspension trigger. Slow response is the number one cause of lost bookings on Indian rental platforms.</p></details>
+  <details class="gapd"><summary><span class="n">23</span> Client is suspended while bookings are confirmed</summary>
+    <p class="fix"><b>Listings hide; confirmed bookings are honoured.</b> Punishing a Customer for their Client&rsquo;s misconduct is the worst possible trade. Payouts freeze until the case closes; ops contacts each affected Customer personally.</p></details>
+  <details class="gapd"><summary><span class="n">24</span> Client asks to delete their account with future bookings</summary>
+    <p class="fix"><b>Blocked, with the reason and the date shown.</b> Listings can be paused immediately so nothing new arrives; deletion completes once the last booking reaches <code>completed</code> and the retention period for its financial records has run.</p></details>
+  <details class="gapd"><summary><span class="n">25</span> Customer pays but the Client&rsquo;s listing was hidden meanwhile</summary>
+    <p class="fix"><b>Cannot happen &mdash; availability is locked at payment, not at accept.</b> If the listing is hidden between request and accept, the request is auto-cancelled with a full refund and an apology credit, and ops attempts a rebook.</p></details>
+  <details class="gapd"><summary><span class="n">26</span> Caretaker, not the Client, is at the property for check-in</summary>
+    <p class="fix"><b>This is the normal case, not the exception.</b> The Client adds a staff sub-account with scoped permissions: can check in, can capture condition photos, cannot see earnings, cannot change price. Without it, the condition-photo requirement &mdash; which the entire dispute process rests on &mdash; simply will not be complied with.</p></details>
+  <details class="gapd"><summary><span class="n">27</span> Customer balance was paid in cash and nobody recorded it</summary>
+    <p class="fix"><b>Both sides confirm the cash handover in-app at check-in.</b> Commission was already taken with the advance, so revenue is safe either way. A Client who takes cash and does not confirm gets a nudge, then a ranking penalty. Fighting cash loses; instrumenting it wins.</p></details>
+  <details class="gapd"><summary><span class="n">28</span> Super Admin is unavailable and the queue backs up</summary>
+    <p class="fix"><b>Publish the SLA and measure it: 2 working days for applications, 2 for listings.</b> Show queue age on the admin dashboard, and alert past SLA. At MVP scale you are the only reviewer &mdash; so the honest mitigation is that <b>verification throughput caps your growth rate</b>, and you plan recruitment around it rather than pretending otherwise.</p></details>
+
+  <h3>Auth &amp; delivery</h3>
+  <details class="gapd"><summary><span class="n">29</span> The dev OTP bypass reaches production</summary>
+    <p class="fix"><b>The app refuses to boot.</b> Joi validates <code>DEV_OTP_BYPASS</code> against <code>NODE_ENV</code> at startup and throws in production, so a bad deploy crashes loudly rather than silently accepting <code>123456</code> for every account &mdash; including an admin&rsquo;s. Declining to <em>use</em> the bypass is not enough; the process must not start. See <a href="#devotp">dev mode</a>.</p></details>
+  <details class="gapd"><summary><span class="n">30</span> SMS silently stops delivering in production</summary>
+    <p class="fix"><b>Assume it will, and instrument it.</b> Indian transactional SMS depends on TRAI DLT registration and per-template approval, and a template edit or an expired header kills delivery without any error your code can see. So: log every send with the gateway&rsquo;s response id, alert on delivery rate falling below a threshold, and keep <b>email OTP as a working fallback for Clients</b> &mdash; which they already have, because email is their credential. A Customer who cannot receive an SMS should be offered a WhatsApp OTP before being offered nothing.</p></details>
+</section>
+
+<!-- =================== SCHEMA =================== -->
+<section class="block" id="schema">
+  <div class="kick">WHAT THIS NEEDS FROM THE DATABASE</div>
+  <h2>Seven new tables, three enum changes.</h2>
+  <p class="lede">The current schema already carries <code>user</code>, <code>rentable</code>, <code>availability</code>, <code>booking</code>, <code>payout</code>, <code>review</code>, <code>client_staff</code> and <code>person</code>. What the flow above adds is the machinery for <em>credentials, applications, documents, review decisions and audit</em> &mdash; none of which exists yet.</p>
+
+  <div class="schema">
+<pre><span class="c">-- ============ CHANGES TO EXISTING TABLES ============</span>
+
+<span class="t">user</span>  <span class="c">-- add:</span>
+  <span class="k">email</span>              varchar(254)   <span class="c">-- Client credential</span>
+  <span class="k">email_verified_at</span>  timestamptz
+  <span class="k">phone_verified_at</span>  timestamptz
+  <span class="k">account_status</span>     enum(<span class="s">'pending_application'</span>,<span class="s">'active'</span>,
+                          <span class="s">'suspended'</span>,<span class="s">'blocked'</span>)
+  <span class="k">preferred_locale</span>   varchar(5)     <span class="c">-- 'gu' | 'hi' | 'en'</span>
+  UNIQUE (email, role)                 <span class="c">-- mirrors UNIQUE(phone, role)</span>
+
+<span class="t">rentable</span>  <span class="c">-- add:</span>
+  <span class="k">prior_status</span>       listing_status <span class="c">-- so un-hiding restores correctly</span>
+  <span class="k">approved_snapshot</span>  jsonb          <span class="c">-- last approved version, for edit diffing</span>
+  <span class="k">rejection_reason</span>   text
+
+<span class="c">-- enum additions</span>
+listing_status  += <span class="s">'rejected'</span>
+kyc_status      += <span class="s">'more_info_needed'</span>
+
+<span class="c">-- ============ NEW TABLES ============</span>
+
+<span class="c">-- One-time codes. Only the HASH is stored, never the code.</span>
+<span class="t">otp_token</span> (
+  id, <span class="k">identifier</span>,           <span class="c">-- the email or phone</span>
+  <span class="k">channel</span> enum(<span class="s">'email'</span>,<span class="s">'sms'</span>),
+  purpose enum(<span class="s">'login'</span>,<span class="s">'verify_phone'</span>,<span class="s">'verify_email'</span>),
+  code_hash, expires_at, attempts int, consumed_at, created_at
+)
+  INDEX (identifier, purpose, expires_at)
+
+<span class="c">-- Gate 1. One per Client, with its own review lifecycle.</span>
+<span class="t">client_application</span> (
+  id, user_id UNIQUE,
+  status enum(<span class="s">'draft'</span>,<span class="s">'submitted'</span>,<span class="s">'more_info_needed'</span>,
+              <span class="s">'approved'</span>,<span class="s">'rejected'</span>),
+  legal_name, residential_address, pincode,
+  client_type, owner_name, owner_relationship,   <span class="c">-- agent path</span>
+  payout_upi_id, payout_account_ref, payout_name_match bool,
+  intended_listing_count int,
+  consent_at, consent_ip,
+  submitted_at, reviewed_at, reviewed_by &rarr; admin_user,
+  <span class="k">decision_reason</span> text, <span class="k">flagged_fields</span> jsonb,
+  <span class="k">strike_count</span> int DEFAULT 0
+)
+
+<span class="c">-- Polymorphic vault. Ownership docs live here; ID images NEVER do.</span>
+<span class="t">document</span> (
+  id, owner_type enum(<span class="s">'client_application'</span>,<span class="s">'rentable'</span>,<span class="s">'booking'</span>),
+  owner_id,
+  doc_type enum(<span class="s">'electricity_bill'</span>,<span class="s">'property_tax'</span>,<span class="s">'extract_7_12'</span>,
+                <span class="s">'extract_8a'</span>,<span class="s">'index_ii'</span>,<span class="s">'sale_deed'</span>,<span class="s">'na_order'</span>,
+                <span class="s">'authorisation_letter'</span>,<span class="s">'owner_id'</span>,<span class="s">'noc'</span>),
+  storage_key,                <span class="c">-- private bucket; signed URLs only</span>
+  <span class="k">name_on_document</span>, <span class="k">name_match</span> enum(<span class="s">'exact'</span>,<span class="s">'partial'</span>,<span class="s">'none'</span>),
+  issued_at,                  <span class="c">-- freshness rule: bills &lt; 3 months</span>
+  status enum(<span class="s">'uploaded'</span>,<span class="s">'accepted'</span>,<span class="s">'rejected'</span>,<span class="s">'superseded'</span>),
+  reviewed_by &rarr; admin_user, review_note, uploaded_at
+)
+  INDEX (owner_type, owner_id, status)
+
+<span class="c">-- Gate 2. One row per review pass, so history is preserved.</span>
+<span class="t">listing_review</span> (
+  id, rentable_id, pass_number int,
+  <span class="k">checklist</span> jsonb,        <span class="c">-- {ownership, photos, contacts, price, rules, permits}</span>
+  outcome enum(<span class="s">'changes_requested'</span>,<span class="s">'approved_for_visit'</span>,
+               <span class="s">'published'</span>,<span class="s">'rejected'</span>),
+  reason text, reviewed_by &rarr; admin_user, reviewed_at
+)
+
+<span class="c">-- The verification visit. GPS proves it happened AT the property.</span>
+<span class="t">verification_visit</span> (
+  id, rentable_id,
+  mode enum(<span class="s">'video_call'</span>,<span class="s">'physical'</span>),
+  assigned_to, scheduled_at, started_at,
+  <span class="k">geo_lat</span>, <span class="k">geo_lng</span>,          <span class="c">-- captured on site, compared to the pin</span>
+  <span class="k">report</span> jsonb,             <span class="c">-- amenities claimed vs present, condition,</span>
+                            <span class="c">-- network, approach road, red flags</span>
+  outcome enum(<span class="s">'passed'</span>,<span class="s">'failed'</span>,<span class="s">'no_show'</span>),
+  recording_key, completed_at
+)
+
+<span class="c">-- Every consequential action, by anyone. Non-negotiable.</span>
+<span class="t">audit_log</span> (
+  id, actor_type enum(<span class="s">'client'</span>,<span class="s">'customer'</span>,<span class="s">'admin'</span>,<span class="s">'system'</span>),
+  actor_id, entity, entity_id, action,
+  <span class="k">before</span> jsonb, <span class="k">after</span> jsonb, reason, ip, at
+)
+  INDEX (entity, entity_id, at)
+
+<span class="c">-- Fixed amenity taxonomy. Tags are PICKED, never typed.</span>
+<span class="t">amenity</span> (
+  id, slug UNIQUE, group_slug,
+  <span class="k">label_en</span>, <span class="k">label_hi</span>, <span class="k">label_gu</span>,
+  value_type enum(<span class="s">'none'</span>,<span class="s">'count'</span>,<span class="s">'dimensions'</span>,<span class="s">'area'</span>,<span class="s">'charge'</span>),
+  is_filterable bool, sort_order int
+)
+<span class="t">rentable_amenity</span> (rentable_id, amenity_id, value, PRIMARY KEY(both))</pre>
+  </div>
+  <div class="tip"><strong>Two of these are worth building even though nothing reads them yet.</strong> <code>audit_log</code>, because the first time a Client disputes a suspension you will need to show what happened and when, and you cannot reconstruct it later. And <code>approved_snapshot</code> on <code>rentable</code>, because diffing an edit against the last approved version is the only way to tell a genuine reshoot from a photo swap.</div>
+  <div class="note"><strong>One migration hazard, already hit once on this project.</strong> Adding a <code>NOT NULL</code> column with no default to a table that has rows fails. Every one of these additions to <code>user</code> and <code>rentable</code> must go in as <em>nullable &rarr; backfill &rarr; constrain</em>, in three statements. Drizzle will not generate that for you.</div>
+</section>
+
+<!-- =================== BUILD ORDER =================== -->
+<section class="block" id="build">
+  <div class="kick">BUILD ORDER</div>
+  <h2>The order that keeps the app runnable at every step.</h2>
+  <p class="lede">Each step leaves the system in a working state and is independently demoable. Nothing here needs a Customer to exist until step 8, which is the point &mdash; supply first.</p>
+  <div class="tscroll">
+  <table>
+    <thead><tr><th>#</th><th>Step</th><th>Why here</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Schema: <code>otp_token</code>, <code>account_status</code>, <code>user.email</code>, <code>audit_log</code></td><td>Everything else needs an identity and a log</td><td><span class="pill p-new">NEXT</span></td></tr>
+      <tr><td>2</td><td>Email-OTP auth + session, <code>/partner/login</code></td><td>The Client cannot do anything before they can log in</td><td><span class="pill p-new">NEW</span></td></tr>
+      <tr><td>3</td><td>Phone-OTP verification step</td><td>Blocks application submission, so it comes before the form</td><td><span class="pill p-new">NEW</span></td></tr>
+      <tr><td>4</td><td><code>client_application</code> + the 6-section form, saved as a draft</td><td>Gate 1&rsquo;s input</td><td><span class="pill p-new">NEW</span></td></tr>
+      <tr><td>5</td><td><code>document</code> vault + private bucket + signed URLs</td><td>Both gates depend on it</td><td><span class="pill p-new">NEW</span></td></tr>
+      <tr><td>6</td><td>Admin console: application queue, approve / reject / request-info</td><td>Gate 1 closes. A Client can now go <code>active</code></td><td><span class="pill p-new">NEW</span></td></tr>
+      <tr><td>7</td><td><code>amenity</code> taxonomy + 9-step listing builder + <code>listing_review</code> + <code>verification_visit</code></td><td>Gate 2 closes. Real listings can go <code>live</code></td><td><span class="pill p-new">NEW</span></td></tr>
+      <tr><td>8</td><td>Customer phone-OTP signup, then booking engine</td><td>Only worth building once real supply exists</td><td><span class="pill p-exists">PARTLY</span></td></tr>
+      <tr><td>9</td><td>Trust-field diffing, suspension cascade, staff sub-accounts</td><td>The edge cases in the gap register</td><td><span class="pill p-new">NEW</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="info"><strong>What already exists and does not need rebuilding:</strong> the <code>rentable</code> / <code>availability</code> / <code>booking</code> / <code>payout</code> schema with the double-booking lock, the <code>(phone, role)</code> uniqueness rule, the pricing and refund domain functions, the listing card and slot selector, the design tokens, and 12 seeded listings with 90 days of availability. Steps 1&ndash;7 are additive; nothing above throws any of that away.</div>
+</section>
+
+</div>
+
+<footer>
+  <div class="rule"></div>
+  <p><strong>The flow in one line:</strong> Super Admin exists first, the Client proves who they are, then proves each property is theirs, and only then does a Customer ever see it &mdash; with a written, audited human decision at both gates and a defined answer at every branch.</p>
+  <p style="margin-top:.9rem;"><strong>The two things most likely to be got wrong:</strong> collapsing the two gates into one, which either leaves you paying unverified strangers or lets an approved Client publish a farm they have never seen; and treating a photo edit like a price edit, which is the widest fraud vector in the whole system.</p>
+  <p style="margin-top:.9rem;">Companion to <strong>rentra-implementation-plan.html</strong> (phases and features) and <strong>rentra-design-system.html</strong> (colour, type, components). Document and tax content is general information, not advice &mdash; take the ownership-document list and the DPDP retention rules to a lawyer before launch.</p>
+</footer>
+
+</body>
+</html>

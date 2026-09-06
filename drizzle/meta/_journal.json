@@ -22,6 +22,41 @@
       "when": 1788694421538,
       "tag": "0002_sticky_mentallo",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1788697998941,
+      "tag": "0003_aberrant_zombie",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1788699265939,
+      "tag": "0004_sudden_warlock",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788700484345,
+      "tag": "0005_curly_squirrel_girl",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1788701283378,
+      "tag": "0006_organic_turbo",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1788719686532,
+      "tag": "0007_heavy_the_santerians",
+      "breakpoints": true
     }
   ]
 }
