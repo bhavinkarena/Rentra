@@ -1,11 +1,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import SearchBar from '@/components/rentra/SearchBar';
-import SlotSelector from '@/components/rentra/SlotSelector';
 import ListingCard from '@/components/rentra/ListingCard';
 import TrustStrip from '@/components/rentra/TrustStrip';
-import PriceBox from '@/components/rentra/PriceBox';
-import { getLiveListings, getListingByCode } from '@/lib/db/queries';
+import { getLiveListings } from '@/lib/db/queries';
 import { INTENTS } from '@/lib/constants';
 
 export const metadata = {
@@ -21,19 +19,11 @@ export const metadata = {
 export const revalidate = 3600;
 
 export default async function HomePage() {
-  const listings = await getLiveListings({ citySlug: 'surat', limit: 8 });
-  // Feature the top-ranked listing rather than hardcoding a slug.
-  const featured = listings.length
-    ? await getListingByCode(listings[0].publicCode)
-    : null;
+  const listings = await getLiveListings({ citySlug: 'surat', limit: 16 });
 
-  const heroPhoto = featured?.photos?.[0] ?? listings[0]?.photo ?? null;
-
-  const weekendPrices = featured
-    ? Object.fromEntries(
-      Object.entries(featured.prices).map(([slot, p]) => [slot, p.weekend]),
-    )
-    : {};
+  // The hero is the top-ranked listing's own first frame, not a stock image.
+  // It comes from the card query, so this page is one round trip.
+  const heroPhoto = listings[0]?.photo ?? null;
 
   return (
     <>
@@ -102,32 +92,6 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
-
-      {featured ? (
-        <section className="mx-auto max-w-(--container-page) px-6 pb-16">
-          <h2 className="text-h2">Pick a slot, not just a date</h2>
-          <p className="mt-2 max-w-prose text-body text-ink-600">
-            Most farmhouses rent a day picnic and an overnight stay separately
-            on the same date, at different prices. Rentra is built around that.
-          </p>
-          <div className="mt-6 grid gap-10 lg:grid-cols-2">
-            <div>
-              <p className="mb-3 text-meta font-semibold text-ink-700">
-                {featured.title} · {featured.area}
-              </p>
-              {/* Sat 14 Feb is a weekend, so weekend rates apply. */}
-              <SlotSelector prices={weekendPrices} />
-            </div>
-            <PriceBox
-              baseRent={weekendPrices.night}
-              deposit={featured.depositAmount}
-              slot="night"
-              dateLabel="Sat 14 Feb"
-              freeCancellationUntil="7 Feb"
-            />
-          </div>
-        </section>
-      ) : null}
     </>
   );
 }

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { RentraLogo } from '@/components/rentra/Logo';
 import { getCurrentAdmin } from '@/lib/auth/admin';
 import { adminLogout } from '@/lib/auth/admin-actions';
 
@@ -15,8 +16,12 @@ export default async function AdminLayout({ children }) {
     <div className="flex min-h-screen flex-col bg-ink-25">
       <header className="border-b-2 border-ink-900 bg-ink-900">
         <div className="mx-auto flex max-w-(--container-page) items-center gap-4 px-6 py-3">
-          <Link href="/admin" className="text-h4 font-extrabold tracking-tight text-white">
-            Rentra <span className="font-semibold text-ink-400">admin</span>
+          {/* `inverse` swaps the artwork to the palette greens that hold up on
+              the ink-900 chrome; the delivered deep green goes muddy on it. */}
+          <Link href="/admin" className="flex shrink-0 items-center gap-2.5">
+            <RentraLogo tone="inverse" className="h-7 w-auto" />
+            <span className="h-5 w-px bg-ink-700" aria-hidden="true" />
+            <span className="text-meta font-semibold text-ink-400">admin</span>
           </Link>
           {admin ? (
             <div className="ml-auto flex items-center gap-3">

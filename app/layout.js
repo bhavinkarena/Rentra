@@ -36,6 +36,10 @@ export const metadata = {
     siteName: 'Rentra',
     url: siteUrl,
   },
+  // og:image, the favicon and the apple-touch-icon come from the metadata
+  // files beside this one (opengraph-image.js, icon.svg, apple-icon.js).
+  // This only tells X to render the card full-bleed instead of as a thumbnail.
+  twitter: { card: 'summary_large_image' },
   robots: { index: true, follow: true },
 };
 

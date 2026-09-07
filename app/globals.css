@@ -157,6 +157,23 @@
     --font-sans: var(--font-jakarta), "Noto Sans Devanagari",
                  "Noto Sans Gujarati", system-ui, -apple-system, sans-serif;
 
+    /**
+     * THE BOOKING BAR ALWAYS WINS THE BOTTOM OF THE SCREEN.
+     *
+     * On a listing page a sticky booking bar slides up below `lg`, and the
+     * WhatsApp float has to step over it rather than sit on the price. The
+     * bar carries `data-booking-bar` only while it is actually visible, so
+     * this is pure CSS — nothing measures anything, and the layout and the
+     * page never have to coordinate through JavaScript.
+     *
+     * It is a custom property rather than a rule on `.whatsapp-float`
+     * because the float positions itself with `bottom-(--float-bottom)`: a
+     * plain declaration here would lose to Tailwind's own utility, which
+     * sits in a later cascade layer no matter how specific this selector is.
+     * Inherited variables are not subject to that ordering.
+     */
+    --float-bottom: calc(var(--spacing) * 5);
+
     --background: #FAFBFA;              /* ink-25 */
     --foreground: #171A18;              /* ink-900 */
     --card: #FFFFFF;
@@ -195,6 +212,13 @@
     --sidebar-accent-foreground: #26503C;
     --sidebar-border: #DCE1DD;
     --sidebar-ring: #2E6449;
+}
+
+/* The bar is `lg:hidden`, so only narrow viewports owe it any clearance. */
+@media (width < 64rem) {
+    body:has([data-booking-bar]) {
+        --float-bottom: calc(var(--spacing) * 5 + 4.75rem);
+    }
 }
 
 /* --------------------------------------------------------------------------

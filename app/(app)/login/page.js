@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { RentraLogo } from '@/components/rentra/Logo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -18,6 +19,12 @@ export const metadata = {
 export default function CustomerLoginPage() {
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-16">
+      {/* This route sits outside the marketing shell, so it has no header.
+          The lockup is the only branding and the only way back out. */}
+      <Link href="/" className="mb-8 self-start">
+        <RentraLogo className="h-8 w-auto" />
+      </Link>
+
       <h1 className="text-h1">Log in to book</h1>
       <p className="mt-2 text-body text-ink-600">
         We will send a one-time code to your phone.

@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rentra Build Log — Brand, Listing Detail Page</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   RENTRA DESIGN TOKENS  ·  mirrors docs/rentra-design-system.html
+   ============================================================ */
+:root{
+  color-scheme: light;
+
+  --brand-50:#F1F7F3;  --brand-100:#DDEBE2; --brand-200:#BCD8C7;
+  --brand-300:#90BCA3; --brand-400:#629B7D; --brand-500:#3F7D5F;
+  --brand-600:#2E6449; --brand-700:#26503C; --brand-800:#1F4031;
+  --brand-900:#1A3529; --brand-950:#0D1D16;
+
+  --amber-100:#FDF2DE; --amber-300:#F3C77E; --amber-500:#D98A1F;
+  --amber-700:#A6640F;
+
+  --n-0:#FFFFFF;   --n-25:#FAFBFA;  --n-50:#F5F7F5;  --n-100:#EBEEEB;
+  --n-200:#DCE1DD; --n-300:#C0C7C2; --n-400:#9AA39D; --n-500:#6E7871;
+  --n-600:#5A635D; --n-700:#414843; --n-800:#2A2F2B; --n-900:#171A18;
+
+  --danger:#C0362C;  --danger-bg:#FBEDEC;
+  --warning:#B45309; --warning-bg:#FDF3E7;
+  --info:#2563A5;    --info-bg:#EAF1F8;
+  --success:#2E6449; --success-bg:#F1F7F3;
+
+  --font-sans:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:24px; --r-full:999px;
+
+  --sh-xs:0 1px 2px rgba(23,26,24,.05);
+  --sh-sm:0 1px 3px rgba(23,26,24,.08),0 1px 2px rgba(23,26,24,.04);
+  --sh-md:0 4px 12px rgba(23,26,24,.08);
+  --sh-focus:0 0 0 3px rgba(46,100,73,.32);
+}
+
+/* ============================================================
+   DOC SHELL
+   ============================================================ */
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth; scroll-padding-top:72px;}
+body{
+  margin:0; background:var(--n-25); color:var(--n-900);
+  font-family:var(--font-sans); font-size:16px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{margin:0; font-weight:700; letter-spacing:-.02em; text-wrap:balance; color:var(--n-900);}
+p{margin:0;}
+code,.mono{font-family:var(--font-mono); font-size:.86em;}
+code{background:var(--n-100); padding:1px 5px; border-radius:5px; color:var(--n-800);}
+a{color:var(--brand-700);}
+:is(a,button,summary):focus-visible{
+  outline:none; box-shadow:var(--sh-focus); border-radius:var(--r-sm);
+}
+
+.rail{
+  position:sticky; top:0; z-index:60; background:rgba(250,251,250,.92);
+  backdrop-filter:blur(10px); border-bottom:1px solid var(--n-200);
+}
+.rail .in{
+  max-width:1160px; margin:0 auto; padding:0 24px; min-height:56px;
+  display:flex; align-items:center; gap:4px; overflow-x:auto;
+}
+.rail .logo{margin-right:16px; display:flex; align-items:center; flex:none;}
+.rail .logo svg{height:24px; width:auto; display:block;}
+.rail a{
+  color:var(--n-600); text-decoration:none; font-size:14px; font-weight:500;
+  padding:6px 10px; border-radius:var(--r-full); white-space:nowrap;
+}
+.rail a:hover{color:var(--brand-700); background:var(--brand-50);}
+
+.wrap{max-width:1160px; margin:0 auto; padding:0 24px;}
+.hero{
+  background:linear-gradient(180deg,var(--brand-900) 0%,var(--brand-800) 100%);
+  color:#fff; padding:64px 24px 56px;
+}
+.hero .in{max-width:1160px; margin:0 auto;}
+.hero .eyebrow{
+  font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--brand-300); margin-bottom:14px;
+}
+.hero h1{color:#fff; font-size:clamp(30px,4.6vw,46px); line-height:1.06; max-width:24ch;}
+.hero .sub{color:#BCD8C7; font-size:17px; max-width:70ch; margin-top:18px; line-height:1.6;}
+.hero .stats{
+  display:flex; gap:40px; flex-wrap:wrap; margin-top:36px;
+  padding-top:26px; border-top:1px solid rgba(255,255,255,.16);
+}
+.hero .stats div{min-width:104px;}
+.hero .stats b{display:block; font-size:25px; font-weight:800; color:#fff; letter-spacing:-.03em;}
+.hero .stats span{font-size:13px; color:#90BCA3;}
+
+section.sec{padding:56px 0; border-bottom:1px solid var(--n-200);}
+section.sec:last-of-type{border-bottom:none;}
+.kick{
+  font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--brand-600); margin-bottom:10px;
+}
+.sec h2{font-size:30px; line-height:1.15; margin-bottom:14px;}
+.sec h3{font-size:19px; margin:36px 0 12px;}
+.sec h4{font-size:15px; margin:24px 0 6px; color:var(--n-700);}
+.lede{font-size:17px; color:var(--n-600); max-width:66ch; line-height:1.62;}
+.sec p+p{margin-top:12px;}
+.body{max-width:66ch; color:var(--n-700);}
+.muted{color:var(--n-500); font-size:14px;}
+
+.callout{
+  border-radius:var(--r-md); padding:16px 18px; margin-top:20px;
+  font-size:15px; line-height:1.55; border-left:4px solid; max-width:72ch;
+}
+.callout.rule{background:var(--success-bg); border-color:var(--brand-600); color:var(--brand-900);}
+.callout.warn{background:var(--danger-bg); border-color:var(--danger); color:#7A231B;}
+.callout.note{background:var(--info-bg); border-color:var(--info); color:#1B4670;}
+.callout b{font-weight:700;}
+
+.tscroll{overflow-x:auto; margin-top:20px; border-radius:var(--r-md); border:1px solid var(--n-200);}
+table{width:100%; border-collapse:collapse; background:var(--n-0); font-size:14px; min-width:640px;}
+th,td{padding:12px 14px; text-align:left; vertical-align:top; border-bottom:1px solid var(--n-100);}
+th{background:var(--n-50); font-weight:700; font-size:12px; letter-spacing:.05em; text-transform:uppercase; color:var(--n-600);}
+tr:last-child td{border-bottom:none;}
+td.num{font-variant-numeric:tabular-nums; white-space:nowrap;}
+td code{font-size:12.5px; white-space:nowrap;}
+
+/* stack of ordered steps / flow */
+.flow{list-style:none; margin:24px 0 0; padding:0; counter-reset:f; max-width:74ch;}
+.flow li{
+  position:relative; padding:0 0 0 44px; margin-bottom:18px; counter-increment:f;
+}
+.flow li::before{
+  content:counter(f); position:absolute; left:0; top:0;
+  width:28px; height:28px; border-radius:var(--r-full);
+  background:var(--brand-600); color:#fff; font-size:13px; font-weight:700;
+  display:grid; place-items:center;
+}
+.flow b{display:block; font-size:15px;}
+.flow span{font-size:14.5px; color:var(--n-600);}
+
+/* cards */
+.grid{display:grid; gap:16px; margin-top:22px;}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr));}
+.g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr));}
+.card{
+  background:var(--n-0); border:1px solid var(--n-200); border-radius:var(--r-md);
+  padding:18px; box-shadow:var(--sh-xs);
+}
+.card h4{margin:0 0 6px; font-size:15px; color:var(--n-900);}
+.card p{font-size:14px; color:var(--n-600); line-height:1.55;}
+.card .path{
+  font-family:var(--font-mono); font-size:12px; color:var(--brand-700);
+  display:block; margin-bottom:8px; word-break:break-all;
+}
+
+/* pills */
+.pill{
+  display:inline-block; padding:3px 10px; border-radius:var(--r-full);
+  font-size:12px; font-weight:700; white-space:nowrap;
+}
+.pill.new{background:var(--brand-600); color:#fff;}
+.pill.mod{background:var(--amber-100); color:var(--amber-700);}
+.pill.fix{background:var(--danger-bg); color:var(--danger);}
+.pill.gap{background:var(--n-100); color:var(--n-600);}
+
+/* bug entries */
+.bug{
+  border:1px solid var(--n-200); border-left:4px solid var(--danger);
+  border-radius:var(--r-md); background:var(--n-0); padding:18px 20px; margin-top:18px;
+}
+.bug h4{margin:0 0 10px; font-size:16px;}
+.bug dl{margin:0; display:grid; grid-template-columns:88px 1fr; gap:6px 14px; font-size:14.5px;}
+.bug dt{font-weight:700; color:var(--n-500); font-size:12px; letter-spacing:.05em; text-transform:uppercase; padding-top:3px;}
+.bug dd{margin:0; color:var(--n-700);}
+
+ul.tight{margin:12px 0 0; padding-left:22px; max-width:70ch; color:var(--n-700); font-size:15px;}
+ul.tight li{margin-bottom:7px;}
+ul.tight li::marker{color:var(--brand-400);}
+
+pre{
+  margin:18px 0 0; background:var(--brand-950); color:#DDEBE2;
+  border-radius:var(--r-md); padding:16px 18px; overflow-x:auto;
+  font-family:var(--font-mono); font-size:13px; line-height:1.6;
+}
+pre .c{color:#90BCA3;}
+pre .k{color:#F3C77E;}
+
+footer{padding:40px 24px 64px; color:var(--n-500); font-size:14px;}
+footer .in{max-width:1160px; margin:0 auto;}
+</style>
+</head>
+<body>
+
+<nav class="rail">
+  <div class="in">
+    <span class="logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420.4 114.86" role="img" aria-label="Rentra"><g transform="translate(-4.650,-5.247)"><g transform="scale(0.62)"><g transform="translate(2.790,2.000) scale(0.158065) translate(0,1240) scale(0.05,-0.05)"><g fill="#1F5C41" fill-rule="evenodd"><path d="M12030 23966 c-33 -4 -147 -20 -252 -37 -106 -16 -310 -29 -454 -29 -144 0 -327 -9 -408 -20 -80 -11 -254 -28 -386 -38 -186 -15 -288 -35 -450 -89 -116 -38 -299 -85 -407 -103 -224 -38 -1205 -362 -1759 -581 -357 -142 -1204 -594 -1604 -859 -154 -101 -343 -225 -420 -274 -77 -49 -207 -143 -290 -209 -82 -66 -208 -159 -280 -206 -244 -162 -320 -257 -320 -401 0 -94 67 -178 144 -183 135 -7 814 -11 4006 -23 4365 -16 4392 -18 5270 -304 83 -26 211 -62 285 -79 74 -17 169 -45 210 -63 41 -18 183 -71 315 -118 1068 -378 1652 -772 2554 -1721 151 -159 327 -367 391 -464 64 -96 168 -248 230 -337 62 -88 132 -210 155 -270 24 -59 111 -238 193 -398 228 -439 453 -1159 567 -1817 85 -484 49 -1668 -60 -2009 -32 -101 -77 -292 -100 -423 -23 -132 -70 -307 -103 -390 -34 -83 -86 -223 -117 -311 -31 -88 -76 -205 -100 -260 -24 -55 -65 -161 -91 -235 -208 -603 -852 -1456 -1429 -1895 -49 -38 -162 -129 -250 -201 -251 -208 -461 -345 -710 -462 -126 -59 -298 -146 -381 -192 -84 -46 -215 -105 -293 -131 -446 -152 -518 -382 -224 -724 56 -66 166 -205 244 -310 78 -104 254 -319 390 -477 136 -158 325 -392 419 -520 95 -128 214 -282 266 -343 51 -60 171 -218 267 -350 732 -1011 1814 -1396 2951 -1048 71 21 233 58 360 80 146 27 297 69 411 117 99 42 216 88 260 102 98 31 392 185 660 346 110 66 288 164 395 217 269 133 570 453 738 783 24 45 85 150 136 233 128 205 439 842 542 1110 161 421 300 821 341 980 22 88 70 250 108 360 42 127 83 307 109 490 22 160 59 353 81 430 189 647 189 2968 1 3670 -23 83 -59 293 -82 467 -30 234 -61 378 -118 550 -43 128 -88 287 -102 353 -13 66 -51 188 -83 270 -33 83 -87 240 -120 350 -202 680 -996 2197 -1512 2890 -94 127 -193 260 -220 297 -82 111 -737 879 -922 1079 -265 288 -768 753 -1144 1058 -478 388 -559 449 -808 603 -121 75 -334 210 -474 300 -139 90 -323 201 -410 247 -350 187 -600 319 -676 356 -230 113 -857 378 -1120 473 -165 60 -349 127 -410 149 -60 22 -191 57 -290 78 -99 21 -219 51 -266 68 -47 17 -191 53 -320 80 -129 28 -364 83 -524 123 -260 65 -330 74 -680 89 -293 13 -450 30 -630 68 -229 49 -937 72 -1200 38z"/><path d="M7175 18938 c-91 -21 -314 -132 -605 -301 -121 -70 -395 -199 -610 -287 -357 -145 -1800 -850 -1933 -945 -31 -22 -169 -98 -307 -169 -524 -270 -1414 -870 -1880 -1267 -601 -512 -829 -830 -930 -1299 -111 -512 -128 -608 -148 -840 -32 -368 -79 -739 -123 -966 -64 -336 -56 -999 20 -1615 33 -264 73 -632 91 -819 21 -232 50 -412 92 -567 33 -124 78 -330 99 -457 22 -126 66 -298 100 -380 33 -83 83 -233 111 -334 66 -236 122 -376 293 -742 285 -610 764 -1584 841 -1709 99 -162 635 -940 732 -1061 520 -654 1234 -1382 1782 -1817 105 -83 262 -211 350 -284 88 -73 273 -208 410 -298 138 -91 309 -213 380 -270 72 -58 229 -162 350 -231 121 -69 280 -160 354 -203 231 -134 959 -491 1111 -545 80 -28 181 -69 225 -92 169 -86 1113 -412 1490 -515 143 -38 319 -86 392 -106 73 -20 248 -50 390 -67 142 -17 366 -49 498 -71 1100 -184 2674 -185 3440 -3 132 31 328 67 435 80 109 12 290 52 410 91 118 38 322 92 452 121 666 148 1002 400 855 642 -64 105 -404 253 -898 389 -280 77 -887 424 -1248 713 -250 200 -404 374 -801 903 -102 135 -342 446 -534 690 -648 824 -973 1242 -1121 1443 -81 110 -218 286 -303 390 -85 105 -256 321 -379 480 -124 160 -311 392 -416 516 -106 125 -262 323 -348 440 -370 509 -340 493 -934 487 -1359 -14 -2183 -351 -3018 -1231 -103 -110 -217 -99 -281 25 -254 500 -331 2061 -149 3013 99 511 175 732 358 1030 63 105 153 252 198 329 170 286 476 542 904 757 470 236 420 232 3088 231 2608 -1 2716 14 3316 437 379 268 759 801 844 1186 34 153 50 841 23 986 -112 598 -661 1261 -1243 1500 -421 174 -702 193 -3250 224 -1308 16 -1286 7 -1161 449 140 493 -467 1530 -1058 1810 -232 109 -584 170 -756 129z"/></g><g fill="#5C9A72" fill-rule="evenodd"><path d="M5830 18296 c-252 -100 -1689 -810 -1803 -891 -31 -22 -169 -98 -307 -169 -524 -270 -1414 -870 -1880 -1267 -601 -512 -829 -830 -930 -1299 -111 -512 -128 -608 -148 -840 -32 -368 -79 -739 -123 -966 -64 -336 -56 -999 20 -1615 33 -264 73 -632 91 -819 21 -232 50 -412 92 -567 33 -124 78 -330 99 -457 22 -126 66 -298 100 -380 33 -83 83 -233 111 -334 66 -236 122 -376 293 -742 285 -610 764 -1584 841 -1709 99 -162 635 -940 732 -1061 520 -654 1234 -1382 1782 -1817 105 -83 262 -211 350 -284 170 -141 740 -529 826 -561 91 -35 148 8 240 182 106 199 105 218 -16 455 -54 107 -143 312 -198 455 -143 378 -364 794 -647 1223 -267 404 -367 570 -485 807 -41 83 -100 186 -130 230 -283 417 -546 1027 -683 1588 -34 138 -88 319 -122 402 -57 144 -152 439 -278 870 -49 168 -63 263 -83 590 -42 686 -4 2107 65 2410 22 99 41 239 41 310 1 128 27 275 126 710 27 121 78 378 113 570 157 857 501 1683 951 2280 222 294 422 630 531 890 278 666 351 801 688 1275 42 58 78 141 92 210 13 63 36 139 51 169 128 249 -18 304 -402 152z"/><path d="M9170 8060 c-1231 -40 -2030 -387 -2828 -1228 -49 -53 -104 -83 -204 -113 -231 -68 -244 -220 -46 -519 27 -41 60 -141 79 -240 190 -1004 1241 -2680 2192 -3497 417 -358 1225 -973 1435 -1092 366 -207 108 -361 -353 -210 -180 58 -252 43 -261 -55 -7 -73 39 -113 156 -136 39 -8 165 -44 280 -81 269 -86 340 -101 642 -138 136 -17 356 -48 488 -70 1102 -184 2674 -185 3440 -3 132 31 328 67 435 80 109 12 290 52 410 91 118 38 322 92 452 121 666 148 1002 400 855 642 -64 105 -404 253 -898 389 -280 77 -887 424 -1248 713 -250 200 -404 374 -801 903 -102 135 -342 446 -534 690 -648 824 -973 1242 -1121 1443 -81 110 -218 286 -303 390 -85 105 -256 321 -379 480 -124 160 -311 392 -416 516 -106 125 -262 323 -348 440 -383 526 -343 509 -1124 484z"/></g></g></g><g fill="#12261C" transform="translate(143.474,94.328)"><g transform="scale(0.08448,-0.08448)"><path d="M420 0 274 265H233V0H62V702H349Q432 702 490.5 673.0Q549 644 578.0 593.5Q607 543 607 481Q607 411 567.5 356.0Q528 301 451 278L613 0ZM233 386H339Q386 386 409.5 409.0Q433 432 433 474Q433 514 409.5 537.0Q386 560 339 560H233Z" transform="translate(0,0)"/><path d="M585 238H198Q202 186 231.5 158.5Q261 131 304 131Q368 131 393 185H575Q561 130 524.5 86.0Q488 42 433.0 17.0Q378 -8 310 -8Q228 -8 164.0 27.0Q100 62 64.0 127.0Q28 192 28 279Q28 366 63.5 431.0Q99 496 163.0 531.0Q227 566 310 566Q391 566 454.0 532.0Q517 498 552.5 435.0Q588 372 588 288Q588 264 585 238ZM413 333Q413 377 383.0 403.0Q353 429 308 429Q265 429 235.5 404.0Q206 379 199 333Z" transform="translate(640,0)"/><path d="M617 326V0H447V303Q447 359 418.0 390.0Q389 421 340 421Q291 421 262.0 390.0Q233 359 233 303V0H62V558H233V484Q259 521 303.0 542.5Q347 564 402 564Q500 564 558.5 500.5Q617 437 617 326Z" transform="translate(1244,0)"/><path d="M373 145V0H286Q193 0 141.0 45.5Q89 91 89 194V416H21V558H89V694H260V558H372V416H260V192Q260 167 272.0 156.0Q284 145 312 145Z" transform="translate(1906,0)"/><path d="M408 564V383H361Q297 383 265.0 355.5Q233 328 233 259V0H62V558H233V465Q263 511 308.0 537.5Q353 564 408 564Z" transform="translate(2300,0)"/><path d="M274 566Q333 566 377.5 542.0Q422 518 446 479V558H617V0H446V79Q421 40 376.5 16.0Q332 -8 273 -8Q205 -8 149.0 27.5Q93 63 60.5 128.5Q28 194 28 280Q28 366 60.5 431.0Q93 496 149.0 531.0Q205 566 274 566ZM324 417Q273 417 237.5 380.5Q202 344 202 280Q202 216 237.5 178.5Q273 141 324 141Q375 141 410.5 178.0Q446 215 446 279Q446 343 410.5 380.0Q375 417 324 417Z" transform="translate(2716,0)"/></g></g></g></svg></span>
+    <a href="#brand">Brand</a>
+    <a href="#detail">Listing page</a>
+    <a href="#data">Data</a>
+    <a href="#api">Availability API</a>
+    <a href="#seo">SEO</a>
+    <a href="#ladder">Release ladder</a>
+    <a href="#home">Home</a>
+    <a href="#bugs">Bugs fixed</a>
+    <a href="#files">Files</a>
+    <a href="#verify">Verification</a>
+    <a href="#gaps">Open gaps</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="in">
+    <p class="eyebrow">Build log · Phase 1</p>
+    <h1>The brand mark, and the listing detail page.</h1>
+    <p class="sub">
+      What was actually implemented, why each decision went the way it did, and
+      what is still open. Written against the rules in
+      <code style="background:rgba(255,255,255,.12); color:#DDEBE2">rentra-design-system.html</code> and
+      <code style="background:rgba(255,255,255,.12); color:#DDEBE2">rentra-implementation-plan.html</code> —
+      where this build departs from them, it says so and says why.
+    </p>
+    <div class="stats">
+      <div><b>13</b><span>files added</span></div>
+      <div><b>10</b><span>files changed</span></div>
+      <div><b>5</b><span>bugs found &amp; fixed</span></div>
+      <div><b>4</b><span>client islands</span></div>
+      <div><b>12</b><span>listings prerendered</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ============================================================ BRAND -->
+<section class="sec" id="brand">
+  <p class="kick">Part 1</p>
+  <h2>Brand mark</h2>
+  <p class="lede">
+    Two SVGs were delivered — a mark and a horizontal lockup. Both needed
+    correcting before they could be used, and neither correction touched the
+    artwork itself.
+  </p>
+
+  <h3>What was wrong with the delivered files</h3>
+  <p class="body">
+    The ink bounds were measured analytically (parsing the path data and
+    resolving curve extrema) rather than eyeballed, because the visible
+    problem and the actual problem were different sizes.
+  </p>
+
+  <div class="tscroll">
+    <table>
+      <thead><tr><th>Problem</th><th>Measured</th><th>Consequence if shipped as-is</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Dead canvas in the lockup</td>
+          <td class="num">17% of width empty on the right, 20 units below the baseline</td>
+          <td><code>height:28px</code> would render ~18% smaller than asked, and the artwork hangs high-and-left whenever it is vertically centred in a flex row</td>
+          <td>viewBox cropped to the measured ink box</td>
+        </tr>
+        <tr>
+          <td>Wordmark undersized</td>
+          <td class="num">cap height was 40% of the mark's height</td>
+          <td>&ldquo;Rentra&rdquo; reads as a caption sitting next to the mark rather than as part of one lockup</td>
+          <td>scaled to 52%, the usual proportion for a horizontal lockup</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout rule">
+    <b>Colours were left exactly as delivered.</b> The greens
+    (<code>#1F5C41</code> / <code>#5C9A72</code>) already sit within a few RGB
+    points of <code>brand-700</code> and <code>brand-400</code>, so nothing
+    clashes with the palette. Snapping them to tokens would have been a brand
+    decision dressed up as a technical one.
+  </div>
+
+  <h3>Assets and where each one is used</h3>
+  <div class="grid g2">
+    <div class="card">
+      <span class="path">public/brand/rentra-lockup.svg</span>
+      <h4>Colour lockup · 420×115</h4>
+      <p>The default, for light grounds. Canonical asset for email, invoices, decks — anything outside the app.</p>
+    </div>
+    <div class="card">
+      <span class="path">public/brand/rentra-lockup-inverse.svg</span>
+      <h4>Inverse lockup</h4>
+      <p>brand-200 mark / brand-400 leaf / white wordmark. For ink-900 and darker grounds, where the delivered deep green goes muddy.</p>
+    </div>
+    <div class="card">
+      <span class="path">public/brand/rentra-mark.svg</span>
+      <h4>Mark alone · 200×200</h4>
+      <p>Squares: avatars, app icons, a tight mobile header. Below ~20px this replaces the lockup — the wordmark stops being legible before the mark stops being recognisable.</p>
+    </div>
+    <div class="card">
+      <span class="path">components/rentra/Logo.jsx</span>
+      <h4>In-app component</h4>
+      <p>Inline SVG, so it costs no request, cannot flash in after paint, and can be recoloured per surface. Exports <code>RentraLogo</code> and <code>RentraMark</code>, each taking <code>tone="brand|inverse"</code>.</p>
+    </div>
+  </div>
+
+  <div class="callout note">
+    <b>Size by height, never width.</b> The lockup is 3.66:1; setting a width
+    fights the viewBox. In the app that means <code>h-7</code> / <code>h-9</code>,
+    never <code>w-32</code>. The component holds its own copy of the path data —
+    it is the same artwork, so if the logo is ever redrawn, both it and the
+    files in <code>public/brand</code> have to be replaced together.
+  </div>
+
+  <h3>Placements</h3>
+  <div class="tscroll">
+    <table>
+      <thead><tr><th>Surface</th><th>Treatment</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Marketing header</td><td>Lockup <code>h-7</code>; mark alone below <code>sm</code></td><td>Keeps the search bar its full width on a phone</td></tr>
+        <tr><td>Marketing footer</td><td>Lockup <code>h-6</code></td><td>Beside the intermediary disclaimer</td></tr>
+        <tr><td>Partner header</td><td>Lockup + divider + &ldquo;for owners&rdquo;</td><td>An owner's proof they are on Rentra and not a lookalike</td></tr>
+        <tr><td>Admin header</td><td><b>Inverse</b> lockup + &ldquo;admin&rdquo;</td><td>Sits on the ink-900 chrome</td></tr>
+        <tr><td>Customer login</td><td>Lockup <code>h-8</code>, links home</td><td>That route is outside the marketing shell — it had no branding and no way back</td></tr>
+        <tr><td><code>app/icon.svg</code></td><td>Mark, transparent</td><td>Browser tab</td></tr>
+        <tr><td><code>app/apple-icon.js</code></td><td>Mark on an opaque brand-50 tile, 180×180</td><td>iOS composites a transparent touch icon onto black, which would bury the deep green</td></tr>
+        <tr><td><code>app/opengraph-image.js</code></td><td>Lockup + tagline + brand-600 edge, 1200×630</td><td>Site-level share card</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>The vendored fonts</h3>
+  <p class="body">
+    <code>assets/fonts/PlusJakartaSans-500.ttf</code> and <code>-700.ttf</code>
+    are committed on purpose. Satori (which renders every OG image) has no
+    filesystem and no system fonts, and <code>next/font</code> self-hosts Plus
+    Jakarta Sans as <code>.woff2</code>, which satori cannot parse. Fetching
+    from Google at build time would make the build need the network.
+  </p>
+  <div class="callout warn">
+    <b>These must stay the <code>latin-ext</code> subset.</b> The
+    <code>latin</code> subset is 229 codepoints and does <b>not</b> include
+    U+20B9 <b>₹</b> — every price on every share card renders as a wrong glyph.
+    <code>latin-ext</code> is 523 codepoints and a strict superset. Both facts
+    were verified by reading the fonts' cmap tables, not assumed.
+  </div>
+</section>
+
+<!-- ============================================================ DETAIL -->
+<section class="sec" id="detail">
+  <p class="kick">Part 2</p>
+  <h2>Listing detail page</h2>
+  <p class="lede">
+    <code>/listing/[slug]-[code]</code> — the page a WhatsApp forward lands on.
+    Built to the section order in the design system, because that order is
+    learned behaviour and deviating from it costs conversion without buying
+    distinctiveness.
+  </p>
+
+  <h3>Section order, as built</h3>
+  <div class="tscroll">
+    <table>
+      <thead><tr><th>#</th><th>Section</th><th>Component</th><th>Renders</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>Breadcrumb</td><td>in <code>page.js</code></td><td>Server</td></tr>
+        <tr><td class="num">2</td><td>Photo grid · 1 large + 4 small, all in a lightbox</td><td><code>PhotoGallery</code></td><td>Client island</td></tr>
+        <tr><td class="num">3</td><td>Title block · area, rating, badges, save &amp; share</td><td><code>page.js</code> + <code>SaveButton</code>, <code>ShareButton</code></td><td>Server + 2 islands</td></tr>
+        <tr><td class="num">4</td><td>Capacity &amp; type</td><td><code>KeyFacts</code></td><td>Server</td></tr>
+        <tr><td class="num">5</td><td>About</td><td><code>page.js</code></td><td>Server</td></tr>
+        <tr><td class="num">6</td><td><b>Slot selector + calendar</b></td><td><code>AvailabilityPicker</code> (wraps the existing <code>SlotSelector</code>)</td><td>Client island</td></tr>
+        <tr><td class="num">7</td><td>Amenities · grid of 8, &ldquo;show all&rdquo;</td><td><code>AmenityGrid</code></td><td>Server</td></tr>
+        <tr><td class="num">8</td><td>House rules + check-in / check-out windows</td><td><code>HouseRules</code></td><td>Server</td></tr>
+        <tr><td class="num">9</td><td>Area circle map — not an exact pin</td><td><code>AreaCircle</code></td><td>Server</td></tr>
+        <tr><td class="num">10</td><td>Reviews · sub-scores</td><td><code>Reviews</code></td><td>Server</td></tr>
+        <tr><td class="num">11</td><td>Owner card · badge, response time, phone masked</td><td><code>OwnerCard</code></td><td>Server</td></tr>
+        <tr><td class="num">12</td><td>Cancellation · in rupees</td><td><code>CancellationPolicy</code></td><td>Server</td></tr>
+        <tr><td class="num">13</td><td>Sticky price box → bottom bar on mobile</td><td><code>BookingPriceBox</code> + <code>MobileBookingBar</code></td><td>2 client islands</td></tr>
+        <tr><td class="num">14</td><td>Similar farmhouses nearby</td><td><code>ListingCard</code> ×4</td><td>Server</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout rule">
+    <b>Four client islands, and everything else is a Server Component.</b>
+    Every word a crawler reads is in the HTML. The amenities &ldquo;show all&rdquo;
+    is a <code>&lt;details&gt;</code> rather than a toggle component, so the
+    hidden amenities stay in the markup, the control needs no JavaScript, and
+    it is keyboard-accessible for free.
+  </div>
+
+  <h3>How the three booking surfaces stay in agreement</h3>
+  <p class="body">
+    The picker, the sticky price box and the mobile bar are three separate
+    islands, so the selected date and slot cannot live in one component's
+    state. They share the Redux <code>search</code> slice through
+    <code>components/rentra/listing/booking-state.js</code>.
+  </p>
+  <ol class="flow">
+    <li>
+      <b>The server picks a sensible default</b>
+      <span>The cheapest slot this farm sells (<code>cheapestSlot()</code>), and the first date that slot is actually free. The panel therefore opens on a real price instead of an empty state.</span>
+    </li>
+    <li>
+      <b>A date the guest already chose wins</b>
+      <span>Arriving from the header search bar with &ldquo;Sat 14 Feb / Day picnic&rdquo; and landing on a listing that has forgotten both is a small betrayal that loses bookings, so the store's value takes precedence over the default.</span>
+    </li>
+    <li>
+      <b>One function decides what a date costs</b>
+      <span><code>rentFor()</code> — a per-date owner override beats the weekend rate, which beats the weekday rate. The picker, the price box and the bar all call it, so they can never disagree about whether a Saturday is peak.</span>
+    </li>
+  </ol>
+
+  <div class="callout note">
+    <b>The booking bar always wins the bottom of the screen.</b> The bar sets
+    <code>data-booking-bar</code> only while it is actually visible, and
+    <code>globals.css</code> uses that to lift the WhatsApp float via an
+    inherited <code>--float-bottom</code> custom property. No measuring, no
+    resize listener, and no coordination between the layout and the page
+    through JavaScript.
+  </div>
+</section>
+
+<!-- ============================================================ DATA -->
+<section class="sec" id="data">
+  <p class="kick">Part 3</p>
+  <h2>Data layer</h2>
+  <p class="lede">
+    All in <code>lib/db/queries.js</code>, which already served the public,
+    indexable pages. Nothing here goes through RTK Query.
+  </p>
+
+  <div class="tscroll">
+    <table>
+      <thead><tr><th>Query</th><th>State</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>getListingByCode</code></td>
+          <td><span class="pill mod">extended</span></td>
+          <td>Added <code>farmSize</code>, <code>farmSizeUnit</code>, <code>poolSize</code>, <code>checkInFrom</code>, <code>checkOutBy</code>, <code>areaId</code>, <code>cityId</code>, <code>categoryName</code>, <code>verifiedAt</code>, review sub-score averages, and <code>client.firstName</code></td>
+        </tr>
+        <tr>
+          <td><code>getNextAvailableDates</code></td>
+          <td><span class="pill new">new</span></td>
+          <td>Next N bookable dates per slot. <code>full_day</code> is derived by intersecting day and night, since it consumes both halves</td>
+        </tr>
+        <tr>
+          <td><code>getSimilarListings</code></td>
+          <td><span class="pill new">new</span></td>
+          <td>Same area first, then same city, then verified, then best rated. Deliberately not a PostGIS radius — a guest comparing farmhouses thinks in areas, not kilometres</td>
+        </tr>
+        <tr>
+          <td><code>getListingIdByCode</code></td>
+          <td><span class="pill new">new</span></td>
+          <td>Code → id only, so the availability endpoint does not pay for a full listing join on every calendar paint</td>
+        </tr>
+        <tr>
+          <td><code>cheapestSlot</code> <span class="muted">(pricing.js)</span></td>
+          <td><span class="pill new">new</span></td>
+          <td>Shared by the page, its metadata and its OG card so all three quote the same figure</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout warn">
+    <b>Correctness fix, found while extending the review query.</b> It did not
+    filter <code>publishedAt</code>. Reviews are two-way and are released only
+    once both sides submit or 14 days pass, so an unpublished review was
+    publicly renderable — a guest's words shown before the owner has had their
+    say. Now filtered, and the sub-score averages are computed in SQL over
+    every published review rather than over the ten loaded for display.
+  </div>
+</section>
+
+<!-- ============================================================ API -->
+<section class="sec" id="api">
+  <p class="kick">Part 4</p>
+  <h2>The availability endpoint</h2>
+  <p class="lede">
+    <code>GET /api/listings/[code]/availability</code> — the one piece of this
+    page that is fetched in the browser.
+  </p>
+
+  <div class="callout note">
+    <b>Why this exists when <code>/api/*</code> is otherwise reserved for external callers.</b>
+    The implementation plan is explicit: <i>&ldquo;the static shell carries price
+    and the next three available dates. Live availability for the date picker
+    is fetched client-side, so the cached page never shows a stale
+    calendar.&rdquo;</i> The page is ISR-cached for an hour, and a calendar rendered
+    from an hour-old cache invites a guest to pick a Saturday that sold twenty
+    minutes ago. It is a plain <code>fetch</code>, <b>not</b> RTK Query — that
+    store is scoped to authenticated, noindex surfaces, and this data is public.
+  </div>
+
+  <pre><span class="c">// Request</span>
+GET /api/listings/wdlcj85b/availability?days=90
+
+<span class="c">// Response — one entry per date, so the picker does no grouping
+// and a 90-day payload stays a few KB on a mid-range Android</span>
+{
+  <span class="k">"from"</span>: "2026-09-07",
+  <span class="k">"days"</span>: {
+    <span class="k">"2026-09-07"</span>: { <span class="k">"day"</span>: true, <span class="k">"night"</span>: true, <span class="k">"full"</span>: true },
+    <span class="k">"2026-09-08"</span>: { <span class="k">"day"</span>: true, <span class="k">"night"</span>: false, <span class="k">"full"</span>: false }
+  }
+}
+
+<span class="c">// Cache-Control: public, max-age=0, s-maxage=60, stale-while-revalidate=120</span></pre>
+
+  <ul class="tight">
+    <li><code>full</code> is derived server-side, never trusted from the client — a full day consumes both halves, so both must be free.</li>
+    <li>A past <code>from</code> is clamped to today, however the caller asks for it.</li>
+    <li><code>days</code> is bounded to 1–120; anything else is a <code>400</code>.</li>
+    <li>An unknown <b>or</b> unpublished listing both return <code>404</code> — an unpublished listing should not be discoverable by probing this endpoint.</li>
+    <li>The picker degrades rather than dying: if this fetch fails, the section falls back to the server-rendered next dates instead of showing a dead calendar.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ SEO -->
+<section class="sec" id="seo">
+  <p class="kick">Part 5</p>
+  <h2>SEO, metadata and caching</h2>
+
+  <h3>Real data in the title and description</h3>
+  <p class="body">
+    A templated title with no numbers in it ranks like a template, so
+    <code>generateMetadata</code> builds from the row:
+  </p>
+  <pre><span class="c">&lt;title&gt;</span>Green Valley Farm, Kadodara — from ₹6,500 · Rentra<span class="c">&lt;/title&gt;</span>
+<span class="c">&lt;meta name="description"&gt;</span>Green Valley Farm in Kadodara, Surat. Up to 30 guests,
+2 bedrooms, a private 15x25 pool, from ₹6,500 per slot. Day picnic or overnight,
+money held until check-in, zero brokerage.<span class="c">&lt;/meta&gt;</span></pre>
+
+  <h3>Structured data</h3>
+  <p class="body">
+    <code>LodgingBusiness</code> + <code>AggregateOffer</code> +
+    <code>BreadcrumbList</code>, as the plan specifies. Two deliberate
+    omissions:
+  </p>
+  <ul class="tight">
+    <li><b>No <code>geo</code> and no street address.</b> Publishing the exact coordinates in JSON-LD would hand out the address the page itself withholds until a booking is confirmed.</li>
+    <li><b>No <code>aggregateRating</code> until real reviews exist.</b> Marking up a rating nobody left is what gets a site's rich results pulled.</li>
+  </ul>
+
+  <h3>The listing share card</h3>
+  <p class="body">
+    A per-listing <code>opengraph-image.js</code>, because a forwarded WhatsApp
+    card is seen by more people than the homepage. It carries the price and the
+    next open date — <i>&ldquo;₹6,500 · Mon, 7 Sept available&rdquo;</i> converts;
+    <i>&ldquo;Rentra — book verified farmhouses&rdquo;</i> does not. A listing that has
+    gone away still renders a valid card rather than a 500, because old
+    forwards keep resolving the URL for months.
+  </p>
+
+  <h3>Freshness</h3>
+  <div class="tscroll">
+    <table>
+      <thead><tr><th>Concern</th><th>Mechanism</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Page caching</td><td><code>generateStaticParams</code> + <code>revalidate = 3600</code></td><td>All live listings prerender; verified serving <code>x-nextjs-cache: HIT</code></td></tr>
+        <tr><td>New listing not in the build</td><td><code>dynamicParams</code> (true by default)</td><td>Renders on demand on first request</td></tr>
+        <tr><td>Owner edits a listing</td><td><code>revalidatePath()</code> from that Server Action</td><td><span class="pill gap">not wired yet</span> — see Open gaps</td></tr>
+        <tr><td>Slug drift after a retitle</td><td><code>permanentRedirect()</code> to the canonical URL</td><td>Works — but emits <b>308</b>, not 301; see below</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout note">
+    <b>308 vs the plan's 301.</b> The code resolves the page, never the slug, so
+    a retitle can never 404. <code>permanentRedirect</code> is the App Router's
+    permanent redirect and 308 is its status. Both are permanent and search
+    engines consolidate them identically; 308 additionally forbids the method
+    rewrite that 301 permits, which is irrelevant for a GET page. A literal 301
+    would have to come from middleware.
+  </div>
+</section>
+
+<!-- ============================================================ LADDER -->
+<section class="sec" id="ladder">
+  <p class="kick">Part 6</p>
+  <h2>Information release ladder, as enforced</h2>
+  <p class="lede">
+    A browsing visitor with no login sees photos, amenities, price, the area
+    circle and reviews. Everything else is held back — and held back in the
+    query, not just in the markup.
+  </p>
+
+  <div class="tscroll">
+    <table>
+      <thead><tr><th>Withheld</th><th>How</th><th>Why that way</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Owner's phone number</td>
+          <td>The column is <b>never selected</b> for a public page. The card renders a masked row with an unlock note</td>
+          <td>There is nothing here to leak even if the markup is wrong</td>
+        </tr>
+        <tr>
+          <td>Exact address</td>
+          <td>Not selected; not in the JSON-LD either</td>
+          <td>Same reason. The map is a drawn area circle, so there is no coordinate on the page to reverse</td>
+        </tr>
+        <tr>
+          <td>Owner's full name</td>
+          <td>First name only, split server-side</td>
+          <td>The ladder grants the first name at the enquiry stage; nothing needs the surname</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout rule">
+    <b>The area circle is drawn, not fetched.</b> A real tile provider here
+    would need a key and a third-party request on every listing view — and
+    would tempt someone into dropping the true coordinates into it. The panel
+    is an inline SVG: concentric circles, a dashed area boundary, and the area
+    name. It encodes the rule instead of relying on someone remembering it.
+  </div>
+</section>
+
+<!-- ============================================================ HOME -->
+<section class="sec" id="home">
+  <p class="kick">Part 7</p>
+  <h2>Home page</h2>
+  <ul class="tight">
+    <li>Removed the <b>&ldquo;Pick a slot, not just a date&rdquo;</b> section. It read as a design-system sample rather than a homepage section, and the listing page now demonstrates slot pricing properly.</li>
+    <li>Listings grid raised from <b>8 to 16</b>. <span class="muted">The seed holds 12 live listings, so 12 render today; the grid fills as more go live.</span></li>
+    <li>Dropped a redundant <code>getListingByCode</code> call. With that section gone, <code>featured</code> only supplied a hero photo the card query already returns — the highest-traffic page is now a single round trip.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ BUGS -->
+<section class="sec" id="bugs">
+  <p class="kick">Part 8</p>
+  <h2>Bugs found and fixed</h2>
+  <p class="lede">
+    Four of these were pre-existing or environmental. One was introduced during
+    this build and caught in review.
+  </p>
+
+  <div class="bug">
+    <h4>1 · ISR was not caching the listing page at all</h4>
+    <dl>
+      <dt>Symptom</dt><dd>Response came back <code>Cache-Control: private, no-store</code> with no <code>x-nextjs-cache</code> header on repeated requests.</dd>
+      <dt>Cause</dt><dd><code>export const revalidate</code> alone does not cache a <i>dynamic segment</i>. Without <code>generateStaticParams</code>, every request rendered the page from scratch.</dd>
+      <dt>Fix</dt><dd>Added <code>generateStaticParams</code>. All live listings now prerender with a 1h revalidate and serve <code>x-nextjs-cache: HIT</code>.</dd>
+      <dt>Note</dt><dd>At a few thousand listings, return only the ones worth prerendering and let the long tail fall through to on-demand ISR.</dd>
+    </dl>
+  </div>
+
+  <div class="bug">
+    <h4>2 · The WhatsApp float sat behind the mobile booking bar</h4>
+    <dl>
+      <dt>Symptom</dt><dd>The float overlapped the price in the sticky bar, breaking the design system's &ldquo;the booking bar always wins the bottom of the screen&rdquo;.</dd>
+      <dt>Cause</dt><dd>The first fix was a plain rule on <code>.whatsapp-float</code>, which <b>silently lost</b> to Tailwind's own <code>bottom-5</code> utility — utilities are a later cascade layer, so no amount of selector specificity wins.</dd>
+      <dt>Fix</dt><dd>The float positions itself with <code>bottom-(--float-bottom)</code>, and the variable is redefined under <code>body:has([data-booking-bar])</code>. Inherited custom properties are not subject to layer ordering.</dd>
+    </dl>
+  </div>
+
+  <div class="bug">
+    <h4>3 · ₹ rendered as a wrong glyph on every share card</h4>
+    <dl>
+      <dt>Symptom</dt><dd><code>₹7,500</code> appeared as <code>≡7,500</code> in the generated OG PNG.</dd>
+      <dt>Cause</dt><dd>The vendored font was Google's <code>latin</code> subset, which excludes U+20B9. Confirmed by parsing the font's cmap table rather than guessing.</dd>
+      <dt>Fix</dt><dd>Swapped to <code>latin-ext</code> — 523 codepoints, includes ₹, and verified to be a strict superset of <code>latin</code>.</dd>
+      <dt>Note</dt><dd>The website has the same gap and only survives it because browsers fall back per-glyph. Satori has no system fallback, which is why it surfaced here first.</dd>
+    </dl>
+  </div>
+
+  <div class="bug">
+    <h4>4 · Unpublished reviews were publicly renderable</h4>
+    <dl>
+      <dt>Symptom</dt><dd>The listing review query did not filter <code>publishedAt</code>.</dd>
+      <dt>Cause</dt><dd>Reviews are two-way and release only when both sides submit or 14 days pass; the gate existed in the schema but not in the query.</dd>
+      <dt>Fix</dt><dd>Filtered to published only, for both the displayed list and the sub-score averages.</dd>
+    </dl>
+  </div>
+
+  <div class="bug">
+    <h4>5 · The primary CTA had near-black text on brand green <span class="pill fix">introduced here</span></h4>
+    <dl>
+      <dt>Symptom</dt><dd>&ldquo;Request booking&rdquo; rendered dark-on-dark — barely legible, and the most important control on the page.</dd>
+      <dt>Cause</dt><dd><code>&lt;Button&gt;</code> runs its classes through tailwind-merge, which cannot know that <code>meta</code> is a font-size in our <code>@theme</code>. It read <code>text-meta</code> as a text <i>colour</i> and dropped the variant's <code>text-primary-foreground</code>, leaving the label to inherit <code>--foreground</code>.</dd>
+      <dt>Fix</dt><dd>Used <code>text-base</code>, which tailwind-merge recognises as a font size. Same 16px, and the colour class survives.</dd>
+    </dl>
+    <div class="callout warn" style="margin-top:16px">
+      <b>Standing rule: never put a custom <code>@theme</code> font-size token on <code>&lt;Button&gt;</code>.</b>
+      <code>text-meta</code>, <code>text-body</code>, <code>text-tiny</code>,
+      <code>text-h4</code> and friends will all strip the button's text colour.
+      Use <code>text-sm</code> / <code>text-base</code>. Re-asserting the colour
+      afterwards does not help — tailwind-merge then drops the font size
+      instead. Plain <code>&lt;button&gt;</code> elements are unaffected, since
+      nothing merges their classes.
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ FILES -->
+<section class="sec" id="files">
+  <p class="kick">Part 9</p>
+  <h2>File manifest</h2>
+
+  <h3>Added</h3>
+  <div class="tscroll">
+    <table>
+      <thead><tr><th>Path</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>app/(marketing)/listing/[handle]/page.js</code></td><td>The detail page, its metadata and its JSON-LD</td></tr>
+        <tr><td><code>app/(marketing)/listing/[handle]/opengraph-image.js</code></td><td>Per-listing share card with price + next date</td></tr>
+        <tr><td><code>app/api/listings/[code]/availability/route.js</code></td><td>Live availability for the date picker</td></tr>
+        <tr><td><code>components/rentra/listing/PhotoGallery.jsx</code></td><td>Mosaic + lightbox, keyboard driven</td></tr>
+        <tr><td><code>components/rentra/listing/AvailabilityPicker.jsx</code></td><td>Slot selector + month calendar</td></tr>
+        <tr><td><code>components/rentra/listing/BookingPriceBox.jsx</code></td><td>Sticky price box</td></tr>
+        <tr><td><code>components/rentra/listing/MobileBookingBar.jsx</code></td><td>Sticky bottom bar below <code>lg</code></td></tr>
+        <tr><td><code>components/rentra/listing/ShareButton.jsx</code></td><td>Native share sheet, clipboard fallback</td></tr>
+        <tr><td><code>components/rentra/listing/ListingSections.jsx</code></td><td>The server-rendered sections</td></tr>
+        <tr><td><code>components/rentra/listing/booking-state.js</code></td><td>Shared date/slot selection and rent resolution</td></tr>
+        <tr><td><code>components/rentra/Logo.jsx</code></td><td><code>RentraLogo</code> / <code>RentraMark</code></td></tr>
+        <tr><td><code>app/icon.svg</code>, <code>app/apple-icon.js</code>, <code>app/opengraph-image.js</code></td><td>Favicon, iOS icon, site share card</td></tr>
+        <tr><td><code>public/brand/*.svg</code> + <code>README.md</code></td><td>Brand assets and their usage rules</td></tr>
+        <tr><td><code>assets/fonts/PlusJakartaSans-{500,700}.ttf</code></td><td>latin-ext, for satori</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Changed</h3>
+  <div class="tscroll">
+    <table>
+      <thead><tr><th>Path</th><th>Change</th></tr></thead>
+      <tbody>
+        <tr><td><code>lib/db/queries.js</code></td><td>Detail query extended; 3 queries added; published-reviews filter</td></tr>
+        <tr><td><code>lib/domain/pricing.js</code></td><td><code>cheapestSlot()</code> added</td></tr>
+        <tr><td><code>app/globals.css</code></td><td><code>--float-bottom</code> and its <code>:has()</code> override</td></tr>
+        <tr><td><code>app/layout.js</code></td><td><code>twitter: { card: 'summary_large_image' }</code></td></tr>
+        <tr><td><code>app/(marketing)/layout.js</code></td><td>Logo in header and footer; float reads <code>--float-bottom</code></td></tr>
+        <tr><td><code>app/(marketing)/page.js</code></td><td>Slot demo removed; grid to 16; one query dropped</td></tr>
+        <tr><td><code>app/(partner)/partner/layout.js</code></td><td>Lockup + &ldquo;for owners&rdquo;</td></tr>
+        <tr><td><code>app/(admin)/admin/layout.js</code></td><td>Inverse lockup + &ldquo;admin&rdquo;</td></tr>
+        <tr><td><code>app/(app)/login/page.js</code></td><td>Lockup, linking home</td></tr>
+        <tr><td><code>components/rentra/SaveButton.jsx</code></td><td><code>variant="inline"</code> for the title block</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ VERIFY -->
+<section class="sec" id="verify">
+  <p class="kick">Part 10</p>
+  <h2>How this was verified</h2>
+  <p class="lede">
+    Nothing here is &ldquo;should work&rdquo;. Each row was run.
+  </p>
+  <div class="tscroll">
+    <table>
+      <thead><tr><th>Check</th><th>Method</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td>Queries return real data</td><td>Script against the live database, printing every field the page consumes</td><td>Pass</td></tr>
+        <tr><td>Page, both layouts</td><td>Headless Chromium screenshots at 1280 and 390 wide</td><td>Pass</td></tr>
+        <tr><td>Booking bar + float clearance</td><td>Bar forced visible, screenshotted, then reverted</td><td>Pass — float steps above the bar</td></tr>
+        <tr><td>Availability endpoint</td><td>Valid range, out-of-range <code>days</code>, unknown code, past <code>from</code></td><td>200 / 400 / 404 / clamped</td></tr>
+        <tr><td>Slug drift and bad handles</td><td><code>curl</code> against a stale slug, a garbage code, and no code</td><td>308 to canonical / 404 / 404</td></tr>
+        <tr><td>ISR actually caches</td><td><code>next start</code>, repeated requests, header inspection</td><td><code>x-nextjs-cache: HIT</code></td></tr>
+        <tr><td>Structured data</td><td>Parsed the JSON-LD out of the served HTML and inspected every node</td><td>Pass — no geo, no address</td></tr>
+        <tr><td>OG cards render</td><td>Fetched the PNGs from the production build output and viewed them</td><td>Pass, 1200×630</td></tr>
+        <tr><td>Font coverage</td><td>Parsed the TTF cmap tables for U+20B9 and friends</td><td>523 codepoints, ₹ present</td></tr>
+        <tr><td>Whole repo</td><td><code>npx eslint .</code> and <code>npx next build</code></td><td>Clean; 0 warnings</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ GAPS -->
+<section class="sec" id="gaps">
+  <p class="kick">Part 11</p>
+  <h2>Open gaps</h2>
+  <p class="lede">
+    Known and deliberate. None of these are hidden behind a &ldquo;TODO&rdquo; in the code
+    without also being here.
+  </p>
+
+  <div class="callout warn">
+    <b>&ldquo;Request booking&rdquo; does not submit anything yet.</b> The button is
+    styled, sized and positioned, and the price it quotes is correct — but
+    there is no checkout route and no Server Action behind it. The validation
+    schema (<code>bookingRequestSchema</code>) already exists; the flow itself
+    (advance payment → 12-hour acceptance timer → confirmation) is the next
+    piece of work.
+  </div>
+
+  <ul class="tight">
+    <li><b><code>revalidatePath()</code> on owner edit is not wired.</b> Until it is, an edited listing takes up to an hour to appear. The call belongs in the partner-side Server Action that saves a listing.</li>
+    <li><b><code>components/rentra/PriceBox.jsx</code> is now unreferenced.</b> <code>BookingPriceBox</code> supersedes it. Left in place in case it is intended for the checkout screen — delete it if not.</li>
+    <li><b>The listing OG card is typographic, not photographic.</b> Using the hero photo would mean either reading from <code>public/</code> at runtime (which breaks on serverless, where <code>public/</code> is not in the bundle) or a network fetch per card. Worth revisiting once listing photos live on a CDN.</li>
+    <li><b>The area map is drawn, not a real map.</b> Intentional — see the release ladder. If a tile provider is ever added, it must render the area circle, never a pin.</li>
+    <li><b>Reviews show three sub-scores.</b> <code>cleanliness</code>, <code>accuracy</code> and <code>valueForMoney</code>. <code>behaviour</code> is an owner-side score about the guest and is not shown publicly.</li>
+    <li><b>Amenities are free-text strings.</b> The fixed <code>amenity</code> taxonomy exists in the schema, but <code>rentable.amenities</code> currently holds labels, so icons are matched on keywords. Moving the page onto <code>rentable_amenity</code> would make them filterable and translatable.</li>
+    <li><b>The mobile lightbox has no swipe.</b> Keyboard and buttons work; touch gestures are not implemented.</li>
+  </ul>
+</section>
+
+</div>
+
+<footer>
+  <div class="in">
+    Rentra build log · companion to
+    <a href="rentra-design-system.html">rentra-design-system.html</a>,
+    <a href="rentra-implementation-plan.html">rentra-implementation-plan.html</a>,
+    <a href="rentra-role-flow.html">rentra-role-flow.html</a> and
+    <a href="rentspace-india-plan.html">rentspace-india-plan.html</a>.
+  </div>
+</footer>
+
+</body>
+</html>
