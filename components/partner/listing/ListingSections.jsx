@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { Loader2, Check, Trash2, Upload, AlertTriangle } from 'lucide-react';
 import {
   saveBasics, saveLocation, saveCapacity, saveAmenities, saveRules,
@@ -10,6 +10,7 @@ import {
 import { OWNERSHIP_DOC_TYPES, MIN_PHOTOS, MAX_PHOTOS } from '@/lib/domain/listing-completion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useChrome, useIsWizard, useStepFormId } from './chrome';
 
 /* ------------------------------ primitives ------------------------------ */
 
@@ -30,22 +31,31 @@ function Field({ id, label, hint, error, children }) {
 
 /** Wraps a section: heading, save state, and the "sent back for review" note. */
 function Section({ id, title, intro, state, pending, children }) {
-  return (
-    <section id={id} className="scroll-mt-20 rounded-lg border border-border bg-card p-5">
-      <h2 className="text-h3">{title}</h2>
-      {intro ? <p className="mt-1 text-meta text-ink-600">{intro}</p> : null}
+  const { variant, onSaved, onPending } = useChrome();
+  const wizard = variant === 'wizard';
 
+  /**
+   * Tell the walkthrough a save landed so it can move to the next step.
+   *
+   * Fires on the transition into `ok`, not on every render, so re-submitting
+   * after fixing a validation error still advances exactly once. A failed
+   * save never fires, which is what keeps a broken step from sliding past.
+   */
+  const wasOk = useRef(false);
+  useEffect(() => {
+    const ok = Boolean(state?.ok);
+    if (ok && !wasOk.current && onSaved) onSaved(state);
+    wasOk.current = ok;
+  }, [state, onSaved]);
+
+  // Keep the sticky bar's spinner honest about what the form is doing.
+  useEffect(() => { onPending?.(Boolean(pending)); }, [pending, onPending]);
+
+  const notices = (
+    <>
       {state?.errors?._ ? (
-        <p className="mt-3 rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger">
+        <p className={`${wizard ? 'mt-5' : 'mt-3'} rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger`}>
           {state.errors._}
-        </p>
-      ) : null}
-
-      <div className="mt-4 space-y-4">{children}</div>
-
-      {state?.ok ? (
-        <p className="mt-3 inline-flex items-center gap-1.5 text-meta font-semibold text-brand-700">
-          <Check className="size-4" aria-hidden="true" /> Saved
         </p>
       ) : null}
 
@@ -53,9 +63,42 @@ function Section({ id, title, intro, state, pending, children }) {
           re-approved. Confirmed bookings are untouched — say so, or it reads
           like a punishment. */}
       {state?.sentBack ? (
-        <p className="mt-3 rounded-md border-l-4 border-amber-500 bg-amber-100 p-3 text-tiny text-amber-700">
+        <p className={`${wizard ? 'mt-5' : 'mt-3'} rounded-md border-l-4 border-amber-500 bg-amber-100 p-3 text-tiny text-amber-700`}>
           <strong>This change needs re-approval.</strong> The listing has left search until we
           check it — usually within 2 working days. Bookings already confirmed are unaffected.
+        </p>
+      ) : null}
+    </>
+  );
+
+  if (wizard) {
+    /**
+     * The heading lives here, not in the walkthrough shell, so the wording of
+     * each step exists in exactly one place. The shell owns chrome —
+     * progress, Back, Next — and nothing that is about this step's content.
+     */
+    return (
+      <section id={id}>
+        <h1 className="text-h1">{title}</h1>
+        {intro ? <p className="mt-2 max-w-prose text-body text-ink-600">{intro}</p> : null}
+        {notices}
+        <div className="mt-7 space-y-5">{children}</div>
+      </section>
+    );
+  }
+
+  return (
+    <section id={id} className="scroll-mt-20 rounded-lg border border-border bg-card p-5">
+      <h2 className="text-h3">{title}</h2>
+      {intro ? <p className="mt-1 text-meta text-ink-600">{intro}</p> : null}
+
+      {notices}
+
+      <div className="mt-4 space-y-4">{children}</div>
+
+      {state?.ok ? (
+        <p className="mt-3 inline-flex items-center gap-1.5 text-meta font-semibold text-brand-700">
+          <Check className="size-4" aria-hidden="true" /> Saved
         </p>
       ) : null}
 
@@ -69,6 +112,10 @@ function Section({ id, title, intro, state, pending, children }) {
 }
 
 function SaveButton({ pending, label = 'Save' }) {
+  // In the walkthrough the sticky bottom bar is the submit button. Rendering a
+  // second one mid-form would give the step two competing primary actions.
+  if (useIsWizard()) return null;
+
   return (
     <Button type="submit" disabled={pending}>
       {pending ? <Loader2 className="size-4 animate-spin" /> : null}
@@ -85,7 +132,7 @@ export function BasicsSection({ listing, categories }) {
 
   return (
     <Section id="basics" title="What it is" intro="How guests find and recognise it." state={state} pending={pending}>
-      <form action={action} className="space-y-4">
+      <form id={useStepFormId()} action={action} className="space-y-4">
         <input type="hidden" name="id" value={listing.id} />
         <Field id="categoryId" label="Category" error={e.categoryId}>
           <select id="categoryId" name="categoryId" defaultValue={listing.categoryId} className={inputCls}>
@@ -131,7 +178,7 @@ export function LocationSection({ listing, cities }) {
 
   return (
     <Section id="location" title="Where it is" intro="Guests see an area circle. The exact address unlocks only when a booking is confirmed." state={state} pending={pending}>
-      <form action={action} className="space-y-4">
+      <form id={useStepFormId()} action={action} className="space-y-4">
         <input type="hidden" name="id" value={listing.id} />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field id="cityId" label="City" error={e.cityId}>
@@ -182,7 +229,7 @@ export function CapacitySection({ listing }) {
 
   return (
     <Section id="capacity" title="Size and capacity" intro="The numbers guests filter on." state={state} pending={pending}>
-      <form action={action} className="space-y-4">
+      <form id={useStepFormId()} action={action} className="space-y-4">
         <input type="hidden" name="id" value={listing.id} />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field id="capacity" label="Maximum guests" error={e.capacity}>
@@ -240,7 +287,7 @@ export function AmenitiesSection({ listing, catalogue, selected }) {
       intro={`Picked from a fixed list so guests can filter on them. ${picked.size} selected.`}
       state={state} pending={pending}
     >
-      <form action={action} className="space-y-5">
+      <form id={useStepFormId()} action={action} className="space-y-5">
         <input type="hidden" name="id" value={listing.id} />
         {catalogue.map((group) => (
           <fieldset key={group.slug}>
@@ -301,7 +348,7 @@ export function RulesSection({ listing }) {
       intro="Structured, so guests can filter and we can translate them."
       state={state} pending={pending}
     >
-      <form action={action} className="space-y-4">
+      <form id={useStepFormId()} action={action} className="space-y-4">
         <input type="hidden" name="id" value={listing.id} />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field id="checkInFrom" label="Check-in window" hint="A window, not a fixed time." error={e.checkInFrom}>
@@ -365,7 +412,7 @@ export function PricingSection({ listing, prices }) {
       intro="Leave a slot at zero if you do not offer it. Price is a free field — changing it never sends a live listing back for review."
       state={state} pending={pending}
     >
-      <form action={action} className="space-y-4">
+      <form id={useStepFormId()} action={action} className="space-y-4">
         <input type="hidden" name="id" value={listing.id} />
         <div className="overflow-x-auto">
           <table className="w-full min-w-md text-meta">
@@ -429,7 +476,7 @@ export function TermsSection({ listing }) {
       intro="Guests see the refund in rupees, never as policy language."
       state={state} pending={pending}
     >
-      <form action={action} className="space-y-4">
+      <form id={useStepFormId()} action={action} className="space-y-4">
         <input type="hidden" name="id" value={listing.id} />
         <Field
           id="depositAmount" label="Refundable deposit"

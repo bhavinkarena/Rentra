@@ -19,7 +19,8 @@
     "seed:admin": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/seed-admin.mjs",
     "verify:admin": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-admin.mjs",
     "verify:uploads": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-uploads.mjs",
-    "seed:amenities": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/seed-amenities.mjs"
+    "seed:amenities": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/seed-amenities.mjs",
+    "verify:wizard": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-listing-wizard.mjs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.12.0",

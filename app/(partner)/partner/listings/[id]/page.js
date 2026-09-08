@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Check } from 'lucide-react';
+import { ArrowLeft, Check, Wand2 } from 'lucide-react';
 import { requireActiveClient } from '@/lib/auth/dal';
 import { getListingForEdit, getAmenityCatalogue, getCategories, getCitiesWithAreas } from '@/lib/db/listing-queries';
 import { listingCompletion } from '@/lib/domain/listing-completion';
@@ -10,6 +10,8 @@ import {
   RulesSection, PricingSection, TermsSection, PhotosSection,
   OwnershipSection, SubmitBar,
 } from '@/components/partner/listing/ListingSections';
+import { ListingChrome } from '@/components/partner/listing/chrome';
+import { firstIncompleteStepId, stepHref } from '@/lib/domain/listing-steps';
 
 export const metadata = {
   title: 'Edit property',
@@ -17,13 +19,20 @@ export const metadata = {
 };
 
 /**
- * The listing builder — nine sections on one page, each saving independently.
+ * The MANAGE view — every section on one page, each saving independently.
  *
- * The flow doc specifies nine separate step routes. One page instead, because
- * editing a LIVE listing needs exactly this screen: nine routes would mean
- * building the same thing twice, and a Client with three farmhouses spends far
- * more time editing than creating. The progress rail gives the same
- * "short steps, nothing lost" feel.
+ * Its counterpart is the walkthrough at /partner/listings/[id]/setup/[step],
+ * which renders these same components one per screen. Two chromes, one set of
+ * sections (see components/partner/listing/chrome.jsx) — so this is not the
+ * same thing built twice.
+ *
+ * Which surface for which job:
+ *   · walkthrough — a DRAFT. The job is "get to the end", so one question at
+ *     a time with a thumb-reachable Continue wins.
+ *   · this page   — a LIVE listing. The job is "change the Saturday price",
+ *     which is random access. Walking nine steps to reach one field would be
+ *     hostile, and a Client with three farmhouses edits far more than they
+ *     create.
  */
 export default async function ListingBuilderPage({ params }) {
   const user = await requireActiveClient();
@@ -97,11 +106,36 @@ export default async function ListingBuilderPage({ params }) {
         </ul>
       </section>
 
+      {/* Offer the walkthrough while work remains — it resumes where they
+          stopped. Once complete, this page is the right screen and the
+          prompt disappears rather than nagging. */}
+      {!completion.isLive && !completion.inReview && completion.remaining.length > 0 ? (
+        <Link
+          href={stepHref(id, firstIncompleteStepId(completion))}
+          className="mt-5 flex items-center gap-3 rounded-lg border border-brand-200 bg-brand-50 p-4 hover:border-brand-300 hover:bg-brand-100"
+        >
+          <span className="grid size-9 shrink-0 place-items-center rounded-md bg-brand-600">
+            <Wand2 className="size-4 text-white" aria-hidden="true" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-meta font-bold text-brand-900">
+              Finish it step by step
+            </span>
+            <span className="block text-tiny text-brand-800">
+              {completion.remaining.length} left · picks up at{' '}
+              {completion.remaining[0].label.toLowerCase()}
+            </span>
+          </span>
+          <span className="shrink-0 text-tiny font-semibold text-brand-700">Continue →</span>
+        </Link>
+      ) : null}
+
       <div className="mt-5">
         <SubmitBar listing={listing} completion={completion} submitAction={submitListing} />
       </div>
 
-      <div className="mt-6 space-y-5">
+      <ListingChrome variant="card">
+        <div className="mt-6 space-y-5">
         <BasicsSection listing={listing} categories={categories} />
         <LocationSection listing={listing} cities={cities} />
         <CapacitySection listing={listing} />
@@ -116,7 +150,8 @@ export default async function ListingBuilderPage({ params }) {
           clientType={user.clientType}
           kycName={user.name}
         />
-      </div>
+        </div>
+      </ListingChrome>
     </div>
   );
 }
