@@ -51,6 +51,7 @@ Use `--provenance-file=/path/to/manifest.json` in both audit and initial apply. 
 npm run verify:customer-reservations
 npm run verify:customer-foundation
 npm run lint
+npm run build -- --webpack
 ```
 
 The database verifier creates a unique `rentra_test_p02_*` database, applies migrations 0000–0007, creates synthetic legacy booking/review/payout fixtures, applies 0008 and reruns migration/backfill, tests constraints and concurrent interval claims, then runs the existing development seed and verifies seed conversion. It removes only its own newly created database. It never seeds or migrates `DATABASE_URL` itself. An optional `TEST_DATABASE_ADMIN_URL` can select another provisioner with CREATE DATABASE rights. Neon provisioning uses the direct endpoint because transaction pooling cannot reliably create/drop databases.
@@ -58,3 +59,7 @@ The database verifier creates a unique `rentra_test_p02_*` database, applies mig
 The configured Rentra database was audited read-only during this session. No migration/backfill/seed was applied to it. Its 44 rows reconciled to expected minor totals of rent **37,100,000**, fee **2,968,000**, deposit **22,800,000**, and reported legacy advance **12,243,000**. All 44 had unknown hours, settlement evidence and unclassified provenance; none had an active state requiring inventory remediation at audit time. This is a point-in-time report, not rollout approval or proof that future availability is safe.
 
 Part 03 must add the complete payment/refund schema and gate existing revenue/payout queries. Part 02's zero-collected constraints alone do not fix legacy dashboard queries that still sum whole-rupee seed payouts.
+
+The production Webpack build passed with all 39 static pages. Default Turbopack was blocked by an environment port-binding restriction even after an escalated retry. Webpack needed permitted network access for the configured Google font and static database reads; no application bundler default was changed.
+
+Verification gate: all **10** reservation test groups and **28** foundation groups passed; lint passed and Drizzle reported no schema changes on regeneration. The disposable database was removed successfully. Part 02 is complete; Part 03 is the next implementation session.

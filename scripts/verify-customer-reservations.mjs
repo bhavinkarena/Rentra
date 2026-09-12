@@ -133,6 +133,7 @@ try {
     execFileSync(process.execPath, ['scripts/seed.mjs'], { env: { ...process.env, DATABASE_URL: targetUrl.href }, stdio: 'pipe', timeout: 120000 });
     const [count] = await sql`SELECT count(*)::int n, count(*) FILTER (WHERE visit_provenance='seed' AND payment_mode='simulated' AND collected_minor=0)::int safe FROM booking`;
     assert.ok(count.n > 0); assert.equal(count.n, count.safe);
+    console.log(`Seeded ${count.n} visits in the disposable database; checking conversion and rerun`);
     const report = await backfillLegacy(sql, options);
     assert.equal(report.changed, count.n); assert.equal(report.unknownProvenance.length, 0);
     assert.equal((await backfillLegacy(sql, options)).changed, 0);
