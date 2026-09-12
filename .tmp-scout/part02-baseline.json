@@ -1,0 +1,66 @@
+{
+  "capturedFor": "customer part 02",
+  "database": {
+    "name": "rentra",
+    "version": "PostgreSQL 18.6 (2078fcb)"
+  },
+  "counts": {
+    "booking": 44,
+    "payout": 44,
+    "review": 44,
+    "availability": 3060,
+    "rentable": 17,
+    "rentable_price": 51,
+    "unit": 0,
+    "person": 1
+  },
+  "sums": {
+    "bookingWholeRupees": {
+      "rent": 371000,
+      "fee": 29680,
+      "deposit": 228000,
+      "advancePaid": 122430
+    },
+    "bookingMinorUnitsExpected": {
+      "rent": 37100000,
+      "fee": 2968000,
+      "deposit": 22800000,
+      "advancePaid": 12243000
+    },
+    "unknownHours": {
+      "startsAtNull": 44,
+      "endsAtNull": 44
+    },
+    "identity": {
+      "distinctIds": 44,
+      "distinctReferences": 44
+    },
+    "payoutWholeRupees": {
+      "gross": 371000,
+      "net": 340939,
+      "commission": 29680
+    }
+  },
+  "fingerprints": {
+    "booking": {
+      "rows": 44,
+      "sha256": "cfdfed2c55edf48a5fffc957931a621fb8599a5bf4cf853edc2a642384b02529"
+    },
+    "payout": {
+      "rows": 44,
+      "sha256": "d1daa823df14937ca0f12c4b8fcc77ada7e718150a079656bddc096916b953ed"
+    },
+    "review": {
+      "rows": 44,
+      "sha256": "57e38b4841ba65efedb99569fc37cc5209fb2105b8b9bd24445565ff7d5271b2"
+    },
+    "availability": {
+      "rows": 3060,
+      "sha256": "a3a4cd99e1c3257ce03cf0aa4058653cd66fab54968c743c4c84435f3d1f0ce3"
+    }
+  },
+  "probe": {
+    "error": "database \"rentra_part02_probe\" is being accessed by other users",
+    "code": "55006"
+  }
+}
