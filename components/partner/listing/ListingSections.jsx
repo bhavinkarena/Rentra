@@ -12,15 +12,19 @@ import {
 } from '@/lib/auth/listings';
 import { OWNERSHIP_DOC_TYPES, MIN_PHOTOS, MAX_PHOTOS } from '@/lib/domain/listing-completion';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Input as BaseInput } from '@/components/ui/input';
 import { sectionAnchorId } from '@/lib/domain/listing-steps';
 import { photoId } from '@/lib/domain/listing-photos';
 import { useChrome, useIsWizard, useStepFormId } from './chrome';
 
 /* ------------------------------ primitives ------------------------------ */
 
-const inputCls = 'w-full rounded-sm border border-input bg-card px-3.5 py-3 text-meta '
+const inputCls = 'min-h-12 w-full rounded-md border border-input bg-card px-3.5 py-3 text-meta '
   + 'text-ink-900 placeholder:text-ink-400 focus:border-brand-600 focus:outline-none';
+
+function Input({ className = '', ...props }) {
+  return <BaseInput className={`min-h-12 rounded-md px-3.5 py-3 ${className}`} {...props} />;
+}
 
 function Field({ id, label, hint, error, children }) {
   return (
@@ -140,7 +144,10 @@ export function BasicsSection({ listing, categories }) {
       <form id={useStepFormId()} action={action} className="space-y-4">
         <input type="hidden" name="id" value={listing.id} />
         <Field id="categoryId" label="Category" error={e.categoryId}>
-          <select id="categoryId" name="categoryId" defaultValue={listing.categoryId} className={inputCls}>
+          <select
+            id="categoryId" name="categoryId" defaultValue={listing.categoryId}
+            required aria-invalid={Boolean(e.categoryId)} className={inputCls}
+          >
             {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </Field>
@@ -151,8 +158,10 @@ export function BasicsSection({ listing, categories }) {
         >
           <Input
             id="title" name="title" maxLength={90}
+            required minLength={8}
             defaultValue={listing.title === 'Untitled property' ? '' : listing.title}
             placeholder="Riverside Farm with private pool"
+            aria-invalid={Boolean(e.title)}
           />
         </Field>
         <Field id="highlight" label="One-line highlight" hint="Shown on the card. Optional." error={e.highlight}>
@@ -163,7 +172,13 @@ export function BasicsSection({ listing, categories }) {
           hint="Write for someone deciding whether to drive 40km. What is it like, what is nearby, what should they know?"
           error={e.description}
         >
-          <textarea id="description" name="description" rows={5} defaultValue={listing.description ?? ''} className={inputCls} />
+          <textarea
+            id="description" name="description" rows={5}
+            required minLength={40} maxLength={4000}
+            defaultValue={listing.description ?? ''}
+            aria-invalid={Boolean(e.description)}
+            className={inputCls}
+          />
         </Field>
         <SaveButton pending={pending} />
       </form>

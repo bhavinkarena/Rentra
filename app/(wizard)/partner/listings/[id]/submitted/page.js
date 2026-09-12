@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Clock, Home, Plus, Search, Video } from 'lucide-react';
+import { Clock, Home, Search, Video } from 'lucide-react';
 import { requireActiveClient } from '@/lib/auth/dal';
 import { getListingForEdit } from '@/lib/db/listing-queries';
 import { RentraLogo } from '@/components/rentra/Logo';
+import CreateListingButton from '@/components/partner/CreateListingButton';
 
 export const metadata = {
   title: 'Sent for review',
@@ -141,13 +142,11 @@ export default async function SubmittedPage({ params }) {
             >
               See your properties
             </Link>
-            <Link
-              href="/partner/listings/new"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-input px-6 py-3 text-meta font-semibold text-ink-800 transition-colors hover:bg-ink-50"
-            >
-              <Plus className="size-4" aria-hidden="true" />
-              Add another property
-            </Link>
+            <CreateListingButton
+              label="Add another property"
+              variant="secondary"
+              className="rounded-full px-6"
+            />
           </div>
         </div>
       </main>

@@ -1,108 +1,111 @@
 import Link from 'next/link';
-import { ArrowLeft, Mail, Phone, ShieldCheck } from 'lucide-react';
+import { Mail, Phone, ShieldCheck, WalletCards } from 'lucide-react';
 import { requireClient } from '@/lib/auth/dal';
 import { getOrCreateApplication } from '@/lib/auth/application';
 import { AccountForm, PayoutDestinationForm } from '@/components/partner/SettingsForms';
+import { PartnerPageHeader } from '@/components/partner/PortalPrimitives';
 
 export const metadata = {
   title: 'Settings',
   robots: { index: false, follow: false, nocache: true },
 };
 
-/**
- * Everything onboarding collects once, made changeable afterwards.
- *
- * Until this page existed, a Client's name, language and payout destination
- * were writable only while walking the onboarding stepper and never again —
- * so an owner who mistyped a UPI ID, or moved bank, had no route back to it
- * except a support call.
- *
- * `requireClient` rather than `requireActiveClient`: a Client sent back over a
- * payout-name mismatch is by definition not active, and this is the page that
- * fixes it.
- */
 export default async function SettingsPage() {
   const user = await requireClient();
   const application = await getOrCreateApplication(user.id);
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
-      <Link
-        href="/partner"
-        className="inline-flex items-center gap-1.5 text-meta font-medium text-ink-600 hover:text-ink-900"
-      >
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        Dashboard
-      </Link>
+    <div className="mx-auto w-full max-w-[1240px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <PartnerPageHeader
+        eyebrow="Account"
+        title="Settings & payouts"
+        description="Keep your partner profile, contact details and payout destination accurate."
+      />
 
-      <h1 className="mt-5 text-h1">Settings</h1>
+      <div className="mt-7 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="space-y-5">
+          <section className="rounded-lg border border-border bg-card p-5 shadow-xs sm:p-6">
+            <div className="flex items-start gap-3 border-b border-border pb-4">
+              <span className="grid size-10 shrink-0 place-items-center rounded-md bg-brand-50 text-brand-700 ring-1 ring-brand-100">
+                <ShieldCheck className="size-[18px]" aria-hidden="true" />
+              </span>
+              <div>
+                <h2 className="text-h4 font-bold text-ink-900">Your details</h2>
+                <p className="mt-0.5 text-tiny text-ink-500">
+                  The name shown to guests and the language Rentra uses with you.
+                </p>
+              </div>
+            </div>
+            <div className="mt-5 max-w-2xl">
+              <AccountForm user={user} />
+            </div>
+          </section>
 
-      {/* --- what cannot be changed here, and where it is changed instead --- */}
-      <section className="mt-6 rounded-lg border border-border bg-card p-5">
-        <h2 className="text-h4 font-bold">Sign-in and identity</h2>
-        <ul className="mt-3 space-y-3">
-          <li className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <Mail className="size-4 shrink-0 text-ink-500" aria-hidden="true" />
-            <span className="min-w-0 flex-1">
-              <span className="block text-meta font-semibold text-ink-900">{user.email}</span>
-              <span className="block text-tiny text-ink-500">
-                Your sign-in address. Changing it means proving the new one, so write to us
-                and we will move the account across.
+          <section className="rounded-lg border border-border bg-card p-5 shadow-xs sm:p-6">
+            <div className="flex items-start gap-3 border-b border-border pb-4">
+              <span className="grid size-10 shrink-0 place-items-center rounded-md bg-brand-50 text-brand-700 ring-1 ring-brand-100">
+                <WalletCards className="size-[18px]" aria-hidden="true" />
               </span>
-            </span>
-          </li>
-
-          <li className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border pt-3">
-            <Phone className="size-4 shrink-0 text-ink-500" aria-hidden="true" />
-            <span className="min-w-0 flex-1">
-              <span className="block text-meta font-semibold text-ink-900">
-                {user.phone ?? 'No mobile number yet'}
-              </span>
-              <span className="block text-tiny text-ink-500">
-                Where booking alerts arrive. A new number has to be verified by SMS.
-              </span>
-            </span>
-            <Link
-              href="/partner/onboarding/phone"
-              className="shrink-0 rounded-md border border-input px-3 py-1.5 text-tiny font-semibold text-ink-700 hover:bg-ink-50"
-            >
-              {user.phone ? 'Change' : 'Add'}
-            </Link>
-          </li>
-
-          <li className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border pt-3">
-            <ShieldCheck className="size-4 shrink-0 text-ink-500" aria-hidden="true" />
-            <span className="min-w-0 flex-1">
-              <span className="block text-meta font-semibold text-ink-900">
-                Identity check — {user.kycStatus === 'verified' ? 'verified' : user.kycStatus.replace(/_/g, ' ')}
-              </span>
-              <span className="block text-tiny text-ink-500">
-                {user.kycStatus === 'verified'
-                  ? 'Done once and reused. You will not be asked again.'
-                  : 'Your ID is with us. We check it as part of your application.'}
-              </span>
-            </span>
-          </li>
-        </ul>
-      </section>
-
-      <section className="mt-5 rounded-lg border border-border bg-card p-5">
-        <h2 className="text-h4 font-bold">Your details</h2>
-        <div className="mt-4">
-          <AccountForm user={user} />
+              <div>
+                <h2 className="text-h4 font-bold text-ink-900">Where we send your money</h2>
+                <p className="mt-0.5 text-tiny leading-5 text-ink-500">
+                  Changing this re-runs the name check against your ID. Confirmed bookings pay to the destination saved when they settle.
+                </p>
+              </div>
+            </div>
+            <div className="mt-5 max-w-2xl">
+              <PayoutDestinationForm user={user} application={application} />
+            </div>
+          </section>
         </div>
-      </section>
 
-      <section className="mt-5 rounded-lg border border-border bg-card p-5">
-        <h2 className="text-h4 font-bold">Where we send your money</h2>
-        <p className="mt-1 text-meta text-ink-600">
-          Changing this re-runs the name check against your ID. Bookings already confirmed pay
-          out to whichever destination is saved when they settle.
-        </p>
-        <div className="mt-4">
-          <PayoutDestinationForm user={user} application={application} />
-        </div>
-      </section>
+        <aside className="rounded-lg border border-border bg-card p-5 shadow-xs lg:sticky lg:top-20">
+          <p className="text-[0.68rem] font-bold tracking-[0.1em] text-ink-500 uppercase">Sign-in & identity</p>
+          <ul className="mt-4 divide-y divide-border">
+            <li className="flex gap-3 pb-4">
+              <Mail className="mt-0.5 size-4 shrink-0 text-ink-400" aria-hidden="true" />
+              <span className="min-w-0">
+                <span className="block truncate text-tiny font-semibold text-ink-900">{user.email}</span>
+                <span className="mt-1 block text-[0.68rem] leading-4 text-ink-500">
+                  Your verified sign-in address. Contact Rentra to move the account to a new email.
+                </span>
+              </span>
+            </li>
+
+            <li className="flex gap-3 py-4">
+              <Phone className="mt-0.5 size-4 shrink-0 text-ink-400" aria-hidden="true" />
+              <span className="min-w-0 flex-1">
+                <span className="block text-tiny font-semibold text-ink-900">
+                  {user.phone ?? 'No mobile number yet'}
+                </span>
+                <span className="mt-1 block text-[0.68rem] leading-4 text-ink-500">
+                  Booking alerts and important property updates arrive here.
+                </span>
+                <Link
+                  href="/partner/onboarding/phone"
+                  className="mt-2 inline-flex text-[0.68rem] font-bold text-brand-700 hover:underline"
+                >
+                  {user.phone ? 'Change number' : 'Add number'} →
+                </Link>
+              </span>
+            </li>
+
+            <li className="flex gap-3 pt-4">
+              <ShieldCheck className="mt-0.5 size-4 shrink-0 text-ink-400" aria-hidden="true" />
+              <span className="min-w-0">
+                <span className="block text-tiny font-semibold text-ink-900">
+                  Identity {user.kycStatus === 'verified' ? 'verified' : user.kycStatus.replace(/_/g, ' ')}
+                </span>
+                <span className="mt-1 block text-[0.68rem] leading-4 text-ink-500">
+                  {user.kycStatus === 'verified'
+                    ? 'Completed once and securely reused for your Rentra account.'
+                    : 'Your ID is checked as part of partner verification.'}
+                </span>
+              </span>
+            </li>
+          </ul>
+        </aside>
+      </div>
     </div>
   );
 }

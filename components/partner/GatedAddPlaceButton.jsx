@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Lock, Plus, X } from 'lucide-react';
+import { Lock, X } from 'lucide-react';
+import CreateListingButton from '@/components/partner/CreateListingButton';
 
 /**
  * "Add place for rent" is visible from the first second, because hiding it
@@ -23,15 +24,7 @@ export default function GatedAddPlaceButton({ unlocked, message, onLockedClick }
   const [clicks, setClicks] = useState(0);
 
   if (unlocked) {
-    return (
-      <Link
-        href="/partner/listings/new"
-        className="inline-flex items-center justify-center gap-2 rounded-md bg-brand-600 px-5 py-3 text-meta font-semibold text-white transition-colors hover:bg-brand-700"
-      >
-        <Plus className="size-4" aria-hidden="true" />
-        Add place for rent
-      </Link>
-    );
+    return <CreateListingButton />;
   }
 
   function handleClick() {

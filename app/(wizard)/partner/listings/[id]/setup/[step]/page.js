@@ -59,8 +59,17 @@ export default async function SetupStepPage({ params }) {
   const next = nextStepId(stepId);
   const prev = prevStepId(stepId);
 
+  // The rail shows the full journey, but only saved, failed, and current
+  // steps are links. That keeps an accidental jump from discarding unsaved
+  // input; moving forward deliberately still happens through Skip/Continue.
+  const navigableSteps = progress.steps.filter((s) => s.done || s.failed || s.isCurrent);
+  const stepHrefs = Object.fromEntries(
+    navigableSteps.map((s) => [s.id, stepHref(id, s.id)]),
+  );
   const chapterHrefs = Object.fromEntries(
-    LISTING_CHAPTERS.map((c) => [c.id, stepHref(id, c.steps[0].id)]),
+    LISTING_CHAPTERS
+      .map((c) => [c.id, stepHrefs[c.steps[0].id]])
+      .filter(([, href]) => Boolean(href)),
   );
 
   return (
@@ -71,6 +80,7 @@ export default async function SetupStepPage({ params }) {
       nextHref={next ? stepHref(id, next) : null}
       prevHref={prev ? stepHref(id, prev) : null}
       chapterHrefs={chapterHrefs}
+      stepHrefs={stepHrefs}
     >
       {stepId === 'basics' ? (
         <BasicsSection listing={listing} categories={categories} />

@@ -1,98 +1,159 @@
 import Link from 'next/link';
-import { Plus } from 'lucide-react';
+import { Building2, CircleAlert, Clock3, Eye } from 'lucide-react';
 import { requireActiveClient } from '@/lib/auth/dal';
-import { getClientListings } from '@/lib/db/listing-queries';
+import {
+  getClientListingSummary,
+  getClientListingsPage,
+} from '@/lib/db/listing-queries';
+import CreateListingButton from '@/components/partner/CreateListingButton';
+import PropertyFilters from '@/components/partner/PropertyFilters';
+import PropertyTable from '@/components/partner/PropertyTable';
+import { KpiCard, PartnerPageHeader } from '@/components/partner/PortalPrimitives';
 
 export const metadata = {
   title: 'Your properties',
   robots: { index: false, follow: false, nocache: true },
 };
 
-const STATUS_TONE = {
-  live: 'bg-brand-50 text-brand-700',
-  pending_review: 'bg-amber-100 text-amber-700',
-  pending_verification: 'bg-amber-100 text-amber-700',
-  rejected: 'bg-danger-bg text-danger',
-  paused: 'bg-ink-100 text-ink-600',
-  hidden: 'bg-ink-100 text-ink-600',
-  draft: 'bg-ink-100 text-ink-600',
-};
+const FILTERS = new Set(['all', 'live', 'review', 'attention', 'paused', 'hidden']);
 
-const STATUS_HINT = {
-  draft: 'Not submitted yet',
-  pending_review: 'With Rentra — 2 working days',
-  pending_verification: 'Verification visit being arranged',
-  live: 'Visible to guests',
-  paused: 'You paused this — no new bookings',
-  hidden: 'Hidden by Rentra',
-  rejected: 'Needs changes before it can go live',
-};
+function pageHref({ query, status, page }) {
+  const params = new URLSearchParams();
+  if (query) params.set('q', query);
+  if (status !== 'all') params.set('status', status);
+  if (page > 1) params.set('page', String(page));
+  const suffix = params.toString();
+  return suffix ? `/partner/listings?${suffix}` : '/partner/listings';
+}
 
 export default async function ListingsPage({ searchParams }) {
   const user = await requireActiveClient();
   const params = await searchParams;
-  const listings = await getClientListings(user.id);
+  const query = typeof params?.q === 'string' ? params.q.trim().slice(0, 100) : '';
+  const status = FILTERS.has(params?.status) ? params.status : 'all';
+  const requestedPage = Number.parseInt(params?.page, 10) || 1;
+
+  const [summary, result] = await Promise.all([
+    getClientListingSummary(user.id),
+    getClientListingsPage(user.id, {
+      query,
+      status,
+      page: requestedPage,
+      pageSize: 10,
+    }),
+  ]);
+
+  const first = result.total ? (result.page - 1) * result.pageSize + 1 : 0;
+  const last = Math.min(result.page * result.pageSize, result.total);
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
+    <div className="mx-auto w-full max-w-[1480px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       {params?.submitted ? (
-        <p className="mb-6 rounded-md border-l-4 border-brand-600 bg-success-bg p-3 text-meta text-brand-900">
-          Submitted. We check every property before it goes live and will reply within 2 working
-          days, by email and WhatsApp.
-        </p>
-      ) : null}
-
-      <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <h1 className="text-h1">Your properties</h1>
-        <form action="/partner/listings/new">
-          <button
-            type="submit"
-            className="inline-flex items-center gap-2 rounded-md bg-brand-600 px-4 py-2.5 text-meta font-semibold text-white hover:bg-brand-700"
-          >
-            <Plus className="size-4" aria-hidden="true" />
-            Add a property
-          </button>
-        </form>
-      </div>
-
-      {listings.length === 0 ? (
-        <div className="mt-8 rounded-lg border border-border bg-card p-8 text-center">
-          <p className="text-h4 font-bold">No properties yet</p>
-          <p className="mx-auto mt-1 max-w-prose text-meta text-ink-600">
-            Adding one takes about 25 minutes, and you can stop and come back — nothing is lost.
-            Photos are the part that matters most, so have 6 to 15 ready.
+        <div className="mb-6 flex items-start gap-3 rounded-lg border border-brand-200 bg-success-bg p-4 text-meta text-brand-900">
+          <span className="mt-0.5 size-2 shrink-0 rounded-full bg-success" aria-hidden="true" />
+          <p>
+            <strong className="font-bold">Property submitted.</strong>{' '}
+            We check every property before it goes live and will reply within 2 working days by email and WhatsApp.
           </p>
         </div>
-      ) : (
-        <ul className="mt-6 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
-          {listings.map((l) => (
-            <li key={l.id}>
+      ) : null}
+
+      <PartnerPageHeader
+        eyebrow="Portfolio"
+        title="Properties"
+        description="Search, review and manage every Rentra property from one place."
+        action={<CreateListingButton />}
+      />
+
+      <section className="mt-7 grid grid-cols-2 gap-3 xl:grid-cols-4" aria-label="Property summary">
+        <KpiCard
+          label="Total properties"
+          value={summary.total}
+          hint="Every property in your portfolio"
+          icon={Building2}
+        />
+        <KpiCard
+          label="Live"
+          value={summary.live}
+          hint="Visible and bookable by guests"
+          icon={Eye}
+          tone="success"
+        />
+        <KpiCard
+          label="In review"
+          value={summary.inReview}
+          hint="Being checked by Rentra"
+          icon={Clock3}
+          tone="warning"
+        />
+        <KpiCard
+          label="Needs attention"
+          value={summary.attention}
+          hint="Drafts or requested changes"
+          icon={CircleAlert}
+          tone={summary.attention > 0 ? 'danger' : 'neutral'}
+        />
+      </section>
+
+      <section className="mt-6 overflow-hidden rounded-lg border border-border bg-card shadow-xs" aria-labelledby="property-list-title">
+        <div className="flex flex-col gap-1 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+          <div>
+            <h2 id="property-list-title" className="text-h4 font-bold text-ink-900">All properties</h2>
+            <p className="mt-0.5 text-tiny text-ink-500">
+              {result.total === summary.total
+                ? `${result.total} ${result.total === 1 ? 'property' : 'properties'}`
+                : `${result.total} matching ${summary.total} total`}
+            </p>
+          </div>
+          <p className="text-tiny text-ink-500">Updated properties appear first</p>
+        </div>
+
+        <PropertyFilters query={query} status={status} />
+        <PropertyTable
+          listings={result.items}
+          emptyTitle={summary.total ? 'No matching properties' : 'No properties yet'}
+          emptyDescription={summary.total
+            ? 'Try a different search or clear the current status filter.'
+            : 'Use “Add property” to create your first listing.'}
+        />
+
+        <div className="flex flex-col gap-3 border-t border-border bg-ink-25/70 px-4 py-3 text-tiny text-ink-500 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+          <p>
+            Showing <strong className="font-semibold text-ink-800 tabular">{first}</strong> to{' '}
+            <strong className="font-semibold text-ink-800 tabular">{last}</strong> of{' '}
+            <strong className="font-semibold text-ink-800 tabular">{result.total}</strong>
+          </p>
+          <div className="flex items-center gap-2">
+            {result.page > 1 ? (
               <Link
-                href={`/partner/listings/${l.id}`}
-                className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3.5 hover:bg-ink-50"
+                href={pageHref({ query, status, page: result.page - 1 })}
+                scroll={false}
+                className="rounded-sm border border-border bg-card px-3 py-2 font-semibold text-ink-700 hover:bg-ink-50"
               >
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-meta font-semibold text-ink-900">
-                    {l.title === 'Untitled property' ? 'Untitled draft' : l.title}
-                  </span>
-                  <span className="block truncate text-tiny text-ink-500">
-                    {l.areaName ? `${l.areaName}, ${l.cityName} · ` : ''}
-                    {STATUS_HINT[l.status] ?? l.status}
-                  </span>
-                </span>
-                <span className={`shrink-0 rounded-full px-2.5 py-1 text-tiny font-bold ${STATUS_TONE[l.status] ?? 'bg-ink-100 text-ink-600'}`}>
-                  {l.status.replace(/_/g, ' ')}
-                </span>
+                ← Previous
               </Link>
-              {l.status === 'rejected' && l.rejectionReason ? (
-                <p className="border-t border-dashed border-border bg-danger-bg px-4 py-2 text-tiny text-danger">
-                  {l.rejectionReason}
-                </p>
-              ) : null}
-            </li>
-          ))}
-        </ul>
-      )}
+            ) : (
+              <span className="cursor-not-allowed rounded-sm border border-border px-3 py-2 text-ink-400">← Previous</span>
+            )}
+
+            <span className="grid min-h-8 min-w-8 place-items-center rounded-sm bg-brand-600 px-2 font-bold text-white tabular">
+              {result.page}
+            </span>
+
+            {result.page < result.totalPages ? (
+              <Link
+                href={pageHref({ query, status, page: result.page + 1 })}
+                scroll={false}
+                className="rounded-sm border border-border bg-card px-3 py-2 font-semibold text-ink-700 hover:bg-ink-50"
+              >
+                Next →
+              </Link>
+            ) : (
+              <span className="cursor-not-allowed rounded-sm border border-border px-3 py-2 text-ink-400">Next →</span>
+            )}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

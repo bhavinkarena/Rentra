@@ -418,14 +418,14 @@
     <thead><tr><th>Route</th><th>What it does</th><th>State</th></tr></thead>
     <tbody>
       <tr><td class="mono">/partner/login</td><td>Email OTP sign-in. Email is the Client credential; phone is the Customer one.</td><td><span class="pill part">PART</span></td></tr>
-      <tr><td class="mono">/partner</td><td>Dashboard. Derived completion stepper plus a gated &ldquo;Add place&rdquo; CTA that is visible the whole time and explains itself on click.</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td class="mono">/partner</td><td>Responsive owner dashboard. Before approval it leads with the derived completion stepper; after approval it shows truthful portfolio KPIs, recent properties, status health and the next action.</td><td><span class="pill built">BUILT</span></td></tr>
       <tr><td class="mono">/partner/onboarding/phone</td><td>SMS OTP verification.</td><td><span class="pill part">PART</span></td></tr>
       <tr><td class="mono">/partner/onboarding/details</td><td>Name, address, pincode, owner or authorised agent.</td><td><span class="pill built">BUILT</span></td></tr>
       <tr><td class="mono">/partner/onboarding/kyc</td><td>ID upload into the authenticated document vault.</td><td><span class="pill part">PART</span></td></tr>
       <tr><td class="mono">/partner/onboarding/payout</td><td>UPI or bank, with a name comparison against the KYC name.</td><td><span class="pill part">PART</span></td></tr>
       <tr><td class="mono">/partner/onboarding/consent</td><td>Consent capture with IP, then submit to the Gate 1 queue.</td><td><span class="pill built">BUILT</span></td></tr>
-      <tr><td class="mono">/partner/listings</td><td>Index with status chips, per-status hints and the sent-back reason inline.</td><td><span class="pill built">BUILT</span></td></tr>
-      <tr><td class="mono">/partner/listings/new</td><td>Creates a draft and redirects straight in. No confirmation step, deliberately.</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td class="mono">/partner/listings</td><td>Paginated portfolio index with KPI totals, URL-backed search and status filters, responsive records and sent-back reasons.</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td class="mono">/partner/listings/new</td><td>Safe direct-entry screen for a new draft. Normal dashboard and portfolio CTAs post the create action immediately, show pending feedback, then redirect straight into setup.</td><td><span class="pill built">BUILT</span></td></tr>
       <tr><td class="mono">/partner/listings/[id]</td><td>Manage view &mdash; all nine sections on one page, each saving independently. For a live listing.</td><td><span class="pill built">BUILT</span></td></tr>
       <tr><td class="mono">/partner/listings/[id]/setup</td><td>Resume point. Derives the first incomplete step, preferring a rejected section over an unstarted one.</td><td><span class="pill built">BUILT</span></td></tr>
       <tr><td class="mono">/partner/listings/[id]/setup/[step]</td><td>Full-screen walkthrough, one step per route. Same components, different chrome.</td><td><span class="pill built">BUILT</span></td></tr>

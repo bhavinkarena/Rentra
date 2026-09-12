@@ -340,4 +340,34 @@
     .animate-ripple {
         animation: rentra-ripple 1.1s ease-out 0.35s forwards;
     }
+
+    /* Owner portal route feedback. The mark stays upright and recognisable;
+       only the fine key-ring-like arc moves around it. */
+    @keyframes rentra-orbit {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+    .rentra-loader-orbit {
+        animation: rentra-orbit 0.9s linear infinite;
+    }
+
+    @keyframes rentra-skeleton-shimmer {
+        from {
+            background-position: 200% 0;
+        }
+        to {
+            background-position: -200% 0;
+        }
+    }
+    .rentra-skeleton {
+        background-image: linear-gradient(
+            100deg,
+            var(--color-ink-100) 20%,
+            var(--color-ink-50) 38%,
+            var(--color-ink-100) 56%
+        );
+        background-size: 200% 100%;
+        animation: rentra-skeleton-shimmer 1.35s ease-in-out infinite;
+    }
 }

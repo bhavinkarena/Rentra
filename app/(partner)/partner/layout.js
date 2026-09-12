@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { RentraLogo } from '@/components/rentra/Logo';
 import { getCurrentUser } from '@/lib/auth/dal';
 import { logout } from '@/lib/auth/actions';
+import PartnerShell from '@/components/partner/PartnerShell';
 
 export const metadata = {
   title: 'Partner',
@@ -20,6 +21,14 @@ export const metadata = {
 export default async function PartnerLayout({ children }) {
   const user = await getCurrentUser();
 
+  if (user) {
+    return (
+      <PartnerShell user={user} logoutAction={logout}>
+        {children}
+      </PartnerShell>
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="border-b border-border bg-background">
@@ -32,34 +41,12 @@ export default async function PartnerLayout({ children }) {
             <span className="text-meta font-semibold text-ink-500">for owners</span>
           </Link>
 
-          {user ? (
-            <div className="ml-auto flex items-center gap-1 sm:gap-3">
-              <span className="hidden text-meta text-ink-600 sm:inline">
-                {user.name || user.email}
-              </span>
-              <Link
-                href="/partner/settings"
-                className="rounded-full px-3 py-1.5 text-meta font-medium text-ink-600 hover:bg-ink-50 hover:text-ink-900"
-              >
-                Settings
-              </Link>
-              <form action={logout}>
-                <button
-                  type="submit"
-                  className="rounded-full px-3 py-1.5 text-meta font-medium text-ink-600 hover:bg-ink-50 hover:text-ink-900"
-                >
-                  Log out
-                </button>
-              </form>
-            </div>
-          ) : (
-            <Link
-              href="/"
-              className="ml-auto rounded-full px-3 py-1.5 text-meta font-medium text-ink-600 hover:bg-ink-50"
-            >
-              Back to Rentra
-            </Link>
-          )}
+          <Link
+            href="/"
+            className="ml-auto rounded-full px-3 py-1.5 text-meta font-medium text-ink-600 hover:bg-ink-50"
+          >
+            Back to Rentra
+          </Link>
         </div>
       </header>
 

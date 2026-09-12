@@ -53,7 +53,7 @@ export function AccountForm({ user }) {
         id="name" label="Your name" error={e.name}
         hint="Shown to guests on your listings, alongside your verified badge."
       >
-        <Input id="name" name="name" defaultValue={user.name ?? ''} />
+        <Input id="name" name="name" defaultValue={user.name ?? ''} className="h-11" />
       </Field>
 
       <Field
@@ -71,7 +71,7 @@ export function AccountForm({ user }) {
       </Field>
 
       <div className="flex items-center gap-3">
-        <Button type="submit" disabled={pending}>Save</Button>
+        <Button type="submit" size="lg" className="min-h-10 px-4" disabled={pending}>Save</Button>
         <Saved state={state} pending={pending} />
       </div>
     </form>
@@ -122,7 +122,7 @@ export function PayoutDestinationForm({ user, application }) {
         <Field id="upiId" label="UPI ID" hint="Looks like yourname@bank." error={e.upiId}>
           <Input
             id="upiId" name="upiId" placeholder="yourname@upi"
-            defaultValue={application?.payoutUpiId ?? ''}
+            defaultValue={application?.payoutUpiId ?? ''} className="h-11"
           />
         </Field>
       ) : (
@@ -133,12 +133,12 @@ export function PayoutDestinationForm({ user, application }) {
               ? `Currently ${application.payoutAccountRef}. Type the full number to change it.`
               : null}
           >
-            <Input id="accountNumber" name="accountNumber" inputMode="numeric" className="font-mono" />
+            <Input id="accountNumber" name="accountNumber" inputMode="numeric" className="h-11 font-mono" />
           </Field>
           <Field id="ifsc" label="IFSC" hint="Like SBIN0001234." error={e.ifsc}>
             <Input
               id="ifsc" name="ifsc" maxLength={11} placeholder="SBIN0001234"
-              defaultValue={application?.payoutIfsc ?? ''} className="font-mono uppercase"
+              defaultValue={application?.payoutIfsc ?? ''} className="h-11 font-mono uppercase"
             />
           </Field>
         </div>
@@ -150,7 +150,7 @@ export function PayoutDestinationForm({ user, application }) {
       >
         <Input
           id="holderName" name="holderName"
-          defaultValue={application?.payoutHolderName ?? user.name ?? ''} required
+          defaultValue={application?.payoutHolderName ?? user.name ?? ''} className="h-11" required
         />
       </Field>
 
@@ -164,7 +164,7 @@ export function PayoutDestinationForm({ user, application }) {
       ) : null}
 
       <div className="flex items-center gap-3">
-        <Button type="submit" disabled={pending}>Save payout details</Button>
+        <Button type="submit" size="lg" className="min-h-10 px-4" disabled={pending}>Save payout details</Button>
         <Saved state={state} pending={pending} />
       </div>
     </form>
