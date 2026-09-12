@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Info } from 'lucide-react';
 import SlotSelector from '@/components/rentra/SlotSelector';
 import { SLOTS, formatINR } from '@/lib/domain/pricing';
+import { propertyToday } from '@/lib/domain/booking-dates';
 import {
   useBookingSelection, rentFor, toISODate, parseISODate, formatDayLabel,
 } from './booking-state';
@@ -15,17 +16,19 @@ import {
  * Availability is fetched here rather than server-rendered, on purpose: the
  * page is ISR-cached, and a calendar is the one thing on it that must never
  * be an hour old. The server-rendered `nextDates` are the fallback — they are
- * in the HTML for crawlers and they are what shows if this fetch fails, so
- * the section is never empty.
+ * in the HTML for crawlers. Failed live reads do not enable cached dates.
  */
 export default function AvailabilityPicker({
   code, prices, nextDates, defaultDate, defaultSlot,
 }) {
-  const { date, slot, setDate, setSlot } = useBookingSelection({ defaultDate, defaultSlot });
-  const [availability, setAvailability] = useState(null);
-  const [state, setState] = useState('loading');
+  const { date, slot, setDate } = useBookingSelection({ defaultDate, defaultSlot });
+  const [result, setResult] = useState(null);
+  const [retry, setRetry] = useState(0);
+  const currentResult = result?.code === code && result?.retry === retry ? result : null;
+  const availability = currentResult?.days ?? null;
+  const state = currentResult?.state ?? 'loading';
   const [monthCursor, setMonthCursor] = useState(() =>
-    startOfMonth(date ? parseISODate(date) : new Date()));
+    startOfMonth(parseISODate(date || propertyToday())));
 
   useEffect(() => {
     const controller = new AbortController();
@@ -34,25 +37,25 @@ export default function AvailabilityPicker({
       try {
         const res = await fetch(`/api/listings/${code}/availability?days=90`, {
           signal: controller.signal,
+          cache: 'no-store',
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        setAvailability(data.days);
-        setState('ready');
+        if (!controller.signal.aborted) setResult({ code, retry, days: data.days, state: 'ready' });
       } catch (err) {
-        if (err.name !== 'AbortError') setState('error');
+        if (err.name !== 'AbortError' && !controller.signal.aborted) setResult({ code, retry, days: null, state: 'error' });
       }
     }
     load();
 
     return () => controller.abort();
-  }, [code]);
+  }, [code, retry]);
 
   const openOn = (iso) => {
     if (!availability) return null;               // unknown, not "unavailable"
     const entry = availability[iso];
     if (!entry) return false;
-    return slot === 'full_day' ? entry.full : Boolean(entry[slot]);
+    return slot === 'full_day' ? entry.full === true : entry[slot] === true;
   };
 
   // Prices for the currently selected date, so the slot selector shows the
@@ -69,9 +72,9 @@ export default function AvailabilityPicker({
 
   const disabledSlots = Object.keys(SLOTS).filter((id) => prices?.[id] == null);
   const weeks = useMemo(() => buildMonth(monthCursor), [monthCursor]);
-  const today = toISODate(new Date());
-  const monthLabel = monthCursor.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
-  const canGoBack = startOfMonth(new Date()) < monthCursor;
+  const today = propertyToday();
+  const monthLabel = monthCursor.toLocaleDateString('en-IN', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+  const canGoBack = startOfMonth(parseISODate(today)) < monthCursor;
 
   return (
     <section aria-labelledby="availability-heading" className="scroll-mt-24" id="availability">
@@ -123,13 +126,13 @@ export default function AvailabilityPicker({
             // While availability is loading, dates are neither open nor shut.
             // Showing everything as bookable and then taking it away is worse
             // than a brief skeleton.
-            const pending = open === null && !isPast;
+            const pending = state === 'loading' && !isPast;
 
             return (
               <button
                 key={iso}
                 type="button"
-                disabled={isPast || open === false || pending}
+                disabled={isPast || open !== true}
                 aria-pressed={selected}
                 aria-label={`${formatDayLabel(iso)}${open === false ? ' — not available' : ''}`}
                 onClick={() => setDate(iso)}
@@ -144,7 +147,7 @@ export default function AvailabilityPicker({
                   (isPast || open === false) && 'cursor-not-allowed line-through decoration-ink-300',
                 ].filter(Boolean).join(' ')}
               >
-                {cell.getDate()}
+                {cell.getUTCDate()}
                 {iso === today && !selected ? (
                   <span className="absolute inset-x-0 -bottom-0.5 mx-auto size-1 rounded-full bg-brand-600" />
                 ) : null}
@@ -153,7 +156,9 @@ export default function AvailabilityPicker({
           })}
         </div>
 
-        <Legend state={state} nextDates={nextDates} slot={slot} onPick={setDate} />
+        <Legend state={state} nextDates={nextDates} slot={slot} onRetry={() => {
+          setRetry((value) => value + 1);
+        }} />
       </div>
 
       {date ? (
@@ -174,10 +179,9 @@ export default function AvailabilityPicker({
 
 /**
  * Doubles as the failure state. If the live fetch never lands, the guest
- * still gets the next bookable dates the server rendered — degraded, but
- * never a dead calendar.
+ * sees cached suggestions as text only until a live retry succeeds.
  */
-function Legend({ state, nextDates, slot, onPick }) {
+function Legend({ state, nextDates, slot, onRetry }) {
   const fallback = nextDates?.[slot] ?? [];
 
   if (state === 'error') {
@@ -186,19 +190,16 @@ function Legend({ state, nextDates, slot, onPick }) {
         <Info className="mt-0.5 size-3.5 shrink-0 text-info" aria-hidden="true" />
         <p>
           Live availability did not load.
-          {fallback.length ? ' Recently open dates: ' : ' Reload to try again.'}
+          {fallback.length ? ' Previously open dates (not confirmed): ' : ' '}
           {fallback.map((iso, i) => (
             <span key={iso}>
               {i > 0 ? ', ' : ''}
-              <button
-                type="button"
-                onClick={() => onPick(iso)}
-                className="font-semibold text-brand-700 underline"
-              >
-                {formatDayLabel(iso)}
-              </button>
+              {formatDayLabel(iso)}
             </span>
           ))}
+          <button type="button" onClick={onRetry} className="ml-1 min-h-11 font-semibold text-brand-700 underline">
+            Try again
+          </button>
         </p>
       </div>
     );
@@ -220,18 +221,18 @@ function Legend({ state, nextDates, slot, onPick }) {
   );
 }
 
-const startOfMonth = (d) => new Date(d.getFullYear(), d.getMonth(), 1);
-const addMonths = (d, n) => new Date(d.getFullYear(), d.getMonth() + n, 1);
+const startOfMonth = (d) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1));
+const addMonths = (d, n) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + n, 1));
 
 /** Month as a flat cell list, Monday-first, padded with nulls. */
 function buildMonth(cursor) {
   const first = startOfMonth(cursor);
-  const lead = (first.getDay() + 6) % 7; // shift Sunday-first to Monday-first
-  const total = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0).getDate();
+  const lead = (first.getUTCDay() + 6) % 7; // shift Sunday-first to Monday-first
+  const total = new Date(Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth() + 1, 0)).getUTCDate();
 
   return [
     ...Array.from({ length: lead }, () => null),
     ...Array.from({ length: total }, (_, i) =>
-      new Date(cursor.getFullYear(), cursor.getMonth(), i + 1)),
+      new Date(Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth(), i + 1))),
   ];
 }

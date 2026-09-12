@@ -23,7 +23,8 @@
     "seed:amenities": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/seed-amenities.mjs",
     "verify:wizard": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-listing-wizard.mjs",
     "verify:c0": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-c0.mjs",
-    "verify:owner-listings": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-owner-listings.mjs"
+    "verify:owner-listings": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-owner-listings.mjs",
+    "verify:customer-foundation": "node scripts/verify-customer-foundation.mjs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.12.0",

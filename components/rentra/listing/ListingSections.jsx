@@ -189,7 +189,7 @@ export function HouseRules({ listing }) {
 /* --------------------------------------------------------- area location */
 
 /**
- * An area circle, never an exact pin.
+ * A locality illustration using only public area and city names.
  *
  * This is the information release ladder rendered: a browsing visitor sees
  * roughly where the farm is, and the street address unlocks on confirmation.
@@ -197,7 +197,7 @@ export function HouseRules({ listing }) {
  * map here would either need a key and a third-party request on every listing
  * view, or would tempt someone into dropping the true coordinates into it.
  */
-export function AreaCircle({ listing }) {
+export function AreaCircle({ listing: { areaName, cityName } }) {
   return (
     <div className="overflow-hidden rounded-lg border border-border bg-card">
       <div className="relative h-56 bg-brand-50">
@@ -205,7 +205,7 @@ export function AreaCircle({ listing }) {
           viewBox="0 0 400 224"
           className="absolute inset-0 size-full"
           role="img"
-          aria-label={`Approximate location — ${listing.areaName}, ${listing.cityName}`}
+          aria-label={`Area illustration — ${areaName}, ${cityName}`}
         >
           <defs>
             <pattern id="lanes" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -231,14 +231,14 @@ export function AreaCircle({ listing }) {
 
         <p className="absolute inset-x-0 bottom-3 mx-auto w-fit rounded-full bg-card/95 px-3.5 py-1.5 text-meta font-bold shadow-sm backdrop-blur">
           <MapPin className="mr-1 inline size-3.5 text-brand-600" aria-hidden="true" />
-          {listing.areaName}, {listing.cityName}
+          {areaName}, {cityName}
         </p>
       </div>
 
       <div className="flex items-start gap-2.5 p-4">
         <Lock className="mt-0.5 size-4 shrink-0 text-ink-500" aria-hidden="true" />
         <p className="text-meta text-ink-600">
-          This circle is the area, not the address. The exact address, map
+          This illustration represents the area. The exact address, map
           directions and the owner&rsquo;s number are released the moment your
           booking is confirmed.
         </p>

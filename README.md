@@ -4,6 +4,8 @@ Book a verified farmhouse, directly from the owner. No brokerage.
 
 - **Plan:** [`docs/rentra-implementation-plan.html`](docs/rentra-implementation-plan.html) — 5 gated phases, 146 items
 - **Design system:** [`docs/rentra-design-system.html`](docs/rentra-design-system.html) — palette, type, components
+- **Customer requirements:** [`docs/rentra-customer-plan.html`](docs/rentra-customer-plan.html)
+- **Customer implementation:** [`docs/rentra-customer-sessions.md`](docs/rentra-customer-sessions.md) — one bounded part per session, completion checks and resume instructions
 
 ```bash
 cp .env.example .env.local   # then fill DATABASE_URL
@@ -12,6 +14,7 @@ npm run db:migrate && npm run db:seed
 npm run dev                  # http://localhost:3000
 npm run build && npm run lint
 npm run worker               # the background job process
+npm run verify:customer-foundation  # dates, intervals, pricing and calendar safety; no DB needed
 ```
 
 ## Stack

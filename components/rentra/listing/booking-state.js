@@ -2,6 +2,7 @@
 
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { setField, setSlot, selectSearch } from '@/lib/store/slices/searchSlice';
+import { formatLocalDate, isLocalDate, isWeekendLocalDate, parseLocalDate } from '@/lib/domain/booking-dates';
 
 /**
  * The date/slot selection shared by the three booking surfaces on a listing
@@ -15,17 +16,9 @@ import { setField, setSlot, selectSearch } from '@/lib/store/slices/searchSlice'
  * is the kind of small betrayal that loses a booking.
  */
 
-/** Local-midnight Date from a YYYY-MM-DD string, with no timezone drift. */
-export function parseISODate(iso) {
-  const [y, m, d] = iso.split('-').map(Number);
-  return new Date(y, m - 1, d);
-}
-
-export const toISODate = (date) => {
-  const m = `${date.getMonth() + 1}`.padStart(2, '0');
-  const d = `${date.getDate()}`.padStart(2, '0');
-  return `${date.getFullYear()}-${m}-${d}`;
-};
+/** UTC calendar container; this does not represent a guest's arrival time. */
+export const parseISODate = parseLocalDate;
+export const toISODate = (date) => date.toISOString().slice(0, 10);
 
 /**
  * Saturday and Sunday carry the weekend rate. This is the one place that
@@ -34,16 +27,10 @@ export const toISODate = (date) => {
  */
 export function isWeekendDate(iso) {
   if (!iso) return false;
-  const day = parseISODate(iso).getDay();
-  return day === 0 || day === 6;
+  return isWeekendLocalDate(iso);
 }
 
-export const formatDayLabel = (iso) =>
-  iso
-    ? parseISODate(iso).toLocaleDateString('en-IN', {
-      weekday: 'short', day: 'numeric', month: 'short',
-    })
-    : null;
+export const formatDayLabel = (iso) => iso ? formatLocalDate(iso) : null;
 
 /**
  * Resolve the rent for a date + slot.
@@ -63,6 +50,7 @@ export function rentFor({ prices, slot, date, override }) {
 export function useBookingSelection({ defaultDate = '', defaultSlot = 'night' } = {}) {
   const dispatch = useAppDispatch();
   const { date, slot } = useAppSelector(selectSearch);
+  const selectedDate = isLocalDate(date) ? date : '';
 
   return {
     /**
@@ -70,9 +58,9 @@ export function useBookingSelection({ defaultDate = '', defaultSlot = 'night' } 
      * always opens on a real price rather than an empty state. A guest who
      * has not chosen anything yet is still shown what this costs.
      */
-    date: date || defaultDate,
+    date: selectedDate || (isLocalDate(defaultDate) ? defaultDate : ''),
     slot: slot || defaultSlot,
-    isExplicitDate: Boolean(date),
+    isExplicitDate: Boolean(selectedDate),
     setDate: (value) => dispatch(setField({ field: 'date', value })),
     setSlot: (value) => dispatch(setSlot(value)),
   };
