@@ -443,6 +443,7 @@ for (const [idx, { row, spec }] of inserted.entries()) {
       guests: Math.max(2, Math.round(spec.capacity * 0.6)),
       amountRent: rent, amountFee: fee, amountDeposit: spec.deposit,
       amountAdvancePaid: advance,
+      visitProvenance: 'seed', paymentMode: 'simulated', collectedMinor: 0,
       balanceMode: rIdx % 3 === 0 ? 'cash_on_arrival' : 'online_before',
       balanceSettledAt: past, state: 'completed',
       checkInCode: String(1000 + ((idx * 7 + rIdx * 13) % 8999)),

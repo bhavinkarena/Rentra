@@ -57,6 +57,13 @@
       "when": 1788719686532,
       "tag": "0007_heavy_the_santerians",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1789222512896,
+      "tag": "0008_customer_reservations",
+      "breakpoints": true
     }
   ]
 }
