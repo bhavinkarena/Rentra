@@ -28,14 +28,15 @@ const nextConfig = {
     formats: ['image/avif', 'image/webp'],
 
     /**
-     * Listing photos live in /public today. When the public CDN bucket lands,
-     * add it here:
-     *   remotePatterns: [{ protocol: 'https', hostname: 'cdn.rentra.in' }]
+     * Seed photography now lives on Cloudinary, so it needs to be permitted here.
      *
      * KYC documents deliberately do NOT go through next/image — they are
      * served as short-lived signed Cloudinary URLs to admins only, never
      * optimised, cached, or made publicly addressable.
      */
+    remotePatterns: [
+      { protocol: 'https', hostname: 'res.cloudinary.com' }
+    ],
   },
 };
 

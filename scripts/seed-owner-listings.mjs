@@ -18,7 +18,7 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { and, eq, inArray } from 'drizzle-orm';
-import { readdir } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import * as s from '../lib/db/schema/index.js';
 
 const OWNER_EMAIL = 'kunjdetroja52@gmail.com';
@@ -35,16 +35,12 @@ function publicCode() {
 }
 
 /* ---------------------------- seed photography ---------------------------- */
-const SEED_DIR = 'public/seed';
-const POOL = { pool: [], room: [], lawn: [] };
+let POOL = { pool: [], room: [], lawn: [] };
 try {
-  const files = (await readdir(SEED_DIR)).filter((f) => f.endsWith('.jpg')).sort();
-  for (const f of files) {
-    const group = f.split('-')[0];
-    if (POOL[group]) POOL[group].push(`/seed/${f}`);
-  }
+  const mapData = await readFile(new URL('./cloudinary-seed-map.json', import.meta.url), 'utf-8');
+  POOL = JSON.parse(mapData);
 } catch {
-  console.warn('[seed] public/seed is empty — run `npm run seed:images` first');
+  console.warn('[seed] cloudinary-seed-map.json not found — run `node scripts/upload-seed-to-cloudinary.mjs` first');
 }
 
 /**
