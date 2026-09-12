@@ -1,15 +1,20 @@
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
-import { Loader2, Check, Trash2, Upload, AlertTriangle } from 'lucide-react';
+import {
+  Loader2, Check, Trash2, Upload, AlertTriangle, Star,
+  ChevronLeft, ChevronRight, Pause, Play,
+} from 'lucide-react';
 import {
   saveBasics, saveLocation, saveCapacity, saveAmenities, saveRules,
   savePricing, saveTerms, uploadListingPhotos, removeListingPhoto,
-  uploadOwnershipDocument,
+  reorderListingPhotos, uploadOwnershipDocument, toggleListingPause,
 } from '@/lib/auth/listings';
 import { OWNERSHIP_DOC_TYPES, MIN_PHOTOS, MAX_PHOTOS } from '@/lib/domain/listing-completion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { sectionAnchorId } from '@/lib/domain/listing-steps';
+import { photoId } from '@/lib/domain/listing-photos';
 import { useChrome, useIsWizard, useStepFormId } from './chrome';
 
 /* ------------------------------ primitives ------------------------------ */
@@ -78,7 +83,7 @@ function Section({ id, title, intro, state, pending, children }) {
      * progress, Back, Next — and nothing that is about this step's content.
      */
     return (
-      <section id={id}>
+      <section id={sectionAnchorId(id)}>
         <h1 className="text-h1">{title}</h1>
         {intro ? <p className="mt-2 max-w-prose text-body text-ink-600">{intro}</p> : null}
         {notices}
@@ -88,7 +93,7 @@ function Section({ id, title, intro, state, pending, children }) {
   }
 
   return (
-    <section id={id} className="scroll-mt-20 rounded-lg border border-border bg-card p-5">
+    <section id={sectionAnchorId(id)} className="scroll-mt-24 rounded-lg border border-border bg-card p-5">
       <h2 className="text-h3">{title}</h2>
       {intro ? <p className="mt-1 text-meta text-ink-600">{intro}</p> : null}
 
@@ -504,69 +509,254 @@ export function TermsSection({ listing }) {
 
 /* -------------------------------- photos -------------------------------- */
 
+/**
+ * The photo step.
+ *
+ * This is the step that decides whether a listing gets booked, and until the
+ * dropzone's id collision was fixed it was also the only step that could not
+ * be completed at all — see sectionAnchorId() in chrome.jsx.
+ *
+ * Three things it now does that it did not:
+ *   · a real dropzone — click, tap, or drag files onto it
+ *   · local previews the instant files are chosen, from createObjectURL, so
+ *     the grid fills immediately instead of after a round trip over a phone
+ *     connection with nothing on screen
+ *   · uploads on selection rather than waiting for a second deliberate press
+ */
 export function PhotosSection({ listing, photos }) {
   const [state, action, pending] = useActionState(uploadListingPhotos, {});
   const [removeState, removeAction, removing] = useActionState(removeListingPhoto, {});
+  const [orderState, orderAction, ordering] = useActionState(reorderListingPhotos, {});
   const e = state.errors ?? {};
+  const busy = removing || ordering;
+
+  const inputRef = useRef(null);
+  const formRef = useRef(null);
+  const [dragging, setDragging] = useState(false);
+  const [staged, setStaged] = useState([]);
+
+  const room = MAX_PHOTOS - photos.length;
+  const short = Math.max(0, MIN_PHOTOS - photos.length);
+
+  // Object URLs are a leak if they are not handed back. The cleanup revokes
+  // the previous batch whenever `staged` is replaced, and the last one on
+  // unmount.
+  useEffect(() => () => staged.forEach((f) => URL.revokeObjectURL(f.url)), [staged]);
+
+  /**
+   * Drop the previews the moment the upload settles — adjusting state during
+   * render, which is React's documented way to react to a changed prop
+   * without the cascading re-render an effect would cause here.
+   *
+   * Keyed on `pending` falling rather than on success, because a REJECTED
+   * upload (over 2MB, wrong type) also has to clear them. Keyed on success
+   * alone, a rejected batch would spin under its own thumbnails forever.
+   */
+  const [wasPending, setWasPending] = useState(false);
+  if (pending !== wasPending) {
+    setWasPending(pending);
+    if (!pending && staged.length) setStaged([]);
+  }
+
+  function accept(fileList) {
+    const files = Array.from(fileList ?? []).slice(0, room);
+    if (!files.length) return;
+
+    // Assigning to input.files needs a DataTransfer — it is the only way to
+    // put dropped files into a form control the Server Action can read.
+    const dt = new DataTransfer();
+    files.forEach((f) => dt.items.add(f));
+    if (inputRef.current) inputRef.current.files = dt.files;
+
+    setStaged(files.map((f) => ({ name: f.name, url: URL.createObjectURL(f) })));
+    formRef.current?.requestSubmit();
+  }
+
+  const Move = ({ photoKey, move, label, disabled, children }) => (
+    <form action={orderAction}>
+      <input type="hidden" name="id" value={listing.id} />
+      <input type="hidden" name="key" value={photoKey} />
+      <input type="hidden" name="move" value={move} />
+      <button
+        type="submit" disabled={disabled || busy} aria-label={label} title={label}
+        className="grid size-8 place-items-center rounded-full bg-white/95 text-ink-600 shadow-sm transition-transform hover:scale-110 hover:text-ink-900 disabled:cursor-not-allowed disabled:opacity-0"
+      >
+        {children}
+      </button>
+    </form>
+  );
 
   return (
     <Section
       id="photos" title="Photos"
-      intro={`${photos.length} of ${MIN_PHOTOS} minimum. Real photos of this property — we reverse-image check them.`}
+      intro="Six or more, of this property as it actually is. We reverse-image check them."
       state={state} pending={pending}
     >
-      {removeState.errors?._ ? (
+      {removeState.errors?._ || orderState.errors?._ ? (
         <p className="rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger">
-          {removeState.errors._}
+          {removeState.errors?._ ?? orderState.errors?._}
         </p>
       ) : null}
 
-      {photos.length > 0 ? (
-        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      {/* ------------------------- progress ------------------------- */}
+      <div className="flex items-center gap-3">
+        <div className="h-2 flex-1 overflow-hidden rounded-full bg-ink-100">
+          <div
+            className={`h-full rounded-full transition-[width] duration-700 ease-out ${
+              photos.length >= MIN_PHOTOS ? 'bg-brand-600' : 'bg-amber-500'
+            }`}
+            style={{ width: `${Math.min(100, (photos.length / MIN_PHOTOS) * 100)}%` }}
+          />
+        </div>
+        <p className="shrink-0 text-tiny font-semibold tabular text-ink-600">
+          {photos.length >= MIN_PHOTOS
+            ? `${photos.length} photos`
+            : `${photos.length} of ${MIN_PHOTOS}`}
+        </p>
+      </div>
+      {short > 0 ? (
+        <p className="text-tiny text-ink-500">
+          {short} more and this step is done. {room} slots left in total.
+        </p>
+      ) : null}
+
+      {/* ------------------------- the grid ------------------------- */}
+      {photos.length > 0 || staged.length > 0 ? (
+        <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
           {photos.map((p, i) => (
-            <li key={p.key} className="relative overflow-hidden rounded-md border border-border bg-ink-50">
+            <li
+              key={photoId(p)}
+              className={`group relative animate-in fade-in zoom-in-95 overflow-hidden rounded-lg border bg-ink-50 duration-300 ${
+                i === 0 ? 'border-brand-600 ring-2 ring-brand-600/30' : 'border-border'
+              }`}
+            >
               {/* Listing photos live in the same private store as documents for
                   now, so they are described rather than rendered until a public
                   delivery bucket exists. */}
               <div className="grid aspect-4/3 place-items-center p-2 text-center text-tiny text-ink-500">
                 Photo {i + 1}
-                {i === 0 ? <span className="mt-1 block font-bold text-brand-700">hero</span> : null}
               </div>
-              <form action={removeAction} className="absolute top-1 right-1">
-                <input type="hidden" name="id" value={listing.id} />
-                <input type="hidden" name="key" value={p.key} />
-                <button
-                  type="submit" disabled={removing} aria-label={`Remove photo ${i + 1}`}
-                  className="grid size-7 place-items-center rounded-full bg-white/90 text-ink-600 hover:bg-white hover:text-danger"
-                >
-                  <Trash2 className="size-3.5" aria-hidden="true" />
-                </button>
-              </form>
+
+              {i === 0 ? (
+                <span className="absolute top-2 left-2 rounded-full bg-brand-600 px-2 py-0.5 text-tiny font-bold text-white">
+                  Cover
+                </span>
+              ) : null}
+
+              {/* Controls fade in on hover, and are always visible on touch,
+                  where there is no hover to fade from. */}
+              <div className="absolute top-2 right-2 flex gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
+                {i > 0 ? (
+                  <Move photoKey={photoId(p)} move="cover" label={`Make photo ${i + 1} the cover`}>
+                    <Star className="size-4" aria-hidden="true" />
+                  </Move>
+                ) : null}
+                <form action={removeAction}>
+                  <input type="hidden" name="id" value={listing.id} />
+                  <input type="hidden" name="key" value={photoId(p)} />
+                  <button
+                    type="submit" disabled={busy} aria-label={`Remove photo ${i + 1}`}
+                    className="grid size-8 place-items-center rounded-full bg-white/95 text-ink-600 shadow-sm transition-transform hover:scale-110 hover:text-danger disabled:opacity-30"
+                  >
+                    <Trash2 className="size-4" aria-hidden="true" />
+                  </button>
+                </form>
+              </div>
+
+              <div className="absolute bottom-2 left-2 flex gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
+                <Move photoKey={photoId(p)} move="back" disabled={i === 0} label={`Move photo ${i + 1} earlier`}>
+                  <ChevronLeft className="size-4" aria-hidden="true" />
+                </Move>
+                <Move photoKey={photoId(p)} move="forward" disabled={i === photos.length - 1} label={`Move photo ${i + 1} later`}>
+                  <ChevronRight className="size-4" aria-hidden="true" />
+                </Move>
+              </div>
+            </li>
+          ))}
+
+          {/* Optimistic tiles: the real thumbnail, on screen before the upload
+              finishes, so a slow connection shows progress instead of nothing. */}
+          {staged.map((f) => (
+            <li
+              key={f.url}
+              className="relative animate-in fade-in zoom-in-95 overflow-hidden rounded-lg border border-dashed border-brand-400 duration-300"
+            >
+              {/* Deliberately not next/image: this is a local blob: URL for a
+                  file that has not been uploaded yet. There is nothing on a
+                  CDN to optimise, and the optimiser cannot read a blob. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={f.url} alt="" className="aspect-4/3 w-full object-cover opacity-60" />
+              <span className="absolute inset-0 grid place-items-center bg-white/60">
+                <Loader2 className="size-5 animate-spin text-brand-700" aria-hidden="true" />
+              </span>
             </li>
           ))}
         </ul>
       ) : null}
 
-      <form action={action} className="space-y-4">
+      {photos.length > 1 ? (
+        <p className="text-tiny text-ink-500">
+          The cover is what guests see in search and on WhatsApp. Reordering never sends a live
+          listing back for review — adding or removing a photo does.
+        </p>
+      ) : null}
+
+      {/* ------------------------- the dropzone ------------------------- */}
+      <form ref={formRef} action={action} className="space-y-3">
         <input type="hidden" name="id" value={listing.id} />
-        <label
-          htmlFor="photos"
-          className={`flex cursor-pointer flex-col items-center gap-1.5 rounded-md border-2 border-dashed p-6 text-center ${
-            e.photos ? 'border-danger/50 bg-danger-bg' : 'border-input hover:bg-ink-50'
-          }`}
-        >
-          <Upload className="size-5 text-ink-500" aria-hidden="true" />
-          <span className="text-meta font-medium text-ink-800">Add photos</span>
-          <span className="text-tiny text-ink-500">
-            JPG, PNG or WEBP · up to 2MB each · {MAX_PHOTOS - photos.length} more allowed
-          </span>
-        </label>
+
+        {room > 0 ? (
+          <label
+            htmlFor="photo-files"
+            onDragOver={(ev) => { ev.preventDefault(); setDragging(true); }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={(ev) => {
+              ev.preventDefault();
+              setDragging(false);
+              accept(ev.dataTransfer.files);
+            }}
+            className={`flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed p-8 text-center transition-all duration-200 ${
+              dragging
+                ? 'scale-[1.01] border-brand-600 bg-brand-50'
+                : e.photos
+                  ? 'border-danger/50 bg-danger-bg'
+                  : 'border-input hover:border-brand-400 hover:bg-brand-50/40'
+            }`}
+          >
+            <span
+              className={`grid size-12 place-items-center rounded-full transition-transform duration-200 ${
+                dragging ? 'scale-110 bg-brand-600 text-white' : 'bg-ink-100 text-ink-600'
+              }`}
+            >
+              {pending
+                ? <Loader2 className="size-5 animate-spin" aria-hidden="true" />
+                : <Upload className="size-5" aria-hidden="true" />}
+            </span>
+            <span className="text-body font-semibold text-ink-900">
+              {pending ? 'Uploading…' : dragging ? 'Drop them here' : 'Add photos'}
+            </span>
+            <span className="text-tiny text-ink-500">
+              Tap to choose, or drag them in · JPG, PNG or WEBP · up to 2MB each · {room} more allowed
+            </span>
+          </label>
+        ) : (
+          <p className="rounded-xl border border-border bg-ink-50 p-4 text-center text-meta text-ink-600">
+            That is the maximum of {MAX_PHOTOS} photos. Remove one to add another.
+          </p>
+        )}
+
         <input
-          id="photos" name="photos" type="file" multiple
+          ref={inputRef}
+          id="photo-files" name="photos" type="file" multiple
           accept="image/jpeg,image/png,image/webp" className="sr-only"
+          onChange={(ev) => accept(ev.target.files)}
         />
         {e.photos ? <p className="text-tiny font-medium text-danger">{e.photos}</p> : null}
-        <SaveButton pending={pending} label="Upload" />
+
+        {/* Fallback only: with JavaScript the selection uploads itself. */}
+        <noscript>
+          <SaveButton pending={pending} label="Upload" />
+        </noscript>
       </form>
     </Section>
   );
@@ -679,6 +869,42 @@ export function OwnershipSection({ listing, documents, clientType, kycName }) {
 
 /* ------------------------------ submit bar ------------------------------ */
 
+/**
+ * Pause and resume.
+ *
+ * The alternative an owner reaches for when this is missing is deleting the
+ * listing — which throws away the ownership document, the review history and
+ * the photos, and makes coming back in March a full rebuild. Pausing is the
+ * cheap, reversible version of the thing he was going to do anyway.
+ */
+function PauseControl({ listing }) {
+  const [state, action, pending] = useActionState(toggleListingPause, {});
+  const paused = listing.status === 'paused';
+
+  return (
+    <form action={action} className="mt-3 border-t border-brand-200 pt-3">
+      <input type="hidden" name="id" value={listing.id} />
+      {state.errors?._ ? (
+        <p className="mb-2 text-tiny font-medium text-danger">{state.errors._}</p>
+      ) : null}
+      <button
+        type="submit" disabled={pending}
+        className="inline-flex items-center gap-1.5 text-meta font-semibold text-ink-700 underline underline-offset-4 hover:text-ink-900 disabled:opacity-50"
+      >
+        {pending ? <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+          : paused ? <Play className="size-4" aria-hidden="true" />
+            : <Pause className="size-4" aria-hidden="true" />}
+        {paused ? 'Take bookings again' : 'Pause new bookings'}
+      </button>
+      <p className="mt-1.5 text-tiny text-ink-600">
+        {paused
+          ? 'Guests cannot find or book this property right now. Your calendar and confirmed bookings are untouched.'
+          : 'Takes it out of search without deleting anything. Bookings already confirmed still stand.'}
+      </p>
+    </form>
+  );
+}
+
 export function SubmitBar({ listing, completion, submitAction }) {
   const [state, action, pending] = useActionState(submitAction, {});
 
@@ -689,6 +915,38 @@ export function SubmitBar({ listing, completion, submitAction }) {
         <p className="mt-1 text-meta text-brand-800">
           Price and calendar changes apply immediately. Changing photos, the address, capacity or
           amenities sends it back for a quick re-check.
+        </p>
+        <PauseControl listing={listing} />
+      </div>
+    );
+  }
+
+  /**
+   * Paused is complete, not live, and not in review — which used to fall
+   * through to the "sections left" branch below and render "0 sections left —
+   * ." to an owner whose listing was perfectly finished.
+   */
+  if (listing.status === 'paused') {
+    return (
+      <div className="rounded-lg border border-border bg-card p-4">
+        <p className="text-h4 font-bold text-ink-900">Paused by you</p>
+        <p className="mt-1 text-meta text-ink-600">
+          This property is not in search and cannot be booked. Everything about it is saved —
+          resume whenever you are ready.
+        </p>
+        <PauseControl listing={listing} />
+      </div>
+    );
+  }
+
+  /** Hidden by Rentra is not the owner's to undo, so no control is offered. */
+  if (listing.status === 'hidden') {
+    return (
+      <div className="rounded-lg border border-amber-300 bg-amber-100 p-4">
+        <p className="text-h4 font-bold text-amber-700">Hidden by Rentra</p>
+        <p className="mt-1 text-meta text-ink-700">
+          {listing.rejectionReason
+            ?? 'Reply to the email we sent and we will look at it again.'}
         </p>
       </div>
     );

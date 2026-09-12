@@ -34,7 +34,7 @@ export default async function ListingsPage({ searchParams }) {
   const listings = await getClientListings(user.id);
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-10">
+    <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
       {params?.submitted ? (
         <p className="mb-6 rounded-md border-l-4 border-brand-600 bg-success-bg p-3 text-meta text-brand-900">
           Submitted. We check every property before it goes live and will reply within 2 working

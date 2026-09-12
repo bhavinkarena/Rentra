@@ -1,4 +1,5 @@
 import { getSitemapEntries } from '@/lib/db/queries';
+import { listingUrl } from '@/lib/domain/listing-url';
 import { INTENTS } from '@/lib/constants';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
@@ -30,7 +31,7 @@ export default async function sitemap() {
     }))),
 
     ...listings.map((l) => ({
-      url: `${siteUrl}/listing/${l.slug}-${l.publicCode}`,
+      url: listingUrl(siteUrl, l.slug, l.publicCode),
       lastModified: l.updatedAt ?? now, changeFrequency: 'weekly', priority: 0.8,
     })),
   ];

@@ -143,7 +143,20 @@ for (const id of steps.LISTING_STEP_IDS) {
     // Exactly one h1 per step: the section owns the heading, the shell owns
     // chrome. Two would be a duplicated title, zero an unlabelled screen.
     oneH1: (r.html.match(/<h1[\s>]/g) ?? []).length === 1,
-    stickyBar: r.html.includes('sticky bottom-0'),
+    /**
+     * The action bar must be reachable without scrolling — the guarantee, not
+     * the class name. It used to be `sticky bottom-0` inside a scrolling page;
+     * it is now the third row of an `h-dvh` flex column in which only <main>
+     * scrolls, which pins it harder. Assert the structure that actually
+     * provides the guarantee.
+     */
+    actionBarPinned: r.html.includes('h-dvh')
+      && /<main[^>]*overflow-y-auto/.test(r.html)
+      && /<footer[^>]*shrink-0/.test(r.html),
+
+    /** Progress belongs above the question, not under the fold. */
+    progressOnTop: r.html.indexOf('Chapter') > -1
+      && r.html.indexOf('Chapter') < r.html.indexOf('<main'),
     // The bar sits outside the form and reaches it by id, so a nested form
     // would silently submit the wrong thing.
     noNestedForm: !/<form[^>]*>(?:(?!<\/form>)[\s\S])*?<form/.test(r.html),

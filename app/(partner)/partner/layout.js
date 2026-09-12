@@ -23,7 +23,7 @@ export default async function PartnerLayout({ children }) {
   return (
     <div className="flex min-h-screen flex-col">
       <header className="border-b border-border bg-background">
-        <div className="mx-auto flex max-w-(--container-page) items-center gap-4 px-6 py-3">
+        <div className="mx-auto flex w-full max-w-(--container-page) items-center gap-4 px-4 py-3 sm:px-6">
           {/* Same lockup as the public site, with a product suffix — this is
               the owner's proof they are on Rentra and not a lookalike. */}
           <Link href="/partner" className="flex shrink-0 items-center gap-2.5">
@@ -33,10 +33,16 @@ export default async function PartnerLayout({ children }) {
           </Link>
 
           {user ? (
-            <div className="ml-auto flex items-center gap-3">
+            <div className="ml-auto flex items-center gap-1 sm:gap-3">
               <span className="hidden text-meta text-ink-600 sm:inline">
                 {user.name || user.email}
               </span>
+              <Link
+                href="/partner/settings"
+                className="rounded-full px-3 py-1.5 text-meta font-medium text-ink-600 hover:bg-ink-50 hover:text-ink-900"
+              >
+                Settings
+              </Link>
               <form action={logout}>
                 <button
                   type="submit"

@@ -18,6 +18,7 @@ import {
   getListingByCode, getNextAvailableDates, getSimilarListings, getSitemapEntries,
 } from '@/lib/db/queries';
 import { calculateBookingPrice, cheapestSlot, formatINR } from '@/lib/domain/pricing';
+import { listingPath, listingUrl } from '@/lib/domain/listing-url';
 
 /**
  * Classic ISR. Listing content changes slowly, so serve it from cache; the
@@ -101,7 +102,7 @@ export async function generateMetadata({ params }) {
 
   const { listing } = found;
   const band = priceBand(listing.prices);
-  const canonical = `/listing/${listing.slug}-${listing.publicCode}`;
+  const canonical = listingPath(listing.slug, listing.publicCode);
 
   const title = band
     ? `${listing.title}, ${listing.areaName} — from ${formatINR(band.low)}`
@@ -141,7 +142,7 @@ export default async function ListingPage({ params }) {
   // Slug drift: the code still resolves, so send the crawler and the guest to
   // the canonical URL rather than serving two URLs for one page.
   if (requestedSlug !== listing.slug) {
-    permanentRedirect(`/listing/${listing.slug}-${listing.publicCode}`);
+    permanentRedirect(listingPath(listing.slug, listing.publicCode));
   }
 
   const [nextDates, similar] = await Promise.all([
@@ -376,7 +377,7 @@ function Breadcrumbs({ crumbs }) {
  *    nobody left is what gets a site's rich results pulled.
  */
 function buildJsonLd({ listing, band, crumbs, nextDates, defaults }) {
-  const url = `${siteUrl}/listing/${listing.slug}-${listing.publicCode}`;
+  const url = listingUrl(siteUrl, listing.slug, listing.publicCode);
   const nextDate = nextDates?.[defaults.slot]?.[0];
 
   const lodging = {

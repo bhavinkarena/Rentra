@@ -47,7 +47,7 @@ export default async function PartnerDashboard() {
   const live = listings.filter((l) => l.status === 'live').length;
 
   return (
-    <div className="mx-auto max-w-(--container-page) px-6 py-10">
+    <div className="mx-auto w-full max-w-(--container-page) px-4 py-8 sm:px-6 sm:py-10">
       <p className="text-tiny font-bold tracking-wider text-brand-700 uppercase">
         {completion.approved ? 'Verified partner' : 'Getting set up'}
       </p>

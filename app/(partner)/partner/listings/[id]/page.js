@@ -11,7 +11,7 @@ import {
   OwnershipSection, SubmitBar,
 } from '@/components/partner/listing/ListingSections';
 import { ListingChrome } from '@/components/partner/listing/chrome';
-import { firstIncompleteStepId, stepHref } from '@/lib/domain/listing-steps';
+import { firstIncompleteStepId, sectionAnchorId, stepHref } from '@/lib/domain/listing-steps';
 
 export const metadata = {
   title: 'Edit property',
@@ -53,7 +53,7 @@ export default async function ListingBuilderPage({ params }) {
   const completion = listingCompletion(listing, { prices, amenities, photos, documents });
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-8">
+    <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
       <Link
         href="/partner/listings"
         className="inline-flex items-center gap-1.5 text-meta font-medium text-ink-600 hover:text-ink-900"
@@ -93,7 +93,7 @@ export default async function ListingBuilderPage({ params }) {
           {completion.sections.map((s) => (
             <li key={s.id}>
               <a
-                href={`#${s.id}`}
+                href={`#${sectionAnchorId(s.id)}`}
                 className={`inline-flex items-center gap-1 text-tiny font-medium ${
                   s.failed ? 'text-danger' : s.done ? 'text-brand-700' : 'text-ink-500 hover:text-ink-900'
                 }`}

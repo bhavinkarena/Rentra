@@ -14,13 +14,16 @@
     "db:studio": "drizzle-kit studio",
     "db:seed": "node --env-file=.env.local scripts/seed.mjs",
     "seed:images": "node scripts/fetch-seed-images.mjs",
+    "seed:owner-listings": "node --env-file=.env.local scripts/seed-owner-listings.mjs",
     "verify:auth": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-auth.mjs",
     "verify:onboarding": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-onboarding.mjs",
     "seed:admin": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/seed-admin.mjs",
     "verify:admin": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-admin.mjs",
     "verify:uploads": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-uploads.mjs",
     "seed:amenities": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/seed-amenities.mjs",
-    "verify:wizard": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-listing-wizard.mjs"
+    "verify:wizard": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-listing-wizard.mjs",
+    "verify:c0": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-c0.mjs",
+    "verify:owner-listings": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-owner-listings.mjs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.12.0",

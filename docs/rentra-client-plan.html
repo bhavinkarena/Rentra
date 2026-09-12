@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rentra Client Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Frank+Ruhl+Libre:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme:light;
+    --steel:#233028; --steel-2:#314136; --steel-3:#42544a;
+    --paper:#efeade; --panel:#fbf8f0; --panel-2:#f4f0e5;
+    --safety:#c8792a; --safety-dark:#95571a;
+    --ink:#221f1a; --line:#cbc3ae; --line-soft:#ded6c2;
+    --green:#3f6b4a; --red:#a3392f; --blue:#2f5570; --violet:#5b4a72;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth; scroll-padding-top:4.4rem;}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:'Frank Ruhl Libre',Georgia,serif;line-height:1.58;}
+  h1,h2,h3,h4,h5{font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+    font-weight:700;letter-spacing:.01em;color:var(--steel);margin:0 0 .4em;text-wrap:balance;}
+  p,li{font-size:1rem;} a{color:var(--safety-dark);}
+  a:focus-visible,summary:focus-visible,button:focus-visible,input:focus-visible{
+    outline:3px solid var(--safety);outline-offset:2px;}
+  code,.mono{font-family:'IBM Plex Mono',Consolas,monospace;font-size:.86em;}
+
+  /* ---------------------------------------------------------------- rail */
+  .rail{position:sticky;top:0;z-index:60;background:var(--steel);
+    border-bottom:3px solid var(--safety);font-family:'Barlow Condensed',sans-serif;}
+  .rail .in{max-width:1080px;margin:0 auto;padding:0 4vw;min-height:3.1rem;
+    display:flex;align-items:center;gap:.3rem;overflow-x:auto;}
+  .rail .brand{color:#fdfaf3;font-weight:700;letter-spacing:.09em;font-size:.92rem;
+    margin-right:.9rem;white-space:nowrap;}
+  .rail a{color:#c3cbc4;text-decoration:none;font-size:.88rem;font-weight:600;
+    padding:.32rem .6rem;white-space:nowrap;letter-spacing:.03em;
+    border-bottom:2px solid transparent;transition:color .2s,background .2s,border-color .2s;}
+  .rail a:hover{color:#fdfaf3;background:var(--steel-2);}
+  .rail a.on{color:#fdfaf3;border-bottom-color:var(--safety);}
+  .rail .sep{color:#5d6d62;padding:0 .15rem;pointer-events:none;}
+
+  /* --------------------------------------------------------------- hero */
+  header.hero{background:repeating-linear-gradient(135deg,rgba(0,0,0,.05) 0 2px,transparent 2px 14px),
+    linear-gradient(180deg,var(--steel) 0%,var(--steel-2) 100%);
+    color:var(--paper);padding:3.4rem 6vw 2.6rem;border-bottom:8px solid var(--safety);}
+  header.hero .tag{font-family:'Barlow Condensed',sans-serif;color:var(--safety);
+    font-size:1rem;font-weight:600;margin-bottom:.6rem;letter-spacing:.06em;}
+  header.hero h1{color:#fdfaf3;font-size:clamp(2rem,4.4vw,3.1rem);line-height:1.06;max-width:24ch;}
+  header.hero .sub{color:#cfd4d0;font-size:1.1rem;max-width:70ch;margin-top:1rem;}
+  header.hero .metaRow{display:flex;gap:2.2rem;flex-wrap:wrap;margin-top:1.9rem;
+    padding-top:1.4rem;border-top:1px solid rgba(255,255,255,.18);}
+  header.hero .metaRow div{min-width:112px;}
+  header.hero .metaRow .n{font-family:'Barlow Condensed',sans-serif;color:var(--safety);
+    font-size:1.9rem;font-weight:700;display:block;line-height:1;}
+  header.hero .metaRow .l{font-size:.82rem;color:#b6bdb7;}
+
+  .wrap{max-width:1080px;margin:0 auto;padding:0 5vw;}
+  .block{padding:2.8rem 0;border-bottom:1px solid var(--line);}
+  .block:last-child{border-bottom:none;}
+  .kick{font-family:'Barlow Condensed',sans-serif;color:var(--safety-dark);font-weight:700;
+    font-size:.9rem;margin-bottom:.3rem;letter-spacing:.07em;}
+  .block h2{font-size:1.95rem;margin-bottom:.8rem;}
+  .block h3{font-size:1.26rem;margin-top:1.9rem;color:var(--steel-2);}
+  .block h4{font-size:1.04rem;margin-top:1.3rem;}
+  .lede{max-width:70ch;}
+
+  .note{border-left:4px solid var(--red);background:#f7ece9;padding:.85rem 1rem;margin-top:1rem;font-size:.93rem;}
+  .tip{border-left:4px solid var(--green);background:#edf2ec;padding:.85rem 1rem;margin-top:1rem;font-size:.93rem;}
+  .info{border-left:4px solid var(--blue);background:#eaeff3;padding:.85rem 1rem;margin-top:1rem;font-size:.93rem;}
+  .note p,.tip p,.info p{font-size:inherit;margin:.5rem 0 0;}
+
+  .tscroll{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;margin-top:1rem;font-size:.9rem;background:var(--panel);min-width:620px;}
+  caption{text-align:left;font-family:'Barlow Condensed',sans-serif;color:var(--safety-dark);
+    font-weight:700;margin-bottom:.4rem;letter-spacing:.04em;}
+  th,td{border:1px solid var(--line);padding:.55rem .65rem;text-align:left;vertical-align:top;}
+  th{background:var(--steel);color:#fdfaf3;font-family:'Barlow Condensed',sans-serif;
+    font-weight:600;letter-spacing:.02em;}
+  tbody tr:nth-child(even) td{background:var(--panel-2);}
+  td.mono{font-family:'IBM Plex Mono',monospace;font-size:.78rem;}
+  td.ctr{text-align:center;}
+
+  /* ------------------------------------------------------- reveal motion */
+  [data-reveal]{opacity:0;transform:translateY(18px);
+    transition:opacity .6s var(--ease),transform .6s var(--ease);}
+  [data-reveal].in{opacity:1;transform:none;}
+  [data-reveal][data-delay="1"]{transition-delay:.07s;}
+  [data-reveal][data-delay="2"]{transition-delay:.14s;}
+  [data-reveal][data-delay="3"]{transition-delay:.21s;}
+  [data-reveal][data-delay="4"]{transition-delay:.28s;}
+
+  /* ------------------------------------------------------- coverage bars */
+  .cov{margin-top:1.3rem;}
+  .covRow{display:grid;grid-template-columns:minmax(150px,1.1fr) minmax(140px,3fr) 3.2rem;
+    gap:.8rem;align-items:center;padding:.42rem 0;}
+  .covRow .lab{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:1rem;
+    color:var(--steel-2);line-height:1.2;}
+  .covRow .lab small{display:block;font-family:'Frank Ruhl Libre',serif;font-weight:400;
+    font-size:.76rem;color:var(--steel-3);letter-spacing:0;}
+  .covTrack{height:.86rem;background:var(--panel-2);border:1px solid var(--line);position:relative;overflow:hidden;}
+  .covFill{position:absolute;inset:0 auto 0 0;width:0;
+    transition:width 1.1s var(--ease);background:var(--green);}
+  .covFill.mid{background:var(--safety);} .covFill.low{background:var(--red);}
+  .covRow .pc{font-family:'IBM Plex Mono',monospace;font-size:.8rem;font-weight:600;text-align:right;color:var(--steel-2);}
+
+  /* ------------------------------------------------------ journey player */
+  .journey{margin-top:1.4rem;border:1px solid var(--line);background:var(--panel);}
+  .jTop{display:flex;flex-wrap:wrap;align-items:center;gap:.7rem;padding:.75rem .9rem;
+    background:var(--steel);border-bottom:1px solid var(--line);}
+  .jBtn{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.06em;
+    font-size:.88rem;background:var(--safety);color:#1b1409;border:none;padding:.48rem 1rem;
+    cursor:pointer;transition:background .2s,transform .12s;}
+  .jBtn:hover{background:#dc8b38;} .jBtn:active{transform:translateY(1px);}
+  .jBtn.ghost{background:transparent;color:#c3cbc4;border:1px solid #4d5d53;}
+  .jBtn.ghost:hover{background:var(--steel-2);color:#fdfaf3;}
+  .jCount{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:#a9b2aa;margin-left:auto;}
+  .jRail{display:flex;gap:0;overflow-x:auto;padding:1rem .9rem .2rem;scroll-behavior:smooth;}
+  .jNode{flex:0 0 auto;width:2.05rem;height:2.05rem;border-radius:50%;cursor:pointer;
+    border:2px solid var(--line);background:var(--panel-2);position:relative;
+    font-family:'IBM Plex Mono',monospace;font-size:.68rem;font-weight:600;color:var(--steel-3);
+    transition:transform .3s var(--ease),box-shadow .3s var(--ease),background .3s,border-color .3s;}
+  .jNode + .jNode{margin-left:1.5rem;}
+  .jNode::after{content:"";position:absolute;top:50%;right:100%;width:1.5rem;height:2px;
+    background:var(--line);transform:translateY(-50%);}
+  .jNode:first-child::after{display:none;}
+  .jNode[data-state="built"]{background:#dce7dd;border-color:var(--green);color:var(--green);}
+  .jNode[data-state="part"]{background:#f6e5cf;border-color:var(--safety);color:var(--safety-dark);}
+  .jNode[data-state="missing"]{background:#f7e6e3;border-color:var(--red);color:var(--red);
+    border-style:dashed;}
+  .jNode.on{transform:scale(1.42);z-index:2;}
+  .jNode[data-state="built"].on{background:var(--green);color:#fdfaf3;box-shadow:0 0 0 5px rgba(63,107,74,.18);}
+  .jNode[data-state="part"].on{background:var(--safety);color:#1b1409;box-shadow:0 0 0 5px rgba(200,121,42,.2);}
+  .jNode[data-state="missing"].on{background:var(--red);color:#fdfaf3;box-shadow:0 0 0 5px rgba(163,57,47,.18);}
+  .jLegend{display:flex;flex-wrap:wrap;gap:1rem;padding:.55rem .9rem 0;font-size:.76rem;color:var(--steel-3);}
+  .jLegend span{display:inline-flex;align-items:center;gap:.35rem;}
+  .jLegend i{width:.7rem;height:.7rem;border:2px solid;display:inline-block;border-radius:50%;}
+  .jStage{padding:1.1rem 1.1rem 1.3rem;border-top:1px solid var(--line-soft);margin-top:.9rem;
+    min-height:9.5rem;opacity:1;transform:none;
+    transition:opacity .28s var(--ease),transform .28s var(--ease);}
+  .jStage.fade{opacity:0;transform:translateY(8px);}
+  .jStage h4{margin:.35rem 0 .3rem;font-size:1.2rem;}
+  .jStage p{margin:0 0 .5rem;font-size:.96rem;max-width:72ch;}
+  .jStage .where{font-family:'IBM Plex Mono',monospace;font-size:.76rem;color:var(--steel-3);
+    background:var(--panel-2);border:1px solid var(--line-soft);padding:.25rem .45rem;display:inline-block;}
+  .pill{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;
+    letter-spacing:.1em;padding:.16rem .5rem;color:#fdfaf3;display:inline-block;}
+  .pill.built{background:var(--green);} .pill.part{background:var(--safety-dark);}
+  .pill.missing{background:var(--red);} .pill.blocker{background:#7c211a;}
+  .pill.high{background:var(--safety-dark);} .pill.med{background:var(--blue);}
+  .pill.low{background:var(--steel-3);}
+
+  /* ---------------------------------------------------------- gap cards */
+  .filters{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1.2rem;}
+  .fBtn{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:.84rem;
+    letter-spacing:.05em;padding:.32rem .75rem;border:1px solid var(--line);
+    background:var(--panel);color:var(--steel-2);cursor:pointer;transition:all .2s;}
+  .fBtn:hover{background:var(--panel-2);}
+  .fBtn.on{background:var(--steel);color:#fdfaf3;border-color:var(--steel);}
+  .gaps{display:grid;grid-template-columns:repeat(auto-fill,minmax(292px,1fr));gap:.85rem;margin-top:1.1rem;}
+  .gap{border:1px solid var(--line);background:var(--panel);padding:.85rem .95rem;
+    border-top:4px solid var(--steel-3);
+    transition:opacity .3s var(--ease),transform .3s var(--ease),box-shadow .2s;}
+  .gap:hover{box-shadow:0 3px 0 var(--line-soft);}
+  .gap[data-sev="blocker"]{border-top-color:#7c211a;}
+  .gap[data-sev="high"]{border-top-color:var(--safety);}
+  .gap[data-sev="med"]{border-top-color:var(--blue);}
+  .gap[data-sev="low"]{border-top-color:var(--steel-3);}
+  .gap.out{opacity:0;transform:scale(.96);}
+  .gap.gone{display:none;}
+  .gap .gHead{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.4rem;}
+  .gap h4{margin:0;font-size:1.02rem;flex:1 1 auto;min-width:0;}
+  .gap p{font-size:.89rem;margin:.35rem 0 0;}
+  .gap .gMeta{font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--steel-3);
+    margin-top:.55rem;padding-top:.45rem;border-top:1px dotted var(--line);word-break:break-all;}
+  .gCount{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:var(--steel-3);
+    margin-top:.7rem;}
+
+  /* ------------------------------------------------------------- phases */
+  .phase{margin-top:1.7rem;border:1px solid var(--line);background:var(--panel);}
+  .phase > summary{list-style:none;cursor:pointer;padding:1.05rem 1.2rem;
+    background:var(--steel);color:#fdfaf3;display:flex;gap:1rem;align-items:center;
+    transition:background .2s;}
+  .phase > summary::-webkit-details-marker{display:none;}
+  .phase > summary:hover{background:var(--steel-2);}
+  .phase[open] > summary{border-bottom:1px solid var(--line);}
+  .phase .pNo{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.5rem;
+    color:var(--safety);line-height:1;flex:0 0 auto;letter-spacing:.04em;}
+  .phase .pTitle{flex:1 1 auto;min-width:0;}
+  .phase .pTitle b{font-family:'Barlow Condensed',sans-serif;font-size:1.28rem;
+    font-weight:700;display:block;line-height:1.15;}
+  .phase .pTitle span{font-size:.84rem;color:#b6bdb7;}
+  .phase .chev{flex:0 0 auto;color:var(--safety);font-size:1.1rem;transition:transform .3s var(--ease);}
+  .phase[open] .chev{transform:rotate(90deg);}
+  .ring{flex:0 0 auto;width:2.7rem;height:2.7rem;transform:rotate(-90deg);}
+  .ring .rBg{fill:none;stroke:#41524a;stroke-width:4;}
+  .ring .rFg{fill:none;stroke:var(--safety);stroke-width:4;stroke-linecap:butt;
+    transition:stroke-dashoffset .7s var(--ease),stroke .3s;}
+  .ring.done .rFg{stroke:#7fbf8e;}
+  .pBody{padding:.2rem 1.2rem 1.4rem;}
+  .pGoal{font-size:1rem;max-width:72ch;margin:1rem 0 0;}
+  .pGate{margin-top:.9rem;padding:.7rem .9rem;background:var(--panel-2);
+    border-left:4px solid var(--safety);font-size:.92rem;}
+  .pGate b{font-family:'Barlow Condensed',sans-serif;letter-spacing:.06em;color:var(--safety-dark);}
+  .checks{list-style:none;padding:0;margin:1.1rem 0 0;}
+  .checks li{display:flex;gap:.7rem;padding:.62rem 0;border-top:1px solid var(--line-soft);
+    align-items:flex-start;}
+  .checks li:first-child{border-top:none;}
+  .checks input[type=checkbox]{flex:0 0 auto;margin-top:.28rem;width:1.05rem;height:1.05rem;
+    accent-color:var(--safety-dark);cursor:pointer;}
+  .checks .cTxt{flex:1 1 auto;min-width:0;}
+  .checks .cTxt b{font-family:'Barlow Condensed',sans-serif;font-size:1.03rem;font-weight:600;
+    color:var(--steel);display:block;line-height:1.25;transition:color .25s,text-decoration-color .25s;}
+  .checks li.done .cTxt b{color:var(--steel-3);text-decoration:line-through;
+    text-decoration-color:var(--safety);}
+  .checks .cTxt p{margin:.2rem 0 0;font-size:.89rem;color:#3c3a33;}
+  .checks .cTxt .src{font-family:'IBM Plex Mono',monospace;font-size:.73rem;color:var(--steel-3);}
+  .checks .cTxt .ship{font-family:'Barlow Condensed',sans-serif;font-size:.7rem;font-weight:700;
+    letter-spacing:.1em;background:var(--green);color:#fdfaf3;padding:.1rem .42rem;
+    margin-left:.45rem;vertical-align:.1em;}
+
+  /* -------------------------------------------------------- state chips */
+  .sm{margin-top:1.2rem;overflow-x:auto;}
+  .smRow{display:flex;align-items:center;gap:.5rem;min-width:640px;padding:.3rem 0;flex-wrap:nowrap;}
+  .smState{font-family:'IBM Plex Mono',monospace;font-size:.76rem;font-weight:600;
+    padding:.45rem .7rem;border-radius:3px;white-space:nowrap;border:1px solid;
+    background:var(--panel);border-color:var(--line);color:var(--steel-2);}
+  .smState.ok{background:#e5efe6;border-color:var(--green);color:#2c5236;}
+  .smState.bad{background:#f7e6e3;border-color:var(--red);color:#7c211a;}
+  .smArrow{color:var(--safety-dark);font-weight:700;}
+
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:1.1rem;}
+  .card{border:1px solid var(--line);background:var(--panel);padding:.95rem 1.05rem;}
+  .card h4{margin:0 0 .35rem;font-size:1.05rem;}
+  .card p{font-size:.9rem;margin:.3rem 0 0;}
+  .card ul{margin:.5rem 0 0;padding-left:1.1rem;} .card li{font-size:.89rem;}
+
+  .toTop{position:fixed;right:1.1rem;bottom:1.1rem;z-index:70;background:var(--steel);
+    color:#fdfaf3;border:2px solid var(--safety);width:2.7rem;height:2.7rem;cursor:pointer;
+    font-size:1rem;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;
+    transform:translateY(8px);}
+  .toTop.on{opacity:1;pointer-events:auto;transform:none;}
+
+  footer.foot{background:var(--steel);color:#b6bdb7;padding:2rem 6vw;font-size:.88rem;}
+  footer.foot a{color:var(--safety);}
+
+  @media (max-width:640px){
+    .covRow{grid-template-columns:1fr 2.8rem;grid-template-areas:"lab pc" "bar bar";}
+    .covRow .lab{grid-area:lab;} .covRow .pc{grid-area:pc;} .covTrack{grid-area:bar;}
+    .phase > summary{gap:.7rem;padding:.85rem .85rem;}
+    .pBody{padding:.2rem .85rem 1.2rem;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+    *,*::before,*::after{transition-duration:.01ms !important;animation-duration:.01ms !important;}
+    [data-reveal]{opacity:1;transform:none;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="rail" aria-label="Sections">
+  <div class="in">
+    <span class="brand">RENTRA / CLIENT</span>
+    <a href="#summary">Summary</a><span class="sep">·</span>
+    <a href="#built">Built</a><span class="sep">·</span>
+    <a href="#journey">Journey</a><span class="sep">·</span>
+    <a href="#gaps">Gaps</a><span class="sep">·</span>
+    <a href="#c0">C0</a><span class="sep">·</span>
+    <a href="#c1">C1</a><span class="sep">·</span>
+    <a href="#c2">C2</a><span class="sep">·</span>
+    <a href="#c3">C3</a><span class="sep">·</span>
+    <a href="#c4">C4</a><span class="sep">·</span>
+    <a href="#c5">C5</a><span class="sep">·</span>
+    <a href="#screens">Screens</a><span class="sep">·</span>
+    <a href="#schema">Schema</a><span class="sep">·</span>
+    <a href="#metrics">Metrics</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <p class="tag">CLIENT SIDE &middot; THE OWNER WHO LISTS A PROPERTY</p>
+  <h1>A funnel with no destination</h1>
+  <p class="sub">
+    Every Client screen that exists today is about getting a property <em>in</em>: sign up,
+    prove who you are, fill nine sections, submit. It is well built. Then the listing goes
+    live &mdash; and the product stops. There is no screen that answers the only three
+    questions an owner opens Rentra to ask after his first week.
+  </p>
+  <div class="metaRow">
+    <div><span class="n" data-count="12">0</span><span class="l">Client routes built</span></div>
+    <div><span class="n" data-count="13">0</span><span class="l">Server Actions built</span></div>
+    <div><span class="n" data-count="0">0</span><span class="l">Screens after go&#8209;live</span></div>
+    <div><span class="n" data-count="6">0</span><span class="l">Tables with no owner UI</span></div>
+    <div><span class="n" data-count="39">0</span><span class="l">Gaps on the register</span></div>
+    <div><span class="n" data-count="6">0</span><span class="l">Phases to close them</span></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ================================================================ SUMMARY -->
+<section class="block" id="summary">
+  <p class="kick" data-reveal>THE SHORT VERSION</p>
+  <h2 data-reveal data-delay="1">Three questions, none of them answerable</h2>
+  <p class="lede" data-reveal data-delay="1">
+    Week one, an owner is building a listing, and the product is excellent at that. Week two
+    onwards he opens Rentra for one of three reasons, and every one of them lands on a page
+    that does not exist.
+  </p>
+
+  <div class="grid2">
+    <div class="card" data-reveal>
+      <h4>&ldquo;Did I get a booking?&rdquo;</h4>
+      <p>
+        There is no booking inbox. The <code>booking</code> table has a <code>state</code>
+        machine, an <code>acceptDeadline</code> and a <code>checkInCode</code> column &mdash;
+        and no Client surface reads any of it. A request would arrive and sit there.
+      </p>
+    </div>
+    <div class="card" data-reveal data-delay="1">
+      <h4>&ldquo;Am I free on Saturday?&rdquo;</h4>
+      <p>
+        There is no calendar. <code>availability.blockedByClient</code> exists precisely so an
+        owner can take a weekend out for a family function. Nothing writes to it. The site
+        will keep selling dates he has already given away.
+      </p>
+    </div>
+    <div class="card" data-reveal data-delay="2">
+      <h4>&ldquo;When do I get paid?&rdquo;</h4>
+      <p>
+        There is no earnings or payout screen. The <code>payout</code> table already carries
+        gross, commission, TDS, TCS, net, status and UTR. Every one of those is invisible to
+        the person the money belongs to.
+      </p>
+    </div>
+  </div>
+
+  <div class="tip" data-reveal>
+    <p>
+      <b>The good news, and it is genuinely good:</b> almost none of this needs a migration.
+      The schema was written for the whole owner lifecycle and then only the first third was
+      built on top of it. Six tables and roughly a dozen columns are sitting there fully
+      designed with nothing pointed at them. Most of what follows is screens and Server
+      Actions, not database work.
+    </p>
+  </div>
+
+  <div class="note" data-reveal>
+    <p>
+      <b>The one thing that stops everything:</b> <code>deliverOtp</code> throws in
+      production &mdash; no SMS or email provider is wired. Today, on a production
+      deployment, no owner can log in at all. That is item one of phase C0 and it should be
+      done this week, because WhatsApp template approval takes days per language and
+      everything in C1 and C4 waits on it.
+    </p>
+  </div>
+</section>
+
+<!-- ================================================================== BUILT -->
+<section class="block" id="built">
+  <p class="kick" data-reveal>WHERE IT STANDS</p>
+  <h2 data-reveal data-delay="1">What is actually built, audited from the code</h2>
+  <p class="lede" data-reveal data-delay="1">
+    Not from the plan documents &mdash; from the repository. Coverage is a judgement of how
+    much of the stage an owner can complete unaided, in production, today.
+  </p>
+
+  <div class="cov" data-cov>
+    <div class="covRow" data-reveal>
+      <span class="lab">Sign up &amp; log in<small>email OTP, per-role entry point</small></span>
+      <span class="covTrack"><span class="covFill low" data-w="30"></span></span>
+      <span class="pc">30%</span>
+    </div>
+    <div class="covRow" data-reveal>
+      <span class="lab">Onboarding &mdash; Gate 1<small>phone, details, ID, payout, consent</small></span>
+      <span class="covTrack"><span class="covFill mid" data-w="75"></span></span>
+      <span class="pc">75%</span>
+    </div>
+    <div class="covRow" data-reveal>
+      <span class="lab">Build a listing<small>10-step walkthrough, 5 chapters</small></span>
+      <span class="covTrack"><span class="covFill" data-w="88"></span></span>
+      <span class="pc">88%</span>
+    </div>
+    <div class="covRow" data-reveal>
+      <span class="lab">Submit &amp; Gate 2<small>review, rejection, resubmit</small></span>
+      <span class="covTrack"><span class="covFill" data-w="92"></span></span>
+      <span class="pc">92%</span>
+    </div>
+    <div class="covRow" data-reveal>
+      <span class="lab">Run a live listing<small>bookings, calendar, pause</small></span>
+      <span class="covTrack"><span class="covFill low" data-w="4"></span></span>
+      <span class="pc">4%</span>
+    </div>
+    <div class="covRow" data-reveal>
+      <span class="lab">Get paid<small>earnings, payouts, deposits, tax</small></span>
+      <span class="covTrack"><span class="covFill low" data-w="0"></span></span>
+      <span class="pc">0%</span>
+    </div>
+    <div class="covRow" data-reveal>
+      <span class="lab">Operate on the ground<small>caretaker, check-in, disputes</small></span>
+      <span class="covTrack"><span class="covFill low" data-w="0"></span></span>
+      <span class="pc">0%</span>
+    </div>
+    <div class="covRow" data-reveal>
+      <span class="lab">Reach the owner<small>Gujarati, WhatsApp, voice</small></span>
+      <span class="covTrack"><span class="covFill low" data-w="0"></span></span>
+      <span class="pc">0%</span>
+    </div>
+  </div>
+
+  <h3 data-reveal>The twelve routes that exist</h3>
+  <div class="tscroll" data-reveal>
+  <table>
+    <caption>Client surface, as shipped</caption>
+    <thead><tr><th>Route</th><th>What it does</th><th>State</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">/partner/login</td><td>Email OTP sign-in. Email is the Client credential; phone is the Customer one.</td><td><span class="pill part">PART</span></td></tr>
+      <tr><td class="mono">/partner</td><td>Dashboard. Derived completion stepper plus a gated &ldquo;Add place&rdquo; CTA that is visible the whole time and explains itself on click.</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td class="mono">/partner/onboarding/phone</td><td>SMS OTP verification.</td><td><span class="pill part">PART</span></td></tr>
+      <tr><td class="mono">/partner/onboarding/details</td><td>Name, address, pincode, owner or authorised agent.</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td class="mono">/partner/onboarding/kyc</td><td>ID upload into the authenticated document vault.</td><td><span class="pill part">PART</span></td></tr>
+      <tr><td class="mono">/partner/onboarding/payout</td><td>UPI or bank, with a name comparison against the KYC name.</td><td><span class="pill part">PART</span></td></tr>
+      <tr><td class="mono">/partner/onboarding/consent</td><td>Consent capture with IP, then submit to the Gate 1 queue.</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td class="mono">/partner/listings</td><td>Index with status chips, per-status hints and the sent-back reason inline.</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td class="mono">/partner/listings/new</td><td>Creates a draft and redirects straight in. No confirmation step, deliberately.</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td class="mono">/partner/listings/[id]</td><td>Manage view &mdash; all nine sections on one page, each saving independently. For a live listing.</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td class="mono">/partner/listings/[id]/setup</td><td>Resume point. Derives the first incomplete step, preferring a rejected section over an unstarted one.</td><td><span class="pill built">BUILT</span></td></tr>
+      <tr><td class="mono">/partner/listings/[id]/setup/[step]</td><td>Full-screen walkthrough, one step per route. Same components, different chrome.</td><td><span class="pill built">BUILT</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="info" data-reveal>
+    <p>
+      <b>Worth saying plainly:</b> the listing builder is the strongest thing in the
+      repository. Nine sections grouped into five named chapters, both chromes driven by one
+      module, completion derived rather than stored so the bar can legitimately go backwards,
+      and a trust-field edit on a live listing routed back to review while a price change is
+      left alone. None of the work below is about fixing that. It is about what happens
+      after it.
+    </p>
+  </div>
+</section>
+
+<!-- ================================================================ JOURNEY -->
+<section class="block" id="journey">
+  <p class="kick" data-reveal>THE FULL PICTURE</p>
+  <h2 data-reveal data-delay="1">One owner, eighteen stages, end to end</h2>
+  <p class="lede" data-reveal data-delay="1">
+    Press play and watch where the product stops. The first eleven stages are green. The
+    turn happens at the exact moment the listing goes live &mdash; which is the moment the
+    owner starts caring.
+  </p>
+
+  <div class="journey" data-reveal>
+    <div class="jTop">
+      <button class="jBtn" id="jPlay" type="button">&#9654;&ensp;Play the journey</button>
+      <button class="jBtn ghost" id="jPrev" type="button">&#8592; Prev</button>
+      <button class="jBtn ghost" id="jNext" type="button">Next &#8594;</button>
+      <span class="jCount" id="jCount">1 / 18</span>
+    </div>
+    <div class="jRail" id="jRail" role="tablist" aria-label="Owner journey stages"></div>
+    <div class="jLegend">
+      <span><i style="border-color:var(--green);background:#dce7dd"></i> Built</span>
+      <span><i style="border-color:var(--safety);background:#f6e5cf"></i> Partly built</span>
+      <span><i style="border-color:var(--red);background:#f7e6e3;border-style:dashed"></i> Missing</span>
+    </div>
+    <div class="jStage" id="jStage" aria-live="polite"></div>
+  </div>
+
+  <div class="note" data-reveal>
+    <p>
+      Eleven stages built, three partial, <b>seven missing &mdash; and the seven are every
+      stage that involves money changing hands or a guest arriving.</b> An owner who
+      completes onboarding today has a beautiful listing and no way to run it.
+    </p>
+  </div>
+</section>
+
+<!-- =================================================================== GAPS -->
+<section class="block" id="gaps">
+  <p class="kick" data-reveal>THE REGISTER</p>
+  <h2 data-reveal data-delay="1">Thirty-nine gaps, filtered</h2>
+  <p class="lede" data-reveal data-delay="1">
+    Each one names what already exists in the schema, because in most cases something does.
+    Filter by severity or by phase.
+  </p>
+
+  <div class="filters" role="group" aria-label="Filter by severity" data-filter="sev">
+    <button class="fBtn on" data-v="all" type="button">All</button>
+    <button class="fBtn" data-v="blocker" type="button">Blocker</button>
+    <button class="fBtn" data-v="high" type="button">High</button>
+    <button class="fBtn" data-v="med" type="button">Medium</button>
+    <button class="fBtn" data-v="low" type="button">Low</button>
+  </div>
+  <div class="filters" role="group" aria-label="Filter by phase" data-filter="ph">
+    <button class="fBtn on" data-v="all" type="button">Every phase</button>
+    <button class="fBtn" data-v="c0" type="button">C0 Unblock</button>
+    <button class="fBtn" data-v="c1" type="button">C1 Bookings</button>
+    <button class="fBtn" data-v="c2" type="button">C2 Calendar</button>
+    <button class="fBtn" data-v="c3" type="button">C3 Money</button>
+    <button class="fBtn" data-v="c4" type="button">C4 Language</button>
+    <button class="fBtn" data-v="c5" type="button">C5 Operations</button>
+  </div>
+  <p class="gCount" id="gCount">Showing 39 of 39</p>
+
+  <div class="gaps" id="gapGrid">
+
+    <article class="gap" data-sev="blocker" data-ph="c0">
+      <div class="gHead"><span class="pill blocker">BLOCKER</span><span class="pill low">C0</span></div>
+      <h4>No OTP delivery in production</h4>
+      <p><code>deliverOtp</code> prints to the terminal in development and throws in
+      production. Nobody outside your machine can sign in as a Client at all.</p>
+      <p class="gMeta">lib/auth/otp.js:132</p>
+    </article>
+
+    <article class="gap" data-sev="high" data-ph="c0">
+      <div class="gHead"><span class="pill high">HIGH</span><span class="pill low">C0</span></div>
+      <h4>revalidatePath is never called</h4>
+      <p>No Server Action revalidates anything. An owner edits a price, refreshes the public
+      page, sees the old number and edits it again &mdash; then calls you. The listing page
+      already documents where the call belongs.</p>
+      <p class="gMeta">lib/auth/listings.js &middot; app/(marketing)/listing/[handle]/page.js:27</p>
+    </article>
+
+    <article class="gap" data-sev="high" data-ph="c0">
+      <div class="gHead"><span class="pill high">HIGH</span><span class="pill low">C0</span></div>
+      <h4>No cover photo, no reordering</h4>
+      <p>Photo order is upload order, so the hero shot is whichever file the phone handed over
+      first. This is the single highest-leverage change available to a listing&rsquo;s
+      click-through and it is a drag handle.</p>
+      <p class="gMeta">rentable.photos (jsonb, ordered array &mdash; already sufficient)</p>
+    </article>
+
+    <article class="gap" data-sev="high" data-ph="c0">
+      <div class="gHead"><span class="pill high">HIGH</span><span class="pill low">C0</span></div>
+      <h4>No map pin picker</h4>
+      <p>The location step asks the owner to long-press Google Maps and copy two decimal
+      numbers into text inputs. The code says as much in a comment. A 55-year-old farm owner
+      in Kamrej will not do this.</p>
+      <p class="gMeta">components/partner/listing/ListingSections.jsx:198</p>
+    </article>
+
+    <article class="gap" data-sev="med" data-ph="c0">
+      <div class="gHead"><span class="pill med">MEDIUM</span><span class="pill low">C0</span></div>
+      <h4>Pause exists in code, not in the product</h4>
+      <p><code>toggleListingPause</code> is written, audited and correct &mdash; and
+      referenced by nothing. Pausing is what an owner does instead of deleting when his own
+      family needs the place for a month.</p>
+      <p class="gMeta">lib/auth/listings.js:496 &mdash; zero call sites</p>
+    </article>
+
+    <article class="gap" data-sev="high" data-ph="c0">
+      <div class="gHead"><span class="pill high">HIGH</span><span class="pill low">C0</span></div>
+      <h4>No notification on any status change</h4>
+      <p>Application approved, application sent back, listing published, listing rejected
+      &mdash; the only way an owner learns any of it is by logging in again on a guess.</p>
+      <p class="gMeta">applicationStatus &middot; listingStatus &mdash; both already emit audit rows</p>
+    </article>
+
+    <article class="gap" data-sev="med" data-ph="c0">
+      <div class="gHead"><span class="pill med">MEDIUM</span><span class="pill low">C0</span></div>
+      <h4>No account settings page</h4>
+      <p>After approval there is no route to change a phone number, swap a payout
+      destination or set notification preferences. Onboarding is the only place those fields
+      are ever writable.</p>
+      <p class="gMeta">no /partner/settings route</p>
+    </article>
+
+    <article class="gap" data-sev="blocker" data-ph="c1">
+      <div class="gHead"><span class="pill blocker">BLOCKER</span><span class="pill low">C1</span></div>
+      <h4>No booking inbox</h4>
+      <p>The central screen of the entire owner product does not exist. A booking request has
+      nowhere to appear and no one to answer it.</p>
+      <p class="gMeta">booking &mdash; table complete, zero Client reads</p>
+    </article>
+
+    <article class="gap" data-sev="blocker" data-ph="c1">
+      <div class="gHead"><span class="pill blocker">BLOCKER</span><span class="pill low">C1</span></div>
+      <h4>No accept or decline action</h4>
+      <p>Seven booking states are defined and the Client can move it through none of them.
+      Accepting must consume the availability row in the same transaction, so the composite
+      primary key does the refusing rather than the UI.</p>
+      <p class="gMeta">bookingState enum &middot; availability composite PK</p>
+    </article>
+
+    <article class="gap" data-sev="blocker" data-ph="c1">
+      <div class="gHead"><span class="pill blocker">BLOCKER</span><span class="pill low">C1</span></div>
+      <h4>No 12-hour expiry job</h4>
+      <p><code>booking.acceptDeadline</code> is a column with an index built for exactly this
+      query, and nothing sweeps it. Without the sweep, an ignored request holds a guest&rsquo;s
+      money and a Saturday indefinitely.</p>
+      <p class="gMeta">booking.acceptDeadline &middot; booking_state_deadline_idx &middot; worker/</p>
+    </article>
+
+    <article class="gap" data-sev="high" data-ph="c1">
+      <div class="gHead"><span class="pill high">HIGH</span><span class="pill low">C1</span></div>
+      <h4>No contact unlock at confirmation</h4>
+      <p>The information release ladder is designed and enforced on the guest side. The owner
+      side has no screen to release into &mdash; exact address, both numbers and the check-in
+      code have nowhere to appear.</p>
+      <p class="gMeta">rentable.exactAddress &middot; booking.contactPhone &middot; booking.checkInCode</p>
+    </article>
+
+    <article class="gap" data-sev="med" data-ph="c1">
+      <div class="gHead"><span class="pill med">MEDIUM</span><span class="pill low">C1</span></div>
+      <h4>Response signals are never populated</h4>
+      <p><code>respondsWithinMins</code> and <code>responseRate</code> are the owner&rsquo;s
+      public trust signals and both are null for every row. A Fast Responder badge cannot
+      exist until something writes them.</p>
+      <p class="gMeta">user.responds_within_mins &middot; user.response_rate</p>
+    </article>
+
+    <article class="gap" data-sev="med" data-ph="c1">
+      <div class="gHead"><span class="pill med">MEDIUM</span><span class="pill low">C1</span></div>
+      <h4>Decline reasons are not captured</h4>
+      <p>Three declines for &ldquo;already booked elsewhere&rdquo; is a calendar problem.
+      Three for &ldquo;price too low&rdquo; is a pricing problem. Without the reason, both
+      look identical to ranking and both get the owner de-ranked.</p>
+      <p class="gMeta">booking.cancellationReason exists &mdash; needs a structured sibling</p>
+    </article>
+
+    <article class="gap" data-sev="high" data-ph="c1">
+      <div class="gHead"><span class="pill high">HIGH</span><span class="pill low">C1</span></div>
+      <h4>Requests do not reach WhatsApp</h4>
+      <p>An owner will not open a browser inside twelve hours. He will read a WhatsApp
+      message inside twelve minutes. Accept and decline belong in that message, not behind a
+      login.</p>
+      <p class="gMeta">depends on C0 provider work &mdash; templates need days of approval</p>
+    </article>
+
+    <article class="gap" data-sev="blocker" data-ph="c2">
+      <div class="gHead"><span class="pill blocker">BLOCKER</span><span class="pill low">C2</span></div>
+      <h4>No calendar screen</h4>
+      <p>An owner cannot see or change his own availability. <code>blockedByClient</code> was
+      added for this and nothing writes to it. The site will keep selling the Saturday he
+      gave to his cousin&rsquo;s engagement.</p>
+      <p class="gMeta">availability.blocked_by_client</p>
+    </article>
+
+    <article class="gap" data-sev="high" data-ph="c2">
+      <div class="gHead"><span class="pill high">HIGH</span><span class="pill low">C2</span></div>
+      <h4>No per-date price override</h4>
+      <p><code>availability.priceOverride</code> exists and is read by the public availability
+      endpoint. Nothing writes it. Diwali and a long weekend are the only two prices that
+      actually decide a year&rsquo;s revenue.</p>
+      <p class="gMeta">availability.price_override</p>
+    </article>
+
+    <article class="gap" data-sev="high" data-ph="c2">
+      <div class="gHead"><span class="pill high">HIGH</span><span class="pill low">C2</span></div>
+      <h4>Availability rows are not extended forward</h4>
+      <p>The seed writes 90 days. Nothing rolls the horizon forward, so a listing quietly
+      runs out of bookable days and looks fully booked rather than unmaintained.</p>
+      <p class="gMeta">worker/ &mdash; rolling 120-day horizon job</p>
+    </article>
+
+    <article class="gap" data-sev="high" data-ph="c2">
+      <div class="gHead"><span class="pill high">HIGH</span><span class="pill low">C2</span></div>
+      <h4>No freshness confirmation loop</h4>
+      <p><code>availabilityConfirmedAt</code> is never stamped and nothing nudges. The plan
+      calls stale listings the quietest killer of rental marketplaces, and it is right: three
+      unavailable bookings and a seeker never returns.</p>
+      <p class="gMeta">rentable.availability_confirmed_at</p>
+    </article>
+
+    <article class="gap" data-sev="med" data-ph="c2">
+      <div class="gHead"><span class="pill med">MEDIUM</span><span class="pill low">C2</span></div>
+      <h4>Confirmed bookings are invisible on the calendar</h4>
+      <p>A calendar showing owner blocks but not actual bookings gets managed alongside a
+      paper diary, which is how the double booking eventually happens anyway.</p>
+      <p class="gMeta">booking_rentable_day_idx &mdash; the query is already indexed</p>
+    </article>
+
+    <article class="gap" data-sev="high" data-ph="c3">
+      <div class="gHead"><span class="pill high">HIGH</span><span class="pill low">C3</span></div>
+      <h4>No earnings screen</h4>
+      <p>Nothing tells an owner what he made this month, or which of his properties made it.
+      This is the screen that decides whether he lists his second farmhouse.</p>
+      <p class="gMeta">payout.gross &middot; commission &middot; net</p>
+    </article>
+
+    <article class="gap" data-sev="high" data-ph="c3">
+      <div class="gHead"><span class="pill high">HIGH</span><span class="pill low">C3</span></div>
+      <h4>No payout history or status</h4>
+      <p>Five payout states are modelled including <code>frozen</code>, and a UTR field is
+      there for reconciliation. Invisible status is not a missing feature, it is an inbound
+      phone call per payout.</p>
+      <p class="gMeta">payout.status &middot; payout.utr &middot; payout_client_status_idx</p>
+    </article>
+
+    <article class="gap" data-sev="high" data-ph="c3">
+      <div class="gHead"><span class="pill high">HIGH</span><span class="pill low">C3</span></div>
+      <h4>Penny-drop is a typed-name comparison</h4>
+      <p>Today <code>payoutNameMatch</code> compares the holder name the owner typed against
+      his KYC name. It catches paying an obvious third party and nothing subtler. The code
+      says so itself.</p>
+      <p class="gMeta">lib/auth/application.js:135 &mdash; TODO(vendor)</p>
+    </article>
+
+    <article class="gap" data-sev="med" data-ph="c3">
+      <div class="gHead"><span class="pill med">MEDIUM</span><span class="pill low">C3</span></div>
+      <h4>Deposit lifecycle is invisible to the owner</h4>
+      <p>Held, claim window open, auto-refunded, claimed &mdash; the owner sees none of these
+      states, which means every deposit question arrives as a message instead.</p>
+      <p class="gMeta">booking.amountDeposit &middot; calculateRefund() already returns depositRefunded</p>
+    </article>
+
+    <article class="gap" data-sev="med" data-ph="c3">
+      <div class="gHead"><span class="pill med">MEDIUM</span><span class="pill low">C3</span></div>
+      <h4>No tax statement or invoice</h4>
+      <p>TDS 194-O and GST TCS columns exist at zero, exactly as intended &mdash; but nothing
+      displays them and there is no quarterly statement to download. Owners will ask their
+      accountants, who will ask you.</p>
+      <p class="gMeta">payout.tds_194o &middot; payout.gst_tcs</p>
+    </article>
+
+    <article class="gap" data-sev="med" data-ph="c3">
+      <div class="gHead"><span class="pill med">MEDIUM</span><span class="pill low">C3</span></div>
+      <h4>Commission is a constant, and invisible</h4>
+      <p><code>PLATFORM_FEE_RATE</code> is a flat 8% in the domain module. A slab that falls
+      as completed bookings rise is the incentive half of anti-bypass &mdash; the wall buys
+      the first transaction, this keeps the tenth.</p>
+      <p class="gMeta">lib/domain/pricing.js &mdash; PLATFORM_FEE_RATE</p>
+    </article>
+
+    <article class="gap" data-sev="blocker" data-ph="c4">
+      <div class="gHead"><span class="pill blocker">BLOCKER</span><span class="pill low">C4</span></div>
+      <h4>The owner side is English only</h4>
+      <p><code>preferredLocale</code> exists on every user row and nothing reads it. The plan
+      is explicit that the guest side can survive in English and the owner side cannot. This
+      is an adoption blocker, not a polish item.</p>
+      <p class="gMeta">user.preferred_locale</p>
+    </article>
+
+    <article class="gap" data-sev="med" data-ph="c4">
+      <div class="gHead"><span class="pill med">MEDIUM</span><span class="pill low">C4</span></div>
+      <h4>Gujarati amenity labels are seeded and unused</h4>
+      <p><code>amenity.labelGu</code> and <code>labelHi</code> were added so the same tag
+      renders correctly on both sides. The builder shows the English column to a
+      Gujarati-speaking owner.</p>
+      <p class="gMeta">amenity.label_gu &middot; amenity.label_hi</p>
+    </article>
+
+    <article class="gap" data-sev="med" data-ph="c4">
+      <div class="gHead"><span class="pill med">MEDIUM</span><span class="pill low">C4</span></div>
+      <h4>Amenities are stored as free text</h4>
+      <p>The fixed taxonomy and the join table both exist, but <code>rentable.amenities</code>
+      still holds labels, so the public page matches icons on keywords. Free text cannot be
+      filtered and cannot be translated.</p>
+      <p class="gMeta">rentable.amenities (jsonb) vs rentable_amenity &mdash; see build log</p>
+    </article>
+
+    <article class="gap" data-sev="high" data-ph="c4">
+      <div class="gHead"><span class="pill high">HIGH</span><span class="pill low">C4</span></div>
+      <h4>No WhatsApp intake with an AI draft</h4>
+      <p>The implementation plan names this the highest-leverage feature in the entire
+      document. Eight photos and a voice note in, a drafted listing back, &ldquo;reply 1 to
+      publish&rdquo;. It is a Client-side feature and it is unstarted.</p>
+      <p class="gMeta">the web builder is the secondary path, not the primary one</p>
+    </article>
+
+    <article class="gap" data-sev="high" data-ph="c4">
+      <div class="gHead"><span class="pill high">HIGH</span><span class="pill low">C4</span></div>
+      <h4>No price recommendation</h4>
+      <p>Owners write &ldquo;price on request&rdquo; because they genuinely do not know the
+      number, and a wrong number in public feels worse than none. The seed data is already
+      grounded in real Surat-belt price bands.</p>
+      <p class="gMeta">rentable_price &middot; area &mdash; the band data exists in seed</p>
+    </article>
+
+    <article class="gap" data-sev="med" data-ph="c4">
+      <div class="gHead"><span class="pill med">MEDIUM</span><span class="pill low">C4</span></div>
+      <h4>No voice input anywhere</h4>
+      <p>Title, description and house rules are the three fields that stall a listing at 70%.
+      All three are free text and all three are faster spoken.</p>
+      <p class="gMeta">basics and rules steps</p>
+    </article>
+
+    <article class="gap" data-sev="high" data-ph="c5">
+      <div class="gHead"><span class="pill high">HIGH</span><span class="pill low">C5</span></div>
+      <h4>No caretaker sub-accounts</h4>
+      <p><code>client_staff</code> exists with a scoped permissions jsonb and a unique index,
+      and nothing writes to it. The owner lives in the city and visits on Sundays; the person
+      at the gate has no account and will not comply with the photo requirement the whole
+      dispute process rests on.</p>
+      <p class="gMeta">client_staff &middot; staff_client_phone_idx</p>
+    </article>
+
+    <article class="gap" data-sev="high" data-ph="c5">
+      <div class="gHead"><span class="pill high">HIGH</span><span class="pill low">C5</span></div>
+      <h4>No condition photo capture</h4>
+      <p>In-app camera only, gallery blocked, timestamped, at check-in and check-out. This
+      one feature kills most &ldquo;it was already broken&rdquo; arguments before they start.</p>
+      <p class="gMeta">document vault pattern already handles authenticated uploads</p>
+    </article>
+
+    <article class="gap" data-sev="med" data-ph="c5">
+      <div class="gHead"><span class="pill med">MEDIUM</span><span class="pill low">C5</span></div>
+      <h4>No damage claim or dispute flow</h4>
+      <p><code>disputed</code> is one of the seven booking states with nothing to enter it.
+      An evidence window and a written decision shown to both sides is what stops a dispute
+      becoming a public complaint.</p>
+      <p class="gMeta">bookingState 'disputed'</p>
+    </article>
+
+    <article class="gap" data-sev="med" data-ph="c5">
+      <div class="gHead"><span class="pill med">MEDIUM</span><span class="pill low">C5</span></div>
+      <h4>No reply to a guest review</h4>
+      <p>Two-way reviews are modelled, including a <code>behaviour</code> sub-score the owner
+      gives the guest. The owner cannot answer a public review about his own property.</p>
+      <p class="gMeta">review table &mdash; no reply relation</p>
+    </article>
+
+    <article class="gap" data-sev="med" data-ph="c5">
+      <div class="gHead"><span class="pill med">MEDIUM</span><span class="pill low">C5</span></div>
+      <h4>No listing performance view</h4>
+      <p>Views, enquiries, requests, confirmed &mdash; per listing. An owner who cannot see
+      why he is not getting bookings concludes the platform is dead and stops confirming
+      availability, which makes it true.</p>
+      <p class="gMeta">no analytics wired at all</p>
+    </article>
+
+    <article class="gap" data-sev="low" data-ph="c5">
+      <div class="gHead"><span class="pill low">LOW</span><span class="pill low">C5</span></div>
+      <h4>Verification visit is invisible to the owner</h4>
+      <p><code>verification_visit</code> carries a mode, an assignee and a scheduled time.
+      The owner &mdash; who has to be at the property &mdash; is never told any of it.</p>
+      <p class="gMeta">verification_visit.scheduled_at &middot; mode</p>
+    </article>
+
+    <article class="gap" data-sev="low" data-ph="c5">
+      <div class="gHead"><span class="pill low">LOW</span><span class="pill low">C5</span></div>
+      <h4>No bulk actions across listings</h4>
+      <p>An owner with four farmhouses blocks the same week on all four. Today that is four
+      calendars, and a calendar he does not yet have.</p>
+      <p class="gMeta">rentable_client_idx &mdash; the query is cheap</p>
+    </article>
+
+    <article class="gap" data-sev="low" data-ph="c5">
+      <div class="gHead"><span class="pill low">LOW</span><span class="pill low">C5</span></div>
+      <h4>No walkthrough video on a listing</h4>
+      <p>The guest-side plan assumes a walkthrough video and the builder has no step for one.
+      It is also the cheapest possible input to video verification.</p>
+      <p class="gMeta">rentable.photos handles images only</p>
+    </article>
+
+  </div>
+</section>
+
+<!-- ================================================================ PHASE 0 -->
+<section class="block" id="c0">
+  <p class="kick" data-reveal>PHASE PLAN &middot; CLIENT ROLE</p>
+  <h2 data-reveal data-delay="1">Six phases, in the order that keeps the app usable</h2>
+  <p class="lede" data-reveal data-delay="1">
+    Each phase ships something an owner can feel. Tick items off as you go &mdash; the ring
+    on each header fills and the state is kept in this browser.
+  </p>
+
+  <details class="phase" open data-phase="c0">
+    <summary>
+      <span class="pNo">C0</span>
+      <svg class="ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="rBg" cx="22" cy="22" r="19"/><circle class="rFg" cx="22" cy="22" r="19"/></svg>
+      <span class="pTitle"><b>Unblock what is already built</b><span>~1 week &middot; no new surfaces &middot; do this before anything else</span></span>
+      <span class="chev">&#9656;</span>
+    </summary>
+    <div class="pBody">
+      <p class="pGoal">
+        Nothing new. Make the surface that already exists survive contact with a real owner on
+        a real deployment. Every item here is a finished feature that is either unreachable,
+        unwired or invisible &mdash; which is the cheapest kind of work there is.
+      </p>
+      <div class="pGate"><b>GATE TO EXIT &rarr;</b> A stranger signs up, builds a listing,
+      submits it and edits it after publication &mdash; without you touching a terminal, and
+      without a single call to you.</div>
+
+      <ul class="checks">
+        <li><input type="checkbox"><span class="cTxt"><b>Wire an SMS and email provider behind deliverOtp</b>
+          <p>It throws in production today, which makes the entire Client surface unreachable.
+          Start WhatsApp Business template approval the same week &mdash; it takes days, each
+          language is approved separately, and C1 and C4 both wait on it.</p>
+          <span class="src">lib/auth/otp.js:132</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Call revalidatePath from every listing Server Action<span class="ship">SHIPPED</span></b>
+          <p>One module rather than a call sprinkled through each action, and hung off the
+          shared <code>applyEdit</code> helper so the tenth section cannot be added without it.
+          A retitle purges the old path as well as the new one — the page resolves by code, so
+          those are two cache entries, and only purging the new one leaves the already-forwarded
+          WhatsApp link serving the old title for an hour.</p>
+          <span class="src">lib/cache/listing-cache.js</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>One rule for the listing URL<span class="ship">SHIPPED</span></b>
+          <p>Six places were building <code>/listing/[slug]-[code]</code> by hand: the canonical
+          tag, the permanent redirect, the OG card, the sitemap, the listing card and now the
+          cache purge. They have to agree exactly — a canonical that disagrees with the sitemap
+          is an SEO defect nothing will ever raise as an error, and a purge that disagrees with
+          either one silently purges nothing.</p>
+          <span class="src">lib/domain/listing-url.js</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Put pause on the manage page<span class="ship">SHIPPED</span></b>
+          <p>The action is written, audited and correct, and nothing calls it. Pausing is
+          what an owner does instead of deleting, and deletion is what he does otherwise.</p>
+          <span class="src">lib/auth/listings.js:496</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Cover photo and reordering<span class="ship">SHIPPED</span></b>
+          <p>A star to promote any photo to the cover, and arrows to nudge one either way.
+          Built as small forms rather than a drag-and-drop grid on purpose: dragging is nicer
+          on a laptop and close to unusable on the phone this is actually filled in on, where
+          the page scrolls under the finger. The ordering it produces is identical. Reordering
+          deliberately does not re-open Gate 2 — it is the same approved set in a different
+          order, and penalising it would discourage the one edit most worth making.</p>
+          <span class="src">lib/domain/listing-photos.js · reorderListingPhotos()</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Fix the dead dropzone<span class="ship">SHIPPED</span></b>
+          <p>&ldquo;Add photos&rdquo; could not be clicked. <code>&lt;Section id="photos"&gt;</code>
+          rendered a <code>&lt;section id="photos"&gt;</code> directly above
+          <code>&lt;input id="photos"&gt;</code>, so <code>&lt;label for="photos"&gt;</code>
+          resolved to the section — and a label pointing at an element that cannot be labelled
+          does nothing at all. The photo step is the one step that cannot be completed any other
+          way, so the walkthrough was impassable. <code>capacity</code> was broken identically
+          and nobody had noticed, because a label that does nothing looks exactly like a label.
+          Fixed by namespacing every section id, and the regression test asserts no duplicate
+          DOM ids anywhere on the step rather than just this one pair.</p>
+          <span class="src">sectionAnchorId() in lib/domain/listing-steps.js</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>One identity for a photo, whatever shape it is<span class="ship">SHIPPED</span></b>
+          <p><code>rentable.photos</code> holds two shapes: seeded and imported photos are
+          <code>{ url, alt }</code>, owner-uploaded ones are <code>{ key, alt }</code>. Reorder
+          and delete matched on <code>key</code> alone, so both silently did nothing on every
+          seeded listing — which is every listing anyone opens to look at. Resolved in one
+          place; no migration owed.</p>
+          <span class="src">photoId() in lib/domain/listing-photos.js</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>A full-screen walkthrough, progress on top<span class="ship">SHIPPED</span></b>
+          <p>The walkthrough now owns the whole viewport from its own route group, so the
+          partner header no longer sits above it offering six ways to abandon a half-built
+          listing. Three rows — identity, progress, content — with only the middle one
+          scrolling, on <code>h-dvh</code> rather than <code>100vh</code> because mobile Safari
+          reports the latter taller than the visible area and put Continue under the browser's
+          own chrome. Progress moved to the top and runs edge to edge: it answers &ldquo;how
+          much more of this is there&rdquo;, which is the question people ask before deciding
+          to keep going.</p>
+          <span class="src">app/(wizard)/ · WizardShell.jsx</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>A real ending<span class="ship">SHIPPED</span></b>
+          <p>Submitting dropped the owner back on a list with a one-line green banner after
+          twenty-five minutes of photographing a farmhouse and digging out a 7/12 extract. It
+          now takes the whole screen, names the property, and walks through the actual pipeline
+          — review, then the video walkthrough, then publish. An owner who knows a video call
+          is coming is an owner who answers it.</p>
+          <span class="src">app/(wizard)/partner/listings/[id]/submitted/page.js</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Fix the paused listing dead end<span class="ship">SHIPPED</span></b>
+          <p>A paused listing is complete, not live and not in review — which fell through
+          every branch of the submit bar and rendered &ldquo;0 sections left&rdquo; to an owner
+          whose property was perfectly finished. Paused and hidden now each have their own
+          state, and only paused offers a way out, because hidden is not the owner&rsquo;s to
+          undo.</p>
+          <span class="src">components/partner/listing/ListingSections.jsx — SubmitBar</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Guard submit on status, not only completeness<span class="ship">SHIPPED</span></b>
+          <p>submitListing re-checked that every section was done and never checked what the
+          listing <em>was</em>, so a replayed submit on a live listing would have pulled it out
+          of search and back into the review queue — a self-inflicted outage dressed as a form
+          post.</p>
+          <span class="src">lib/auth/listings.js — submitListing()</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>A real map pin picker</b>
+          <p>Drop the pin, drag to correct, reverse-geocode into the address field. The
+          current instruction is &ldquo;long-press Google Maps and copy the numbers&rdquo;,
+          which the code itself flags as temporary.</p>
+          <span class="src">components/partner/listing/ListingSections.jsx:198</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Notify on every status change</b>
+          <p>Application approved or sent back; listing published, sent back or hidden. Email
+          now, WhatsApp as soon as templates clear. Silence after submission is the most
+          common reason a half-onboarded owner never returns.</p></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>/partner/settings<span class="ship">SHIPPED</span></b>
+          <p>Change phone, change payout destination, choose notification channel and
+          language. Today those fields are writable only during onboarding and never again.</p></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>A draft nudge at 48 hours</b>
+          <p>Completion is already derived, so the message can name the exact step:
+          &ldquo;three photos short of publishing&rdquo; beats &ldquo;finish your
+          listing&rdquo;.</p>
+          <span class="src">lib/domain/listing-completion.js &mdash; remaining[] and minutesLeft are ready</span></span></li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- ================================================================ PHASE 1 -->
+<section class="block" id="c1">
+  <details class="phase" data-phase="c1">
+    <summary>
+      <span class="pNo">C1</span>
+      <svg class="ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="rBg" cx="22" cy="22" r="19"/><circle class="rFg" cx="22" cy="22" r="19"/></svg>
+      <span class="pTitle"><b>The booking inbox</b><span>2&ndash;3 weeks &middot; the missing centre of the product</span></span>
+      <span class="chev">&#9656;</span>
+    </summary>
+    <div class="pBody">
+      <p class="pGoal">
+        The moment a booking request can exist, the owner needs somewhere to answer it. This
+        is the phase that turns a listing directory into a marketplace, and it is the single
+        largest gap on the Client side.
+      </p>
+      <div class="pGate"><b>GATE TO EXIT &rarr;</b> A request is accepted from a phone in
+      under thirty seconds, and a request nobody answers expires, refunds in full and reopens
+      the slot with no human involved.</div>
+
+      <div class="sm" data-reveal>
+        <div class="smRow">
+          <span class="smState">requested</span><span class="smArrow">&rarr;</span>
+          <span class="smState ok">confirmed</span><span class="smArrow">&rarr;</span>
+          <span class="smState">handed_over</span><span class="smArrow">&rarr;</span>
+          <span class="smState">returned</span><span class="smArrow">&rarr;</span>
+          <span class="smState ok">completed</span>
+          <span style="width:1.4rem"></span>
+          <span class="smState bad">cancelled</span>
+          <span class="smState bad">disputed</span>
+        </div>
+      </div>
+      <p style="font-size:.88rem;margin-top:.5rem;color:var(--steel-3)">
+        All seven states are already in the schema. The Client can currently move a booking
+        through none of them.
+      </p>
+
+      <ul class="checks">
+        <li><input type="checkbox"><span class="cTxt"><b>/partner/bookings</b>
+          <p>Requests first, then upcoming, then past. The requests list is the entire reason
+          the screen exists &mdash; everything else is reference.</p></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Accept and decline Server Actions</b>
+          <p>Accepting consumes the availability row inside the same transaction, so Postgres
+          refuses the double booking rather than the UI. The composite primary key is already
+          the lock; the action just has to let it work.</p>
+          <span class="src">availability(rentable_id, day, slot) &mdash; primary key</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>The 12-hour expiry sweep</b>
+          <p>A worker job on <code>acceptDeadline</code>: full refund, slot reopened, no
+          questions asked, and a note against the owner&rsquo;s response rate. The index for
+          the query already exists.</p>
+          <span class="src">booking_state_deadline_idx &middot; worker/</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>/partner/bookings/[reference]</b>
+          <p>Guest badge, past bookings and review history <em>first</em>; dates, guests and
+          money second. An owner decides on the person, not on the amount &mdash; leading
+          with the amount is how a platform trains an owner to accept guests he should not.</p></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Contact unlock at confirmation</b>
+          <p>Exact address, both phone numbers and the check-in code become visible the
+          moment the state flips &mdash; not a minute earlier, and hidden again seven days
+          after check-out.</p>
+          <span class="src">booking.checkInCode &middot; rentable.exactAddress</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Populate the response signals</b>
+          <p>Median minutes to respond and the share of requests answered before expiry. Both
+          columns exist and are null on every row; they are what a Fast Responder badge is
+          made of.</p>
+          <span class="src">user.responds_within_mins &middot; user.response_rate</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Structured decline reasons</b>
+          <p>Booked elsewhere, price too low, guest profile, dates unsuitable. De-ranking an
+          owner for the first of those is punishing him for a calendar you have not built yet.</p></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Push the request to WhatsApp</b>
+          <p>With accept and decline as links. Twelve hours is not a browser window, it is a
+          WhatsApp window. This is also the first real test of the template pipeline started
+          in C0.</p></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Owner-side cancellation, with the penalty visible before confirming</b>
+          <p><code>ownerCancellationRefund()</code> already returns full refund plus a
+          penalty flag. Show the owner what it costs him at the moment he is deciding, not
+          after.</p>
+          <span class="src">lib/domain/pricing.js</span></span></li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- ================================================================ PHASE 2 -->
+<section class="block" id="c2">
+  <details class="phase" data-phase="c2">
+    <summary>
+      <span class="pNo">C2</span>
+      <svg class="ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="rBg" cx="22" cy="22" r="19"/><circle class="rFg" cx="22" cy="22" r="19"/></svg>
+      <span class="pTitle"><b>The calendar</b><span>~2 weeks &middot; stop selling dates he has already given away</span></span>
+      <span class="chev">&#9656;</span>
+    </summary>
+    <div class="pBody">
+      <p class="pGoal">
+        An owner who cannot block a date will manage his real calendar somewhere else &mdash;
+        a diary, a WhatsApp thread, his head &mdash; and Rentra becomes the system that is
+        always slightly wrong. That is how a supply side quietly dies.
+      </p>
+      <div class="pGate"><b>GATE TO EXIT &rarr;</b> 90% of live listings confirmed fresh
+      inside 30 days, zero double bookings, and owner-initiated blocks happening without
+      anyone being asked to do it.</div>
+
+      <ul class="checks">
+        <li><input type="checkbox"><span class="cTxt"><b>/partner/listings/[id]/calendar</b>
+          <p>Month grid with a day row and a night row, because that is exactly how
+          availability is stored. <code>full_day</code> stays a booking-level concept that
+          consumes both &mdash; keeping it out of the grid keeps the invariant impossible to
+          violate.</p>
+          <span class="src">availabilitySlot enum &mdash; day | night only</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>One-tap block and drag-select bulk block</b>
+          <p>A family function takes a whole weekend out. If that is nine taps it gets done
+          in a diary instead.</p>
+          <span class="src">availability.blocked_by_client</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Per-date price override</b>
+          <p>Diwali, a long weekend, the Saturday of the wedding season. The column exists and
+          the public availability endpoint already reads it &mdash; only the write side is
+          missing.</p>
+          <span class="src">availability.price_override</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Roll the availability horizon forward</b>
+          <p>A worker job keeping 120 days seeded. Without it a listing runs out of rows and
+          reads as fully booked, which is worse than reading as unavailable.</p></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Freshness: stamp, nudge, auto-hide</b>
+          <p>Stamp <code>availabilityConfirmedAt</code> on any calendar touch. Nudge on
+          WhatsApp at 30 days with a one-tap &ldquo;still available&rdquo;. Auto-hide at 45.
+          Three unavailable bookings and a seeker never comes back.</p>
+          <span class="src">rentable.availability_confirmed_at</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Show confirmed bookings on the same grid</b>
+          <p>Blocks and bookings in one view, visually distinct. Two sources of truth for one
+          Saturday is the double booking waiting to happen.</p></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>A combined calendar across all listings</b>
+          <p>Read-only, one row per property. An owner with four farmhouses needs one place to
+          see the weekend, and it costs one indexed query.</p>
+          <span class="src">rentable_client_idx</span></span></li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- ================================================================ PHASE 3 -->
+<section class="block" id="c3">
+  <details class="phase" data-phase="c3">
+    <summary>
+      <span class="pNo">C3</span>
+      <svg class="ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="rBg" cx="22" cy="22" r="19"/><circle class="rFg" cx="22" cy="22" r="19"/></svg>
+      <span class="pTitle"><b>Money he can see</b><span>~3 weeks &middot; earnings, payouts, deposits, tax</span></span>
+      <span class="chev">&#9656;</span>
+    </summary>
+    <div class="pBody">
+      <p class="pGoal">
+        An owner who cannot see his money does not trust the platform holding it, however
+        correctly it is being held. Visible status is not a nice-to-have here &mdash; it is
+        the difference between a product and a phone call per payout.
+      </p>
+      <div class="pGate"><b>GATE TO EXIT &rarr;</b> Zero &ldquo;where is my money&rdquo;
+      contacts per fifty bookings, and an owner can produce his own quarterly numbers without
+      asking anyone.</div>
+
+      <div class="tscroll" data-reveal>
+      <table>
+        <caption>What a payout row already knows, and what the owner can see of it</caption>
+        <thead><tr><th>Column</th><th>Meaning</th><th>Visible today</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">gross</td><td>Rent for the booking</td><td class="ctr">No</td></tr>
+          <tr><td class="mono">commission</td><td>Rentra&rsquo;s 8%</td><td class="ctr">No</td></tr>
+          <tr><td class="mono">tds_194o</td><td>Deducted from the first payout, not from a threshold</td><td class="ctr">No</td></tr>
+          <tr><td class="mono">gst_tcs</td><td>Collected at source</td><td class="ctr">No</td></tr>
+          <tr><td class="mono">net</td><td>What actually lands</td><td class="ctr">No</td></tr>
+          <tr><td class="mono">status</td><td>pending / processing / paid / failed / frozen</td><td class="ctr">No</td></tr>
+          <tr><td class="mono">utr</td><td>Bank reference for reconciliation</td><td class="ctr">No</td></tr>
+          <tr><td class="mono">settled_at</td><td>When it left</td><td class="ctr">No</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <ul class="checks">
+        <li><input type="checkbox"><span class="cTxt"><b>/partner/earnings</b>
+          <p>This month, last month, per listing. Gross, commission, tax, net &mdash; the
+          same four numbers every time, in the same order. This is the screen that decides
+          whether he lists his second property.</p></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>/partner/payouts</b>
+          <p>One row per payout with its status and UTR. A pending payout that says nothing is
+          an inbound call; a pending payout that says &ldquo;settles Tuesday&rdquo; is not.</p></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Split payments and settlement</b>
+          <p>Razorpay Route or Cashfree Easy Split, commission retained automatically, T+1 or
+          T+2 to the verified destination. Before designing it, get the answer the plan already
+          tells you to ask: what is the maximum hold period for a rental marketplace? A Diwali
+          booking made in August holds funds for seventy days and that answer shapes the flow.</p></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Replace the typed-name check with a real penny-drop</b>
+          <p>Today the holder name the owner typed is compared to his KYC name. A real
+          penny-drop returns the name the bank holds. Paying out to a third-party account is
+          how a marketplace becomes a laundering route.</p>
+          <span class="src">lib/auth/application.js:135</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Deposit lifecycle in the owner&rsquo;s view</b>
+          <p>Held, claim window open, auto-refunded, claimed. The deposit is always returned
+          in full on a cancellation regardless of tier &mdash; the refund function already
+          enforces that, so say so on screen and stop the argument before it starts.</p>
+          <span class="src">calculateRefund() &mdash; depositRefunded</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Tax, from the first rupee</b>
+          <p>TDS and TCS on every payout row plus a downloadable quarterly statement. The
+          columns exist at zero by design; confirm the rates with a CA and start writing real
+          numbers into them before volume, not after.</p></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>A commission slab that falls with volume</b>
+          <p>Shown on the earnings page so it is a reason to stay rather than a rate nobody
+          reads. Enforcement buys the first transaction; this is what keeps the tenth.</p>
+          <span class="src">lib/domain/pricing.js &mdash; PLATFORM_FEE_RATE is a constant today</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>No same-day payout on a first booking</b>
+          <p>Stolen card in, payout out, chargeback lands forty days later and you pay both
+          sides. A hold on a new owner&rsquo;s first settlement costs one uncomfortable
+          conversation and prevents the whole class of loss.</p></span></li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- ================================================================ PHASE 4 -->
+<section class="block" id="c4">
+  <details class="phase" data-phase="c4">
+    <summary>
+      <span class="pNo">C4</span>
+      <svg class="ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="rBg" cx="22" cy="22" r="19"/><circle class="rFg" cx="22" cy="22" r="19"/></svg>
+      <span class="pTitle"><b>His language, his app</b><span>3&ndash;4 weeks &middot; stop assuming he will come to you</span></span>
+      <span class="chev">&#9656;</span>
+    </summary>
+    <div class="pBody">
+      <p class="pGoal">
+        Everything up to here assumes the owner opens a browser and reads English. The
+        implementation plan is blunt that this assumption is where the product wins or loses,
+        and it is the one part of the Client side that has not been started at all.
+      </p>
+      <div class="pGate"><b>GATE TO EXIT &rarr;</b> An owner completes a listing end to end,
+      in Gujarati, with no call from you &mdash; and a second owner does it entirely inside
+      WhatsApp.</div>
+
+      <ul class="checks">
+        <li><input type="checkbox"><span class="cTxt"><b>Gujarati and Hindi across the whole Client surface</b>
+          <p>Every label, every error, every notification. <code>preferredLocale</code> is on
+          the user row and nothing reads it. The guest side can survive in English; this side
+          cannot.</p>
+          <span class="src">user.preferred_locale</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Use the Gujarati amenity labels that are already there</b>
+          <p><code>labelGu</code> and <code>labelHi</code> were put in the amenity table for
+          exactly this and the builder still renders the English column.</p>
+          <span class="src">amenity.label_gu &middot; amenity.label_hi</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Move amenities onto the join table</b>
+          <p><code>rentable.amenities</code> holds free-text labels, so the public page
+          matches icons on keywords and nothing can be filtered or translated. The taxonomy
+          and the join table both exist; this is a backfill and a query change.</p>
+          <span class="src">rentable_amenity &mdash; see the build log's open gaps</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>WhatsApp intake with an AI draft</b>
+          <p>Eight photos and a voice note in his own language; you transcribe, run the photos
+          through a vision model, draft the title, description, amenities and a suggested
+          price, and reply with one message he answers with a single digit. Ops fixes the map
+          pin. The plan calls this the highest-leverage feature in the entire document.</p></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Voice input on every free-text field</b>
+          <p>Title, description, house rules &mdash; the three fields that strand a listing at
+          70% complete.</p></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Price recommendation, pre-filled</b>
+          <p>&ldquo;Farmhouses with a pool near Kamrej get ₹9,500 on Saturday nights and
+          ₹5,000 on weekdays.&rdquo; The seed data is already grounded in real Surat-belt
+          bands, so the first version is a query, not a model.</p></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Weekday and off-season suggestions</b>
+          <p>The direct attack on seasonality, and the thing that makes a corporate or
+          production-house booking possible later.</p></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>An owner landing page with an earnings estimate</b>
+          <p>The dashboard already quotes the ₹8,000&ndash;₹14,500 band to a signed-in owner.
+          That number belongs before the signup, on the page a forwarded WhatsApp link opens.</p>
+          <span class="src">app/(partner)/partner/page.js</span></span></li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- ================================================================ PHASE 5 -->
+<section class="block" id="c5">
+  <details class="phase" data-phase="c5">
+    <summary>
+      <span class="pNo">C5</span>
+      <svg class="ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="rBg" cx="22" cy="22" r="19"/><circle class="rFg" cx="22" cy="22" r="19"/></svg>
+      <span class="pTitle"><b>Operations on the ground</b><span>~4 weeks &middot; the caretaker, the evidence, the numbers</span></span>
+      <span class="chev">&#9656;</span>
+    </summary>
+    <div class="pBody">
+      <p class="pGoal">
+        Every operational step the plan assigns to the owner is physically performed by
+        someone else &mdash; the caretaker who unlocks the gate, shows the guests around and
+        takes the cash. Until that person has an account, the photo requirement the whole
+        dispute process rests on will simply not be complied with.
+      </p>
+      <div class="pGate"><b>GATE TO EXIT &rarr;</b> Caretaker completes check-in on 80% of
+      bookings, owner-side cancellation under 2%, disputes under 3 per 100 bookings and each
+      one closed with written reasoning shown to both sides.</div>
+
+      <ul class="checks">
+        <li><input type="checkbox"><span class="cTxt"><b>/partner/staff &mdash; caretaker sub-accounts</b>
+          <p>Phone login, scoped permissions: can check guests in, can capture condition
+          photos, can mark a return, can confirm cash &mdash; cannot see earnings, cannot
+          change prices. Build the primitive once; it serves the caretaker now and the
+          vendor&rsquo;s delivery driver in Phase 3.</p>
+          <span class="src">client_staff &mdash; table and permissions jsonb already exist</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Condition proof capture</b>
+          <p>In-app camera only, gallery blocked, timestamped and geotagged, at check-in and
+          at check-out, with a side-by-side comparison. The authenticated upload path already
+          exists in the document vault.</p>
+          <span class="src">lib/uploads/cloudinary.js &middot; lib/auth/documents.js</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Check-in code verification</b>
+          <p>A single screen for the person standing at the gate. <code>checkInCode</code> is
+          already a column on booking.</p></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Damage claim with an evidence window</b>
+          <p>Claim, automatic deposit freeze, a fixed 48-hour window, an admin decision, and
+          the same written reasoning shown to both sides. Transparency here is what stops a
+          dispute becoming a public complaint.</p>
+          <span class="src">bookingState 'disputed' &middot; payoutStatus 'frozen'</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Reply to a guest review</b>
+          <p>One unanswered bad review costs more churn than three good ones win. Reviews
+          release only when both sides submit or after 14 days &mdash; the reply is separate
+          from that and should stay separate.</p></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>/partner/insights</b>
+          <p>Views, enquiries, requests, confirmed &mdash; per listing, as a funnel rather
+          than page views. An owner who cannot see why he is not getting bookings decides the
+          platform is dead and stops confirming availability, which makes it true.</p></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Surface the verification visit</b>
+          <p>When it is, whether it is a video call or a physical visit, who is coming and
+          what they will check. The owner has to be at the property and is currently told
+          none of it.</p>
+          <span class="src">verification_visit.scheduled_at &middot; mode &middot; assigned_to</span></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>A walkthrough video step in the builder</b>
+          <p>It is what the guest-side plan already assumes exists, and the cheapest possible
+          input to video verification.</p></span></li>
+
+        <li><input type="checkbox"><span class="cTxt"><b>Bulk actions across listings</b>
+          <p>Block the same week on all four farmhouses at once. Only worth building after the
+          calendar exists, which is why it sits here and not in C2.</p></span></li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- ================================================================ SCREENS -->
+<section class="block" id="screens">
+  <p class="kick" data-reveal>THE BUILD LIST</p>
+  <h2 data-reveal data-delay="1">Eleven new routes, and what each one is for</h2>
+  <p class="lede" data-reveal data-delay="1">
+    All of them noindex, all of them inside the existing <code>(partner)</code> group and
+    layout, all of them Server Components reading the database directly with writes as Server
+    Actions &mdash; the eight rules apply unchanged.
+  </p>
+
+  <div class="tscroll" data-reveal>
+  <table>
+    <caption>New Client routes</caption>
+    <thead><tr><th>Route</th><th>Phase</th><th>Its one job</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">/partner/settings</td><td>C0</td><td>Change phone, payout destination, language and notification channel after approval.</td></tr>
+      <tr><td class="mono">/partner/bookings</td><td>C1</td><td>Requests needing an answer, then upcoming, then past.</td></tr>
+      <tr><td class="mono">/partner/bookings/[reference]</td><td>C1</td><td>Decide on one booking. Guest first, money second.</td></tr>
+      <tr><td class="mono">/partner/listings/[id]/calendar</td><td>C2</td><td>Block, unblock, override a price, see confirmed bookings.</td></tr>
+      <tr><td class="mono">/partner/calendar</td><td>C2</td><td>All properties, one weekend, read-only.</td></tr>
+      <tr><td class="mono">/partner/earnings</td><td>C3</td><td>What was earned, by month and by property.</td></tr>
+      <tr><td class="mono">/partner/payouts</td><td>C3</td><td>What was sent, its status and its UTR.</td></tr>
+      <tr><td class="mono">/partner/staff</td><td>C5</td><td>Caretaker accounts and their scoped permissions.</td></tr>
+      <tr><td class="mono">/partner/bookings/[reference]/check-in</td><td>C5</td><td>Code verification and condition capture, built for the person at the gate.</td></tr>
+      <tr><td class="mono">/partner/reviews</td><td>C5</td><td>Read and reply.</td></tr>
+      <tr><td class="mono">/partner/insights</td><td>C5</td><td>The funnel per listing, not page views.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="info" data-reveal>
+    <p>
+      <b>One navigation decision to make first.</b> The partner layout currently has a logo
+      and a log-out button, which was right for a surface with two destinations. Eleven more
+      routes needs a real nav &mdash; and on the owner side that means a bottom bar on mobile,
+      not a sidebar. He is holding the phone in one hand at the gate.
+    </p>
+  </div>
+</section>
+
+<!-- ================================================================= SCHEMA -->
+<section class="block" id="schema">
+  <p class="kick" data-reveal>THE CHEAP PART</p>
+  <h2 data-reveal data-delay="1">What the schema already gives you for free</h2>
+  <p class="lede" data-reveal data-delay="1">
+    This is the reason the plan above is measured in weeks rather than months. The database
+    was designed for the whole owner lifecycle; only the first third was built on top of it.
+    Almost nothing below needs a migration.
+  </p>
+
+  <div class="tscroll" data-reveal>
+  <table>
+    <caption>Already modelled, not yet used by any Client screen</caption>
+    <thead><tr><th>Table or column</th><th>What it unlocks</th><th>Phase</th><th>Migration?</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">booking.* (23 columns)</td><td>The entire booking inbox, seven states, accept and decline</td><td>C1</td><td class="ctr">No</td></tr>
+      <tr><td class="mono">booking.accept_deadline</td><td>The 12-hour timer, with its index already built</td><td>C1</td><td class="ctr">No</td></tr>
+      <tr><td class="mono">booking.check_in_code</td><td>Arrival verification</td><td>C1 / C5</td><td class="ctr">No</td></tr>
+      <tr><td class="mono">user.responds_within_mins</td><td>Fast Responder badge</td><td>C1</td><td class="ctr">No</td></tr>
+      <tr><td class="mono">user.response_rate</td><td>The raw signal shown beside the badge</td><td>C1</td><td class="ctr">No</td></tr>
+      <tr><td class="mono">availability.blocked_by_client</td><td>One-tap block and bulk block</td><td>C2</td><td class="ctr">No</td></tr>
+      <tr><td class="mono">availability.price_override</td><td>Diwali and Saturday pricing</td><td>C2</td><td class="ctr">No</td></tr>
+      <tr><td class="mono">rentable.availability_confirmed_at</td><td>Freshness nudge and auto-hide</td><td>C2</td><td class="ctr">No</td></tr>
+      <tr><td class="mono">payout.* (11 columns)</td><td>Earnings, payout history, TDS, TCS, UTR</td><td>C3</td><td class="ctr">No</td></tr>
+      <tr><td class="mono">payout_status 'frozen'</td><td>Deposit freeze during a dispute</td><td>C5</td><td class="ctr">No</td></tr>
+      <tr><td class="mono">user.preferred_locale</td><td>Gujarati-first owner surface</td><td>C4</td><td class="ctr">No</td></tr>
+      <tr><td class="mono">amenity.label_gu / label_hi</td><td>Translated amenity picker</td><td>C4</td><td class="ctr">No</td></tr>
+      <tr><td class="mono">rentable_amenity</td><td>Filterable, translatable amenities</td><td>C4</td><td class="ctr">Backfill</td></tr>
+      <tr><td class="mono">client_staff + permissions</td><td>Caretaker sub-accounts</td><td>C5</td><td class="ctr">No</td></tr>
+      <tr><td class="mono">verification_visit</td><td>Owner-facing visit scheduling</td><td>C5</td><td class="ctr">No</td></tr>
+      <tr><td class="mono">review (two-way)</td><td>Reading reviews</td><td>C5</td><td class="ctr">No</td></tr>
+      <tr><td class="mono">&mdash;</td><td>Review <em>replies</em></td><td>C5</td><td class="ctr">Yes</td></tr>
+      <tr><td class="mono">&mdash;</td><td>Structured decline reasons</td><td>C1</td><td class="ctr">Yes</td></tr>
+      <tr><td class="mono">&mdash;</td><td>Condition photo sets, check-in vs check-out</td><td>C5</td><td class="ctr">Yes</td></tr>
+      <tr><td class="mono">&mdash;</td><td>Notification log and delivery status</td><td>C0</td><td class="ctr">Yes</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="note" data-reveal>
+    <p>
+      <b>Four migrations across six phases.</b> Generate them with
+      <code>db:generate</code> and apply with <code>db:migrate</code> &mdash; never
+      <code>drizzle-kit push</code>, which bypasses the reviewable SQL entirely and can drop a
+      constraint with data behind it.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ GUARDRAILS -->
+<section class="block" id="guardrails">
+  <p class="kick" data-reveal>RESTRAINT</p>
+  <h2 data-reveal data-delay="1">Do not build these on the Client side</h2>
+
+  <div class="grid2">
+    <div class="card" data-reveal>
+      <h4>An owner mobile app</h4>
+      <p>He arrives through a forwarded WhatsApp link and opens it in a browser. Mobile web
+      camera capture is good enough for condition proof until there is real volume.</p>
+    </div>
+    <div class="card" data-reveal data-delay="1">
+      <h4>A composite trust score</h4>
+      <p>Show the raw signals &mdash; completed bookings, response time, cancellations,
+      rating. They are more convincing precisely because nobody has to trust your weighting.</p>
+    </div>
+    <div class="card" data-reveal data-delay="2">
+      <h4>Channel sync or an ICS feed</h4>
+      <p>Real for an owner also listed elsewhere, and genuinely useful &mdash; but not before
+      there are enough listings for the sync to be worth maintaining.</p>
+    </div>
+    <div class="card" data-reveal>
+      <h4>Custom cancellation policies</h4>
+      <p>Three tiers, computed, never negotiated in chat. A per-owner policy is a support
+      queue with extra steps, and the refund function is deliberately one function.</p>
+    </div>
+    <div class="card" data-reveal data-delay="1">
+      <h4>Featured or boosted listings</h4>
+      <p>Meaningless until listing density makes ranking worth paying for.</p>
+    </div>
+    <div class="card" data-reveal data-delay="2">
+      <h4>Bulk CSV listing import</h4>
+      <p>An owner with twenty properties is not the Phase 2 customer, and the ownership
+      document check does not survive a bulk import anyway &mdash; which is the whole point
+      of the check.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ METRICS -->
+<section class="block" id="metrics">
+  <p class="kick" data-reveal>MEASUREMENT</p>
+  <h2 data-reveal data-delay="1">The owner funnel, which nothing currently records</h2>
+  <p class="lede" data-reveal data-delay="1">
+    Page views tell you nothing about a supply side. These eleven numbers tell you everything,
+    and every one of them is derivable from tables that already exist plus an events table
+    that does not.
+  </p>
+
+  <div class="tscroll" data-reveal>
+  <table>
+    <caption>Client-side funnel</caption>
+    <thead><tr><th>Step</th><th>Healthy</th><th>What a bad number means</th></tr></thead>
+    <tbody>
+      <tr><td>Signed up &rarr; phone verified</td><td>&gt; 80%</td><td>OTP is not arriving, or the SMS cost is being paid for nothing.</td></tr>
+      <tr><td>Phone verified &rarr; application submitted</td><td>&gt; 55%</td><td>The KYC or payout step is where they stop &mdash; check which section the completion bar strands them on.</td></tr>
+      <tr><td>Time to a Gate 1 decision</td><td>&lt; 2 working days</td><td>You promised two days on the dashboard. Missing it is the first broken promise.</td></tr>
+      <tr><td>Approved &rarr; first listing submitted</td><td>&gt; 70% in 7 days</td><td>The builder is too long, or nobody told him he was approved.</td></tr>
+      <tr><td>Listing submitted &rarr; live</td><td>&gt; 75% on pass 1</td><td>Gate 2 is rejecting for something the builder should have prevented.</td></tr>
+      <tr><td>Live &rarr; first booking</td><td>&lt; 21 days</td><td>Price, photos or demand. The insights screen is what tells you which.</td></tr>
+      <tr><td>Requests answered before expiry</td><td>&gt; 90%</td><td>The notification is not reaching him. Almost never apathy this early.</td></tr>
+      <tr><td>Median time to accept</td><td>&lt; 2 hours</td><td>Guests are waiting overnight to know if they have a venue.</td></tr>
+      <tr><td>Availability confirmed in 30 days</td><td>&gt; 90%</td><td>Stale inventory. The quietest way a rental marketplace dies.</td></tr>
+      <tr><td>Owner-side cancellation</td><td>&lt; 2%</td><td>Double-booked against a diary, which means the calendar is not being used.</td></tr>
+      <tr><td>Owners still active at 90 days</td><td>&gt; 60%</td><td>The one number that says whether any of the above worked.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="tip" data-reveal>
+    <p>
+      <b>Where to start on Monday.</b> C0 item one, then C0 item two. A provider behind
+      <code>deliverOtp</code> and a <code>revalidatePath</code> call are perhaps a day of work
+      between them, and until they are done every other item on this page is theoretical &mdash;
+      because in production today nobody can log in, and anyone who could would not see their
+      own edits.
+    </p>
+  </div>
+</section>
+
+</main>
+
+<button class="toTop" id="toTop" type="button" aria-label="Back to top">&#8593;</button>
+
+<footer class="foot">
+  <p>
+    Rentra client plan &middot; companion to
+    <a href="rentra-role-flow.html">rentra-role-flow.html</a>,
+    <a href="rentra-implementation-plan.html">rentra-implementation-plan.html</a>,
+    <a href="rentra-build-log.html">rentra-build-log.html</a>,
+    <a href="rentra-design-system.html">rentra-design-system.html</a> and
+    <a href="rentspace-india-plan.html">rentspace-india-plan.html</a>.
+  </p>
+  <p style="margin-top:.6rem;font-size:.82rem">
+    Audited against the repository, not against the planning documents. Checklist state is
+    kept in this browser only.
+  </p>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+  var reduce = window.matchMedia
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ------------------------------------------------------ scroll reveal */
+  var revealables = document.querySelectorAll('[data-reveal]');
+  if (!('IntersectionObserver' in window) || reduce) {
+    revealables.forEach(function (el) { el.classList.add('in'); });
+  } else {
+    var revealIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); revealIO.unobserve(e.target); }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    revealables.forEach(function (el) { revealIO.observe(el); });
+  }
+
+  /* --------------------------------------------------------- count-ups */
+  function countUp(el) {
+    var target = parseInt(el.getAttribute('data-count'), 10) || 0;
+    if (reduce || target === 0) { el.textContent = String(target); return; }
+    var start = null, dur = 900;
+    function tick(ts) {
+      if (start === null) start = ts;
+      var p = Math.min((ts - start) / dur, 1);
+      // easeOutCubic
+      el.textContent = String(Math.round(target * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  var counters = document.querySelectorAll('[data-count]');
+  if (!('IntersectionObserver' in window)) {
+    counters.forEach(countUp);
+  } else {
+    var countIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { countUp(e.target); countIO.unobserve(e.target); }
+      });
+    }, { threshold: 0.4 });
+    counters.forEach(function (el) { countIO.observe(el); });
+  }
+
+  /* ----------------------------------------------------- coverage bars */
+  var fills = document.querySelectorAll('.covFill');
+  function fill(el) { el.style.width = (el.getAttribute('data-w') || 0) + '%'; }
+  if (!('IntersectionObserver' in window)) {
+    fills.forEach(fill);
+  } else {
+    var barIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { fill(e.target); barIO.unobserve(e.target); }
+      });
+    }, { threshold: 0.5 });
+    fills.forEach(function (el) { barIO.observe(el); });
+  }
+
+  /* ------------------------------------------------------ journey player */
+  var STAGES = [
+    { s: 'part', t: 'He hears about Rentra',
+      d: 'A forwarded WhatsApp link, or another owner in the same belt. There is a public home page, but no owner-facing page that answers the only question he has: what would my farmhouse earn?',
+      w: 'app/(marketing)/page.js' },
+    { s: 'built', t: 'Opens /partner/login and enters his email',
+      d: 'Email is the Client credential, phone is the Customer one, and uniqueness is on (email, role) — so the same person can hold both accounts without colliding.',
+      w: 'app/(partner)/partner/login/page.js' },
+    { s: 'missing', t: 'The OTP arrives',
+      d: 'It does not. deliverOtp prints to the terminal in development and throws in production, because no SMS or email provider is wired. On a live deployment the journey ends here.',
+      w: 'lib/auth/otp.js:132' },
+    { s: 'built', t: 'Lands on a dashboard, not an empty shell',
+      d: 'He is logged in from the moment his email is verified and cannot publish until approved. The dashboard shows a derived completion stepper, so the bar can honestly go backwards when something is invalidated.',
+      w: 'app/(partner)/partner/page.js · lib/auth/profile.js' },
+    { s: 'built', t: 'Sees "Add place for rent" — visible, locked, and specific',
+      d: 'The CTA is present from the first visit and explains on click exactly which step is missing. Hiding it would hide the reason to finish.',
+      w: 'components/partner/GatedAddPlaceButton.jsx' },
+    { s: 'part', t: 'Verifies his mobile number',
+      d: 'The form, the rate limit and the HMAC-only storage are all built. The SMS still has nowhere to go.',
+      w: 'app/(partner)/partner/onboarding/phone/page.js' },
+    { s: 'built', t: 'Fills in his details — owner or authorised agent',
+      d: 'A broker may list only as an explicitly labelled agent, never as an owner. That distinction is a column, not a policy document.',
+      w: 'app/(partner)/partner/onboarding/details/page.js' },
+    { s: 'part', t: 'Uploads his ID',
+      d: 'Files go to Cloudinary as authenticated assets and only the public_id is stored, never a delivery URL. What is missing is the vendor: no Aadhaar or PAN verification actually runs.',
+      w: 'app/(partner)/partner/onboarding/kyc/page.js · lib/auth/documents.js' },
+    { s: 'part', t: 'Adds where he wants to be paid',
+      d: 'UPI or bank. The name he types is compared against his KYC name, which catches an obvious third party and nothing subtler. A real penny-drop returns the name the bank holds.',
+      w: 'lib/auth/application.js:135' },
+    { s: 'built', t: 'Consents and submits to the Gate 1 queue',
+      d: 'Consent is stamped with time and IP. The application lands in the Super Admin queue with three possible outcomes, not two — more_info_needed is what stops a fixable typo becoming a permanent rejection.',
+      w: 'lib/auth/application.js' },
+    { s: 'missing', t: 'Finds out he was approved',
+      d: 'Nothing tells him. No email, no SMS, no WhatsApp. The only way he learns the decision is by guessing when to log in again — and the dashboard promised him two working days.',
+      w: 'no notification layer exists' },
+    { s: 'built', t: 'Builds the listing — ten steps, five chapters',
+      d: 'Nine sections grouped so the bar reads "2 of 5 · The space" rather than "4 of 9". Real routes rather than client state, so Back works and a half-finished setup is a link he can be sent.',
+      w: 'app/(partner)/partner/listings/[id]/setup/[step]/page.js' },
+    { s: 'part', t: 'Uploads six to fifteen photos',
+      d: 'Upload, validation and removal all work. There is no cover selection and no reordering, so the hero shot — the whole listing card — is whichever file his phone handed over first.',
+      w: 'lib/auth/listings.js:323' },
+    { s: 'built', t: 'Proves the place is his',
+      d: 'A 7/12 extract, a light bill under three months old, a property tax receipt or an Index-II. This single name-match is what keeps brokers from posting as owners, and it is the reason a Rentra listing is worth more than a classified ad.',
+      w: 'lib/domain/listing-completion.js — OWNERSHIP_DOC_TYPES' },
+    { s: 'built', t: 'Submits, is reviewed, goes live',
+      d: 'Gate 2 re-checks completeness server-side, because rendering the button is not the authorisation. Rejection reasons come back inline and a resubmit increments the review pass.',
+      w: 'lib/auth/listings.js:465' },
+    { s: 'missing', t: 'A guest requests his Saturday',
+      d: 'And nothing happens. There is no booking inbox, no accept, no decline, no timer. The booking table is complete and no Client screen reads a single column of it. This is where the product currently ends.',
+      w: 'no /partner/bookings route' },
+    { s: 'missing', t: 'He needs that Saturday back for a family function',
+      d: 'He cannot block it. availability.blocked_by_client exists for exactly this and nothing writes to it, so Rentra keeps selling a date he has already given away.',
+      w: 'availability.blocked_by_client' },
+    { s: 'missing', t: 'The guest arrives, leaves, and the money settles',
+      d: 'Check-in code, condition photos, deposit release, payout with TDS and a UTR, a review he can answer. Every one of those is modelled in the database and none of them has a screen.',
+      w: 'booking · payout · review · client_staff' }
+  ];
+
+  var rail = document.getElementById('jRail');
+  var stage = document.getElementById('jStage');
+  var countEl = document.getElementById('jCount');
+  var playBtn = document.getElementById('jPlay');
+  var idx = 0, timer = null;
+  var LABEL = { built: 'BUILT', part: 'PARTLY BUILT', missing: 'MISSING' };
+
+  if (rail && stage) {
+    STAGES.forEach(function (s, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'jNode';
+      b.setAttribute('data-state', s.s);
+      b.setAttribute('data-i', String(i));
+      b.setAttribute('role', 'tab');
+      b.setAttribute('aria-label', (i + 1) + '. ' + s.t + ' — ' + LABEL[s.s]);
+      b.textContent = String(i + 1);
+      b.addEventListener('click', function () { stop(); show(i); });
+      rail.appendChild(b);
+    });
+
+    var nodes = rail.querySelectorAll('.jNode');
+
+    function show(i, skipScroll) {
+      idx = (i + STAGES.length) % STAGES.length;
+      var s = STAGES[idx];
+      nodes.forEach(function (n, j) {
+        n.classList.toggle('on', j === idx);
+        n.setAttribute('aria-selected', j === idx ? 'true' : 'false');
+      });
+      countEl.textContent = (idx + 1) + ' / ' + STAGES.length;
+
+      function paint() {
+        stage.innerHTML =
+          '<span class="pill ' + s.s + '">' + LABEL[s.s] + '</span>' +
+          '<h4>' + (idx + 1) + '. ' + s.t + '</h4>' +
+          '<p>' + s.d + '</p>' +
+          '<span class="where">' + s.w + '</span>';
+        stage.classList.remove('fade');
+      }
+      if (reduce) { paint(); }
+      else {
+        stage.classList.add('fade');
+        window.setTimeout(paint, 140);
+      }
+
+      if (!skipScroll) {
+        var n = nodes[idx];
+        var target = n.offsetLeft - (rail.clientWidth / 2) + (n.offsetWidth / 2);
+        rail.scrollTo({ left: Math.max(0, target), behavior: reduce ? 'auto' : 'smooth' });
+      }
+    }
+
+    function stop() {
+      if (timer) { clearInterval(timer); timer = null; }
+      playBtn.innerHTML = '&#9654;&ensp;Play the journey';
+    }
+    function play() {
+      playBtn.innerHTML = '&#10073;&#10073;&ensp;Pause';
+      timer = window.setInterval(function () {
+        if (idx === STAGES.length - 1) { stop(); return; }
+        show(idx + 1);
+      }, 3400);
+    }
+
+    playBtn.addEventListener('click', function () {
+      if (timer) { stop(); return; }
+      if (idx === STAGES.length - 1) show(0);
+      play();
+    });
+    document.getElementById('jNext').addEventListener('click', function () { stop(); show(idx + 1); });
+    document.getElementById('jPrev').addEventListener('click', function () { stop(); show(idx - 1); });
+
+    rail.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight') { stop(); show(idx + 1); e.preventDefault(); }
+      if (e.key === 'ArrowLeft') { stop(); show(idx - 1); e.preventDefault(); }
+    });
+
+    show(0, true);
+  }
+
+  /* --------------------------------------------------------- gap filters */
+  var grid = document.getElementById('gapGrid');
+  if (grid) {
+    var cards = Array.prototype.slice.call(grid.querySelectorAll('.gap'));
+    var gCount = document.getElementById('gCount');
+    var active = { sev: 'all', ph: 'all' };
+
+    function apply() {
+      var shown = 0;
+      cards.forEach(function (c) {
+        var ok = (active.sev === 'all' || c.getAttribute('data-sev') === active.sev)
+              && (active.ph === 'all' || c.getAttribute('data-ph') === active.ph);
+        if (ok) shown++;
+        if (reduce) {
+          c.classList.toggle('gone', !ok);
+          c.classList.remove('out');
+          return;
+        }
+        if (ok) {
+          c.classList.remove('gone');
+          // next frame, so the transition has something to run from
+          requestAnimationFrame(function () { c.classList.remove('out'); });
+        } else {
+          c.classList.add('out');
+          window.setTimeout(function () {
+            if (c.classList.contains('out')) c.classList.add('gone');
+          }, 300);
+        }
+      });
+      gCount.textContent = 'Showing ' + shown + ' of ' + cards.length;
+    }
+
+    document.querySelectorAll('[data-filter]').forEach(function (group) {
+      var key = group.getAttribute('data-filter');
+      group.querySelectorAll('.fBtn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          group.querySelectorAll('.fBtn').forEach(function (b) { b.classList.remove('on'); });
+          btn.classList.add('on');
+          active[key] = btn.getAttribute('data-v');
+          apply();
+        });
+      });
+    });
+  }
+
+  /* ------------------------------------------- checklists + progress rings */
+  var STORE = 'rentra-client-plan-v1';
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (err) { saved = {}; }
+  function persist() {
+    try { localStorage.setItem(STORE, JSON.stringify(saved)); } catch (err) { /* private mode */ }
+  }
+
+  var C = 2 * Math.PI * 19;
+  document.querySelectorAll('.phase').forEach(function (phase) {
+    var key = phase.getAttribute('data-phase');
+    var boxes = Array.prototype.slice.call(phase.querySelectorAll('.checks input[type=checkbox]'));
+    var ring = phase.querySelector('.ring');
+    var fg = ring ? ring.querySelector('.rFg') : null;
+    if (fg) { fg.style.strokeDasharray = C.toFixed(2); fg.style.strokeDashoffset = C.toFixed(2); }
+
+    function draw() {
+      var done = boxes.filter(function (b) { return b.checked; }).length;
+      var pct = boxes.length ? done / boxes.length : 0;
+      if (fg) fg.style.strokeDashoffset = (C * (1 - pct)).toFixed(2);
+      if (ring) ring.classList.toggle('done', done === boxes.length && boxes.length > 0);
+      if (ring) ring.setAttribute('aria-label', done + ' of ' + boxes.length + ' done');
+      var sub = phase.querySelector('.pTitle span');
+      if (sub && !sub.hasAttribute('data-base')) sub.setAttribute('data-base', sub.textContent);
+      if (sub) sub.textContent = sub.getAttribute('data-base') + ' · ' + done + '/' + boxes.length + ' done';
+    }
+
+    boxes.forEach(function (box, i) {
+      var id = key + ':' + i;
+      box.checked = saved[id] === true;
+      box.closest('li').classList.toggle('done', box.checked);
+      box.addEventListener('change', function () {
+        saved[id] = box.checked;
+        box.closest('li').classList.toggle('done', box.checked);
+        persist();
+        draw();
+      });
+    });
+    draw();
+  });
+
+  /* ------------------------------------------------------------ scrollspy */
+  var links = Array.prototype.slice.call(document.querySelectorAll('.rail a'));
+  var targets = links
+    .map(function (a) { return document.querySelector(a.getAttribute('href')); })
+    .filter(Boolean);
+  if ('IntersectionObserver' in window && targets.length) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        links.forEach(function (a) {
+          a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id);
+        });
+      });
+    }, { rootMargin: '-25% 0px -65% 0px' });
+    targets.forEach(function (t) { spy.observe(t); });
+  }
+
+  /* ----------------------------------------------------------- back to top */
+  var top = document.getElementById('toTop');
+  if (top) {
+    top.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+    });
+    window.addEventListener('scroll', function () {
+      top.classList.toggle('on', window.scrollY > 700);
+    }, { passive: true });
+  }
+
+  /* --------------------------- open a phase when linked to directly */
+  function openFromHash() {
+    var h = location.hash;
+    if (!h) return;
+    var sec = document.querySelector(h);
+    if (!sec) return;
+    var d = sec.querySelector('.phase');
+    if (d) d.open = true;
+  }
+  window.addEventListener('hashchange', openFromHash);
+  openFromHash();
+})();
+</script>
+</body>
+</html>

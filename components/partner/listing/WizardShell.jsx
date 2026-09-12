@@ -3,7 +3,8 @@
 import { useCallback, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Check, Loader2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Loader2, AlertTriangle, X } from 'lucide-react';
+import { RentraLogo } from '@/components/rentra/Logo';
 import { ListingChrome, STEP_FORM_ID } from './chrome';
 
 /**
@@ -11,23 +12,29 @@ import { ListingChrome, STEP_FORM_ID } from './chrome';
  *
  * Layout decisions, and why:
  *
- * · The primary action is a STICKY BOTTOM BAR, not a button at the end of the
- *   form. Owners fill this in on a phone, one-handed, and the bottom of the
- *   screen is the only place a thumb reliably reaches. It also means Continue
- *   is visible without scrolling on a long step like pricing.
+ * · It owns the WHOLE VIEWPORT — `h-dvh`, three rows, and only the middle one
+ *   scrolls. The dynamic viewport unit rather than `100vh` because on mobile
+ *   Safari `100vh` is taller than the visible area, which put the Continue
+ *   button underneath the browser's own chrome.
+ *
+ * · PROGRESS IS AT THE TOP, pinned under the identity bar and running edge to
+ *   edge. It is the answer to "how much more of this is there", which is the
+ *   question people ask before they decide to keep going — so it belongs where
+ *   the eye lands first, not below the fold at the bottom of a form.
  *
  * · Progress is SEGMENTED BY CHAPTER — five segments, not a single 0-100 bar.
- *   "2 of 5 · The space" is a number someone can hold in their head; "40%"
- *   is not. Completed chapters are clickable, so the walkthrough doubles as
+ *   "2 of 5 · The space" is a number someone can hold in their head; "40%" is
+ *   not. Completed chapters are clickable, so the walkthrough doubles as
  *   random access once you have been through it.
  *
- * · Nothing traps. "Skip for now" is always there except on the last step.
- *   The submit gate at the end still requires every section, so skipping
- *   costs nothing and forcing someone to produce a 7/12 extract before they
- *   can see the next question costs a listing.
+ * · The primary action is a STICKY BOTTOM BAR, not a button at the end of the
+ *   form. Owners fill this in on a phone, one-handed, and the bottom of the
+ *   screen is the only place a thumb reliably reaches.
  *
- * · Save and exit is always safe. Every step saves on Continue and the
- *   uploads save themselves, so there is never unsaved work to warn about.
+ * · Nothing traps. "Skip for now" is always there except on the last step. The
+ *   submit gate at the end still requires every section, so skipping costs
+ *   nothing and forcing someone to produce a 7/12 extract before they can see
+ *   the next question costs a listing.
  */
 export default function WizardShell({
   listingId,
@@ -82,52 +89,83 @@ export default function WizardShell({
 
   return (
     <ListingChrome variant="wizard" onSaved={handleSaved} onPending={setPending}>
-      {/* min-h keeps short steps from leaving the bar floating mid-screen */}
-      <div className="flex min-h-[calc(100vh-3.5rem)] flex-col">
-        <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-6 pt-6 pb-10">
-          <div className="flex items-baseline justify-between gap-4">
-            <p className="text-tiny font-bold tracking-wider text-brand-700 uppercase">
+      <div className="flex h-dvh flex-col overflow-hidden bg-background">
+
+        {/* ============================ TOP ============================ */}
+        <header className="z-30 shrink-0 border-b border-border bg-card">
+          <div className="flex items-center gap-3 px-4 py-2.5 sm:px-6">
+            <RentraLogo className="h-6 w-auto shrink-0" />
+            <span className="hidden h-4 w-px shrink-0 bg-ink-200 sm:block" aria-hidden="true" />
+
+            <p className="min-w-0 flex-1 truncate text-tiny font-bold tracking-wider text-brand-700 uppercase">
               {progress.chapterLabel}
-              <span className="ml-2 font-medium text-ink-400 normal-case tracking-normal">
+              <span className="ml-2 font-medium tracking-normal text-ink-400 normal-case">
                 Chapter {progress.chapterNumber} of {progress.chapterTotal}
               </span>
             </p>
+
+            <p className="hidden shrink-0 text-tiny tabular text-ink-500 md:block">
+              Step {progress.stepNumber} of {progress.stepTotal}
+              {progress.minutesLeft > 0 ? ` · ~${progress.minutesLeft} min left` : null}
+            </p>
+
             <Link
               href={`/partner/listings/${listingId}`}
-              className="shrink-0 text-tiny font-semibold text-ink-500 underline decoration-ink-300 underline-offset-2 hover:text-ink-900"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1.5 text-tiny font-semibold text-ink-600 transition-colors hover:bg-ink-100 hover:text-ink-900"
             >
-              Save and exit
+              <X className="size-3.5" aria-hidden="true" />
+              <span className="hidden sm:inline">Save and exit</span>
             </Link>
           </div>
 
-          <div className="mt-6 flex-1">{children}</div>
-        </div>
-
-        {/* ---------------------------- sticky bar ---------------------------- */}
-        <div className="sticky bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur">
+          {/* Progress, edge to edge — no gutters, so it reads as the top of the
+              screen rather than as another element inside a column. */}
           <ChapterBar chapters={progress.chapters} hrefs={chapterHrefs} />
+        </header>
 
+        {/* =========================== MIDDLE =========================== */}
+        <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+          {/*
+            `key` on the step id remounts on every navigation, which is what
+            makes the transition fire per step instead of once per session.
+          */}
           <div
-            className="mx-auto flex w-full max-w-2xl items-center gap-3 px-6 py-3.5"
-            /* iOS home-bar inset — without this the buttons sit under it. */
-            style={{ paddingBottom: 'max(0.875rem, env(safe-area-inset-bottom))' }}
+            key={step.id}
+            className="mx-auto w-full max-w-4xl animate-in fade-in slide-in-from-bottom-4 px-4 pt-7 pb-16 duration-500 ease-out sm:px-8 sm:pt-10"
           >
+            {children}
+          </div>
+        </main>
+
+        {/* =========================== BOTTOM =========================== */}
+        <footer
+          className="z-30 shrink-0 border-t border-border bg-card/95 backdrop-blur"
+          /* iOS home-bar inset — without this the buttons sit under it. */
+          style={{ paddingBottom: 'max(0px, env(safe-area-inset-bottom))' }}
+        >
+          <div className="flex w-full items-center gap-3 px-4 py-3 sm:px-6">
             {prevHref ? (
               <Link
                 href={prevHref}
-                className="inline-flex items-center gap-1.5 rounded-md px-3 py-2.5 text-meta font-semibold text-ink-700 underline decoration-ink-300 underline-offset-4 hover:text-ink-900 hover:decoration-ink-600"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-md px-3 py-2.5 text-meta font-semibold text-ink-700 transition-colors hover:bg-ink-100 hover:text-ink-900"
               >
                 <ArrowLeft className="size-4" aria-hidden="true" />
-                Back
+                <span className="hidden sm:inline">Back</span>
               </Link>
             ) : (
-              <span />
+              <span className="w-2" />
             )}
 
-            <p className="ml-auto hidden text-tiny text-ink-500 tabular sm:block">
-              Step {progress.stepNumber} of {progress.stepTotal}
-              {progress.minutesLeft > 0 ? ` · about ${progress.minutesLeft} min left` : null}
-            </p>
+            {/* Never trap. Somebody without the document to hand should still
+                be able to see the rest of the flow. */}
+            {nextHref ? (
+              <Link
+                href={nextHref}
+                className="shrink-0 text-tiny font-medium text-ink-500 underline decoration-ink-300 underline-offset-4 transition-colors hover:text-ink-900"
+              >
+                Skip for now
+              </Link>
+            ) : null}
 
             {continueLabel ? (
               <button
@@ -137,7 +175,7 @@ export default function WizardShell({
                 form={isSubmitStep ? STEP_FORM_ID : undefined}
                 onClick={isSubmitStep ? undefined : () => handleSaved()}
                 disabled={busy}
-                className="inline-flex shrink-0 items-center gap-2 rounded-md bg-brand-600 px-5 py-3 text-meta font-semibold text-white transition-colors hover:bg-brand-700 disabled:bg-ink-200 disabled:text-ink-500 sm:ml-3"
+                className="ml-auto inline-flex shrink-0 items-center gap-2 rounded-full bg-brand-600 px-6 py-3 text-meta font-semibold text-white shadow-sm transition-all hover:bg-brand-700 hover:shadow active:scale-[0.98] disabled:bg-ink-200 disabled:text-ink-500 disabled:shadow-none"
               >
                 {busy ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : null}
                 {busy ? 'Saving…' : continueLabel}
@@ -145,20 +183,7 @@ export default function WizardShell({
               </button>
             ) : null}
           </div>
-
-          {/* Never trap. Somebody without the document to hand should still be
-              able to see the rest of the flow. */}
-          {nextHref ? (
-            <div className="mx-auto -mt-1 w-full max-w-2xl px-6 pb-3">
-              <Link
-                href={nextHref}
-                className="text-tiny font-medium text-ink-500 underline decoration-ink-300 underline-offset-2 hover:text-ink-900"
-              >
-                Skip for now
-              </Link>
-            </div>
-          ) : null}
-        </div>
+        </footer>
       </div>
     </ListingChrome>
   );
@@ -173,7 +198,7 @@ export default function WizardShell({
  */
 function ChapterBar({ chapters, hrefs }) {
   return (
-    <div className="mx-auto w-full max-w-2xl px-6 pt-3">
+    <div className="px-4 pb-2.5 sm:px-6">
       <ol className="flex gap-1.5">
         {chapters.map((c) => {
           const href = hrefs[c.id];
@@ -182,12 +207,12 @@ function ChapterBar({ chapters, hrefs }) {
           const track = (
             <>
               <span
-                className={`block h-1.5 overflow-hidden rounded-full ${
+                className={`block h-1.5 overflow-hidden rounded-full transition-colors ${
                   c.isCurrent ? 'bg-brand-200' : 'bg-ink-200'
                 }`}
               >
                 <span
-                  className={`block h-full rounded-full transition-[width] duration-300 ${
+                  className={`block h-full rounded-full transition-[width] duration-700 ease-out ${
                     c.failed ? 'bg-danger' : 'bg-brand-600'
                   }`}
                   style={{ width: `${fill}%` }}
