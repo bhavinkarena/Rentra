@@ -70,7 +70,16 @@ try {
     assert.equal(Number(b.legacy_advance_reported_minor), 247500);
     assert.equal(b.amount_advance_minor, null); assert.equal(Number(b.collected_minor), 0);
     assert.equal(b.hours_known, false); assert.equal(b.visit_provenance, 'legacy_unknown');
-    assert.deepEqual(await sql`SELECT (SELECT jsonb_agg(p) FROM payout p) AS payouts, (SELECT jsonb_agg(r) FROM review r) AS reviews`, referencesBefore);
+    const referencesAfter = await sql`SELECT (SELECT jsonb_agg(p) FROM payout p) AS payouts, (SELECT jsonb_agg(r) FROM review r) AS reviews`;
+    // Later additive migrations may introduce columns; every original field and ID must survive.
+    for (const table of ['payouts', 'reviews']) {
+      assert.equal(referencesAfter[0][table].length, referencesBefore[0][table].length);
+      for (const original of referencesBefore[0][table]) {
+        const current = referencesAfter[0][table].find((row) => row.id === original.id);
+        assert.ok(current);
+        for (const [key, value] of Object.entries(original)) assert.deepEqual(current[key], value, `${table}.${key}`);
+      }
+    }
     for (const [key, value] of Object.entries(original[0].row)) {
       const [current] = await sql`SELECT to_jsonb(b) AS row FROM booking b`;
       assert.deepEqual(current.row[key], value, key);

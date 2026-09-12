@@ -5,16 +5,16 @@
  * importing the SAME lib/domain and lib/db as the app. That shared domain
  * layer is the whole reason this is one repo and not two.
  *
- * Queues to build, in Phase 2 order:
- *   booking:expire        12-hour acceptance timer, then auto-refund in full
- *   deposit:release       auto-refund once the inspection window closes clean
- *   payout:settle         split payout on T+1, with TDS/TCS fields recorded
+ * Queues to build in later customer parts:
+ *   booking:expire        expire checkout holds under inventory locks (Part 11)
+ *   deposit:release       verified real deposit refunds only (Part 22)
+ *   payout:settle         eligible captured allocations only (Part 21)
  *   listing:freshness     nudge, then auto-hide after 30 days unconfirmed
- *   whatsapp:send         confirmations, reminders, one-tap BLOCK replies
+ *   whatsapp:send         committed notification outbox delivery (Part 15)
  *
  * Run: node worker/index.js
  */
-import { calculateRefund } from '../lib/domain/pricing.js';
+import { PAYMENT_RUNTIME } from '../lib/payments/config.js';
 
 async function main() {
   console.log('[worker] Rentra worker starting');
@@ -23,16 +23,7 @@ async function main() {
   //   const queue = new Queue('booking:expire', { connection: { url: REDIS_URL } })
   //   new Worker('booking:expire', handler, { connection })
 
-  // Proof the shared domain layer imports cleanly from outside Next.js —
-  // the same function the checkout page and webhook handler use.
-  const demo = calculateRefund({
-    tier: 'moderate',
-    daysUntilCheckIn: 5,
-    rent: 8000,
-    fee: 640,
-    deposit: 3000,
-  });
-  console.log('[worker] shared domain check — 5-day moderate refund:', demo);
+  console.log('[worker] payment mode:', PAYMENT_RUNTIME.mode, '— no real collection/refund/payout handlers enabled');
 
   // TODO: replace this heartbeat with real BullMQ workers in Phase 2.
   // Without a long-running process, Render flags "Application exited early."
