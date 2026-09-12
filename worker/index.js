@@ -33,6 +33,13 @@ async function main() {
     deposit: 3000,
   });
   console.log('[worker] shared domain check — 5-day moderate refund:', demo);
+
+  // TODO: replace this heartbeat with real BullMQ workers in Phase 2.
+  // Without a long-running process, Render flags "Application exited early."
+  console.log('[worker] waiting for jobs (heartbeat every 60s)');
+  setInterval(() => {
+    console.log('[worker] heartbeat — awaiting BullMQ queues');
+  }, 60_000);
 }
 
 main().catch((err) => {
