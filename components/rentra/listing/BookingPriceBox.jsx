@@ -1,124 +1,24 @@
 'use client';
 
-import { CalendarCheck, ShieldCheck } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {
-  calculateBookingPrice, formatINR, SLOTS, CANCELLATION_TIERS,
-} from '@/lib/domain/pricing';
-import TrustBadge from '@/components/rentra/TrustBadge';
-import { useBookingSelection, rentFor, formatDayLabel, isWeekendDate } from './booking-state';
+import { useBookingQuote } from './BookingQuoteProvider';
+import { formatINRMinor } from '@/lib/domain/booking-money';
+import { formatLocalDate } from '@/lib/domain/booking-dates';
 
-/**
- * The sticky price box. Follows the scroll on desktop; the mobile bottom bar
- * is its sibling, not a second implementation of it.
- *
- * The "Brokerage ₹0" row is never suppressed and never conditional. It costs
- * one line of markup and it is the entire positioning — every portal this
- * competes with hides its fee until a phone call.
- */
-export default function BookingPriceBox({
-  prices, deposit = 0, cancellationTier = 'moderate', defaultDate, defaultSlot,
-}) {
-  const { date, slot, isExplicitDate } = useBookingSelection({ defaultDate, defaultSlot });
-  const rent = rentFor({ prices, slot, date });
-
-  if (rent == null) {
-    return (
-      <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
-        <p className="text-meta text-ink-600">
-          This slot is not offered here. Pick another above.
-        </p>
-      </div>
-    );
-  }
-
-  const p = calculateBookingPrice({ baseRent: rent, deposit });
-  const slotLabel = SLOTS[slot]?.label ?? 'Booking';
-  const peak = isWeekendDate(date);
-  const tier = CANCELLATION_TIERS[cancellationTier] ?? CANCELLATION_TIERS.moderate;
-  // The top refund band, in rupees rather than in percentages.
-  const [freeDays, topRate] = tier.bands[0];
-
-  return (
-    <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
-      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 border-b border-ink-100 pb-3.5">
-        <span className="text-h2 font-extrabold tracking-tight tabular" data-money>
-          {formatINR(p.rent)}
-        </span>
-        <span className="text-meta text-ink-600">/ {slotLabel.toLowerCase()}</span>
-        {peak ? <TrustBadge variant="peak" className="ml-auto" /> : null}
-      </div>
-
-      <p className="flex items-center gap-1.5 pt-3 text-meta text-ink-600">
-        <CalendarCheck className="size-4 shrink-0 text-brand-600" aria-hidden="true" />
-        {date ? (
-          <>
-            <span className="font-semibold text-ink-900">{formatDayLabel(date)}</span>
-            <span>· {SLOTS[slot]?.window}</span>
-          </>
-        ) : (
-          'Pick a date to see the exact total'
-        )}
-      </p>
-      {!isExplicitDate && date ? (
-        <p className="mt-1 text-tiny text-ink-500">
-          Next date with this slot free. Change it in the calendar.
-        </p>
-      ) : null}
-
-      <dl className="mt-2 text-meta">
-        <Row label={`Farmhouse rent · ${slotLabel.toLowerCase()}`} value={formatINR(p.rent)} />
-        <Row label="Platform fee (8%)" value={formatINR(p.fee)} />
-        <Row label="Brokerage" value={formatINR(p.brokerage)} accent />
-
-        <div className="mt-1.5 flex justify-between gap-3 border-t border-border pt-3 text-h4 font-bold">
-          <dt>Pay now to confirm</dt>
-          <dd className="font-extrabold tabular" data-money>{formatINR(p.advanceDue)}</dd>
-        </div>
-
-        <Row label="Balance · online or cash at check-in" value={formatINR(p.balanceDue)} muted />
-        {deposit > 0 ? (
-          <Row label="Refundable deposit · paid to owner" value={formatINR(p.deposit)} muted />
-        ) : null}
-      </dl>
-
-      {/**
-        * h-12 rather than the default: this is the one target on the page that
-        * has to be comfortable on a phone, and size="lg" is a 36px control.
-        *
-        * `text-base`, NOT `text-meta`. Button runs its classes through
-        * tailwind-merge, which has no way to know `meta` is a font-size in
-        * our @theme — it reads `text-meta` as a text COLOUR and drops the
-        * variant's `text-primary-foreground`, leaving near-black label text
-        * on brand green. Any `text-<custom-token>` on a Button does this.
-        */}
-      <Button size="lg" className="mt-4 h-12 w-full text-base font-semibold">
-        Request booking
-      </Button>
-
-      <p className="mt-3 flex items-start gap-1.5 text-tiny text-ink-500">
-        <ShieldCheck className="mt-0.5 size-3.5 shrink-0 text-brand-600" aria-hidden="true" />
-        <span>
-          You are not charged the balance until check-in.
-          {topRate === 1
-            ? ` Cancel ${freeDays}+ days ahead and the rent comes back in full.`
-            : ` Cancel ${freeDays}+ days ahead for ${formatINR(Math.round(p.rent * topRate))} back.`}
-        </span>
-      </p>
+export default function BookingPriceBox() {
+  const { quote, error, loading, guests, setGuests, retry } = useBookingQuote();
+  return <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
+    <h2 className="text-h3">Your booking estimate</h2>
+    <label className="mt-4 block text-meta font-semibold">Guests per visit<input type="number" min="1" max="500" value={guests} onChange={(event) => setGuests(Number(event.target.value))} className="mt-1 min-h-11 w-full rounded-md border border-border px-3" /></label>
+    <div aria-live="polite" className="mt-4">
+      {loading ? <p className="text-meta text-ink-600">Checking availability and the latest price…</p> : null}
+      {error ? <><p className="text-meta text-danger">{error}</p><button onClick={retry} className="min-h-11 text-meta text-brand-700 underline">Try again</button></> : null}
+      {!quote && !error && !loading ? <p className="text-meta text-ink-600">Choose an available date to see your total.</p> : null}
+      {quote ? <>
+        <ul className="space-y-2 text-meta">{quote.visits.map((visit) => <li key={visit.date}><strong>{formatLocalDate(visit.date)}</strong><p className="text-tiny text-ink-600">{new Date(visit.startsAt).toLocaleString('en-IN', { timeZone: quote.timeZone, dateStyle: 'medium', timeStyle: 'short' })} – {new Date(visit.endsAt).toLocaleString('en-IN', { timeZone: quote.timeZone, dateStyle: 'medium', timeStyle: 'short' })} IST</p></li>)}</ul>
+        <dl className="mt-3 space-y-3 text-meta">{Object.entries({ 'Rent + extra guests': quote.totals.rentMinor, 'Platform fee (8%)': quote.totals.feeMinor, Brokerage: 0, 'Booking total': quote.totals.totalMinor, 'Deposit, separate': quote.totals.depositMinor, 'Planned test payment': quote.payment.expectedMinor, 'Actual money collected': 0 }).map(([label, amount]) => <div key={label} className="flex justify-between gap-3"><dt>{label}</dt><dd className="font-semibold tabular">{formatINRMinor(amount)}</dd></div>)}</dl>
+        <p className="mt-4 text-tiny text-ink-600">{quote.payment.enabled ? 'Razorpay Test mode uses no real bank money.' : 'Online payment attempts are currently paused.'} Availability is rechecked when booking.</p>
+      </> : null}
     </div>
-  );
-}
-
-function Row({ label, value, accent, muted }) {
-  return (
-    <div className={`flex justify-between gap-3 py-2.5 ${muted ? 'text-ink-500' : 'text-ink-700'}`}>
-      <dt>{label}</dt>
-      <dd
-        className={`tabular font-medium ${accent ? 'font-bold text-brand-600' : 'text-ink-900'}`}
-        data-money
-      >
-        {value}
-      </dd>
-    </div>
-  );
+    <button disabled className="mt-4 min-h-12 w-full rounded-md bg-ink-100 px-4 text-meta font-semibold text-ink-600">Online booking is not available yet</button>
+  </div>;
 }

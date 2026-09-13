@@ -27,7 +27,8 @@
     "verify:customer-foundation": "node scripts/verify-customer-foundation.mjs",
     "db:audit-customer": "node --env-file=.env.local scripts/customer-legacy.mjs",
     "verify:customer-reservations": "node --env-file=.env.local scripts/verify-customer-reservations.mjs",
-    "verify:customer-payments": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-payments.mjs"
+    "verify:customer-payments": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-payments.mjs",
+    "verify:customer-quotes": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-quotes.mjs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.12.0",

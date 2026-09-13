@@ -131,6 +131,7 @@ export default async function ListingBuilderPage({ params }) {
       ) : null}
 
       <div className="mt-5">
+        <Link href={`/partner/listings/${id}/calendar`} className="mb-4 inline-flex min-h-11 items-center rounded-md border border-border px-4 text-meta font-semibold text-brand-700">Manage booking hours, dates and prices</Link>
         <SubmitBar listing={listing} completion={completion} submitAction={submitListing} />
       </div>
 

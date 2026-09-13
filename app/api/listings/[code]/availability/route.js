@@ -1,6 +1,8 @@
-import { getListingIdByCode, getAvailability } from '@/lib/db/queries';
+import { getListingIdByCode } from '@/lib/db/queries';
+import { sql } from '@/lib/db';
+import { getBookingAvailability } from '@/lib/booking/quotes';
 import { availabilityQuerySchema } from '@/lib/validation/zod/booking';
-import { availabilityDateRange, legacyAvailabilityDays } from '@/lib/domain/booking-availability';
+import { availabilityDateRange } from '@/lib/domain/booking-availability';
 import { BOOKING_POLICY } from '@/lib/domain/booking-policy';
 
 /**
@@ -26,6 +28,7 @@ export async function GET(request, { params }) {
   const parsed = availabilityQuerySchema.safeParse({
     from: request.nextUrl.searchParams.get('from') ?? undefined,
     days: request.nextUrl.searchParams.get('days') ?? undefined,
+    guests: request.nextUrl.searchParams.get('guests') ?? undefined,
   });
   if (!parsed.success) {
     return Response.json({ error: 'Bad date range' }, { status: 400 });
@@ -45,22 +48,13 @@ export async function GET(request, { params }) {
     return Response.json({ error: 'Not found' }, { status: 404 });
   }
 
-  const rows = await getAvailability({ rentableId: listingId, ...range });
-
-  /**
-   * Collapsed to one entry per date so the picker does no grouping, and so a
-   * 90-day payload stays a few KB on a mid-range Android connection.
-   * This legacy day/night calendar is advisory. Exact intervals, adjacent
-   * conflicts and holds will be checked by the new inventory/quote service.
-   */
-  const days = legacyAvailabilityDays(rows);
-
-  return Response.json(
-    { ...range, timeZone: BOOKING_POLICY.timeZone, advisory: true, days },
-    {
-      headers: {
-        'Cache-Control': 'no-store',
-      },
-    },
-  );
+  try {
+    const result = await getBookingAvailability(sql, { rentableId: listingId, ...range, guests: parsed.data.guests });
+    return Response.json(result, { headers: { 'Cache-Control': 'no-store' } });
+  } catch (error) {
+    if (['INVENTORY_NOT_READY','INVENTORY_REMEDIATION_REQUIRED','SCHEDULE_UNAVAILABLE','LISTING_UNAVAILABLE','UNSUPPORTED_INVENTORY'].includes(error.code)) {
+      return Response.json({ ...range, timeZone: BOOKING_POLICY.timeZone, advisory: true, days: {}, message: 'The owner needs to confirm the booking calendar.' }, { headers: { 'Cache-Control': 'no-store' } });
+    }
+    return Response.json({ error: 'Availability is temporarily unavailable.' }, { status: 503, headers: { 'Cache-Control': 'no-store' } });
+  }
 }

@@ -391,9 +391,8 @@ export function OwnerCard({ listing }) {
       </dl>
 
       <p className="mt-3 text-tiny text-ink-500">
-        Ask the owner anything through Rentra. Numbers and the address unlock
-        on confirmation — that is what keeps the booking, and your money,
-        covered by us.
+        Owner contact details and the exact address are private. They become
+        available to the customer through an authorised confirmed booking.
       </p>
     </div>
   );
@@ -429,7 +428,7 @@ export function CancellationPolicy({ tier = 'moderate', rent, fee, deposit = 0 }
         {/* Rent + fee, because on the flexible tier the fee comes back too —
             quoting the rent alone would show a refund larger than the base. */}
         <p className="text-tiny text-ink-500">
-          on the {formatINR(rent + fee)} you pay
+          example booking value {formatINR(rent + fee)}
         </p>
       </div>
       <dl className="divide-y divide-border">
@@ -440,7 +439,7 @@ export function CancellationPolicy({ tier = 'moderate', rent, fee, deposit = 0 }
               className={`text-meta font-bold tabular ${refund > 0 ? 'text-brand-700' : 'text-ink-500'}`}
               data-money
             >
-              {formatINR(refund)} back
+              {formatINR(refund)} policy example
             </dd>
           </div>
         ))}
@@ -454,13 +453,11 @@ export function CancellationPolicy({ tier = 'moderate', rent, fee, deposit = 0 }
       {deposit > 0 ? (
         <p className="flex items-start gap-2 border-t border-border bg-brand-50 px-4 py-3 text-tiny text-brand-800">
           <CircleSlash className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-          The {formatINR(deposit)} security deposit is always returned in full.
-          It is not a penalty instrument.
+          The {formatINR(deposit)} security deposit is separate from the test payment.
         </p>
       ) : null}
       <p className="border-t border-border px-4 py-3 text-tiny text-ink-500">
-        If the owner cancels a confirmed booking, you are refunded in full —
-        rent, fee and deposit — automatically.
+        Final cancellation amounts follow your accepted booking policy. Sandbox refunds move no real bank money.
       </p>
     </div>
   );
@@ -477,8 +474,8 @@ export function MoneyNote() {
   return (
     <ul className="@container grid gap-4 rounded-lg bg-brand-50 p-5 @lg:grid-cols-3">
       {[
-        [Landmark, 'Money held until check-in', 'Your payment stays with Rentra. The owner is paid after you have arrived.'],
-        [ShieldCheck, 'Verified in person', 'Someone from Rentra has stood on this property and taken these photos.'],
+        [Landmark, 'Test payments', 'Razorpay Test checkout will not deduct real bank money.'],
+        [ShieldCheck, 'Clear booking details', 'Review the property rules, visit hours and total before booking.'],
         [CircleSlash, 'Brokerage ₹0', 'You book the owner directly. No dalal, no hidden commission.'],
       ].map(([Icon, title, body]) => (
         <li key={title} className="flex items-start gap-2.5">

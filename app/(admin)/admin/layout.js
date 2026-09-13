@@ -25,6 +25,9 @@ export default async function AdminLayout({ children }) {
           </Link>
           {admin ? (
             <div className="ml-auto flex items-center gap-3">
+              <Link href="/admin/payments" className="rounded-full px-3 py-1.5 text-meta font-medium text-ink-300 hover:bg-ink-800 hover:text-white">
+                Payments
+              </Link>
               {/* A visible reminder that the second factor is not on yet. */}
               {!admin.hasTotp ? (
                 <span className="rounded-full bg-amber-500 px-2.5 py-1 text-tiny font-bold text-white">

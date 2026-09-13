@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Info } from 'lucide-react';
 import SlotSelector from '@/components/rentra/SlotSelector';
 import { SLOTS, formatINR } from '@/lib/domain/pricing';
 import { propertyToday } from '@/lib/domain/booking-dates';
+import { useBookingQuote } from './BookingQuoteProvider';
 import {
   useBookingSelection, rentFor, toISODate, parseISODate, formatDayLabel,
 } from './booking-state';
@@ -22,9 +23,10 @@ export default function AvailabilityPicker({
   code, prices, nextDates, defaultDate, defaultSlot,
 }) {
   const { date, slot, setDate } = useBookingSelection({ defaultDate, defaultSlot });
+  const { guests } = useBookingQuote();
   const [result, setResult] = useState(null);
   const [retry, setRetry] = useState(0);
-  const currentResult = result?.code === code && result?.retry === retry ? result : null;
+  const currentResult = result?.code === code && result?.retry === retry && result?.guests === guests ? result : null;
   const availability = currentResult?.days ?? null;
   const state = currentResult?.state ?? 'loading';
   const [monthCursor, setMonthCursor] = useState(() =>
@@ -35,21 +37,21 @@ export default function AvailabilityPicker({
 
     async function load() {
       try {
-        const res = await fetch(`/api/listings/${code}/availability?days=90`, {
+        const res = await fetch(`/api/listings/${code}/availability?days=90&guests=${guests}`, {
           signal: controller.signal,
           cache: 'no-store',
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        if (!controller.signal.aborted) setResult({ code, retry, days: data.days, state: 'ready' });
+        if (!controller.signal.aborted) setResult({ code, retry, guests, days: data.days, message: data.message, state: 'ready' });
       } catch (err) {
-        if (err.name !== 'AbortError' && !controller.signal.aborted) setResult({ code, retry, days: null, state: 'error' });
+        if (err.name !== 'AbortError' && !controller.signal.aborted) setResult({ code, retry, guests, days: null, state: 'error' });
       }
     }
     load();
 
     return () => controller.abort();
-  }, [code, retry]);
+  }, [code, retry, guests]);
 
   const openOn = (iso) => {
     if (!availability) return null;               // unknown, not "unavailable"
@@ -79,6 +81,7 @@ export default function AvailabilityPicker({
   return (
     <section aria-labelledby="availability-heading" className="scroll-mt-24" id="availability">
       <h2 id="availability-heading" className="text-h2">Pick a slot and a date</h2>
+      {currentResult?.message ? <p role="status" className="mt-2 text-meta text-ink-600">{currentResult.message}</p> : null}
       <p className="mt-2 max-w-prose text-body text-ink-600">
         This farm rents a day picnic and an overnight separately, at different
         prices, on the same date.
@@ -165,7 +168,7 @@ export default function AvailabilityPicker({
         <p className="mt-3 flex items-baseline gap-2 text-meta text-ink-600">
           <span className="font-semibold text-ink-900">{formatDayLabel(date)}</span>
           <span>·</span>
-          <span>{SLOTS[slot]?.label} · {SLOTS[slot]?.window}</span>
+          <span>{SLOTS[slot]?.label}{availability?.[date]?.intervals?.[slot] ? ` · ${formatInterval(availability[date].intervals[slot])}` : ''}</span>
           {slotPrices[slot] != null ? (
             <span className="font-bold text-brand-700 tabular" data-money>
               {formatINR(slotPrices[slot])}
@@ -222,6 +225,10 @@ function Legend({ state, nextDates, slot, onRetry }) {
 }
 
 const startOfMonth = (d) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1));
+function formatInterval({ startsAt, endsAt }) {
+  const formatter = new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+  return `${formatter.format(new Date(startsAt))} – ${formatter.format(new Date(endsAt))} IST`;
+}
 const addMonths = (d, n) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + n, 1));
 
 /** Month as a flat cell list, Monday-first, padded with nulls. */

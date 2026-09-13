@@ -29,7 +29,7 @@ export const metadata = {
   },
   description:
     'Find and book a verified farmhouse in your district. Transparent price, '
-    + 'money held safely until you check in, and zero brokerage.',
+    + 'clear booking details, and zero brokerage.',
   openGraph: {
     type: 'website',
     locale: 'en_IN',

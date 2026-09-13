@@ -10,6 +10,7 @@ import ShareButton from '@/components/rentra/listing/ShareButton';
 import AvailabilityPicker from '@/components/rentra/listing/AvailabilityPicker';
 import BookingPriceBox from '@/components/rentra/listing/BookingPriceBox';
 import MobileBookingBar from '@/components/rentra/listing/MobileBookingBar';
+import BookingQuoteProvider from '@/components/rentra/listing/BookingQuoteProvider';
 import {
   Section, KeyFacts, AmenityGrid, HouseRules, AreaCircle, Reviews, OwnerCard,
   CancellationPolicy, MoneyNote,
@@ -174,7 +175,7 @@ export default async function ListingPage({ params }) {
   ];
 
   return (
-    <>
+    <BookingQuoteProvider rentableId={listing.id} defaultDate={defaults.date} defaultSlot={defaults.slot}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -337,7 +338,7 @@ export default async function ListingPage({ params }) {
         defaultDate={defaults.date}
         defaultSlot={defaults.slot}
       />
-    </>
+    </BookingQuoteProvider>
   );
 }
 

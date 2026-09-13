@@ -380,8 +380,8 @@ check('selection schema canonicalizes dates and permits only the intended INR co
 });
 
 check('availability query accepts URL counts while rejecting impossible dates and bounds', () => {
-  assert.deepEqual(availabilityQuerySchema.parse({}), { days: 90 });
-  assert.deepEqual(availabilityQuerySchema.parse({ from: '2026-10-03', days: '1' }), { from: '2026-10-03', days: 1 });
+  assert.deepEqual(availabilityQuerySchema.parse({}), { days: 90, guests: 1 });
+  assert.deepEqual(availabilityQuerySchema.parse({ from: '2026-10-03', days: '1' }), { from: '2026-10-03', days: 1, guests: 1 });
   for (const input of [{ from: '2026-02-30' }, { days: '0' }, { days: '121' }, { days: '1.5' }]) {
     assert.equal(availabilityQuerySchema.safeParse(input).success, false);
   }

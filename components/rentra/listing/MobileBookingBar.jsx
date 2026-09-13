@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { formatINR, SLOTS, calculateBookingPrice } from '@/lib/domain/pricing';
-import { useBookingSelection, rentFor, formatDayLabel } from './booking-state';
+import { formatINRMinor } from '@/lib/domain/booking-money';
+import { useBookingQuote } from './BookingQuoteProvider';
+import { formatDayLabel } from './booking-state';
 
 /**
  * The bottom bar, below lg. Appears once the photo grid has scrolled out of
@@ -16,9 +16,9 @@ import { useBookingSelection, rentFor, formatDayLabel } from './booking-state';
  * than by measuring anything at runtime.
  */
 export default function MobileBookingBar({
-  prices, deposit = 0, defaultDate, defaultSlot, sentinelId = 'gallery-end',
+  sentinelId = 'gallery-end',
 }) {
-  const { date, slot } = useBookingSelection({ defaultDate, defaultSlot });
+  const { date, quote, loading } = useBookingQuote();
   const [shown, setShown] = useState(false);
 
   useEffect(() => {
@@ -51,10 +51,6 @@ export default function MobileBookingBar({
     };
   }, [sentinelId]);
 
-  const rent = rentFor({ prices, slot, date });
-  if (rent == null) return null;
-
-  const p = calculateBookingPrice({ baseRent: rent, deposit });
 
   return (
     <div
@@ -70,23 +66,21 @@ export default function MobileBookingBar({
         <div className="min-w-0">
           <p className="flex items-baseline gap-1.5">
             <span className="text-h4 font-extrabold tracking-tight tabular" data-money>
-              {formatINR(p.rent)}
+              {quote ? formatINRMinor(quote.totals.totalMinor) : loading ? 'Checking…' : 'Choose dates'}
             </span>
             <span className="truncate text-tiny text-ink-600">
-              / {SLOTS[slot]?.label.toLowerCase()}
+              {quote ? 'booking total' : ''}
             </span>
           </p>
           <p className="truncate text-tiny text-ink-500">
             {date ? formatDayLabel(date) : 'Pick a date'}
             {' · '}
-            {formatINR(p.advanceDue)} now
+            No real money collected
           </p>
         </div>
 
         {/* text-base, not text-meta — see the note in BookingPriceBox. */}
-        <Button size="lg" className="ml-auto h-12 shrink-0 px-6 text-base font-semibold">
-          Request booking
-        </Button>
+        <a href="#availability" tabIndex={shown ? 0 : -1} className="ml-auto inline-flex min-h-12 shrink-0 items-center rounded-md bg-brand-600 px-4 text-base font-semibold text-white">Check dates</a>
       </div>
     </div>
   );

@@ -472,7 +472,7 @@ export function PricingSection({ listing, prices }) {
         {e.day_weekday ? <p className="text-tiny font-medium text-danger">{e.day_weekday}</p> : null}
         <div className="grid gap-4 sm:grid-cols-2">
           <Field id="extraGuestCharge" label="Extra guest, per head" error={e.extraGuestCharge}>
-            <Input id="extraGuestCharge" name="extraGuestCharge" inputMode="numeric" defaultValue={0} className="w-28 tabular" />
+            <Input id="extraGuestCharge" name="extraGuestCharge" inputMode="numeric" defaultValue={listing.extraGuestCharge ?? 0} className="w-28 tabular" />
           </Field>
           <Field id="extraHourCharge" label="Extra hour" error={e.extraHourCharge}>
             <Input id="extraHourCharge" name="extraHourCharge" inputMode="numeric" defaultValue={0} className="w-28 tabular" />

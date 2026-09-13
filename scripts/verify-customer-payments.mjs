@@ -105,7 +105,7 @@ try {
     assert.equal(String(p.actual_net_minor),'0'); assert.equal(p.funding_allocation_id,null);
   });
   await check('dummy runtime and webhook cannot enable real payments',async()=>{
-    assert.equal(PAYMENT_RUNTIME.realPaymentsEnabled,false); assert.equal(PAYMENT_RUNTIME.mode,'simulated');
+    assert.equal(PAYMENT_RUNTIME.realPaymentsEnabled,false); assert.equal(PAYMENT_RUNTIME.mode,null);
     const response=await webhook(); assert.equal(response.status,503); assert.equal((await response.json()).code,'PAYMENTS_DISABLED');
   });
   const sim=await flow({mode:'simulated',environment:'simulated',provenance:'seed'});
