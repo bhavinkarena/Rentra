@@ -136,6 +136,8 @@ Parts 01–03 below retain their original implemented scope and verification as 
 
 ### Part 05 — Customer identity and OTP delivery
 
+**Status:** COMPLETE (13 September 2026). All implementation, disposable-database, Chromium and configured-migration checks passed. See the [Part 05 runbook](rentra-customer-part05.md). Production SMS delivery remains a deployment prerequisite.
+
 **Deliver:** Customer request/verify OTP actions using configured delivery, short expiry, hashed challenges, atomic one-time consumption, phone/IP limits and attempt/resend caps. Create active customer accounts without changing partner roles. Enforce blocked/suspended status and explicit wrong-role switching. Preserve a validated short-lived selection across login, allow only safe internal return paths and requote after return.
 
 **Verify:** Concurrent OTP replay, expired/wrong challenges, delivery failure, rate limits, safe redirects, session revocation/status changes and separate customer/partner accounts using one phone. Production cannot enable developer OTP shortcuts.
