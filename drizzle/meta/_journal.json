@@ -78,6 +78,20 @@
       "when": 1789296343794,
       "tag": "0010_customer_quote_inventory",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1789301128609,
+      "tag": "0011_customer_identity",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1789302589169,
+      "tag": "0012_financial_trigger_alignment",
+      "breakpoints": true
     }
   ]
 }

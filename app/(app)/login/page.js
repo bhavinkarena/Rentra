@@ -1,7 +1,10 @@
 import Link from 'next/link';
 import { RentraLogo } from '@/components/rentra/Logo';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import CustomerLoginForm from '@/components/customer/CustomerLoginForm';
+import { getCurrentUser } from '@/lib/auth/dal';
+import { getCurrentAdmin } from '@/lib/auth/admin';
+import { switchToCustomer } from '@/lib/auth/customer-actions';
 
 export const metadata = {
   title: 'Log in',
@@ -16,7 +19,10 @@ export const metadata = {
  * on (phone, role), not phone alone, so the same number can hold one
  * Customer and one Client account.
  */
-export default function CustomerLoginPage() {
+export default async function CustomerLoginPage() {
+  const user = await getCurrentUser();
+  const admin = await getCurrentAdmin();
+  const conflict = admin || (user && user.role !== 'customer');
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-16">
       {/* This route sits outside the marketing shell, so it has no header.
@@ -27,21 +33,14 @@ export default function CustomerLoginPage() {
 
       <h1 className="text-h1">Log in to book</h1>
       <p className="mt-2 text-body text-ink-600">
-        We will send a one-time code to your phone.
+        Use your mobile number and a one-time code to continue.
       </p>
 
-      <form className="mt-8 space-y-4">
-        <div>
-          <label htmlFor="phone" className="mb-1.5 block text-meta font-semibold text-ink-700">
-            Mobile number
-          </label>
-          <Input id="phone" name="phone" type="tel" inputMode="numeric" placeholder="98765 43210" />
-          <p className="mt-1.5 text-tiny text-ink-500">
-            Searching never needs an account. You only log in to book.
-          </p>
-        </div>
-        <Button type="submit" size="lg" className="w-full">Send code</Button>
-      </form>
+      {conflict ? <div className="mt-8 space-y-4">
+        <p className="text-meta">You are signed in as {admin ? 'an administrator' : 'a partner'}. Customer booking uses a separate account.</p>
+        <form action={switchToCustomer}><Button type="submit" className="w-full">Sign out and continue as customer</Button></form>
+        <Link href={admin ? '/admin' : '/partner'} className="inline-flex min-h-11 items-center text-brand-700 underline">Keep my current account</Link>
+      </div> : <CustomerLoginForm />}
 
       <p className="mt-8 border-t border-border pt-6 text-meta text-ink-600">
         Own a farmhouse?{' '}

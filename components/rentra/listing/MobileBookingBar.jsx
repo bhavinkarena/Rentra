@@ -18,7 +18,7 @@ import { formatDayLabel } from './booking-state';
 export default function MobileBookingBar({
   sentinelId = 'gallery-end',
 }) {
-  const { date, quote, loading } = useBookingQuote();
+  const { date, quote, loading, isCustomer, login, loggingIn } = useBookingQuote();
   const [shown, setShown] = useState(false);
 
   useEffect(() => {
@@ -80,7 +80,7 @@ export default function MobileBookingBar({
         </div>
 
         {/* text-base, not text-meta — see the note in BookingPriceBox. */}
-        <a href="#availability" tabIndex={shown ? 0 : -1} className="ml-auto inline-flex min-h-12 shrink-0 items-center rounded-md bg-brand-600 px-4 text-base font-semibold text-white">Check dates</a>
+        {quote && !isCustomer ? <button onClick={login} disabled={loggingIn} tabIndex={shown ? 0 : -1} className="ml-auto min-h-12 shrink-0 rounded-md bg-brand-600 px-4 text-base font-semibold text-white">Log in</button> : <a href="#availability" tabIndex={shown ? 0 : -1} className="ml-auto inline-flex min-h-12 shrink-0 items-center rounded-md bg-brand-600 px-4 text-base font-semibold text-white">Check dates</a>}
       </div>
     </div>
   );

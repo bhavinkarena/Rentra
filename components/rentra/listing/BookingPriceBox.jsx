@@ -5,7 +5,7 @@ import { formatINRMinor } from '@/lib/domain/booking-money';
 import { formatLocalDate } from '@/lib/domain/booking-dates';
 
 export default function BookingPriceBox() {
-  const { quote, error, loading, guests, setGuests, retry } = useBookingQuote();
+  const { quote, error, loading, guests, setGuests, retry, isCustomer, login, loginError, loggingIn } = useBookingQuote();
   return <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
     <h2 className="text-h3">Your booking estimate</h2>
     <label className="mt-4 block text-meta font-semibold">Guests per visit<input type="number" min="1" max="500" value={guests} onChange={(event) => setGuests(Number(event.target.value))} className="mt-1 min-h-11 w-full rounded-md border border-border px-3" /></label>
@@ -19,6 +19,8 @@ export default function BookingPriceBox() {
         <p className="mt-4 text-tiny text-ink-600">{quote.payment.enabled ? 'Razorpay Test mode uses no real bank money.' : 'Online payment attempts are currently paused.'} Availability is rechecked when booking.</p>
       </> : null}
     </div>
+    {loginError ? <p role="alert" className="mt-3 text-meta text-danger">{loginError}</p> : null}
+    {!isCustomer ? <button onClick={login} disabled={!quote || loading || loggingIn} className="mt-4 min-h-12 w-full rounded-md bg-brand-600 px-4 text-meta font-semibold text-white disabled:opacity-50">{loggingIn ? 'Opening login…' : 'Log in with these dates'}</button> : null}
     <button disabled className="mt-4 min-h-12 w-full rounded-md bg-ink-100 px-4 text-meta font-semibold text-ink-600">Online booking is not available yet</button>
   </div>;
 }

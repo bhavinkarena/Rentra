@@ -29,7 +29,7 @@ export async function withDisposableDatabase(label, run) {
     await sql`CREATE EXTENSION postgis`;
     await sql`CREATE EXTENSION pg_trgm`;
     await migrate(drizzle(sql), { migrationsFolder: 'drizzle' });
-    return await run({ sql, connect });
+    return await run({ sql, connect, databaseUrl: targetUrl.href });
   } finally {
     await Promise.all(clients.map((client) => client.end({ timeout: 5 })));
     try {
