@@ -5,6 +5,7 @@ import CustomerLoginForm from '@/components/customer/CustomerLoginForm';
 import { getCurrentUser } from '@/lib/auth/dal';
 import { getCurrentAdmin } from '@/lib/auth/admin';
 import { switchToCustomer } from '@/lib/auth/customer-actions';
+import { redirect } from 'next/navigation';
 
 export const metadata = {
   title: 'Log in',
@@ -23,6 +24,7 @@ export default async function CustomerLoginPage() {
   const user = await getCurrentUser();
   const admin = await getCurrentAdmin();
   const conflict = admin || (user && user.role !== 'customer');
+  if (!conflict && user?.role === 'customer') redirect('/account');
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-16">
       {/* This route sits outside the marketing shell, so it has no header.

@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Browser fixtures use a disposable database and must not share dev locks/cache.
+  distDir: process.env.RENTRA_BROWSER_FIXTURE === '1' ? '.next/customer-browser'
+    : process.env.RENTRA_BUILD_FIXTURE === '1' ? '.next/verification-build' : '.next',
   experimental: {
     /**
      * KYC document uploads: front + back of an ID, up to 2MB each, plus the

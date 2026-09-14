@@ -2,6 +2,8 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { openSync, closeSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { once } from 'node:events';
 import { pathToFileURL } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -11,9 +13,10 @@ export async function verifyCustomerBrowser({ databaseUrl, sql, day, env }) {
   const { chromium } = await import(pathToFileURL(process.env.CUSTOMER_BROWSER_DRIVER).href);
   const port = Number(process.env.CUSTOMER_BROWSER_PORT || 3195);
   const origin = `http://localhost:${port}`;
-  const log = openSync('/private/tmp/rentra-part05-browser-server.log','w');
+  const log = openSync(join(tmpdir(),'rentra-part05-browser-server.log'),'w');
   const server = spawn(process.execPath,['node_modules/next/dist/bin/next','dev','--webpack','--port',String(port)],{
-    env:{...process.env,...env,NODE_ENV:'development',DEV_OTP_BYPASS:'false',CUSTOMER_OTP_DELIVERY:'development',DATABASE_URL:databaseUrl,NEXT_PUBLIC_SITE_URL:origin},
+    env:{...process.env,...env,NODE_ENV:'development',RENTRA_BROWSER_FIXTURE:'1',DEV_OTP_BYPASS:'false',CUSTOMER_OTP_DELIVERY:'development',DATABASE_URL:databaseUrl,NEXT_PUBLIC_SITE_URL:origin},
+    windowsHide:true,
     stdio:['ignore',log,log],
   });
   closeSync(log);
@@ -41,6 +44,9 @@ export async function verifyCustomerBrowser({ databaseUrl, sql, day, env }) {
     await page.getByRole('alert').filter({hasText:'invalid or expired'}).waitFor();
     await page.getByLabel('One-time code').fill('123456');
     await page.getByRole('button',{name:'Log in',exact:true}).click();
+    await page.waitForURL('**/onboarding');
+    await page.getByLabel('Your name',{exact:true}).fill('Browser customer');
+    await page.getByRole('button',{name:'Save and continue',exact:true}).click();
     await page.waitForURL('**/listing/fixture-fix12345');
     await page.getByRole('button',{name:'Online booking is not available yet'}).waitFor();
     await page.waitForFunction(()=>document.querySelector('input[type="number"]')?.value==='10');
@@ -86,6 +92,9 @@ export async function verifyCustomerBrowser({ databaseUrl, sql, day, env }) {
     await page.getByRole('button',{name:'Send code',exact:true}).click();
     await page.getByLabel('One-time code').fill('123456');
     await page.getByRole('button',{name:'Log in',exact:true}).click();
+    await page.waitForURL('**/onboarding');
+    await page.getByLabel('Your name',{exact:true}).fill('Mobile customer');
+    await page.getByRole('button',{name:'Save and continue',exact:true}).click();
     await page.waitForURL('**/listing/fixture-fix12345');
     await page.waitForFunction(()=>document.querySelector('input[type="number"]')?.value==='7');
 

@@ -29,7 +29,8 @@
     "verify:customer-reservations": "node --env-file=.env.local scripts/verify-customer-reservations.mjs",
     "verify:customer-payments": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-payments.mjs",
     "verify:customer-quotes": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-quotes.mjs",
-    "verify:customer-identity": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-identity.mjs"
+    "verify:customer-identity": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-identity.mjs",
+    "verify:customer-account": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-account.mjs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.12.0",

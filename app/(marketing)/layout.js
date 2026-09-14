@@ -3,25 +3,27 @@ import { FaWhatsapp } from 'react-icons/fa6';
 import { RentraLogo, RentraMark } from '@/components/rentra/Logo';
 import { getCities } from '@/lib/db/queries';
 import { INTENTS } from '@/lib/constants';
+import CustomerNavigation from '@/components/customer/CustomerNavigation';
 
 export default async function MarketingLayout({ children }) {
   const cities = await getCities();
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur">
-        <div className="mx-auto flex max-w-(--container-page) items-center gap-4 px-6 py-3">
+        <div className="mx-auto flex max-w-(--container-page) flex-wrap items-center gap-2 px-4 py-3 sm:px-6">
           <Link href="/" className="shrink-0">
             {/* The lockup is the home link. On the narrowest phones the mark
                 alone carries it, so the search bar keeps its width. */}
             <RentraLogo className="hidden h-7 w-auto sm:block" />
             <RentraMark className="size-8 sm:hidden" />
           </Link>
-          <nav className="ml-auto flex items-center gap-1 text-meta font-medium">
+          <div className="ml-auto"><CustomerNavigation /></div>
+          <nav aria-label="Role navigation" className="flex items-center gap-1 text-meta font-medium">
             <Link href="/partner/login" className="rounded-full px-3 py-2 text-ink-600 hover:bg-brand-50 hover:text-brand-700">
               List your farm
             </Link>
             <Link href="/login" className="rounded-full px-3 py-2 text-ink-600 hover:bg-brand-50 hover:text-brand-700">
-              Log in
+              Customer login
             </Link>
           </nav>
         </div>

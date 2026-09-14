@@ -92,6 +92,13 @@
       "when": 1789302589169,
       "tag": "0012_financial_trigger_alignment",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1789314348632,
+      "tag": "0013_customer_account",
+      "breakpoints": true
     }
   ]
 }
