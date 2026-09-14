@@ -210,7 +210,7 @@ export default async function ListingPage({ params }) {
                 </div>
 
                 <div className="flex shrink-0 items-center gap-1">
-                  <SaveButton rentableId={listing.id} listingTitle={listing.title} variant="inline" />
+                  <span id="listing-actions"><SaveButton rentableId={listing.id} listingTitle={listing.title} variant="inline" /></span>
                   <ShareButton
                     title={`${listing.title}, ${listing.areaName}`}
                     text={`${listing.title} in ${listing.areaName} — from ${formatINR(band?.low ?? 0)} on Rentra`}
@@ -299,6 +299,8 @@ export default async function ListingPage({ params }) {
               system says the detail page splits at. */}
           <aside className="lg:sticky lg:top-20">
             <BookingPriceBox
+              rentableId={listing.id}
+              listingTitle={listing.title}
               prices={listing.prices}
               deposit={listing.depositAmount}
               cancellationTier={listing.cancellationTier}

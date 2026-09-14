@@ -8,6 +8,8 @@ import CustomerNavigation from '@/components/customer/CustomerNavigation';
 export default async function MarketingLayout({ children }) {
   const { cities, categories } = await getDiscoveryRegistry();
   const farmhouse = categories.find(c => c.slug === 'farmhouse');
+  const whatsapp = /^\d{10,15}$/.test(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '')
+    ? process.env.NEXT_PUBLIC_WHATSAPP_NUMBER : null;
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur">
@@ -18,15 +20,8 @@ export default async function MarketingLayout({ children }) {
             <RentraLogo className="hidden h-7 w-auto sm:block" />
             <RentraMark className="size-8 sm:hidden" />
           </Link>
-          <div className="ml-auto"><CustomerNavigation /></div>
-          <nav aria-label="Role navigation" className="flex items-center gap-1 text-meta font-medium">
-            <Link href="/partner/login" className="rounded-full px-3 py-2 text-ink-600 hover:bg-brand-50 hover:text-brand-700">
-              List your farm
-            </Link>
-            <Link href="/login" className="rounded-full px-3 py-2 text-ink-600 hover:bg-brand-50 hover:text-brand-700">
-              Customer login
-            </Link>
-          </nav>
+          <div className="ml-auto"><CustomerNavigation compact /></div>
+          <Link href="/partner/login" className="hidden min-h-11 items-center rounded-full px-3 text-meta text-ink-500 hover:bg-brand-50 hover:text-brand-700 md:inline-flex">List your place</Link>
         </div>
       </header>
 
@@ -52,6 +47,7 @@ export default async function MarketingLayout({ children }) {
             )}
             {cities.flatMap(city => categories.map(category => <Link key={`${city.id}-${category.id}`} href={`/${city.slug}/${category.slug}`} className="text-meta text-ink-600 hover:underline">{category.name} in {city.name}</Link>))}
             <Link href="/search" className="text-meta text-ink-600 hover:underline">Search all places</Link>
+            <Link href="/partner/login" className="text-meta text-ink-600 hover:underline">List your place</Link>
           </div>
           <div className="mt-10 flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-start sm:gap-8">
             <RentraLogo className="h-6 w-auto shrink-0" />
@@ -63,15 +59,15 @@ export default async function MarketingLayout({ children }) {
         </div>
       </footer>
 
-      <a
-        href="https://wa.me/919000000000"
+      {whatsapp ? <a
+        href={`https://wa.me/${whatsapp}`}
         aria-label="Chat with Rentra on WhatsApp"
         /* --float-bottom lets a listing page's sticky booking bar push this
            up out of the way, with no JS. See the rule in globals.css. */
         className="fixed right-5 bottom-(--float-bottom) z-40 grid size-13 place-items-center rounded-full bg-whatsapp text-white shadow-lg transition hover:brightness-95"
       >
         <FaWhatsapp className="size-7" aria-hidden="true" />
-      </a>
+      </a> : null}
     </div>
   );
 }

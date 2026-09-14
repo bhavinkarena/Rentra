@@ -48,9 +48,9 @@ export async function verifyCustomerBrowser({ databaseUrl, sql, day, env }) {
     await page.getByLabel('Your name',{exact:true}).fill('Browser customer');
     await page.getByRole('button',{name:'Save and continue',exact:true}).click();
     await page.waitForURL('**/listing/fixture-fix12345');
-    await page.getByRole('button',{name:'Online booking is not available yet'}).waitFor();
+    await page.getByRole('button',{name:/^Save: Fixture/}).last().waitFor();
     await page.waitForFunction(()=>document.querySelector('input[type="number"]')?.value==='10');
-    await page.getByText('Your booking estimate',{exact:true}).waitFor();
+    await page.getByText('Price for your visit',{exact:true}).waitFor();
     // Wait for the owned re-quote; anonymous previews cannot satisfy this check.
     for(let i=0;i<40;i++) {
       const [row]=await sql`SELECT q.id,q.selection FROM booking_quote q JOIN "user" u ON u.id=q.customer_id WHERE u.phone='9876543210'`;
@@ -85,7 +85,7 @@ export async function verifyCustomerBrowser({ databaseUrl, sql, day, env }) {
     await page.setViewportSize({width:390,height:844});
     await page.goto(`${origin}/listing/fixture-fix12345`);
     await page.getByLabel('Guests per visit').fill('7');
-    await page.getByText('Your booking estimate',{exact:true}).scrollIntoViewIfNeeded();
+    await page.getByText('Price for your visit',{exact:true}).scrollIntoViewIfNeeded();
     await page.getByRole('button',{name:'Log in',exact:true}).click();
     await page.waitForURL('**/login');
     await page.getByLabel('Mobile number').fill('9876543211');

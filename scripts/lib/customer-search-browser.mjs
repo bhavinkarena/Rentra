@@ -22,7 +22,7 @@ export async function verifySearchBrowser({ databaseUrl, day, second }) {
     await page.getByRole('heading', { name: '14 places', exact: true }).waitFor();
     await page.getByLabel('Slot', { exact: true }).selectOption('day');
     await page.getByLabel('Sort', { exact: true }).selectOption('price_desc');
-    await page.getByRole('button', { name: 'Apply filters' }).click();
+    await page.getByRole('button', { name: 'Show places' }).click();
     await page.waitForURL('**/search?**sort=price_desc**');
     assert.equal(await page.getByLabel('Sort', { exact: true }).inputValue(), 'price_desc');
     await page.getByRole('link', { name: 'Next', exact: true }).click();
@@ -31,8 +31,10 @@ export async function verifySearchBrowser({ databaseUrl, day, second }) {
     await page.getByText('Page 1 of 2', { exact: true }).waitFor();
     assert.equal(await page.getByLabel('Sort', { exact: true }).inputValue(), 'price_desc');
     await page.getByLabel('Date mode', { exact: true }).selectOption('separate');
-    await page.getByLabel('Visit dates', { exact: true }).fill(`${day},${second}`);
-    await page.getByRole('button', { name: 'Apply filters' }).click();
+    await page.getByLabel('Visit date 1', { exact: true }).fill(day);
+    await page.getByRole('button', { name: 'Add date' }).click();
+    await page.getByLabel('Visit date 2', { exact: true }).fill(second);
+    await page.getByRole('button', { name: 'Show places' }).click();
     await page.getByRole('heading', { name: '13 places matching every selected date' }).waitFor();
     const firstSave = page.getByRole('button', { name: /^Save: Search place/ }).first();
     await firstSave.click();
@@ -40,9 +42,9 @@ export async function verifySearchBrowser({ databaseUrl, day, second }) {
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('rentra_guest_saved_v1')));
     assert.deepEqual(saved[0].selection.dates, [day, second]);
     await page.getByLabel('Location or place').fill('no-such-place');
-    await page.getByRole('button', { name: 'Apply filters' }).click();
+    await page.getByRole('button', { name: 'Show places' }).click();
     await page.getByText(/No places match these filters/).waitFor();
-    await page.getByRole('link', { name: 'Clear all filters', exact: true }).click();
+    await page.getByRole('link', { name: 'Clear all', exact: true }).click();
     await page.getByRole('heading', { name: '14 places', exact: true }).waitFor();
     await page.goto(origin + '/search?guests=bad');
     await page.getByRole('heading', { name: 'Check your filters' }).waitFor();

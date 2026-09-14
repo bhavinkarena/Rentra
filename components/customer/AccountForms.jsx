@@ -16,14 +16,17 @@ function Field({label,...props}) { return <label className="block text-meta font
 
 export function ProfileForm({ account, onboarding=false }) {
   const [state,action,pending]=useActionState(updateCustomerProfile,{});
-  return <form action={action} className="space-y-5">
-    <input type="hidden" name="expectedVersion" value={account.version}/><input type="hidden" name="onboarding" value={String(onboarding)}/>
-    <Field label="Your name" name="name" autoComplete="name" required minLength={2} maxLength={160} defaultValue={account.name}/>
+  const preferences = <div className="space-y-5">
     <Field label="Email (optional)" name="email" type="email" autoComplete="email" maxLength={254} defaultValue={account.email} aria-describedby="email-note"/>
     <p id="email-note" className="text-meta text-ink-600">Email is optional and is not used for login or message delivery. {account.emailVerified ? 'Your current email was previously verified; editing it removes that verification.' : 'Your email is unverified.'}</p>
     <label className="block text-meta font-medium">Preferred contact language<select className={control} name="preferredLocale" defaultValue={account.preferredLocale}><option value="en">English</option><option value="hi">Hindi</option><option value="gu">Gujarati</option></select></label>
-    <p className="text-meta text-ink-600">This records your preference. The app currently displays English.</p>
-    <label className="flex min-h-11 items-start gap-3 text-meta"><input className="mt-1 size-5 shrink-0 accent-brand-600" type="checkbox" name="marketingConsent" defaultChecked={account.marketingConsent}/><span>I would like optional Rentra offers and updates. I can turn this off at any time.</span></label>
+    <p className="text-meta text-ink-600">This saves your preference. The app currently displays English.</p>
+    <label className="flex min-h-11 items-start gap-3 text-meta"><input className="mt-1 size-5 shrink-0 accent-brand-600" type="checkbox" name="marketingConsent" defaultChecked={account.marketingConsent}/><span>Send me optional Rentra offers and updates. I can turn this off at any time.</span></label>
+  </div>;
+  return <form action={action} className="space-y-5">
+    <input type="hidden" name="expectedVersion" value={account.version}/><input type="hidden" name="onboarding" value={String(onboarding)}/>
+    <Field label="Your name" name="name" autoComplete="name" required minLength={2} maxLength={160} defaultValue={account.name}/>
+    {onboarding ? <details className="rounded-lg border border-border p-4"><summary className="min-h-11 cursor-pointer font-semibold text-brand-800">Optional contact preferences</summary><div className="mt-4">{preferences}</div></details> : preferences}
     <FormStatus state={state}/><button className={button} disabled={pending}>{pending?'Saving…':onboarding?'Save and continue':'Save profile'}</button>
   </form>;
 }

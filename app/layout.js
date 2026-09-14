@@ -24,12 +24,12 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 export const metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'Rentra — Book a verified farmhouse, directly from the owner',
+    default: 'Rentra — Explore farmhouses and day visits',
     template: '%s · Rentra',
   },
   description:
-    'Find and book a verified farmhouse in your district. Transparent price, '
-    + 'clear booking details, and zero brokerage.',
+    'Explore places for day visits and overnight stays, compare facilities, '
+    + 'check current dates and save places for later.',
   openGraph: {
     type: 'website',
     locale: 'en_IN',
