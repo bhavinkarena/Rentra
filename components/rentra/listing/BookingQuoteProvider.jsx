@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, useTransition } from 'r
 import { useBookingSelection } from './booking-state';
 import { useAppSelector, useAppDispatch } from '@/lib/store/hooks';
 import { setField } from '@/lib/store/slices/searchSlice';
+import { selectionFromSavedUrl } from '@/lib/domain/saved-places';
 import { beginCustomerLogin, restoreCustomerSelection } from '@/lib/auth/customer-actions';
 import { requestBookingQuote } from '@/lib/booking/actions';
 
@@ -19,6 +20,7 @@ export default function BookingQuoteProvider({ rentableId, defaultDate, defaultS
     let active = true;
     restoreCustomerSelection(rentableId).then((result) => {
       if (!active) return;
+      result.selection = selectionFromSavedUrl(window.location.search, rentableId) ?? result.selection;
       if (result.selection) {
         for (const [field, value] of Object.entries({ date: result.selection.dates[0], slot: result.selection.slot, guests: result.selection.guests })) {
           dispatch(setField({ field, value }));
@@ -59,6 +61,6 @@ export default function BookingQuoteProvider({ rentableId, defaultDate, defaultS
     const timer = setTimeout(() => setRetry((value) => value + 1), Math.max(0, new Date(current.quote.expiresAt).getTime() - Date.now()));
     return () => clearTimeout(timer);
   }, [current]);
-  return <Context.Provider value={{ date, slot, guests, isCustomer: identity?.isCustomer, login, loginError, loggingIn, quote: current?.quote ?? null, error: current?.error, loading: Boolean(date && !current), retry: () => setRetry((value) => value + 1), setGuests: (value) => dispatch(setField({ field: 'guests', value })) }}>{children}</Context.Provider>;
+  return <Context.Provider value={{ date, dates, slot, guests, selectionReady:Boolean(identity), isCustomer: identity?.isCustomer, login, loginError, loggingIn, quote: current?.quote ?? null, error: current?.error, loading: Boolean(date && !current), retry: () => setRetry((value) => value + 1), setGuests: (value) => dispatch(setField({ field: 'guests', value })) }}>{children}</Context.Provider>;
 }
 export function useBookingQuote() { return useContext(Context); }

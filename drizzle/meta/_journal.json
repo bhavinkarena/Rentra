@@ -99,6 +99,13 @@
       "when": 1789314348632,
       "tag": "0013_customer_account",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1789359827738,
+      "tag": "0014_customer_saved_places",
+      "breakpoints": true
     }
   ]
 }

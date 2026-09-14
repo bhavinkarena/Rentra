@@ -76,7 +76,7 @@ export default function ListingCard({ listing, eager = false }) {
           </div>
         ) : null}
 
-        <SaveButton listingTitle={title} />
+        <SaveButton rentableId={listing.id} listingTitle={title} />
 
         {photoCount > 1 ? (
           <div className="absolute bottom-2.5 left-1/2 flex -translate-x-1/2 gap-1.5">

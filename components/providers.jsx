@@ -1,6 +1,7 @@
 'use client';
 
 import { Toaster } from 'react-hot-toast';
+import SavedPlacesProvider from '@/components/customer/SavedPlacesProvider';
 import StoreProvider from '@/lib/store/StoreProvider';
 
 /**
@@ -13,7 +14,7 @@ import StoreProvider from '@/lib/store/StoreProvider';
 export default function Providers({ children }) {
   return (
     <StoreProvider>
-      {children}
+      <SavedPlacesProvider>{children}</SavedPlacesProvider>
       <Toaster
         position="bottom-center"
         gutter={10}

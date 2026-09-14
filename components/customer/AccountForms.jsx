@@ -1,5 +1,6 @@
 'use client';
 
+import { signalSavedChange } from './SavedPlacesProvider';
 import { useActionState, useEffect, useRef } from 'react';
 import { updateCustomerProfile, submitPrivacyRequest, requestPhoneChange, confirmPhoneChange, logoutCustomer } from '@/lib/customer/actions';
 
@@ -52,7 +53,7 @@ export function PhoneChangeForm() {
 
 export function CustomerLogout() {
   const [state,action,pending]=useActionState(async()=>{
-    try { await logoutCustomer(); window.location.replace('/'); return {}; }
+    try { await logoutCustomer(); signalSavedChange(); window.location.replace('/'); return {}; }
     catch { return {error:'Could not sign out. Please try again.'}; }
   },{});
   return <form action={action} className="space-y-3"><FormStatus state={state}/><button className="min-h-11 rounded-md border border-border px-5 py-2 font-semibold" disabled={pending}>{pending?'Signing out…':'Sign out'}</button></form>;

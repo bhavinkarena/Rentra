@@ -210,7 +210,7 @@ export default async function ListingPage({ params }) {
                 </div>
 
                 <div className="flex shrink-0 items-center gap-1">
-                  <SaveButton listingTitle={listing.title} variant="inline" />
+                  <SaveButton rentableId={listing.id} listingTitle={listing.title} variant="inline" />
                   <ShareButton
                     title={`${listing.title}, ${listing.areaName}`}
                     text={`${listing.title} in ${listing.areaName} — from ${formatINR(band?.low ?? 0)} on Rentra`}
