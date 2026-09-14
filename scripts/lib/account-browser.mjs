@@ -33,6 +33,10 @@ export async function verifyAccountBrowser({sql,databaseUrl,env}) {
     await page.getByLabel('One-time code').fill('123456');
     await page.getByRole('button',{name:'Log in',exact:true}).click();
     await page.waitForURL('**/onboarding');
+    // Onboarding keeps the required name step short: optional preferences and the
+    // separate marketing consent stay collapsed until the customer opens them.
+    assert.equal(await page.getByRole('checkbox').count(),0);
+    await page.locator('summary').filter({hasText:'Optional contact preferences'}).click();
     assert.equal(await page.getByRole('checkbox').isChecked(),false);
     await page.getByLabel('Your name',{exact:true}).fill('Browser Account');
     await page.getByRole('button',{name:'Save and continue'}).click();

@@ -20,15 +20,22 @@ export async function verifySavedBrowser({sql,databaseUrl,env,a,b,first,second,s
   browser=await chromium.launch({headless:true,...(process.env.CUSTOMER_BROWSER_EXECUTABLE?{executablePath:process.env.CUSTOMER_BROWSER_EXECUTABLE}:{})});
   const context=await browser.newContext({viewport:{width:390,height:844}});const page=await context.newPage();page.setDefaultTimeout(60000);
   await page.goto(origin+'/listing/fixture-fix12345?'+new URLSearchParams({dates:selection.dates.join(','),slot:selection.slot,guests:String(selection.guests)}));
-  await page.getByRole('button',{name:'Save',exact:true}).click();
-  await page.getByRole('button',{name:'Saved',exact:true}).waitFor();
+  // The listing now carries two save controls: the header heart and the price
+  // box action the mobile bar links to. They share one state, so saving from
+  // either must update both.
+  await page.locator('#booking-save').getByRole('button',{name:'Save',exact:true}).click();
+  await page.locator('#booking-save').getByRole('button',{name:'Saved',exact:true}).waitFor();
+  await page.locator('#listing-actions').getByRole('button',{name:'Saved',exact:true}).waitFor();
   await page.goto(origin+'/saved');
   await page.getByRole('link',{name:'Saved Fixture',exact:true}).waitFor();
   assert.match(await page.getByRole('link',{name:'Saved Fixture',exact:true}).getAttribute('href'),/guests=6/);
   await page.reload();await page.getByRole('link',{name:'Saved Fixture',exact:true}).waitFor();
   assert.ok(await page.locator('meta[name="robots"]').getAttribute('content').then(v=>v.includes('noindex')));
-  // Login to the existing fixture account through the real OTP form.
-  await page.getByRole('link',{name:'Log in',exact:true}).click();
+  // Login to the existing fixture account through the real OTP form. Guests now
+  // see two Log in entries — the header and this page's benefit-framed offer;
+  // exercise the offer, which is the one the UX review asked for.
+  await page.getByRole('paragraph').filter({hasText:'Your saved places stay in this browser.'})
+    .getByRole('link',{name:'Log in',exact:true}).click();
   await page.getByLabel('Mobile number').fill('9876543210');await page.getByRole('button',{name:'Send code',exact:true}).click();
   await page.getByLabel('One-time code').fill('123456');await page.getByRole('button',{name:'Log in',exact:true}).click();
   await page.waitForURL('**/account');await page.goto(origin+'/saved');await page.getByRole('link',{name:'Saved Fixture',exact:true}).waitFor();

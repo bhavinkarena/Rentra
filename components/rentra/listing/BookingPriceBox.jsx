@@ -6,7 +6,7 @@ import { formatLocalDate } from '@/lib/domain/booking-dates';
 import SaveButton from '@/components/rentra/SaveButton';
 
 export default function BookingPriceBox({ rentableId, listingTitle }) {
-  const { quote, error, loading, guests, setGuests, retry } = useBookingQuote();
+  const { quote, error, loading, guests, setGuests, retry, date, isCustomer, login, loginError, loggingIn } = useBookingQuote();
   return <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
     <h2 className="text-h3">Price for your visit</h2>
     <p className="mt-2 text-meta text-ink-600">You can check dates and save this place now. Online booking will open in a later release.</p>
@@ -23,5 +23,10 @@ export default function BookingPriceBox({ rentableId, listingTitle }) {
       </> : null}
     </div>
     <div id="booking-save" className="mt-4 flex min-h-12 items-center justify-center rounded-md bg-brand-50 text-brand-800"><SaveButton rentableId={rentableId} listingTitle={listingTitle} variant="inline" /></div>
+    {loginError ? <p role="alert" className="mt-3 text-meta text-danger">{loginError}</p> : null}
+    {/* Login is offered as a benefit, never as booking progress. It is also the
+        only entry to Part 05's signed selection recovery, which carries the
+        chosen dates, slot and guests back here after onboarding. */}
+    {isCustomer === false ? <button onClick={login} disabled={!date || loggingIn} className="mt-3 min-h-11 w-full text-meta font-semibold text-brand-700 underline disabled:text-ink-500 disabled:no-underline">{loggingIn ? 'Opening login…' : 'Log in to keep your saved places'}</button> : null}
   </div>;
 }

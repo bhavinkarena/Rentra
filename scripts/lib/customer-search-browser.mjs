@@ -41,7 +41,7 @@ export async function verifySearchBrowser({ databaseUrl, day, second }) {
     await page.waitForFunction(() => JSON.parse(localStorage.getItem('rentra_guest_saved_v1') || '[]').length === 1);
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('rentra_guest_saved_v1')));
     assert.deepEqual(saved[0].selection.dates, [day, second]);
-    await page.getByLabel('Location or place').fill('no-such-place');
+    await page.getByLabel('Property name or locality').fill('no-such-place');
     await page.getByRole('button', { name: 'Show places' }).click();
     await page.getByText(/No places match these filters/).waitFor();
     await page.getByRole('link', { name: 'Clear all', exact: true }).click();

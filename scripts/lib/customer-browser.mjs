@@ -34,7 +34,7 @@ export async function verifyCustomerBrowser({ databaseUrl, sql, day, env }) {
     page.setDefaultTimeout(60000);
     await page.goto(`${origin}/listing/fixture-fix12345`);
     await page.getByLabel('Guests per visit').fill('10');
-    const login=page.getByRole('button',{name:'Log in with these dates'});
+    const login=page.getByRole('button',{name:'Log in to keep your saved places',exact:true});
     await login.click();
     await page.waitForURL('**/login');
     await page.getByLabel('Mobile number').fill('9876543210');
@@ -86,7 +86,9 @@ export async function verifyCustomerBrowser({ databaseUrl, sql, day, env }) {
     await page.goto(`${origin}/listing/fixture-fix12345`);
     await page.getByLabel('Guests per visit').fill('7');
     await page.getByText('Price for your visit',{exact:true}).scrollIntoViewIfNeeded();
-    await page.getByRole('button',{name:'Log in',exact:true}).click();
+    // The listing no longer pushes booking-shaped login. Selection recovery is
+    // reached through the benefit-framed entry in the price box.
+    await page.getByRole('button',{name:'Log in to keep your saved places',exact:true}).click();
     await page.waitForURL('**/login');
     await page.getByLabel('Mobile number').fill('9876543211');
     await page.getByRole('button',{name:'Send code',exact:true}).click();
