@@ -56,7 +56,7 @@ Part 01 is intentionally a foundation slice: policy configuration, property-loca
 2. Read relevant guides under the installed `node_modules/next/dist/docs/` before changing Next.js code. Reuse working repository conventions and avoid parallel business logic in actions and route handlers.
 3. Implement only the selected part and necessary dependencies. Record newly discovered scope explicitly instead of silently starting the following part.
 4. Run verification appropriate to the risk. Inventory, authentication and financial boundaries require meaningful integration/concurrency tests; document fixtures, prerequisites and any checks that could not run.
-5. Review the diff, update the part status and handoff with actual evidence, and stop at that part's gate. Keep already committed booking data and inventory intact if a rollout needs to be disabled.
+5. Review the diff and update this tracker, the part runbook and `rentra-customer-plan.html` in the same change, using actual verification and migration evidence. In the HTML, add the detailed “Part NN · complete” card under Delivery phases and synchronize the metadata, sidebar count/progress, build status, milestone row and phase footer. Check that every completed part has exactly one detailed card and no stale “next” status remains for it. The browser's manual build checklist stays independent of recorded delivery status. Stop at that part's gate; keep already committed booking data and inventory intact if a rollout needs to be disabled.
 
 ## Part map
 
