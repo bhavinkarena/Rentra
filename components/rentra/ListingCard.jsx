@@ -4,6 +4,7 @@ import Rating from './Rating';
 import TrustBadge from './TrustBadge';
 import SaveButton from './SaveButton';
 import { formatINR } from '@/lib/domain/pricing';
+import { formatINRMinor } from '@/lib/domain/booking-money';
 
 /**
  * A flat ink-100 placeholder. Cheap perceived-performance win on the
@@ -76,7 +77,7 @@ export default function ListingCard({ listing, eager = false }) {
           </div>
         ) : null}
 
-        <SaveButton rentableId={listing.id} listingTitle={title} />
+        <SaveButton rentableId={listing.id} listingTitle={title} selection={listing.selection} />
 
         {photoCount > 1 ? (
           <div className="absolute bottom-2.5 left-1/2 flex -translate-x-1/2 gap-1.5">
@@ -94,7 +95,7 @@ export default function ListingCard({ listing, eager = false }) {
         {/* Area first, not the property name — people search by place. */}
         <div className="flex items-baseline justify-between gap-2.5">
           <h3 className="text-h4 font-bold tracking-tight">{area}</h3>
-          <Rating value={rating} count={reviewCount} />
+          {rating !== null && <Rating value={rating} count={reviewCount} />}
         </div>
 
         <p className="mt-0.5 truncate text-meta text-ink-600">{title}</p>
@@ -103,13 +104,14 @@ export default function ListingCard({ listing, eager = false }) {
         <p className="mt-2 flex flex-wrap items-baseline gap-2">
           {isFromPrice ? <span className="text-tiny text-ink-500">from</span> : null}
           <span className="text-h4 font-extrabold tabular tracking-tight" data-money>
-            {formatINR(price)}
+            {price == null ? 'Price on date selection' : listing.priceMinor != null ? formatINRMinor(listing.priceMinor) : formatINR(price)}
           </span>
-          <span className="text-meta text-ink-600">/ {unit}</span>
+          <span className="text-meta text-ink-600">{price == null ? null : `/ ${unit}`}</span>
           {strikePrice ? (
             <s className="text-meta text-ink-400 tabular" data-money>{formatINR(strikePrice)}</s>
           ) : null}
         </p>
+        {listing.priceNote && <p className="mt-1 text-tiny text-ink-500">{listing.priceNote}</p>}
       </div>
     </Link>
   );

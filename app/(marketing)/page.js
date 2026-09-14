@@ -4,13 +4,13 @@ import SearchBar from '@/components/rentra/SearchBar';
 import ListingCard from '@/components/rentra/ListingCard';
 import TrustStrip from '@/components/rentra/TrustStrip';
 import { getLiveListings } from '@/lib/db/queries';
-import { INTENTS } from '@/lib/constants';
+import { DISCOVERY_INTENTS } from '@/lib/domain/discovery';
+import { getDiscoveryRegistry } from '@/lib/db/discovery';
 
 export const metadata = {
-  title: 'Book a verified farmhouse near Surat — no brokerage',
+  title: 'Explore farmhouses and day visits | Rentra',
   description:
-    'Day picnics and overnight stays at physically verified farmhouses around '
-    + 'Surat. Transparent pricing, money held until check-in, zero brokerage.',
+    'Explore places for day visits and overnight stays. Compare facilities and check prices for your dates.',
   alternates: { canonical: '/' },
 };
 
@@ -19,7 +19,9 @@ export const metadata = {
 export const revalidate = 3600;
 
 export default async function HomePage() {
-  const listings = await getLiveListings({ citySlug: 'surat', limit: 16 });
+  const [listings, registry] = await Promise.all([getLiveListings({ limit: 16 }), getDiscoveryRegistry()]);
+  const primaryCity = registry.cities.find(c => c.slug === 'surat') || registry.cities[0];
+  const farmhouse = registry.categories.find(c => c.slug === 'farmhouse');
 
   // The hero is the top-ranked listing's own first frame, not a stock image.
   // It comes from the card query, so this page is one round trip.
@@ -51,20 +53,19 @@ export default async function HomePage() {
         )}
         <div className="relative mx-auto max-w-(--container-page) px-6 py-20 md:py-28">
           <h1 className="max-w-2xl text-display text-white">
-            Book a verified farmhouse, directly from the owner.
+            Find a place for your next day out or overnight stay.
           </h1>
           <p className="mt-4 max-w-prose text-body-lg text-brand-100">
-            Day picnics and overnight stays around Surat. Every farm on Rentra
-            has been visited and photographed by us. No dalal, no brokerage,
-            and your money stays with us until you have checked in.
+            Explore places, compare facilities and choose your visit dates.
+            See current rent and platform fees before continuing.
           </p>
           <SearchBar />
 
           <ul className="mt-6 flex flex-wrap gap-2">
-            {INTENTS.map((intent) => (
+            {DISCOVERY_INTENTS.map((intent) => (
               <li key={intent.slug}>
                 <Link
-                  href={`/surat/farmhouse/${intent.slug}`}
+                  href={primaryCity && farmhouse ? `/${primaryCity.slug}/farmhouse/intent/${intent.slug}` : '/search'}
                   className="inline-block rounded-full border border-white/25 bg-white/10 px-4 py-2 text-meta font-medium text-white backdrop-blur transition-colors hover:border-white/50 hover:bg-white/20"
                 >
                   {intent.label}
@@ -81,9 +82,9 @@ export default async function HomePage() {
 
       <section className="mx-auto max-w-(--container-page) px-6 pb-12">
         <div className="flex items-baseline justify-between gap-4">
-          <h2 className="text-h2">Farmhouses near Surat</h2>
+          <h2 className="text-h2">Explore places</h2>
           <p className="text-meta text-ink-500">
-            {listings.length} verified {listings.length === 1 ? 'farm' : 'farms'}
+            <Link href="/search" className="underline">View all places</Link>
           </p>
         </div>
         <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">

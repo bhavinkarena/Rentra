@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { FaWhatsapp } from 'react-icons/fa6';
 import { RentraLogo, RentraMark } from '@/components/rentra/Logo';
-import { getCities } from '@/lib/db/queries';
+import { getDiscoveryRegistry } from '@/lib/db/discovery';
 import { INTENTS } from '@/lib/constants';
 import CustomerNavigation from '@/components/customer/CustomerNavigation';
 
 export default async function MarketingLayout({ children }) {
-  const cities = await getCities();
+  const { cities, categories } = await getDiscoveryRegistry();
+  const farmhouse = categories.find(c => c.slug === 'farmhouse');
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur">
@@ -34,21 +35,23 @@ export default async function MarketingLayout({ children }) {
       <footer className="mt-20 border-t border-border bg-ink-50">
         <div className="mx-auto max-w-(--container-page) px-6 py-12">
           <p className="text-tiny font-bold tracking-widest text-ink-500 uppercase">
-            Farmhouses by area
+            Explore places
           </p>
           {/* SEO taxonomy: one indexable page per city × category × intent. */}
           <div className="mt-4 grid gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
             {cities.flatMap((city) =>
-              INTENTS.slice(0, 3).map((intent) => (
+              (farmhouse ? INTENTS.slice(0, 3) : []).map((intent) => (
                 <Link
                   key={`${city.slug}-${intent.slug}`}
-                  href={`/${city.slug}/farmhouse/${intent.slug}`}
+                  href={`/${city.slug}/farmhouse/intent/${intent.slug}`}
                   className="text-meta text-ink-600 hover:text-brand-700 hover:underline"
                 >
                   Farmhouse for {intent.label.toLowerCase()} in {city.name}
                 </Link>
               )),
             )}
+            {cities.flatMap(city => categories.map(category => <Link key={`${city.id}-${category.id}`} href={`/${city.slug}/${category.slug}`} className="text-meta text-ink-600 hover:underline">{category.name} in {city.name}</Link>))}
+            <Link href="/search" className="text-meta text-ink-600 hover:underline">Search all places</Link>
           </div>
           <div className="mt-10 flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-start sm:gap-8">
             <RentraLogo className="h-6 w-auto shrink-0" />

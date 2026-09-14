@@ -33,6 +33,8 @@ export default function CustomerLoginForm() {
       <Input id="code" name="code" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" minLength={6} maxLength={6} required />
       {verified?.error ? <p role="alert" className="text-meta text-danger">{verified.error}</p> : null}
       <Button type="submit" size="lg" className="w-full" disabled={verifying || sending}>{verifying ? 'Checking code…' : 'Log in'}</Button>
+      {/* Full navigation resets the OTP action state when changing numbers. */}
+      {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
       <a href="/login" className="inline-flex min-h-11 items-center text-meta text-brand-700 underline">Use a different number</a>
     </form> : null}
     <p className="text-tiny text-ink-500">Searching never needs an account. Signing in does not reserve your dates.</p>

@@ -31,7 +31,8 @@
     "verify:customer-quotes": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-quotes.mjs",
     "verify:customer-identity": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-identity.mjs",
     "verify:customer-account": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-account.mjs",
-    "verify:customer-saved": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-saved.mjs"
+    "verify:customer-saved": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-saved.mjs",
+    "verify:customer-search": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-search.mjs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.12.0",

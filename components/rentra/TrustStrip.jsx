@@ -6,18 +6,18 @@ import { ShieldCheck, Landmark, CircleSlash } from 'lucide-react';
 const ITEMS = [
   {
     Icon: ShieldCheck,
-    title: 'Every farm visited',
-    body: 'Someone from Rentra has physically stood on this property and photographed it.',
+    title: 'Compare facilities',
+    body: 'Read the listing photos, amenities and house rules before choosing a place.',
   },
   {
     Icon: Landmark,
-    title: 'Money held until check-in',
-    body: 'Your payment stays with Rentra. The owner is paid after you have arrived.',
+    title: 'Review date-based totals',
+    body: 'Select your dates and guests to see rent, platform fees and separate deposit terms.',
   },
   {
     Icon: CircleSlash,
-    title: '₹0 brokerage',
-    body: 'You book the owner directly. There is no dalal and no hidden commission.',
+    title: 'Check current availability',
+    body: 'Search checks every selected visit. Availability is checked again when you continue.',
   },
 ];
 

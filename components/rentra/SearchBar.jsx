@@ -25,8 +25,8 @@ export default function SearchBar() {
     if (date) params.set('date', date);
     if (slot) params.set('slot', slot);
     if (guests) params.set('guests', String(guests));
-    const city = area.trim() ? area.trim().toLowerCase().replace(/\s+/g, '-') : 'surat';
-    router.push(`/${city}/farmhouse?${params.toString()}`);
+    if (area.trim()) params.set('q', area.trim());
+    router.push(`/search?${params.toString()}`);
   }
 
   return (

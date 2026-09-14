@@ -13,7 +13,7 @@ import { Heart } from 'lucide-react';
  *   on a card photo. `inline` is the labelled control in a listing's title
  *   block, where it sits next to Share and needs a visible word.
  */
-export default function SaveButton({ rentableId, listingTitle, variant = 'overlay' }) {
+export default function SaveButton({ rentableId, listingTitle, variant = 'overlay', selection: suppliedSelection }) {
   const places = useSavedPlaces();
   const search = useAppSelector(state=>state.search);
   const booking = useBookingQuote();
@@ -21,7 +21,7 @@ export default function SaveButton({ rentableId, listingTitle, variant = 'overla
   function onClick(e) {
     e.preventDefault(); e.stopPropagation();
     const date=booking?.date ?? search.date;
-    const selection=date ? {rentableId,dates:booking?.dates ?? [date],slot:booking?.slot ?? search.slot,guests:booking?.guests ?? search.guests} : null;
+    const selection = suppliedSelection !== undefined ? suppliedSelection : date ? {rentableId,dates:booking?.dates ?? [date],slot:booking?.slot ?? search.slot,guests:booking?.guests ?? search.guests} : null;
     startTransition(()=>places.change(rentableId,!saved,selection));
   }
 
