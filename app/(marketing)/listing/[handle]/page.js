@@ -12,7 +12,7 @@ import BookingPriceBox from '@/components/rentra/listing/BookingPriceBox';
 import MobileBookingBar from '@/components/rentra/listing/MobileBookingBar';
 import BookingQuoteProvider from '@/components/rentra/listing/BookingQuoteProvider';
 import {
-  Section, KeyFacts, AmenityGrid, HouseRules, AreaCircle, Reviews, OwnerCard,
+  Section, KeyFacts, VisitHours, AmenityGrid, HouseRules, AreaCircle, Reviews, OwnerCard,
   CancellationPolicy, MoneyNote,
 } from '@/components/rentra/listing/ListingSections';
 import {
@@ -20,6 +20,8 @@ import {
 } from '@/lib/db/queries';
 import { calculateBookingPrice, cheapestSlot, formatINR } from '@/lib/domain/pricing';
 import { listingPath, listingUrl } from '@/lib/domain/listing-url';
+import { absolutePublicUrl } from '@/lib/domain/listing-content';
+import { savedListingHref, selectionFromSavedUrl } from '@/lib/domain/saved-places';
 
 /**
  * Classic ISR. Listing content changes slowly, so serve it from cache; the
@@ -116,9 +118,11 @@ export async function generateMetadata({ params }) {
     band ? `from ${formatINR(band.low)} per slot` : null,
   ].filter(Boolean).join(', ');
 
-  const description = `${listing.title} in ${listing.areaName}, `
-    + `${listing.cityName}. ${facts}. Day picnic or overnight, money held `
-    + 'until check-in, zero brokerage.';
+  const description = `${listing.title} in ${listing.areaName}, ${listing.cityName}. ${facts}. `
+    + 'See published visit hours, amenities, house rules and cancellation terms.';
+  const images = listing.photos.slice(0, 4).map((photo) => ({
+    url: absolutePublicUrl(siteUrl, photo.url), alt: photo.alt,
+  }));
 
   return {
     title,
@@ -129,11 +133,12 @@ export async function generateMetadata({ params }) {
       description,
       url: canonical,
       type: 'website',
+      images,
     },
   };
 }
 
-export default async function ListingPage({ params }) {
+export default async function ListingPage({ params, searchParams }) {
   const { handle } = await params;
   const found = await loadListing(handle);
   if (!found) notFound();
@@ -143,7 +148,10 @@ export default async function ListingPage({ params }) {
   // Slug drift: the code still resolves, so send the crawler and the guest to
   // the canonical URL rather than serving two URLs for one page.
   if (requestedSlug !== listing.slug) {
-    permanentRedirect(listingPath(listing.slug, listing.publicCode));
+    const selection = selectionFromSavedUrl(await searchParams, listing.id);
+    permanentRedirect(savedListingHref(
+      listingPath(listing.slug, listing.publicCode), selection,
+    ));
   }
 
   const [nextDates, similar] = await Promise.all([
@@ -158,6 +166,7 @@ export default async function ListingPage({ params }) {
 
   const defaults = pickDefaults({ prices: listing.prices, nextDates });
   const band = priceBand(listing.prices);
+  const canonicalShareUrl = listingUrl(siteUrl, listing.slug, listing.publicCode);
   const headlineRent = listing.prices?.[defaults.slot]?.weekday ?? band?.low ?? 0;
   const headline = calculateBookingPrice({
     baseRent: headlineRent,
@@ -166,10 +175,10 @@ export default async function ListingPage({ params }) {
 
   const crumbs = [
     { name: 'Home', href: '/' },
-    { name: listing.cityName, href: `/${listing.citySlug}/farmhouse` },
+    { name: listing.cityName, href: `/${listing.citySlug}/${listing.categorySlug}` },
     {
       name: listing.areaName,
-      href: `/${listing.citySlug}/farmhouse/${listing.areaSlug}`,
+      href: `/${listing.citySlug}/${listing.categorySlug}/area/${listing.areaSlug}`,
     },
     { name: listing.title },
   ];
@@ -213,14 +222,15 @@ export default async function ListingPage({ params }) {
                   <span id="listing-actions"><SaveButton rentableId={listing.id} listingTitle={listing.title} variant="inline" /></span>
                   <ShareButton
                     title={`${listing.title}, ${listing.areaName}`}
-                    text={`${listing.title} in ${listing.areaName} — from ${formatINR(band?.low ?? 0)} on Rentra`}
+                    text={`${listing.title} in ${listing.areaName}${band ? ` — from ${formatINR(band.low)}` : ''}`}
+                    url={canonicalShareUrl}
                   />
                 </div>
               </div>
 
               {/* Never more than two. Verified outranks everything. */}
               <div className="mt-4 flex flex-wrap gap-2">
-                {listing.verifiedAt ? <TrustBadge variant="verified" /> : <TrustBadge variant="owner" />}
+                {listing.physicallyVerified ? <TrustBadge variant="verified" /> : <TrustBadge variant="owner" />}
                 {listing.highlight ? (
                   <TrustBadge variant="fast" label={listing.highlight} />
                 ) : null}
@@ -238,6 +248,10 @@ export default async function ListingPage({ params }) {
                 </p>
               </Section>
             ) : null}
+
+            <Section id="visit-hours" title="Visit hours" className="mt-10">
+              <VisitHours schedules={listing.slotSchedules} />
+            </Section>
 
             <div className="mt-10 border-t border-border pt-8">
               <AvailabilityPicker
@@ -264,7 +278,7 @@ export default async function ListingPage({ params }) {
             <Section
               id="location"
               title="Where you will be"
-              intro="The area, not the address — the exact location is released when your booking is confirmed."
+              intro="This public page shows the area only. Confirmed customers can access arrival details for their booking."
               className="mt-10"
             >
               <AreaCircle listing={listing} />
@@ -389,7 +403,7 @@ function buildJsonLd({ listing, band, crumbs, nextDates, defaults }) {
     name: listing.title,
     description: listing.description ?? undefined,
     url,
-    image: listing.photos.slice(0, 6).map((p) => `${siteUrl}${p.url}`),
+    image: listing.photos.slice(0, 6).map((p) => absolutePublicUrl(siteUrl, p.url)),
     address: {
       '@type': 'PostalAddress',
       addressLocality: listing.areaName,
@@ -399,7 +413,7 @@ function buildJsonLd({ listing, band, crumbs, nextDates, defaults }) {
     petsAllowed: undefined,
     maximumAttendeeCapacity: listing.capacity,
     numberOfRooms: listing.bedrooms || undefined,
-    amenityFeature: listing.amenities.slice(0, 20).map((name) => ({
+    amenityFeature: listing.amenities.included.slice(0, 20).map((name) => ({
       '@type': 'LocationFeatureSpecification',
       name,
       value: true,

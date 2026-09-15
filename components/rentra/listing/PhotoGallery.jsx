@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Grid2x2, X } from 'lucide-react';
 
@@ -23,6 +23,18 @@ export default function PhotoGallery({ photos = [], title }) {
   const [openAt, setOpenAt] = useState(null);
   const isOpen = openAt !== null;
   const count = photos.length;
+  const dialogRef = useRef(null);
+  const openerRef = useRef(null);
+
+  const open = useCallback((index, event) => {
+    openerRef.current = event?.currentTarget ?? document.activeElement;
+    setOpenAt(index);
+  }, []);
+
+  const close = useCallback(() => {
+    setOpenAt(null);
+    requestAnimationFrame(() => openerRef.current?.focus?.());
+  }, []);
 
   const step = useCallback(
     (delta) => setOpenAt((i) => (i === null ? null : (i + delta + count) % count)),
@@ -35,9 +47,17 @@ export default function PhotoGallery({ photos = [], title }) {
     if (!isOpen) return undefined;
 
     const onKey = (e) => {
-      if (e.key === 'Escape') setOpenAt(null);
+      if (e.key === 'Escape') close();
       if (e.key === 'ArrowRight') step(1);
       if (e.key === 'ArrowLeft') step(-1);
+      if (e.key === 'Tab') {
+        const controls = [...(dialogRef.current?.querySelectorAll('button, [href], [tabindex]:not([tabindex="-1"])') ?? [])];
+        if (!controls.length) return;
+        const first = controls[0];
+        const last = controls[controls.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
     };
     document.addEventListener('keydown', onKey);
     const { overflow } = document.body.style;
@@ -47,7 +67,7 @@ export default function PhotoGallery({ photos = [], title }) {
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = overflow;
     };
-  }, [isOpen, step]);
+  }, [close, isOpen, step]);
 
   if (!count) {
     return (
@@ -73,7 +93,8 @@ export default function PhotoGallery({ photos = [], title }) {
       <div className="grid gap-2 sm:aspect-8/3 sm:grid-cols-4 sm:grid-rows-2">
         <Tile
           photo={hero}
-          onClick={() => setOpenAt(0)}
+          onClick={(event) => open(0, event)}
+          label={`Open photos of ${title}`}
           className="aspect-4/3 sm:col-span-2 sm:row-span-2 sm:aspect-auto sm:h-full"
           sizes="(max-width: 640px) 100vw, 50vw"
           preload
@@ -82,7 +103,8 @@ export default function PhotoGallery({ photos = [], title }) {
           <Tile
             key={`${photo.url}-${i}`}
             photo={photo}
-            onClick={() => setOpenAt(i + 1)}
+            onClick={(event) => open(i + 1, event)}
+            label={`Open photo ${i + 2} of ${title}`}
             sizes="25vw"
             className="hidden sm:block sm:h-full"
           />
@@ -92,7 +114,7 @@ export default function PhotoGallery({ photos = [], title }) {
       <div className="mt-3 flex items-center justify-between gap-3">
         <button
           type="button"
-          onClick={() => setOpenAt(0)}
+          onClick={(event) => open(0, event)}
           className="inline-flex items-center gap-2 rounded-md border border-ink-300 bg-card px-4 py-2.5 text-meta font-semibold text-ink-900 transition-colors hover:bg-ink-50"
         >
           <Grid2x2 className="size-4" aria-hidden="true" />
@@ -100,14 +122,13 @@ export default function PhotoGallery({ photos = [], title }) {
         </button>
         {/* Hidden on a phone: next to the button at 390px it turns into three
             cramped lines and pushes the button into a wrap. */}
-        <p className="hidden text-tiny text-ink-500 sm:block">
-          Every photo taken by Rentra on the verification visit.
-        </p>
+        <p className="hidden text-tiny text-ink-500 sm:block">Listing photos provided for this property.</p>
       </div>
 
       {isOpen ? (
         <div
           role="dialog"
+          ref={dialogRef}
           aria-modal="true"
           aria-label={`Photos of ${title}`}
           className="fixed inset-0 z-100 flex flex-col bg-ink-900/95 backdrop-blur-sm"
@@ -116,7 +137,7 @@ export default function PhotoGallery({ photos = [], title }) {
             <p className="text-meta tabular">{openAt + 1} / {count}</p>
             <button
               type="button"
-              onClick={() => setOpenAt(null)}
+              onClick={close}
               autoFocus
               className="grid size-10 place-items-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
               aria-label="Close photos"
@@ -138,8 +159,8 @@ export default function PhotoGallery({ photos = [], title }) {
           </div>
 
           <div className="flex items-center justify-center gap-4 px-5 py-5">
-            <LightboxNav label="Previous photo" onClick={() => step(-1)} Icon={ChevronLeft} />
-            <LightboxNav label="Next photo" onClick={() => step(1)} Icon={ChevronRight} />
+            {count > 1 ? <LightboxNav label="Previous photo" onClick={() => step(-1)} Icon={ChevronLeft} /> : null}
+            {count > 1 ? <LightboxNav label="Next photo" onClick={() => step(1)} Icon={ChevronRight} /> : null}
           </div>
 
           <p className="px-5 pb-5 text-center text-tiny text-white/70">
@@ -151,11 +172,12 @@ export default function PhotoGallery({ photos = [], title }) {
   );
 }
 
-function Tile({ photo, onClick, className = '', sizes, preload = false }) {
+function Tile({ photo, onClick, label, className = '', sizes, preload = false }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      aria-label={label}
       className={`group relative overflow-hidden rounded-md bg-ink-100 ${className}`}
     >
       <Image

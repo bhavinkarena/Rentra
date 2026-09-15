@@ -68,6 +68,32 @@ export function KeyFacts({ listing }) {
   );
 }
 
+const SLOT_LABELS = { day: 'Day visit', night: 'Overnight', full_day: 'Full day' };
+
+export function VisitHours({ schedules = [] }) {
+  if (!schedules.length) {
+    return <p className="text-meta text-ink-500">Visit hours have not been published yet.</p>;
+  }
+  return (
+    <dl className="grid gap-3 sm:grid-cols-2">
+      {schedules.map((schedule) => (
+        <div key={schedule.slot} className="rounded-md border border-border bg-card p-4">
+          <dt className="font-bold">{SLOT_LABELS[schedule.slot] ?? schedule.slot}</dt>
+          <dd className="mt-1 text-meta text-ink-700">
+            {formatClock(schedule.startTime)} to {formatClock(schedule.endTime)}
+            {schedule.endDayOffset ? ' next day' : ''}
+          </dd>
+          <dd className="mt-1 text-tiny text-ink-500">
+            Up to {schedule.capacity} guests
+            {schedule.includedGuests < schedule.capacity
+              ? ` · base rent includes ${schedule.includedGuests}` : ''}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 /* ------------------------------------------------------------- amenities */
 
 /**
@@ -105,22 +131,22 @@ const withIcons = (labels) =>
  * the hidden amenities stay in the HTML for crawlers, the toggle needs no
  * JavaScript, and it is keyboard-accessible for free.
  */
-export function AmenityGrid({ amenities = [] }) {
-  const shown = amenities.slice(0, 8);
-  const hidden = amenities.slice(8);
-
-  if (!amenities.length) {
-    return <p className="text-meta text-ink-500">Amenities are being confirmed on the visit.</p>;
-  }
+export function AmenityGrid({ amenities = {} }) {
+  const included = amenities.included ?? [];
+  const extra = amenities.extra ?? [];
+  const unavailable = amenities.unavailable ?? [];
+  const unknown = amenities.unknown ?? [];
+  const shown = included.slice(0, 8);
+  const hidden = included.slice(8);
 
   return (
-    <>
-      <AmenityList items={withIcons(shown)} />
+    <div className="space-y-6">
+      <AmenityState title="Included" items={shown} empty="No included amenities are listed." />
 
       {hidden.length ? (
         <details className="group mt-4">
           <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-md border border-ink-300 bg-card px-4 py-2.5 text-meta font-semibold transition-colors hover:bg-ink-50">
-            <span className="group-open:hidden">Show all {amenities.length} amenities</span>
+            <span className="group-open:hidden">Show all {included.length} included amenities</span>
             <span className="hidden group-open:inline">Show fewer</span>
             <ChevronDown
               className="size-4 transition-transform group-open:rotate-180"
@@ -130,8 +156,31 @@ export function AmenityGrid({ amenities = [] }) {
           <AmenityList items={withIcons(hidden)} className="mt-4" />
         </details>
       ) : null}
-    </>
+      <AmenityState title="Available for an extra cost" items={extra} empty="No paid extras are listed." />
+      {unavailable.length ? (
+        <details>
+          <summary className="cursor-pointer text-meta font-semibold text-ink-700 underline underline-offset-4">
+            Not offered ({unavailable.length})
+          </summary>
+          <AmenityList items={withIcons(unavailable)} className="mt-3 text-ink-500" />
+        </details>
+      ) : null}
+      {unknown.length ? (
+        <div className="rounded-md bg-amber-50 p-4">
+          <p className="text-meta font-bold text-amber-900">Not confirmed</p>
+          <p className="mt-1 text-tiny text-amber-800">
+            These common amenities have no structured answer yet: {unknown.join(', ')}.
+          </p>
+        </div>
+      ) : null}
+    </div>
   );
+}
+
+function AmenityState({ title, items, empty }) {
+  return <div><h3 className="text-h4">{title}</h3>{items.length
+    ? <AmenityList items={withIcons(items)} className="mt-3" />
+    : <p className="mt-2 text-meta text-ink-500">{empty}</p>}</div>;
 }
 
 function AmenityList({ items, className = '' }) {
@@ -182,6 +231,11 @@ export function HouseRules({ listing }) {
           </li>
         ))}
       </ul>
+      {!houseRules.length ? (
+        <p className="text-meta text-ink-500">
+          No house rules have been published. Confirm restrictions before planning your visit.
+        </p>
+      ) : null}
     </>
   );
 }
@@ -240,7 +294,7 @@ export function AreaCircle({ listing: { areaName, cityName } }) {
         <p className="text-meta text-ink-600">
           This illustration represents the area. The exact address, map
           directions and the owner&rsquo;s number are released the moment your
-          booking is confirmed.
+          booking is confirmed and those details are available to you.
         </p>
       </div>
     </div>
@@ -261,8 +315,7 @@ export function Reviews({ listing }) {
   if (!reviewCount || !reviews.length) {
     return (
       <p className="text-meta text-ink-500">
-        No reviews yet. This farm has been visited and photographed by Rentra,
-        but nobody has stayed through us here so far.
+        No customer reviews have been published for this listing yet.
       </p>
     );
   }
@@ -338,7 +391,7 @@ export function Reviews({ listing }) {
  * markup is wrong.
  */
 export function OwnerCard({ listing }) {
-  const { client, verifiedAt } = listing;
+  const { client, physicallyVerified } = listing;
   const minutes = client?.respondsWithinMins;
   const rate = client?.responseRate;
 
@@ -363,7 +416,7 @@ export function OwnerCard({ listing }) {
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <TrustBadge variant={verifiedAt ? 'verified' : 'owner'} />
+        <TrustBadge variant={physicallyVerified ? 'verified' : 'owner'} />
         {minutes != null && minutes <= 120 ? <TrustBadge variant="fast" /> : null}
       </div>
 
@@ -453,11 +506,11 @@ export function CancellationPolicy({ tier = 'moderate', rent, fee, deposit = 0 }
       {deposit > 0 ? (
         <p className="flex items-start gap-2 border-t border-border bg-brand-50 px-4 py-3 text-tiny text-brand-800">
           <CircleSlash className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-          The {formatINR(deposit)} security deposit is separate from the test payment.
+          The {formatINR(deposit)} refundable security deposit is shown separately from rent and fees.
         </p>
       ) : null}
       <p className="border-t border-border px-4 py-3 text-tiny text-ink-500">
-        Final cancellation amounts follow your accepted booking policy. Sandbox refunds move no real bank money.
+        Your booking review will show the exact cancellation terms and amounts before payment.
       </p>
     </div>
   );
@@ -474,9 +527,9 @@ export function MoneyNote() {
   return (
     <ul className="@container grid gap-4 rounded-lg bg-brand-50 p-5 @lg:grid-cols-3">
       {[
-        [Landmark, 'Test payments', 'Razorpay Test checkout will not deduct real bank money.'],
+        [Landmark, 'Booking opens later', 'You can review dates and save this place while checkout is being completed.'],
         [ShieldCheck, 'Clear booking details', 'Review the property rules, visit hours and total before booking.'],
-        [CircleSlash, 'Brokerage ₹0', 'You book the owner directly. No dalal, no hidden commission.'],
+        [Users, 'Listed by owner', 'Compare the published facilities, rules and customer reviews before choosing.'],
       ].map(([Icon, title, body]) => (
         <li key={title} className="flex items-start gap-2.5">
           <Icon className="mt-0.5 size-4.5 shrink-0 text-brand-700" aria-hidden="true" />
@@ -498,4 +551,12 @@ function formatMinutes(mins) {
   if (mins < 60) return `${mins} min`;
   const hours = Math.round(mins / 60);
   return hours < 24 ? `${hours} hr` : `${Math.round(hours / 24)} days`;
+}
+
+function formatClock(value) {
+  const [hours, minutes] = String(value).split(':').map(Number);
+  if (!Number.isInteger(hours) || !Number.isInteger(minutes)) return value;
+  const suffix = hours >= 12 ? 'PM' : 'AM';
+  const hour = hours % 12 || 12;
+  return `${hour}:${String(minutes).padStart(2, '0')} ${suffix}`;
 }

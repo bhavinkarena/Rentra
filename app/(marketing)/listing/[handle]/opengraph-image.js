@@ -104,15 +104,11 @@ export default async function ListingOgImage({ params }) {
               </span>
             </div>
             <div style={{ display: 'flex', marginTop: 10, fontSize: 27, color: '#2E6449', fontWeight: 700 }}>
-              {dateLabel ? `${dateLabel} available` : 'Ask for dates'}
-              {/* Margin, not spaces — satori collapses leading whitespace. */}
-              <span style={{ color: '#5A635D', fontWeight: 500, marginLeft: 12 }}>
-                · Brokerage ₹0
-              </span>
+              {dateLabel ? `${dateLabel} available` : 'Check visit dates'}
             </div>
           </div>
 
-          {listing.verifiedAt ? (
+          {listing.physicallyVerified ? (
             <div
               style={{
                 display: 'flex',

@@ -128,6 +128,10 @@ The design acceptance checklist should include:
 
 These checks are proposals and remain unchecked. This document does not change Parts 01–08 completion status or claim that their UI has passed customer usability research.
 
+## Implementation update — 15 September 2026
+
+The application changes requested by this review are now implemented across its scoped follow-ups. UX A and UX D simplified discovery/navigation, made saved cards photo-led and reduced onboarding pressure. Part 09 completed UX B with factual listing content, explicit amenity states, exact visit hours, an accessible gallery, evidence-backed trust and canonical sharing. Part 10 still owns UX C: the unified multi-date picker and accepted quote summary. The moderated design acceptance checklist above remains intentionally unchecked until customer observation is performed.
+
 ## Sources reviewed
 
 Part 01 is documented in the [session roadmap](rentra-customer-sessions.md#part-01--booking-and-public-data-foundations); there is no separate Part 01 runbook in the current docs directory. Additional sources: [Part 02](rentra-customer-part02.md), [Part 03](rentra-customer-part03.md), [Part 04](rentra-customer-part04.md), [Part 05](rentra-customer-part05.md), [Part 06](rentra-customer-part06.md), [Part 07](rentra-customer-part07.md), [Part 08](rentra-customer-part08.md), and the current customer-facing components linked in the findings table. Historical rollout notes should be interpreted alongside the current session handoff.

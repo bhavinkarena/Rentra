@@ -7,7 +7,7 @@ const VARIANTS = {
     Icon: BadgeCheck,
   },
   owner: {
-    label: 'Owner Verified',
+    label: 'Listed by owner',
     className: 'bg-brand-50 text-brand-700 ring-1 ring-inset ring-brand-200',
     Icon: null,
   },
@@ -28,7 +28,8 @@ const VARIANTS = {
 /**
  * Never show more than two badges on one card. Overcrowded trust signals
  * cause cognitive overload and measurably hurt conversion.
- * Rank: verified > owner > everything else.
+ * Rank: verified > owner > everything else. “Physically Verified” is only
+ * rendered when a completed, passed physical visit exists.
  */
 export default function TrustBadge({ variant = 'verified', label, className = '' }) {
   const config = VARIANTS[variant] ?? VARIANTS.verified;
