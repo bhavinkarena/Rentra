@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Info } from 'lucide-react';
-import SlotSelector from '@/components/rentra/SlotSelector';
-import { SLOTS, formatINR } from '@/lib/domain/pricing';
+
+import { SLOTS } from '@/lib/domain/pricing';
 import { propertyToday } from '@/lib/domain/booking-dates';
 import { useBookingQuote } from './BookingQuoteProvider';
 import {
-  useBookingSelection, rentFor, toISODate, parseISODate, formatDayLabel,
+  toISODate, parseISODate, formatDayLabel,
 } from './booking-state';
 
 /**
@@ -20,38 +20,45 @@ import {
  * in the HTML for crawlers. Failed live reads do not enable cached dates.
  */
 export default function AvailabilityPicker({
-  code, prices, nextDates, defaultDate, defaultSlot,
+  code, prices, nextDates,
 }) {
-  const { date, slot, setDate } = useBookingSelection({ defaultDate, defaultSlot });
-  const { guests } = useBookingQuote();
+  const { date, dates, slot, guests, mode, anchor, setMode, setSlot, pickDate, removeDate, clearDates, notice, conflicts, selectionReady } = useBookingQuote();
   const [result, setResult] = useState(null);
   const [retry, setRetry] = useState(0);
-  const currentResult = result?.code === code && result?.retry === retry && result?.guests === guests ? result : null;
-  const availability = currentResult?.days ?? null;
-  const state = currentResult?.state ?? 'loading';
   const [monthCursor, setMonthCursor] = useState(() =>
     startOfMonth(parseISODate(date || propertyToday())));
+  const monthStart = toISODate(monthCursor);
+  const currentResult = result?.code === code && result?.retry === retry && result?.guests === guests && result?.monthStart === monthStart ? result : null;
+  const availability = currentResult?.days ?? null;
+  const state = currentResult?.state ?? 'loading';
+
+  const positioned = useRef(false);
+  useEffect(() => {
+    if (!selectionReady || positioned.current) return;
+    positioned.current = true;
+    if (date) { const frame = requestAnimationFrame(() => setMonthCursor(startOfMonth(parseISODate(date)))); return () => cancelAnimationFrame(frame); }
+  }, [selectionReady, date]);
 
   useEffect(() => {
     const controller = new AbortController();
 
     async function load() {
       try {
-        const res = await fetch(`/api/listings/${code}/availability?days=90&guests=${guests}`, {
+        const res = await fetch(`/api/listings/${code}/availability?from=${monthStart}&days=31&guests=${guests}`, {
           signal: controller.signal,
           cache: 'no-store',
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        if (!controller.signal.aborted) setResult({ code, retry, guests, days: data.days, message: data.message, state: 'ready' });
+        if (!controller.signal.aborted) setResult({ code, retry, guests, monthStart, days: data.days, message: data.message, state: 'ready' });
       } catch (err) {
-        if (err.name !== 'AbortError' && !controller.signal.aborted) setResult({ code, retry, guests, days: null, state: 'error' });
+        if (err.name !== 'AbortError' && !controller.signal.aborted) setResult({ code, retry, guests, monthStart, days: null, state: 'error' });
       }
     }
     load();
 
     return () => controller.abort();
-  }, [code, retry, guests]);
+  }, [code, retry, guests, monthStart]);
 
   const openOn = (iso) => {
     if (!availability) return null;               // unknown, not "unavailable"
@@ -60,19 +67,6 @@ export default function AvailabilityPicker({
     return slot === 'full_day' ? entry.full === true : entry[slot] === true;
   };
 
-  // Prices for the currently selected date, so the slot selector shows the
-  // real gap between a day picnic and an overnight on THAT Saturday.
-  const slotPrices = useMemo(() => {
-    const overrides = availability?.[date]?.priceOverride ?? {};
-    return Object.fromEntries(
-      Object.keys(SLOTS).map((id) => [
-        id,
-        rentFor({ prices, slot: id, date, override: overrides[id] }),
-      ]),
-    );
-  }, [availability, date, prices]);
-
-  const disabledSlots = Object.keys(SLOTS).filter((id) => prices?.[id] == null);
   const weeks = useMemo(() => buildMonth(monthCursor), [monthCursor]);
   const today = propertyToday();
   const monthLabel = monthCursor.toLocaleDateString('en-IN', { month: 'long', year: 'numeric', timeZone: 'UTC' });
@@ -80,15 +74,19 @@ export default function AvailabilityPicker({
 
   return (
     <section aria-labelledby="availability-heading" className="scroll-mt-24" id="availability">
-      <h2 id="availability-heading" className="text-h2">Pick a slot and a date</h2>
+      <h2 id="availability-heading" className="text-h2">Choose your visits</h2>
       {currentResult?.message ? <p role="status" className="mt-2 text-meta text-ink-600">{currentResult.message}</p> : null}
       <p className="mt-2 max-w-prose text-body text-ink-600">
-        This farm rents a day picnic and an overnight separately, at different
-        prices, on the same date.
+        Choose up to 10 visits with the same visit type and guest count. Each date has its own arrival and departure; gaps between visits are not included.
       </p>
 
       <div className="mt-5">
-        <SlotSelector prices={slotPrices} disabledSlots={disabledSlots} />
+        <div role="group" aria-label="Visit type" className="flex flex-wrap gap-2">{Object.values(SLOTS).map(item => <button key={item.id} type="button" aria-pressed={slot === item.id} disabled={!prices?.[item.id] || !selectionReady} onClick={() => setSlot(item.id)} className={`min-h-11 rounded-md border px-4 ${slot === item.id ? 'bg-brand-600 text-white' : 'bg-card'} disabled:opacity-40`}>{item.label}</button>)}</div>
+        <label className="mt-4 block text-meta font-semibold">Date mode<select aria-label="Date mode" value={mode} disabled={!selectionReady} onChange={event => setMode(event.target.value)} className="ml-3 min-h-11 rounded-md border border-border bg-card px-3"><option value="single">Single date</option><option value="consecutive">Consecutive dates</option><option value="separate">Separate dates</option></select></label>
+        <p className="mt-2 text-meta text-ink-600">{mode === 'consecutive' ? anchor ? 'Choose the last date. Every date in between will be checked.' : 'Choose the first date, then the last date.' : mode === 'separate' ? 'Tap dates to add or remove visits.' : 'Tap a date to replace your selection.'}</p>
+        <p role="status" className="mt-2 text-meta text-brand-700">{notice || `${dates.length} visit${dates.length === 1 ? '' : 's'} selected.`}</p>
+        <ul aria-label="Selected visits" className="mt-3 flex flex-wrap gap-2">{dates.map(day => <li key={day}><button type="button" aria-label={`Remove ${formatDayLabel(day)}`} onClick={() => removeDate(day)} className="min-h-11 rounded-full border border-brand-200 bg-brand-50 px-3 text-meta">{formatDayLabel(day)} ×{conflicts.some(c => c.date === day) || (availability?.[day] && openOn(day) === false) ? ' · needs attention' : ''}</button></li>)}</ul>
+        {dates.length ? <button type="button" onClick={clearDates} className="min-h-11 text-meta text-brand-700 underline">Clear dates</button> : null}
       </div>
 
       <div className="mt-6 max-w-lg rounded-lg border border-border bg-card p-4 shadow-xs">
@@ -98,7 +96,7 @@ export default function AvailabilityPicker({
             onClick={() => setMonthCursor(addMonths(monthCursor, -1))}
             disabled={!canGoBack}
             aria-label="Previous month"
-            className="grid size-8 place-items-center rounded-sm text-ink-600 transition-colors hover:bg-ink-50 hover:text-ink-900 disabled:pointer-events-none disabled:opacity-30"
+            className="grid size-11 place-items-center rounded-sm text-ink-600 transition-colors hover:bg-ink-50 hover:text-ink-900 disabled:pointer-events-none disabled:opacity-30"
           >
             <ChevronLeft className="size-4" aria-hidden="true" />
           </button>
@@ -106,8 +104,9 @@ export default function AvailabilityPicker({
           <button
             type="button"
             onClick={() => setMonthCursor(addMonths(monthCursor, 1))}
+            disabled={monthCursor >= addMonths(startOfMonth(parseISODate(today)), 12)}
             aria-label="Next month"
-            className="grid size-8 place-items-center rounded-sm text-ink-600 transition-colors hover:bg-ink-50 hover:text-ink-900"
+            className="grid size-11 place-items-center rounded-sm text-ink-600 transition-colors hover:bg-ink-50 hover:text-ink-900"
           >
             <ChevronRight className="size-4" aria-hidden="true" />
           </button>
@@ -125,7 +124,7 @@ export default function AvailabilityPicker({
             const iso = toISODate(cell);
             const isPast = iso < today;
             const open = openOn(iso);
-            const selected = iso === date;
+            const selected = dates.includes(iso);
             // While availability is loading, dates are neither open nor shut.
             // Showing everything as bookable and then taking it away is worse
             // than a brief skeleton.
@@ -135,12 +134,22 @@ export default function AvailabilityPicker({
               <button
                 key={iso}
                 type="button"
-                disabled={isPast || open !== true}
+                aria-disabled={!selectionReady || isPast || (open !== true && !selected)}
                 aria-pressed={selected}
+                data-visit-date={iso}
+                onKeyDown={event => {
+                  const offsets = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 };
+                  if (!(event.key in offsets)) return;
+                  event.preventDefault();
+                  const target = new Date(cell); target.setUTCDate(target.getUTCDate() + offsets[event.key]);
+                  if (toISODate(target) < today) return;
+                  setMonthCursor(startOfMonth(target));
+                  requestAnimationFrame(() => document.querySelector(`[data-visit-date="${toISODate(target)}"]`)?.focus());
+                }}
                 aria-label={`${formatDayLabel(iso)}${open === false ? ' — not available' : ''}`}
-                onClick={() => setDate(iso)}
+                onClick={() => { if (selectionReady && !isPast && (open === true || selected)) pickDate(iso); }}
                 className={[
-                  'relative rounded-sm py-2 text-center text-meta tabular transition-colors',
+                  'relative min-h-11 rounded-sm py-2 text-center text-meta tabular transition-colors',
                   selected
                     ? 'bg-brand-600 font-bold text-white'
                     : open
@@ -164,18 +173,7 @@ export default function AvailabilityPicker({
         }} />
       </div>
 
-      {date ? (
-        <p className="mt-3 flex items-baseline gap-2 text-meta text-ink-600">
-          <span className="font-semibold text-ink-900">{formatDayLabel(date)}</span>
-          <span>·</span>
-          <span>{SLOTS[slot]?.label}{availability?.[date]?.intervals?.[slot] ? ` · ${formatInterval(availability[date].intervals[slot])}` : ''}</span>
-          {slotPrices[slot] != null ? (
-            <span className="font-bold text-brand-700 tabular" data-money>
-              {formatINR(slotPrices[slot])}
-            </span>
-          ) : null}
-        </p>
-      ) : null}
+
     </section>
   );
 }
@@ -218,17 +216,13 @@ function Legend({ state, nextDates, slot, onRetry }) {
         <span className="size-2.5 rounded-full bg-brand-100" aria-hidden="true" />
         Available
       </span>
-      <span className="flex items-center gap-1.5 line-through decoration-ink-300">Booked</span>
+      <span className="flex items-center gap-1.5 line-through decoration-ink-300">Unavailable</span>
       {state === 'loading' ? <span className="ml-auto animate-pulse">Checking dates…</span> : null}
     </div>
   );
 }
 
 const startOfMonth = (d) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1));
-function formatInterval({ startsAt, endsAt }) {
-  const formatter = new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
-  return `${formatter.format(new Date(startsAt))} – ${formatter.format(new Date(endsAt))} IST`;
-}
 const addMonths = (d, n) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + n, 1));
 
 /** Month as a flat cell list, Monday-first, padded with nulls. */

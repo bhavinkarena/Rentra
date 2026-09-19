@@ -16,7 +16,8 @@ import { Heart } from 'lucide-react';
 export default function SaveButton({ rentableId, listingTitle, variant = 'overlay', selection: suppliedSelection }) {
   const places = useSavedPlaces();
   const search = useAppSelector(state=>state.search);
-  const booking = useBookingQuote();
+  const context = useBookingQuote();
+  const booking = context?.rentableId === rentableId ? context : null;
   const saved = Boolean(places.entries?.some(e=>e.rentableId===rentableId));
   function onClick(e) {
     e.preventDefault(); e.stopPropagation();

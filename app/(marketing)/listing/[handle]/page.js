@@ -184,7 +184,7 @@ export default async function ListingPage({ params, searchParams }) {
   ];
 
   return (
-    <BookingQuoteProvider rentableId={listing.id} defaultDate={defaults.date} defaultSlot={defaults.slot}>
+    <BookingQuoteProvider key={listing.id} rentableId={listing.id} defaultDate={defaults.date} defaultSlot={defaults.slot}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

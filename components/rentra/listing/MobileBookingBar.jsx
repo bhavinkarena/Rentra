@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { formatINRMinor } from '@/lib/domain/booking-money';
 import { useBookingQuote } from './BookingQuoteProvider';
-import { formatDayLabel } from './booking-state';
+import QuoteSummary from './QuoteSummary';
 
 /**
  * The bottom bar, below lg. Appears once the photo grid has scrolled out of
@@ -18,8 +18,12 @@ import { formatDayLabel } from './booking-state';
 export default function MobileBookingBar({
   sentinelId = 'gallery-end',
 }) {
-  const { date, quote, loading } = useBookingQuote();
+  const { dates, quote, loading } = useBookingQuote();
   const [shown, setShown] = useState(false);
+  const dialog = useRef(null);
+  const opener = useRef(null);
+  const previousOverflow = useRef('');
+  useEffect(() => () => { if (dialog.current?.open) document.body.style.overflow = previousOverflow.current; }, []);
 
   useEffect(() => {
     const sentinel = document.getElementById(sentinelId);
@@ -53,6 +57,7 @@ export default function MobileBookingBar({
 
 
   return (
+    <>
     <div
       {...(shown ? { 'data-booking-bar': '' } : {})}
       aria-hidden={!shown}
@@ -73,15 +78,21 @@ export default function MobileBookingBar({
             </span>
           </p>
           <p className="truncate text-tiny text-ink-500">
-            {date ? formatDayLabel(date) : 'Pick a date'}
+            {dates.length ? `${dates.length} visits selected` : 'Pick dates'}
             {' · '}
             Booking opens in a later release
           </p>
         </div>
 
         {/* text-base, not text-meta — see the note in BookingPriceBox. */}
-        <a href={quote ? '#booking-save' : '#availability'} tabIndex={shown ? 0 : -1} className="ml-auto inline-flex min-h-12 shrink-0 items-center rounded-md bg-brand-600 px-4 text-base font-semibold text-white">{quote ? 'Save place' : 'Check dates'}</a>
+        <button type="button" ref={opener} onClick={() => { previousOverflow.current = document.body.style.overflow; document.body.style.overflow = 'hidden'; dialog.current.returnValue = ''; dialog.current.showModal(); }} tabIndex={shown ? 0 : -1} className="ml-auto min-h-12 shrink-0 rounded-md bg-brand-600 px-4 text-white">View summary</button>
       </div>
     </div>
+    <dialog ref={dialog} aria-labelledby="mobile-summary-title" onClose={() => { document.body.style.overflow = previousOverflow.current; if (dialog.current.returnValue === 'edit') { document.getElementById('availability')?.scrollIntoView(); document.querySelector('#availability select')?.focus(); } else opener.current?.focus(); }} className="fixed inset-x-0 top-auto bottom-0 m-0 max-h-[85dvh] w-full max-w-none overflow-y-auto rounded-t-xl bg-card p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] backdrop:bg-black/50">
+      <div className="flex items-center justify-between"><h2 id="mobile-summary-title" className="text-h3">Your visits</h2><button type="button" autoFocus onClick={() => dialog.current.close()} className="min-h-11 px-3">Close summary</button></div>
+      <QuoteSummary />
+      <button type="button" onClick={() => dialog.current.close('edit')} className="mt-3 min-h-11 text-brand-700 underline">Edit dates</button>
+    </dialog>
+    </>
   );
 }
