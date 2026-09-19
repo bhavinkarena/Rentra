@@ -23,7 +23,23 @@ export default function MobileBookingBar({
   const dialog = useRef(null);
   const opener = useRef(null);
   const previousOverflow = useRef('');
-  useEffect(() => () => { if (dialog.current?.open) document.body.style.overflow = previousOverflow.current; }, []);
+  function keepDialogFocus(event) {
+    if (event.key !== 'Tab') return;
+    const controls = [...event.currentTarget.querySelectorAll('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex="0"]')];
+    const first = controls[0], last = controls.at(-1);
+    if (!first) { event.preventDefault(); return; }
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault(); last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault(); first.focus();
+    }
+  }
+  useEffect(() => {
+    // React clears refs before unmount cleanup. Keep the dialog node so leaving
+    // for login while it is open still releases the page's scroll lock.
+    const element = dialog.current;
+    return () => { if (element?.open) document.body.style.overflow = previousOverflow.current; };
+  }, []);
 
   useEffect(() => {
     const sentinel = document.getElementById(sentinelId);
@@ -88,7 +104,7 @@ export default function MobileBookingBar({
         <button type="button" ref={opener} onClick={() => { previousOverflow.current = document.body.style.overflow; document.body.style.overflow = 'hidden'; dialog.current.returnValue = ''; dialog.current.showModal(); }} tabIndex={shown ? 0 : -1} className="ml-auto min-h-12 shrink-0 rounded-md bg-brand-600 px-4 text-white">View summary</button>
       </div>
     </div>
-    <dialog ref={dialog} aria-labelledby="mobile-summary-title" onClose={() => { document.body.style.overflow = previousOverflow.current; if (dialog.current.returnValue === 'edit') { document.getElementById('availability')?.scrollIntoView(); document.querySelector('#availability select')?.focus(); } else opener.current?.focus(); }} className="fixed inset-x-0 top-auto bottom-0 m-0 max-h-[85dvh] w-full max-w-none overflow-y-auto rounded-t-xl bg-card p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] backdrop:bg-black/50">
+    <dialog ref={dialog} aria-labelledby="mobile-summary-title" onKeyDown={keepDialogFocus} onClose={() => { document.body.style.overflow = previousOverflow.current; if (dialog.current.returnValue === 'edit') { document.getElementById('availability')?.scrollIntoView(); document.querySelector('#availability select')?.focus(); } else opener.current?.focus(); }} className="fixed inset-x-0 top-auto bottom-0 m-0 max-h-[85dvh] w-full max-w-none overflow-y-auto rounded-t-xl bg-card p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] backdrop:bg-black/50">
       <div className="flex items-center justify-between"><h2 id="mobile-summary-title" className="text-h3">Your visits</h2><button type="button" autoFocus onClick={() => dialog.current.close()} className="min-h-11 px-3">Close summary</button></div>
       <QuoteSummary />
       <button type="button" onClick={() => dialog.current.close('edit')} className="mt-3 min-h-11 text-brand-700 underline">Edit dates</button>

@@ -13,6 +13,8 @@ state=pickVisitDate(changeVisitMode(state,'single'),day); assert.deepEqual(state
 state=pickVisitDate(pickVisitDate(changeVisitMode(state,'consecutive'),day),second);
 assert.equal(state.dates.length,3);
 state=removeVisitDate(state,addLocalDays(day,1)); assert.equal(state.mode,'separate'); assert.deepEqual(state.dates,[day,second]);
+assert.throws(()=>pickVisitDate(pickVisitDate(changeVisitMode(state,'consecutive'),day),addLocalDays(day,10)),/10/);
+assert.deepEqual(pickVisitDate(pickVisitDate(changeVisitMode(state,'consecutive'),second),day).dates,[day,addLocalDays(day,1),second]);
 console.log('PASS single/range/separate selection, ten-date cap and middle removal');
 await withDisposableDatabase('p10',async({sql,databaseUrl})=>{
  const [owner]=await sql`INSERT INTO "user" (role,name,account_status) VALUES ('client','Owner','active') RETURNING id`;
@@ -29,9 +31,11 @@ await withDisposableDatabase('p10',async({sql,databaseUrl})=>{
  await sql`UPDATE availability SET blocked_by_client=true WHERE rentable_id=${listing.id} AND day=${addLocalDays(day,1)} AND slot='day'`;
  await assert.rejects(()=>previewBookingQuote(sql,{...selection,dates:[day,addLocalDays(day,1),second]}),error=>error.conflicts?.some(c=>c.date===addLocalDays(day,1)));
  const night=await previewBookingQuote(sql,{...selection,slot:'night'}); assert.equal(night.visits[0].endsAt.slice(0,10),addLocalDays(day,1));
+ const tenDates=Array.from({length:10},(_,i)=>addLocalDays(day,i+2));
+ const tenQuote=await previewBookingQuote(sql,{...selection,dates:tenDates});
  console.log('PASS authoritative multi-date prices, middle conflict and overnight departure');
  if(!process.env.CUSTOMER_BROWSER_DRIVER) throw new Error('CUSTOMER_BROWSER_DRIVER required for Part 10 UI gate');
- await verifyPickerBrowser({sql,databaseUrl,day,second,listingId:listing.id,expected});
+ await verifyPickerBrowser({sql,databaseUrl,day,second,listingId:listing.id,expected,tenDates,tenQuote});
  console.log('PASS desktop/mobile picker, conflicts, quote refresh, summary and login recovery');
 });
 console.log('Part 10: 3 scenario groups passed; disposable database removed.');
