@@ -104,9 +104,10 @@ try {
     for(const [key,value] of Object.entries(legacyPayout)) assert.deepEqual(p[key],value,key);
     assert.equal(String(p.actual_net_minor),'0'); assert.equal(p.funding_allocation_id,null);
   });
-  await check('dummy runtime and webhook cannot enable real payments',async()=>{
+  await check('live payments stay disabled and unsigned webhooks cannot acknowledge an event',async()=>{
     assert.equal(PAYMENT_RUNTIME.realPaymentsEnabled,false); assert.equal(PAYMENT_RUNTIME.mode,null);
-    const response=await webhook(); assert.equal(response.status,503); assert.equal((await response.json()).code,'PAYMENTS_DISABLED');
+    const response=await webhook(new Request('http://fixture.invalid/api/webhooks/razorpay',{method:'POST'}));
+    assert.equal(response.status,400); assert.notEqual((await response.json()).received,true);
   });
   const sim=await flow({mode:'simulated',environment:'simulated',provenance:'seed'});
   const simFact=await sql.begin((db)=>fact(db,sim));

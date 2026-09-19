@@ -19,6 +19,9 @@ export async function withDisposableDatabase(label, run) {
   let created = false;
   const connect = () => {
     const client = postgres(targetUrl.href, options);
+    // Production wraps every raw client with Drizzle, which sets JSON/date serializers.
+    // Contending test connections must use that same wire representation.
+    drizzle(client);
     clients.push(client);
     return client;
   };
