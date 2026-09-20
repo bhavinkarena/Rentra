@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useBookingQuote } from './BookingQuoteProvider';
 import { formatINRMinor } from '@/lib/domain/booking-money';
 import { formatLocalDate } from '@/lib/domain/booking-dates';
@@ -16,7 +17,7 @@ export default function QuoteSummary() {
       <p className="mt-4 rounded-md bg-ink-50 p-3 text-meta">Refundable deposit, separate: <strong>{formatINRMinor(quote.totals.depositMinor)}</strong></p>
       <p className="mt-3 text-tiny text-ink-600">Each visit ends at its listed departure time. Time between visits is not included. Reviewing does not reserve dates or take payment.</p>
       <button type="button" onClick={accept} className="mt-4 min-h-11 w-full rounded-md bg-brand-600 px-4 text-white">{accepted ? 'Booking details reviewed' : 'Review booking'}</button>
-      {accepted ? <div className="mt-3 rounded-md bg-brand-50 p-3 text-meta"><p>Review complete. Checkout opens in a later release. You can save this selection now.</p>{isCustomer === false ? <button type="button" onClick={login} disabled={loggingIn} className="min-h-11 font-semibold text-brand-700 underline">{loggingIn ? 'Opening login…' : 'Continue with login'}</button> : null}</div> : null}
+      {accepted ? <div className="mt-3 rounded-md bg-brand-50 p-3 text-meta"><p>Review the contact details and booking terms before test payment.</p>{isCustomer === true ? <Link href={`/checkout/review/${quote.id}`} className="inline-flex min-h-11 items-center font-semibold text-brand-700 underline">Continue to checkout</Link> : null}{isCustomer === false ? <button type="button" onClick={login} disabled={loggingIn} className="min-h-11 font-semibold text-brand-700 underline">{loggingIn ? 'Opening login…' : 'Continue with login'}</button> : null}</div> : null}
     </> : null}
     {loginError ? <p role="alert" className="mt-3 text-danger">{loginError}</p> : null}
   </div>;

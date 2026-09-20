@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { randomUUID, createHmac } from 'node:crypto';
 import { withDisposableDatabase } from './lib/disposable-database.mjs';
 import { createBookingQuote } from '../lib/booking/quotes.js';
+import { readCheckoutReview, readOwnedCheckoutReview } from '../lib/booking/checkout-review.js';
+import { checkoutMessage, mayLaunchCheckout } from '../lib/domain/checkout-display.js';
 import { createCheckoutHold, readCheckoutStatus } from '../lib/booking/checkout.js';
 import { withListingInventory, expireInventoryHolds, createOwnerBlock, releaseOwnerBlock } from '../lib/booking/inventory.js';
 import { setPaymentGatewayConfiguration } from '../lib/payments/gateway-settings.js';
@@ -47,7 +49,7 @@ await check('adapter rejects live keys, validates HMAC, scope and uncertain outc
   await fail(()=>adapter.createOrder({id:randomUUID(),expected_minor:999,provider_order_id:'order_wrong'}),'PROVIDER_ORDER_MISMATCH');
 });
 
-await withDisposableDatabase('p11',async({sql,connect})=>{
+await withDisposableDatabase('p11',async({sql,connect,databaseUrl})=>{
   const [owner]=await sql`INSERT INTO "user"(role,name,account_status) VALUES('client','Checkout owner','active') RETURNING id`;
   const customer=async phone=>{
     const [u]=await sql`INSERT INTO "user"(role,name,phone,account_status) VALUES('customer','Checkout customer',${phone},'active') RETURNING id`;
@@ -216,6 +218,34 @@ await withDisposableDatabase('p11',async({sql,connect})=>{
     assert.equal((await sql`SELECT count(*)::int n FROM refund WHERE transaction_id=${refund.transaction_id}`)[0].n,1);
     assert.equal((await readCheckoutStatus(sql,first,replacement.orderId,env)).state,'held');
   });
+  await check('owned checkout review, immutable contact/purpose and reload recovery',async()=>{
+    const q=await quote(first,28,2), request={...input(q),idempotencyKey:q.id,purpose:'Family picnic'};
+    await fail(()=>readCheckoutReview(sql,second,q.id,env),'CHECKOUT_NOT_FOUND');
+    const review=await readCheckoutReview(sql,first,q.id,env);
+    assert.equal(review.quote.totals.totalMinor,q.totals.totalMinor);
+    assert.equal(review.existingOrderId,null);
+    const held=await createCheckoutHold(sql,first,request,env);
+    assert.equal((await readCheckoutReview(sql,first,q.id,env)).existingOrderId,held.orderId);
+    const owned=await readOwnedCheckoutReview(sql,first,held.orderId,env);
+    assert.equal(owned.purpose,'Family picnic');assert.equal(owned.contact.phone,'9000001101');
+    assert.deepEqual(owned.quote.visits,q.visits);
+    await fail(()=>readOwnedCheckoutReview(sql,second,held.orderId,env),'CHECKOUT_NOT_FOUND');
+    await fail(()=>createCheckoutHold(sql,first,{...request,purpose:'Changed purpose'},env),'IDEMPOTENCY_CONFLICT');
+    await fail(()=>sql`UPDATE booking_order SET listing_snapshot='{}'::jsonb WHERE id=${held.orderId}`,'23514');
+    assert.equal(checkoutMessage({...held,state:'confirmed',paymentState:'processing'}).includes('confirmed'),false);
+    assert.equal(mayLaunchCheckout({...held,executionState:'unknown'},100),false);
+    assert.equal(mayLaunchCheckout(held,0),false);
+    assert.equal(mayLaunchCheckout({...held,needsResolution:true},100),false);
+  });
+  if(process.env.CUSTOMER_CHECKOUT_BROWSER==='1') await check('390px hosted checkout recovery, forged callback, server capture and account isolation',async()=>{
+    if(!process.env.CUSTOMER_BROWSER_DRIVER) throw new Error('CUSTOMER_BROWSER_DRIVER required');
+    await sql`INSERT INTO customer_profile(user_id) VALUES(${first.userId}),(${second.userId}) ON CONFLICT DO NOTHING`;
+    const q=await quote(first,32,2);
+    const {verifyCheckoutBrowser}=await import('./lib/customer-checkout-browser.mjs');
+    await verifyCheckoutBrowser({sql,databaseUrl,env,session:first,otherSession:second,quote:q,
+      prepare:orderId=>startCheckoutPayment(sql,first,orderId,options),
+      confirm:checkout=>verifyCheckoutPayment(sql,first,callback(checkout,evidence(checkout)),options)});
+  });
   await check('advance collections reconcile per visit and Test captures never fund revenue or payout',async()=>{
     await config(true,'advance');
     const checkout=await startCheckoutPayment(sql,first,(await hold(22,2)).orderId,options),payment=evidence(checkout);
@@ -234,4 +264,4 @@ await withDisposableDatabase('p11',async({sql,connect})=>{
     assert.ok(winner.orderId);
   });
 });
-console.log(`Part 11: ${passed} groups passed; disposable database removed. Provider HTTP responses were deterministic fixtures, not bank transactions.`);
+console.log(`Checkout services/UI: ${passed} groups passed; disposable database removed. Provider HTTP responses were deterministic fixtures, not bank transactions.`);
