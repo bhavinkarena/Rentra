@@ -25,6 +25,7 @@
     "verify:c0": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-c0.mjs",
     "verify:owner-listings": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-owner-listings.mjs",
     "verify:customer-foundation": "node scripts/verify-customer-foundation.mjs",
+    "verify:customer-records": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-records.mjs",
     "db:audit-customer": "node --env-file=.env.local scripts/customer-legacy.mjs",
     "verify:customer-reservations": "node --env-file=.env.local scripts/verify-customer-reservations.mjs",
     "verify:customer-payments": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-payments.mjs",

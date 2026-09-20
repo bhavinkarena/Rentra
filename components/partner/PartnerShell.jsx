@@ -25,6 +25,7 @@ const NAV_GROUPS = [
     items: [
       { href: '/partner', label: 'Overview', icon: LayoutDashboard, exact: true },
       { href: '/partner/listings', label: 'Properties', icon: Building2, requiresActive: true },
+      { href: '/partner/bookings', label: 'Bookings', icon: LayoutDashboard, requiresActive: true },
     ],
   },
   {
@@ -41,6 +42,7 @@ function isActive(pathname, item) {
 }
 
 function routeLabel(pathname) {
+  if (pathname.startsWith('/partner/bookings')) return 'Bookings';
   if (pathname.startsWith('/partner/listings/')) return 'Property workspace';
   if (pathname === '/partner/listings') return 'Properties';
   if (pathname.startsWith('/partner/settings')) return 'Settings & payouts';

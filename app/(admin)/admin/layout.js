@@ -15,7 +15,7 @@ export default async function AdminLayout({ children }) {
   return (
     <div className="flex min-h-screen flex-col bg-ink-25">
       <header className="border-b-2 border-ink-900 bg-ink-900">
-        <div className="mx-auto flex max-w-(--container-page) items-center gap-4 px-6 py-3">
+        <div className="mx-auto flex max-w-(--container-page) flex-wrap items-center gap-4 px-6 py-3">
           {/* `inverse` swaps the artwork to the palette greens that hold up on
               the ink-900 chrome; the delivered deep green goes muddy on it. */}
           <Link href="/admin" className="flex shrink-0 items-center gap-2.5">
@@ -24,7 +24,8 @@ export default async function AdminLayout({ children }) {
             <span className="text-meta font-semibold text-ink-400">admin</span>
           </Link>
           {admin ? (
-            <div className="ml-auto flex items-center gap-3">
+            <div className="ml-auto flex flex-wrap items-center gap-3">
+              <Link href="/admin/bookings" className="rounded-full px-3 py-1.5 text-meta font-medium text-ink-300 hover:bg-ink-800 hover:text-white">Bookings</Link>
               <Link href="/admin/payments" className="rounded-full px-3 py-1.5 text-meta font-medium text-ink-300 hover:bg-ink-800 hover:text-white">
                 Payments
               </Link>
