@@ -4,6 +4,8 @@
 
 **Implementation status — 20 September 2026:** Part 11 server services are complete: atomic holds, Razorpay Test order dispatch/verification, durable webhook processing and expiry/late-capture reconciliation. Migration 0015 is applied locally. Verification used deterministic provider HTTP fixtures; no actual sandbox payment was executed because Test credentials are absent. Hosted customer checkout remains Part 12, refund execution Part 14 and the full sandbox release gate Part 19. See the [Part 11 runbook](rentra-customer-part11.md).
 
+**Part 14 status — 20 September 2026:** selected-visit cancellation, captured-allocation Test refund reservation, pinned provider execution, lookup-only recovery and durable worker/webhook reconciliation are implemented. Eight cancellation/browser, twelve ledger and five record database groups passed with deterministic fixtures. Migration 0016 is applied. No genuine provider refund was executed; credentials remain absent. See the [Part 14 runbook](rentra-customer-part14.md).
+
 Razorpay **Test mode** is the first gateway integration. It exercises provider orders, hosted checkout, payment verification, webhooks and refunds without deducting real bank money. It is distinct from Rentra's internal dummy provider. Razorpay documents separate test credentials and test checkout behavior in its [Standard Checkout integration guide](https://razorpay.com/docs/payments/payment-gateway/web-integration/standard/integration-steps/).
 
 ## Availability and admin controls

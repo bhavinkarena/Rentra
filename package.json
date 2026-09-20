@@ -37,7 +37,8 @@
     "verify:customer-listing": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-listing.mjs",
     "verify:customer-picker": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-picker.mjs",
     "verify:customer-checkout": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-checkout.mjs",
-    "verify:customer-checkout-ui": "CUSTOMER_CHECKOUT_BROWSER=1 node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-checkout.mjs"
+    "verify:customer-checkout-ui": "CUSTOMER_CHECKOUT_BROWSER=1 node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-checkout.mjs",
+    "verify:customer-cancellation": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-cancellation.mjs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.12.0",

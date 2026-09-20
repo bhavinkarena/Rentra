@@ -8,9 +8,11 @@ Token use varies with the files involved, existing code, debugging and verificat
 
 ## Current status and handoff
 
-- **Completed parts:** 01–02 — COMPLETE (12 September 2026); 03–05 — COMPLETE (13 September 2026); 06–08 — COMPLETE (14 September 2026); 09 — COMPLETE (15 September 2026); 10 — COMPLETE (19 September 2026); 11 — COMPLETE (20 September 2026); 12 — COMPLETE (20 September 2026). 13 — COMPLETE (20 September 2026).
-- **Next planned part:** 14 — per-visit cancellation and Test refund reconciliation.
-- **Release state:** implementation underway; hosted Test checkout is complete. Razorpay Test customer release requires Parts 13–19.
+- **Completed parts:** 01–02 — COMPLETE (12 September 2026); 03–05 — COMPLETE (13 September 2026); 06–08 — COMPLETE (14 September 2026); 09 — COMPLETE (15 September 2026); 10 — COMPLETE (19 September 2026); 11 — COMPLETE (20 September 2026); 12 — COMPLETE (20 September 2026). 13 — COMPLETE (20 September 2026); 14 — COMPLETE (20 September 2026).
+- **Next planned part:** 15 — durable communication and actual visit lifecycle.
+- **Part 14 implementation:** owned per-visit preview/acceptance, immutable replay receipt, selected inventory release and parent refresh; provider Test refund reservation, single dispatch, lookup-only uncertainty recovery, pinned credentials, worker/webhook reconciliation and zero-bank-money labels. Started/unsupported visits use host/operator help; changes use explicit cancel-and-rebook. See the [Part 14 runbook](rentra-customer-part14.md).
+- **Part 14 verification:** all 8 cancellation/refund groups (including 390px Chromium), 12 payment-ledger groups, 5 record database groups and 28 foundation groups passed. Disposable databases removed. Lint clean, final Webpack build 46 pages, no schema drift, diff/document consistency passed. Migration 0016 applied after an only-pending-migration preflight. Provider responses were fixtures; no actual sandbox refund, configured seed/backfill, gateway enablement or deployment was run.
+- **Release state:** implementation underway; hosted Test checkout is complete. Razorpay Test customer release requires Parts 15–19.
 - **Part 01 implemented files:** new [policy](../lib/domain/booking-policy.js), [calendar/interval rules](../lib/domain/booking-dates.js), [minor-unit pricing](../lib/domain/booking-money.js) and [legacy availability adapter](../lib/domain/booking-availability.js); [selection validation](../lib/validation/zod/booking.js); [public queries](../lib/db/queries.js); [availability route](../app/api/listings/[code]/availability/route.js); listing calendar/state/locality components. Legacy pricing now derives its rates from the shared policy while retaining whole-rupee inputs/outputs.
 - **Part 01 verification:** `npm run verify:customer-foundation` — 28 scenario groups passed, including child Node processes in Honolulu, New York and Tokyo; `npm run lint` — no errors, four existing image-element warnings in OG/icon files; `npm run build` — passed, 39 static pages generated. The first sandboxed build could not read the database (`EACCES`); the permitted build with database network access passed. A scan of 102 generated listing HTML/RSC artifacts found no serialized private location/contact/access field keys. The roadmap has 22 unique part headings and maps all 18 acceptance scenarios.
 - **Part 01 limitations at its original gate:** no schema migration, customer login, persisted quote/order/hold/payment or authoritative overlap constraint was implemented in Part 01. Existing price boxes still use legacy local estimates and do not reconcile date overrides; Parts 04/10 replace that split. Legacy `full` availability remains advisory day-plus-night availability, not evidence of a safe physical interval. New interval helpers reject missing schedules and unsupported timezones. This session did not perform browser accessibility, concurrent database booking or production deployment checks.
@@ -99,7 +101,7 @@ Dependencies identify technical prerequisites. The numbered order is the recomme
 | 11 | U3 | Holds, Razorpay Test adapter, verified capture/webhooks and expiry | 02–05; admin gateway config | COMPLETE — 20 September 2026 |
 | 12 | U3 | Hosted test checkout and callback/webhook recovery | 10–11 | COMPLETE — 20 September 2026 |
 | 13 | U3 | Confirmation/history, private arrival details and staff visibility | 12 | COMPLETE — 20 September 2026 |
-| 14 | U4 | Partial cancellation, test refunds and change-support path | 11, 13 | PLANNED |
+| 14 | U4 | Partial cancellation, test refunds and change-support path | 11, 13 | COMPLETE |
 | 15 | U4 | Notification outbox, lifecycle evidence and calendar export | 11, 13–14 | PLANNED |
 | 16 | U4 | Verified-visit reviews, moderation, replies and reports | 13, 15 | PLANNED |
 | 17 | U4 | Help, versioned policies and operational support requests | 13–15 | PLANNED |
@@ -251,6 +253,8 @@ Parts 01–03 below retain their original implemented scope and verification as 
 **Gate:** Persisted records explain what was booked and staff can operate those visits. Supports A10/A12/A13/A14; no customer release can bypass this staff-visibility dependency.
 
 ### Part 14 — Per-visit cancellation and change handling
+
+**Status:** COMPLETE (20 September 2026). Eight cancellation/refund groups including mobile browser verification, 12 payment-ledger, five record and 28 foundation groups passed. Migration 0016 applied. See the [Part 14 runbook](rentra-customer-part14.md).
 
 **Deliver:** Authorised policy-snapshot cancellation preview/commit for selected unstarted visits, conditional release/events and refreshed parent state. Reserve test refunds against captured test allocations, call the original provider outside locks and reconcile/retry the obligation. Existing refunds continue after gateway disable. Label provider test refund amounts/status separately from actual bank refund ₹0. Use an explicit supported change path; connect structured requests in Part 17.
 
