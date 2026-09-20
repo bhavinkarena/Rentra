@@ -33,6 +33,7 @@ export function BookingDetail({ record, base = '/bookings', operational = false 
     {test ? <p className="rounded-md bg-brand-50 p-4">Razorpay Test booking. No actual bank money was collected by the Test gateway. This record is not a real-money receipt.</p> : null}
     <a className={linkClass} href={`${base}/${record.id}/summary`}>Download booking summary (.txt)</a>
     <p><a className={linkClass} href={`${base}/${record.id}/calendar`}>Download calendar (.ics)</a></p>
+    {!operational ? <p><Link className={linkClass} href={`/bookings/${record.id}/reviews`}>Review visits and see review status</Link></p> : <p><Link className={linkClass} href={base === '/admin/bookings' ? '/admin/reviews' : '/partner/reviews'}>Customer reviews</Link></p>}
     {!operational ? <p><Link className={linkClass} href={`/bookings/${record.id}/again`}>Book again with new dates</Link></p> : null}
     {!operational && record.payments.some(p => p.recoverable) ? <p><Link className={linkClass} href={`/checkout/${record.id}`}>View checkout and payment recovery</Link></p> : null}
     {!operational && test ? <p><Link className={linkClass} href={`/bookings/${record.id}/cancel`}>Cancel visits or change plans</Link></p> : null}

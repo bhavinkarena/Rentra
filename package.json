@@ -39,7 +39,8 @@
     "verify:customer-checkout": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-checkout.mjs",
     "verify:customer-checkout-ui": "CUSTOMER_CHECKOUT_BROWSER=1 node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-checkout.mjs",
     "verify:customer-cancellation": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-cancellation.mjs",
-    "verify:customer-lifecycle": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-lifecycle.mjs"
+    "verify:customer-lifecycle": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-lifecycle.mjs",
+    "verify:customer-reviews": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-reviews.mjs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.12.0",

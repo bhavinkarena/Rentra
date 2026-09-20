@@ -80,7 +80,7 @@ await withDisposableDatabase('p09', async ({ sql, databaseUrl }) => {
   const [customer] = await sql`INSERT INTO "user" (role,name,account_status) VALUES ('customer','Reviewer','active') RETURNING id`;
   const [booking] = await sql`INSERT INTO booking (reference,customer_id,rentable_id,day,slot,starts_at,ends_at,amount_rent,amount_fee,state)
     VALUES ('PART9REVIEW',${customer.id},${listing.id},current_date-2,'day',now()-interval '2 days',now()-interval '1 day',6000,480,'completed') RETURNING id`;
-  await sql`INSERT INTO review (booking_id,rentable_id,author_id,author_role,rating,body) VALUES (${booking.id},${listing.id},${customer.id},'customer',5,'Still private')`;
+  await assert.rejects(() => sql`INSERT INTO review (booking_id,rentable_id,author_id,author_role,rating,body) VALUES (${booking.id},${listing.id},${customer.id},'customer',5,'Still private')`, e => e.code === '23514');
   const detail = await getListingByCode('part9001');
   await check('public detail uses evidence, published content and the privacy boundary', () => {
     assert.equal(detail.physicallyVerified, true);

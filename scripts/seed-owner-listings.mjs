@@ -311,9 +311,6 @@ for (const [idx, l] of LISTINGS.entries()) {
   const areaRow = areaByKey[`${l.city}/${l.area}`];
   const spec = { ...l, cityName: cityRow.name, areaName: areaRow.name };
 
-  const ratings = l.reviews.map(([r]) => r);
-  const ratingAvg = Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10;
-
   // Labels for the jsonb column the public page still reads, resolved from the
   // taxonomy so the two can never disagree about what an amenity is called.
   const amenityLabels = l.amenities.map(([slug, value]) => {
@@ -346,7 +343,7 @@ for (const [idx, l] of LISTINGS.entries()) {
     farmSize: l.farmSize, farmSizeUnit: l.farmUnit, poolSize: l.pool,
     checkInFrom: '9 AM to 7 PM', checkOutBy: '8 AM to 6 PM',
     depositAmount: l.deposit, cancellationTier: l.tier,
-    ratingAvg, reviewCount: l.reviews.length,
+    ratingAvg: null, reviewCount: 0,
     verifiedAt: l.verified ? new Date() : null,
     availabilityConfirmedAt: new Date(),
   }).returning();
@@ -418,12 +415,7 @@ for (let i = 0; i < availRows.length; i += 1000) {
 console.log(`[seed] availability — ${availRows.length} rows (90 days x day/night)`);
 
 /* --------------------- past bookings, payouts, reviews --------------------- */
-/**
- * The reviews on a listing have to be backed by bookings that actually
- * happened, or `ratingAvg` is a number with nothing behind it — and the
- * two-way review rule is that a review exists only against a completed
- * booking.
- */
+// Seed visits remain simulations and never create customer reviews or ratings.
 if (!guests.length) {
   console.warn('[seed] no customer accounts — skipping bookings, payouts and reviews');
 } else {
@@ -435,7 +427,7 @@ if (!guests.length) {
 
   let bookingCount = 0;
   for (const [idx, { row, spec }] of inserted.entries()) {
-    for (const [rIdx, [rating, body]] of spec.reviews.entries()) {
+    for (let rIdx = 0; rIdx < spec.reviews.length; rIdx += 1) {
       const past = new Date(today);
       past.setDate(past.getDate() - (12 + rIdx * 9 + idx * 4));
       const guest = guests[(idx + rIdx) % guests.length];
@@ -450,6 +442,7 @@ if (!guests.length) {
         guests: Math.max(2, Math.round(spec.capacity * 0.5)),
         amountRent: rent, amountFee: fee, amountDeposit: spec.deposit,
         amountAdvancePaid: Math.round(rent * 0.25 + fee),
+        visitProvenance: 'seed', paymentMode: 'simulated', collectedMinor: 0,
         balanceMode: rIdx % 3 === 0 ? 'cash_on_arrival' : 'online_before',
         balanceSettledAt: past, state: 'completed',
         checkInCode: String(1000 + ((idx * 11 + rIdx * 7) % 8999)),
@@ -465,17 +458,11 @@ if (!guests.length) {
         utr: `NEFT${(950000 + idx * 100 + rIdx).toString()}`, settledAt: past,
       });
 
-      await db.insert(s.review).values({
-        bookingId: bk.id, rentableId: row.id, authorId: guest.id,
-        authorRole: 'customer', rating,
-        cleanliness: rating, accuracy: Math.max(3, rating - (rIdx % 2)),
-        valueForMoney: Math.max(3, rating - ((rIdx + 1) % 2)), behaviour: rating,
-        body, publishedAt: past,
-      });
+      // Simulation bookings never create public customer reviews.
       bookingCount += 1;
     }
   }
-  console.log(`[seed] ${bookingCount} completed bookings + payouts + reviews`);
+  console.log(`[seed] ${bookingCount} simulated bookings + legacy payout fixtures (no reviews)`);
 }
 
 console.log(`\n  Done. ${inserted.length} live listings for ${OWNER_EMAIL}:`);

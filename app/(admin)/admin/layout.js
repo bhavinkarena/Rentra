@@ -26,6 +26,7 @@ export default async function AdminLayout({ children }) {
           {admin ? (
             <div className="ml-auto flex flex-wrap items-center gap-3">
               <Link href="/admin/bookings" className="rounded-full px-3 py-1.5 text-meta font-medium text-ink-300 hover:bg-ink-800 hover:text-white">Bookings</Link>
+              <Link href="/admin/reviews" className="rounded-full px-3 py-1.5 text-meta text-ink-300 hover:text-white">Reviews</Link>
               <Link href="/admin/notifications" className="rounded-full px-3 py-1.5 text-meta font-medium text-ink-300 hover:bg-ink-800 hover:text-white">Delivery</Link>
               <Link href="/admin/payments" className="rounded-full px-3 py-1.5 text-meta font-medium text-ink-300 hover:bg-ink-800 hover:text-white">
                 Payments

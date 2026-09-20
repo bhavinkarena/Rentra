@@ -347,13 +347,7 @@ console.log(`[seed] ${LISTINGS.length} listings`);
 const inserted = [];
 
 for (const l of LISTINGS) {
-  // reviewCount and ratingAvg are derived from the reviews we actually insert,
-  // so the denormalised values on `rentable` are never a lie.
-  const ratings = l.reviews.map(([r]) => r);
-  const ratingAvg = ratings.length
-    ? Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10
-    : null;
-
+  // Seed visits are simulations, so public review aggregates stay empty.
   const [row] = await db.insert(s.rentable).values({
     clientId: demoClient.id,
     slug: l.slug,
@@ -379,7 +373,7 @@ for (const l of LISTINGS) {
     farmSize: l.farmSize, farmSizeUnit: l.farmUnit, poolSize: l.pool,
     checkInFrom: '9 AM to 7 PM', checkOutBy: '8 AM to 6 PM',
     depositAmount: l.deposit, cancellationTier: l.tier,
-    ratingAvg, reviewCount: l.reviews.length,
+    ratingAvg: null, reviewCount: 0,
     verifiedAt: l.verified ? new Date() : null,
     availabilityConfirmedAt: new Date(),
   }).returning();
@@ -418,12 +412,12 @@ for (let i = 0; i < availRows.length; i += 1000) {
 }
 
 /* --------------------- bookings, payouts, reviews --------------------- */
-console.log('[seed] completed bookings + payouts + reviews');
+console.log('[seed] simulated bookings + legacy payout fixtures (no reviews)');
 let refSeq = 0;
 const nextRef = () => `RNT${(++refSeq).toString().padStart(5, '0')}`;
 
 for (const [idx, { row, spec }] of inserted.entries()) {
-  for (const [rIdx, [rating, body]] of spec.reviews.entries()) {
+  for (let rIdx = 0; rIdx < spec.reviews.length; rIdx += 1) {
     const past = new Date(today);
     past.setDate(past.getDate() - (14 + rIdx * 11 + idx));
     const guest = guests[(idx + rIdx) % guests.length];
@@ -455,13 +449,7 @@ for (const [idx, { row, spec }] of inserted.entries()) {
       utr: `NEFT${(900000 + idx * 100 + rIdx).toString()}`, settledAt: past,
     });
 
-    await db.insert(s.review).values({
-      bookingId: bk.id, rentableId: row.id, authorId: guest.id,
-      authorRole: 'customer', rating,
-      cleanliness: rating, accuracy: Math.max(3, rating - (rIdx % 2)),
-      valueForMoney: Math.max(3, rating - ((rIdx + 1) % 2)), behaviour: rating,
-      body, publishedAt: past,
-    });
+    // Simulation bookings never create public customer reviews.
   }
 }
 

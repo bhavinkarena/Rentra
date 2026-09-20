@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import {
   AirVent, Ban, BedDouble, Bath, CarFront, Check, ChevronDown, CircleSlash,
   Clock, Flame, Landmark, LandPlot, Lock, MapPin, Music, ShieldCheck, Sparkles,
@@ -373,7 +374,9 @@ export function Reviews({ listing }) {
                 })
                 : null}
             </p>
-            {r.body ? <p className="mt-2.5 text-body text-ink-700">{r.body}</p> : null}
+            {r.body ? <p className="mt-2.5 whitespace-pre-wrap break-words text-body text-ink-700">{r.body}</p> : null}
+            {r.ownerReply ? <div className="mt-3 border-l-2 border-border pl-3"><p className="font-semibold">Owner reply</p><p className="whitespace-pre-wrap break-words">{r.ownerReply}</p></div> : null}
+            <Link className="inline-flex min-h-11 items-center text-meta underline" href={`/reviews/${r.id}/report`}>Report review or reply</Link>
           </li>
         ))}
       </ul>
