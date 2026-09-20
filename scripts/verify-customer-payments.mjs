@@ -209,9 +209,13 @@ try {
     await reject(()=>pay(simFact.allocations[0].id,sim.b,owner.id,1));
     await reject(()=>pay(captured.allocations[1].id,real.b,owner.id,1));
     await reject(()=>pay(captured.allocations[0].id,real.b,otherOwner.id,1));
-    await sql`UPDATE booking SET state='confirmed' WHERE id=${real.b}`;
-    await reject(()=>pay(captured.allocations[0].id,real.b,owner.id,1));
-    await sql`UPDATE booking SET state='completed' WHERE id=${real.b}`;
+    // Keep the historical completed fixture intact. Part 15 correctly forbids
+    // restoring a confirmed visit to completed without operational evidence.
+    const incomplete = await flow();
+    const incompleteFact = await sql.begin(db => fact(db, incomplete));
+    await sql`UPDATE booking SET state='confirmed' WHERE id=${incomplete.b}`;
+    await reject(()=>pay(incompleteFact.allocations[0].id,incomplete.b,owner.id,1));
+    await reject(()=>sql`UPDATE booking SET state='completed' WHERE id=${incomplete.b}`);
     await reject(()=>pay(raceFact.allocations[0].id,race.b,owner.id,5000));
     const [p]=await pay(captured.allocations[0].id,real.b,owner.id,1000);
     await reject(()=>sql`DELETE FROM payout WHERE id=${p.id}`);

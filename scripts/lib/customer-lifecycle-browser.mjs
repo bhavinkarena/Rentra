@@ -41,8 +41,9 @@ export async function verifyLifecycleBrowser({ databaseUrl, actor, stranger, own
       await page.getByRole('checkbox', { name: /I confirm this observation/ }).check();
       await page.getByRole('button', { name: 'Record ' + phase, exact: true }).click();
       await page.getByText(`${phase} recorded (simulation)`, { exact: false }).waitFor();
-      await page.reload();
     }
+    // Each next phase must work in the revalidated page without a manual reload.
+    await page.reload();
     await page.getByText('completed', { exact: true }).waitFor();
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
     assert.equal((await context.request.get(origin + '/partner' + path + '/calendar')).status(), 200);
@@ -51,6 +52,7 @@ export async function verifyLifecycleBrowser({ databaseUrl, actor, stranger, own
     await login(actor.session);
     await page.goto(origin + '/account/notifications');
     await page.getByRole('heading', { name: 'Booking updates', exact: true }).waitFor();
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
     assert.ok((await page.locator('main').innerText()).includes('Test / simulation'));
     const unread = page.getByRole('button', { name: 'Mark as read', exact: true });
     const before = await unread.count(); assert.ok(before > 0); await unread.first().click();
@@ -66,6 +68,7 @@ export async function verifyLifecycleBrowser({ databaseUrl, actor, stranger, own
     await page.getByLabel('Visit date 1').fill(newDay);
     await page.getByRole('button', { name: 'Check new dates and prices', exact: true }).click();
     await page.waitForURL('**/checkout/review/*');
+    await page.locator('main').getByText(/2,700/).first().waitFor();
     assert.ok((await page.locator('main').innerText()).includes('2,700'));
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
     await page.screenshot({ path: join(tmpdir(), 'rentra-part15-book-again.png'), fullPage: true });

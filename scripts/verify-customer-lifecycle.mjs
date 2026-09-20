@@ -11,7 +11,12 @@ import { customerNotifications, markNotificationRead, notificationMonitor, retry
 import { addLocalDays, propertyToday } from '../lib/domain/booking-dates.js';
 
 let passed = 0;
-async function check(label, run) { await run(); console.log('PASS ' + label); passed++; }
+const browserOnly = process.argv.includes('--browser-only');
+if (browserOnly && !process.env.CUSTOMER_BROWSER_DRIVER) throw new Error('Browser-only verification requires CUSTOMER_BROWSER_DRIVER');
+async function check(label, run) {
+  if (browserOnly && !label.startsWith('390px browser') && !label.startsWith('inactive staff')) return;
+  await run(); console.log('PASS ' + label); passed++;
+}
 const fail = (run, code) => assert.rejects(run, error => error.code === code);
 const env = { NODE_ENV: 'test', CUSTOMER_NOTIFICATION_DELIVERY: 'twilio', CUSTOMER_NOTIFICATION_ALLOW_TEST_SMS: 'true',
   TWILIO_ACCOUNT_SID: 'AC' + 'a'.repeat(32), TWILIO_AUTH_TOKEN: 'fixture-only', TWILIO_FROM_NUMBER: '+15005550006' };
@@ -69,8 +74,8 @@ await withDisposableDatabase('p15', async ({ sql, connect, databaseUrl }) => {
     VALUES(${owner.id},'lifecycle','life0015','Current lifecycle property',${category.id},${city.id},${area.id},'live',12,${JSON.stringify(configuration)}::jsonb,1,'PRIVATE ARRIVAL ADDRESS') RETURNING id`;
   await sql`INSERT INTO rentable_price(rentable_id,slot,weekday,weekend) VALUES(${listing.id},'day',2500,2500),(${listing.id},'night',3000,3000),(${listing.id},'full_day',4000,4000)`;
   let count = 0;
-  async function fixture(provenance = 'test', hours = -12) {
-    const reference = 'LIFE15-' + (++count), start = new Date(Date.now() + hours * 3600000), end = new Date(+start + 3 * 3600000);
+  async function fixture(provenance = 'test', hours) {
+    const reference = 'LIFE15-' + (++count), start = new Date(Date.now() + (hours ?? (-12 - count * 6)) * 3600000), end = new Date(+start + 3 * 3600000);
     const [order] = await sql`INSERT INTO booking_order(reference,customer_id,rentable_id,state,currency,time_zone,pricing_version,policy_version,policy_snapshot,listing_snapshot,
       amount_rent_minor,amount_fee_minor,amount_deposit_minor,payment_mode,visit_provenance,idempotency_key,request_hash)
       VALUES(${reference},${customer.id},${listing.id},'confirmed','INR','Asia/Kolkata','fixture','customer-v1','{"cancellationTier":"moderate"}'::jsonb,
@@ -79,6 +84,8 @@ await withDisposableDatabase('p15', async ({ sql, connect, databaseUrl }) => {
       starts_at,ends_at,blocked_start_at,blocked_end_at,currency,time_zone,amount_rent,amount_fee,amount_deposit,amount_rent_minor,amount_fee_minor,amount_deposit_minor,payment_mode,visit_provenance,confirmed_at)
       VALUES(${reference + '-V'},${listing.id},${customer.id},${order.id},1,${start.toISOString().slice(0,10)},${start.toISOString().slice(0,10)},'day',5,'confirmed',true,
         ${start.toISOString()},${end.toISOString()},${start.toISOString()},${end.toISOString()},'INR','Asia/Kolkata',100,8,0,10000,800,0,'real',${provenance},now()) RETURNING id,lifecycle_version`;
+    await sql`INSERT INTO inventory_reservation(booking_id,rentable_id,source,blocked_start_at,blocked_end_at,state)
+      VALUES(${visit.id},${listing.id},'booking',${start.toISOString()},${end.toISOString()},'committed')`;
     return { ...order, visitId: visit.id, version: visit.lifecycle_version, start, end, provenance };
   }
   const real = await fixture('real'), simulated = await fixture(), upcoming = await fixture('test', 12), browserVisit = await fixture();
@@ -120,6 +127,7 @@ await withDisposableDatabase('p15', async ({ sql, connect, databaseUrl }) => {
     assert.ok(JSON.stringify(await readBookingRecord(sql, host, real.id, env)).includes('Operator observed'));
     assert.equal((await message(real, 'review_invitation')).state, 'pending');
     assert.equal((await sql`SELECT state FROM booking_order WHERE id=${real.id}`)[0].state, 'confirmed');
+    assert.equal((await sql`SELECT state FROM inventory_reservation WHERE booking_id=${real.visitId}`)[0].state, 'committed');
   });
   await check('Test payment does not prove a visit; actual evidence remains independent of payment environment', async () => {
     await sql`INSERT INTO payment_order(booking_order_id,provider,environment,mode,currency,purpose,expected_minor,idempotency_key,request_hash,state)
@@ -147,6 +155,7 @@ await withDisposableDatabase('p15', async ({ sql, connect, databaseUrl }) => {
   });
   await check('duplicate workers dispatch once; provider acceptance and confirmed delivery differ', async () => {
     const m = await message(simulated); await retryNotification(sql, admin.id, m.id);
+    assert.equal((await sql`SELECT count(*)::int n FROM audit_log WHERE entity_id=${m.id} AND action='notification_retry'`)[0].n, 1);
     await Promise.all([processNotification(sql, m.id, options), processNotification(connect(), m.id, options)]);
     assert.equal(calls.filter(x => x === 'POST').length, 1);
     let current = await message(simulated); assert.equal(current.state, 'accepted'); assert.equal(current.delivered_at, null);
@@ -174,6 +183,7 @@ await withDisposableDatabase('p15', async ({ sql, connect, databaseUrl }) => {
     await assert.rejects(() => reconcileUnknownNotification(sql, randomUUID(), m.id, sid, options));
     await reconcileUnknownNotification(sql, admin.id, m.id, sid, options);
     assert.equal((await message(upcoming)).state, 'accepted');
+    assert.equal((await sql`SELECT count(*)::int n FROM audit_log WHERE entity_id=${m.id} AND action='notification_reconciled'`)[0].n, 1);
     await due(m.id); messages.get(sid).status = 'undelivered'; await processNotification(sql, m.id, options);
     assert.equal((await message(upcoming)).state, 'undelivered');
     assert.equal(calls.filter(x => x === 'POST').length, before + 1);
@@ -181,6 +191,7 @@ await withDisposableDatabase('p15', async ({ sql, connect, databaseUrl }) => {
   await check('cancellation suppresses queued reminders; stale dispatch lease is uncertain, never resent', async () => {
     const reminder = await message(upcoming, 'reminder');
     await sql.begin(async tx => { await tx`UPDATE booking SET state='cancelled',cancelled_at=now() WHERE id=${upcoming.visitId}`;
+      await tx`UPDATE inventory_reservation SET state='released',released_at=now() WHERE booking_id=${upcoming.visitId}`;
       await tx`INSERT INTO booking_lifecycle_event(order_id,kind,payload) VALUES(${upcoming.id},${'cancel_' + randomUUID().replaceAll('-','')},'{}')`; });
     assert.equal((await message(upcoming, 'reminder')).state, 'suppressed');
     const before = calls.length; await processNotification(sql, reminder.id, options); assert.equal(calls.length, before);
@@ -192,6 +203,7 @@ await withDisposableDatabase('p15', async ({ sql, connect, databaseUrl }) => {
   await check('worker suppresses obsolete reminders even without an event and admin monitor keeps private payloads out', async () => {
     const f = await fixture('test', 2); await notify(f);
     await sql`UPDATE booking SET state='cancelled' WHERE id=${f.visitId}`;
+    await sql`UPDATE inventory_reservation SET state='released',released_at=now() WHERE booking_id=${f.visitId}`;
     await runNotificationJobs(sql, { env: {}, fetcher });
     assert.equal((await message(f, 'reminder')).state, 'suppressed');
     const monitor = await notificationMonitor(sql, admin.id); assert.ok(monitor.counts.length);
@@ -200,6 +212,7 @@ await withDisposableDatabase('p15', async ({ sql, connect, databaseUrl }) => {
   });
   const newDay = addLocalDays(propertyToday(), 20);
   await check('Book again rechecks ownership, dates, current rates, capacity, calendar and listing state', async () => {
+    const [{ n: reservationsBefore }] = await sql`SELECT count(*)::int n FROM inventory_reservation`;
     const selection = { dates: [newDay], slot: 'day', guests: 5 };
     await sql`INSERT INTO availability(rentable_id,day,slot,units_available,blocked_by_client) VALUES(${listing.id},${newDay},'day',1,false)`;
     await assert.rejects(() => quoteBookAgain(sql, stranger.session, real.id, selection, env));
@@ -214,9 +227,13 @@ await withDisposableDatabase('p15', async ({ sql, connect, databaseUrl }) => {
     await sql`UPDATE rentable SET status='paused' WHERE id=${listing.id}`;
     await fail(() => quoteBookAgain(sql, actor.session, real.id, selection, env), 'LISTING_UNAVAILABLE');
     await sql`UPDATE rentable SET status='live' WHERE id=${listing.id}`;
-    assert.equal((await sql`SELECT count(*)::int n FROM inventory_reservation`)[0].n, 0);
+    assert.equal((await sql`SELECT count(*)::int n FROM inventory_reservation`)[0].n, reservationsBefore);
   });
   if (process.env.CUSTOMER_BROWSER_DRIVER) {
+    if (browserOnly) {
+      await sql`INSERT INTO availability(rentable_id,day,slot,units_available,blocked_by_client) VALUES(${listing.id},${newDay},'day',1,false)`;
+      await sql`UPDATE rentable_price SET weekday=2700,weekend=2700 WHERE rentable_id=${listing.id} AND slot='day'`;
+    }
     const { verifyLifecycleBrowser } = await import('./lib/customer-lifecycle-browser.mjs');
     await check('390px browser lifecycle, inbox/read, private calendar, Book again and staff monitoring', () => verifyLifecycleBrowser({ databaseUrl, actor, stranger, owner, otherOwner, admin, target: browserVisit, newDay }));
   }
@@ -231,4 +248,4 @@ await withDisposableDatabase('p15', async ({ sql, connect, databaseUrl }) => {
     assert.match(notificationMessage({ template: 'confirmation', reference: 'X', visit_provenance: 'test' }), /Test/);
   });
 });
-console.log(`Part 15: ${passed} groups passed; disposable database removed. No real provider request or SMS sent.`);
+console.log(`Part 15 ${browserOnly ? 'focused browser/access gate' : 'lifecycle gate'}: ${passed} groups passed; disposable database removed. No real provider request or SMS sent.`);
