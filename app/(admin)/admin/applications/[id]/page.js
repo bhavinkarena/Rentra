@@ -22,14 +22,14 @@ export default async function ApplicationReviewPage({ params }) {
 
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-8">
+    <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       <Link href="/admin" className="inline-flex items-center gap-1.5 text-meta font-medium text-ink-600 hover:text-ink-900">
         <ArrowLeft className="size-4" aria-hidden="true" />
         Back to queue
       </Link>
 
-      <div className="mt-5 flex flex-wrap items-baseline justify-between gap-3">
-        <h1 className="text-h1">{app.legalName || user.email}</h1>
+      <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
+        <div><p className="text-[0.68rem] font-bold tracking-[0.12em] text-brand-700 uppercase">Partner verification</p><h1 className="mt-1 text-h1">{app.legalName || user.email}</h1><p className="mt-2 text-meta text-ink-500">Review identity, payout details, consent, and submitted evidence.</p></div>
         <span className={`rounded-full px-3 py-1 text-tiny font-bold ${
           app.status === 'submitted' ? 'bg-amber-100 text-amber-700'
             : app.status === 'approved' ? 'bg-brand-50 text-brand-700'
@@ -48,7 +48,7 @@ export default async function ApplicationReviewPage({ params }) {
       ) : null}
 
       {/* ---------------- the checklist ---------------- */}
-      <section className="mt-6 grid gap-4 sm:grid-cols-2">
+      <section className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <Panel title="Identity">
           <Row label="Email" value={user.email} ok={Boolean(user.emailVerifiedAt)} />
           <Row label="Mobile" value={user.phone ? `+91 ${user.phone}` : '—'} ok={Boolean(user.phoneVerifiedAt)} />
