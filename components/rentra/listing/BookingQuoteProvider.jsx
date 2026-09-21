@@ -2,8 +2,8 @@
 
 import { createContext, useContext, useEffect, useRef, useState, useTransition } from 'react';
 import { selectionFromSavedUrl, savedListingHref } from '@/lib/domain/saved-places';
-import { beginCustomerLogin, restoreCustomerSelection } from '@/lib/auth/customer-actions';
-import { requestBookingQuote } from '@/lib/booking/actions';
+import { beginCustomerLogin, restoreCustomerSelection } from '@/lib/actions/auth';
+import { requestBookingQuote } from '@/lib/actions/customer';
 import { changeVisitMode, pickVisitDate, removeVisitDate, quoteReviewFingerprint } from '@/lib/domain/booking-picker';
 
 const Context = createContext(null);

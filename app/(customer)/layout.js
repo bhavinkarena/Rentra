@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { RentraLogo } from '@/components/rentra/Logo';
 import CustomerNavigation from '@/components/customer/CustomerNavigation';
-import { requireCustomer } from '@/lib/auth/dal';
+import { requireCustomer } from '@/lib/api/session';
 
 export const metadata={ title:{default:'Your account',template:'%s | Rentra'},robots:{index:false,follow:false,nocache:true} };
 export default async function CustomerLayout({children}) {

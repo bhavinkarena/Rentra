@@ -1,18 +1,20 @@
-import { getSitemapEntries } from '@/lib/db/queries';
-import { getDiscoveryRegistry, countDiscoveryRoute } from '@/lib/db/discovery';
+import { discoveryApi } from '@/lib/api/endpoints';
 import { resolveDiscoveryRoute, DISCOVERY_INTENTS } from '@/lib/domain/discovery';
 import { listingUrl } from '@/lib/domain/listing-url';
 import { POLICY_VERSION } from '@/lib/domain/help';
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 export default async function sitemap() {
-  const [{ listings }, registry] = await Promise.all([getSitemapEntries(), getDiscoveryRegistry()]);
+  const [{ listings }, registry] = await Promise.all([
+    discoveryApi.sitemap(),
+    discoveryApi.registry(),
+  ]);
   const routes = [];
   for (const city of registry.cities) for (const category of registry.categories) {
     const base = [city.slug, category.slug];
     const segments = [base, ...registry.areas.filter(a => a.cityId === city.id).map(a => [...base, 'area', a.slug]), ...DISCOVERY_INTENTS.map(i => [...base, 'intent', i.slug])];
     for (const parts of segments) {
       const route = resolveDiscoveryRoute(registry, parts);
-      if (route && await countDiscoveryRoute(route) >= 3) routes.push({ url: `${siteUrl}${route.path}`, changeFrequency: 'daily', priority: 0.7 });
+      if (route && (await discoveryApi.routeCount(route.path)).count >= 3) routes.push({ url: `${siteUrl}${route.path}`, changeFrequency: 'daily', priority: 0.7 });
     }
   }
   return [{ url: `${siteUrl}/`, changeFrequency: 'daily', priority: 1 }, ...routes,

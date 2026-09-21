@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { RentraLogo } from '@/components/rentra/Logo';
-import { getCurrentUser } from '@/lib/auth/dal';
-import { logout } from '@/lib/auth/actions';
+import { getCurrentUser } from '@/lib/api/session';
+import { logout } from '@/lib/actions/auth';
 import PartnerShell from '@/components/partner/PartnerShell';
 
 export const metadata = {

@@ -1,7 +1,7 @@
 'use client';
 import { createContext, useCallback, useContext, useEffect, useRef, useState, startTransition } from 'react';
 import { usePathname } from 'next/navigation';
-import { loadSavedPlaces, loadGuestSavedPlaces, mergeGuestSavedPlaces, updateSavedPlace } from '@/lib/customer/saved-actions';
+import { loadSavedPlaces, loadGuestSavedPlaces, mergeGuestSavedPlaces, updateSavedPlace } from '@/lib/actions/customer';
 import { GUEST_SAVED_KEY, GUEST_MERGE_OWNER_KEY, SAVED_SIGNAL_KEY, SAVED_LIMIT, parseGuestSaved, validSavedSelection } from '@/lib/domain/saved-places';
 
 const Context = createContext(null);

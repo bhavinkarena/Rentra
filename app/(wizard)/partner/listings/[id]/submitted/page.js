@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Clock, Home, Search, Video } from 'lucide-react';
-import { requireActiveClient } from '@/lib/auth/dal';
-import { getListingForEdit } from '@/lib/db/listing-queries';
+import { requireActiveClient } from '@/lib/api/session';
+import { partnerApi } from '@/lib/api/endpoints';
 import { RentraLogo } from '@/components/rentra/Logo';
 import CreateListingButton from '@/components/partner/CreateListingButton';
 
@@ -26,11 +26,11 @@ export const metadata = {
  * it.
  */
 export default async function SubmittedPage({ params }) {
-  const user = await requireActiveClient();
+  await requireActiveClient();
   const { id } = await params; // Next 16: params is a Promise
 
-  // Scoped by clientId — another Client's listing id is a 404, not a peek.
-  const data = await getListingForEdit(id, user.id);
+  // Scoped to this Client on the API — another Client's id is a 404, not a peek.
+  const data = await partnerApi.listing(id).catch(() => null);
   if (!data) notFound();
 
   const { listing } = data;

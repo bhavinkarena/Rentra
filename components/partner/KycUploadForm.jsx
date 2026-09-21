@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from 'react';
 import { Loader2, Upload, ShieldCheck, Check, Trash2, FileText } from 'lucide-react';
-import { uploadKycDocuments, deleteKycDocument } from '@/lib/auth/documents';
+import { uploadKycDocuments, deleteKycDocument } from '@/lib/actions/partner';
 import { ID_DOCUMENT_TYPES, ID_DOCUMENT_BY_ID, MAX_DOC_BYTES } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

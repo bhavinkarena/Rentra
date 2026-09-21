@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getCurrentAdmin } from '@/lib/auth/admin';
+import { getCurrentAdmin } from '@/lib/api/session';
 import AdminLoginForm from '@/components/admin/AdminLoginForm';
 
 export const metadata = {

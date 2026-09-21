@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Script from 'next/script';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { releaseCustomerCheckout, holdCustomerCheckout, startCustomerTestPayment, verifyCustomerTestPayment, customerCheckoutStatus, refreshCustomerTestPayment } from '@/lib/booking/checkout-actions';
+import { releaseCustomerCheckout, holdCustomerCheckout, startCustomerTestPayment, verifyCustomerTestPayment, customerCheckoutStatus, refreshCustomerTestPayment } from '@/lib/actions/customer';
 import { CANCELLATION_TIERS } from '@/lib/domain/pricing';
 import { checkoutMessage, mayLaunchCheckout } from '@/lib/domain/checkout-display';
 import { formatINRMinor as money } from '@/lib/domain/booking-money';

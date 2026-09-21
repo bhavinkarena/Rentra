@@ -1,6 +1,8 @@
 'use client';
 import { useActionState } from 'react';
-import { submitCustomerReview,moderateCustomerReview,ownerReviewReply,customerReviewReport,ownerReviewReport,resolveReviewReport } from '@/lib/reviews/actions';
+import { submitCustomerReview, customerReviewReport } from '@/lib/actions/customer';
+import { ownerReviewReply, ownerReviewReport } from '@/lib/actions/partner';
+import { moderateCustomerReview, resolveReviewReport } from '@/lib/actions/admin';
 const field='mt-1 block min-h-11 w-full rounded border border-border p-2';
 function Result({state}) {return <>{state.error?<p role="alert">{state.error}</p>:null}{state.message?<p role="status">{state.message}</p>:null}</>;}
 function Score({name,label,required=false}) {return <label className="block">{label}<select className={field} name={name} required={required} defaultValue=""><option value="">{required?'Choose a rating':'Not rated'}</option>{[1,2,3,4,5].map(n=><option key={n} value={n}>{n} out of 5</option>)}</select></label>;}

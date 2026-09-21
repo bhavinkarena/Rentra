@@ -2,7 +2,7 @@
 
 import { useActionState } from 'react';
 import { Smartphone, Loader2 } from 'lucide-react';
-import { requestPhoneVerification, confirmPhoneVerification } from '@/lib/auth/actions';
+import { requestPhoneVerification, confirmPhoneVerification } from '@/lib/actions/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 

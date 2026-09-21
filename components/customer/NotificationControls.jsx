@@ -1,6 +1,6 @@
 'use client';
 import { useActionState } from 'react';
-import { manageNotification } from '@/lib/notifications/actions';
+import { manageNotification } from '@/lib/actions/admin';
 export default function NotificationControls({ id, unknown }) {
   const [state, action, pending] = useActionState(manageNotification, {});
   return <form action={action} className="mt-2 space-y-2"><input type="hidden" name="id" value={id}/><input type="hidden" name="operation" value={unknown ? 'reconcile' : 'retry'}/>

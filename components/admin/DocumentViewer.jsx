@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from 'react';
 import { Loader2, Check, X, FileText, ExternalLink } from 'lucide-react';
-import { reviewDocument } from '@/lib/auth/admin-actions';
+import { reviewDocument } from '@/lib/actions/admin';
 import { ID_DOCUMENT_BY_ID } from '@/lib/constants';
 
 /**

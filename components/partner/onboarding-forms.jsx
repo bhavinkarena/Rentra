@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from 'react';
 import { Loader2, Landmark, Smartphone } from 'lucide-react';
-import { saveDetails, savePayout, saveConsent } from '@/lib/auth/application';
+import { saveDetails, savePayout, saveConsent } from '@/lib/actions/partner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 

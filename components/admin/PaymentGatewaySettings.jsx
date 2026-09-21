@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
-import { savePaymentGatewaySettings } from '@/app/(admin)/admin/payments/actions';
+import { setPaymentGatewayConfiguration as savePaymentGatewaySettings } from '@/lib/actions/admin';
 
 const fieldClass = 'mt-2 block min-h-11 w-full rounded-md border border-border bg-card px-3 py-2 text-meta';
 

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { ArrowLeft, Check } from 'lucide-react';
-import { requireClient } from '@/lib/auth/dal';
+import { requireClient } from '@/lib/api/session';
 import PhoneVerifyForm from '@/components/partner/PhoneVerifyForm';
 
 export const metadata = {

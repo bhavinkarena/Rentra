@@ -3,17 +3,20 @@ import ListingCard from './ListingCard';
 import DiscoveryFilters from './DiscoveryFilters';
 import { formatLocalDate } from '@/lib/domain/booking-dates';
 import { parseDiscoveryQuery, discoveryQuery, SEARCH_SORTS, areaDiscoveryPath, intentDiscoveryPath, DISCOVERY_INTENTS } from '@/lib/domain/discovery';
-import { searchDiscovery } from '@/lib/db/discovery';
+import { discoveryApi } from '@/lib/api/endpoints';
 
 const slotLabels = { day: 'Day visit', night: 'Overnight', full_day: 'Full day' };
 export default async function DiscoveryResults({ query, registry, route = null }) {
   const { filters, errors } = parseDiscoveryQuery({ ...query, ...(route?.intent?.slot && !query.slot ? { slot: route.intent.slot } : {}) });
   let result = { items: [], total: 0, totalPages: 1, page: 1, errors: [] }, failed = false;
   if (!errors.length) {
-    try { result = await searchDiscovery(filters, route, undefined, registry); }
+    /* The API re-parses the same query with the same normaliser, so the
+       filters it searched on and the ones rendered as chips above cannot
+       drift apart. `path` scopes the search to a landing route. */
+    try { result = await discoveryApi.search({ ...query, ...(route ? { path: route.path } : {}) }); }
     catch { failed = true; }
   }
-  const messages = [...errors, ...result.errors];
+  const messages = [...errors, ...(result.errors ?? [])];
   const path = route?.path || '/search';
   const href = changes => `${path}?${discoveryQuery(filters, { page: 1, ...changes })}`;
   const clearChip = key => key === 'city' ? { city: '', area: '' }

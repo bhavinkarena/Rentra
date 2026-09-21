@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from '@/lib/api/client';
 import { measureBrowser } from '@/lib/domain/browser-measurement';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -45,12 +46,16 @@ export default function AvailabilityPicker({
 
     async function load() {
       try {
-        const res = await fetch(`/api/listings/${code}/availability?from=${monthStart}&days=31&guests=${guests}`, {
-          signal: controller.signal,
-          cache: 'no-store',
-        });
+        /* Straight to the API. Public data, so no credentials — and it must
+           never be cached: a calendar from an hour ago invites a guest to pick
+           a Saturday that sold twenty minutes back. */
+        const res = await fetch(
+          `${API_URL}/discovery/listings/${code}/availability?from=${monthStart}&days=31&guests=${guests}`,
+          { signal: controller.signal, cache: 'no-store' },
+        );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
+        const payload = await res.json();
+        const data = payload?.data ?? payload;
         if (!controller.signal.aborted) setResult({ code, retry, guests, monthStart, days: data.days, message: data.message, state: 'ready' });
       } catch (err) {
         if (err.name !== 'AbortError' && !controller.signal.aborted) setResult({ code, retry, guests, monthStart, days: null, state: 'error' });

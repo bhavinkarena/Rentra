@@ -4,9 +4,8 @@ import Image from 'next/image';
 import SearchBar from '@/components/rentra/SearchBar';
 import ListingCard from '@/components/rentra/ListingCard';
 import TrustStrip from '@/components/rentra/TrustStrip';
-import { getLiveListings } from '@/lib/db/queries';
 import { DISCOVERY_INTENTS } from '@/lib/domain/discovery';
-import { getDiscoveryRegistry } from '@/lib/db/discovery';
+import { discoveryApi } from '@/lib/api/endpoints';
 
 export const metadata = publicMetadata({ title: 'Explore farmhouses and day visits', description: 'Explore places for day visits and overnight stays. Compare facilities and check prices for your dates.', path: '/' });
 
@@ -15,7 +14,10 @@ export const metadata = publicMetadata({ title: 'Explore farmhouses and day visi
 export const revalidate = 3600;
 
 export default async function HomePage() {
-  const [listings, registry] = await Promise.all([getLiveListings({ limit: 16 }), getDiscoveryRegistry()]);
+  const [listings, registry] = await Promise.all([
+    discoveryApi.listings({ limit: 16 }),
+    discoveryApi.registry(),
+  ]);
   const primaryCity = registry.cities.find(c => c.slug === 'surat') || registry.cities[0];
   const farmhouse = registry.categories.find(c => c.slug === 'farmhouse');
 

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { getCurrentUser } from '@/lib/auth/dal';
+import { getCurrentUser } from '@/lib/api/session';
 import LoginForm from '@/components/partner/LoginForm';
 
 export const metadata = {

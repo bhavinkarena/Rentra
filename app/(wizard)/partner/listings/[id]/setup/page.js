@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { notFound } from 'next/navigation';
-import { requireActiveClient } from '@/lib/auth/dal';
-import { getListingForEdit } from '@/lib/db/listing-queries';
+import { requireActiveClient } from '@/lib/api/session';
+import { partnerApi } from '@/lib/api/endpoints';
 import { listingCompletion } from '@/lib/domain/listing-completion';
 import { firstIncompleteStepId, stepHref } from '@/lib/domain/listing-steps';
 
@@ -21,10 +21,10 @@ export const metadata = {
  * finished.
  */
 export default async function SetupEntryPage({ params }) {
-  const user = await requireActiveClient();
+  await requireActiveClient();
   const { id } = await params; // Next 16: params is a Promise
 
-  const data = await getListingForEdit(id, user.id);
+  const data = await partnerApi.listing(id).catch(() => null);
   if (!data) notFound();
 
   const completion = listingCompletion(data.listing, data);

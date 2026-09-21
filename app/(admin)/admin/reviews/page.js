@@ -1,9 +1,6 @@
-import { bookingActor } from '@/lib/booking/record-page';
-import { reviewQueue } from '@/lib/reviews/service';
-import { sql } from '@/lib/db';
+import { adminApi } from '@/lib/api/endpoints';
 import ReviewQueue from '@/components/customer/ReviewQueue';
 export const metadata={title:'Customer reviews',robots:{index:false,follow:false}};
 export default async function Page({searchParams}) {
- const actor=await bookingActor('admin');
- return <ReviewQueue admin={true} data={await reviewQueue(sql,actor,(await searchParams)?.page)}/>;
+ return <ReviewQueue admin={true} data={await adminApi.reviews({page:(await searchParams)?.page})}/>;
 }

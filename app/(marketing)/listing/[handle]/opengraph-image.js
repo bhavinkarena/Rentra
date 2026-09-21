@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ImageResponse } from 'next/og';
-import { getListingByCode, getNextAvailableDates } from '@/lib/db/queries';
+import { discoveryApi } from '@/lib/api/endpoints';
 import { cheapestSlot, formatINR, SLOTS } from '@/lib/domain/pricing';
 
 /**
@@ -17,7 +17,7 @@ export const contentType = 'image/png';
 export default async function ListingOgImage({ params }) {
   const { handle } = await params;
   const code = handle.slice(handle.lastIndexOf('-') + 1);
-  const listing = await getListingByCode(code);
+  const listing = await discoveryApi.listing(code).catch(() => null);
 
   // Paths are literals so Turbopack can scope the trace; see the root
   // opengraph-image.js for what happens when they are not.
@@ -48,7 +48,7 @@ export default async function ListingOgImage({ params }) {
 
   // Same helper the page uses, so the card cannot quote a different price.
   const slot = cheapestSlot(listing.prices) ?? 'night';
-  const nextDates = await getNextAvailableDates({ rentableId: listing.id, limit: 1 });
+  const nextDates = await discoveryApi.nextDates(code).catch(() => null);
   const nextDate = nextDates?.[slot]?.[0];
   const rent = listing.prices?.[slot]?.weekday ?? listing.price;
 

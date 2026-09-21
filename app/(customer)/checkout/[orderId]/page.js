@@ -1,15 +1,17 @@
 import { notFound } from 'next/navigation';
-import { customerPageAccount } from '@/lib/customer/page';
-import { getSession } from '@/lib/auth/dal';
-import { sql } from '@/lib/db';
-import { readOwnedCheckoutReview } from '@/lib/booking/checkout-review';
+import { customerApi, bookingApi } from '@/lib/api/endpoints';
+import { ApiError } from '@/lib/api/client';
 import Checkout from '@/components/customer/Checkout';
 export const metadata = { title: 'Test booking status' };
 export default async function CheckoutPage({ params }) {
-  await customerPageAccount();
+  await customerApi.account();
   const { orderId } = await params;
   let data;
-  try { data = await readOwnedCheckoutReview(sql, await getSession(), orderId); }
-  catch (error) { if (error.code === 'CHECKOUT_NOT_FOUND' || error.name === 'ZodError') notFound(); throw error; }
+  try { data = await bookingApi.reviewOrder(orderId); }
+  catch (error) {
+    /* Someone else's order reads as absent, not forbidden. */
+    if (error instanceof ApiError && [400, 403, 404, 422].includes(error.status)) notFound();
+    throw error;
+  }
   return <Checkout key={orderId} data={data}/>;
 }

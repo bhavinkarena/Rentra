@@ -1,9 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Check, X, AlertTriangle } from 'lucide-react';
-import { requireAdmin } from '@/lib/auth/admin';
-import { getApplicationForReview } from '@/lib/db/admin-queries';
-import { profileCompletion } from '@/lib/auth/profile';
+import { requireAdmin } from '@/lib/api/session';
+import { adminApi } from '@/lib/api/endpoints';
 import DecisionPanel from '@/components/admin/DecisionPanel';
 import DocumentViewer from '@/components/admin/DocumentViewer';
 
@@ -16,11 +15,10 @@ export default async function ApplicationReviewPage({ params }) {
   await requireAdmin();
   const { id } = await params; // Next 16: params is a Promise
 
-  const data = await getApplicationForReview(id);
+  const data = await adminApi.application(id).catch(() => null);
   if (!data) notFound();
 
-  const { app, user, trail, listings } = data;
-  const completion = profileCompletion(user, app, data.documents ?? []);
+  const { app, user, trail, listings, completion } = data;
 
 
   return (

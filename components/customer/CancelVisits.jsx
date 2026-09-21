@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useRef, useState } from 'react';
-import { previewCustomerCancellation, cancelCustomerVisits } from '@/lib/booking/cancellation-actions';
+import { previewCustomerCancellation, cancelCustomerVisits } from '@/lib/actions/customer';
 import { bookingMoney as money, bookingTime as time } from '@/lib/domain/booking-record';
 
 export default function CancelVisits({record}) {

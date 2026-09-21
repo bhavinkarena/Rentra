@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
-import { requestCustomerOtp, verifyCustomerOtp } from '@/lib/auth/customer-actions';
+import { requestCustomerOtp, verifyCustomerOtp } from '@/lib/actions/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 

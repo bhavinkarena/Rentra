@@ -1,4 +1,12 @@
-import { bookingSummaryResponse } from '@/lib/booking/record-download';
+import { proxyApiFile } from '@/lib/api/proxy';
+
+/**
+ * The booking calendar file, downloaded.
+ *
+ * Same-origin so the session cookie travels with the click; the API decides
+ * whether this actor may read the booking at all.
+ */
 export async function GET(request, { params }) {
-  return bookingSummaryResponse('customer', (await params).orderId, true);
+  const { orderId } = await params;
+  return proxyApiFile(`/customer/records/${orderId}/summary?calendar=1`);
 }

@@ -1,5 +1,5 @@
-import { requireActiveClient } from '@/lib/auth/dal';
-import { getCategories, getCitiesWithAreas } from '@/lib/db/listing-queries';
+import { requireActiveClient } from '@/lib/api/session';
+import { partnerApi } from '@/lib/api/endpoints';
 import { listingCompletion } from '@/lib/domain/listing-completion';
 import { wizardProgress } from '@/lib/domain/listing-steps';
 import NewListingStart from '@/components/partner/listing/NewListingStart';
@@ -14,8 +14,8 @@ export default async function NewListingPage() {
   await requireActiveClient();
 
   const [categories, cities] = await Promise.all([
-    getCategories(),
-    getCitiesWithAreas(),
+    partnerApi.categories(),
+    partnerApi.places(),
   ]);
   const progress = wizardProgress(listingCompletion(null), 'basics');
 

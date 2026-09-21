@@ -5,11 +5,7 @@ import {
   Loader2, Check, Trash2, Upload, AlertTriangle, Star,
   ChevronLeft, ChevronRight, Pause, Play,
 } from 'lucide-react';
-import {
-  saveBasics, saveLocation, saveCapacity, saveAmenities, saveRules,
-  savePricing, saveTerms, uploadListingPhotos, removeListingPhoto,
-  reorderListingPhotos, uploadOwnershipDocument, toggleListingPause,
-} from '@/lib/auth/listings';
+import { saveBasics, saveLocation, saveCapacity, saveAmenities, saveRules, savePricing, saveTerms, uploadListingPhotos, removeListingPhoto, reorderListingPhotos, uploadOwnershipDocument, toggleListingPause } from '@/lib/actions/partner';
 import { OWNERSHIP_DOC_TYPES, MIN_PHOTOS, MAX_PHOTOS } from '@/lib/domain/listing-completion';
 import { Button } from '@/components/ui/button';
 import { Input as BaseInput } from '@/components/ui/input';

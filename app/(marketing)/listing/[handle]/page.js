@@ -19,9 +19,7 @@ import {
   Section, KeyFacts, VisitHours, AmenityGrid, HouseRules, AreaCircle, Reviews, OwnerCard,
   CancellationPolicy, MoneyNote,
 } from '@/components/rentra/listing/ListingSections';
-import {
-  getListingByCode, getSimilarListings,
-} from '@/lib/db/queries';
+import { discoveryApi } from '@/lib/api/endpoints';
 import { calculateBookingPrice, cheapestSlot, formatINR } from '@/lib/domain/pricing';
 import { listingPath, listingUrl } from '@/lib/domain/listing-url';
 import { absolutePublicUrl } from '@/lib/domain/listing-content';
@@ -68,7 +66,7 @@ const loadListing = cache(async (handle) => {
   await connection();
   const parsed = parseHandle(handle);
   if (!parsed) return null;
-  const listing = await getListingByCode(parsed.code);
+  const listing = await discoveryApi.listing(parsed.code).catch(() => null);
   if (!listing) return null;
   return { listing, requestedSlug: parsed.slug };
 });
@@ -125,8 +123,10 @@ export default async function ListingPage({ params, searchParams }) {
   // First paint must not wait for the inventory transaction. The calendar
   // checks live availability after hydration; guests explicitly choose dates.
   const nextDates = { day: [], night: [], full_day: [] };
-  const similar = await getSimilarListings({
-    rentableId: listing.id, areaId: listing.areaId, cityId: listing.cityId, limit: 4,
+  const similar = await discoveryApi.similar(listing.id, {
+    areaId: listing.areaId,
+    cityId: listing.cityId,
+    limit: 4,
   });
   const defaults = pickDefaults({ prices: listing.prices });
   const band = priceBand(listing.prices);

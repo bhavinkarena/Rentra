@@ -2,9 +2,8 @@ import Link from 'next/link';
 import { RentraLogo } from '@/components/rentra/Logo';
 import { Button } from '@/components/ui/button';
 import CustomerLoginForm from '@/components/customer/CustomerLoginForm';
-import { getCurrentUser } from '@/lib/auth/dal';
-import { getCurrentAdmin } from '@/lib/auth/admin';
-import { switchToCustomer } from '@/lib/auth/customer-actions';
+import { getCurrentUser, getCurrentAdmin } from '@/lib/api/session';
+import { switchToCustomer } from '@/lib/actions/auth';
 import { redirect } from 'next/navigation';
 
 export const metadata = {

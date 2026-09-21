@@ -1,6 +1,6 @@
 import { BookingDetail } from '@/components/customer/BookingRecords';
-import { bookingRecordPage } from '@/lib/booking/record-page';
+import { adminApi } from '@/lib/api/endpoints';
 export const metadata = { title: 'Booking record', robots: { index: false, follow: false } };
 export default async function BookingPage({ params }) {
-  return <BookingDetail operational base="/admin/bookings" record={await bookingRecordPage('admin', (await params).orderId)}/>;
+  return <BookingDetail operational base="/admin/bookings" record={await adminApi.record((await params).orderId)}/>;
 }

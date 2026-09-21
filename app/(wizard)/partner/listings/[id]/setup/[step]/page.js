@@ -1,14 +1,12 @@
 import { notFound } from 'next/navigation';
-import { requireActiveClient } from '@/lib/auth/dal';
-import {
-  getListingForEdit, getAmenityCatalogue, getCategories, getCitiesWithAreas,
-} from '@/lib/db/listing-queries';
+import { requireActiveClient } from '@/lib/api/session';
+import { partnerApi } from '@/lib/api/endpoints';
 import { listingCompletion } from '@/lib/domain/listing-completion';
 import {
   LISTING_CHAPTERS, getStep, isListingStep, nextStepId, prevStepId,
   stepHref, wizardProgress,
 } from '@/lib/domain/listing-steps';
-import { submitListing } from '@/lib/auth/listings';
+import { submitListing } from '@/lib/actions/partner';
 import WizardShell from '@/components/partner/listing/WizardShell';
 import WizardReview from '@/components/partner/listing/WizardReview';
 import {
@@ -40,8 +38,9 @@ export default async function SetupStepPage({ params }) {
 
   if (!isListingStep(stepId)) notFound();
 
-  const data = await getListingForEdit(id, user.id);
-  if (!data) notFound(); // scoped by clientId — another Client's id is a 404
+  /* Scoped to this Client on the API — another Client's id answers 404. */
+  const data = await partnerApi.listing(id).catch(() => null);
+  if (!data) notFound();
 
   const { listing, prices, amenities, photos, documents } = data;
   const completion = listingCompletion(listing, data);
@@ -51,9 +50,9 @@ export default async function SetupStepPage({ params }) {
   // Only fetch what this step actually renders. The amenity catalogue has no
   // business being queried on the pricing step.
   const [catalogue, categories, cities] = await Promise.all([
-    stepId === 'amenities' ? getAmenityCatalogue() : null,
-    stepId === 'basics' ? getCategories() : null,
-    stepId === 'location' ? getCitiesWithAreas() : null,
+    stepId === 'amenities' ? partnerApi.amenityCatalogue() : null,
+    stepId === 'basics' ? partnerApi.categories() : null,
+    stepId === 'location' ? partnerApi.places() : null,
   ]);
 
   const next = nextStepId(stepId);

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Mail, Phone, ShieldCheck, WalletCards } from 'lucide-react';
-import { requireClient } from '@/lib/auth/dal';
-import { getOrCreateApplication } from '@/lib/auth/application';
+import { requireClient } from '@/lib/api/session';
+import { partnerApi } from '@/lib/api/endpoints';
 import { AccountForm, PayoutDestinationForm } from '@/components/partner/SettingsForms';
 import { PartnerPageHeader } from '@/components/partner/PortalPrimitives';
 
@@ -12,7 +12,7 @@ export const metadata = {
 
 export default async function SettingsPage() {
   const user = await requireClient();
-  const application = await getOrCreateApplication(user.id);
+  const application = await partnerApi.application();
 
   return (
     <div className="mx-auto w-full max-w-[1240px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">

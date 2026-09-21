@@ -1,6 +1,7 @@
 'use client';
 import { useActionState, useState } from 'react';
-import { openSupport, replyCustomerSupport, replyAdminSupport } from '@/lib/support/actions';
+import { openSupport, replyCustomerSupport } from '@/lib/actions/customer';
+import { replyAdminSupport } from '@/lib/actions/admin';
 import { supportCategories, supportStates } from '@/lib/domain/help';
 const field = 'mt-1 block min-h-11 w-full rounded-md border border-border bg-background p-3';
 const button = 'min-h-11 rounded-md bg-brand-700 px-5 py-3 font-semibold text-white disabled:opacity-50';

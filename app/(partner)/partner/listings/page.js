@@ -1,10 +1,7 @@
 import Link from 'next/link';
 import { Building2, CircleAlert, Clock3, Eye } from 'lucide-react';
-import { requireActiveClient } from '@/lib/auth/dal';
-import {
-  getClientListingSummary,
-  getClientListingsPage,
-} from '@/lib/db/listing-queries';
+import { requireActiveClient } from '@/lib/api/session';
+import { partnerApi } from '@/lib/api/endpoints';
 import CreateListingButton from '@/components/partner/CreateListingButton';
 import PropertyFilters from '@/components/partner/PropertyFilters';
 import PropertyTable from '@/components/partner/PropertyTable';
@@ -34,13 +31,8 @@ export default async function ListingsPage({ searchParams }) {
   const requestedPage = Number.parseInt(params?.page, 10) || 1;
 
   const [summary, result] = await Promise.all([
-    getClientListingSummary(user.id),
-    getClientListingsPage(user.id, {
-      query,
-      status,
-      page: requestedPage,
-      pageSize: 10,
-    }),
+    partnerApi.summary(),
+    partnerApi.listings({ query, status, page: requestedPage, pageSize: 10 }),
   ]);
 
   const first = result.total ? (result.page - 1) * result.pageSize + 1 : 0;

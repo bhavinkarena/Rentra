@@ -2,7 +2,8 @@
 
 import { signalSavedChange } from './SavedPlacesProvider';
 import { useActionState, useEffect, useRef } from 'react';
-import { updateCustomerProfile, submitPrivacyRequest, requestPhoneChange, confirmPhoneChange, logoutCustomer } from '@/lib/customer/actions';
+import { updateCustomerProfile, submitPrivacyRequest, requestPhoneChange, confirmPhoneChange } from '@/lib/actions/customer';
+import { logoutCustomer } from '@/lib/actions/auth';
 
 const control='mt-1 min-h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-body';
 const button='min-h-11 rounded-md bg-brand-600 px-5 py-2 font-semibold text-white disabled:opacity-50';

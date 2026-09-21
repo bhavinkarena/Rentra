@@ -1,9 +1,6 @@
 import Link from 'next/link';
-import { requireAdmin } from '@/lib/auth/admin';
-import { sql } from '@/lib/db';
-import { getPaymentConfiguration } from '@/lib/payments/gateway-settings';
-import { REGISTERED_PAYMENT_PROVIDERS } from '@/lib/payments/provider-registry';
-import { paymentCredentialStatus } from '@/lib/payments/provider-credentials';
+import { requireAdmin } from '@/lib/api/session';
+import { adminApi } from '@/lib/api/endpoints';
 import PaymentGatewaySettings from '@/components/admin/PaymentGatewaySettings';
 
 export const metadata = {
@@ -13,10 +10,9 @@ export const metadata = {
 
 export default async function AdminPaymentsPage() {
   await requireAdmin();
-  const configuration = await getPaymentConfiguration(sql);
-  const providers = REGISTERED_PAYMENT_PROVIDERS.map(({ id, label }) => ({
-    id, label, ...paymentCredentialStatus(id, 'test'),
-  }));
+  /* Credential readiness is read from the API's own environment — it has the
+     keys, this process does not, and only the verdict crosses the wire. */
+  const { configuration, providers } = await adminApi.paymentConfiguration();
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-8">

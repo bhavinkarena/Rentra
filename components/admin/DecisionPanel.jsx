@@ -2,9 +2,7 @@
 
 import { useActionState, useState } from 'react';
 import { Check, HelpCircle, X, Loader2 } from 'lucide-react';
-import {
-  approveApplication, requestMoreInfo, rejectApplication,
-} from '@/lib/auth/admin-actions';
+import { approveApplication, requestMoreInfo, rejectApplication } from '@/lib/actions/admin';
 import { Button } from '@/components/ui/button';
 
 const FLAGGABLE = [

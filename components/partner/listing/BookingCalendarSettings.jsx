@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
-import { saveSchedule, saveOverride, addOpenDates, blockDates, unblockDates } from '@/app/(partner)/partner/listings/[id]/calendar/actions';
+import { saveSchedule, saveOverride, addOpenDates, blockDates, unblockDates } from '@/lib/actions/partner';
 
 const inputClass = 'mt-1 min-h-11 w-full rounded-md border border-border bg-card px-3 py-2';
 const labels = { day: 'Day picnic', night: 'Overnight', full_day: 'Full day' };

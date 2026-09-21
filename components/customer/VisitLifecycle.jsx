@@ -1,6 +1,8 @@
 'use client';
 import { useActionState, useState } from 'react';
-import { recordOwnerVisit, recordAdminVisit, bookAgain } from '@/lib/booking/lifecycle-actions';
+import { bookAgain } from '@/lib/actions/customer';
+import { recordOwnerVisit } from '@/lib/actions/partner';
+import { recordAdminVisit } from '@/lib/actions/admin';
 
 export function VisitLifecycle({ visit, requestKey, admin = false }) {
   const phase = { confirmed: 'handover', handed_over: 'return', returned: 'complete' }[visit.state];

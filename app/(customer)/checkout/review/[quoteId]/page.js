@@ -1,16 +1,18 @@
 import { notFound, redirect } from 'next/navigation';
-import { customerPageAccount } from '@/lib/customer/page';
-import { getSession } from '@/lib/auth/dal';
-import { sql } from '@/lib/db';
-import { readCheckoutReview } from '@/lib/booking/checkout-review';
+import { customerApi, bookingApi } from '@/lib/api/endpoints';
+import { ApiError } from '@/lib/api/client';
 import Checkout from '@/components/customer/Checkout';
 export const metadata = { title: 'Review test booking' };
 export default async function CheckoutReviewPage({ params }) {
-  await customerPageAccount();
+  await customerApi.account();
   const { quoteId } = await params;
   let data;
-  try { data = await readCheckoutReview(sql, await getSession(), quoteId); }
-  catch (error) { if (error.code === 'CHECKOUT_NOT_FOUND' || error.name === 'ZodError') notFound(); throw error; }
+  try { data = await bookingApi.reviewQuote(quoteId); }
+  catch (error) {
+    /* A malformed or unknown quote is the same dead end to the guest. */
+    if (error instanceof ApiError && [400, 404, 422].includes(error.status)) notFound();
+    throw error;
+  }
   if (data.existingOrderId) redirect(`/checkout/${data.existingOrderId}`);
   return <Checkout key={quoteId} data={data}/>;
 }

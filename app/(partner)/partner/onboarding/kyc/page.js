@@ -1,6 +1,5 @@
-import { requireClient } from '@/lib/auth/dal';
-import { getOrCreateApplication } from '@/lib/auth/application';
-import { listDocuments } from '@/lib/auth/documents';
+import { requireClient } from '@/lib/api/session';
+import { partnerApi } from '@/lib/api/endpoints';
 import OnboardingShell from '@/components/partner/OnboardingShell';
 import KycUploadForm from '@/components/partner/KycUploadForm';
 
@@ -10,12 +9,11 @@ export const metadata = {
 };
 
 export default async function Page() {
-  const user = await requireClient();
-  const application = await getOrCreateApplication(user.id);
-  const documents = await listDocuments({
-    ownerType: 'client_application',
-    ownerId: application.id,
-  });
+  await requireClient();
+  const [application, documents] = await Promise.all([
+    partnerApi.application(),
+    partnerApi.documents(),
+  ]);
 
   return (
     <OnboardingShell

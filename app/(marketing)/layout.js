@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import { FaWhatsapp } from 'react-icons/fa6';
 import { RentraLogo, RentraMark } from '@/components/rentra/Logo';
-import { getDiscoveryRegistry } from '@/lib/db/discovery';
+import { discoveryApi } from '@/lib/api/endpoints';
 import { INTENTS } from '@/lib/constants';
 import CustomerNavigation from '@/components/customer/CustomerNavigation';
 
 export default async function MarketingLayout({ children }) {
-  const { cities, categories } = await getDiscoveryRegistry();
+  const { cities, categories } = await discoveryApi.registry();
   const farmhouse = categories.find(c => c.slug === 'farmhouse');
   const whatsapp = /^\d{10,15}$/.test(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '')
     ? process.env.NEXT_PUBLIC_WHATSAPP_NUMBER : null;

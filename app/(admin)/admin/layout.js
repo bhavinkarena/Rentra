@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { RentraLogo } from '@/components/rentra/Logo';
-import { getCurrentAdmin } from '@/lib/auth/admin';
-import { adminLogout } from '@/lib/auth/admin-actions';
+import { getCurrentAdmin } from '@/lib/api/session';
+import { adminLogout } from '@/lib/actions/auth';
 
 export const metadata = {
   title: 'Rentra Admin',

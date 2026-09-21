@@ -1,9 +1,8 @@
 import Link from 'next/link';
 import { AlertTriangle, Clock, MousePointerClick } from 'lucide-react';
-import { requireAdmin } from '@/lib/auth/admin';
-import {
-  getApplicationQueue, getQueueStats, getRecentDecisions, SLA_HOURS,
-} from '@/lib/db/admin-queries';
+import { requireAdmin } from '@/lib/api/session';
+import { adminApi } from '@/lib/api/endpoints';
+import { SLA_HOURS } from '@/lib/constants';
 
 export const metadata = {
   title: 'Review queue',
@@ -23,9 +22,9 @@ export default async function AdminQueuePage({ searchParams }) {
   const params = await searchParams; // Next 16: searchParams is a Promise
 
   const [queue, stats, recent] = await Promise.all([
-    getApplicationQueue(),
-    getQueueStats(),
-    getRecentDecisions(8),
+    adminApi.applications(),
+    adminApi.applicationStats(),
+    adminApi.recentDecisions(8),
   ]);
 
   return (

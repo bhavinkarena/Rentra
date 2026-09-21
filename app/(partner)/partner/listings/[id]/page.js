@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Check, Wand2 } from 'lucide-react';
-import { requireActiveClient } from '@/lib/auth/dal';
-import { getListingForEdit, getAmenityCatalogue, getCategories, getCitiesWithAreas } from '@/lib/db/listing-queries';
+import { requireActiveClient } from '@/lib/api/session';
+import { partnerApi } from '@/lib/api/endpoints';
 import { listingCompletion } from '@/lib/domain/listing-completion';
-import { submitListing } from '@/lib/auth/listings';
+import { submitListing } from '@/lib/actions/partner';
 import {
   BasicsSection, LocationSection, CapacitySection, AmenitiesSection,
   RulesSection, PricingSection, TermsSection, PhotosSection,
@@ -38,15 +38,15 @@ export default async function ListingBuilderPage({ params }) {
   const user = await requireActiveClient();
   const { id } = await params; // Next 16: params is a Promise
 
-  // Scoped by clientId — another Client's listing id returns null, not their
-  // property.
-  const data = await getListingForEdit(id, user.id);
+  // Scoped to this Client on the API — another Client's listing id returns
+  // nothing, not their property.
+  const data = await partnerApi.listing(id).catch(() => null);
   if (!data) notFound();
 
   const [catalogue, categories, cities] = await Promise.all([
-    getAmenityCatalogue(),
-    getCategories(),
-    getCitiesWithAreas(),
+    partnerApi.amenityCatalogue(),
+    partnerApi.categories(),
+    partnerApi.places(),
   ]);
 
   const { listing, prices, amenities, photos, documents } = data;

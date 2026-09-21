@@ -2,7 +2,7 @@
 
 import { useActionState } from 'react';
 import { Mail, ArrowLeft, Loader2 } from 'lucide-react';
-import { requestClientOtp, verifyClientOtp } from '@/lib/auth/actions';
+import { requestClientOtp, verifyClientOtp } from '@/lib/actions/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 

@@ -7,14 +7,11 @@ import {
   Eye,
   ShieldCheck,
 } from 'lucide-react';
-import { requireClient } from '@/lib/auth/dal';
-import { profileCompletion, lockedCtaMessage } from '@/lib/auth/profile';
-import { recordLockedCtaClick } from '@/lib/auth/actions';
-import {
-  getOrCreateApplication, submitApplication, withdrawApplication,
-} from '@/lib/auth/application';
-import { listDocuments } from '@/lib/auth/documents';
-import { getClientListingSummary } from '@/lib/db/listing-queries';
+import { requireClient, getCurrentUserWithCompletion } from '@/lib/api/session';
+import { lockedCtaMessage } from '@/lib/domain/profile-completion';
+import { recordLockedCtaClick } from '@/lib/actions/auth';
+import { submitApplication, withdrawApplication } from '@/lib/actions/partner';
+import { partnerApi } from '@/lib/api/endpoints';
 import CompletionStepper from '@/components/partner/CompletionStepper';
 import GatedAddPlaceButton from '@/components/partner/GatedAddPlaceButton';
 import PendingSubmitButton from '@/components/partner/PendingSubmitButton';
@@ -43,15 +40,14 @@ const EMPTY_SUMMARY = {
  */
 export default async function PartnerDashboard() {
   const user = await requireClient();
-  const application = await getOrCreateApplication(user.id);
-  const documents = await listDocuments({
-    ownerType: 'client_application', ownerId: application.id,
-  });
+  /* `/auth/me` returns the completion state alongside the actor, so the
+     application and the KYC list are not two further round trips. */
+  const { completion } = await getCurrentUserWithCompletion();
+  const application = await partnerApi.application();
 
-  const completion = profileCompletion(user, application, documents);
   const locked = lockedCtaMessage(completion);
   const summary = completion.canPublish
-    ? await getClientListingSummary(user.id)
+    ? await partnerApi.summary()
     : EMPTY_SUMMARY;
 
   const firstName = user.name?.trim().split(/\s+/)[0];

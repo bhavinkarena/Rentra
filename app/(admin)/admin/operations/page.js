@@ -1,13 +1,12 @@
 import Link from 'next/link';
-import { requireAdmin } from '@/lib/auth/admin';
-import { sql } from '@/lib/db';
-import { readOperations } from '@/lib/operations/overview';
+import { requireAdmin } from '@/lib/api/session';
+import { adminApi } from '@/lib/api/endpoints';
 
 export const metadata = { title: 'Operations and measurement', robots: { index: false, follow: false, nocache: true } };
 
 export default async function OperationsPage() {
-  const admin = await requireAdmin();
-  const data = await readOperations(sql, admin.id);
+  await requireAdmin();
+  const data = await adminApi.operations();
   return <div className="mx-auto max-w-(--container-page) space-y-8 px-4 py-8 sm:px-6">
     <header><h1 className="text-h1">Operations and measurement</h1>
       <p className="mt-3 text-meta">Updated {data.sampledAt}. Refresh to check again. Alerts are visible here; no external paging is configured.</p>

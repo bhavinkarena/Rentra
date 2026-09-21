@@ -5,7 +5,7 @@ import Link from 'next/link';
 import {
   ArrowLeft, ArrowRight, Building2, Loader2, MapPin, ShieldCheck, X,
 } from 'lucide-react';
-import { createListingFromBasics } from '@/lib/auth/listings';
+import { createListingFromBasics } from '@/lib/actions/partner';
 import { RentraLogo } from '@/components/rentra/Logo';
 import { Input } from '@/components/ui/input';
 import { STEP_FORM_ID } from './chrome';
