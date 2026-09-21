@@ -1,7 +1,8 @@
+const browserFixtureId = /^[a-z0-9-]{1,48}$/.test(process.env.RENTRA_BROWSER_FIXTURE_ID || '') ? '-' + process.env.RENTRA_BROWSER_FIXTURE_ID : '';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Browser fixtures use a disposable database and must not share dev locks/cache.
-  distDir: process.env.RENTRA_BROWSER_FIXTURE === '1' ? '.next/customer-browser'
+  distDir: process.env.RENTRA_BROWSER_FIXTURE === '1' ? '.next/customer-browser' + browserFixtureId
     : process.env.RENTRA_BUILD_FIXTURE === '1' ? '.next/verification-build' : '.next',
   experimental: {
     /**

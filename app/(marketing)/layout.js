@@ -47,6 +47,8 @@ export default async function MarketingLayout({ children }) {
             )}
             {cities.flatMap(city => categories.map(category => <Link key={`${city.id}-${category.id}`} href={`/${city.slug}/${category.slug}`} className="text-meta text-ink-600 hover:underline">{category.name} in {city.name}</Link>))}
             <Link href="/search" className="text-meta text-ink-600 hover:underline">Search all places</Link>
+            <Link href="/help" className="text-meta text-ink-600 hover:underline">Help and support</Link>
+            {['terms','cancellation','privacy'].map(kind => <Link key={kind} href={`/policies/${kind}`} className="text-meta text-ink-600 hover:underline">{kind[0].toUpperCase()+kind.slice(1)} policy</Link>)}
             <Link href="/partner/login" className="text-meta text-ink-600 hover:underline">List your place</Link>
           </div>
           <div className="mt-10 flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-start sm:gap-8">
@@ -61,7 +63,7 @@ export default async function MarketingLayout({ children }) {
 
       {whatsapp ? <a
         href={`https://wa.me/${whatsapp}`}
-        aria-label="Chat with Rentra on WhatsApp"
+        aria-label="Message Rentra on WhatsApp"
         /* --float-bottom lets a listing page's sticky booking bar push this
            up out of the way, with no JS. See the rule in globals.css. */
         className="fixed right-5 bottom-(--float-bottom) z-40 grid size-13 place-items-center rounded-full bg-whatsapp text-white shadow-lg transition hover:brightness-95"

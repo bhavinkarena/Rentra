@@ -35,6 +35,7 @@ export function BookingDetail({ record, base = '/bookings', operational = false 
     <p><a className={linkClass} href={`${base}/${record.id}/calendar`}>Download calendar (.ics)</a></p>
     {!operational ? <p><Link className={linkClass} href={`/bookings/${record.id}/reviews`}>Review visits and see review status</Link></p> : <p><Link className={linkClass} href={base === '/admin/bookings' ? '/admin/reviews' : '/partner/reviews'}>Customer reviews</Link></p>}
     {!operational ? <p><Link className={linkClass} href={`/bookings/${record.id}/again`}>Book again with new dates</Link></p> : null}
+    {!operational ? <nav className="flex flex-wrap gap-5"><Link className={linkClass} href={`/support/new?order=${record.id}`}>Get booking help</Link><Link className={linkClass} href={`/support/new?order=${record.id}&topic=change`}>Ask about a change</Link></nav> : null}
     {!operational && record.payments.some(p => p.recoverable) ? <p><Link className={linkClass} href={`/checkout/${record.id}`}>View checkout and payment recovery</Link></p> : null}
     {!operational && test ? <p><Link className={linkClass} href={`/bookings/${record.id}/cancel`}>Cancel visits or change plans</Link></p> : null}
     {new Set(record.visits.map(v => v.state)).size > 1 ? <p className={badge}>Mixed visit statuses — check each visit below.</p> : null}

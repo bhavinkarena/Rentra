@@ -2,6 +2,7 @@ import { getSitemapEntries } from '@/lib/db/queries';
 import { getDiscoveryRegistry, countDiscoveryRoute } from '@/lib/db/discovery';
 import { resolveDiscoveryRoute, DISCOVERY_INTENTS } from '@/lib/domain/discovery';
 import { listingUrl } from '@/lib/domain/listing-url';
+import { POLICY_VERSION } from '@/lib/domain/help';
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 export default async function sitemap() {
   const [{ listings }, registry] = await Promise.all([getSitemapEntries(), getDiscoveryRegistry()]);
@@ -15,5 +16,6 @@ export default async function sitemap() {
     }
   }
   return [{ url: `${siteUrl}/`, changeFrequency: 'daily', priority: 1 }, ...routes,
+    ...['/help', ...['terms','cancellation','privacy'].map(kind => `/policies/${kind}/${POLICY_VERSION}`)].map(path => ({ url: `${siteUrl}${path}`, changeFrequency: 'monthly', priority: 0.4 })),
     ...listings.map(l => ({ url: listingUrl(siteUrl, l.slug, l.publicCode), lastModified: l.updatedAt, changeFrequency: 'weekly', priority: 0.8 }))];
 }
