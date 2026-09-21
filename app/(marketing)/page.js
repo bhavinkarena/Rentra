@@ -6,6 +6,7 @@ import ListingCard from '@/components/rentra/ListingCard';
 import TrustStrip from '@/components/rentra/TrustStrip';
 import { DISCOVERY_INTENTS } from '@/lib/domain/discovery';
 import { discoveryApi } from '@/lib/api/endpoints';
+import { degradeOnFailure, EMPTY_REGISTRY } from '@/lib/api/resilient';
 
 export const metadata = publicMetadata({ title: 'Explore farmhouses and day visits', description: 'Explore places for day visits and overnight stays. Compare facilities and check prices for your dates.', path: '/' });
 
@@ -15,8 +16,8 @@ export const revalidate = 3600;
 
 export default async function HomePage() {
   const [listings, registry] = await Promise.all([
-    discoveryApi.listings({ limit: 16 }),
-    discoveryApi.registry(),
+    degradeOnFailure(() => discoveryApi.listings({ limit: 16 }), [], 'home listings'),
+    degradeOnFailure(() => discoveryApi.registry(), EMPTY_REGISTRY, 'home registry'),
   ]);
   const primaryCity = registry.cities.find(c => c.slug === 'surat') || registry.cities[0];
   const farmhouse = registry.categories.find(c => c.slug === 'farmhouse');

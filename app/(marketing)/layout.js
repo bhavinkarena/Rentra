@@ -2,11 +2,19 @@ import Link from 'next/link';
 import { FaWhatsapp } from 'react-icons/fa6';
 import { RentraLogo, RentraMark } from '@/components/rentra/Logo';
 import { discoveryApi } from '@/lib/api/endpoints';
+import { degradeOnFailure, EMPTY_REGISTRY } from '@/lib/api/resilient';
 import { INTENTS } from '@/lib/constants';
 import CustomerNavigation from '@/components/customer/CustomerNavigation';
 
 export default async function MarketingLayout({ children }) {
-  const { cities, categories } = await discoveryApi.registry();
+  /* The footer's location links are chrome. If the registry is unreachable
+     the public site must still render — an empty link list beats a 500 on
+     every marketing page, including at build time when no API is running. */
+  const { cities, categories } = await degradeOnFailure(
+    () => discoveryApi.registry(),
+    EMPTY_REGISTRY,
+    'marketing footer registry',
+  );
   const farmhouse = categories.find(c => c.slug === 'farmhouse');
   const whatsapp = /^\d{10,15}$/.test(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '')
     ? process.env.NEXT_PUBLIC_WHATSAPP_NUMBER : null;
