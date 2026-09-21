@@ -1,3 +1,4 @@
+import { publicMetadata } from '@/lib/seo/metadata';
 import Link from 'next/link';
 import Image from 'next/image';
 import SearchBar from '@/components/rentra/SearchBar';
@@ -7,12 +8,7 @@ import { getLiveListings } from '@/lib/db/queries';
 import { DISCOVERY_INTENTS } from '@/lib/domain/discovery';
 import { getDiscoveryRegistry } from '@/lib/db/discovery';
 
-export const metadata = {
-  title: 'Explore farmhouses and day visits | Rentra',
-  description:
-    'Explore places for day visits and overnight stays. Compare facilities and check prices for your dates.',
-  alternates: { canonical: '/' },
-};
+export const metadata = publicMetadata({ title: 'Explore farmhouses and day visits', description: 'Explore places for day visits and overnight stays. Compare facilities and check prices for your dates.', path: '/' });
 
 // Classic ISR — content changes slowly, so serve from cache and revalidate
 // hourly. On-demand revalidation happens when a Client edits a listing.

@@ -438,7 +438,7 @@ export function OwnerCard({ listing }) {
         ) : null}
         <div className="flex items-center justify-between gap-3 border-t border-border pt-2.5">
           <dt className="text-ink-600">Phone number</dt>
-          <dd className="flex items-center gap-1.5 font-semibold text-ink-400">
+          <dd className="flex items-center gap-1.5 font-semibold text-ink-600">
             <Lock className="size-3.5" aria-hidden="true" />
             <span aria-hidden="true" className="tabular">+91 •••• •••• </span>
             <span className="sr-only">Hidden until your booking is confirmed</span>

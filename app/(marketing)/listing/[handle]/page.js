@@ -1,4 +1,7 @@
+import { publicMetadata, serializeJsonLd } from '@/lib/seo/metadata';
 import Link from 'next/link';
+import { cache } from 'react';
+import { connection } from 'next/server';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { ChevronRight, MapPin } from 'lucide-react';
 import ListingCard from '@/components/rentra/ListingCard';
@@ -16,42 +19,16 @@ import {
   CancellationPolicy, MoneyNote,
 } from '@/components/rentra/listing/ListingSections';
 import {
-  getListingByCode, getNextAvailableDates, getSimilarListings, getSitemapEntries,
+  getListingByCode, getSimilarListings,
 } from '@/lib/db/queries';
 import { calculateBookingPrice, cheapestSlot, formatINR } from '@/lib/domain/pricing';
 import { listingPath, listingUrl } from '@/lib/domain/listing-url';
 import { absolutePublicUrl } from '@/lib/domain/listing-content';
 import { savedListingHref, selectionFromSavedUrl } from '@/lib/domain/saved-places';
 
-/**
- * Classic ISR. Listing content changes slowly, so serve it from cache; the
- * only volatile thing on the page is availability, and the date picker reads
- * that live from /api/listings/[code]/availability rather than from here.
- *
- * When the owner edits a listing, call revalidatePath() on this path from
- * that Server Action so the change is visible without waiting out the hour.
- */
-export const revalidate = 3600;
-
+// Resolve current publication/slug at request time. Reading selection only on
+// renamed URLs under ISR caused production static-to-dynamic 500 responses.
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
-
-/**
- * Prerender every live listing.
- *
- * `revalidate` alone does not cache a dynamic segment — without this the
- * route renders on demand on every request, which was measurable: the
- * response came back `no-store` with no cache header at all. With it, each
- * listing is built once and revalidated hourly, and `dynamicParams` (true by
- * default) still renders a brand-new listing on its first request.
- *
- * When this outgrows a build — a few thousand listings — return only the
- * listings worth prerendering (recently viewed, verified, high-intent areas)
- * and let the long tail fall through to on-demand ISR.
- */
-export async function generateStaticParams() {
-  const { listings } = await getSitemapEntries();
-  return listings.map((l) => ({ handle: `${l.slug}-${l.publicCode}` }));
-}
 
 /**
  * /listing/[slug]-[code]. The CODE resolves the page, never the slug, so
@@ -79,20 +56,21 @@ function priceBand(prices) {
   return all.length ? { low: Math.min(...all), high: Math.max(...all) } : null;
 }
 
-function pickDefaults({ prices, nextDates }) {
+function pickDefaults({ prices }) {
   // Lead with the cheapest slot this farm sells, so the price box, the title
   // tag and the WhatsApp card all quote the same figure.
   const slot = cheapestSlot(prices) ?? 'night';
-  return { slot, date: nextDates?.[slot]?.[0] ?? '' };
+  return { slot, date: '' };
 }
 
-async function loadListing(handle) {
+const loadListing = cache(async (handle) => {
+  await connection();
   const parsed = parseHandle(handle);
   if (!parsed) return null;
   const listing = await getListingByCode(parsed.code);
   if (!listing) return null;
   return { listing, requestedSlug: parsed.slug };
-}
+});
 
 /**
  * Real data in the title and the description — a listing count, a price, an
@@ -101,7 +79,7 @@ async function loadListing(handle) {
 export async function generateMetadata({ params }) {
   const { handle } = await params;
   const found = await loadListing(handle);
-  if (!found) return { title: 'Farmhouse not found' };
+  if (!found) return { title: 'Farmhouse not found', robots: { index: false, follow: false } };
 
   const { listing } = found;
   const band = priceBand(listing.prices);
@@ -124,18 +102,7 @@ export async function generateMetadata({ params }) {
     url: absolutePublicUrl(siteUrl, photo.url), alt: photo.alt,
   }));
 
-  return {
-    title,
-    description,
-    alternates: { canonical },
-    openGraph: {
-      title,
-      description,
-      url: canonical,
-      type: 'website',
-      images,
-    },
-  };
+  return publicMetadata({ title, description, path: canonical, images });
 }
 
 export default async function ListingPage({ params, searchParams }) {
@@ -154,17 +121,13 @@ export default async function ListingPage({ params, searchParams }) {
     ));
   }
 
-  const [nextDates, similar] = await Promise.all([
-    getNextAvailableDates({ rentableId: listing.id }),
-    getSimilarListings({
-      rentableId: listing.id,
-      areaId: listing.areaId,
-      cityId: listing.cityId,
-      limit: 4,
-    }),
-  ]);
-
-  const defaults = pickDefaults({ prices: listing.prices, nextDates });
+  // First paint must not wait for the inventory transaction. The calendar
+  // checks live availability after hydration; guests explicitly choose dates.
+  const nextDates = { day: [], night: [], full_day: [] };
+  const similar = await getSimilarListings({
+    rentableId: listing.id, areaId: listing.areaId, cityId: listing.cityId, limit: 4,
+  });
+  const defaults = pickDefaults({ prices: listing.prices });
   const band = priceBand(listing.prices);
   const canonicalShareUrl = listingUrl(siteUrl, listing.slug, listing.publicCode);
   const headlineRent = listing.prices?.[defaults.slot]?.weekday ?? band?.low ?? 0;
@@ -188,7 +151,7 @@ export default async function ListingPage({ params, searchParams }) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(buildJsonLd({ listing, band, crumbs, nextDates, defaults })),
+          __html: serializeJsonLd(buildJsonLd({ listing, band, crumbs })),
         }}
       />
 
@@ -243,7 +206,7 @@ export default async function ListingPage({ params, searchParams }) {
 
             {listing.description ? (
               <Section id="about" title="About this farmhouse" className="mt-10">
-                <p className="max-w-prose text-body whitespace-pre-line text-ink-700">
+                <p className="max-w-prose text-body whitespace-pre-line [overflow-wrap:anywhere] text-ink-700">
                   {listing.description}
                 </p>
               </Section>
@@ -393,9 +356,8 @@ function Breadcrumbs({ crumbs }) {
  *  - No `aggregateRating` until real reviews exist. Marking up a rating that
  *    nobody left is what gets a site's rich results pulled.
  */
-function buildJsonLd({ listing, band, crumbs, nextDates, defaults }) {
+function buildJsonLd({ listing, band, crumbs }) {
   const url = listingUrl(siteUrl, listing.slug, listing.publicCode);
-  const nextDate = nextDates?.[defaults.slot]?.[0];
 
   const lodging = {
     '@type': 'LodgingBusiness',
@@ -427,9 +389,6 @@ function buildJsonLd({ listing, band, crumbs, nextDates, defaults }) {
       lowPrice: band.low,
       highPrice: band.high,
       offerCount: Object.keys(listing.prices ?? {}).length,
-      availability: nextDate
-        ? 'https://schema.org/InStock'
-        : 'https://schema.org/LimitedAvailability',
       url,
     };
   }

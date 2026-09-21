@@ -71,7 +71,7 @@ export default function PhotoGallery({ photos = [], title }) {
 
   if (!count) {
     return (
-      <div className="grid aspect-video place-items-center rounded-lg bg-ink-100 text-tiny font-semibold tracking-widest text-ink-400 uppercase">
+      <div className="grid aspect-video place-items-center rounded-lg bg-ink-100 text-tiny font-semibold tracking-widest text-ink-600 uppercase">
         photos pending
       </div>
     );

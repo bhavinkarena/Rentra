@@ -15,8 +15,8 @@ import {
  * because they all sell nights only.
  *
  * Availability is fetched here rather than server-rendered, on purpose: the
- * page is ISR-cached, and a calendar is the one thing on it that must never
- * be an hour old. The server-rendered `nextDates` are the fallback — they are
+ * selection changes must recheck current inventory, independent of the
+ * rendered listing response. The server-rendered `nextDates` are the fallback — they are
  * in the HTML for crawlers. Failed live reads do not enable cached dates.
  */
 export default function AvailabilityPicker({
@@ -155,7 +155,7 @@ export default function AvailabilityPicker({
                     : open
                       ? 'font-medium text-ink-900 hover:bg-brand-50 hover:text-brand-700'
                       : 'text-ink-300',
-                  pending && 'animate-pulse bg-ink-50 text-transparent',
+                  pending && !selected && 'animate-pulse bg-ink-50 text-transparent',
                   (isPast || open === false) && 'cursor-not-allowed line-through decoration-ink-300',
                 ].filter(Boolean).join(' ')}
               >

@@ -1,8 +1,9 @@
+import { publicMetadata } from '@/lib/seo/metadata';
 import Link from 'next/link';
 import { faqs, supportContact } from '@/lib/domain/help';
 export async function generateMetadata({ searchParams }) {
   const filtered = Boolean((await searchParams)?.q);
-  return { title: 'Help and support | Rentra', alternates: { canonical: '/help' }, ...(filtered ? { robots: { index: false, follow: true } } : {}) };
+  return publicMetadata({ title: 'Help and support', description: 'Find answers about visits, bookings, cancellation, privacy and support.', path: '/help', index: !filtered });
 }
 export default async function Help({ searchParams }) {
   const params = await searchParams, q = typeof params.q === 'string' ? params.q.trim().slice(0,100) : '';

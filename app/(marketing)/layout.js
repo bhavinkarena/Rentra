@@ -12,9 +12,10 @@ export default async function MarketingLayout({ children }) {
     ? process.env.NEXT_PUBLIC_WHATSAPP_NUMBER : null;
   return (
     <div className="flex min-h-screen flex-col">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-background focus:p-4">Skip to main content</a>
       <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur">
         <div className="mx-auto flex max-w-(--container-page) flex-wrap items-center gap-2 px-4 py-3 sm:px-6">
-          <Link href="/" className="shrink-0">
+          <Link href="/" className="shrink-0" aria-label="Rentra home">
             {/* The lockup is the home link. On the narrowest phones the mark
                 alone carries it, so the search bar keeps its width. */}
             <RentraLogo className="hidden h-7 w-auto sm:block" />
@@ -25,7 +26,7 @@ export default async function MarketingLayout({ children }) {
         </div>
       </header>
 
-      <main className="flex-1">{children}</main>
+      <main id="main-content" tabIndex={-1} className="min-w-0 flex-1">{children}</main>
 
       <footer className="mt-20 border-t border-border bg-ink-50">
         <div className="mx-auto max-w-(--container-page) px-6 py-12">

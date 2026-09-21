@@ -9,6 +9,6 @@ export default async function CustomerLayout({children}) {
   return <div className="min-h-screen bg-ink-25">
     <a href="#customer-content" className="sr-only focus:not-sr-only focus:block focus:p-3">Skip to account content</a>
     <header className="border-b border-border bg-background"><div className="mx-auto flex max-w-5xl items-center justify-between gap-2 px-4 py-3"><Link href="/" aria-label="Rentra home"><RentraLogo className="h-7 w-auto"/></Link><CustomerNavigation authenticated compact/></div></header>
-    <main id="customer-content" className="mx-auto max-w-3xl px-4 py-8 sm:py-12">{children}</main>
+    <main tabIndex={-1} id="customer-content" className="mx-auto max-w-3xl px-4 py-8 sm:py-12">{children}</main>
   </div>;
 }

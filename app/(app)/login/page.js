@@ -26,7 +26,7 @@ export default async function CustomerLoginPage() {
   const conflict = admin || (user && user.role !== 'customer');
   if (!conflict && user?.role === 'customer') redirect('/account');
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-16">
+    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-16">
       {/* This route sits outside the marketing shell, so it has no header.
           The lockup is the only branding and the only way back out. */}
       <Link href="/" className="mb-8 self-start">
@@ -50,6 +50,6 @@ export default async function CustomerLoginPage() {
           Log in as a partner
         </Link>
       </p>
-    </div>
+    </main>
   );
 }

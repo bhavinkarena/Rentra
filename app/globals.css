@@ -77,7 +77,7 @@
     --color-ink-200: #DCE1DD;     /* dividers, card outlines */
     --color-ink-300: #C0C7C2;     /* input borders */
     --color-ink-400: #9AA39D;     /* non-text · 2.59:1 */
-    --color-ink-500: #6E7871;     /* meta text · 4.58:1 AA */
+    --color-ink-500: #59655D;     /* secondary text: AA on paper and pale surfaces */
     --color-ink-600: #5A635D;     /* secondary text · 6.22:1 AA */
     --color-ink-700: #414843;
     --color-ink-800: #2A2F2B;
@@ -186,7 +186,7 @@
     --secondary: #F5F7F5;               /* ink-50 */
     --secondary-foreground: #171A18;
     --muted: #EBEEEB;                   /* ink-100 */
-    --muted-foreground: #6E7871;        /* ink-500 — AA at 4.58:1 */
+    --muted-foreground: #59655D;        /* ink-500 — contrasting secondary text */
     --accent: #F1F7F3;                  /* brand-50 */
     --accent-foreground: #26503C;       /* brand-700 */
     --destructive: #C0362C;
@@ -199,7 +199,7 @@
     --chart-2: #629B7D;
     --chart-3: #BCD8C7;
     --chart-4: #D98A1F;
-    --chart-5: #6E7871;
+    --chart-5: #59655D;
 
     --radius: 1rem;
 
@@ -288,7 +288,8 @@
 
     /* One brand-tinted focus style, everywhere. */
     :is(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-        outline: none;
+        outline: 2px solid var(--ring);
+        outline-offset: 3px;
         box-shadow: var(--shadow-focus);
         border-radius: var(--radius-sm);
     }

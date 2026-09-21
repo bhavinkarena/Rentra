@@ -1,0 +1,554 @@
+{
+  "recordedAt": "2026-09-21T05:48:23.423Z",
+  "mode": "Production build, local Chromium, remote disposable database; lab observations, not field Core Web Vitals.",
+  "routes": [
+    {
+      "path": "/",
+      "width": 390,
+      "title": "Explore farmhouses and day visits \u00b7 Rentra",
+      "canonical": "http://localhost:3204/",
+      "robots": "index, follow",
+      "metrics": {
+        "lcp": 72,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 11.5,
+        "domMs": 64.30000001192093,
+        "resources": 32,
+        "transferBytes": 299790
+      }
+    },
+    {
+      "path": "/help",
+      "width": 390,
+      "title": "Help and support \u00b7 Rentra",
+      "canonical": "http://localhost:3204/help",
+      "robots": "index, follow",
+      "metrics": {
+        "lcp": 500,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 457.30000001192093,
+        "domMs": 489.10000002384186,
+        "resources": 29,
+        "transferBytes": 15979
+      }
+    },
+    {
+      "path": "/policies/terms/2026-09-20",
+      "width": 390,
+      "title": "Test booking terms \u00b7 Rentra",
+      "canonical": "http://localhost:3204/policies/terms/2026-09-20",
+      "robots": "index, follow",
+      "metrics": {
+        "lcp": 292,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 253.80000001192093,
+        "domMs": 283.7000000476837,
+        "resources": 32,
+        "transferBytes": 19046
+      }
+    },
+    {
+      "path": "/policies/cancellation/2026-09-20",
+      "width": 390,
+      "title": "Cancellation and Test refunds \u00b7 Rentra",
+      "canonical": "http://localhost:3204/policies/cancellation/2026-09-20",
+      "robots": "index, follow",
+      "metrics": {
+        "lcp": 272,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 248.10000002384186,
+        "domMs": 265.80000001192093,
+        "resources": 32,
+        "transferBytes": 18588
+      }
+    },
+    {
+      "path": "/policies/privacy/2026-09-20",
+      "width": 390,
+      "title": "Privacy and retained records \u00b7 Rentra",
+      "canonical": "http://localhost:3204/policies/privacy/2026-09-20",
+      "robots": "index, follow",
+      "metrics": {
+        "lcp": 264,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 236.89999997615814,
+        "domMs": 257.10000002384186,
+        "resources": 32,
+        "transferBytes": 18590
+      }
+    },
+    {
+      "path": "/lifecycle/farmhouse",
+      "width": 390,
+      "title": "Farmhouse in Lifecycle \u00b7 Rentra",
+      "canonical": "http://localhost:3204/lifecycle/farmhouse",
+      "robots": "index, follow",
+      "metrics": {
+        "lcp": 752,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 723.3000000119209,
+        "domMs": 741.4000000357628,
+        "resources": 33,
+        "transferBytes": 24118
+      }
+    },
+    {
+      "path": "/listing/lifecycle-life0015",
+      "width": 390,
+      "title": "Current lifecycle property, Lifecycle \u2014 from \u20b92,500 \u00b7 Rentra",
+      "canonical": "http://localhost:3204/listing/lifecycle-life0015",
+      "robots": "index, follow",
+      "metrics": {
+        "lcp": 1488,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 1446.8999999761581,
+        "domMs": 1469.800000011921,
+        "resources": 36,
+        "transferBytes": 44385
+      }
+    },
+    {
+      "path": "/login",
+      "width": 390,
+      "title": "Log in \u00b7 Rentra",
+      "robots": "noindex, nofollow",
+      "metrics": {
+        "lcp": 24,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 11,
+        "domMs": 19.399999976158142,
+        "resources": 28,
+        "transferBytes": 107012
+      }
+    },
+    {
+      "path": "/search",
+      "width": 390,
+      "title": "Find a place \u00b7 Rentra",
+      "robots": "noindex, follow",
+      "metrics": {
+        "lcp": 280,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 246.5999999642372,
+        "domMs": 712.0999999642372,
+        "resources": 33,
+        "transferBytes": 18125
+      }
+    },
+    {
+      "path": "/search?guests=invalid",
+      "width": 390,
+      "title": "Find a place \u00b7 Rentra",
+      "robots": "noindex, follow",
+      "metrics": {
+        "lcp": 284,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 244.9000000357628,
+        "domMs": 273.80000001192093,
+        "resources": 31,
+        "transferBytes": 6347
+      }
+    },
+    {
+      "path": "/saved",
+      "width": 390,
+      "title": "Saved places \u00b7 Rentra",
+      "robots": "noindex, nofollow, nocache",
+      "metrics": {
+        "lcp": 44,
+        "cls": 0.06568477682811016,
+        "shifts": [
+          {
+            "value": 0.06568477682811016,
+            "nodes": [
+              "FOOTER mt-20 border-t border-border bg-ink-50",
+              "A inline-flex min-h-11 items-center text-brand-700 underline",
+              "svg [object SVGAnimatedString]"
+            ]
+          }
+        ],
+        "ttfbMs": 3.200000047683716,
+        "domMs": 11.800000011920929,
+        "resources": 37,
+        "transferBytes": 20478
+      }
+    },
+    {
+      "path": "/help?q=refund",
+      "width": 390,
+      "title": "Help and support \u00b7 Rentra",
+      "canonical": "http://localhost:3204/help",
+      "robots": "noindex, follow",
+      "metrics": {
+        "lcp": 276,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 236.80000001192093,
+        "domMs": 264.19999998807907,
+        "resources": 37,
+        "transferBytes": 12519
+      }
+    },
+    {
+      "path": "/lifecycle/farmhouse?guests=2",
+      "width": 390,
+      "title": "Farmhouse in Lifecycle \u00b7 Rentra",
+      "canonical": "http://localhost:3204/lifecycle/farmhouse",
+      "robots": "noindex, follow",
+      "metrics": {
+        "lcp": 980,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 939.6999999880791,
+        "domMs": 968.1000000238419,
+        "resources": 33,
+        "transferBytes": 8195
+      }
+    },
+    {
+      "path": "/search",
+      "width": 360,
+      "title": "Find a place \u00b7 Rentra",
+      "robots": "noindex, follow",
+      "metrics": {
+        "lcp": 268,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 237.30000001192093,
+        "domMs": 700.8000000119209,
+        "resources": 32,
+        "transferBytes": 6609
+      }
+    },
+    {
+      "path": "/listing/lifecycle-life0015",
+      "width": 360,
+      "title": "Current lifecycle property, Lifecycle \u2014 from \u20b92,500 \u00b7 Rentra",
+      "canonical": "http://localhost:3204/listing/lifecycle-life0015",
+      "robots": "index, follow",
+      "metrics": {
+        "lcp": 1448,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 1404.300000011921,
+        "domMs": 1431.800000011921,
+        "resources": 34,
+        "transferBytes": 6965
+      }
+    },
+    {
+      "path": "/help",
+      "width": 360,
+      "title": "Help and support \u00b7 Rentra",
+      "canonical": "http://localhost:3204/help",
+      "robots": "index, follow",
+      "metrics": {
+        "lcp": 264,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 242.89999997615814,
+        "domMs": 264.5999999642372,
+        "resources": 29,
+        "transferBytes": 4907
+      }
+    },
+    {
+      "path": "/search",
+      "width": 768,
+      "title": "Find a place \u00b7 Rentra",
+      "robots": "noindex, follow",
+      "metrics": {
+        "lcp": 744,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 242.30000001192093,
+        "domMs": 723,
+        "resources": 36,
+        "transferBytes": 13371
+      }
+    },
+    {
+      "path": "/listing/lifecycle-life0015",
+      "width": 768,
+      "title": "Current lifecycle property, Lifecycle \u2014 from \u20b92,500 \u00b7 Rentra",
+      "canonical": "http://localhost:3204/listing/lifecycle-life0015",
+      "robots": "index, follow",
+      "metrics": {
+        "lcp": 1636,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 1589,
+        "domMs": 1618.800000011921,
+        "resources": 38,
+        "transferBytes": 15620
+      }
+    },
+    {
+      "path": "/help",
+      "width": 768,
+      "title": "Help and support \u00b7 Rentra",
+      "canonical": "http://localhost:3204/help",
+      "robots": "index, follow",
+      "metrics": {
+        "lcp": 308,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 262.60000002384186,
+        "domMs": 298.60000002384186,
+        "resources": 31,
+        "transferBytes": 10670
+      }
+    },
+    {
+      "path": "/search",
+      "width": 1280,
+      "title": "Find a place \u00b7 Rentra",
+      "robots": "noindex, follow",
+      "metrics": {
+        "lcp": 724,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 242.89999997615814,
+        "domMs": 702.8000000119209,
+        "resources": 39,
+        "transferBytes": 15967
+      }
+    },
+    {
+      "path": "/listing/lifecycle-life0015",
+      "width": 1280,
+      "title": "Current lifecycle property, Lifecycle \u2014 from \u20b92,500 \u00b7 Rentra",
+      "canonical": "http://localhost:3204/listing/lifecycle-life0015",
+      "robots": "index, follow",
+      "metrics": {
+        "lcp": 2120,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 2074.699999988079,
+        "domMs": 2104.099999964237,
+        "resources": 38,
+        "transferBytes": 15617
+      }
+    },
+    {
+      "path": "/help",
+      "width": 1280,
+      "title": "Help and support \u00b7 Rentra",
+      "canonical": "http://localhost:3204/help",
+      "robots": "index, follow",
+      "metrics": {
+        "lcp": 296,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 249,
+        "domMs": 286.0999999642372,
+        "resources": 31,
+        "transferBytes": 10668
+      }
+    },
+    {
+      "path": "/listing/lifecycle-life0015?guests=2&slot=day&dates=2026-10-11",
+      "width": 390,
+      "title": "Current lifecycle property, Lifecycle \u2014 from \u20b92,500 \u00b7 Rentra",
+      "canonical": "http://localhost:3204/listing/lifecycle-life0015",
+      "robots": "index, follow",
+      "metrics": {
+        "lcp": 1504,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 1472.800000011921,
+        "domMs": 1491,
+        "resources": 37,
+        "transferBytes": 8514
+      }
+    },
+    {
+      "path": "/checkout/review/b61c4139-d925-4022-9256-778b580a20b1",
+      "width": 360,
+      "title": "Review test booking | Rentra",
+      "robots": "noindex, nofollow, nocache",
+      "metrics": {
+        "lcp": 6660,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 1020.3000000119209,
+        "domMs": 6629.199999988079,
+        "resources": 30,
+        "transferBytes": 24745
+      }
+    },
+    {
+      "path": "/account",
+      "width": 360,
+      "title": "Account | Rentra",
+      "robots": "noindex, nofollow, nocache",
+      "metrics": {
+        "lcp": 3236,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 3199.199999988079,
+        "domMs": 3225.899999976158,
+        "resources": 31,
+        "transferBytes": 21865
+      }
+    },
+    {
+      "path": "/support/new",
+      "width": 360,
+      "title": "New support request | Rentra",
+      "robots": "noindex, nofollow",
+      "metrics": {
+        "lcp": 4244,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 4208.399999976158,
+        "domMs": 4236.199999988079,
+        "resources": 33,
+        "transferBytes": 21290
+      }
+    },
+    {
+      "path": "/bookings/9b365cac-6111-4afb-8551-fbc656848b00",
+      "width": 360,
+      "title": "Booking record | Rentra",
+      "robots": "noindex, nofollow",
+      "metrics": {
+        "lcp": 7372,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 928.4000000357628,
+        "domMs": 7356.300000011921,
+        "resources": 28,
+        "transferBytes": 16885
+      }
+    },
+    {
+      "path": "/bookings/9b365cac-6111-4afb-8551-fbc656848b00/reviews",
+      "width": 360,
+      "title": "Review your visit | Rentra",
+      "robots": "noindex, nofollow",
+      "metrics": {
+        "lcp": 5924,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 939,
+        "domMs": 5913.699999988079,
+        "resources": 31,
+        "transferBytes": 19319
+      }
+    },
+    {
+      "path": "/checkout/review/b61c4139-d925-4022-9256-778b580a20b1",
+      "width": 390,
+      "title": "Review test booking | Rentra",
+      "robots": "noindex, nofollow, nocache",
+      "metrics": {
+        "lcp": 6540,
+        "cls": 0.013436049382716052,
+        "shifts": [
+          {
+            "value": 0.013436049382716052,
+            "nodes": [
+              "SECTION ",
+              "SECTION ",
+              "undefined undefined"
+            ]
+          }
+        ],
+        "ttfbMs": 912.8000000119209,
+        "domMs": 6527.399999976158,
+        "resources": 33,
+        "transferBytes": 15162
+      }
+    },
+    {
+      "path": "/account",
+      "width": 390,
+      "title": "Account | Rentra",
+      "robots": "noindex, nofollow, nocache",
+      "metrics": {
+        "lcp": 3852,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 3815,
+        "domMs": 3844.199999988079,
+        "resources": 31,
+        "transferBytes": 7668
+      }
+    },
+    {
+      "path": "/support/new",
+      "width": 390,
+      "title": "New support request | Rentra",
+      "robots": "noindex, nofollow",
+      "metrics": {
+        "lcp": 4752,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 4716.800000011921,
+        "domMs": 4744.800000011921,
+        "resources": 33,
+        "transferBytes": 8142
+      }
+    },
+    {
+      "path": "/bookings/9b365cac-6111-4afb-8551-fbc656848b00",
+      "width": 390,
+      "title": "Booking record | Rentra",
+      "robots": "noindex, nofollow",
+      "metrics": {
+        "lcp": 7840,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 916.1000000238419,
+        "domMs": 7826.600000023842,
+        "resources": 43,
+        "transferBytes": 25513
+      }
+    },
+    {
+      "path": "/bookings/9b365cac-6111-4afb-8551-fbc656848b00/reviews",
+      "width": 390,
+      "title": "Review your visit | Rentra",
+      "robots": "noindex, nofollow",
+      "metrics": {
+        "lcp": 6048,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 956.2000000476837,
+        "domMs": 6037.900000035763,
+        "resources": 31,
+        "transferBytes": 6589
+      }
+    },
+    {
+      "path": "/support/ade317e7-96a2-4f4e-8476-560c91de4e7b",
+      "width": 390,
+      "title": "Support request | Rentra",
+      "robots": "noindex, nofollow",
+      "metrics": {
+        "lcp": 6308,
+        "cls": 0,
+        "shifts": [],
+        "ttfbMs": 6270.199999988079,
+        "domMs": 6301,
+        "resources": 32,
+        "transferBytes": 18398
+      }
+    }
+  ],
+  "failures": [],
+  "axe": [],
+  "axeVersion": "4.13.0",
+  "status": "Passed Part 18 automated production quality gate; lab observations only."
+}

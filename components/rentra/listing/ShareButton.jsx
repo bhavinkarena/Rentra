@@ -26,10 +26,10 @@ export default function ShareButton({ title, text, url }) {
 
   return (
     <details className="group relative">
-      <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-sm px-2 py-1 text-meta font-semibold text-ink-700 underline decoration-ink-300 underline-offset-4 hover:bg-ink-50">
+      <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-sm px-2 py-1 text-meta font-semibold text-ink-700 underline decoration-ink-300 underline-offset-4 hover:bg-ink-50">
         <Share2 className="size-4" aria-hidden="true" /> Share
       </summary>
-      <div className="absolute right-0 z-20 mt-2 w-52 rounded-md border border-border bg-card p-2 shadow-lg">
+      <div className="absolute left-0 right-auto z-20 mt-2 hidden w-52 group-open:block sm:left-auto sm:right-0 rounded-md border border-border bg-card p-2 shadow-lg">
         <button type="button" onClick={onClick} className="flex min-h-11 w-full items-center gap-2 rounded-sm px-3 text-left text-meta font-semibold hover:bg-ink-50">
           {copied ? <Check className="size-4 text-brand-600" aria-hidden="true" /> : <Share2 className="size-4" aria-hidden="true" />}
           Share from device

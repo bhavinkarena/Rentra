@@ -63,7 +63,7 @@ export default function ListingCard({ listing, eager = false }) {
             className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           />
         ) : (
-          <span className="absolute inset-0 grid place-items-center text-tiny font-semibold tracking-widest text-ink-400 uppercase">
+          <span className="absolute inset-0 grid place-items-center text-tiny font-semibold tracking-widest text-ink-600 uppercase">
             photo pending
           </span>
         )}
@@ -108,7 +108,7 @@ export default function ListingCard({ listing, eager = false }) {
           </span>
           <span className="text-meta text-ink-600">{price == null ? null : `/ ${unit}`}</span>
           {strikePrice ? (
-            <s className="text-meta text-ink-400 tabular" data-money>{formatINR(strikePrice)}</s>
+            <s className="text-meta text-ink-600 tabular" data-money>{formatINR(strikePrice)}</s>
           ) : null}
         </p>
         {listing.priceNote && <p className="mt-1 text-tiny text-ink-500">{listing.priceNote}</p>}

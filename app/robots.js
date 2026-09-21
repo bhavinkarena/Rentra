@@ -6,9 +6,9 @@ export default function robots() {
       {
         userAgent: '*',
         allow: '/',
-        // Dated/filtered results and every authenticated surface stay out
-        // of the index. Discovery is public; dashboards are not.
-        disallow: ['/search', '/api/', '/partner/', '/admin/', '/booking/'],
+        // Crawlers must be able to read route-level noindex directives.
+        // Personal pages still require authentication; robots is not access control.
+        disallow: ['/api/'],
       },
     ],
     sitemap: `${siteUrl}/sitemap.xml`,
