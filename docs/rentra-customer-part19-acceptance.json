@@ -122,6 +122,17 @@
       "exitCode": 1,
       "seconds": 148,
       "summary": "See local temporary log; source errors are not copied into the public report."
+    },
+    {
+      "name": "records",
+      "acceptance": [
+        "A10",
+        "A14"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 189,
+      "summary": "Part 13: 5 groups passed; disposable database removed."
     }
   ]
 }
