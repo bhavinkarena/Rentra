@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Filter, Plus, Search, X } from 'lucide-react';
 import { addLocalDays, formatLocalDate, propertyToday } from '@/lib/domain/booking-dates';
+import { measureBrowser } from '@/lib/domain/browser-measurement';
 
 const control = 'mt-1 min-h-11 w-full rounded-md border border-border bg-white px-3 py-2 text-ink-900 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100';
 const slots = [['day', 'Day visit'], ['night', 'Overnight'], ['full_day', 'Full day']];
@@ -31,7 +32,7 @@ export default function DiscoveryFilters({ filters, registry, route, path }) {
   return (
     /* Sort renders beside the result count, outside this element. It joins this
        form through form="discovery-filters" so one submit carries every choice. */
-    <form id="discovery-filters" action={path} className="mt-6 rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
+    <form id="discovery-filters" action={path} onSubmit={() => measureBrowser('search_submitted')} className="mt-6 rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
       {!route?.city && <input type="hidden" name="city" value={kind ? city : ''} />}
       {!route?.area && <input type="hidden" name="area" value={kind === 'area' ? area : ''} />}
       {mode === 'separate' && <input type="hidden" name="dates" value={dates.filter(Boolean).join(',')} />}

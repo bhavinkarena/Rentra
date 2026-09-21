@@ -5,6 +5,7 @@ import { Search } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { setField, selectSearch } from '@/lib/store/slices/searchSlice';
 import { SLOTS } from '@/lib/domain/pricing';
+import { measureBrowser } from '@/lib/domain/browser-measurement';
 
 /**
  * Where / When / Slot / Guests — four cells, which is the maximum that stays
@@ -21,6 +22,7 @@ export default function SearchBar() {
 
   function onSubmit(e) {
     e.preventDefault();
+    measureBrowser('search_submitted');
     const params = new URLSearchParams();
     if (date) params.set('date', date);
     if (slot) params.set('slot', slot);

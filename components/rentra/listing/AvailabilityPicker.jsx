@@ -1,4 +1,5 @@
 'use client';
+import { measureBrowser } from '@/lib/domain/browser-measurement';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Info } from 'lucide-react';
@@ -147,7 +148,12 @@ export default function AvailabilityPicker({
                   requestAnimationFrame(() => document.querySelector(`[data-visit-date="${toISODate(target)}"]`)?.focus());
                 }}
                 aria-label={`${formatDayLabel(iso)}${open === false ? ' — not available' : ''}`}
-                onClick={() => { if (selectionReady && !isPast && (open === true || selected)) pickDate(iso); }}
+                onClick={() => {
+                  if (selectionReady && !isPast && (open === true || selected)) {
+                    if (!selected) measureBrowser('dates_selected', dates.length ? 'multiple' : 'single');
+                    pickDate(iso);
+                  }
+                }}
                 className={[
                   'relative min-h-11 rounded-sm py-2 text-center text-meta tabular transition-colors',
                   selected

@@ -10,6 +10,7 @@ import TrustBadge from '@/components/rentra/TrustBadge';
 import SaveButton from '@/components/rentra/SaveButton';
 import PhotoGallery from '@/components/rentra/listing/PhotoGallery';
 import ShareButton from '@/components/rentra/listing/ShareButton';
+import MeasuredView from '@/components/customer/MeasuredView';
 import AvailabilityPicker from '@/components/rentra/listing/AvailabilityPicker';
 import BookingPriceBox from '@/components/rentra/listing/BookingPriceBox';
 import MobileBookingBar from '@/components/rentra/listing/MobileBookingBar';
@@ -148,6 +149,7 @@ export default async function ListingPage({ params, searchParams }) {
 
   return (
     <BookingQuoteProvider key={listing.id} rentableId={listing.id} defaultDate={defaults.date} defaultSlot={defaults.slot}>
+      <MeasuredView event="listing_viewed" />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

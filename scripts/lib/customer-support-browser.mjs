@@ -8,6 +8,7 @@ import { pathToFileURL } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
 import { SignJWT } from 'jose';
 import { randomUUID } from 'node:crypto';
+import { POLICY_VERSION } from '../../lib/domain/help.js';
 export async function verifySupportBrowser({ databaseUrl, actor, stranger, owner, admin, order, privacy }) {
   const { chromium } = await import(pathToFileURL(process.env.CUSTOMER_BROWSER_DRIVER).href);
   const origin = 'http://localhost:3203', secret = 'part17-only-fixture-session-secret-long-enough';
@@ -32,8 +33,8 @@ export async function verifySupportBrowser({ databaseUrl, actor, stranger, owner
     await page.locator('summary').filter({hasText:'How do I cancel one visit'}).click();
     await page.getByRole('link',{name:'Read cancellation rules',exact:true}).click();
     await page.getByRole('heading',{name:'Cancellation and Test refunds',exact:true}).waitFor();
-    await page.getByRole('link',{name:'Permanent link to this version'}).click(); await page.waitForURL('**/policies/cancellation/2026-09-20');
-    assert.match(await page.locator('link[rel="canonical"]').getAttribute('href'),/\/policies\/cancellation\/2026-09-20$/);
+    await page.getByRole('link',{name:'Permanent link to this version'}).click(); await page.waitForURL('**/policies/cancellation/'+POLICY_VERSION);
+    assert.ok((await page.locator('link[rel="canonical"]').getAttribute('href')).endsWith('/policies/cancellation/'+POLICY_VERSION));
     await page.goto(origin+'/policies/terms/not-a-version'); await page.getByText('This page could not be found.',{exact:true}).waitFor();
     await login(actor.session); await page.goto(origin+'/bookings/'+order.id);
     await page.getByRole('link',{name:'Get booking help',exact:true}).click();

@@ -1,0 +1,11 @@
+{
+  "recordedAt": "2026-09-21T10:33:13.573Z",
+  "provider": "razorpay",
+  "environment": "test",
+  "authenticatedApi": true,
+  "webhookConfigured": false,
+  "verifiedCapture": false,
+  "verifiedRefund": false,
+  "deployedWebhook": false,
+  "browserCheckout": false
+}

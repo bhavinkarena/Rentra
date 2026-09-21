@@ -3,6 +3,7 @@ import { reconcileRefund, runRefundJobs } from '../lib/payments/refunds.js';
 import { cancellationEntitlement } from '../lib/domain/cancellation.js';
 import { readBookingRecord } from '../lib/booking/records.js';
 import assert from 'node:assert/strict';
+import { readOperations } from '../lib/operations/overview.js';
 import { randomUUID, createHmac } from 'node:crypto';
 import { withDisposableDatabase } from './lib/disposable-database.mjs';
 import { createBookingQuote } from '../lib/booking/quotes.js';
@@ -181,6 +182,14 @@ await withDisposableDatabase('p14',async({sql,connect,databaseUrl})=>{
     await fail(()=>commitCancellation(sql,first,{...cancelInput(c,p),hash:'a'.repeat(64)},env),'CANCELLATION_CHANGED');
     const result=await commitCancellation(sql,first,cancelInput(c,p),env);await reconcileRefund(sql,result.refundIds[0],options);
     assert.equal((await sql`SELECT actual_minor FROM refund WHERE id=${result.refundIds[0]}`)[0].actual_minor,String(p.refundMinor));
+  });
+  await check('operations reconciles Test refunds without multiplying capture totals or live money', async () => {
+    const data = await readOperations(sql, admin.id, env);
+    const test = data.money.find(row => row.environment === 'test');
+    const [ledger] = await sql`SELECT sum(actual_minor)::text n FROM refund WHERE environment='test' AND state='succeeded'`;
+    assert.equal(test.refunded_minor, ledger.n);
+    assert.ok(BigInt(test.refunded_minor) > 0n);
+    assert.ok(Object.values(data.live).every(value => value === '0'));
   });
   if(process.env.CUSTOMER_BROWSER_DRIVER) await check('mobile cancellation preview, acceptance, receipt and remaining visits',async()=>{
     await config();const c=await confirmed(8,3);

@@ -8,10 +8,10 @@ import { pathToFileURL } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
 import { randomUUID } from 'node:crypto';
 import { SignJWT } from 'jose';
-export async function verifyQualityBrowser({databaseUrl,actor,order,createQuote}) {
+export async function verifyQualityBrowser({databaseUrl,actor,order,createQuote,admin,sql}) {
  const driver=process.env.CUSTOMER_BROWSER_DRIVER;if(!driver)throw new Error('Set CUSTOMER_BROWSER_DRIVER to Playwright-core');
  const {chromium}=await import(pathToFileURL(driver).href), origin='http://localhost:3204', secret='part18-only-fixture-session-secret-long-enough';
- const env={...process.env,NODE_ENV:'production',RENTRA_BROWSER_FIXTURE:'1',RENTRA_BROWSER_FIXTURE_ID:'quality-'+randomUUID().slice(0,8),DATABASE_URL:databaseUrl,NEXT_PUBLIC_SITE_URL:origin,SESSION_SECRET:secret,CUSTOMER_NOTIFICATION_DELIVERY:'disabled',CUSTOMER_OTP_DELIVERY:'disabled',DEV_OTP_BYPASS:'false'};
+ const env={...process.env,NODE_ENV:'production',RENTRA_BROWSER_FIXTURE:'1',RENTRA_BROWSER_FIXTURE_ID:'quality-'+randomUUID().slice(0,8),DATABASE_URL:databaseUrl,NEXT_PUBLIC_SITE_URL:origin,SESSION_SECRET:secret,CUSTOMER_NOTIFICATION_DELIVERY:'disabled',CUSTOMER_OTP_DELIVERY:'disabled',DEV_OTP_BYPASS:'false',RENTRA_MEASUREMENT_ENABLED:'true',NEXT_PUBLIC_RENTRA_MEASUREMENT_ENABLED:'true'};
  const log=openSync(join(tmpdir(),'rentra-part18-browser.log'),'w');
  const build=spawn(process.execPath,['node_modules/next/dist/bin/next','build','--webpack'],{env,stdio:['ignore',log,log]});
  const [code]=await once(build,'exit');if(code!==0){closeSync(log);throw new Error('Quality production fixture build failed');}
@@ -23,6 +23,7 @@ export async function verifyQualityBrowser({databaseUrl,actor,order,createQuote}
   browser=await chromium.launch({headless:true,...(process.env.CUSTOMER_BROWSER_EXECUTABLE?{executablePath:process.env.CUSTOMER_BROWSER_EXECUTABLE}:{})});
   const context=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce'}),page=await context.newPage();page.setDefaultTimeout(90000);
   page.on('pageerror',e=>report.failures.push('Runtime: '+e.message));
+  const measurements=[];page.on('request',r=>{if(new URL(r.url()).pathname==='/api/measurement')measurements.push(r.postDataJSON());});
   await context.addInitScript(()=>{
    window.__quality={lcp:0,cls:0,shifts:[]};
    new PerformanceObserver(l=>{for(const e of l.getEntries())window.__quality.lcp=e.startTime;}).observe({type:'largest-contentful-paint',buffered:true});
@@ -63,7 +64,10 @@ export async function verifyQualityBrowser({databaseUrl,actor,order,createQuote}
   const robots=await(await context.request.get(origin+'/robots.txt')).text();expect(!robots.includes('Disallow: /search'),'Search noindex must remain crawlable');
   await page.goto(origin+'/help');await page.keyboard.press('Tab');expect(await page.getByRole('link',{name:'Skip to main content'}).evaluate(e=>e===document.activeElement),'Skip link first focus');await page.keyboard.press('Enter');expect(await page.locator('main').evaluate(e=>e===document.activeElement),'Skip link target focus');
   await page.goto(origin+listing);await page.locator('summary').filter({hasText:'Share'}).click();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Open share menu fits viewport');await page.locator('summary').filter({hasText:'Share'}).click();await page.getByRole('button',{name:'Open photos of Current lifecycle property',exact:true}).click();await page.getByRole('dialog').waitFor();
-  await page.keyboard.press('Shift+Tab');expect(await page.getByRole('dialog').evaluate(e=>e.contains(document.activeElement)),'Gallery focus trap');await page.keyboard.press('Escape');expect(await page.getByRole('button',{name:'Open photos of Current lifecycle property',exact:true}).evaluate(e=>e===document.activeElement),'Gallery focus restored');await page.screenshot({path:join(tmpdir(),'rentra-part18-listing.png'),fullPage:true});
+  await page.keyboard.press('Shift+Tab');expect(await page.getByRole('dialog').evaluate(e=>e.contains(document.activeElement)),'Gallery focus trap');await page.keyboard.press('Escape');
+  await page.getByRole('dialog').waitFor({state:'hidden'});
+  await page.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')==='Open photos of Current lifecycle property');
+  expect(await page.getByRole('button',{name:'Open photos of Current lifecycle property',exact:true}).evaluate(e=>e===document.activeElement),'Gallery focus restored');await page.screenshot({path:join(tmpdir(),'rentra-part18-listing.png'),fullPage:true});
   const token=await new SignJWT(actor.session).setProtectedHeader({alg:'HS256'}).setIssuedAt().setExpirationTime('1h').sign(new TextEncoder().encode(secret));
   await context.addCookies([{name:'rentra_session',value:token,url:origin,httpOnly:true,sameSite:'Lax'}]);
   const quote=await createQuote();
@@ -73,6 +77,24 @@ export async function verifyQualityBrowser({databaseUrl,actor,order,createQuote}
   await visit(new URL(page.url()).pathname,390,{index:false,privatePage:true});
   await page.screenshot({path:join(tmpdir(),'rentra-part18-support.png'),fullPage:true});
   await context.clearCookies();const denied=await context.request.get(origin+'/bookings/'+order.id+'/calendar');expect(denied.status()===401,'Anonymous private calendar');
+  await page.goto(origin+'/admin/operations');expect(new URL(page.url()).pathname==='/admin/login','Anonymous operations access denied');
+  expect((await context.request.get(origin+'/api/admin/operations')).status()===401,'Anonymous operations JSON denied');
+  await context.addCookies([{name:'rentra_session',value:token,url:origin,httpOnly:true,sameSite:'Lax'}]);
+  await page.goto(origin+'/admin/operations');expect(new URL(page.url()).pathname==='/admin/login','Customer operations access denied');
+  await context.clearCookies();
+  const adminToken=await new SignJWT({adminId:admin.id}).setProtectedHeader({alg:'HS256'}).setAudience('rentra:admin').setIssuedAt().setExpirationTime('1h').sign(new TextEncoder().encode(secret));
+  await context.addCookies([{name:'rentra_admin',value:adminToken,url:origin,httpOnly:true,sameSite:'Strict'}]);
+  const operationsJson=await context.request.get(origin+'/api/admin/operations');
+  expect(operationsJson.status()===200&&operationsJson.headers()['cache-control'].includes('no-store'),'Admin operations JSON is authenticated and non-cacheable');
+  for(const width of [360,390,1280])await visit('/admin/operations',width,{index:false,privatePage:false});
+  expect((await page.locator('main').textContent()).includes('worker unhealthy'),'Missing workers visible');
+  await page.screenshot({path:join(tmpdir(),'rentra-part19-operations.png'),fullPage:true});
+  expect(measurements.some(event=>event.event==='listing_viewed'),'Rendered listing sends aggregate measurement');
+  expect(measurements.every(event=>Object.keys(event).sort().join(',')==='device,event,source,visits'),'Browser measurement contains bounded fields only');
+  const [measured]=await sql`SELECT count(*)::int n FROM customer_measurement WHERE event='listing_viewed' AND source='browser'`;
+  expect(measured.n>0,'Browser aggregate persisted through HTTP');
+  await sql`UPDATE admin_user SET is_active=false WHERE id=${admin.id}`;
+  await page.goto(origin+'/admin/operations');expect(new URL(page.url()).pathname==='/admin/login','Deactivated admin operations access denied');
  } finally {
   writeFileSync(join(tmpdir(),'rentra-part18-quality.json'),JSON.stringify(report,null,2));
   await browser?.close();if(server.exitCode===null){server.kill('SIGTERM');await Promise.race([once(server,'exit'),delay(10000)]);if(server.exitCode===null)server.kill('SIGKILL');}

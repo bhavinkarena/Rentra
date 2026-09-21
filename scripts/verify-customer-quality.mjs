@@ -13,7 +13,7 @@ await withDisposableDatabase('p18',async({sql,databaseUrl})=>{
   await sql`INSERT INTO customer_profile(user_id,completed_at) VALUES(${customer.id},now()),(${otherCustomer.id},now())`;
   const actor = { kind: 'customer', session: { role: 'customer', userId: customer.id, sessionId: session.id } };
 
-  await sql`INSERT INTO admin_user(email,name,password_hash) VALUES('lifecycle@fixture.invalid','Lifecycle admin','unused') RETURNING id`;
+  const [admin] = await sql`INSERT INTO admin_user(email,name,password_hash) VALUES('lifecycle@fixture.invalid','Lifecycle admin','unused') RETURNING id`;
 
   const [city] = await sql`INSERT INTO city(slug,name,state) VALUES('lifecycle','Lifecycle','Gujarat') RETURNING id`;
   const [area] = await sql`INSERT INTO area(city_id,slug,name) VALUES(${city.id},'lifecycle','Lifecycle') RETURNING id`;
@@ -49,6 +49,6 @@ await withDisposableDatabase('p18',async({sql,databaseUrl})=>{
   const day=addLocalDays(propertyToday(),20);
   await sql`INSERT INTO availability(rentable_id,day,slot,units_available,blocked_by_client) VALUES(${listing.id},${day},'day',1,false)`;
   const createQuote=()=>createBookingQuote(sql,{rentableId:listing.id,dates:[day],slot:'day',guests:2},{customerId:customer.id});
-  await verifyQualityBrowser({databaseUrl,actor,order,createQuote});
+  await verifyQualityBrowser({databaseUrl,actor,order,createQuote,admin,sql});
 });
 console.log('Part 18 quality gate passed; disposable database removed. No provider requests.');

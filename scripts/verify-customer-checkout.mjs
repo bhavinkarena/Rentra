@@ -12,6 +12,7 @@ import { ingestRazorpayEvent, processNextPaymentEvent } from '../lib/payments/we
 import { razorpayTestAdapter, validSignature } from '../lib/payments/razorpay-test.js';
 import { runPaymentJobs } from '../lib/payments/jobs.js';
 import { ownerFinancialSummary, ownerPayoutSources } from '../lib/payments/accounting.js';
+import { readOperations } from '../lib/operations/overview.js';
 import { addLocalDays, propertyToday } from '../lib/domain/booking-dates.js';
 
 const env={NODE_ENV:'test',RAZORPAY_TEST_KEY_ID:'rzp_test_CheckoutFixture',RAZORPAY_TEST_KEY_SECRET:'fixture-api-secret',RAZORPAY_TEST_WEBHOOK_SECRET:'fixture-webhook-secret'};
@@ -262,6 +263,25 @@ await withDisposableDatabase('p11',async({sql,connect,databaseUrl})=>{
     await runPaymentJobs(sql,options);await runPaymentJobs(sql,options);
     await fail(()=>sql`UPDATE booking_lifecycle_event SET payload='{}'::jsonb WHERE kind='confirmed'`,'23514');
     assert.ok(winner.orderId);
+  });
+  await check('operations separates nonzero Test capture facts from zero live revenue/payout', async () => {
+    const data = await readOperations(sql, admin.id, env);
+    const test = data.money.find(row => row.provider === 'razorpay' && row.environment === 'test');
+    assert.ok(BigInt(test.captured_minor) > 0n);
+    const [ledger] = await sql`SELECT sum(captured_minor)::text n FROM payment_transaction WHERE kind='capture' AND environment='test'`;
+    assert.equal(test.captured_minor, ledger.n);
+    assert.ok(Object.values(data.live).every(value => value === '0'));
+    assert.ok(Number(data.funnel.test_confirmations) > 0);
+  });
+  await check('reconciliation retries cannot hide an aged payment alert', async () => {
+    const [source] = await sql`SELECT p.id FROM payment_order p JOIN payment_execution e ON e.payment_order_id=p.id LIMIT 1`;
+    const [aged] = await sql`INSERT INTO payment_order(booking_order_id,provider,environment,mode,currency,purpose,expected_minor,idempotency_key,request_hash,created_at)
+      SELECT booking_order_id,provider,environment,mode,currency,purpose,expected_minor,${randomUUID()},request_hash,clock_timestamp()-interval '20 minutes'
+      FROM payment_order WHERE id=${source.id} RETURNING id`;
+    await sql`INSERT INTO payment_execution(payment_order_id,config_version,credential_key_id,snapshot,state,updated_at)
+      SELECT ${aged.id},config_version,credential_key_id,snapshot,'unknown',clock_timestamp() FROM payment_execution WHERE payment_order_id=${source.id}`;
+    const data = await readOperations(sql, admin.id, env);
+    assert.ok(data.signals.payment_backlog > 0, 'A recent retry timestamp must not reset the original obligation age');
   });
 });
 console.log(`Checkout services/UI: ${passed} groups passed; disposable database removed. Provider HTTP responses were deterministic fixtures, not bank transactions.`);

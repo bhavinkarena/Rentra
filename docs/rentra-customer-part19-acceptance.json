@@ -1,0 +1,127 @@
+{
+  "recordedAt": "2026-09-21T10:34:53.892Z",
+  "mode": "fixture database/domain only",
+  "providerTransport": "deterministic fixtures; no actual provider payment",
+  "releaseGate": "pending actual hosted Test capture/refund and deployed signed webhook evidence",
+  "suites": [
+    {
+      "name": "foundation",
+      "acceptance": [
+        "A03",
+        "A06",
+        "A08",
+        "A09",
+        "A13"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 1,
+      "summary": "Script exited successfully"
+    },
+    {
+      "name": "payments",
+      "acceptance": [
+        "A13",
+        "A17",
+        "A18"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 207,
+      "summary": "12 payment verification groups passed"
+    },
+    {
+      "name": "reservations",
+      "acceptance": [
+        "A03",
+        "A05",
+        "A06",
+        "A10"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 278,
+      "summary": "10 reservation verification groups passed"
+    },
+    {
+      "name": "identity",
+      "acceptance": [
+        "A01",
+        "A02",
+        "A14"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 373,
+      "summary": "14 customer identity scenario groups passed; disposable database removed."
+    },
+    {
+      "name": "quotes",
+      "acceptance": [
+        "A04",
+        "A05",
+        "A07",
+        "A08"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 484,
+      "summary": "Customer quote/inventory/gateway: 15 groups passed; disposable database removed."
+    },
+    {
+      "name": "account",
+      "acceptance": [
+        "A14"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 230,
+      "summary": "Customer account: 6 groups passed; disposable database removed."
+    },
+    {
+      "name": "saved",
+      "acceptance": [
+        "A15"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 212,
+      "summary": "7 saved-place scenario groups passed; disposable database removed."
+    },
+    {
+      "name": "listing",
+      "acceptance": [
+        "A14",
+        "A16"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 133,
+      "summary": "Customer listing: 6 groups passed; disposable database removed."
+    },
+    {
+      "name": "search",
+      "acceptance": [
+        "A07",
+        "A16"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 267,
+      "summary": "Customer search: 5 groups passed."
+    },
+    {
+      "name": "picker",
+      "acceptance": [
+        "A03",
+        "A08",
+        "A09",
+        "A16"
+      ],
+      "status": "failed",
+      "exitCode": 1,
+      "seconds": 148,
+      "summary": "See local temporary log; source errors are not copied into the public report."
+    }
+  ]
+}

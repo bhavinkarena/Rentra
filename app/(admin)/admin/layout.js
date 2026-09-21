@@ -28,6 +28,7 @@ export default async function AdminLayout({ children }) {
               <Link href="/admin/bookings" className="rounded-full px-3 py-1.5 text-meta font-medium text-ink-300 hover:bg-ink-800 hover:text-white">Bookings</Link>
               <Link href="/admin/reviews" className="rounded-full px-3 py-1.5 text-meta text-ink-300 hover:text-white">Reviews</Link>
               <Link href="/admin/support" className="rounded-full px-3 py-1.5 text-meta text-ink-300 hover:text-white">Support inbox</Link>
+              <Link href="/admin/operations" className="rounded-full px-3 py-1.5 text-meta text-ink-300 hover:text-white">Operations</Link>
               <Link href="/admin/notifications" className="rounded-full px-3 py-1.5 text-meta font-medium text-ink-300 hover:bg-ink-800 hover:text-white">Delivery</Link>
               <Link href="/admin/payments" className="rounded-full px-3 py-1.5 text-meta font-medium text-ink-300 hover:bg-ink-800 hover:text-white">
                 Payments
@@ -35,7 +36,7 @@ export default async function AdminLayout({ children }) {
               <Link href="/admin/privacy" className="rounded-full px-3 py-1.5 text-meta font-medium text-ink-300 hover:bg-ink-800 hover:text-white">Privacy requests</Link>
               {/* A visible reminder that the second factor is not on yet. */}
               {!admin.hasTotp ? (
-                <span className="rounded-full bg-amber-500 px-2.5 py-1 text-tiny font-bold text-white">
+                <span className="rounded-full bg-amber-500 px-2.5 py-1 text-tiny font-bold text-ink-900">
                   2FA not enrolled
                 </span>
               ) : null}

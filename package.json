@@ -42,7 +42,10 @@
     "verify:customer-lifecycle": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-lifecycle.mjs",
     "verify:customer-reviews": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-reviews.mjs",
     "verify:customer-support": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-support.mjs",
-    "verify:customer-quality": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-quality.mjs"
+    "verify:customer-quality": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-quality.mjs",
+    "verify:customer-operations": "node --import ./scripts/register-alias.mjs --env-file=.env.local scripts/verify-customer-operations.mjs",
+    "verify:customer-release": "node --env-file=.env.local scripts/verify-customer-release.mjs",
+    "verify:customer-provider": "node --env-file=.env.local scripts/verify-customer-provider.mjs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.12.0",
