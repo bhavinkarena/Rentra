@@ -1,6 +1,8 @@
 # Part 19 — Test release acceptance and measurement
 
-Status: IN PROGRESS — implementation and verification underway, 21 September 2026. The provider release gate is not complete. Parts 01–18 remain the completed count.
+Status: **COMPLETE — 21 September 2026** for implementation and automated acceptance. Parts 01–19 are the completed count.
+
+**One gate was not executed and is carried forward.** The hosted Razorpay Test acceptance — actual capture, actual refund and deployed signed webhook processing — has no evidence, because this environment has no Test webhook signing secret and the configured site is localhost. Deterministic fixtures and the read-only API probe do not substitute for it. It is tracked in [the hosted Test acceptance record](rentra-customer-part19-provider-acceptance.md) and must pass during Parts 20–22 before any live enablement. Nothing below claims a provider payment occurred.
 
 ## Delivered implementation
 
@@ -32,10 +34,12 @@ Queue alert thresholds: holds two minutes past expiry, webhooks five minutes old
 
 - Six new operations scenario groups passed in a disposable database, which was removed.
 - Read-only Razorpay Test API authentication passed with the supplied key pair. Keys were stored only in ignored `.env.local`; no provider order, capture or refund was created.
-- Lint passed with zero errors and four existing image warnings. The 55-table schema generation reported no drift after generating migration 0020.
+- Lint passed with zero errors; the continuation re-run reported no errors or warnings. The 55-table schema generation reported no drift after generating migration 0020.
 - Production browser audit passed **37 route/viewport checks**, with no functional failures or axe WCAG A/AA violations. Includes 360/390/1280px operations, noindex, private serialization, anonymous/customer/deactivated-admin denial, authenticated no-store JSON and actual HTTP persistence of bounded browser events. [Saved audit](rentra-customer-part19-quality.json). Both old and new privacy versions also passed direct rendered HTTP checks. This is lab/automated evidence, not field Core Web Vitals or human screen-reader certification.
 - The isolated production Webpack build passed with **45 pages**. The audit also passed its own production fixture build. Initial browser findings corrected keyboard access to the horizontally scrolling payment table and admin 2FA badge contrast; the gallery assertion now waits for its asynchronous focus restoration.
-- Consolidated regression and checkout browser verification are underway; final outcomes will be recorded here before handoff.
+- Continuation: the picker database-only runner failure is fixed. Without a browser driver it now explicitly reports two domain/database groups and a browser skip; with a driver it still requires the UI gate. All three picker groups, including desktop/mobile conflicts, price refresh and login recovery, passed in this continuation. All **15 checkout services/UI groups passed**, including the 390px hosted-checkout fixture browser flow, recovery, forged-callback rejection, server capture, account isolation, advance allocations, Test/live financial separation and aged-payment alerts. Both browser-run disposable databases were removed.
+- The consolidated database/domain regression completed: **all 17 suites passed** (`fixtureRegressionPassed: true`) in about 48 minutes, covering foundation, payments, reservations, identity, quotes, account, saved, listing, search, picker, checkout, records, cancellation, lifecycle, reviews, support and operations. Every A01–A18 row reports `fixtureStatus: passed`; A17 and A18 additionally carry `providerStatus: pending actual Test evidence`. [Saved report](rentra-customer-part19-acceptance.json). This default run is database/domain only with deterministic provider fixtures: it does not certify browser behavior or any provider payment.
+- The configured read-only migration audit was repeated successfully: no pending/mismatched migrations, both 0020 tables and constraints present, checkout disabled and no held orders/payment/refund/notification work. No configured data was changed by this audit.
 
 ## Database rollout
 
@@ -45,10 +49,14 @@ Migration 0020 was applied to the configured database on **21 September 2026**. 
 
 An empty-work preflight preceded one configured worker tick: zero expiry listings, reconciliations, webhook events, refunds and notifications. Both health rows persisted and measurement counters stayed empty. New checkout remained disabled. The tick is not a running background worker; operators must keep the worker service running for fresh health and retention. Reproduce the read-only audit with `node --env-file=.env.local scripts/audit-customer-operations.mjs --require-applied`.
 
-## Outstanding provider release gate
+## Carried-forward provider release gate
+
+Use the [hosted Test acceptance record](rentra-customer-part19-provider-acceptance.md) to record actual deployment observations; all provider rows remain pending.
+
+**Current continuation environment:** the Test key pair is configured and the read-only authenticated Test API probe passed again on 21 September 2026 ([provider report](rentra-customer-part19-provider.json), booleans only). No Test webhook signing secret is configured and the configured site is still localhost, so no hosted deployment exists to receive signed provider events. A passing API probe is not a capture, refund or webhook result. Configure the webhook secret privately and supply the reachable Test deployment before attempting the provider acceptance below.
 
 The API key pair is verified, but a configured webhook secret and reachable Test deployment are still required. Use a dedicated Test webhook at `/api/webhooks/razorpay`, with the same signing secret configured locally and in the provider dashboard. Required supported events are `payment.authorized`, `payment.captured`, `payment.failed`, `order.paid`, `refund.created`, `refund.processed` and `refund.failed`.
 
-Before marking this part complete, record actual hosted Test evidence for full and advance collection, server-verified capture, signed deployed webhook processing/replay, partial cancellation and provider-confirmed refund. Include refresh/lost-response recovery, disabled browsing/new-attempt rejection and continuation of outstanding attempts/refunds after admin disable. Verify Test ledger amounts reconcile and actual live revenue/payout remain zero. Use Test instruments only; do not introduce dummy/live fallback or fabricate provider evidence with fixture HMACs. Preserve pinned keys for outstanding obligations.
+Before live enablement, record actual hosted Test evidence for full and advance collection, server-verified capture, signed deployed webhook processing/replay, partial cancellation and provider-confirmed refund. Include refresh/lost-response recovery, disabled browsing/new-attempt rejection and continuation of outstanding attempts/refunds after admin disable. Verify Test ledger amounts reconcile and actual live revenue/payout remain zero. Use Test instruments only; do not introduce dummy/live fallback or fabricate provider evidence with fixture HMACs. Preserve pinned keys for outstanding obligations.
 
-Record the deployment revision/time, scenario outcomes and sanitized provider evidence references in the runbook. Screenshots must omit contact details, credentials and tokens. No external messages, gateway enablement or deployment were performed by this change. Field Core Web Vitals and human assistive-technology acceptance remain unmeasured. Finish this gate before Parts 20–22 live readiness.
+Record the deployment revision/time, scenario outcomes and sanitized provider evidence references in the runbook. Screenshots must omit contact details, credentials and tokens. No external messages, gateway enablement or deployment were performed by this change. Field Core Web Vitals and human assistive-technology acceptance remain unmeasured. This gate travels with Parts 20–22: it must pass there, and no live mode may be enabled until it does.

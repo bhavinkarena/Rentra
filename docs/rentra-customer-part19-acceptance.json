@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-09-21T10:34:53.892Z",
+  "recordedAt": "2026-09-21T10:58:45.141Z",
   "mode": "fixture database/domain only",
   "providerTransport": "deterministic fixtures; no actual provider payment",
   "releaseGate": "pending actual hosted Test capture/refund and deployed signed webhook evidence",
@@ -15,7 +15,7 @@
       ],
       "status": "passed",
       "exitCode": 0,
-      "seconds": 1,
+      "seconds": 0,
       "summary": "Script exited successfully"
     },
     {
@@ -27,7 +27,7 @@
       ],
       "status": "passed",
       "exitCode": 0,
-      "seconds": 207,
+      "seconds": 211,
       "summary": "12 payment verification groups passed"
     },
     {
@@ -40,7 +40,7 @@
       ],
       "status": "passed",
       "exitCode": 0,
-      "seconds": 278,
+      "seconds": 275,
       "summary": "10 reservation verification groups passed"
     },
     {
@@ -52,7 +52,7 @@
       ],
       "status": "passed",
       "exitCode": 0,
-      "seconds": 373,
+      "seconds": 359,
       "summary": "14 customer identity scenario groups passed; disposable database removed."
     },
     {
@@ -65,7 +65,7 @@
       ],
       "status": "passed",
       "exitCode": 0,
-      "seconds": 484,
+      "seconds": 477,
       "summary": "Customer quote/inventory/gateway: 15 groups passed; disposable database removed."
     },
     {
@@ -75,7 +75,7 @@
       ],
       "status": "passed",
       "exitCode": 0,
-      "seconds": 230,
+      "seconds": 245,
       "summary": "Customer account: 6 groups passed; disposable database removed."
     },
     {
@@ -85,7 +85,7 @@
       ],
       "status": "passed",
       "exitCode": 0,
-      "seconds": 212,
+      "seconds": 227,
       "summary": "7 saved-place scenario groups passed; disposable database removed."
     },
     {
@@ -96,7 +96,7 @@
       ],
       "status": "passed",
       "exitCode": 0,
-      "seconds": 133,
+      "seconds": 134,
       "summary": "Customer listing: 6 groups passed; disposable database removed."
     },
     {
@@ -107,7 +107,7 @@
       ],
       "status": "passed",
       "exitCode": 0,
-      "seconds": 267,
+      "seconds": 277,
       "summary": "Customer search: 5 groups passed."
     },
     {
@@ -118,10 +118,239 @@
         "A09",
         "A16"
       ],
-      "status": "failed",
-      "exitCode": 1,
-      "seconds": 148,
-      "summary": "See local temporary log; source errors are not copied into the public report."
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 156,
+      "summary": "Part 10: 2 scenario groups passed; disposable database removed. Browser gate not run."
+    },
+    {
+      "name": "records",
+      "acceptance": [
+        "A10",
+        "A14"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 191,
+      "summary": "Part 13: 5 groups passed; disposable database removed."
+    },
+    {
+      "name": "cancellation",
+      "acceptance": [
+        "A12",
+        "A13",
+        "A18"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 541,
+      "summary": "Cancellation database-only: 8 groups passed; disposable database removed. Provider refunds use deterministic HTTP fixtures."
+    },
+    {
+      "name": "checkout",
+      "acceptance": [
+        "A01",
+        "A04",
+        "A05",
+        "A10",
+        "A11",
+        "A13",
+        "A17",
+        "A18"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 1244,
+      "summary": "Checkout services/UI: 14 groups passed; disposable database removed. Provider HTTP responses were deterministic fixtures, not bank transactions."
+    },
+    {
+      "name": "lifecycle",
+      "acceptance": [
+        "A09",
+        "A11",
+        "A14"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 667,
+      "summary": "Part 15 lifecycle gate: 13 groups passed; disposable database removed. No real provider request or SMS sent."
+    },
+    {
+      "name": "reviews",
+      "acceptance": [
+        "A15"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 474,
+      "summary": "Part 16: 6 groups passed; disposable database removed. No provider requests."
+    },
+    {
+      "name": "support",
+      "acceptance": [
+        "A14",
+        "A16"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 276,
+      "summary": "Part 17: 6 groups passed; disposable database removed. No external messages sent."
+    },
+    {
+      "name": "operations",
+      "acceptance": [
+        "A13",
+        "A14"
+      ],
+      "status": "passed",
+      "exitCode": 0,
+      "seconds": 179,
+      "summary": "6 operations groups passed; disposable database removed."
     }
-  ]
+  ],
+  "fixtureRegressionPassed": true,
+  "acceptance": {
+    "A01": {
+      "fixtureStatus": "passed",
+      "suites": [
+        "identity",
+        "checkout"
+      ]
+    },
+    "A02": {
+      "fixtureStatus": "passed",
+      "suites": [
+        "identity"
+      ]
+    },
+    "A03": {
+      "fixtureStatus": "passed",
+      "suites": [
+        "foundation",
+        "reservations",
+        "picker"
+      ]
+    },
+    "A04": {
+      "fixtureStatus": "passed",
+      "suites": [
+        "quotes",
+        "checkout"
+      ]
+    },
+    "A05": {
+      "fixtureStatus": "passed",
+      "suites": [
+        "reservations",
+        "quotes",
+        "checkout"
+      ]
+    },
+    "A06": {
+      "fixtureStatus": "passed",
+      "suites": [
+        "foundation",
+        "reservations"
+      ]
+    },
+    "A07": {
+      "fixtureStatus": "passed",
+      "suites": [
+        "quotes",
+        "search"
+      ]
+    },
+    "A08": {
+      "fixtureStatus": "passed",
+      "suites": [
+        "foundation",
+        "quotes",
+        "picker"
+      ]
+    },
+    "A09": {
+      "fixtureStatus": "passed",
+      "suites": [
+        "foundation",
+        "picker",
+        "lifecycle"
+      ]
+    },
+    "A10": {
+      "fixtureStatus": "passed",
+      "suites": [
+        "reservations",
+        "records",
+        "checkout"
+      ]
+    },
+    "A11": {
+      "fixtureStatus": "passed",
+      "suites": [
+        "checkout",
+        "lifecycle"
+      ]
+    },
+    "A12": {
+      "fixtureStatus": "passed",
+      "suites": [
+        "cancellation"
+      ]
+    },
+    "A13": {
+      "fixtureStatus": "passed",
+      "suites": [
+        "foundation",
+        "payments",
+        "cancellation",
+        "checkout",
+        "operations"
+      ]
+    },
+    "A14": {
+      "fixtureStatus": "passed",
+      "suites": [
+        "identity",
+        "account",
+        "listing",
+        "records",
+        "lifecycle",
+        "support",
+        "operations"
+      ]
+    },
+    "A15": {
+      "fixtureStatus": "passed",
+      "suites": [
+        "saved",
+        "reviews"
+      ]
+    },
+    "A16": {
+      "fixtureStatus": "passed",
+      "suites": [
+        "listing",
+        "search",
+        "picker",
+        "support"
+      ]
+    },
+    "A17": {
+      "fixtureStatus": "passed",
+      "suites": [
+        "payments",
+        "checkout"
+      ],
+      "providerStatus": "pending actual Test evidence"
+    },
+    "A18": {
+      "fixtureStatus": "passed",
+      "suites": [
+        "payments",
+        "cancellation",
+        "checkout"
+      ],
+      "providerStatus": "pending actual Test evidence"
+    }
+  }
 }
