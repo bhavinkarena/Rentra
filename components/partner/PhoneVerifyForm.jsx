@@ -7,8 +7,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 export default function PhoneVerifyForm({ defaultPhone = '' }) {
-  const [issueState, issueAction, issuing] = useActionState(requestPhoneVerification, { step: 'phone' });
-  const [confirmState, confirmAction, confirming] = useActionState(confirmPhoneVerification, { step: 'code' });
+  const [issueState, issueAction, issuing] = useActionState(requestPhoneVerification, {
+    step: 'phone',
+  });
+  const [confirmState, confirmAction, confirming] = useActionState(confirmPhoneVerification, {
+    step: 'code',
+  });
 
   const phase = issueState.step === 'code' ? 'code' : 'phone';
   const phone = issueState.phone ?? defaultPhone;
@@ -41,14 +45,18 @@ export default function PhoneVerifyForm({ defaultPhone = '' }) {
             <p className="mt-1.5 text-tiny font-medium text-danger">{issueState.errors.phone}</p>
           ) : (
             <p className="mt-1.5 text-tiny text-ink-500">
-              Booking requests, the 12-hour accept reminder and payout notices all
-              come here on WhatsApp. This is the number guests will call on the day.
+              Booking requests, the 12-hour accept reminder and payout notices all come here on
+              WhatsApp. This is the number guests will call on the day.
             </p>
           )}
         </div>
 
         <Button type="submit" size="lg" className="w-full" disabled={issuing}>
-          {issuing ? <Loader2 className="size-4 animate-spin" /> : <Smartphone className="size-4" />}
+          {issuing ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Smartphone className="size-4" />
+          )}
           {issuing ? 'Sending code…' : 'Send code by SMS'}
         </Button>
       </form>

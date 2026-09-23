@@ -15,12 +15,18 @@ export default async function MarketingLayout({ children }) {
     EMPTY_REGISTRY,
     'marketing footer registry',
   );
-  const farmhouse = categories.find(c => c.slug === 'farmhouse');
+  const farmhouse = categories.find((c) => c.slug === 'farmhouse');
   const whatsapp = /^\d{10,15}$/.test(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '')
-    ? process.env.NEXT_PUBLIC_WHATSAPP_NUMBER : null;
+    ? process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
+    : null;
   return (
     <div className="flex min-h-screen flex-col">
-      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-background focus:p-4">Skip to main content</a>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-background focus:p-4"
+      >
+        Skip to main content
+      </a>
       <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur">
         <div className="mx-auto flex max-w-(--container-page) flex-wrap items-center gap-2 px-4 py-3 sm:px-6">
           <Link href="/" className="shrink-0" aria-label="Rentra home">
@@ -29,12 +35,21 @@ export default async function MarketingLayout({ children }) {
             <RentraLogo className="hidden h-7 w-auto sm:block" />
             <RentraMark className="size-8 sm:hidden" />
           </Link>
-          <div className="ml-auto"><CustomerNavigation compact /></div>
-          <Link href="/partner/login" className="hidden min-h-11 items-center rounded-full px-3 text-meta text-ink-500 hover:bg-brand-50 hover:text-brand-700 md:inline-flex">List your place</Link>
+          <div className="ml-auto">
+            <CustomerNavigation compact />
+          </div>
+          <Link
+            href="/partner/login"
+            className="hidden min-h-11 items-center rounded-full px-3 text-meta text-ink-500 hover:bg-brand-50 hover:text-brand-700 md:inline-flex"
+          >
+            List your place
+          </Link>
         </div>
       </header>
 
-      <main id="main-content" tabIndex={-1} className="min-w-0 flex-1">{children}</main>
+      <main id="main-content" tabIndex={-1} className="min-w-0 flex-1">
+        {children}
+      </main>
 
       <footer className="mt-20 border-t border-border bg-ink-50">
         <div className="mx-auto max-w-(--container-page) px-6 py-12">
@@ -54,31 +69,57 @@ export default async function MarketingLayout({ children }) {
                 </Link>
               )),
             )}
-            {cities.flatMap(city => categories.map(category => <Link key={`${city.id}-${category.id}`} href={`/${city.slug}/${category.slug}`} className="text-meta text-ink-600 hover:underline">{category.name} in {city.name}</Link>))}
-            <Link href="/search" className="text-meta text-ink-600 hover:underline">Search all places</Link>
-            <Link href="/help" className="text-meta text-ink-600 hover:underline">Help and support</Link>
-            {['terms','cancellation','privacy'].map(kind => <Link key={kind} href={`/policies/${kind}`} className="text-meta text-ink-600 hover:underline">{kind[0].toUpperCase()+kind.slice(1)} policy</Link>)}
-            <Link href="/partner/login" className="text-meta text-ink-600 hover:underline">List your place</Link>
+            {cities.flatMap((city) =>
+              categories.map((category) => (
+                <Link
+                  key={`${city.id}-${category.id}`}
+                  href={`/${city.slug}/${category.slug}`}
+                  className="text-meta text-ink-600 hover:underline"
+                >
+                  {category.name} in {city.name}
+                </Link>
+              )),
+            )}
+            <Link href="/search" className="text-meta text-ink-600 hover:underline">
+              Search all places
+            </Link>
+            <Link href="/help" className="text-meta text-ink-600 hover:underline">
+              Help and support
+            </Link>
+            {['terms', 'cancellation', 'privacy'].map((kind) => (
+              <Link
+                key={kind}
+                href={`/policies/${kind}`}
+                className="text-meta text-ink-600 hover:underline"
+              >
+                {kind[0].toUpperCase() + kind.slice(1)} policy
+              </Link>
+            ))}
+            <Link href="/partner/login" className="text-meta text-ink-600 hover:underline">
+              List your place
+            </Link>
           </div>
           <div className="mt-10 flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-start sm:gap-8">
             <RentraLogo className="h-6 w-auto shrink-0" />
             <p className="text-tiny text-ink-500">
-              Rentra is an intermediary facilitating bookings between owners and
-              guests. It is not the owner, lessor or operator of any property.
+              Rentra is an intermediary facilitating bookings between owners and guests. It is not
+              the owner, lessor or operator of any property.
             </p>
           </div>
         </div>
       </footer>
 
-      {whatsapp ? <a
-        href={`https://wa.me/${whatsapp}`}
-        aria-label="Message Rentra on WhatsApp"
-        /* --float-bottom lets a listing page's sticky booking bar push this
+      {whatsapp ? (
+        <a
+          href={`https://wa.me/${whatsapp}`}
+          aria-label="Message Rentra on WhatsApp"
+          /* --float-bottom lets a listing page's sticky booking bar push this
            up out of the way, with no JS. See the rule in globals.css. */
-        className="fixed right-5 bottom-(--float-bottom) z-40 grid size-13 place-items-center rounded-full bg-whatsapp text-white shadow-lg transition hover:brightness-95"
-      >
-        <FaWhatsapp className="size-7" aria-hidden="true" />
-      </a> : null}
+          className="fixed right-5 bottom-(--float-bottom) z-40 grid size-13 place-items-center rounded-full bg-whatsapp text-white shadow-lg transition hover:brightness-95"
+        >
+          <FaWhatsapp className="size-7" aria-hidden="true" />
+        </a>
+      ) : null}
     </div>
   );
 }

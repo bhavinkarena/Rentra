@@ -37,11 +37,27 @@ export default async function CustomerLoginPage() {
         Use your mobile number and a one-time code to continue.
       </p>
 
-      {conflict ? <div className="mt-8 space-y-4">
-        <p className="text-meta">You are signed in as {admin ? 'an administrator' : 'a partner'}. Customer booking uses a separate account.</p>
-        <form action={switchToCustomer}><Button type="submit" className="w-full">Sign out and continue as customer</Button></form>
-        <Link href={admin ? '/admin' : '/partner'} className="inline-flex min-h-11 items-center text-brand-700 underline">Keep my current account</Link>
-      </div> : <CustomerLoginForm />}
+      {conflict ? (
+        <div className="mt-8 space-y-4">
+          <p className="text-meta">
+            You are signed in as {admin ? 'an administrator' : 'a partner'}. Customer booking uses a
+            separate account.
+          </p>
+          <form action={switchToCustomer}>
+            <Button type="submit" className="w-full">
+              Sign out and continue as customer
+            </Button>
+          </form>
+          <Link
+            href={admin ? '/admin' : '/partner'}
+            className="inline-flex min-h-11 items-center text-brand-700 underline"
+          >
+            Keep my current account
+          </Link>
+        </div>
+      ) : (
+        <CustomerLoginForm />
+      )}
 
       <p className="mt-8 border-t border-border pt-6 text-meta text-ink-600">
         Own a farmhouse?{' '}

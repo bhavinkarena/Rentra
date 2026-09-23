@@ -11,7 +11,16 @@ export async function generateMetadata({ params, searchParams }) {
     route &&
     !Object.keys(await searchParams).length &&
     (await discoveryApi.routeCount(route.path)).count >= 3;
-  return route ? publicMetadata({ title: route.title, description: route.intent?.description || `Explore ${route.title}. Compare facilities and check all your visit dates.`, path: route.path, index: Boolean(index) }) : { title: 'Location not found', robots: { index: false } };
+  return route
+    ? publicMetadata({
+        title: route.title,
+        description:
+          route.intent?.description ||
+          `Explore ${route.title}. Compare facilities and check all your visit dates.`,
+        path: route.path,
+        index: Boolean(index),
+      })
+    : { title: 'Location not found', robots: { index: false } };
 }
 export default async function LocationPage({ params, searchParams }) {
   const { city, category, place = [] } = await params;
@@ -21,7 +30,8 @@ export default async function LocationPage({ params, searchParams }) {
   const query = await searchParams;
   if (place.length === 1) {
     const suffix = new URLSearchParams();
-    for (const [key, value] of Object.entries(query)) for (const item of Array.isArray(value) ? value : [value]) suffix.append(key, item);
+    for (const [key, value] of Object.entries(query))
+      for (const item of Array.isArray(value) ? value : [value]) suffix.append(key, item);
     permanentRedirect(`${route.path}${suffix.size ? `?${suffix}` : ''}`);
   }
   return <DiscoveryResults query={query} registry={registry} route={route} />;

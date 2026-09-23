@@ -28,14 +28,18 @@ for (const table of TABLES) {
     select count(*)::int n from information_schema.tables
     where table_schema = 'part02_backup' and table_name = ${table}`;
   if (existing.n > 0) {
-    console.log(`[snapshot] part02_backup.${table} already exists — leaving the original snapshot intact`);
+    console.log(
+      `[snapshot] part02_backup.${table} already exists — leaving the original snapshot intact`,
+    );
   } else {
     await sql.unsafe(`create table part02_backup.${table} as table public.${table}`);
   }
   const [live] = await sql.unsafe(`select count(*)::int n from public.${table}`);
   const [copy] = await sql.unsafe(`select count(*)::int n from part02_backup.${table}`);
   result.tables[table] = { live: live.n, snapshot: copy.n, matches: live.n === copy.n };
-  console.log(`[snapshot] ${table}: live ${live.n} -> snapshot ${copy.n} ${live.n === copy.n ? 'OK' : 'MISMATCH'}`);
+  console.log(
+    `[snapshot] ${table}: live ${live.n} -> snapshot ${copy.n} ${live.n === copy.n ? 'OK' : 'MISMATCH'}`,
+  );
 }
 
 /* Record when the snapshot was taken, using the database clock rather than a
@@ -55,7 +59,14 @@ result.takenAt = meta.map((row) => row.taken_at);
 /* Prove the snapshot is faithful by recomputing the baseline fingerprints
    against the COPY. Equal hashes mean the restore point is trustworthy. */
 async function fingerprint(rows) {
-  return createHash('sha256').update(rows.map((row) => JSON.stringify(row)).sort().join('\n')).digest('hex');
+  return createHash('sha256')
+    .update(
+      rows
+        .map((row) => JSON.stringify(row))
+        .sort()
+        .join('\n'),
+    )
+    .digest('hex');
 }
 
 const checks = {
@@ -63,8 +74,10 @@ const checks = {
     select id, reference, rentable_id, customer_id, to_char(day,'YYYY-MM-DD') as "day", slot, units_booked, guests,
            amount_rent, amount_fee, amount_deposit, amount_advance_paid, balance_mode, state
     from part02_backup.booking order by id`,
-  payout: await sql`select id, booking_id, client_id, gross, commission, net, status from part02_backup.payout order by id`,
-  review: await sql`select id, booking_id, author_id, rating, published_at from part02_backup.review order by id`,
+  payout:
+    await sql`select id, booking_id, client_id, gross, commission, net, status from part02_backup.payout order by id`,
+  review:
+    await sql`select id, booking_id, author_id, rating, published_at from part02_backup.review order by id`,
   availability: await sql`
     select rentable_id, to_char(day,'YYYY-MM-DD') as "day", slot, units_available, price_override, blocked_by_client
     from part02_backup.availability order by rentable_id, day, slot`,
@@ -77,12 +90,16 @@ for (const [name, rows] of Object.entries(checks)) {
   const matches = hash === expected;
   if (!matches) ok = false;
   result.verification[name] = { rows: rows.length, sha256: hash, matchesBaseline: matches };
-  console.log(`[verify]   ${name}: ${matches ? 'identical to baseline' : 'DIFFERS FROM BASELINE'} (${rows.length} rows)`);
+  console.log(
+    `[verify]   ${name}: ${matches ? 'identical to baseline' : 'DIFFERS FROM BASELINE'} (${rows.length} rows)`,
+  );
 }
 
 writeFileSync('.tmp-scout/part02-snapshot.json', JSON.stringify(result, null, 2));
-console.log(ok
-  ? '\n[snapshot] restore point is faithful. Roll back with: INSERT ... SELECT from part02_backup.<table>.'
-  : '\n[snapshot] FINGERPRINT MISMATCH — do not proceed.');
+console.log(
+  ok
+    ? '\n[snapshot] restore point is faithful. Roll back with: INSERT ... SELECT from part02_backup.<table>.'
+    : '\n[snapshot] FINGERPRINT MISMATCH — do not proceed.',
+);
 await sql.end();
 process.exit(ok ? 0 : 1);

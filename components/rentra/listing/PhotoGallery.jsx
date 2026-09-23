@@ -13,10 +13,10 @@ import { ChevronLeft, ChevronRight, Grid2x2, X } from 'lucide-react';
  * own guidance is not to preload when several images compete to be the LCP.
  */
 const BLUR =
-  'data:image/svg+xml;base64,'
-  + btoaSafe(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="4" height="3">'
-    + '<rect width="4" height="3" fill="#EBEEEB"/></svg>',
+  'data:image/svg+xml;base64,' +
+  btoaSafe(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="4" height="3">' +
+      '<rect width="4" height="3" fill="#EBEEEB"/></svg>',
   );
 
 export default function PhotoGallery({ photos = [], title }) {
@@ -51,12 +51,21 @@ export default function PhotoGallery({ photos = [], title }) {
       if (e.key === 'ArrowRight') step(1);
       if (e.key === 'ArrowLeft') step(-1);
       if (e.key === 'Tab') {
-        const controls = [...(dialogRef.current?.querySelectorAll('button, [href], [tabindex]:not([tabindex="-1"])') ?? [])];
+        const controls = [
+          ...(dialogRef.current?.querySelectorAll(
+            'button, [href], [tabindex]:not([tabindex="-1"])',
+          ) ?? []),
+        ];
         if (!controls.length) return;
         const first = controls[0];
         const last = controls[controls.length - 1];
-        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     };
     document.addEventListener('keydown', onKey);
@@ -83,13 +92,13 @@ export default function PhotoGallery({ photos = [], title }) {
   return (
     <>
       {/**
-        * 4 columns x 2 rows: the hero takes 2x2, the four small tiles fill the
-        * rest. The 8/3 container ratio is what makes every tile land on 4:3 —
-        * the aspect the listing card already uses, so a photo does not change
-        * shape between the grid and this page.
-        *
-        * One column on a phone: a five-tile mosaic at 390px is five thumbnails.
-        */}
+       * 4 columns x 2 rows: the hero takes 2x2, the four small tiles fill the
+       * rest. The 8/3 container ratio is what makes every tile land on 4:3 —
+       * the aspect the listing card already uses, so a photo does not change
+       * shape between the grid and this page.
+       *
+       * One column on a phone: a five-tile mosaic at 390px is five thumbnails.
+       */}
       <div className="grid gap-2 sm:aspect-8/3 sm:grid-cols-4 sm:grid-rows-2">
         <Tile
           photo={hero}
@@ -122,7 +131,9 @@ export default function PhotoGallery({ photos = [], title }) {
         </button>
         {/* Hidden on a phone: next to the button at 390px it turns into three
             cramped lines and pushes the button into a wrap. */}
-        <p className="hidden text-tiny text-ink-500 sm:block">Listing photos provided for this property.</p>
+        <p className="hidden text-tiny text-ink-500 sm:block">
+          Listing photos provided for this property.
+        </p>
       </div>
 
       {isOpen ? (
@@ -134,7 +145,9 @@ export default function PhotoGallery({ photos = [], title }) {
           className="fixed inset-0 z-100 flex flex-col bg-ink-900/95 backdrop-blur-sm"
         >
           <div className="flex items-center justify-between gap-4 px-5 py-4 text-white">
-            <p className="text-meta tabular">{openAt + 1} / {count}</p>
+            <p className="text-meta tabular">
+              {openAt + 1} / {count}
+            </p>
             <button
               type="button"
               onClick={close}
@@ -159,13 +172,15 @@ export default function PhotoGallery({ photos = [], title }) {
           </div>
 
           <div className="flex items-center justify-center gap-4 px-5 py-5">
-            {count > 1 ? <LightboxNav label="Previous photo" onClick={() => step(-1)} Icon={ChevronLeft} /> : null}
-            {count > 1 ? <LightboxNav label="Next photo" onClick={() => step(1)} Icon={ChevronRight} /> : null}
+            {count > 1 ? (
+              <LightboxNav label="Previous photo" onClick={() => step(-1)} Icon={ChevronLeft} />
+            ) : null}
+            {count > 1 ? (
+              <LightboxNav label="Next photo" onClick={() => step(1)} Icon={ChevronRight} />
+            ) : null}
           </div>
 
-          <p className="px-5 pb-5 text-center text-tiny text-white/70">
-            {photos[openAt].alt}
-          </p>
+          <p className="px-5 pb-5 text-center text-tiny text-white/70">{photos[openAt].alt}</p>
         </div>
       ) : null}
     </>
@@ -209,7 +224,5 @@ function LightboxNav({ label, onClick, Icon }) {
 
 /** btoa exists in both runtimes here, but this file also renders on the server. */
 function btoaSafe(str) {
-  return typeof btoa === 'function'
-    ? btoa(str)
-    : Buffer.from(str).toString('base64');
+  return typeof btoa === 'function' ? btoa(str) : Buffer.from(str).toString('base64');
 }

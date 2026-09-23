@@ -16,8 +16,16 @@ import BookingPriceBox from '@/components/rentra/listing/BookingPriceBox';
 import MobileBookingBar from '@/components/rentra/listing/MobileBookingBar';
 import BookingQuoteProvider from '@/components/rentra/listing/BookingQuoteProvider';
 import {
-  Section, KeyFacts, VisitHours, AmenityGrid, HouseRules, AreaCircle, Reviews, OwnerCard,
-  CancellationPolicy, MoneyNote,
+  Section,
+  KeyFacts,
+  VisitHours,
+  AmenityGrid,
+  HouseRules,
+  AreaCircle,
+  Reviews,
+  OwnerCard,
+  CancellationPolicy,
+  MoneyNote,
 } from '@/components/rentra/listing/ListingSections';
 import { discoveryApi } from '@/lib/api/endpoints';
 import { calculateBookingPrice, cheapestSlot, formatINR } from '@/lib/domain/pricing';
@@ -51,7 +59,9 @@ function parseHandle(handle) {
 
 /** The lowest and highest a guest could pay here, across slots and rates. */
 function priceBand(prices) {
-  const all = Object.values(prices ?? {}).flatMap((p) => [p.weekday, p.weekend]).filter(Boolean);
+  const all = Object.values(prices ?? {})
+    .flatMap((p) => [p.weekday, p.weekend])
+    .filter(Boolean);
   return all.length ? { low: Math.min(...all), high: Math.max(...all) } : null;
 }
 
@@ -93,12 +103,16 @@ export async function generateMetadata({ params }) {
     listing.bedrooms ? `${listing.bedrooms} bedrooms` : null,
     listing.poolSize ? `a private ${listing.poolSize} pool` : null,
     band ? `from ${formatINR(band.low)} per slot` : null,
-  ].filter(Boolean).join(', ');
+  ]
+    .filter(Boolean)
+    .join(', ');
 
-  const description = `${listing.title} in ${listing.areaName}, ${listing.cityName}. ${facts}. `
-    + 'See published visit hours, amenities, house rules and cancellation terms.';
+  const description =
+    `${listing.title} in ${listing.areaName}, ${listing.cityName}. ${facts}. ` +
+    'See published visit hours, amenities, house rules and cancellation terms.';
   const images = listing.photos.slice(0, 4).map((photo) => ({
-    url: absolutePublicUrl(siteUrl, photo.url), alt: photo.alt,
+    url: absolutePublicUrl(siteUrl, photo.url),
+    alt: photo.alt,
   }));
 
   return publicMetadata({ title, description, path: canonical, images });
@@ -115,9 +129,7 @@ export default async function ListingPage({ params, searchParams }) {
   // the canonical URL rather than serving two URLs for one page.
   if (requestedSlug !== listing.slug) {
     const selection = selectionFromSavedUrl(await searchParams, listing.id);
-    permanentRedirect(savedListingHref(
-      listingPath(listing.slug, listing.publicCode), selection,
-    ));
+    permanentRedirect(savedListingHref(listingPath(listing.slug, listing.publicCode), selection));
   }
 
   // First paint must not wait for the inventory transaction. The calendar
@@ -148,7 +160,12 @@ export default async function ListingPage({ params, searchParams }) {
   ];
 
   return (
-    <BookingQuoteProvider key={listing.id} rentableId={listing.id} defaultDate={defaults.date} defaultSlot={defaults.slot}>
+    <BookingQuoteProvider
+      key={listing.id}
+      rentableId={listing.id}
+      defaultDate={defaults.date}
+      defaultSlot={defaults.slot}
+    >
       <MeasuredView event="listing_viewed" />
       <script
         type="application/ld+json"
@@ -178,13 +195,21 @@ export default async function ListingPage({ params, searchParams }) {
                       <MapPin className="size-4 text-brand-600" aria-hidden="true" />
                       {listing.areaName}, {listing.cityName}
                     </p>
-                    <span className="text-ink-300" aria-hidden="true">·</span>
+                    <span className="text-ink-300" aria-hidden="true">
+                      ·
+                    </span>
                     <Rating value={listing.rating} count={listing.reviewCount} />
                   </div>
                 </div>
 
                 <div className="flex shrink-0 items-center gap-1">
-                  <span id="listing-actions"><SaveButton rentableId={listing.id} listingTitle={listing.title} variant="inline" /></span>
+                  <span id="listing-actions">
+                    <SaveButton
+                      rentableId={listing.id}
+                      listingTitle={listing.title}
+                      variant="inline"
+                    />
+                  </span>
                   <ShareButton
                     title={`${listing.title}, ${listing.areaName}`}
                     text={`${listing.title} in ${listing.areaName}${band ? ` — from ${formatINR(band.low)}` : ''}`}
@@ -195,10 +220,12 @@ export default async function ListingPage({ params, searchParams }) {
 
               {/* Never more than two. Verified outranks everything. */}
               <div className="mt-4 flex flex-wrap gap-2">
-                {listing.physicallyVerified ? <TrustBadge variant="verified" /> : <TrustBadge variant="owner" />}
-                {listing.highlight ? (
-                  <TrustBadge variant="fast" label={listing.highlight} />
-                ) : null}
+                {listing.physicallyVerified ? (
+                  <TrustBadge variant="verified" />
+                ) : (
+                  <TrustBadge variant="owner" />
+                )}
+                {listing.highlight ? <TrustBadge variant="fast" label={listing.highlight} /> : null}
               </div>
             </header>
 
@@ -228,11 +255,7 @@ export default async function ListingPage({ params, searchParams }) {
               />
             </div>
 
-            <Section
-              id="amenities"
-              title="What this farm has"
-              className="mt-10"
-            >
+            <Section id="amenities" title="What this farm has" className="mt-10">
               <AmenityGrid amenities={listing.amenities} />
             </Section>
 
@@ -329,9 +352,7 @@ function Breadcrumbs({ crumbs }) {
       <ol className="flex flex-wrap items-center gap-1 text-meta text-ink-500">
         {crumbs.map((c, i) => (
           <li key={c.name} className="flex items-center gap-1">
-            {i > 0 ? (
-              <ChevronRight className="size-3.5 text-ink-300" aria-hidden="true" />
-            ) : null}
+            {i > 0 ? <ChevronRight className="size-3.5 text-ink-300" aria-hidden="true" /> : null}
             {c.href ? (
               <Link href={c.href} className="rounded-sm hover:text-brand-700 hover:underline">
                 {c.name}

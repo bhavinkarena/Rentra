@@ -64,7 +64,11 @@ export default function CompletionStepper({ completion }) {
                   : 'bg-ink-200 text-ink-600'
             }`}
           >
-            {review.state === 'done' ? <Check className="size-3" aria-hidden="true" /> : <Clock className="size-3" aria-hidden="true" />}
+            {review.state === 'done' ? (
+              <Check className="size-3" aria-hidden="true" />
+            ) : (
+              <Clock className="size-3" aria-hidden="true" />
+            )}
           </span>
           <span className="flex-1">
             <span className="font-semibold text-ink-900">{review.label}</span>
@@ -115,9 +119,7 @@ function StepRow({ step, index }) {
         <span className="block text-tiny text-ink-500">
           {/* A rejected check is not the same as an unstarted one. Say which.
               And when their side is done but ours is not, say that too. */}
-          {step.failed
-            ? 'Needs attention — please redo this step'
-            : (step.note ?? step.hint)}
+          {step.failed ? 'Needs attention — please redo this step' : (step.note ?? step.hint)}
         </span>
       </span>
       {!step.done && step.href ? (
@@ -128,7 +130,8 @@ function StepRow({ step, index }) {
     </>
   );
 
-  const cls = 'flex items-start gap-3 border-b border-dashed border-border py-2 text-meta last:border-b-0';
+  const cls =
+    'flex items-start gap-3 border-b border-dashed border-border py-2 text-meta last:border-b-0';
 
   return (
     <li>

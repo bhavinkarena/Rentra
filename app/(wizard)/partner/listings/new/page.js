@@ -13,10 +13,7 @@ export const metadata = {
 export default async function NewListingPage() {
   await requireActiveClient();
 
-  const [categories, cities] = await Promise.all([
-    partnerApi.categories(),
-    partnerApi.places(),
-  ]);
+  const [categories, cities] = await Promise.all([partnerApi.categories(), partnerApi.places()]);
   const progress = wizardProgress(listingCompletion(null), 'basics');
 
   return <NewListingStart categories={categories} cities={cities} progress={progress} />;

@@ -69,7 +69,9 @@ export default function PropertyFilters({ query = '', status = 'all' }) {
       </form>
 
       <div className="flex items-center gap-2">
-        <label htmlFor="property-status" className="sr-only">Filter by status</label>
+        <label htmlFor="property-status" className="sr-only">
+          Filter by status
+        </label>
         <select
           id="property-status"
           value={status}
@@ -78,11 +80,13 @@ export default function PropertyFilters({ query = '', status = 'all' }) {
           className="h-11 min-w-0 flex-1 rounded-md border border-input bg-card px-3 text-meta font-medium text-ink-700 focus:border-brand-600 focus:outline-none sm:w-44"
         >
           {OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>{option.label}</option>
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
           ))}
         </select>
 
-        {(query || status !== 'all') ? (
+        {query || status !== 'all' ? (
           <button
             type="button"
             onClick={reset}
@@ -96,7 +100,10 @@ export default function PropertyFilters({ query = '', status = 'all' }) {
 
         <span className="grid size-5 shrink-0 place-items-center" role="status" aria-live="polite">
           {pending ? (
-            <LoaderCircle className="size-4 animate-spin text-brand-600" aria-label="Updating properties" />
+            <LoaderCircle
+              className="size-4 animate-spin text-brand-600"
+              aria-label="Updating properties"
+            />
           ) : null}
         </span>
       </div>

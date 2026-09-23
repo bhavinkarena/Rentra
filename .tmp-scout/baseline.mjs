@@ -10,12 +10,28 @@ import postgres from 'postgres';
 const url = process.env.DATABASE_URL;
 const sql = postgres(url, { prepare: false, max: 1, onnotice: () => {} });
 
-const report = { capturedFor: 'customer part 02', database: null, counts: {}, sums: {}, fingerprints: {}, probe: {} };
+const report = {
+  capturedFor: 'customer part 02',
+  database: null,
+  counts: {},
+  sums: {},
+  fingerprints: {},
+  probe: {},
+};
 
 const [meta] = await sql`select current_database() db, version() v`;
 report.database = { name: meta.db, version: meta.v.split(' on ')[0] };
 
-const TABLES = ['booking', 'payout', 'review', 'availability', 'rentable', 'rentable_price', 'unit', 'person'];
+const TABLES = [
+  'booking',
+  'payout',
+  'review',
+  'availability',
+  'rentable',
+  'rentable_price',
+  'unit',
+  'person',
+];
 for (const table of TABLES) {
   const [row] = await sql`select count(*)::int n from ${sql(table)}`;
   report.counts[table] = row.n;
@@ -29,33 +45,59 @@ const [money] = await sql`
          count(distinct id)::int distinct_ids, count(distinct reference)::int distinct_refs
   from booking`;
 report.sums.bookingWholeRupees = {
-  rent: Number(money.rent), fee: Number(money.fee),
-  deposit: Number(money.deposit), advancePaid: Number(money.advance),
+  rent: Number(money.rent),
+  fee: Number(money.fee),
+  deposit: Number(money.deposit),
+  advancePaid: Number(money.advance),
 };
 report.sums.bookingMinorUnitsExpected = Object.fromEntries(
-  Object.entries(report.sums.bookingWholeRupees).map(([key, value]) => [key, value * 100]));
+  Object.entries(report.sums.bookingWholeRupees).map(([key, value]) => [key, value * 100]),
+);
 report.sums.unknownHours = { startsAtNull: money.unknown_start, endsAtNull: money.unknown_end };
 report.sums.identity = { distinctIds: money.distinct_ids, distinctReferences: money.distinct_refs };
 
-const [payoutSums] = await sql`select sum(gross)::bigint gross, sum(net)::bigint net, sum(commission)::bigint commission from payout`;
-report.sums.payoutWholeRupees = { gross: Number(payoutSums.gross), net: Number(payoutSums.net), commission: Number(payoutSums.commission) };
+const [payoutSums] =
+  await sql`select sum(gross)::bigint gross, sum(net)::bigint net, sum(commission)::bigint commission from payout`;
+report.sums.payoutWholeRupees = {
+  gross: Number(payoutSums.gross),
+  net: Number(payoutSums.net),
+  commission: Number(payoutSums.commission),
+};
 
 /* A stable fingerprint of every legacy row, so "IDs and amounts unchanged" is
    provable after the backfill rather than asserted. */
 async function fingerprint(name, rows) {
-  const canonical = rows.map((row) => JSON.stringify(row)).sort().join('\n');
-  report.fingerprints[name] = { rows: rows.length, sha256: createHash('sha256').update(canonical).digest('hex') };
+  const canonical = rows
+    .map((row) => JSON.stringify(row))
+    .sort()
+    .join('\n');
+  report.fingerprints[name] = {
+    rows: rows.length,
+    sha256: createHash('sha256').update(canonical).digest('hex'),
+  };
 }
 
-await fingerprint('booking', await sql`
+await fingerprint(
+  'booking',
+  await sql`
   select id, reference, rentable_id, customer_id, to_char(day,'YYYY-MM-DD') as "day", slot, units_booked, guests,
          amount_rent, amount_fee, amount_deposit, amount_advance_paid, balance_mode, state
-  from booking order by id`);
-await fingerprint('payout', await sql`select id, booking_id, client_id, gross, commission, net, status from payout order by id`);
-await fingerprint('review', await sql`select id, booking_id, author_id, rating, published_at from review order by id`);
-await fingerprint('availability', await sql`
+  from booking order by id`,
+);
+await fingerprint(
+  'payout',
+  await sql`select id, booking_id, client_id, gross, commission, net, status from payout order by id`,
+);
+await fingerprint(
+  'review',
+  await sql`select id, booking_id, author_id, rating, published_at from review order by id`,
+);
+await fingerprint(
+  'availability',
+  await sql`
   select rentable_id, to_char(day,'YYYY-MM-DD') as "day", slot, units_available, price_override, blocked_by_client
-  from availability order by rentable_id, day, slot`);
+  from availability order by rentable_id, day, slot`,
+);
 
 /* Capability probe: can this role provision a disposable database, and does
    btree_gist install there? Both are Part 02 verification prerequisites. */
@@ -74,15 +116,21 @@ try {
   try {
     await probe`insert into probe_range values ('11111111-1111-4111-8111-111111111111', tstzrange('2026-10-01 18:00+05:30','2026-10-02 10:00+05:30','[)'))`;
     touching = 'ACCEPTED';
-  } catch (error) { touching = `REJECTED (${error.code})`; }
+  } catch (error) {
+    touching = `REJECTED (${error.code})`;
+  }
   let overlapping = 'ACCEPTED';
   try {
     await probe`insert into probe_range values ('11111111-1111-4111-8111-111111111111', tstzrange('2026-10-01 17:00+05:30','2026-10-01 20:00+05:30','[)'))`;
-  } catch (error) { overlapping = `REJECTED (${error.code})`; }
+  } catch (error) {
+    overlapping = `REJECTED (${error.code})`;
+  }
   report.probe = {
-    canCreateDatabase: true, btreeGistVersion: ext?.extversion ?? null,
+    canCreateDatabase: true,
+    btreeGistVersion: ext?.extversion ?? null,
     exclusionConstraintCreated: true,
-    touchingIntervalsHalfOpen: touching, overlappingIntervals: overlapping,
+    touchingIntervalsHalfOpen: touching,
+    overlappingIntervals: overlapping,
   };
   await probe.end();
   await sql.unsafe(`drop database ${probeName}`);

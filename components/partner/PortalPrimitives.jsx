@@ -32,13 +32,17 @@ export function KpiCard({ label, value, hint, icon: Icon, tone = 'brand' }) {
     <article className="rounded-lg border border-border bg-card p-4 shadow-xs sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[0.68rem] font-bold tracking-[0.1em] text-ink-500 uppercase">{label}</p>
+          <p className="text-[0.68rem] font-bold tracking-[0.1em] text-ink-500 uppercase">
+            {label}
+          </p>
           <p className="mt-2 text-[1.7rem] leading-none font-bold tracking-[-0.035em] text-ink-900 tabular sm:text-[2rem]">
             {value}
           </p>
         </div>
         {Icon ? (
-          <span className={`grid size-10 place-items-center rounded-md ring-1 ring-inset ${tones[tone] ?? tones.brand}`}>
+          <span
+            className={`grid size-10 place-items-center rounded-md ring-1 ring-inset ${tones[tone] ?? tones.brand}`}
+          >
             <Icon className="size-[18px]" aria-hidden="true" />
           </span>
         ) : null}

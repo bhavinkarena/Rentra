@@ -2,20 +2,259 @@ import Link from 'next/link';
 import { Activity, AlertTriangle, CheckCircle2, Gauge, HeartPulse } from 'lucide-react';
 import { requireAdmin } from '@/lib/api/session';
 import { adminApi } from '@/lib/api/endpoints';
-import { AdminEmpty, AdminKpiCard, AdminPage, AdminPageHeader, StatusBadge } from '@/components/admin/AdminPrimitives';
+import {
+  AdminEmpty,
+  AdminKpiCard,
+  AdminPage,
+  AdminPageHeader,
+  StatusBadge,
+} from '@/components/admin/AdminPrimitives';
 
-export const metadata={title:'Operations and measurement',robots:{index:false,follow:false,nocache:true}};
-const money=(minor)=>new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:2}).format(Number(minor||0)/100);
-export default async function OperationsPage(){
-  await requireAdmin(); const data=await adminApi.operations();
-  const healthy=data.health.filter((row)=>row.healthy&&!row.stale).length;
-  return <AdminPage><AdminPageHeader eyebrow="Platform health" title="Operations overview" description={`Last sampled ${new Date(data.sampledAt).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',dateStyle:'medium',timeStyle:'short'})}. Health is based on persisted worker heartbeats and operational queues.`} action={<div className="flex gap-2">{[['bookings','Bookings'],['notifications','Delivery'],['support','Support']].map(([path,label])=><Link key={path} href={`/admin/${path}`} className="rounded-md border border-border bg-card px-3 py-2 text-tiny font-semibold text-ink-700 hover:bg-ink-50">{label}</Link>)}</div>}/>
-    <section className="mt-7 grid grid-cols-2 gap-3 xl:grid-cols-4"><AdminKpiCard label="Active alerts" value={data.alerts.length} icon={AlertTriangle} hint="Configured thresholds exceeded" tone={data.alerts.length?'danger':'neutral'}/><AdminKpiCard label="Healthy services" value={`${healthy}/${data.health.length}`} icon={HeartPulse} hint="Fresh successful heartbeats" tone="brand"/><AdminKpiCard label="Delivery backlog" value={data.signals.delivery_backlog} icon={Activity} hint="Delayed or failed messages" tone={data.signals.delivery_backlog?'warning':'neutral'}/><AdminKpiCard label="Support backlog" value={data.signals.support_backlog} icon={Gauge} hint="Unresolved for over 24 hours" tone={data.signals.support_backlog?'warning':'neutral'}/></section>
-    <div className="mt-6 grid items-start gap-5 xl:grid-cols-2"><section className="overflow-hidden rounded-lg border border-border bg-card shadow-xs"><div className="border-b border-border p-5"><h2 className="text-h4 font-bold">Needs attention</h2><p className="mt-1 text-tiny text-ink-500">Missing heartbeats are treated as unknown health</p></div>{data.alerts.length?<ul className="divide-y divide-border">{data.alerts.map((alert)=><li key={alert.code} className="flex items-center justify-between gap-3 px-5 py-3"><span className="text-meta font-semibold capitalize text-ink-800">{alert.code.replaceAll('_',' ')}</span><StatusBadge tone="danger">{alert.count}</StatusBadge></li>)}</ul>:<AdminEmpty icon={CheckCircle2} title="All thresholds are clear" description="No configured operational alert is currently active."/>}</section>
-      <section className="overflow-hidden rounded-lg border border-border bg-card shadow-xs"><div className="border-b border-border p-5"><h2 className="text-h4 font-bold">Worker health</h2><p className="mt-1 text-tiny text-ink-500">Workers become stale after two minutes</p></div><div className="divide-y divide-border">{data.health.map((row)=><div key={row.service} className="flex items-center justify-between gap-4 px-5 py-4"><div><p className="font-semibold capitalize text-ink-900">{row.service}</p><p className="mt-1 text-tiny text-ink-500">Last success {row.last_success_at?new Date(row.last_success_at).toLocaleString('en-IN',{timeZone:'Asia/Kolkata'}):'never recorded'}</p></div><StatusBadge tone={row.healthy&&!row.stale?'success':'danger'}>{row.healthy&&!row.stale?'Healthy':'Needs attention'}</StatusBadge></div>)}</div></section>
-    </div>
-    <section className="mt-5 overflow-hidden rounded-lg border border-border bg-card shadow-xs"><div className="border-b border-border p-5"><h2 className="text-h4 font-bold">Journey records · last 30 days</h2><p className="mt-1 text-tiny text-ink-500">Persisted events, not unique people or conversion rates</p></div><div className="grid grid-cols-2 gap-px bg-border sm:grid-cols-4">{Object.entries(data.funnel).map(([key,value])=><div key={key} className="bg-card p-5"><p className="text-tiny font-semibold capitalize text-ink-500">{key.replaceAll('_',' ')}</p><p className="mt-2 text-h2 font-bold tabular">{value}</p></div>)}</div></section>
-    <section className="mt-5 overflow-hidden rounded-lg border border-border bg-card shadow-xs"><div className="border-b border-border p-5"><h2 className="text-h4 font-bold">Payment namespaces</h2><p className="mt-1 text-tiny text-ink-500">All-time intent and verified movement; test captures move no bank money</p></div>{data.money.length?<div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left"><thead className="bg-ink-25 text-[0.65rem] font-bold uppercase text-ink-500"><tr>{['Provider','Environment','Mode','Intent','Captured','Refunded'].map((item)=><th key={item} className="px-5 py-3">{item}</th>)}</tr></thead><tbody className="divide-y divide-border">{data.money.map((row)=><tr key={`${row.provider}/${row.environment}/${row.mode}`}>{[row.provider,row.environment,row.mode,money(row.intended_minor),money(row.captured_minor),money(row.refunded_minor)].map((value,index)=><td key={index} className={`px-5 py-4 text-meta ${index<3?'capitalize':'font-semibold tabular'}`}>{value}</td>)}</tr>)}</tbody></table></div>:<AdminEmpty icon={Activity} title="No payment orders" description="Payment namespace totals will appear after the first order."/>}<div className="border-t border-border bg-brand-50 px-5 py-4 text-tiny text-brand-900">Eligible live allocations: captured <strong>{money(data.live.captured_minor)}</strong> · refunded <strong>{money(data.live.refunded_minor)}</strong> · net fees <strong>{money(data.live.net_fee_minor)}</strong> · payout reserves <strong>{money(data.live.payout_reserved_minor)}</strong></div></section>
-    <section className="mt-5 overflow-hidden rounded-lg border border-border bg-card shadow-xs"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-border p-5"><div><h2 className="text-h4 font-bold">Aggregate events · last 30 UTC days</h2><p className="mt-1 text-tiny text-ink-500">Anonymous aggregate signals may be blocked, duplicated, or missing</p></div><StatusBadge tone={data.measurementEnabled?'success':'neutral'}>{data.measurementEnabled?'Collection enabled':'Collection disabled'}</StatusBadge></div>{data.measurements.length?<div className="overflow-x-auto"><table className="w-full min-w-[720px] text-left"><thead className="bg-ink-25 text-[0.65rem] font-bold uppercase text-ink-500"><tr>{['Event','Source','Device','Visits','Count'].map((item)=><th key={item} className="px-5 py-3">{item}</th>)}</tr></thead><tbody className="divide-y divide-border">{data.measurements.map((row)=><tr key={`${row.event}/${row.source}/${row.device}/${row.visits}`}><td className="px-5 py-3 text-meta font-semibold capitalize">{row.event.replaceAll('_',' ')}</td><td className="px-5 py-3 text-tiny capitalize">{row.source}</td><td className="px-5 py-3 text-tiny capitalize">{row.device}</td><td className="px-5 py-3 text-tiny">{row.visits}</td><td className="px-5 py-3 font-bold tabular">{row.count}</td></tr>)}</tbody></table></div>:<AdminEmpty icon={Gauge} title="No aggregate events" description="No measurement events were recorded in this window."/>}</section>
-  </AdminPage>;
+export const metadata = {
+  title: 'Operations and measurement',
+  robots: { index: false, follow: false, nocache: true },
+};
+const money = (minor) =>
+  new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 2,
+  }).format(Number(minor || 0) / 100);
+export default async function OperationsPage() {
+  await requireAdmin();
+  const data = await adminApi.operations();
+  const healthy = data.health.filter((row) => row.healthy && !row.stale).length;
+  return (
+    <AdminPage>
+      <AdminPageHeader
+        eyebrow="Platform health"
+        title="Operations overview"
+        description={`Last sampled ${new Date(data.sampledAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}. Health is based on persisted worker heartbeats and operational queues.`}
+        action={
+          <div className="flex gap-2">
+            {[
+              ['bookings', 'Bookings'],
+              ['notifications', 'Delivery'],
+              ['support', 'Support'],
+            ].map(([path, label]) => (
+              <Link
+                key={path}
+                href={`/admin/${path}`}
+                className="rounded-md border border-border bg-card px-3 py-2 text-tiny font-semibold text-ink-700 hover:bg-ink-50"
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+        }
+      />
+      <section className="mt-7 grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <AdminKpiCard
+          label="Active alerts"
+          value={data.alerts.length}
+          icon={AlertTriangle}
+          hint="Configured thresholds exceeded"
+          tone={data.alerts.length ? 'danger' : 'neutral'}
+        />
+        <AdminKpiCard
+          label="Healthy services"
+          value={`${healthy}/${data.health.length}`}
+          icon={HeartPulse}
+          hint="Fresh successful heartbeats"
+          tone="brand"
+        />
+        <AdminKpiCard
+          label="Delivery backlog"
+          value={data.signals.delivery_backlog}
+          icon={Activity}
+          hint="Delayed or failed messages"
+          tone={data.signals.delivery_backlog ? 'warning' : 'neutral'}
+        />
+        <AdminKpiCard
+          label="Support backlog"
+          value={data.signals.support_backlog}
+          icon={Gauge}
+          hint="Unresolved for over 24 hours"
+          tone={data.signals.support_backlog ? 'warning' : 'neutral'}
+        />
+      </section>
+      <div className="mt-6 grid items-start gap-5 xl:grid-cols-2">
+        <section className="overflow-hidden rounded-lg border border-border bg-card shadow-xs">
+          <div className="border-b border-border p-5">
+            <h2 className="text-h4 font-bold">Needs attention</h2>
+            <p className="mt-1 text-tiny text-ink-500">
+              Missing heartbeats are treated as unknown health
+            </p>
+          </div>
+          {data.alerts.length ? (
+            <ul className="divide-y divide-border">
+              {data.alerts.map((alert) => (
+                <li key={alert.code} className="flex items-center justify-between gap-3 px-5 py-3">
+                  <span className="text-meta font-semibold capitalize text-ink-800">
+                    {alert.code.replaceAll('_', ' ')}
+                  </span>
+                  <StatusBadge tone="danger">{alert.count}</StatusBadge>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <AdminEmpty
+              icon={CheckCircle2}
+              title="All thresholds are clear"
+              description="No configured operational alert is currently active."
+            />
+          )}
+        </section>
+        <section className="overflow-hidden rounded-lg border border-border bg-card shadow-xs">
+          <div className="border-b border-border p-5">
+            <h2 className="text-h4 font-bold">Worker health</h2>
+            <p className="mt-1 text-tiny text-ink-500">Workers become stale after two minutes</p>
+          </div>
+          <div className="divide-y divide-border">
+            {data.health.map((row) => (
+              <div key={row.service} className="flex items-center justify-between gap-4 px-5 py-4">
+                <div>
+                  <p className="font-semibold capitalize text-ink-900">{row.service}</p>
+                  <p className="mt-1 text-tiny text-ink-500">
+                    Last success{' '}
+                    {row.last_success_at
+                      ? new Date(row.last_success_at).toLocaleString('en-IN', {
+                          timeZone: 'Asia/Kolkata',
+                        })
+                      : 'never recorded'}
+                  </p>
+                </div>
+                <StatusBadge tone={row.healthy && !row.stale ? 'success' : 'danger'}>
+                  {row.healthy && !row.stale ? 'Healthy' : 'Needs attention'}
+                </StatusBadge>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+      <section className="mt-5 overflow-hidden rounded-lg border border-border bg-card shadow-xs">
+        <div className="border-b border-border p-5">
+          <h2 className="text-h4 font-bold">Journey records · last 30 days</h2>
+          <p className="mt-1 text-tiny text-ink-500">
+            Persisted events, not unique people or conversion rates
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-px bg-border sm:grid-cols-4">
+          {Object.entries(data.funnel).map(([key, value]) => (
+            <div key={key} className="bg-card p-5">
+              <p className="text-tiny font-semibold capitalize text-ink-500">
+                {key.replaceAll('_', ' ')}
+              </p>
+              <p className="mt-2 text-h2 font-bold tabular">{value}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+      <section className="mt-5 overflow-hidden rounded-lg border border-border bg-card shadow-xs">
+        <div className="border-b border-border p-5">
+          <h2 className="text-h4 font-bold">Payment namespaces</h2>
+          <p className="mt-1 text-tiny text-ink-500">
+            All-time intent and verified movement; test captures move no bank money
+          </p>
+        </div>
+        {data.money.length ? (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[760px] text-left">
+              <thead className="bg-ink-25 text-[0.65rem] font-bold uppercase text-ink-500">
+                <tr>
+                  {['Provider', 'Environment', 'Mode', 'Intent', 'Captured', 'Refunded'].map(
+                    (item) => (
+                      <th key={item} className="px-5 py-3">
+                        {item}
+                      </th>
+                    ),
+                  )}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {data.money.map((row) => (
+                  <tr key={`${row.provider}/${row.environment}/${row.mode}`}>
+                    {[
+                      row.provider,
+                      row.environment,
+                      row.mode,
+                      money(row.intended_minor),
+                      money(row.captured_minor),
+                      money(row.refunded_minor),
+                    ].map((value, index) => (
+                      <td
+                        key={index}
+                        className={`px-5 py-4 text-meta ${index < 3 ? 'capitalize' : 'font-semibold tabular'}`}
+                      >
+                        {value}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <AdminEmpty
+            icon={Activity}
+            title="No payment orders"
+            description="Payment namespace totals will appear after the first order."
+          />
+        )}
+        <div className="border-t border-border bg-brand-50 px-5 py-4 text-tiny text-brand-900">
+          Eligible live allocations: captured <strong>{money(data.live.captured_minor)}</strong> ·
+          refunded <strong>{money(data.live.refunded_minor)}</strong> · net fees{' '}
+          <strong>{money(data.live.net_fee_minor)}</strong> · payout reserves{' '}
+          <strong>{money(data.live.payout_reserved_minor)}</strong>
+        </div>
+      </section>
+      <section className="mt-5 overflow-hidden rounded-lg border border-border bg-card shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border p-5">
+          <div>
+            <h2 className="text-h4 font-bold">Aggregate events · last 30 UTC days</h2>
+            <p className="mt-1 text-tiny text-ink-500">
+              Anonymous aggregate signals may be blocked, duplicated, or missing
+            </p>
+          </div>
+          <StatusBadge tone={data.measurementEnabled ? 'success' : 'neutral'}>
+            {data.measurementEnabled ? 'Collection enabled' : 'Collection disabled'}
+          </StatusBadge>
+        </div>
+        {data.measurements.length ? (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px] text-left">
+              <thead className="bg-ink-25 text-[0.65rem] font-bold uppercase text-ink-500">
+                <tr>
+                  {['Event', 'Source', 'Device', 'Visits', 'Count'].map((item) => (
+                    <th key={item} className="px-5 py-3">
+                      {item}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {data.measurements.map((row) => (
+                  <tr key={`${row.event}/${row.source}/${row.device}/${row.visits}`}>
+                    <td className="px-5 py-3 text-meta font-semibold capitalize">
+                      {row.event.replaceAll('_', ' ')}
+                    </td>
+                    <td className="px-5 py-3 text-tiny capitalize">{row.source}</td>
+                    <td className="px-5 py-3 text-tiny capitalize">{row.device}</td>
+                    <td className="px-5 py-3 text-tiny">{row.visits}</td>
+                    <td className="px-5 py-3 font-bold tabular">{row.count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <AdminEmpty
+            icon={Gauge}
+            title="No aggregate events"
+            description="No measurement events were recorded in this window."
+          />
+        )}
+      </section>
+    </AdminPage>
+  );
 }

@@ -12,47 +12,99 @@ function replace(name, from, to) {
 }
 
 /* 1 — hero metadata tells the reader where the build actually is. */
-replace('hero metadata',
+replace(
+  'hero metadata',
   '<span>Implementation started · <a href="rentra-customer-sessions.md">22-session roadmap</a></span>',
-  '<span>Part 01 of 22 complete · Part 02 in progress · <a href="rentra-customer-sessions.md">session roadmap</a></span>');
+  '<span>Part 01 of 22 complete · Part 02 in progress · <a href="rentra-customer-sessions.md">session roadmap</a></span>',
+);
 
 /* 2 — sidebar: recorded delivery status, kept separate from the browser-local checklist. */
-replace('sidebar status',
+replace(
+  'sidebar status',
   '<div class="divider"></div><div class="label">Your build checklist</div>',
-  '<div class="divider"></div><div class="label">Delivery status</div>'
-  + '<div class="progress-label">1 of 22 parts complete · Part 02 in progress</div>'
-  + '<progress max="22" value="1" aria-label="Implementation parts complete"></progress>'
-  + '<p class="print-note"><a href="#build-status">Recorded status ↗</a> · <a href="rentra-customer-sessions.md">Session roadmap ↗</a></p>'
-  + '<div class="divider"></div><div class="label">Your build checklist</div>');
+  '<div class="divider"></div><div class="label">Delivery status</div>' +
+    '<div class="progress-label">1 of 22 parts complete · Part 02 in progress</div>' +
+    '<progress max="22" value="1" aria-label="Implementation parts complete"></progress>' +
+    '<p class="print-note"><a href="#build-status">Recorded status ↗</a> · <a href="rentra-customer-sessions.md">Session roadmap ↗</a></p>' +
+    '<div class="divider"></div><div class="label">Your build checklist</div>',
+);
 
 /* 3 — the roadmap lede no longer claims everything is unstarted. */
-replace('roadmap lede',
+replace(
+  'roadmap lede',
   'All checklist items start as planned work. Phases U0–U5',
-  'The checklist below is the original requirements checklist; the recorded delivery status sits directly beneath it. Phases U0–U5');
+  'The checklist below is the original requirements checklist; the recorded delivery status sits directly beneath it. Phases U0–U5',
+);
 
 /* 4 — replace the generic session callout with a dated, evidence-backed status panel. */
-const oldCallout = '  <div class="callout blue"><strong>Implementation is now divided into 22 session-sized parts.</strong> <a href="rentra-customer-sessions.md">Open the implementation roadmap and session handoff</a> for each part’s scope, dependencies, completion checks and current status. Parts 01–19 deliver the customer release with simulated payments; Parts 20–22 cover the later real-payment integration. One session implements and verifies one part. The checklist below remains the original requirements checklist.</div>\n';
+const oldCallout =
+  '  <div class="callout blue"><strong>Implementation is now divided into 22 session-sized parts.</strong> <a href="rentra-customer-sessions.md">Open the implementation roadmap and session handoff</a> for each part’s scope, dependencies, completion checks and current status. Parts 01–19 deliver the customer release with simulated payments; Parts 20–22 cover the later real-payment integration. One session implements and verifies one part. The checklist below remains the original requirements checklist.</div>\n';
 
 const milestones = [
-  ['U0', 'Availability and money definitions', '01–04', 'chip amber', '1 of 4 parts complete',
-    'Part 01 landed the booking policy, property-local date and interval helpers, integer minor-unit pricing and public location privacy. No schema migration, authoritative quote service or transactional overlap constraint exists yet.'],
-  ['U1', 'Customer identity and the shared visual system', '05–07', 'chip', 'Not started',
-    'Customer OTP, the customer shell and favourites are unimplemented. The existing authentication infrastructure serves partners and admins only.'],
-  ['U2', 'Discovery and a detail page people understand', '08–10', 'chip', 'Not started',
-    'Search, city and area routes and the multi-date picker are unimplemented. Existing price boxes still use legacy whole-rupee local estimates.'],
-  ['U3', 'End-to-end booking with a dummy transaction', '11–13', 'chip', 'Not started',
-    'No hold, confirmation, dummy transaction or booking history exists. The legacy <code>availability</code> composite key remains the only double-booking lock.'],
-  ['U4', 'After booking: cancellation, support and reviews', '14–17', 'chip', 'Not started',
-    'Cancellation, the notification outbox, verified-visit reviews and support requests are unimplemented.'],
-  ['U5', 'Customer release quality', '18–19', 'chip', 'Not started',
-    'No accessibility, performance or release-acceptance evidence has been recorded for the customer surfaces.'],
-  ['U6', 'Real payment provider integration', '20–22', 'chip blue', 'Deferred by decision',
-    'Blocked on explicit commercial answers: provider, maximum settlement-hold period, collection schedule, tax and refund policy. Real payments stay disabled until Parts 20–22.'],
+  [
+    'U0',
+    'Availability and money definitions',
+    '01–04',
+    'chip amber',
+    '1 of 4 parts complete',
+    'Part 01 landed the booking policy, property-local date and interval helpers, integer minor-unit pricing and public location privacy. No schema migration, authoritative quote service or transactional overlap constraint exists yet.',
+  ],
+  [
+    'U1',
+    'Customer identity and the shared visual system',
+    '05–07',
+    'chip',
+    'Not started',
+    'Customer OTP, the customer shell and favourites are unimplemented. The existing authentication infrastructure serves partners and admins only.',
+  ],
+  [
+    'U2',
+    'Discovery and a detail page people understand',
+    '08–10',
+    'chip',
+    'Not started',
+    'Search, city and area routes and the multi-date picker are unimplemented. Existing price boxes still use legacy whole-rupee local estimates.',
+  ],
+  [
+    'U3',
+    'End-to-end booking with a dummy transaction',
+    '11–13',
+    'chip',
+    'Not started',
+    'No hold, confirmation, dummy transaction or booking history exists. The legacy <code>availability</code> composite key remains the only double-booking lock.',
+  ],
+  [
+    'U4',
+    'After booking: cancellation, support and reviews',
+    '14–17',
+    'chip',
+    'Not started',
+    'Cancellation, the notification outbox, verified-visit reviews and support requests are unimplemented.',
+  ],
+  [
+    'U5',
+    'Customer release quality',
+    '18–19',
+    'chip',
+    'Not started',
+    'No accessibility, performance or release-acceptance evidence has been recorded for the customer surfaces.',
+  ],
+  [
+    'U6',
+    'Real payment provider integration',
+    '20–22',
+    'chip blue',
+    'Deferred by decision',
+    'Blocked on explicit commercial answers: provider, maximum settlement-hold period, collection schedule, tax and refund policy. Real payments stay disabled until Parts 20–22.',
+  ],
 ];
 
-const rows = milestones.map(([code, name, parts, chip, status, truth]) =>
-  `    <tr><td><strong>${code} · ${name}</strong></td><td><code>${parts}</code></td><td><span class="${chip}">${status}</span></td><td>${truth}</td></tr>`
-).join('\n');
+const rows = milestones
+  .map(
+    ([code, name, parts, chip, status, truth]) =>
+      `    <tr><td><strong>${code} · ${name}</strong></td><td><code>${parts}</code></td><td><span class="${chip}">${status}</span></td><td>${truth}</td></tr>`,
+  )
+  .join('\n');
 
 const statusPanel = `  <div class="callout blue" id="build-status"><strong>Build status — 12 September 2026.</strong> Implementation is divided into 22 session-sized parts; one session implements and verifies one part. <strong>Part 01 is complete. Part 02 is in progress.</strong> Parts 01–19 deliver the customer release with simulated payments; Parts 20–22 cover the later real-payment integration. <a href="rentra-customer-sessions.md">Open the implementation roadmap and session handoff</a> for each part’s scope, dependencies, gates and recorded evidence — that file, not this page, is the authoritative tracker. A part can deliver the primitives an item below needs without completing that item.</div>
   <div class="table-scroll"><table><caption>Recorded milestone status. A milestone is complete only when every one of its parts has passed its own gate.</caption>

@@ -2,7 +2,12 @@
 
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { setField, setSlot, selectSearch } from '@/lib/store/slices/searchSlice';
-import { formatLocalDate, isLocalDate, isWeekendLocalDate, parseLocalDate } from '@/lib/domain/booking-dates';
+import {
+  formatLocalDate,
+  isLocalDate,
+  isWeekendLocalDate,
+  parseLocalDate,
+} from '@/lib/domain/booking-dates';
 
 /**
  * The date/slot selection shared by the three booking surfaces on a listing
@@ -30,7 +35,7 @@ export function isWeekendDate(iso) {
   return isWeekendLocalDate(iso);
 }
 
-export const formatDayLabel = (iso) => iso ? formatLocalDate(iso) : null;
+export const formatDayLabel = (iso) => (iso ? formatLocalDate(iso) : null);
 
 /**
  * Resolve the rent for a date + slot.

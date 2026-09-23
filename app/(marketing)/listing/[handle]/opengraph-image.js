@@ -37,11 +37,9 @@ export default async function ListingOgImage({ params }) {
   // old WhatsApp forwards keep resolving this URL for months.
   if (!listing) {
     return new ImageResponse(
-      (
-        <div style={{ ...SHELL, justifyContent: 'center', alignItems: 'center' }}>
-          <img src={lockupSrc} width={337} height={92} alt="" />
-        </div>
-      ),
+      <div style={{ ...SHELL, justifyContent: 'center', alignItems: 'center' }}>
+        <img src={lockupSrc} width={337} height={92} alt="" />
+      </div>,
       { ...size, fonts },
     );
   }
@@ -54,80 +52,90 @@ export default async function ListingOgImage({ params }) {
 
   const dateLabel = nextDate
     ? new Date(`${nextDate}T12:00:00`).toLocaleDateString('en-IN', {
-      weekday: 'short', day: 'numeric', month: 'short',
-    })
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+      })
     : null;
 
   return new ImageResponse(
-    (
-      <div style={SHELL}>
-        <div style={{ display: 'flex', flexDirection: 'column', padding: '64px 72px 0' }}>
-          <img src={lockupSrc} width={247} height={67} alt="" />
+    <div style={SHELL}>
+      <div style={{ display: 'flex', flexDirection: 'column', padding: '64px 72px 0' }}>
+        <img src={lockupSrc} width={247} height={67} alt="" />
 
-          <div
-            style={{
-              display: 'flex',
-              marginTop: 44,
-              fontSize: 62,
-              fontWeight: 700,
-              letterSpacing: '-0.03em',
-              lineHeight: 1.1,
-              color: '#171A18',
-              maxWidth: 1000,
-            }}
-          >
-            {listing.title}
-          </div>
-
-          <div style={{ display: 'flex', marginTop: 18, fontSize: 32, color: '#5A635D' }}>
-            {listing.areaName}, {listing.cityName} · up to {listing.capacity} guests
-            {listing.bedrooms ? ` · ${listing.bedrooms} BR` : ''}
-          </div>
-        </div>
-
-        {/* The line that does the work: a price and a date somebody can act on. */}
         <div
           style={{
             display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'space-between',
-            padding: '0 72px 56px',
+            marginTop: 44,
+            fontSize: 62,
+            fontWeight: 700,
+            letterSpacing: '-0.03em',
+            lineHeight: 1.1,
+            color: '#171A18',
+            maxWidth: 1000,
           }}
         >
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
-              <span style={{ fontSize: 68, fontWeight: 700, color: '#171A18', letterSpacing: '-0.03em' }}>
-                {formatINR(rent)}
-              </span>
-              <span style={{ fontSize: 30, color: '#5A635D' }}>
-                / {(SLOTS[slot]?.label ?? '').toLowerCase()}
-              </span>
-            </div>
-            <div style={{ display: 'flex', marginTop: 10, fontSize: 27, color: '#2E6449', fontWeight: 700 }}>
-              {dateLabel ? `${dateLabel} available` : 'Check visit dates'}
-            </div>
-          </div>
-
-          {listing.physicallyVerified ? (
-            <div
-              style={{
-                display: 'flex',
-                backgroundColor: '#2E6449',
-                color: '#FFFFFF',
-                fontSize: 24,
-                fontWeight: 700,
-                padding: '14px 24px',
-                borderRadius: 999,
-              }}
-            >
-              Physically Verified
-            </div>
-          ) : null}
+          {listing.title}
         </div>
 
-        <div style={{ display: 'flex', height: 14, backgroundColor: '#2E6449' }} />
+        <div style={{ display: 'flex', marginTop: 18, fontSize: 32, color: '#5A635D' }}>
+          {listing.areaName}, {listing.cityName} · up to {listing.capacity} guests
+          {listing.bedrooms ? ` · ${listing.bedrooms} BR` : ''}
+        </div>
       </div>
-    ),
+
+      {/* The line that does the work: a price and a date somebody can act on. */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+          padding: '0 72px 56px',
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
+            <span
+              style={{ fontSize: 68, fontWeight: 700, color: '#171A18', letterSpacing: '-0.03em' }}
+            >
+              {formatINR(rent)}
+            </span>
+            <span style={{ fontSize: 30, color: '#5A635D' }}>
+              / {(SLOTS[slot]?.label ?? '').toLowerCase()}
+            </span>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              marginTop: 10,
+              fontSize: 27,
+              color: '#2E6449',
+              fontWeight: 700,
+            }}
+          >
+            {dateLabel ? `${dateLabel} available` : 'Check visit dates'}
+          </div>
+        </div>
+
+        {listing.physicallyVerified ? (
+          <div
+            style={{
+              display: 'flex',
+              backgroundColor: '#2E6449',
+              color: '#FFFFFF',
+              fontSize: 24,
+              fontWeight: 700,
+              padding: '14px 24px',
+              borderRadius: 999,
+            }}
+          >
+            Physically Verified
+          </div>
+        ) : null}
+      </div>
+
+      <div style={{ display: 'flex', height: 14, backgroundColor: '#2E6449' }} />
+    </div>,
     { ...size, fonts },
   );
 }

@@ -31,9 +31,12 @@ export default function DocumentViewer({ documents = [], kycNameOnDoc, accountNa
     );
   }
 
-  const nameMatch = kycNameOnDoc && accountName
-    ? (kycNameOnDoc.trim().toLowerCase() === accountName.trim().toLowerCase() ? 'exact' : 'mismatch')
-    : 'unknown';
+  const nameMatch =
+    kycNameOnDoc && accountName
+      ? kycNameOnDoc.trim().toLowerCase() === accountName.trim().toLowerCase()
+        ? 'exact'
+        : 'mismatch'
+      : 'unknown';
 
   return (
     <section className="rounded-lg border border-border bg-card p-4">
@@ -41,12 +44,19 @@ export default function DocumentViewer({ documents = [], kycNameOnDoc, accountNa
         <h2 className="text-tiny font-bold tracking-wider text-brand-700 uppercase">
           Identity document
         </h2>
-        <span className={`text-tiny font-bold ${
-          nameMatch === 'exact' ? 'text-brand-700'
-            : nameMatch === 'mismatch' ? 'text-amber-700' : 'text-ink-500'
-        }`}>
-          {nameMatch === 'exact' ? 'Name matches account'
-            : nameMatch === 'mismatch' ? 'Name differs from account'
+        <span
+          className={`text-tiny font-bold ${
+            nameMatch === 'exact'
+              ? 'text-brand-700'
+              : nameMatch === 'mismatch'
+                ? 'text-amber-700'
+                : 'text-ink-500'
+          }`}
+        >
+          {nameMatch === 'exact'
+            ? 'Name matches account'
+            : nameMatch === 'mismatch'
+              ? 'Name differs from account'
               : 'Name not comparable'}
         </span>
       </div>
@@ -71,7 +81,9 @@ export default function DocumentViewer({ documents = [], kycNameOnDoc, accountNa
       ) : null}
 
       <ul className="mt-3 space-y-2">
-        {documents.map((d) => <DocRow key={d.id} doc={d} />)}
+        {documents.map((d) => (
+          <DocRow key={d.id} doc={d} />
+        ))}
       </ul>
 
       <p className="mt-3 text-tiny text-ink-500">
@@ -104,11 +116,15 @@ function DocRow({ doc }) {
           </span>
         </span>
 
-        <span className={`shrink-0 rounded-full px-2 py-0.5 text-tiny font-bold ${
-          status === 'accepted' ? 'bg-brand-50 text-brand-700'
-            : status === 'rejected' ? 'bg-danger-bg text-danger'
-              : 'bg-amber-100 text-amber-700'
-        }`}>
+        <span
+          className={`shrink-0 rounded-full px-2 py-0.5 text-tiny font-bold ${
+            status === 'accepted'
+              ? 'bg-brand-50 text-brand-700'
+              : status === 'rejected'
+                ? 'bg-danger-bg text-danger'
+                : 'bg-amber-100 text-amber-700'
+          }`}
+        >
           {status}
         </span>
 
@@ -142,14 +158,24 @@ function DocRow({ doc }) {
           <input type="hidden" name="documentId" value={doc.id} />
           <input type="hidden" name="note" value={note} />
           <button
-            type="submit" name="outcome" value="accepted" disabled={reviewing}
+            type="submit"
+            name="outcome"
+            value="accepted"
+            disabled={reviewing}
             className="inline-flex items-center gap-1.5 rounded-md border border-brand-600 bg-brand-50 px-3 py-2 text-meta font-semibold text-brand-700 hover:bg-brand-100"
           >
-            {reviewing ? <Loader2 className="size-3.5 animate-spin" /> : <Check className="size-3.5" />}
+            {reviewing ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <Check className="size-3.5" />
+            )}
             Accept
           </button>
           <button
-            type="submit" name="outcome" value="rejected" disabled={reviewing}
+            type="submit"
+            name="outcome"
+            value="rejected"
+            disabled={reviewing}
             className="inline-flex items-center gap-1.5 rounded-md border border-danger/30 bg-danger-bg px-3 py-2 text-meta font-semibold text-danger hover:brightness-95"
           >
             <X className="size-3.5" aria-hidden="true" /> Reject
@@ -164,7 +190,9 @@ function DocRow({ doc }) {
         <p className="mt-1.5 text-tiny font-medium text-danger">{reviewState.errors._}</p>
       ) : null}
       {doc.reviewNote && !reviewState.ok ? (
-        <p className="mt-1.5 text-tiny text-ink-600">Previous note: &ldquo;{doc.reviewNote}&rdquo;</p>
+        <p className="mt-1.5 text-tiny text-ink-600">
+          Previous note: &ldquo;{doc.reviewNote}&rdquo;
+        </p>
       ) : null}
     </li>
   );

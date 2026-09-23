@@ -14,7 +14,9 @@ function displayLocation(listing) {
 function displayDate(value) {
   if (!value) return '—';
   return new Intl.DateTimeFormat('en-IN', {
-    day: 'numeric', month: 'short', year: 'numeric',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
   }).format(new Date(value));
 }
 
@@ -26,9 +28,7 @@ function actionLabel(status) {
 
 function actionHref(listing) {
   const base = `/partner/listings/${listing.id}`;
-  return listing.status === 'draft' || listing.status === 'rejected'
-    ? `${base}/setup`
-    : base;
+  return listing.status === 'draft' || listing.status === 'rejected' ? `${base}/setup` : base;
 }
 
 function PropertyIdentity({ listing }) {
@@ -75,17 +75,31 @@ export default function PropertyTable({
         <table className="w-full min-w-[760px] border-collapse text-left">
           <thead>
             <tr className="border-b border-border bg-ink-25/80">
-              <th className="px-5 py-3 text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">Property</th>
-              <th className="px-4 py-3 text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">Location</th>
-              <th className="px-4 py-3 text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">Status</th>
+              <th className="px-5 py-3 text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">
+                Property
+              </th>
+              <th className="px-4 py-3 text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">
+                Location
+              </th>
+              <th className="px-4 py-3 text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">
+                Status
+              </th>
               {!compact ? (
                 <>
-                  <th className="px-4 py-3 text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">Capacity</th>
-                  <th className="px-4 py-3 text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">Rating</th>
+                  <th className="px-4 py-3 text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">
+                    Capacity
+                  </th>
+                  <th className="px-4 py-3 text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">
+                    Rating
+                  </th>
                 </>
               ) : null}
-              <th className="px-4 py-3 text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">Updated</th>
-              <th className="px-5 py-3 text-right text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase"><span className="sr-only">Action</span></th>
+              <th className="px-4 py-3 text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">
+                Updated
+              </th>
+              <th className="px-5 py-3 text-right text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">
+                <span className="sr-only">Action</span>
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -94,15 +108,22 @@ export default function PropertyTable({
                 <td className="max-w-72 px-5 py-3.5">
                   <PropertyIdentity listing={listing} />
                   {listing.status === 'rejected' && listing.rejectionReason ? (
-                    <p className="mt-2 max-w-64 truncate text-[0.68rem] text-danger" title={listing.rejectionReason}>
+                    <p
+                      className="mt-2 max-w-64 truncate text-[0.68rem] text-danger"
+                      title={listing.rejectionReason}
+                    >
                       {listing.rejectionReason}
                     </p>
                   ) : null}
                 </td>
                 <td className="max-w-48 px-4 py-3.5 text-tiny text-ink-600">
-                  <span className="block truncate" title={displayLocation(listing)}>{displayLocation(listing)}</span>
+                  <span className="block truncate" title={displayLocation(listing)}>
+                    {displayLocation(listing)}
+                  </span>
                 </td>
-                <td className="px-4 py-3.5"><ListingStatusBadge status={listing.status} /></td>
+                <td className="px-4 py-3.5">
+                  <ListingStatusBadge status={listing.status} />
+                </td>
                 {!compact ? (
                   <>
                     <td className="px-4 py-3.5 text-tiny text-ink-600 tabular">
@@ -111,16 +132,23 @@ export default function PropertyTable({
                     <td className="px-4 py-3.5 text-tiny text-ink-600 tabular">
                       {listing.ratingAvg ? (
                         <span className="inline-flex items-center gap-1 font-semibold text-ink-800">
-                          <Star className="size-3.5 fill-amber-500 text-amber-500" aria-hidden="true" />
+                          <Star
+                            className="size-3.5 fill-amber-500 text-amber-500"
+                            aria-hidden="true"
+                          />
                           {listing.ratingAvg.toFixed(1)}
                           <span className="font-normal text-ink-400">({listing.reviewCount})</span>
                         </span>
-                      ) : '—'}
+                      ) : (
+                        '—'
+                      )}
                     </td>
                   </>
                 ) : null}
                 <td className="whitespace-nowrap px-4 py-3.5 text-tiny text-ink-500">
-                  <time dateTime={new Date(listing.updatedAt).toISOString()}>{displayDate(listing.updatedAt)}</time>
+                  <time dateTime={new Date(listing.updatedAt).toISOString()}>
+                    {displayDate(listing.updatedAt)}
+                  </time>
                 </td>
                 <td className="px-5 py-3.5 text-right">
                   <Link
@@ -147,11 +175,15 @@ export default function PropertyTable({
             <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-dashed border-border pt-3 text-tiny">
               <div>
                 <dt className="text-ink-400">Location</dt>
-                <dd className="mt-0.5 truncate font-medium text-ink-700">{displayLocation(listing)}</dd>
+                <dd className="mt-0.5 truncate font-medium text-ink-700">
+                  {displayLocation(listing)}
+                </dd>
               </div>
               <div>
                 <dt className="text-ink-400">Updated</dt>
-                <dd className="mt-0.5 font-medium text-ink-700">{displayDate(listing.updatedAt)}</dd>
+                <dd className="mt-0.5 font-medium text-ink-700">
+                  {displayDate(listing.updatedAt)}
+                </dd>
               </div>
             </dl>
             <Link

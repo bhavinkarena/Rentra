@@ -28,20 +28,30 @@ const IGNORE = new Set(['spatial_ref_sys', '__drizzle_migrations']);
 const problems = [];
 
 for (const [table, columns] of declared) {
-  if (!live.has(table)) { problems.push(`table declared but missing in database: ${table}`); continue; }
+  if (!live.has(table)) {
+    problems.push(`table declared but missing in database: ${table}`);
+    continue;
+  }
   for (const column of columns) {
-    if (!live.get(table).has(column)) problems.push(`${table}.${column} declared but missing in database`);
+    if (!live.get(table).has(column))
+      problems.push(`${table}.${column} declared but missing in database`);
   }
 }
 for (const [table, columns] of live) {
   if (IGNORE.has(table)) continue;
-  if (!declared.has(table)) { problems.push(`table in database but not declared: ${table}`); continue; }
+  if (!declared.has(table)) {
+    problems.push(`table in database but not declared: ${table}`);
+    continue;
+  }
   for (const column of columns) {
-    if (!declared.get(table).has(column)) problems.push(`${table}.${column} in database but not declared`);
+    if (!declared.get(table).has(column))
+      problems.push(`${table}.${column} in database but not declared`);
   }
 }
 
-const applied = await sql`select count(*)::int n from drizzle.__drizzle_migrations`.catch(() => [{ n: null }]);
+const applied = await sql`select count(*)::int n from drizzle.__drizzle_migrations`.catch(() => [
+  { n: null },
+]);
 const [{ n: appliedCount }] = applied;
 const journal = JSON.parse(readFileSync('drizzle/meta/_journal.json', 'utf8'));
 
@@ -49,10 +59,20 @@ const otherSchemas = await sql`
   select schema_name from information_schema.schemata
   where schema_name not in ('public','information_schema','pg_catalog','pg_toast','drizzle') order by 1`;
 
-console.log(`declared tables: ${declared.size} · live public tables: ${live.size - [...live.keys()].filter((t) => IGNORE.has(t)).length}`);
-console.log(`migrations in journal: ${journal.entries.length} · applied in database: ${appliedCount}`);
-console.log(`non-public schemas present: ${otherSchemas.map((r) => r.schema_name).join(', ') || 'none'}`);
-console.log(problems.length ? `\nDRIFT (${problems.length}):\n- ${problems.join('\n- ')}` : '\nNo drift: the database matches snapshot 0007 exactly.');
+console.log(
+  `declared tables: ${declared.size} · live public tables: ${live.size - [...live.keys()].filter((t) => IGNORE.has(t)).length}`,
+);
+console.log(
+  `migrations in journal: ${journal.entries.length} · applied in database: ${appliedCount}`,
+);
+console.log(
+  `non-public schemas present: ${otherSchemas.map((r) => r.schema_name).join(', ') || 'none'}`,
+);
+console.log(
+  problems.length
+    ? `\nDRIFT (${problems.length}):\n- ${problems.join('\n- ')}`
+    : '\nNo drift: the database matches snapshot 0007 exactly.',
+);
 
 await sql.end();
 process.exit(problems.length ? 1 : 0);

@@ -53,9 +53,7 @@ export default function AdminLoginForm() {
           className="w-32 text-center font-mono tracking-[0.3em]"
           aria-invalid={e.totp ? true : undefined}
         />
-        {e.totp ? (
-          <p className="mt-1.5 text-tiny font-medium text-danger">{e.totp}</p>
-        ) : null}
+        {e.totp ? <p className="mt-1.5 text-tiny font-medium text-danger">{e.totp}</p> : null}
       </div>
 
       <Button type="submit" size="lg" className="w-full" disabled={pending}>

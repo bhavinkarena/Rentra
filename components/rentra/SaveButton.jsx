@@ -6,24 +6,39 @@ import { useAppSelector } from '@/lib/store/hooks';
 import { useBookingQuote } from './listing/BookingQuoteProvider';
 import { Heart } from 'lucide-react';
 
-
 /**
  * @param {object} props
  * @param {'overlay'|'inline'} [props.variant] `overlay` is the heart floating
  *   on a card photo. `inline` is the labelled control in a listing's title
  *   block, where it sits next to Share and needs a visible word.
  */
-export default function SaveButton({ rentableId, listingTitle, variant = 'overlay', selection: suppliedSelection }) {
+export default function SaveButton({
+  rentableId,
+  listingTitle,
+  variant = 'overlay',
+  selection: suppliedSelection,
+}) {
   const places = useSavedPlaces();
-  const search = useAppSelector(state=>state.search);
+  const search = useAppSelector((state) => state.search);
   const context = useBookingQuote();
   const booking = context?.rentableId === rentableId ? context : null;
-  const saved = Boolean(places.entries?.some(e=>e.rentableId===rentableId));
+  const saved = Boolean(places.entries?.some((e) => e.rentableId === rentableId));
   function onClick(e) {
-    e.preventDefault(); e.stopPropagation();
-    const date=booking?.date ?? search.date;
-    const selection = suppliedSelection !== undefined ? suppliedSelection : date ? {rentableId,dates:booking?.dates ?? [date],slot:booking?.slot ?? search.slot,guests:booking?.guests ?? search.guests} : null;
-    startTransition(()=>places.change(rentableId,!saved,selection));
+    e.preventDefault();
+    e.stopPropagation();
+    const date = booking?.date ?? search.date;
+    const selection =
+      suppliedSelection !== undefined
+        ? suppliedSelection
+        : date
+          ? {
+              rentableId,
+              dates: booking?.dates ?? [date],
+              slot: booking?.slot ?? search.slot,
+              guests: booking?.guests ?? search.guests,
+            }
+          : null;
+    startTransition(() => places.change(rentableId, !saved, selection));
   }
 
   const label = `${saved ? 'Remove from saved:' : 'Save:'} ${listingTitle}`;
@@ -38,10 +53,7 @@ export default function SaveButton({ rentableId, listingTitle, variant = 'overla
         title={places.error ?? undefined}
         className="inline-flex items-center gap-1.5 rounded-sm px-2 py-1 text-meta font-semibold text-ink-700 underline decoration-ink-300 underline-offset-4 transition-colors hover:bg-ink-50 hover:text-ink-900"
       >
-        <Heart
-          className={`size-4 ${saved ? 'fill-danger text-danger' : ''}`}
-          aria-hidden="true"
-        />
+        <Heart className={`size-4 ${saved ? 'fill-danger text-danger' : ''}`} aria-hidden="true" />
         {saved ? 'Saved' : 'Save'}
       </button>
     );

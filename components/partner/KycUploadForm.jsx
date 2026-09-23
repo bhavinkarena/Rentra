@@ -68,7 +68,10 @@ export default function KycUploadForm({ application, documents = [] }) {
                   name="docType"
                   value={d.id}
                   checked={docType === d.id}
-                  onChange={() => { setDocType(d.id); setPicked({}); }}
+                  onChange={() => {
+                    setDocType(d.id);
+                    setPicked({});
+                  }}
                   className="mt-1 size-4 shrink-0 accent-brand-600"
                 />
                 <span>
@@ -78,19 +81,23 @@ export default function KycUploadForm({ application, documents = [] }) {
                       {d.sides.length === 1 ? '1 photo' : '2 photos'}
                     </span>
                   </span>
-                  {d.note ? (
-                    <span className="block text-tiny text-ink-500">{d.note}</span>
-                  ) : null}
+                  {d.note ? <span className="block text-tiny text-ink-500">{d.note}</span> : null}
                 </span>
               </label>
             ))}
           </div>
-          {e.docType ? <p className="mt-1.5 text-tiny font-medium text-danger">{e.docType}</p> : null}
+          {e.docType ? (
+            <p className="mt-1.5 text-tiny font-medium text-danger">{e.docType}</p>
+          ) : null}
         </fieldset>
 
         {spec?.requiresMaskConfirm ? (
           <label className="flex cursor-pointer gap-3 rounded-md border border-amber-300 bg-amber-100 p-3">
-            <input type="checkbox" name="maskedConfirmed" className="mt-1 size-4 shrink-0 accent-brand-600" />
+            <input
+              type="checkbox"
+              name="maskedConfirmed"
+              className="mt-1 size-4 shrink-0 accent-brand-600"
+            />
             <span className="text-meta text-amber-700">
               I confirm this is the <strong>masked</strong> Aadhaar downloaded from the UIDAI
               website, with the first 8 digits hidden. Rentra cannot accept a full Aadhaar copy.
@@ -112,7 +119,10 @@ export default function KycUploadForm({ application, documents = [] }) {
         </div>
 
         <div>
-          <label htmlFor="kycNameOnDoc" className="mb-1.5 block text-meta font-semibold text-ink-700">
+          <label
+            htmlFor="kycNameOnDoc"
+            className="mb-1.5 block text-meta font-semibold text-ink-700"
+          >
             Name exactly as printed on that ID
           </label>
           <Input
@@ -140,7 +150,11 @@ export default function KycUploadForm({ application, documents = [] }) {
         </p>
 
         <Button type="submit" size="lg" className="w-full" disabled={pending || deleting}>
-          {pending ? <Loader2 className="size-4 animate-spin" /> : <ShieldCheck className="size-4" />}
+          {pending ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <ShieldCheck className="size-4" />
+          )}
           {pending ? 'Uploading…' : 'Upload and continue'}
         </Button>
       </form>
@@ -163,11 +177,15 @@ export default function KycUploadForm({ application, documents = [] }) {
                       : `${Math.round((d.bytes ?? 0) / 1024)}KB · uploaded ${new Date(d.uploadedAt).toLocaleDateString('en-IN')}`}
                   </span>
                 </span>
-                <span className={`shrink-0 rounded-full px-2 py-0.5 text-tiny font-bold ${
-                  d.status === 'accepted' ? 'bg-brand-50 text-brand-700'
-                    : d.status === 'rejected' ? 'bg-danger-bg text-danger'
-                      : 'bg-amber-100 text-amber-700'
-                }`}>
+                <span
+                  className={`shrink-0 rounded-full px-2 py-0.5 text-tiny font-bold ${
+                    d.status === 'accepted'
+                      ? 'bg-brand-50 text-brand-700'
+                      : d.status === 'rejected'
+                        ? 'bg-danger-bg text-danger'
+                        : 'bg-amber-100 text-amber-700'
+                  }`}
+                >
                   {d.status}
                 </span>
                 <form action={deleteAction} className="shrink-0">

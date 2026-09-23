@@ -44,12 +44,14 @@ const STATUS_META = {
 };
 
 export function listingStatusMeta(status) {
-  return STATUS_META[status] ?? {
-    label: status?.replace(/_/g, ' ') || 'Unknown',
-    hint: 'Status unavailable',
-    className: 'bg-ink-100 text-ink-700 ring-ink-700/10',
-    dot: 'bg-ink-500',
-  };
+  return (
+    STATUS_META[status] ?? {
+      label: status?.replace(/_/g, ' ') || 'Unknown',
+      hint: 'Status unavailable',
+      className: 'bg-ink-100 text-ink-700 ring-ink-700/10',
+      dot: 'bg-ink-500',
+    }
+  );
 }
 
 export default function ListingStatusBadge({ status, showHint = false }) {

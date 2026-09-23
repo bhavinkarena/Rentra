@@ -1,12 +1,5 @@
 import Link from 'next/link';
-import {
-  ArrowRight,
-  Building2,
-  CircleAlert,
-  Clock3,
-  Eye,
-  ShieldCheck,
-} from 'lucide-react';
+import { ArrowRight, Building2, CircleAlert, Clock3, Eye, ShieldCheck } from 'lucide-react';
 import { requireClient, getCurrentUserWithCompletion } from '@/lib/api/session';
 import { lockedCtaMessage } from '@/lib/domain/profile-completion';
 import { recordLockedCtaClick } from '@/lib/actions/auth';
@@ -46,9 +39,7 @@ export default async function PartnerDashboard() {
   const application = await partnerApi.application();
 
   const locked = lockedCtaMessage(completion);
-  const summary = completion.canPublish
-    ? await partnerApi.summary()
-    : EMPTY_SUMMARY;
+  const summary = completion.canPublish ? await partnerApi.summary() : EMPTY_SUMMARY;
 
   const firstName = user.name?.trim().split(/\s+/)[0];
 
@@ -57,34 +48,35 @@ export default async function PartnerDashboard() {
       <PartnerPageHeader
         eyebrow={completion.approved ? 'Verified partner' : 'Getting set up'}
         title={firstName ? `Welcome back, ${firstName}` : 'Welcome to Rentra'}
-        description={completion.approved
-          ? summary.total > 0
-            ? `Here’s a clear view of all ${summary.total} ${summary.total === 1 ? 'property' : 'properties'} in your Rentra portfolio.`
-            : 'Your partner account is ready. Add your first property to start building your portfolio.'
-          : (
+        description={
+          completion.approved ? (
+            summary.total > 0 ? (
+              `Here’s a clear view of all ${summary.total} ${summary.total === 1 ? 'property' : 'properties'} in your Rentra portfolio.`
+            ) : (
+              'Your partner account is ready. Add your first property to start building your portfolio.'
+            )
+          ) : (
             <>
               Farmhouses around Surat earn between{' '}
               <strong className="font-semibold text-ink-800">{formatINR(8000)}</strong> and{' '}
               <strong className="font-semibold text-ink-800">{formatINR(14500)}</strong> a night.
               Finish your verification so you can publish with confidence.
             </>
-          )}
-        action={(
+          )
+        }
+        action={
           <GatedAddPlaceButton
             unlocked={completion.canPublish}
             message={locked}
             onLockedClick={recordLockedCtaClick}
           />
-        )}
+        }
       />
 
       {completion.approved ? (
         <ApprovedDashboard summary={summary} />
       ) : (
-        <OnboardingDashboard
-          completion={completion}
-          application={application}
-        />
+        <OnboardingDashboard completion={completion} application={application} />
       )}
     </div>
   );
@@ -96,7 +88,10 @@ function ApprovedDashboard({ summary }) {
 
   return (
     <>
-      <section className="mt-7 grid grid-cols-2 gap-3 xl:grid-cols-4" aria-label="Portfolio summary">
+      <section
+        className="mt-7 grid grid-cols-2 gap-3 xl:grid-cols-4"
+        aria-label="Portfolio summary"
+      >
         <KpiCard
           label="Total properties"
           value={summary.total}
@@ -131,7 +126,9 @@ function ApprovedDashboard({ summary }) {
           <div className="flex items-center justify-between gap-4 border-b border-border px-4 py-4 sm:px-5">
             <div>
               <h2 className="text-h4 font-bold text-ink-900">Recent properties</h2>
-              <p className="mt-0.5 text-tiny text-ink-500">Most recently updated across your portfolio</p>
+              <p className="mt-0.5 text-tiny text-ink-500">
+                Most recently updated across your portfolio
+              </p>
             </div>
             <Link
               href="/partner/listings"
@@ -152,7 +149,9 @@ function ApprovedDashboard({ summary }) {
           <article className="rounded-lg border border-border bg-card p-5 shadow-xs">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-[0.68rem] font-bold tracking-[0.1em] text-ink-500 uppercase">Portfolio health</p>
+                <p className="text-[0.68rem] font-bold tracking-[0.1em] text-ink-500 uppercase">
+                  Portfolio health
+                </p>
                 <p className="mt-1 text-h4 font-bold text-ink-900">{liveRate}% live</p>
               </div>
               <span
@@ -169,10 +168,32 @@ function ApprovedDashboard({ summary }) {
             </div>
 
             <div className="mt-5 space-y-3">
-              <StatusLine label="Live" value={summary.live} total={summary.total} tone="bg-success" />
-              <StatusLine label="In review" value={summary.inReview} total={summary.total} tone="bg-warning" />
-              <StatusLine label="Needs attention" value={summary.attention} total={summary.total} tone="bg-danger" />
-              {other > 0 ? <StatusLine label="Paused or hidden" value={other} total={summary.total} tone="bg-ink-400" /> : null}
+              <StatusLine
+                label="Live"
+                value={summary.live}
+                total={summary.total}
+                tone="bg-success"
+              />
+              <StatusLine
+                label="In review"
+                value={summary.inReview}
+                total={summary.total}
+                tone="bg-warning"
+              />
+              <StatusLine
+                label="Needs attention"
+                value={summary.attention}
+                total={summary.total}
+                tone="bg-danger"
+              />
+              {other > 0 ? (
+                <StatusLine
+                  label="Paused or hidden"
+                  value={other}
+                  total={summary.total}
+                  tone="bg-ink-400"
+                />
+              ) : null}
             </div>
           </article>
 
@@ -208,7 +229,8 @@ function NextAction({ summary }) {
         </span>
         <h2 className="mt-3 text-meta font-bold text-ink-900">Finish what needs attention</h2>
         <p className="mt-1 text-tiny leading-5 text-ink-600">
-          {summary.attention} {summary.attention === 1 ? 'property is' : 'properties are'} still a draft or needs changes before going live.
+          {summary.attention} {summary.attention === 1 ? 'property is' : 'properties are'} still a
+          draft or needs changes before going live.
         </p>
         <Link
           href="/partner/listings?status=attention"
@@ -228,7 +250,8 @@ function NextAction({ summary }) {
         </span>
         <h2 className="mt-3 text-meta font-bold text-ink-900">Review in progress</h2>
         <p className="mt-1 text-tiny leading-5 text-ink-600">
-          Rentra is checking {summary.inReview} {summary.inReview === 1 ? 'property' : 'properties'}. We normally reply within 2 working days.
+          Rentra is checking {summary.inReview} {summary.inReview === 1 ? 'property' : 'properties'}
+          . We normally reply within 2 working days.
         </p>
         <Link
           href="/partner/listings?status=review"
@@ -281,7 +304,8 @@ function OnboardingDashboard({ completion, application }) {
           <div className="rounded-lg border border-warning/25 bg-warning-bg p-4">
             <p className="text-h4 font-bold text-warning">With us for review</p>
             <p className="mt-1 text-meta text-ink-700">
-              Nothing more to do. We reply within 2 working days either way. Need to change something first?
+              Nothing more to do. We reply within 2 working days either way. Need to change
+              something first?
             </p>
             <form action={withdrawApplication} className="mt-3">
               <PendingSubmitButton
@@ -305,12 +329,17 @@ function OnboardingDashboard({ completion, application }) {
       </div>
 
       <aside className="rounded-lg border border-border bg-card p-5 shadow-xs">
-        <p className="text-[0.68rem] font-bold tracking-[0.1em] text-brand-700 uppercase">What happens next</p>
+        <p className="text-[0.68rem] font-bold tracking-[0.1em] text-brand-700 uppercase">
+          What happens next
+        </p>
         <ol className="mt-4 space-y-4">
           {[
             ['Complete your details', 'Add the identity and payout information Rentra needs.'],
             ['Rentra reviews them', 'A person checks your application within 2 working days.'],
-            ['Publish properties', 'Once approved, add and manage every property from this workspace.'],
+            [
+              'Publish properties',
+              'Once approved, add and manage every property from this workspace.',
+            ],
           ].map(([title, body], index) => (
             <li key={title} className="flex gap-3">
               <span className="grid size-6 shrink-0 place-items-center rounded-full bg-brand-50 text-[0.68rem] font-bold text-brand-700 ring-1 ring-brand-100">

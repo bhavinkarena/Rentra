@@ -10,7 +10,11 @@ export default async function Page() {
   const application = await partnerApi.application();
 
   return (
-    <OnboardingShell step={6} title="Agree to the terms" intro="Two confirmations and you are done with your side.">
+    <OnboardingShell
+      step={6}
+      title="Agree to the terms"
+      intro="Two confirmations and you are done with your side."
+    >
       <ConsentForm user={user} application={application} />
     </OnboardingShell>
   );

@@ -64,7 +64,6 @@ export default async function SubmittedPage({ params }) {
 
       <main className="flex flex-1 items-center justify-center px-4 py-10 sm:px-6">
         <div className="w-full max-w-2xl text-center">
-
           {/* ------------------------- the tick ------------------------- */}
           <div className="relative mx-auto grid size-20 place-items-center">
             <span
@@ -73,9 +72,13 @@ export default async function SubmittedPage({ params }) {
             />
             <span className="relative grid size-20 animate-in place-items-center rounded-full bg-brand-600 duration-500 zoom-in-50">
               <svg
-                viewBox="0 0 52 52" className="size-10" fill="none"
-                stroke="currentColor" strokeWidth="5"
-                strokeLinecap="round" strokeLinejoin="round"
+                viewBox="0 0 52 52"
+                className="size-10"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 aria-hidden="true"
               >
                 <path
@@ -94,9 +97,9 @@ export default async function SubmittedPage({ params }) {
             That is your property with us
           </h1>
           <p className="mx-auto mt-3 max-w-prose animate-in text-body text-ink-600 delay-150 duration-500 fade-in slide-in-from-bottom-3">
-            <strong className="font-semibold text-ink-900">{listing.title}</strong> is in the
-            queue. We reply within 2 working days either way, by email and WhatsApp — there is
-            nothing else for you to do right now.
+            <strong className="font-semibold text-ink-900">{listing.title}</strong> is in the queue.
+            We reply within 2 working days either way, by email and WhatsApp — there is nothing else
+            for you to do right now.
           </p>
 
           {/* ---------------------- what happens next ---------------------- */}

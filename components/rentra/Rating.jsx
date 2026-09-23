@@ -6,9 +6,7 @@ import { Star } from 'lucide-react';
  */
 export default function Rating({ value, count, className = '' }) {
   if (!count || count < 1) {
-    return (
-      <span className={`text-meta text-ink-500 ${className}`}>No reviews yet</span>
-    );
+    return <span className={`text-meta text-ink-500 ${className}`}>No reviews yet</span>;
   }
 
   return (

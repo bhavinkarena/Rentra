@@ -8,7 +8,12 @@ import { DISCOVERY_INTENTS } from '@/lib/domain/discovery';
 import { discoveryApi } from '@/lib/api/endpoints';
 import { degradeOnFailure, EMPTY_REGISTRY } from '@/lib/api/resilient';
 
-export const metadata = publicMetadata({ title: 'Explore farmhouses and day visits', description: 'Explore places for day visits and overnight stays. Compare facilities and check prices for your dates.', path: '/' });
+export const metadata = publicMetadata({
+  title: 'Explore farmhouses and day visits',
+  description:
+    'Explore places for day visits and overnight stays. Compare facilities and check prices for your dates.',
+  path: '/',
+});
 
 // Classic ISR — content changes slowly, so serve from cache and revalidate
 // hourly. On-demand revalidation happens when a Client edits a listing.
@@ -19,8 +24,8 @@ export default async function HomePage() {
     degradeOnFailure(() => discoveryApi.listings({ limit: 16 }), [], 'home listings'),
     degradeOnFailure(() => discoveryApi.registry(), EMPTY_REGISTRY, 'home registry'),
   ]);
-  const primaryCity = registry.cities.find(c => c.slug === 'surat') || registry.cities[0];
-  const farmhouse = registry.categories.find(c => c.slug === 'farmhouse');
+  const primaryCity = registry.cities.find((c) => c.slug === 'surat') || registry.cities[0];
+  const farmhouse = registry.categories.find((c) => c.slug === 'farmhouse');
 
   // The hero is the top-ranked listing's own first frame, not a stock image.
   // It comes from the card query, so this page is one round trip.
@@ -55,8 +60,8 @@ export default async function HomePage() {
             Find a place for your next day out or overnight stay.
           </h1>
           <p className="mt-4 max-w-prose text-body-lg text-brand-100">
-            Explore places, compare facilities and choose your visit dates.
-            See current rent and platform fees before continuing.
+            Explore places, compare facilities and choose your visit dates. See current rent and
+            platform fees before continuing.
           </p>
           <SearchBar />
 
@@ -64,7 +69,11 @@ export default async function HomePage() {
             {DISCOVERY_INTENTS.map((intent) => (
               <li key={intent.slug}>
                 <Link
-                  href={primaryCity && farmhouse ? `/${primaryCity.slug}/farmhouse/intent/${intent.slug}` : '/search'}
+                  href={
+                    primaryCity && farmhouse
+                      ? `/${primaryCity.slug}/farmhouse/intent/${intent.slug}`
+                      : '/search'
+                  }
                   className="inline-block rounded-full border border-white/25 bg-white/10 px-4 py-2 text-meta font-medium text-white backdrop-blur transition-colors hover:border-white/50 hover:bg-white/20"
                 >
                   {intent.label}
@@ -83,7 +92,9 @@ export default async function HomePage() {
         <div className="flex items-baseline justify-between gap-4">
           <h2 className="text-h2">Explore places</h2>
           <p className="text-meta text-ink-500">
-            <Link href="/search" className="underline">View all places</Link>
+            <Link href="/search" className="underline">
+              View all places
+            </Link>
           </p>
         </div>
         <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">

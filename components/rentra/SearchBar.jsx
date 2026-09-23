@@ -74,9 +74,7 @@ export default function SearchBar() {
           min={1}
           max={500}
           value={guests}
-          onChange={(e) =>
-            dispatch(setField({ field: 'guests', value: Number(e.target.value) }))
-          }
+          onChange={(e) => dispatch(setField({ field: 'guests', value: Number(e.target.value) }))}
           className="w-full bg-transparent text-meta text-ink-900 tabular focus:outline-none"
         />
       </Cell>

@@ -30,9 +30,7 @@ const NAV_GROUPS = [
   },
   {
     label: 'Account',
-    items: [
-      { href: '/partner/settings', label: 'Settings & payouts', icon: Settings2 },
-    ],
+    items: [{ href: '/partner/settings', label: 'Settings & payouts', icon: Settings2 }],
   },
 ];
 
@@ -94,9 +92,15 @@ function NavigationLink({ item, pathname, enabled, onNavigate }) {
       }`}
     >
       {active ? (
-        <span className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-brand-300" aria-hidden="true" />
+        <span
+          className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-brand-300"
+          aria-hidden="true"
+        />
       ) : null}
-      <Icon className={`size-[18px] ${active ? 'text-brand-200' : 'text-white/48 group-hover:text-white/75'}`} aria-hidden="true" />
+      <Icon
+        className={`size-[18px] ${active ? 'text-brand-200' : 'text-white/48 group-hover:text-white/75'}`}
+        aria-hidden="true"
+      />
       <span>{item.label}</span>
       <LinkPendingHint />
     </Link>
@@ -234,7 +238,11 @@ export default function PartnerShell({ children, user, logoutAction }) {
             <Menu className="size-5" aria-hidden="true" />
           </button>
 
-          <Link href="/partner" className="mr-3 flex items-center lg:hidden" aria-label="Rentra owner overview">
+          <Link
+            href="/partner"
+            className="mr-3 flex items-center lg:hidden"
+            aria-label="Rentra owner overview"
+          >
             <RentraMark className="size-8" />
           </Link>
 

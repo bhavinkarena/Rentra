@@ -1,2 +1,4 @@
 import AdminLoading from '@/components/admin/AdminLoading';
-export default function Loading(){return <AdminLoading label="notification delivery"/>;}
+export default function Loading() {
+  return <AdminLoading label="notification delivery" />;
+}

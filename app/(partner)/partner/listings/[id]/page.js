@@ -6,9 +6,16 @@ import { partnerApi } from '@/lib/api/endpoints';
 import { listingCompletion } from '@/lib/domain/listing-completion';
 import { submitListing } from '@/lib/actions/partner';
 import {
-  BasicsSection, LocationSection, CapacitySection, AmenitiesSection,
-  RulesSection, PricingSection, TermsSection, PhotosSection,
-  OwnershipSection, SubmitBar,
+  BasicsSection,
+  LocationSection,
+  CapacitySection,
+  AmenitiesSection,
+  RulesSection,
+  PricingSection,
+  TermsSection,
+  PhotosSection,
+  OwnershipSection,
+  SubmitBar,
 } from '@/components/partner/listing/ListingSections';
 import { ListingChrome } from '@/components/partner/listing/chrome';
 import { firstIncompleteStepId, sectionAnchorId, stepHref } from '@/lib/domain/listing-steps';
@@ -78,7 +85,10 @@ export default async function ListingBuilderPage({ params }) {
                 ? `${completion.done} of ${completion.total} submitted · in review`
                 : `${completion.done} of ${completion.total} sections done`}
             {!completion.inReview && !completion.isLive && completion.minutesLeft > 0 ? (
-              <span className="font-normal text-ink-500"> · about {completion.minutesLeft} min left</span>
+              <span className="font-normal text-ink-500">
+                {' '}
+                · about {completion.minutesLeft} min left
+              </span>
             ) : null}
           </p>
           <p className="text-ink-500">{completion.status.replace(/_/g, ' ')}</p>
@@ -95,7 +105,11 @@ export default async function ListingBuilderPage({ params }) {
               <a
                 href={`#${sectionAnchorId(s.id)}`}
                 className={`inline-flex items-center gap-1 text-tiny font-medium ${
-                  s.failed ? 'text-danger' : s.done ? 'text-brand-700' : 'text-ink-500 hover:text-ink-900'
+                  s.failed
+                    ? 'text-danger'
+                    : s.done
+                      ? 'text-brand-700'
+                      : 'text-ink-500 hover:text-ink-900'
                 }`}
               >
                 {s.done ? <Check className="size-3" aria-hidden="true" /> : null}
@@ -118,9 +132,7 @@ export default async function ListingBuilderPage({ params }) {
             <Wand2 className="size-4 text-white" aria-hidden="true" />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-meta font-bold text-brand-900">
-              Finish it step by step
-            </span>
+            <span className="block text-meta font-bold text-brand-900">Finish it step by step</span>
             <span className="block text-tiny text-brand-800">
               {completion.remaining.length} left · picks up at{' '}
               {completion.remaining[0].label.toLowerCase()}
@@ -131,26 +143,31 @@ export default async function ListingBuilderPage({ params }) {
       ) : null}
 
       <div className="mt-5">
-        <Link href={`/partner/listings/${id}/calendar`} className="mb-4 inline-flex min-h-11 items-center rounded-md border border-border px-4 text-meta font-semibold text-brand-700">Manage booking hours, dates and prices</Link>
+        <Link
+          href={`/partner/listings/${id}/calendar`}
+          className="mb-4 inline-flex min-h-11 items-center rounded-md border border-border px-4 text-meta font-semibold text-brand-700"
+        >
+          Manage booking hours, dates and prices
+        </Link>
         <SubmitBar listing={listing} completion={completion} submitAction={submitListing} />
       </div>
 
       <ListingChrome variant="card">
         <div className="mt-6 space-y-5">
-        <BasicsSection listing={listing} categories={categories} />
-        <LocationSection listing={listing} cities={cities} />
-        <CapacitySection listing={listing} />
-        <AmenitiesSection listing={listing} catalogue={catalogue} selected={amenities} />
-        <RulesSection listing={listing} />
-        <PricingSection listing={listing} prices={prices} />
-        <TermsSection listing={listing} />
-        <PhotosSection listing={listing} photos={photos} />
-        <OwnershipSection
-          listing={listing}
-          documents={documents}
-          clientType={user.clientType}
-          kycName={user.name}
-        />
+          <BasicsSection listing={listing} categories={categories} />
+          <LocationSection listing={listing} cities={cities} />
+          <CapacitySection listing={listing} />
+          <AmenitiesSection listing={listing} catalogue={catalogue} selected={amenities} />
+          <RulesSection listing={listing} />
+          <PricingSection listing={listing} prices={prices} />
+          <TermsSection listing={listing} />
+          <PhotosSection listing={listing} photos={photos} />
+          <OwnershipSection
+            listing={listing}
+            documents={documents}
+            clientType={user.clientType}
+            kycName={user.name}
+          />
         </div>
       </ListingChrome>
     </div>

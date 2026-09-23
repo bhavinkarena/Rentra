@@ -59,9 +59,7 @@ export default function PriceBox({
 
 function Row({ label, value, accent, muted }) {
   return (
-    <div
-      className={`flex justify-between gap-3 py-2.5 ${muted ? 'text-ink-500' : 'text-ink-700'}`}
-    >
+    <div className={`flex justify-between gap-3 py-2.5 ${muted ? 'text-ink-500' : 'text-ink-700'}`}>
       <dt>{label}</dt>
       <dd
         className={`tabular font-medium ${accent ? 'font-bold text-brand-600' : 'text-ink-900'}`}

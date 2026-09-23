@@ -15,20 +15,18 @@ export default async function AppleIcon() {
   const markSrc = `data:image/svg+xml;base64,${Buffer.from(mark).toString('base64')}`;
 
   return new ImageResponse(
-    (
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#F1F7F3', // brand-50, the tinted-surface token
-        }}
-      >
-        <img src={markSrc} width={132} height={132} alt="" />
-      </div>
-    ),
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#F1F7F3', // brand-50, the tinted-surface token
+      }}
+    >
+      <img src={markSrc} width={132} height={132} alt="" />
+    </div>,
     size,
   );
 }

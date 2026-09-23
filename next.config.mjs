@@ -1,9 +1,15 @@
-const browserFixtureId = /^[a-z0-9-]{1,48}$/.test(process.env.RENTRA_BROWSER_FIXTURE_ID || '') ? '-' + process.env.RENTRA_BROWSER_FIXTURE_ID : '';
+const browserFixtureId = /^[a-z0-9-]{1,48}$/.test(process.env.RENTRA_BROWSER_FIXTURE_ID || '')
+  ? '-' + process.env.RENTRA_BROWSER_FIXTURE_ID
+  : '';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Browser fixtures use a disposable database and must not share dev locks/cache.
-  distDir: process.env.RENTRA_BROWSER_FIXTURE === '1' ? '.next/customer-browser' + browserFixtureId
-    : process.env.RENTRA_BUILD_FIXTURE === '1' ? '.next/verification-build' : '.next',
+  distDir:
+    process.env.RENTRA_BROWSER_FIXTURE === '1'
+      ? '.next/customer-browser' + browserFixtureId
+      : process.env.RENTRA_BUILD_FIXTURE === '1'
+        ? '.next/verification-build'
+        : '.next',
   experimental: {
     /**
      * KYC document uploads: front + back of an ID, up to 2MB each, plus the
@@ -38,9 +44,7 @@ const nextConfig = {
      * served as short-lived signed Cloudinary URLs to admins only, never
      * optimised, cached, or made publicly addressable.
      */
-    remotePatterns: [
-      { protocol: 'https', hostname: 'res.cloudinary.com' }
-    ],
+    remotePatterns: [{ protocol: 'https', hostname: 'res.cloudinary.com' }],
   },
 };
 

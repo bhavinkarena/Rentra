@@ -34,23 +34,13 @@ const ChromeContext = createContext({
  */
 export const STEP_FORM_ID = 'listing-step-form';
 
-
-
-export function ListingChrome({
-  variant = 'card',
-  onSaved = null,
-  onPending = null,
-  children,
-}) {
+export function ListingChrome({ variant = 'card', onSaved = null, onPending = null, children }) {
   /**
    * `onPending` reports upward so the sticky bar can spin and disable while a
    * save is in flight. The bar sits outside the form, so `useFormStatus` is
    * not available to it — the section has to hand the state up.
    */
-  const value = useMemo(
-    () => ({ variant, onSaved, onPending }),
-    [variant, onSaved, onPending],
-  );
+  const value = useMemo(() => ({ variant, onSaved, onPending }), [variant, onSaved, onPending]);
 
   return <ChromeContext.Provider value={value}>{children}</ChromeContext.Provider>;
 }

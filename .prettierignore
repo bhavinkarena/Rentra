@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+build
+coverage
+package-lock.json
+public
+assets
+docs
+AGENTS.md
+CLAUDE.md

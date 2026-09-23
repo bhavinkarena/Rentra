@@ -3,15 +3,27 @@ import { requireActiveClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
 import { listingCompletion } from '@/lib/domain/listing-completion';
 import {
-  LISTING_CHAPTERS, getStep, isListingStep, nextStepId, prevStepId,
-  stepHref, wizardProgress,
+  LISTING_CHAPTERS,
+  getStep,
+  isListingStep,
+  nextStepId,
+  prevStepId,
+  stepHref,
+  wizardProgress,
 } from '@/lib/domain/listing-steps';
 import { submitListing } from '@/lib/actions/partner';
 import WizardShell from '@/components/partner/listing/WizardShell';
 import WizardReview from '@/components/partner/listing/WizardReview';
 import {
-  BasicsSection, LocationSection, CapacitySection, AmenitiesSection,
-  RulesSection, PricingSection, TermsSection, PhotosSection, OwnershipSection,
+  BasicsSection,
+  LocationSection,
+  CapacitySection,
+  AmenitiesSection,
+  RulesSection,
+  PricingSection,
+  TermsSection,
+  PhotosSection,
+  OwnershipSection,
 } from '@/components/partner/listing/ListingSections';
 
 export const metadata = {
@@ -62,13 +74,11 @@ export default async function SetupStepPage({ params }) {
   // steps are links. That keeps an accidental jump from discarding unsaved
   // input; moving forward deliberately still happens through Skip/Continue.
   const navigableSteps = progress.steps.filter((s) => s.done || s.failed || s.isCurrent);
-  const stepHrefs = Object.fromEntries(
-    navigableSteps.map((s) => [s.id, stepHref(id, s.id)]),
-  );
+  const stepHrefs = Object.fromEntries(navigableSteps.map((s) => [s.id, stepHref(id, s.id)]));
   const chapterHrefs = Object.fromEntries(
-    LISTING_CHAPTERS
-      .map((c) => [c.id, stepHrefs[c.steps[0].id]])
-      .filter(([, href]) => Boolean(href)),
+    LISTING_CHAPTERS.map((c) => [c.id, stepHrefs[c.steps[0].id]]).filter(([, href]) =>
+      Boolean(href),
+    ),
   );
 
   return (
@@ -81,12 +91,8 @@ export default async function SetupStepPage({ params }) {
       chapterHrefs={chapterHrefs}
       stepHrefs={stepHrefs}
     >
-      {stepId === 'basics' ? (
-        <BasicsSection listing={listing} categories={categories} />
-      ) : null}
-      {stepId === 'location' ? (
-        <LocationSection listing={listing} cities={cities} />
-      ) : null}
+      {stepId === 'basics' ? <BasicsSection listing={listing} categories={categories} /> : null}
+      {stepId === 'location' ? <LocationSection listing={listing} cities={cities} /> : null}
       {stepId === 'capacity' ? <CapacitySection listing={listing} /> : null}
       {stepId === 'amenities' ? (
         <AmenitiesSection listing={listing} catalogue={catalogue} selected={amenities} />

@@ -44,8 +44,8 @@ export default async function ListingsPage({ searchParams }) {
         <div className="mb-6 flex items-start gap-3 rounded-lg border border-brand-200 bg-success-bg p-4 text-meta text-brand-900">
           <span className="mt-0.5 size-2 shrink-0 rounded-full bg-success" aria-hidden="true" />
           <p>
-            <strong className="font-bold">Property submitted.</strong>{' '}
-            We check every property before it goes live and will reply within 2 working days by email and WhatsApp.
+            <strong className="font-bold">Property submitted.</strong> We check every property
+            before it goes live and will reply within 2 working days by email and WhatsApp.
           </p>
         </div>
       ) : null}
@@ -87,10 +87,15 @@ export default async function ListingsPage({ searchParams }) {
         />
       </section>
 
-      <section className="mt-6 overflow-hidden rounded-lg border border-border bg-card shadow-xs" aria-labelledby="property-list-title">
+      <section
+        className="mt-6 overflow-hidden rounded-lg border border-border bg-card shadow-xs"
+        aria-labelledby="property-list-title"
+      >
         <div className="flex flex-col gap-1 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
           <div>
-            <h2 id="property-list-title" className="text-h4 font-bold text-ink-900">All properties</h2>
+            <h2 id="property-list-title" className="text-h4 font-bold text-ink-900">
+              All properties
+            </h2>
             <p className="mt-0.5 text-tiny text-ink-500">
               {result.total === summary.total
                 ? `${result.total} ${result.total === 1 ? 'property' : 'properties'}`
@@ -104,9 +109,11 @@ export default async function ListingsPage({ searchParams }) {
         <PropertyTable
           listings={result.items}
           emptyTitle={summary.total ? 'No matching properties' : 'No properties yet'}
-          emptyDescription={summary.total
-            ? 'Try a different search or clear the current status filter.'
-            : 'Use “Add property” to create your first listing.'}
+          emptyDescription={
+            summary.total
+              ? 'Try a different search or clear the current status filter.'
+              : 'Use “Add property” to create your first listing.'
+          }
         />
 
         <div className="flex flex-col gap-3 border-t border-border bg-ink-25/70 px-4 py-3 text-tiny text-ink-500 sm:flex-row sm:items-center sm:justify-between sm:px-5">
@@ -125,7 +132,9 @@ export default async function ListingsPage({ searchParams }) {
                 ← Previous
               </Link>
             ) : (
-              <span className="cursor-not-allowed rounded-sm border border-border px-3 py-2 text-ink-400">← Previous</span>
+              <span className="cursor-not-allowed rounded-sm border border-border px-3 py-2 text-ink-400">
+                ← Previous
+              </span>
             )}
 
             <span className="grid min-h-8 min-w-8 place-items-center rounded-sm bg-brand-600 px-2 font-bold text-white tabular">
@@ -141,7 +150,9 @@ export default async function ListingsPage({ searchParams }) {
                 Next →
               </Link>
             ) : (
-              <span className="cursor-not-allowed rounded-sm border border-border px-3 py-2 text-ink-400">Next →</span>
+              <span className="cursor-not-allowed rounded-sm border border-border px-3 py-2 text-ink-400">
+                Next →
+              </span>
             )}
           </div>
         </div>

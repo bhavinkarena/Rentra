@@ -1,7 +1,12 @@
 import { RentraMark } from '@/components/rentra/Logo';
 
 function Skeleton({ className = '' }) {
-  return <span className={`rentra-skeleton block rounded-sm bg-ink-100 ${className}`} aria-hidden="true" />;
+  return (
+    <span
+      className={`rentra-skeleton block rounded-sm bg-ink-100 ${className}`}
+      aria-hidden="true"
+    />
+  );
 }
 
 export function RentraLoader({ label = 'Opening your Rentra workspace…', inverse = false }) {
@@ -10,16 +15,24 @@ export function RentraLoader({ label = 'Opening your Rentra workspace…', inver
       <div className="relative grid size-20 place-items-center">
         <span
           className={`rentra-loader-orbit absolute inset-0 rounded-full border-2 border-transparent ${
-            inverse ? 'border-t-brand-300 border-r-white/15' : 'border-t-brand-600 border-r-brand-100'
+            inverse
+              ? 'border-t-brand-300 border-r-white/15'
+              : 'border-t-brand-600 border-r-brand-100'
           }`}
           aria-hidden="true"
         />
-        <span className={`grid size-14 place-items-center rounded-xl shadow-sm ${inverse ? 'bg-white/8' : 'bg-white ring-1 ring-brand-100'}`}>
+        <span
+          className={`grid size-14 place-items-center rounded-xl shadow-sm ${inverse ? 'bg-white/8' : 'bg-white ring-1 ring-brand-100'}`}
+        >
           <RentraMark tone={inverse ? 'inverse' : 'brand'} className="size-9" />
         </span>
       </div>
-      <p className={`mt-4 text-meta font-semibold ${inverse ? 'text-white' : 'text-ink-800'}`}>{label}</p>
-      <p className={`mt-1 text-tiny ${inverse ? 'text-white/45' : 'text-ink-500'}`}>Your data is on its way.</p>
+      <p className={`mt-4 text-meta font-semibold ${inverse ? 'text-white' : 'text-ink-800'}`}>
+        {label}
+      </p>
+      <p className={`mt-1 text-tiny ${inverse ? 'text-white/45' : 'text-ink-500'}`}>
+        Your data is on its way.
+      </p>
     </div>
   );
 }
@@ -77,7 +90,10 @@ function TableSkeleton({ rows = 6 }) {
       </div>
       <div className="divide-y divide-border">
         {Array.from({ length: rows }, (_, index) => (
-          <div key={index} className="grid grid-cols-[minmax(0,2fr)_1fr_0.8fr] items-center gap-6 px-5 py-4 sm:grid-cols-[minmax(0,2fr)_1fr_0.8fr_0.8fr]">
+          <div
+            key={index}
+            className="grid grid-cols-[minmax(0,2fr)_1fr_0.8fr] items-center gap-6 px-5 py-4 sm:grid-cols-[minmax(0,2fr)_1fr_0.8fr_0.8fr]"
+          >
             <div className="flex items-center gap-3">
               <Skeleton className="size-10 shrink-0 rounded-md" />
               <div className="min-w-0 flex-1">
@@ -97,8 +113,13 @@ function TableSkeleton({ rows = 6 }) {
 
 export function DashboardSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-[1480px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8" aria-busy="true">
-      <span className="sr-only" role="status">Loading your dashboard</span>
+    <div
+      className="mx-auto w-full max-w-[1480px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
+      aria-busy="true"
+    >
+      <span className="sr-only" role="status">
+        Loading your dashboard
+      </span>
       <LoadingHeader />
       <KpiSkeletons />
       <div className="mt-6 grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
@@ -124,8 +145,13 @@ export function DashboardSkeleton() {
 
 export function PropertiesSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-[1480px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8" aria-busy="true">
-      <span className="sr-only" role="status">Loading your properties</span>
+    <div
+      className="mx-auto w-full max-w-[1480px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
+      aria-busy="true"
+    >
+      <span className="sr-only" role="status">
+        Loading your properties
+      </span>
       <LoadingHeader />
       <KpiSkeletons />
       <div className="mt-6">
@@ -137,8 +163,13 @@ export function PropertiesSkeleton() {
 
 export function SettingsSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-[1240px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8" aria-busy="true">
-      <span className="sr-only" role="status">Loading settings and payouts</span>
+    <div
+      className="mx-auto w-full max-w-[1240px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
+      aria-busy="true"
+    >
+      <span className="sr-only" role="status">
+        Loading settings and payouts
+      </span>
       <LoadingHeader narrow />
       <div className="mt-7 grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-5">
@@ -173,7 +204,9 @@ export function SettingsSkeleton() {
 export function EditorSkeleton() {
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6" aria-busy="true">
-      <span className="sr-only" role="status">Loading the property workspace</span>
+      <span className="sr-only" role="status">
+        Loading the property workspace
+      </span>
       <Skeleton className="h-4 w-28" />
       <Skeleton className="mt-6 h-9 w-72 max-w-full" />
       <div className="mt-5 rounded-lg border border-border bg-card p-5">
@@ -196,7 +229,9 @@ export function EditorSkeleton() {
 export function OnboardingSkeleton() {
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10" aria-busy="true">
-      <span className="sr-only" role="status">Loading your verification step</span>
+      <span className="sr-only" role="status">
+        Loading your verification step
+      </span>
       <Skeleton className="h-4 w-32" />
       <Skeleton className="mt-7 h-3 w-24" />
       <Skeleton className="mt-3 h-9 w-72 max-w-full" />
@@ -215,7 +250,9 @@ export function OnboardingSkeleton() {
 export function WizardSkeleton() {
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-ink-25" aria-busy="true">
-      <span className="sr-only" role="status">Loading the guided property setup</span>
+      <span className="sr-only" role="status">
+        Loading the guided property setup
+      </span>
       <header className="shrink-0 border-b border-border bg-card">
         <div className="flex items-center gap-4 px-4 py-2.5 sm:px-6">
           <Skeleton className="h-6 w-24" />

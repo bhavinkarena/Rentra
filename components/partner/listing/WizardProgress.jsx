@@ -1,9 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import {
-  AlertTriangle, Check, ChevronDown, ListChecks,
-} from 'lucide-react';
+import { AlertTriangle, Check, ChevronDown, ListChecks } from 'lucide-react';
 
 /** Five compact chapter segments used in the pinned wizard header. */
 export function ChapterBar({ chapters, hrefs = {} }) {
@@ -113,9 +111,11 @@ function ProgressList({ progress, stepHrefs = {} }) {
       {progress.chapters.map((chapter) => (
         <li key={chapter.id}>
           <div className="flex items-center justify-between gap-3 px-1">
-            <p className={`text-[0.65rem] font-bold tracking-[0.11em] uppercase ${
-              chapter.isCurrent ? 'text-brand-700' : 'text-ink-400'
-            }`}>
+            <p
+              className={`text-[0.65rem] font-bold tracking-[0.11em] uppercase ${
+                chapter.isCurrent ? 'text-brand-700' : 'text-ink-400'
+              }`}
+            >
               {chapter.label}
             </p>
             <span className="text-[0.65rem] font-semibold text-ink-400 tabular">
@@ -221,7 +221,10 @@ export function MobileStepDisclosure({ progress, stepHrefs = {} }) {
         <span className="text-tiny font-medium text-ink-500 tabular">
           {progress.doneCount}/{progress.doneTotal}
         </span>
-        <ChevronDown className="size-4 text-ink-400 transition-transform group-open:rotate-180" aria-hidden="true" />
+        <ChevronDown
+          className="size-4 text-ink-400 transition-transform group-open:rotate-180"
+          aria-hidden="true"
+        />
       </summary>
       <div className="border-t border-border px-4 py-4">
         <OverallProgress progress={progress} />

@@ -31,9 +31,10 @@ export default function CreateListingButton({
   pendingLabel = 'Opening setup…',
   variant = 'primary',
 }) {
-  const tone = variant === 'secondary'
-    ? 'border border-input bg-card text-ink-800 hover:bg-ink-50'
-    : 'border border-transparent bg-brand-600 text-white shadow-xs hover:bg-brand-700';
+  const tone =
+    variant === 'secondary'
+      ? 'border border-input bg-card text-ink-800 hover:bg-ink-50'
+      : 'border border-transparent bg-brand-600 text-white shadow-xs hover:bg-brand-700';
 
   return (
     <Link

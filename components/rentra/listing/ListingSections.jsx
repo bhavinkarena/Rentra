@@ -1,8 +1,27 @@
 import Link from 'next/link';
 import {
-  AirVent, Ban, BedDouble, Bath, CarFront, Check, ChevronDown, CircleSlash,
-  Clock, Flame, Landmark, LandPlot, Lock, MapPin, Music, ShieldCheck, Sparkles,
-  Trees, Users, Utensils, Waves, Wifi,
+  AirVent,
+  Ban,
+  BedDouble,
+  Bath,
+  CarFront,
+  Check,
+  ChevronDown,
+  CircleSlash,
+  Clock,
+  Flame,
+  Landmark,
+  LandPlot,
+  Lock,
+  MapPin,
+  Music,
+  ShieldCheck,
+  Sparkles,
+  Trees,
+  Users,
+  Utensils,
+  Waves,
+  Wifi,
 } from 'lucide-react';
 import Rating from '@/components/rentra/Rating';
 import TrustBadge from '@/components/rentra/TrustBadge';
@@ -23,7 +42,9 @@ export function Section({ id, title, intro, children, className = '' }) {
       aria-labelledby={id ? `${id}-heading` : undefined}
       className={`scroll-mt-24 border-t border-border pt-8 ${className}`}
     >
-      <h2 id={id ? `${id}-heading` : undefined} className="text-h2">{title}</h2>
+      <h2 id={id ? `${id}-heading` : undefined} className="text-h2">
+        {title}
+      </h2>
       {intro ? <p className="mt-2 max-w-prose text-body text-ink-600">{intro}</p> : null}
       <div className="mt-5">{children}</div>
     </section>
@@ -44,10 +65,10 @@ export function KeyFacts({ listing }) {
       : null,
     listing.farmSize
       ? {
-        Icon: LandPlot,
-        label: 'Farm size',
-        value: `${trimNumber(listing.farmSize)} ${listing.farmSizeUnit}`,
-      }
+          Icon: LandPlot,
+          label: 'Farm size',
+          value: `${trimNumber(listing.farmSize)} ${listing.farmSizeUnit}`,
+        }
       : null,
     listing.poolSize
       ? { Icon: Waves, label: 'Private pool', value: `${listing.poolSize} ft` }
@@ -59,9 +80,7 @@ export function KeyFacts({ listing }) {
       {facts.map(({ Icon, label, value }) => (
         <li key={label} className="rounded-md border border-border bg-card p-3.5">
           <Icon className="size-5 text-brand-600" aria-hidden="true" />
-          <p className="mt-2 text-tiny font-bold tracking-wider text-ink-500 uppercase">
-            {label}
-          </p>
+          <p className="mt-2 text-tiny font-bold tracking-wider text-ink-500 uppercase">{label}</p>
           <p className="mt-0.5 text-h4 font-bold tabular">{value}</p>
         </li>
       ))}
@@ -87,7 +106,8 @@ export function VisitHours({ schedules = [] }) {
           <dd className="mt-1 text-tiny text-ink-500">
             Up to {schedule.capacity} guests
             {schedule.includedGuests < schedule.capacity
-              ? ` · base rent includes ${schedule.includedGuests}` : ''}
+              ? ` · base rent includes ${schedule.includedGuests}`
+              : ''}
           </dd>
         </div>
       ))}
@@ -157,7 +177,11 @@ export function AmenityGrid({ amenities = {} }) {
           <AmenityList items={withIcons(hidden)} className="mt-4" />
         </details>
       ) : null}
-      <AmenityState title="Available for an extra cost" items={extra} empty="No paid extras are listed." />
+      <AmenityState
+        title="Available for an extra cost"
+        items={extra}
+        empty="No paid extras are listed."
+      />
       {unavailable.length ? (
         <details>
           <summary className="cursor-pointer text-meta font-semibold text-ink-700 underline underline-offset-4">
@@ -179,9 +203,16 @@ export function AmenityGrid({ amenities = {} }) {
 }
 
 function AmenityState({ title, items, empty }) {
-  return <div><h3 className="text-h4">{title}</h3>{items.length
-    ? <AmenityList items={withIcons(items)} className="mt-3" />
-    : <p className="mt-2 text-meta text-ink-500">{empty}</p>}</div>;
+  return (
+    <div>
+      <h3 className="text-h4">{title}</h3>
+      {items.length ? (
+        <AmenityList items={withIcons(items)} className="mt-3" />
+      ) : (
+        <p className="mt-2 text-meta text-ink-500">{empty}</p>
+      )}
+    </div>
+  );
 }
 
 function AmenityList({ items, className = '' }) {
@@ -209,18 +240,20 @@ export function HouseRules({ listing }) {
           {[
             ['Check-in', checkInFrom],
             ['Check-out', checkOutBy],
-          ].filter(([, v]) => v).map(([label, value]) => (
-            <div key={label} className="flex items-center gap-2.5 rounded-md bg-brand-50 p-3.5">
-              <Clock className="size-4.5 shrink-0 text-brand-700" aria-hidden="true" />
-              <div>
-                <dt className="text-tiny font-bold tracking-wider text-brand-700 uppercase">
-                  {label}
-                </dt>
-                {/* A window, not a fixed time — that is the local convention. */}
-                <dd className="text-meta font-semibold">{value}</dd>
+          ]
+            .filter(([, v]) => v)
+            .map(([label, value]) => (
+              <div key={label} className="flex items-center gap-2.5 rounded-md bg-brand-50 p-3.5">
+                <Clock className="size-4.5 shrink-0 text-brand-700" aria-hidden="true" />
+                <div>
+                  <dt className="text-tiny font-bold tracking-wider text-brand-700 uppercase">
+                    {label}
+                  </dt>
+                  {/* A window, not a fixed time — that is the local convention. */}
+                  <dd className="text-meta font-semibold">{value}</dd>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </dl>
       ) : null}
 
@@ -274,12 +307,22 @@ export function AreaCircle({ listing: { areaName, cityName } }) {
 
           <rect width="400" height="224" fill="url(#lanes)" />
           {/* A wider road through, so the panel reads as a place, not a texture. */}
-          <path d="M-10 150 Q 140 120 200 96 T 410 70" fill="none" stroke="#BCD8C7" strokeWidth="7" />
+          <path
+            d="M-10 150 Q 140 120 200 96 T 410 70"
+            fill="none"
+            stroke="#BCD8C7"
+            strokeWidth="7"
+          />
           <circle cx="200" cy="112" r="96" fill="url(#fade)" />
           <circle
-            cx="200" cy="112" r="72"
-            fill="#2E6449" fillOpacity="0.1"
-            stroke="#2E6449" strokeWidth="2" strokeDasharray="7 6"
+            cx="200"
+            cy="112"
+            r="72"
+            fill="#2E6449"
+            fillOpacity="0.1"
+            stroke="#2E6449"
+            strokeWidth="2"
+            strokeDasharray="7 6"
           />
           <circle cx="200" cy="112" r="5" fill="#2E6449" />
         </svg>
@@ -293,9 +336,9 @@ export function AreaCircle({ listing: { areaName, cityName } }) {
       <div className="flex items-start gap-2.5 p-4">
         <Lock className="mt-0.5 size-4 shrink-0 text-ink-500" aria-hidden="true" />
         <p className="text-meta text-ink-600">
-          This illustration represents the area. The exact address, map
-          directions and the owner&rsquo;s number are released the moment your
-          booking is confirmed and those details are available to you.
+          This illustration represents the area. The exact address, map directions and the
+          owner&rsquo;s number are released the moment your booking is confirmed and those details
+          are available to you.
         </p>
       </div>
     </div>
@@ -370,13 +413,28 @@ export function Reviews({ listing }) {
             <p className="mt-0.5 text-tiny text-ink-500">
               {r.publishedAt
                 ? new Date(r.publishedAt).toLocaleDateString('en-IN', {
-                  month: 'long', year: 'numeric',
-                })
+                    month: 'long',
+                    year: 'numeric',
+                  })
                 : null}
             </p>
-            {r.body ? <p className="mt-2.5 whitespace-pre-wrap break-words text-body text-ink-700">{r.body}</p> : null}
-            {r.ownerReply ? <div className="mt-3 border-l-2 border-border pl-3"><p className="font-semibold">Owner reply</p><p className="whitespace-pre-wrap break-words">{r.ownerReply}</p></div> : null}
-            <Link className="inline-flex min-h-11 items-center text-meta underline" href={`/reviews/${r.id}/report`}>Report review or reply</Link>
+            {r.body ? (
+              <p className="mt-2.5 whitespace-pre-wrap break-words text-body text-ink-700">
+                {r.body}
+              </p>
+            ) : null}
+            {r.ownerReply ? (
+              <div className="mt-3 border-l-2 border-border pl-3">
+                <p className="font-semibold">Owner reply</p>
+                <p className="whitespace-pre-wrap break-words">{r.ownerReply}</p>
+              </div>
+            ) : null}
+            <Link
+              className="inline-flex min-h-11 items-center text-meta underline"
+              href={`/reviews/${r.id}/report`}
+            >
+              Report review or reply
+            </Link>
           </li>
         ))}
       </ul>
@@ -411,9 +469,7 @@ export function OwnerCard({ listing }) {
           <p className="text-h4 font-bold">{client?.firstName}</p>
           <p className="text-meta text-ink-600">
             {listing.categoryName ?? 'Farmhouse'} owner
-            {client?.since
-              ? ` · on Rentra since ${new Date(client.since).getFullYear()}`
-              : ''}
+            {client?.since ? ` · on Rentra since ${new Date(client.since).getFullYear()}` : ''}
           </p>
         </div>
       </div>
@@ -440,15 +496,17 @@ export function OwnerCard({ listing }) {
           <dt className="text-ink-600">Phone number</dt>
           <dd className="flex items-center gap-1.5 font-semibold text-ink-600">
             <Lock className="size-3.5" aria-hidden="true" />
-            <span aria-hidden="true" className="tabular">+91 •••• •••• </span>
+            <span aria-hidden="true" className="tabular">
+              +91 •••• ••••{' '}
+            </span>
             <span className="sr-only">Hidden until your booking is confirmed</span>
           </dd>
         </div>
       </dl>
 
       <p className="mt-3 text-tiny text-ink-500">
-        Owner contact details and the exact address are private. They become
-        available to the customer through an authorised confirmed booking.
+        Owner contact details and the exact address are private. They become available to the
+        customer through an authorised confirmed booking.
       </p>
     </div>
   );
@@ -483,9 +541,7 @@ export function CancellationPolicy({ tier = 'moderate', rent, fee, deposit = 0 }
         <p className="text-meta font-bold">{policy.label} cancellation</p>
         {/* Rent + fee, because on the flexible tier the fee comes back too —
             quoting the rent alone would show a refund larger than the base. */}
-        <p className="text-tiny text-ink-500">
-          example booking value {formatINR(rent + fee)}
-        </p>
+        <p className="text-tiny text-ink-500">example booking value {formatINR(rent + fee)}</p>
       </div>
       <dl className="divide-y divide-border">
         {rows.map(({ label, refund }) => (
@@ -509,7 +565,8 @@ export function CancellationPolicy({ tier = 'moderate', rent, fee, deposit = 0 }
       {deposit > 0 ? (
         <p className="flex items-start gap-2 border-t border-border bg-brand-50 px-4 py-3 text-tiny text-brand-800">
           <CircleSlash className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-          The {formatINR(deposit)} refundable security deposit is shown separately from rent and fees.
+          The {formatINR(deposit)} refundable security deposit is shown separately from rent and
+          fees.
         </p>
       ) : null}
       <p className="border-t border-border px-4 py-3 text-tiny text-ink-500">
@@ -530,9 +587,21 @@ export function MoneyNote() {
   return (
     <ul className="@container grid gap-4 rounded-lg bg-brand-50 p-5 @lg:grid-cols-3">
       {[
-        [Landmark, 'Booking opens later', 'You can review dates and save this place while checkout is being completed.'],
-        [ShieldCheck, 'Clear booking details', 'Review the property rules, visit hours and total before booking.'],
-        [Users, 'Listed by owner', 'Compare the published facilities, rules and customer reviews before choosing.'],
+        [
+          Landmark,
+          'Booking opens later',
+          'You can review dates and save this place while checkout is being completed.',
+        ],
+        [
+          ShieldCheck,
+          'Clear booking details',
+          'Review the property rules, visit hours and total before booking.',
+        ],
+        [
+          Users,
+          'Listed by owner',
+          'Compare the published facilities, rules and customer reviews before choosing.',
+        ],
       ].map(([Icon, title, body]) => (
         <li key={title} className="flex items-start gap-2.5">
           <Icon className="mt-0.5 size-4.5 shrink-0 text-brand-700" aria-hidden="true" />

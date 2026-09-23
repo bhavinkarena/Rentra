@@ -29,15 +29,18 @@ export default function WizardShell({
    * saves. Trust-field edits on a live listing stay put once so their review
    * warning is visible before the owner moves on.
    */
-  const handleSaved = useCallback((state) => {
-    if (!nextHref) return;
-    if (state?.sentBack) {
-      setHeldBack(true);
-      return;
-    }
-    setAdvancing(true);
-    router.push(nextHref);
-  }, [nextHref, router]);
+  const handleSaved = useCallback(
+    (state) => {
+      if (!nextHref) return;
+      if (state?.sentBack) {
+        setHeldBack(true);
+        return;
+      }
+      setAdvancing(true);
+      router.push(nextHref);
+    },
+    [nextHref, router],
+  );
 
   const busy = pending || advancing;
   const isSubmitStep = step.advance === 'submit' && !heldBack;
@@ -135,7 +138,9 @@ export default function WizardShell({
             ) : null}
 
             {isSubmitStep && !busy ? (
-              <p className="hidden text-tiny text-ink-400 md:block">Changes save when you continue</p>
+              <p className="hidden text-tiny text-ink-400 md:block">
+                Changes save when you continue
+              </p>
             ) : null}
 
             {continueLabel ? (

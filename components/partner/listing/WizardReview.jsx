@@ -18,9 +18,7 @@ export default function WizardReview({ listingId, listing, completion, submitAct
 
   return (
     <section>
-      <h1 className="text-h1">
-        {completion.canSubmit ? 'Ready to send' : 'Almost there'}
-      </h1>
+      <h1 className="text-h1">{completion.canSubmit ? 'Ready to send' : 'Almost there'}</h1>
       <p className="mt-2 max-w-prose text-body text-ink-600">
         {completion.canSubmit
           ? 'Have a last look, then send it to us. We check every property before it goes live — 2 working days, by email and WhatsApp.'

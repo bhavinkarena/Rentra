@@ -53,8 +53,9 @@ function isActive(pathname, item) {
 function routeLabel(pathname) {
   if (pathname.startsWith('/admin/applications/')) return 'Application review';
   if (pathname.startsWith('/admin/bookings/')) return 'Booking record';
-  const item = NAV_GROUPS.flatMap((group) => group.items)
-    .find((entry) => pathname === entry.href || pathname.startsWith(`${entry.href}/`));
+  const item = NAV_GROUPS.flatMap((group) => group.items).find(
+    (entry) => pathname === entry.href || pathname.startsWith(`${entry.href}/`),
+  );
   return item?.label || 'Admin console';
 }
 
@@ -63,8 +64,12 @@ function LinkPendingHint() {
 
   return (
     <span className="relative ml-auto grid size-4 shrink-0 place-items-center" aria-hidden="true">
-      <ChevronRight className={`size-4 transition-opacity ${pending ? 'opacity-0' : 'opacity-45'}`} />
-      <LoaderCircle className={`absolute size-4 animate-spin transition-opacity ${pending ? 'opacity-100' : 'opacity-0'}`} />
+      <ChevronRight
+        className={`size-4 transition-opacity ${pending ? 'opacity-0' : 'opacity-45'}`}
+      />
+      <LoaderCircle
+        className={`absolute size-4 animate-spin transition-opacity ${pending ? 'opacity-100' : 'opacity-0'}`}
+      />
     </span>
   );
 }
@@ -84,8 +89,16 @@ function NavigationLink({ item, pathname, onNavigate }) {
           : 'text-white/62 hover:bg-white/7 hover:text-white'
       }`}
     >
-      {active ? <span className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-brand-300" aria-hidden="true" /> : null}
-      <Icon className={`size-[18px] ${active ? 'text-brand-200' : 'text-white/45 group-hover:text-white/75'}`} aria-hidden="true" />
+      {active ? (
+        <span
+          className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-brand-300"
+          aria-hidden="true"
+        />
+      ) : null}
+      <Icon
+        className={`size-[18px] ${active ? 'text-brand-200' : 'text-white/45 group-hover:text-white/75'}`}
+        aria-hidden="true"
+      />
       <span>{item.label}</span>
       <LinkPendingHint />
     </Link>
@@ -102,7 +115,12 @@ function Navigation({ pathname, onNavigate }) {
           </p>
           <div className="space-y-1">
             {group.items.map((item) => (
-              <NavigationLink key={item.href} item={item} pathname={pathname} onNavigate={onNavigate} />
+              <NavigationLink
+                key={item.href}
+                item={item}
+                pathname={pathname}
+                onNavigate={onNavigate}
+              />
             ))}
           </div>
         </div>
@@ -120,7 +138,11 @@ function LogoutButton() {
       disabled={pending}
       className="mt-1 flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-tiny font-semibold text-white/55 transition-colors hover:bg-white/7 hover:text-white disabled:cursor-wait"
     >
-      {pending ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : <LogOut className="size-4" aria-hidden="true" />}
+      {pending ? (
+        <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
+      ) : (
+        <LogOut className="size-4" aria-hidden="true" />
+      )}
       {pending ? 'Signing out…' : 'Sign out'}
     </button>
   );
@@ -143,8 +165,14 @@ function AdminCard({ admin, logoutAction }) {
         </span>
         <span className="min-w-0 flex-1">
           <span className="block truncate text-meta font-semibold text-white">{admin.email}</span>
-          <span className={`mt-0.5 flex items-center gap-1 text-[0.68rem] font-medium ${admin.hasTotp ? 'text-brand-200' : 'text-amber-300'}`}>
-            {admin.hasTotp ? <ShieldCheck className="size-3" aria-hidden="true" /> : <TriangleAlert className="size-3" aria-hidden="true" />}
+          <span
+            className={`mt-0.5 flex items-center gap-1 text-[0.68rem] font-medium ${admin.hasTotp ? 'text-brand-200' : 'text-amber-300'}`}
+          >
+            {admin.hasTotp ? (
+              <ShieldCheck className="size-3" aria-hidden="true" />
+            ) : (
+              <TriangleAlert className="size-3" aria-hidden="true" />
+            )}
             {admin.hasTotp ? '2FA protected' : '2FA not enrolled'}
           </span>
         </span>
@@ -206,7 +234,11 @@ export default function AdminShell({ children, admin, logoutAction }) {
             <Menu className="size-5" aria-hidden="true" />
           </button>
 
-          <Link href="/admin" className="mr-3 flex items-center lg:hidden" aria-label="Rentra admin dashboard">
+          <Link
+            href="/admin"
+            className="mr-3 flex items-center lg:hidden"
+            aria-label="Rentra admin dashboard"
+          >
             <RentraMark className="size-8" />
           </Link>
 

@@ -2,24 +2,25 @@
 
 import { useActionState, useMemo, useState } from 'react';
 import Link from 'next/link';
-import {
-  ArrowLeft, ArrowRight, Building2, Loader2, MapPin, ShieldCheck, X,
-} from 'lucide-react';
+import { ArrowLeft, ArrowRight, Building2, Loader2, MapPin, ShieldCheck, X } from 'lucide-react';
 import { createListingFromBasics } from '@/lib/actions/partner';
 import { RentraLogo } from '@/components/rentra/Logo';
 import { Input } from '@/components/ui/input';
 import { STEP_FORM_ID } from './chrome';
 import { ChapterBar, MobileStepDisclosure, StepRail } from './WizardProgress';
 
-const controlClass = 'min-h-12 w-full rounded-md border border-input bg-card px-3.5 py-3 text-meta '
-  + 'text-ink-900 placeholder:text-ink-400 focus:border-brand-600 focus:outline-none';
+const controlClass =
+  'min-h-12 w-full rounded-md border border-input bg-card px-3.5 py-3 text-meta ' +
+  'text-ink-900 placeholder:text-ink-400 focus:border-brand-600 focus:outline-none';
 
 function Field({ id, label, hint, error, optional = false, children }) {
   const descriptionId = `${id}-description`;
   return (
     <div>
       <div className="mb-1.5 flex items-baseline justify-between gap-3">
-        <label htmlFor={id} className="text-meta font-semibold text-ink-800">{label}</label>
+        <label htmlFor={id} className="text-meta font-semibold text-ink-800">
+          {label}
+        </label>
         {optional ? <span className="text-tiny text-ink-400">Optional</span> : null}
       </div>
       {children}
@@ -117,13 +118,22 @@ export default function NewListingStart({ categories, cities, progress }) {
                       <Building2 className="size-5" aria-hidden="true" />
                     </span>
                     <div>
-                      <h2 id="identity-heading" className="text-h4 font-bold text-ink-900">Property identity</h2>
-                      <p className="mt-0.5 text-tiny text-ink-500">What it is and why a guest would choose it.</p>
+                      <h2 id="identity-heading" className="text-h4 font-bold text-ink-900">
+                        Property identity
+                      </h2>
+                      <p className="mt-0.5 text-tiny text-ink-500">
+                        What it is and why a guest would choose it.
+                      </p>
                     </div>
                   </div>
 
                   <div className="mt-5 space-y-5">
-                    <Field id="categoryId" label="Category" hint="Choose the closest type of property." error={errors.categoryId}>
+                    <Field
+                      id="categoryId"
+                      label="Category"
+                      hint="Choose the closest type of property."
+                      error={errors.categoryId}
+                    >
                       <select
                         id="categoryId"
                         name="categoryId"
@@ -133,9 +143,13 @@ export default function NewListingStart({ categories, cities, progress }) {
                         aria-describedby="categoryId-description"
                         className={controlClass}
                       >
-                        <option value="" disabled>Select a category</option>
+                        <option value="" disabled>
+                          Select a category
+                        </option>
                         {categories.map((category) => (
-                          <option key={category.id} value={category.id}>{category.name}</option>
+                          <option key={category.id} value={category.id}>
+                            {category.name}
+                          </option>
                         ))}
                       </select>
                     </Field>
@@ -211,13 +225,22 @@ export default function NewListingStart({ categories, cities, progress }) {
                       <MapPin className="size-5" aria-hidden="true" />
                     </span>
                     <div>
-                      <h2 id="area-heading" className="text-h4 font-bold text-ink-900">General area</h2>
-                      <p className="mt-0.5 text-tiny text-ink-500">The next step asks for the exact address and map pin.</p>
+                      <h2 id="area-heading" className="text-h4 font-bold text-ink-900">
+                        General area
+                      </h2>
+                      <p className="mt-0.5 text-tiny text-ink-500">
+                        The next step asks for the exact address and map pin.
+                      </p>
                     </div>
                   </div>
 
                   <div className="mt-5 grid gap-5 sm:grid-cols-2">
-                    <Field id="cityId" label="City" hint="Where guests will search." error={errors.cityId}>
+                    <Field
+                      id="cityId"
+                      label="City"
+                      hint="Where guests will search."
+                      error={errors.cityId}
+                    >
                       <select
                         id="cityId"
                         name="cityId"
@@ -231,12 +254,23 @@ export default function NewListingStart({ categories, cities, progress }) {
                         aria-describedby="cityId-description"
                         className={controlClass}
                       >
-                        <option value="" disabled>Select a city</option>
-                        {cities.map((city) => <option key={city.id} value={city.id}>{city.name}</option>)}
+                        <option value="" disabled>
+                          Select a city
+                        </option>
+                        {cities.map((city) => (
+                          <option key={city.id} value={city.id}>
+                            {city.name}
+                          </option>
+                        ))}
                       </select>
                     </Field>
 
-                    <Field id="areaId" label="Area" hint="Must belong to the selected city." error={errors.areaId}>
+                    <Field
+                      id="areaId"
+                      label="Area"
+                      hint="Must belong to the selected city."
+                      error={errors.areaId}
+                    >
                       <select
                         id="areaId"
                         name="areaId"
@@ -248,19 +282,28 @@ export default function NewListingStart({ categories, cities, progress }) {
                         aria-describedby="areaId-description"
                         className={`${controlClass} disabled:cursor-not-allowed disabled:bg-ink-50 disabled:text-ink-400`}
                       >
-                        <option value="" disabled>{cityId ? 'Select an area' : 'Choose a city first'}</option>
-                        {areas.map((area) => <option key={area.id} value={area.id}>{area.name}</option>)}
+                        <option value="" disabled>
+                          {cityId ? 'Select an area' : 'Choose a city first'}
+                        </option>
+                        {areas.map((area) => (
+                          <option key={area.id} value={area.id}>
+                            {area.name}
+                          </option>
+                        ))}
                       </select>
                     </Field>
                   </div>
                 </section>
 
                 <div className="mt-8 flex items-start gap-3 rounded-lg border border-brand-100 bg-brand-50 p-4">
-                  <ShieldCheck className="mt-0.5 size-4 shrink-0 text-brand-700" aria-hidden="true" />
+                  <ShieldCheck
+                    className="mt-0.5 size-4 shrink-0 text-brand-700"
+                    aria-hidden="true"
+                  />
                   <p className="text-tiny leading-5 text-brand-900">
-                    <strong className="font-bold">No blank drafts.</strong> Leaving this page creates
-                    nothing. After a valid Continue, these details are saved and you move to the exact
-                    location step.
+                    <strong className="font-bold">No blank drafts.</strong> Leaving this page
+                    creates nothing. After a valid Continue, these details are saved and you move to
+                    the exact location step.
                   </p>
                 </div>
               </div>
@@ -282,7 +325,9 @@ export default function NewListingStart({ categories, cities, progress }) {
             <ArrowLeft className="size-4" aria-hidden="true" />
             <span className="hidden sm:inline">Properties</span>
           </Link>
-          <p className="hidden text-tiny text-ink-400 sm:block">Nothing is created until this step is valid</p>
+          <p className="hidden text-tiny text-ink-400 sm:block">
+            Nothing is created until this step is valid
+          </p>
           <button
             type="submit"
             form={STEP_FORM_ID}

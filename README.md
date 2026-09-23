@@ -1,134 +1,74 @@
-# Rentra
+# Rentra frontend
 
-Book a verified farmhouse, directly from the owner. No brokerage.
-
-- **Plan:** [`docs/rentra-implementation-plan.html`](docs/rentra-implementation-plan.html) — 5 gated phases, 146 items
-- **Design system:** [`docs/rentra-design-system.html`](docs/rentra-design-system.html) — palette, type, components
-- **Customer requirements:** [`docs/rentra-customer-plan.html`](docs/rentra-customer-plan.html)
-- **Customer implementation:** [`docs/rentra-customer-sessions.md`](docs/rentra-customer-sessions.md) — one bounded part per session, completion checks and resume instructions
+Next.js App Router frontend for Rentra. The Express API in `../rentra-backend`
+owns the database, migrations, authentication rules, uploads and workers.
 
 ```bash
-cp .env.example .env.local   # then fill DATABASE_URL
-npm run seed:images          # dev photography into public/seed (gitignored)
-npm run db:migrate && npm run db:seed
-npm run dev                  # http://localhost:3000
-npm run build && npm run lint
-npm run worker               # the background job process
-npm run verify:customer-foundation  # dates, intervals, pricing and calendar safety; no DB needed
+npm install
+cp .env.example .env.local
+npm run dev
 ```
 
-## Stack
-
-Next.js 16 (App Router, Turbopack) · React 19 · JavaScript · Tailwind v4 ·
-shadcn/ui (radix) · Redux Toolkit + RTK Query · Zod + Joi · lucide-react +
-react-icons · react-hot-toast
+Set `NEXT_PUBLIC_API_URL` to the backend URL (default `http://localhost:4000/api/v1`).
+Run the backend separately and include the frontend origin in its CORS configuration.
 
 ## Structure
 
-```
-app/
-  (marketing)/     indexed — home, city, category, area, listing
-  (app)/           Customer — booking, chat, trips        · noindex
-  (partner)/       Client — listings, calendar, earnings  · noindex
-  (admin)/         Super Admin                            · noindex
-  api/webhooks/    EXTERNAL callers only
-components/
-  ui/              shadcn (generated — regenerate, don't hand-edit)
-  rentra/          product components
+```text
+app/                  Next.js layouts, pages, loading/error boundaries and download handlers
+  (marketing)/        public server-rendered discovery and listing pages
+  (customer)/         customer account, bookings, checkout and support
+  (partner)/          owner onboarding and portal
+  (wizard)/           listing setup
+  (admin)/            administration
+components/           product components; ui/ contains shadcn components
 lib/
-  domain/          pure business rules — shared by app AND worker
-  store/           Redux: client UI state only
-  validation/      zod/ (client boundary) · joi/ (server env)
-  db/
-worker/            BullMQ jobs — deployed separately, versioned here
+  api/                shared API config, server-capable fetch client and endpoint facade
+  actions/            Server Actions preserving cookies, redirects and revalidation
+  services/           AOG-style RTK Query base API and feature endpoint injection
+  store/              per-render store factory, provider, hooks and UI slices
+  domain/             pure domain helpers
+  validation/zod/     form schemas
 ```
 
-## The eight rules
+## Data and state
 
-1. **No `/api/*` for our own frontend.** Reads = Server Components querying the
-   DB directly. Writes = Server Actions. Route handlers are for external
-   callers only: Razorpay, WhatsApp, cron. A controller → JSON → `useEffect`
-   round trip for a listing page is shipped JS, a spinner, and a page Google
-   cannot read — which defeats the reason we chose Next.js.
+Redux Toolkit, React Redux and RTK Query use the same libraries as AOG.
+`lib/services/baseApi.service.js` owns the sole API reducer/middleware. Feature
+services call `injectEndpoints` and export hooks. Import hooks directly from the
+customer, partner or admin service inside a Client Component. Query results retain
+the backend envelope: `data.data` is the payload; `data.redirect` and
+`data.revalidate` remain available. Errors retain `code`, `message` and `errors`.
+Mutation input is the backend's existing JSON or FormData body. Do not invent
+fields or skip the existing preview/confirmation flow for financial actions.
 
-2. **Redux is client UI state only.** Filter panels, wizard steps, form drafts,
-   map/list toggle. RTK Query is scoped to authenticated noindex surfaces
-   (partner, admin). Listings and availability never go in the store.
-   *If the URL is indexable, RTK Query has no business in it.*
+The provider creates an isolated store for each render/client and cleans up RTK
+Query listeners. Public data stays in Server Components. Existing pages and forms
+continue through `lib/api/endpoints.js` and Server Actions, preserving SSR, session
+cookie relay, navigation and cache revalidation. The new service hooks are ready
+for client-driven features; existing screens were not converted to client fetching.
+On any future client-only account switch/logout, dispatch
+`baseApi.util.resetApiState()` before displaying another account's data.
 
-3. **Zod at every boundary, Joi for server env.** Zod = forms, Server Actions,
-   route handler bodies, webhook payloads. Joi = `lib/validation/joi/env.js`,
-   run once at boot. Never validate the same shape in both — two schemas for
-   one thing drift, and the one that drifts is the one guarding the money.
+Tailwind v4, shadcn/Radix, Zod, toast and icon libraries remain configured as before.
+Next routing replaces AOG's React Router; no Vite configuration is needed.
 
-4. **Every business rule lives in `lib/domain/`.** The refund calculator must
-   be *one* function, imported by the checkout page, the webhook handler and
-   the worker. This is why the repo is not split in two.
-
-5. **Never add a colour.** Compose from the tokens in `app/globals.css`. Green
-   means act-or-confirmed; amber is stars and peak pricing only; WhatsApp
-   green is the single permitted exception. Check contrast before adding
-   anything, and write down its job in the design system file.
-
-6. **Store factory, never a singleton.** `makeStore()` per request/client. A
-   module-level store leaks one user's state into another's response.
-
-7. **Dark mode is scoped, never on `<html>`.** Public surfaces ship light-only
-   on purpose — the content is photography. `className="dark"` on the
-   partner/admin shells only.
-
-8. **Read the bundled docs before writing Next.js code.** This is Next.js 16;
-   `params` and `searchParams` are Promises, `middleware` is now `proxy`, and
-   `revalidateTag` takes a cacheLife argument. See `AGENTS.md`.
-
-## Database
-
-Neon Postgres 18 + PostGIS 3.6, Drizzle ORM. 16 tables.
+## Quality commands
 
 ```bash
-npm run db:generate   # after editing lib/db/schema/index.js
-npm run db:migrate    # enables extensions, then applies ./drizzle
-npm run db:seed       # 12 Surat-belt farmhouses, 90 days availability
-npm run db:studio
+npm run lint          # Next.js/React rules plus Prettier formatting
+npm run lint:fix      # automatic ESLint fixes and document formatting
+npm run format
+npm run format:check
+npm test              # RTK Query transport, errors and store isolation
+npm run build
+npm run ci
 ```
 
-Photography is fetched, not committed: `npm run seed:images` pulls 28
-Unsplash photos into `public/seed` (gitignored, ~39MB of large clean sources).
-They are stored deliberately oversized so `next/image` **downscales** — a
-hero lands at 96KB AVIF on desktop, 27KB on mobile. Re-encoding an
-already-compressed source at higher quality makes files *bigger*, which is
-the trap the first pass fell into.
+VS Code recommendations and format-on-save settings are in `.vscode/`.
+Historical delivery reports and generated assets are excluded from formatting.
 
-Seed data is grounded in real research of the Surat farmhouse market
-(Sept 2026): real localities, real 12hr/24hr price bands, real amenity
-vocabulary, deposits at ~40-50% of the 24hr weekend rate. The listings
-themselves are invented — nothing is copied from a competitor.
-
-**Seeded client:** `client@gmail.com` / phone `9000000001` (role `client`),
-owns all 12 listings. The same phone also exists as a `customer` row sharing
-one `person_id`, which is the single-role model working: uniqueness is on
-`(phone, role)`, and KYC is done once.
-
-Two constraints are enforced by Postgres, not application code:
-`availability(rentable_id, day, slot)` composite PK is the double-booking
-lock, and `UNIQUE(phone, role)` is the single-role rule.
-
-Listing URLs are `/listing/[slug]-[publicCode]` and resolve by the **code**,
-so retitling never 404s. `prepare: false` on the db client is mandatory —
-Neon's `-pooler` is PgBouncer in transaction mode.
-
-## Not wired up yet
-
-Auth · KYC · Razorpay Route split payments · WhatsApp Business API ·
-BullMQ queues in `worker/` · listing detail and city/area pages.
-
-**Before designing the money flow**, call Razorpay and Cashfree and ask: *what
-is the maximum period you will hold a split payment before mandatory
-settlement, for a rental marketplace?* A Diwali booking made in August means
-holding funds 70+ days. That answer shapes the schema.
-
-> **Never run `drizzle-kit push` against this database.** It diffs the schema
-> and applies changes directly, bypassing `./drizzle` migrations — which means
-> no reviewable SQL, no backfills, and a real chance of dropping a constraint
-> or a column with data behind it. Always `db:generate` then `db:migrate`, and
-> read the generated SQL before applying it.
+See [architecture alignment](docs/architecture-alignment.md),
+[customer plan](docs/rentra-customer-plan.html),
+[design system](docs/rentra-design-system.html) and
+[delivery sessions](docs/rentra-customer-sessions.md).

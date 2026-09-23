@@ -28,8 +28,8 @@ export const metadata = {
     template: '%s · Rentra',
   },
   description:
-    'Explore places for day visits and overnight stays, compare facilities, '
-    + 'check current dates and save places for later.',
+    'Explore places for day visits and overnight stays, compare facilities, ' +
+    'check current dates and save places for later.',
   openGraph: {
     type: 'website',
     locale: 'en_IN',

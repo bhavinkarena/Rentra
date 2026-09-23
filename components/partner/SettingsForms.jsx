@@ -6,8 +6,9 @@ import { saveAccountSettings, savePayoutDestination } from '@/lib/actions/partne
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-const inputCls = 'w-full rounded-sm border border-input bg-card px-3.5 py-3 text-meta '
-  + 'text-ink-900 placeholder:text-ink-400 focus:border-brand-600 focus:outline-none';
+const inputCls =
+  'w-full rounded-sm border border-input bg-card px-3.5 py-3 text-meta ' +
+  'text-ink-900 placeholder:text-ink-400 focus:border-brand-600 focus:outline-none';
 
 function Field({ id, label, hint, error, children }) {
   return (
@@ -50,19 +51,25 @@ export function AccountForm({ user }) {
   return (
     <form action={action} className="space-y-4">
       <Field
-        id="name" label="Your name" error={e.name}
+        id="name"
+        label="Your name"
+        error={e.name}
         hint="Shown to guests on your listings, alongside your verified badge."
       >
         <Input id="name" name="name" defaultValue={user.name ?? ''} className="h-11" />
       </Field>
 
       <Field
-        id="preferredLocale" label="Language" error={e.preferredLocale}
+        id="preferredLocale"
+        label="Language"
+        error={e.preferredLocale}
         hint="The language we write to you in. Guests always see listings in English."
       >
         <select
-          id="preferredLocale" name="preferredLocale"
-          defaultValue={user.preferredLocale ?? 'en'} className={inputCls}
+          id="preferredLocale"
+          name="preferredLocale"
+          defaultValue={user.preferredLocale ?? 'en'}
+          className={inputCls}
         >
           <option value="en">English</option>
           <option value="hi">हिन्दी — Hindi</option>
@@ -71,7 +78,9 @@ export function AccountForm({ user }) {
       </Field>
 
       <div className="flex items-center gap-3">
-        <Button type="submit" size="lg" className="min-h-10 px-4" disabled={pending}>Save</Button>
+        <Button type="submit" size="lg" className="min-h-10 px-4" disabled={pending}>
+          Save
+        </Button>
         <Saved state={state} pending={pending} />
       </div>
     </form>
@@ -92,7 +101,9 @@ export function PayoutDestinationForm({ user, application }) {
   return (
     <form action={action} className="space-y-4">
       <fieldset>
-        <legend className="mb-2 text-meta font-semibold text-ink-700">How should we pay you?</legend>
+        <legend className="mb-2 text-meta font-semibold text-ink-700">
+          How should we pay you?
+        </legend>
         <div className="grid gap-2 sm:grid-cols-2">
           {[
             { v: 'upi', title: 'UPI', body: 'Fastest — usually same day', Icon: Smartphone },
@@ -105,8 +116,11 @@ export function PayoutDestinationForm({ user, application }) {
               }`}
             >
               <input
-                type="radio" name="method" value={o.v}
-                checked={method === o.v} onChange={() => setMethod(o.v)}
+                type="radio"
+                name="method"
+                value={o.v}
+                checked={method === o.v}
+                onChange={() => setMethod(o.v)}
                 className="mt-1 size-4 shrink-0 accent-brand-600"
               />
               <span>
@@ -121,36 +135,57 @@ export function PayoutDestinationForm({ user, application }) {
       {method === 'upi' ? (
         <Field id="upiId" label="UPI ID" hint="Looks like yourname@bank." error={e.upiId}>
           <Input
-            id="upiId" name="upiId" placeholder="yourname@upi"
-            defaultValue={application?.payoutUpiId ?? ''} className="h-11"
+            id="upiId"
+            name="upiId"
+            placeholder="yourname@upi"
+            defaultValue={application?.payoutUpiId ?? ''}
+            className="h-11"
           />
         </Field>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
-            id="accountNumber" label="Account number" error={e.accountNumber}
-            hint={application?.payoutAccountRef
-              ? `Currently ${application.payoutAccountRef}. Type the full number to change it.`
-              : null}
+            id="accountNumber"
+            label="Account number"
+            error={e.accountNumber}
+            hint={
+              application?.payoutAccountRef
+                ? `Currently ${application.payoutAccountRef}. Type the full number to change it.`
+                : null
+            }
           >
-            <Input id="accountNumber" name="accountNumber" inputMode="numeric" className="h-11 font-mono" />
+            <Input
+              id="accountNumber"
+              name="accountNumber"
+              inputMode="numeric"
+              className="h-11 font-mono"
+            />
           </Field>
           <Field id="ifsc" label="IFSC" hint="Like SBIN0001234." error={e.ifsc}>
             <Input
-              id="ifsc" name="ifsc" maxLength={11} placeholder="SBIN0001234"
-              defaultValue={application?.payoutIfsc ?? ''} className="h-11 font-mono uppercase"
+              id="ifsc"
+              name="ifsc"
+              maxLength={11}
+              placeholder="SBIN0001234"
+              defaultValue={application?.payoutIfsc ?? ''}
+              className="h-11 font-mono uppercase"
             />
           </Field>
         </div>
       )}
 
       <Field
-        id="holderName" label="Account holder name" error={e.holderName}
+        id="holderName"
+        label="Account holder name"
+        error={e.holderName}
         hint="Must match the name on your ID. We cannot pay a third party."
       >
         <Input
-          id="holderName" name="holderName"
-          defaultValue={application?.payoutHolderName ?? user.name ?? ''} className="h-11" required
+          id="holderName"
+          name="holderName"
+          defaultValue={application?.payoutHolderName ?? user.name ?? ''}
+          className="h-11"
+          required
         />
       </Field>
 
@@ -164,7 +199,9 @@ export function PayoutDestinationForm({ user, application }) {
       ) : null}
 
       <div className="flex items-center gap-3">
-        <Button type="submit" size="lg" className="min-h-10 px-4" disabled={pending}>Save payout details</Button>
+        <Button type="submit" size="lg" className="min-h-10 px-4" disabled={pending}>
+          Save payout details
+        </Button>
         <Saved state={state} pending={pending} />
       </div>
     </form>

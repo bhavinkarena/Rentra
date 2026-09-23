@@ -2,14 +2,93 @@ import { CheckCircle2, CircleDollarSign, CreditCard, ShieldAlert } from 'lucide-
 import { requireAdmin } from '@/lib/api/session';
 import { adminApi } from '@/lib/api/endpoints';
 import PaymentGatewaySettings from '@/components/admin/PaymentGatewaySettings';
-import { AdminKpiCard, AdminPage, AdminPageHeader, StatusBadge } from '@/components/admin/AdminPrimitives';
+import {
+  AdminKpiCard,
+  AdminPage,
+  AdminPageHeader,
+  StatusBadge,
+} from '@/components/admin/AdminPrimitives';
 
-export const metadata={title:'Payment settings',robots:{index:false,follow:false,nocache:true}};
-export default async function AdminPaymentsPage(){
-  await requireAdmin(); const {configuration,providers}=await adminApi.paymentConfiguration();
-  const ready=providers.filter((provider)=>provider.ready).length;
-  return <AdminPage width="max-w-6xl"><AdminPageHeader eyebrow="Payment operations" title="Gateway settings" description="Control new sandbox payment attempts and collection behavior. Existing payment intents keep the configuration version with which they were created."/>
-    <section className="mt-7 grid grid-cols-2 gap-3 xl:grid-cols-4"><AdminKpiCard label="Gateway" value={configuration.enabled?'Enabled':'Disabled'} icon={CreditCard} hint="New test payment attempts" tone={configuration.enabled?'brand':'warning'}/><AdminKpiCard label="Environment" value="Test" icon={ShieldAlert} hint="Live collection remains unavailable" tone="warning"/><AdminKpiCard label="Ready providers" value={`${ready}/${providers.length}`} icon={CheckCircle2} hint="Server credentials present"/><AdminKpiCard label="Config version" value={configuration.version} icon={CircleDollarSign} hint="Audited settings revision"/></section>
-    <div className="mt-6 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]"><div><div className="mb-4 rounded-lg border border-brand-200 bg-brand-50 p-4 text-meta text-brand-900"><strong>Current setting:</strong> {configuration.enabled?'Test gateway enabled':'New payment attempts disabled'}. Disabling affects only new attempts.</div><PaymentGatewaySettings configuration={configuration} providers={providers}/></div><aside className="rounded-lg border border-border bg-card p-5 shadow-xs"><h2 className="text-h4 font-bold">Provider readiness</h2><p className="mt-2 text-tiny leading-5 text-ink-500">Credentials are read from server environment variables and are never returned to this page.</p><ul className="mt-5 divide-y divide-border">{providers.map((provider)=><li key={provider.id} className="py-4 first:pt-0 last:pb-0"><div className="flex items-center justify-between gap-3"><p className="text-meta font-semibold">{provider.label}</p><StatusBadge tone={provider.ready?'success':'danger'}>{provider.ready?'Configured':'Needs setup'}</StatusBadge></div><p className="mt-2 text-tiny leading-5 text-ink-500">{provider.reason??'Test key, API secret, and webhook secret are present. Connectivity is not yet verified.'}</p></li>)}</ul><p className="mt-5 border-t border-border pt-4 text-tiny leading-5 text-ink-500">Live keys and unregistered providers are rejected. New gateways require a reviewed adapter.</p></aside></div>
-  </AdminPage>;
+export const metadata = {
+  title: 'Payment settings',
+  robots: { index: false, follow: false, nocache: true },
+};
+export default async function AdminPaymentsPage() {
+  await requireAdmin();
+  const { configuration, providers } = await adminApi.paymentConfiguration();
+  const ready = providers.filter((provider) => provider.ready).length;
+  return (
+    <AdminPage width="max-w-6xl">
+      <AdminPageHeader
+        eyebrow="Payment operations"
+        title="Gateway settings"
+        description="Control new sandbox payment attempts and collection behavior. Existing payment intents keep the configuration version with which they were created."
+      />
+      <section className="mt-7 grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <AdminKpiCard
+          label="Gateway"
+          value={configuration.enabled ? 'Enabled' : 'Disabled'}
+          icon={CreditCard}
+          hint="New test payment attempts"
+          tone={configuration.enabled ? 'brand' : 'warning'}
+        />
+        <AdminKpiCard
+          label="Environment"
+          value="Test"
+          icon={ShieldAlert}
+          hint="Live collection remains unavailable"
+          tone="warning"
+        />
+        <AdminKpiCard
+          label="Ready providers"
+          value={`${ready}/${providers.length}`}
+          icon={CheckCircle2}
+          hint="Server credentials present"
+        />
+        <AdminKpiCard
+          label="Config version"
+          value={configuration.version}
+          icon={CircleDollarSign}
+          hint="Audited settings revision"
+        />
+      </section>
+      <div className="mt-6 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+        <div>
+          <div className="mb-4 rounded-lg border border-brand-200 bg-brand-50 p-4 text-meta text-brand-900">
+            <strong>Current setting:</strong>{' '}
+            {configuration.enabled ? 'Test gateway enabled' : 'New payment attempts disabled'}.
+            Disabling affects only new attempts.
+          </div>
+          <PaymentGatewaySettings configuration={configuration} providers={providers} />
+        </div>
+        <aside className="rounded-lg border border-border bg-card p-5 shadow-xs">
+          <h2 className="text-h4 font-bold">Provider readiness</h2>
+          <p className="mt-2 text-tiny leading-5 text-ink-500">
+            Credentials are read from server environment variables and are never returned to this
+            page.
+          </p>
+          <ul className="mt-5 divide-y divide-border">
+            {providers.map((provider) => (
+              <li key={provider.id} className="py-4 first:pt-0 last:pb-0">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-meta font-semibold">{provider.label}</p>
+                  <StatusBadge tone={provider.ready ? 'success' : 'danger'}>
+                    {provider.ready ? 'Configured' : 'Needs setup'}
+                  </StatusBadge>
+                </div>
+                <p className="mt-2 text-tiny leading-5 text-ink-500">
+                  {provider.reason ??
+                    'Test key, API secret, and webhook secret are present. Connectivity is not yet verified.'}
+                </p>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-5 border-t border-border pt-4 text-tiny leading-5 text-ink-500">
+            Live keys and unregistered providers are rejected. New gateways require a reviewed
+            adapter.
+          </p>
+        </aside>
+      </div>
+    </AdminPage>
+  );
 }

@@ -49,7 +49,8 @@ export default async function SettingsPage() {
               <div>
                 <h2 className="text-h4 font-bold text-ink-900">Where we send your money</h2>
                 <p className="mt-0.5 text-tiny leading-5 text-ink-500">
-                  Changing this re-runs the name check against your ID. Confirmed bookings pay to the destination saved when they settle.
+                  Changing this re-runs the name check against your ID. Confirmed bookings pay to
+                  the destination saved when they settle.
                 </p>
               </div>
             </div>
@@ -60,12 +61,16 @@ export default async function SettingsPage() {
         </div>
 
         <aside className="rounded-lg border border-border bg-card p-5 shadow-xs lg:sticky lg:top-20">
-          <p className="text-[0.68rem] font-bold tracking-[0.1em] text-ink-500 uppercase">Sign-in & identity</p>
+          <p className="text-[0.68rem] font-bold tracking-[0.1em] text-ink-500 uppercase">
+            Sign-in & identity
+          </p>
           <ul className="mt-4 divide-y divide-border">
             <li className="flex gap-3 pb-4">
               <Mail className="mt-0.5 size-4 shrink-0 text-ink-400" aria-hidden="true" />
               <span className="min-w-0">
-                <span className="block truncate text-tiny font-semibold text-ink-900">{user.email}</span>
+                <span className="block truncate text-tiny font-semibold text-ink-900">
+                  {user.email}
+                </span>
                 <span className="mt-1 block text-[0.68rem] leading-4 text-ink-500">
                   Your verified sign-in address. Contact Rentra to move the account to a new email.
                 </span>
@@ -94,7 +99,8 @@ export default async function SettingsPage() {
               <ShieldCheck className="mt-0.5 size-4 shrink-0 text-ink-400" aria-hidden="true" />
               <span className="min-w-0">
                 <span className="block text-tiny font-semibold text-ink-900">
-                  Identity {user.kycStatus === 'verified' ? 'verified' : user.kycStatus.replace(/_/g, ' ')}
+                  Identity{' '}
+                  {user.kycStatus === 'verified' ? 'verified' : user.kycStatus.replace(/_/g, ' ')}
                 </span>
                 <span className="mt-1 block text-[0.68rem] leading-4 text-ink-500">
                   {user.kycStatus === 'verified'

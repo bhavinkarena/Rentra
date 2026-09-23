@@ -10,7 +10,11 @@ export default async function Page() {
   const application = await partnerApi.application();
 
   return (
-    <OnboardingShell step={3} title="Your details" intro="We name-match these against your ownership document later, so accuracy matters more than speed.">
+    <OnboardingShell
+      step={3}
+      title="Your details"
+      intro="We name-match these against your ownership document later, so accuracy matters more than speed."
+    >
       <DetailsForm user={user} application={application} />
     </OnboardingShell>
   );

@@ -17,23 +17,40 @@ export default async function sitemap() {
     degradeOnFailure(() => discoveryApi.registry(), EMPTY_REGISTRY, 'sitemap registry'),
   ]);
   const routes = [];
-  for (const city of registry.cities) for (const category of registry.categories) {
-    const base = [city.slug, category.slug];
-    const segments = [base, ...registry.areas.filter(a => a.cityId === city.id).map(a => [...base, 'area', a.slug]), ...DISCOVERY_INTENTS.map(i => [...base, 'intent', i.slug])];
-    for (const parts of segments) {
-      const route = resolveDiscoveryRoute(registry, parts);
-      if (!route) continue;
-      /* A route whose count cannot be read is left out rather than
+  for (const city of registry.cities)
+    for (const category of registry.categories) {
+      const base = [city.slug, category.slug];
+      const segments = [
+        base,
+        ...registry.areas.filter((a) => a.cityId === city.id).map((a) => [...base, 'area', a.slug]),
+        ...DISCOVERY_INTENTS.map((i) => [...base, 'intent', i.slug]),
+      ];
+      for (const parts of segments) {
+        const route = resolveDiscoveryRoute(registry, parts);
+        if (!route) continue;
+        /* A route whose count cannot be read is left out rather than
          published as an indexable page we know nothing about. */
-      const { count } = await degradeOnFailure(
-        () => discoveryApi.routeCount(route.path),
-        { count: 0 },
-        `sitemap route count ${route.path}`,
-      );
-      if (count >= 3) routes.push({ url: `${siteUrl}${route.path}`, changeFrequency: 'daily', priority: 0.7 });
+        const { count } = await degradeOnFailure(
+          () => discoveryApi.routeCount(route.path),
+          { count: 0 },
+          `sitemap route count ${route.path}`,
+        );
+        if (count >= 3)
+          routes.push({ url: `${siteUrl}${route.path}`, changeFrequency: 'daily', priority: 0.7 });
+      }
     }
-  }
-  return [{ url: `${siteUrl}/`, changeFrequency: 'daily', priority: 1 }, ...routes,
-    ...['/help', ...['terms','cancellation','privacy'].map(kind => `/policies/${kind}/${POLICY_VERSION}`)].map(path => ({ url: `${siteUrl}${path}`, changeFrequency: 'monthly', priority: 0.4 })),
-    ...listings.map(l => ({ url: listingUrl(siteUrl, l.slug, l.publicCode), lastModified: l.updatedAt, changeFrequency: 'weekly', priority: 0.8 }))];
+  return [
+    { url: `${siteUrl}/`, changeFrequency: 'daily', priority: 1 },
+    ...routes,
+    ...[
+      '/help',
+      ...['terms', 'cancellation', 'privacy'].map((kind) => `/policies/${kind}/${POLICY_VERSION}`),
+    ].map((path) => ({ url: `${siteUrl}${path}`, changeFrequency: 'monthly', priority: 0.4 })),
+    ...listings.map((l) => ({
+      url: listingUrl(siteUrl, l.slug, l.publicCode),
+      lastModified: l.updatedAt,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    })),
+  ];
 }

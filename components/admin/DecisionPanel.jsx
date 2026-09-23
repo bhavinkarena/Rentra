@@ -77,7 +77,11 @@ export default function DecisionPanel({ applicationId, strikeCount }) {
           />
           <div className="flex gap-2">
             <Button type="submit" size="lg" disabled={busy}>
-              {approving ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
+              {approving ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Check className="size-4" />
+              )}
               Approve and activate
             </Button>
             <CancelBtn onClick={() => setMode(null)} disabled={busy} />
@@ -98,7 +102,12 @@ export default function DecisionPanel({ applicationId, strikeCount }) {
                   key={f.id}
                   className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-input px-3 py-1.5 text-meta hover:bg-ink-50"
                 >
-                  <input type="checkbox" name="flagged" value={f.id} className="size-3.5 accent-brand-600" />
+                  <input
+                    type="checkbox"
+                    name="flagged"
+                    value={f.id}
+                    className="size-3.5 accent-brand-600"
+                  />
                   {f.label}
                 </label>
               ))}
@@ -136,8 +145,8 @@ export default function DecisionPanel({ applicationId, strikeCount }) {
             Strike {nextStrike} of 3.
             {willBlock
               ? ' This one BLOCKS the account — only a manual appeal reopens it.'
-              : ' They can correct and resubmit.'}
-            {' '}Use “Need more info” instead if this is fixable.
+              : ' They can correct and resubmit.'}{' '}
+            Use “Need more info” instead if this is fixable.
           </p>
           <div>
             <textarea
@@ -148,7 +157,9 @@ export default function DecisionPanel({ applicationId, strikeCount }) {
               className={ta}
             />
             {rejectState.errors?.reason ? (
-              <p className="mt-1.5 text-tiny font-medium text-danger">{rejectState.errors.reason}</p>
+              <p className="mt-1.5 text-tiny font-medium text-danger">
+                {rejectState.errors.reason}
+              </p>
             ) : null}
           </div>
           <div className="flex gap-2">
@@ -164,8 +175,9 @@ export default function DecisionPanel({ applicationId, strikeCount }) {
   );
 }
 
-const ta = 'w-full rounded-sm border border-input bg-card px-3.5 py-3 text-meta '
-  + 'text-ink-900 placeholder:text-ink-400 focus:border-brand-600 focus:outline-none';
+const ta =
+  'w-full rounded-sm border border-input bg-card px-3.5 py-3 text-meta ' +
+  'text-ink-900 placeholder:text-ink-400 focus:border-brand-600 focus:outline-none';
 
 function btn(tone) {
   const tones = {
@@ -173,8 +185,10 @@ function btn(tone) {
     amber: 'border-amber-300 bg-amber-100 text-amber-700 hover:brightness-95',
     danger: 'border-danger/30 bg-danger-bg text-danger hover:brightness-95',
   };
-  return 'inline-flex items-center justify-center gap-2 rounded-md border px-4 py-3 '
-    + `text-meta font-semibold transition-colors ${tones[tone]}`;
+  return (
+    'inline-flex items-center justify-center gap-2 rounded-md border px-4 py-3 ' +
+    `text-meta font-semibold transition-colors ${tones[tone]}`
+  );
 }
 
 function CancelBtn({ onClick, disabled }) {

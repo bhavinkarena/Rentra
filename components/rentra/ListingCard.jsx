@@ -12,10 +12,10 @@ import { formatINRMinor } from '@/lib/domain/booking-money';
  * stops the grid jumping as photos arrive.
  */
 const BLUR =
-  'data:image/svg+xml;base64,'
-  + Buffer.from(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="4" height="3">'
-    + '<rect width="4" height="3" fill="#EBEEEB"/></svg>',
+  'data:image/svg+xml;base64,' +
+  Buffer.from(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="4" height="3">' +
+      '<rect width="4" height="3" fill="#EBEEEB"/></svg>',
   ).toString('base64');
 
 /**
@@ -38,15 +38,26 @@ const BLUR =
  */
 export default function ListingCard({ listing, eager = false }) {
   const {
-    href, area, title, capacity, bedrooms, highlight, price, strikePrice,
-    isFromPrice, unit, rating, reviewCount, badge, photo, photoCount,
+    href,
+    area,
+    title,
+    capacity,
+    bedrooms,
+    highlight,
+    price,
+    strikePrice,
+    isFromPrice,
+    unit,
+    rating,
+    reviewCount,
+    badge,
+    photo,
+    photoCount,
   } = listing;
 
-  const capacityLine = [
-    `Up to ${capacity} guests`,
-    bedrooms ? `${bedrooms} BR` : null,
-    highlight,
-  ].filter(Boolean).join(' · ');
+  const capacityLine = [`Up to ${capacity} guests`, bedrooms ? `${bedrooms} BR` : null, highlight]
+    .filter(Boolean)
+    .join(' · ');
 
   return (
     <Link href={href} className="group block">
@@ -104,11 +115,17 @@ export default function ListingCard({ listing, eager = false }) {
         <p className="mt-2 flex flex-wrap items-baseline gap-2">
           {isFromPrice ? <span className="text-tiny text-ink-500">from</span> : null}
           <span className="text-h4 font-extrabold tabular tracking-tight" data-money>
-            {price == null ? 'Price on date selection' : listing.priceMinor != null ? formatINRMinor(listing.priceMinor) : formatINR(price)}
+            {price == null
+              ? 'Price on date selection'
+              : listing.priceMinor != null
+                ? formatINRMinor(listing.priceMinor)
+                : formatINR(price)}
           </span>
           <span className="text-meta text-ink-600">{price == null ? null : `/ ${unit}`}</span>
           {strikePrice ? (
-            <s className="text-meta text-ink-600 tabular" data-money>{formatINR(strikePrice)}</s>
+            <s className="text-meta text-ink-600 tabular" data-money>
+              {formatINR(strikePrice)}
+            </s>
           ) : null}
         </p>
         {listing.priceNote && <p className="mt-1 text-tiny text-ink-500">{listing.priceNote}</p>}

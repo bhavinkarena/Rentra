@@ -63,14 +63,15 @@ export default function GatedAddPlaceButton({ unlocked, message, onLockedClick }
           {message.items.length > 0 ? (
             <ul className="mt-3 space-y-1.5">
               {message.items.map((item) => (
-                <li key={item.label} className="flex items-baseline justify-between gap-3 text-meta">
+                <li
+                  key={item.label}
+                  className="flex items-baseline justify-between gap-3 text-meta"
+                >
                   <Link href={item.href} className="font-semibold text-brand-700 hover:underline">
                     {item.label}
                   </Link>
                   {item.minutes ? (
-                    <span className="shrink-0 text-tiny text-ink-500">
-                      {item.minutes} min
-                    </span>
+                    <span className="shrink-0 text-tiny text-ink-500">{item.minutes} min</span>
                   ) : null}
                 </li>
               ))}
