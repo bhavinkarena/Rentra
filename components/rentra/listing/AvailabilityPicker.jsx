@@ -68,11 +68,19 @@ export default function AvailabilityPicker({ code, prices, nextDates }) {
 
     async function load() {
       try {
-        const data = await fetchAvailability({
-          code,
-          ...availabilityMonthRange(monthStart, propertyToday()),
-          guests,
-          signal: controller.signal,
+        const request = () =>
+          fetchAvailability({
+            code,
+            ...availabilityMonthRange(monthStart, propertyToday()),
+            guests,
+            signal: controller.signal,
+          });
+        // One quiet retry: a single dropped request is not worth an error banner.
+        const data = await request().catch(async (error) => {
+          if (controller.signal.aborted) throw error;
+          await new Promise((resolve) => setTimeout(resolve, 800));
+          if (controller.signal.aborted) throw error;
+          return request();
         });
         if (!controller.signal.aborted)
           setResult({
