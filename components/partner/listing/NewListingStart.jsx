@@ -1,8 +1,9 @@
 'use client';
+import Loader2 from '@/components/ui/rentra-loader';
 
 import { useActionState, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Building2, Loader2, MapPin, ShieldCheck, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Building2, MapPin, ShieldCheck, X } from 'lucide-react';
 import { createListingFromBasics } from '@/lib/actions/partner';
 import { RentraLogo } from '@/components/rentra/Logo';
 import { Input } from '@/components/ui/input';
@@ -334,8 +335,8 @@ export default function NewListingStart({ categories, cities, progress }) {
             disabled={pending || !ready}
             className="ml-auto inline-flex shrink-0 items-center gap-2 rounded-full bg-brand-600 px-6 py-3 text-meta font-semibold text-white shadow-sm transition-all hover:bg-brand-700 hover:shadow active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-ink-200 disabled:text-ink-500 disabled:shadow-none"
           >
-            {pending ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : null}
-            {pending ? 'Creating your property…' : 'Continue'}
+            {pending ? <Loader2 className="size-4 " aria-hidden="true" /> : null}
+            {pending ? <span className="sr-only">Creating your property…</span> : 'Continue'}
             {!pending ? <ArrowRight className="size-4" aria-hidden="true" /> : null}
           </button>
         </div>

@@ -1,7 +1,8 @@
 'use client';
+import Loader2 from '@/components/ui/rentra-loader';
 
 import { useActionState, useState } from 'react';
-import { Loader2, Landmark, Smartphone } from 'lucide-react';
+import { Landmark, Smartphone } from 'lucide-react';
 import { saveDetails, savePayout, saveConsent } from '@/lib/actions/partner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,12 +28,8 @@ function Field({ id, label, hint, error, children }) {
 function Submit({ pending, children, icon: Icon }) {
   return (
     <Button type="submit" size="lg" className="w-full" disabled={pending}>
-      {pending ? (
-        <Loader2 className="size-4 animate-spin" />
-      ) : Icon ? (
-        <Icon className="size-4" />
-      ) : null}
-      {pending ? 'Saving…' : children}
+      {pending ? <Loader2 className="size-4 " /> : Icon ? <Icon className="size-4" /> : null}
+      {pending ? <span className="sr-only">Saving…</span> : children}
     </Button>
   );
 }

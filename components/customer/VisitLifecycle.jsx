@@ -1,4 +1,6 @@
 'use client';
+import RentraLoader from '@/components/ui/rentra-loader';
+
 import { useActionState, useState } from 'react';
 import { bookAgain } from '@/lib/actions/customer';
 import { recordOwnerVisit } from '@/lib/actions/partner';
@@ -47,7 +49,7 @@ export function VisitLifecycle({ visit, requestKey, admin = false }) {
           observation and its time. A scheduled date alone is not evidence.
         </label>
         <button disabled={pending} className="min-h-11 rounded bg-brand-700 px-4 text-white">
-          {pending ? 'Recording…' : `Record ${phase}`}
+          {pending ? <RentraLoader label="Recording…" /> : `Record ${phase}`}
         </button>
         {state.error ? <p role="alert">{state.error}</p> : null}
         {state.message ? <p role="status">{state.message}</p> : null}
@@ -124,7 +126,7 @@ export function BookAgainForm({ record }) {
         />
       </label>
       <button disabled={pending} className="min-h-11 rounded bg-brand-700 px-4 text-white">
-        {pending ? 'Checking…' : 'Check new dates and prices'}
+        {pending ? <RentraLoader label="Checking…" /> : 'Check new dates and prices'}
       </button>
       {state.error ? <p role="alert">{state.error}</p> : null}
     </form>

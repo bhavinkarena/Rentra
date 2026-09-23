@@ -1,7 +1,8 @@
 'use client';
+import Loader2 from '@/components/ui/rentra-loader';
 
 import { useActionState, useState } from 'react';
-import { Loader2, Upload, ShieldCheck, Check, Trash2, FileText } from 'lucide-react';
+import { Upload, ShieldCheck, Check, Trash2, FileText } from 'lucide-react';
 import { uploadKycDocuments, deleteKycDocument } from '@/lib/actions/partner';
 import { ID_DOCUMENT_TYPES, ID_DOCUMENT_BY_ID, MAX_DOC_BYTES } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
@@ -150,12 +151,8 @@ export default function KycUploadForm({ application, documents = [] }) {
         </p>
 
         <Button type="submit" size="lg" className="w-full" disabled={pending || deleting}>
-          {pending ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <ShieldCheck className="size-4" />
-          )}
-          {pending ? 'Uploading…' : 'Upload and continue'}
+          {pending ? <Loader2 className="size-4 " /> : <ShieldCheck className="size-4" />}
+          {pending ? <span className="sr-only">Uploading…</span> : 'Upload and continue'}
         </Button>
       </form>
 

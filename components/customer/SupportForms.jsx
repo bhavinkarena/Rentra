@@ -1,4 +1,6 @@
 'use client';
+import RentraLoader from '@/components/ui/rentra-loader';
+
 import { useActionState, useState } from 'react';
 import { openSupport, replyCustomerSupport } from '@/lib/actions/customer';
 import { replyAdminSupport } from '@/lib/actions/admin';
@@ -85,7 +87,7 @@ export function OpenSupportForm({
         codes, card details or bank credentials.
       </p>
       <button className={button} disabled={pending}>
-        {pending ? 'Saving…' : 'Send support request'}
+        {pending ? <RentraLoader label="Saving…" /> : 'Send support request'}
       </button>
       <Result state={state} />
     </form>
@@ -139,7 +141,7 @@ export function SupportReplyForm({ record, requestKey, admin = false }) {
         cancel, refund or change a booking, or complete a privacy request.
       </p>
       <button className={button} disabled={pending}>
-        {pending ? 'Saving…' : 'Save reply and status'}
+        {pending ? <RentraLoader label="Saving…" /> : 'Save reply and status'}
       </button>
       <Result state={state} />
     </form>

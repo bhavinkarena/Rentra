@@ -1,7 +1,8 @@
 'use client';
+import Loader2 from '@/components/ui/rentra-loader';
 
 import { useActionState } from 'react';
-import { Loader2, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { adminLogin } from '@/lib/actions/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -57,8 +58,8 @@ export default function AdminLoginForm() {
       </div>
 
       <Button type="submit" size="lg" className="w-full" disabled={pending}>
-        {pending ? <Loader2 className="size-4 animate-spin" /> : <ShieldCheck className="size-4" />}
-        {pending ? 'Checking…' : 'Sign in'}
+        {pending ? <Loader2 className="size-4 " /> : <ShieldCheck className="size-4" />}
+        {pending ? <span className="sr-only">Checking…</span> : 'Sign in'}
       </Button>
     </form>
   );

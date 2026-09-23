@@ -1,4 +1,5 @@
 'use client';
+import LoaderCircle from '@/components/ui/rentra-loader';
 
 import { useState } from 'react';
 import Link, { useLinkStatus } from 'next/link';
@@ -9,7 +10,6 @@ import {
   Building2,
   ChevronRight,
   LayoutDashboard,
-  LoaderCircle,
   Lock,
   LogOut,
   Menu,
@@ -57,7 +57,7 @@ function LinkPendingHint() {
         className={`size-4 transition-opacity ${pending ? 'opacity-0' : 'opacity-55'}`}
       />
       <LoaderCircle
-        className={`absolute size-4 animate-spin transition-opacity ${pending ? 'opacity-100' : 'opacity-0'}`}
+        className={`absolute size-4  transition-opacity ${pending ? 'opacity-100' : 'opacity-0'}`}
       />
     </span>
   );
@@ -142,11 +142,11 @@ function LogoutButton() {
       className="mt-1 flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-tiny font-semibold text-white/55 transition-colors hover:bg-white/7 hover:text-white disabled:cursor-wait"
     >
       {pending ? (
-        <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
+        <LoaderCircle className="size-4 " aria-hidden="true" />
       ) : (
         <LogOut className="size-4" aria-hidden="true" />
       )}
-      {pending ? 'Signing out…' : 'Sign out'}
+      {pending ? <span className="sr-only">Signing out…</span> : 'Sign out'}
     </button>
   );
 }

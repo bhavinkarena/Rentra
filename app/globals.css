@@ -373,3 +373,100 @@
     animation: rentra-skeleton-shimmer 1.35s ease-in-out infinite;
   }
 }
+
+/* Shared brand loader: upright mark, orbiting accent and a soft breathing halo. */
+.rentra-loading {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.rentra-loading-inline {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+.rentra-loading-page {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  pointer-events: none;
+}
+
+.rentra-loading-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1;
+  isolation: isolate;
+}
+.rentra-loading-page .rentra-loading-art {
+  width: 3.5rem;
+  height: 3.5rem;
+}
+.rentra-loading-halo {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #5c9a7220;
+}
+.rentra-loading-ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid #5c9a7230;
+  border-top-color: #5c9a72;
+  border-right-color: #1f5c41;
+  border-radius: 50%;
+}
+.rentra-loading-core {
+  display: grid;
+  place-items: center;
+  width: 76%;
+  height: 76%;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 12px #1f5c4110;
+}
+.rentra-loading-mark {
+  width: 72%;
+  height: 72%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rentra-loading-ring {
+    animation: rentra-brand-orbit 1.4s linear infinite;
+  }
+  .rentra-loading-halo {
+    animation: rentra-brand-breathe 2s ease-in-out infinite;
+  }
+  .rentra-loading-mark {
+    animation: rentra-brand-mark 2s ease-in-out infinite;
+  }
+}
+@keyframes rentra-brand-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes rentra-brand-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+@keyframes rentra-brand-mark {
+  0%,
+  100% {
+    transform: scale(0.94);
+  }
+  50% {
+    transform: scale(1);
+  }
+}

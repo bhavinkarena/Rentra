@@ -1,6 +1,6 @@
 import { publicMetadata, serializeJsonLd } from '@/lib/seo/metadata';
 import Link from 'next/link';
-import { cache } from 'react';
+import { cache, Suspense } from 'react';
 import { connection } from 'next/server';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { ChevronRight, MapPin } from 'lucide-react';
@@ -135,11 +135,6 @@ export default async function ListingPage({ params, searchParams }) {
   // First paint must not wait for the inventory transaction. The calendar
   // checks live availability after hydration; guests explicitly choose dates.
   const nextDates = { day: [], night: [], full_day: [] };
-  const similar = await discoveryApi.similar(listing.id, {
-    areaId: listing.areaId,
-    cityId: listing.cityId,
-    limit: 4,
-  });
   const defaults = pickDefaults({ prices: listing.prices });
   const band = priceBand(listing.prices);
   const canonicalShareUrl = listingUrl(siteUrl, listing.slug, listing.publicCode);
@@ -319,18 +314,9 @@ export default async function ListingPage({ params, searchParams }) {
           <MoneyNote />
         </div>
 
-        {similar.length ? (
-          <section aria-labelledby="similar-heading" className="mt-14 border-t border-border pt-8">
-            <h2 id="similar-heading" className="text-h2">
-              Similar farmhouses near {listing.areaName}
-            </h2>
-            <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {similar.map((item) => (
-                <ListingCard key={item.id} listing={item} />
-              ))}
-            </div>
-          </section>
-        ) : null}
+        <Suspense fallback={null}>
+          <SimilarListings listing={listing} />
+        </Suspense>
 
         {/* Padding so the sticky bar never covers the last of the content. */}
         <div className="h-20 lg:hidden" aria-hidden="true" />
@@ -344,6 +330,26 @@ export default async function ListingPage({ params, searchParams }) {
       />
     </BookingQuoteProvider>
   );
+}
+
+async function SimilarListings({ listing }) {
+  const similar = await discoveryApi.similar(listing.id, {
+    areaId: listing.areaId,
+    cityId: listing.cityId,
+    limit: 4,
+  });
+  return similar.length ? (
+    <section aria-labelledby="similar-heading" className="mt-14 border-t border-border pt-8">
+      <h2 id="similar-heading" className="text-h2">
+        Similar farmhouses near {listing.areaName}
+      </h2>
+      <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {similar.map((item) => (
+          <ListingCard key={item.id} listing={item} />
+        ))}
+      </div>
+    </section>
+  ) : null;
 }
 
 function Breadcrumbs({ crumbs }) {

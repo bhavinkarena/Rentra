@@ -1,4 +1,5 @@
 'use client';
+import RentraLoader from '@/components/ui/rentra-loader';
 
 import { useActionState, useEffect, useState } from 'react';
 import { requestCustomerOtp, verifyCustomerOtp } from '@/lib/actions/auth';
@@ -47,13 +48,15 @@ export default function CustomerLoginForm() {
           className="w-full"
           disabled={sending || verifying || seconds > 0}
         >
-          {sending
-            ? 'Requesting code…'
-            : seconds > 0
-              ? `Resend in ${seconds}s`
-              : sent?.challengeId
-                ? 'Resend code'
-                : 'Send code'}
+          {sending ? (
+            <RentraLoader label="Requesting code…" />
+          ) : seconds > 0 ? (
+            `Resend in ${seconds}s`
+          ) : sent?.challengeId ? (
+            'Resend code'
+          ) : (
+            'Send code'
+          )}
         </Button>
       </form>
       {sent?.challengeId ? (
@@ -83,7 +86,7 @@ export default function CustomerLoginForm() {
             </p>
           ) : null}
           <Button type="submit" size="lg" className="w-full" disabled={verifying || sending}>
-            {verifying ? 'Checking code…' : 'Log in'}
+            {verifying ? <RentraLoader label="Checking code…" /> : 'Log in'}
           </Button>
           {/* Full navigation resets the OTP action state when changing numbers. */}
           {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}

@@ -1,22 +1,5 @@
+import RentraLoader from '@/components/ui/rentra-loader';
+
 export default function Loading() {
-  return (
-    <div className="mx-auto flex min-h-[calc(100vh-66px)] w-full max-w-md items-center px-4 py-12">
-      <div className="w-full rounded-xl border border-border bg-card p-8">
-        <span className="block size-11 animate-pulse rounded-lg bg-ink-100" />
-        <span className="mt-5 block h-3 w-28 animate-pulse rounded bg-ink-100" />
-        <span className="mt-3 block h-8 w-52 animate-pulse rounded bg-ink-100" />
-        <span className="mt-3 block h-4 w-full animate-pulse rounded bg-ink-100" />
-        <div className="mt-8 space-y-5">
-          {Array.from({ length: 3 }, (_, index) => (
-            <div key={index}>
-              <span className="block h-3 w-24 animate-pulse rounded bg-ink-100" />
-              <span className="mt-2 block h-11 w-full animate-pulse rounded bg-ink-100" />
-            </div>
-          ))}
-        </div>
-        <span className="mt-6 block h-11 w-full animate-pulse rounded bg-ink-100" />
-        <span className="sr-only">Loading admin sign in…</span>
-      </div>
-    </div>
-  );
+  return <RentraLoader variant="page" label="Loading your page" />;
 }

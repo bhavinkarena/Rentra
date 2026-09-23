@@ -1,7 +1,8 @@
 'use client';
+import Loader2 from '@/components/ui/rentra-loader';
 
 import { useActionState, useState } from 'react';
-import { Check, Landmark, Loader2, Smartphone } from 'lucide-react';
+import { Check, Landmark, Smartphone } from 'lucide-react';
 import { saveAccountSettings, savePayoutDestination } from '@/lib/actions/partner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,7 +31,8 @@ function Saved({ state, pending }) {
   if (pending) {
     return (
       <p className="inline-flex items-center gap-1.5 text-meta text-ink-500">
-        <Loader2 className="size-4 animate-spin" aria-hidden="true" /> Saving…
+        <Loader2 className="size-4 " aria-hidden="true" />
+        <span className="sr-only">Saving…</span>
       </p>
     );
   }

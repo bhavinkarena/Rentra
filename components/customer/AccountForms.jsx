@@ -1,4 +1,5 @@
 'use client';
+import RentraLoader from '@/components/ui/rentra-loader';
 
 import { signalSavedChange } from './SavedPlacesProvider';
 import { useActionState, useEffect, useRef } from 'react';
@@ -109,7 +110,13 @@ export function ProfileForm({ account, onboarding = false }) {
       )}
       <FormStatus state={state} />
       <button className={button} disabled={pending}>
-        {pending ? 'Saving…' : onboarding ? 'Save and continue' : 'Save profile'}
+        {pending ? (
+          <RentraLoader label="Saving…" />
+        ) : onboarding ? (
+          'Save and continue'
+        ) : (
+          'Save profile'
+        )}
       </button>
     </form>
   );
@@ -132,7 +139,7 @@ export function PrivacyForm() {
       </p>
       <FormStatus state={state} />
       <button className={button} disabled={pending}>
-        {pending ? 'Recording…' : 'Submit privacy request'}
+        {pending ? <RentraLoader label="Recording…" /> : 'Submit privacy request'}
       </button>
     </form>
   );
@@ -155,7 +162,7 @@ export function PhoneChangeForm() {
         />
         <FormStatus state={request} />
         <button className={button} disabled={requesting}>
-          {requesting ? 'Sending…' : 'Send verification code'}
+          {requesting ? <RentraLoader label="Sending…" /> : 'Send verification code'}
         </button>
       </form>
       {request.challengeId ? (
@@ -181,7 +188,7 @@ export function PhoneChangeForm() {
           />
           <FormStatus state={verified} />
           <button className={button} disabled={verifying}>
-            {verifying ? 'Verifying…' : 'Verify and change number'}
+            {verifying ? <RentraLoader label="Verifying…" /> : 'Verify and change number'}
           </button>
         </form>
       ) : null}
@@ -207,7 +214,7 @@ export function CustomerLogout() {
         className="min-h-11 rounded-md border border-border px-5 py-2 font-semibold"
         disabled={pending}
       >
-        {pending ? 'Signing out…' : 'Sign out'}
+        {pending ? <RentraLoader label="Signing out…" /> : 'Sign out'}
       </button>
     </form>
   );

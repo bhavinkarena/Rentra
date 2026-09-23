@@ -1,4 +1,5 @@
 'use client';
+import RentraLoader from '@/components/ui/rentra-loader';
 import Link from 'next/link';
 import Image from 'next/image';
 import { startTransition } from 'react';
@@ -36,7 +37,9 @@ export default function SavedPlaces() {
           </button>
         </div>
       ) : null}
-      {!saved.ready && !saved.error ? <p role="status">Loading saved places…</p> : null}
+      {!saved.ready && !saved.error ? (
+        <RentraLoader variant="page" label="Loading saved places" />
+      ) : null}
       {saved.ready && saved.mode !== 'other' && !saved.entries.length ? (
         <p>Save places you’d love to visit using the heart on a listing.</p>
       ) : null}

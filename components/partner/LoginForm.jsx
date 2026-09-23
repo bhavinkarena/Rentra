@@ -1,7 +1,8 @@
 'use client';
+import Loader2 from '@/components/ui/rentra-loader';
 
 import { useActionState } from 'react';
-import { Mail, ArrowLeft, Loader2 } from 'lucide-react';
+import { Mail, ArrowLeft } from 'lucide-react';
 import { requestClientOtp, verifyClientOtp } from '@/lib/actions/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -52,8 +53,8 @@ export default function LoginForm() {
         </div>
 
         <Button type="submit" size="lg" className="w-full" disabled={issuing}>
-          {issuing ? <Loader2 className="size-4 animate-spin" /> : <Mail className="size-4" />}
-          {issuing ? 'Sending code…' : 'Send code'}
+          {issuing ? <Loader2 className="size-4 " /> : <Mail className="size-4" />}
+          {issuing ? <span className="sr-only">Sending code…</span> : 'Send code'}
         </Button>
       </form>
     );
@@ -95,8 +96,8 @@ export default function LoginForm() {
         </div>
 
         <Button type="submit" size="lg" className="w-full" disabled={verifying}>
-          {verifying ? <Loader2 className="size-4 animate-spin" /> : null}
-          {verifying ? 'Checking…' : 'Verify and continue'}
+          {verifying ? <Loader2 className="size-4 " /> : null}
+          {verifying ? <span className="sr-only">Checking…</span> : 'Verify and continue'}
         </Button>
       </form>
 
@@ -110,7 +111,7 @@ export default function LoginForm() {
             disabled={issuing}
             className="text-meta font-semibold text-brand-700 hover:underline disabled:text-ink-400 disabled:no-underline"
           >
-            {issuing ? 'Sending…' : 'Resend code'}
+            {issuing ? <Loader2 label="Sending code" /> : 'Resend code'}
           </button>
         </form>
 

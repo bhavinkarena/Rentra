@@ -589,8 +589,8 @@ export function MoneyNote() {
       {[
         [
           Landmark,
-          'Booking opens later',
-          'You can review dates and save this place while checkout is being completed.',
+          'Book with Razorpay Test',
+          'Choose available dates, review your total and continue to test checkout. No actual bank money is charged.',
         ],
         [
           ShieldCheck,

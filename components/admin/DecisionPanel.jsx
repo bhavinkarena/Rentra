@@ -1,7 +1,8 @@
 'use client';
+import Loader2 from '@/components/ui/rentra-loader';
 
 import { useActionState, useState } from 'react';
-import { Check, HelpCircle, X, Loader2 } from 'lucide-react';
+import { Check, HelpCircle, X } from 'lucide-react';
 import { approveApplication, requestMoreInfo, rejectApplication } from '@/lib/actions/admin';
 import { Button } from '@/components/ui/button';
 
@@ -77,11 +78,7 @@ export default function DecisionPanel({ applicationId, strikeCount }) {
           />
           <div className="flex gap-2">
             <Button type="submit" size="lg" disabled={busy}>
-              {approving ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Check className="size-4" />
-              )}
+              {approving ? <Loader2 className="size-4 " /> : <Check className="size-4" />}
               Approve and activate
             </Button>
             <CancelBtn onClick={() => setMode(null)} disabled={busy} />
@@ -130,7 +127,7 @@ export default function DecisionPanel({ applicationId, strikeCount }) {
           </p>
           <div className="flex gap-2">
             <Button type="submit" size="lg" variant="secondary" disabled={busy}>
-              {requestingInfo ? <Loader2 className="size-4 animate-spin" /> : null}
+              {requestingInfo ? <Loader2 className="size-4 " /> : null}
               Send back with questions
             </Button>
             <CancelBtn onClick={() => setMode(null)} disabled={busy} />
@@ -164,7 +161,7 @@ export default function DecisionPanel({ applicationId, strikeCount }) {
           </div>
           <div className="flex gap-2">
             <Button type="submit" size="lg" variant="destructive" disabled={busy}>
-              {rejecting ? <Loader2 className="size-4 animate-spin" /> : <X className="size-4" />}
+              {rejecting ? <Loader2 className="size-4 " /> : <X className="size-4" />}
               {willBlock ? 'Reject and block' : 'Reject'}
             </Button>
             <CancelBtn onClick={() => setMode(null)} disabled={busy} />

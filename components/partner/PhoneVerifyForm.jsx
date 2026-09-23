@@ -1,7 +1,8 @@
 'use client';
+import Loader2 from '@/components/ui/rentra-loader';
 
 import { useActionState } from 'react';
-import { Smartphone, Loader2 } from 'lucide-react';
+import { Smartphone } from 'lucide-react';
 import { requestPhoneVerification, confirmPhoneVerification } from '@/lib/actions/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -52,12 +53,8 @@ export default function PhoneVerifyForm({ defaultPhone = '' }) {
         </div>
 
         <Button type="submit" size="lg" className="w-full" disabled={issuing}>
-          {issuing ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <Smartphone className="size-4" />
-          )}
-          {issuing ? 'Sending code…' : 'Send code by SMS'}
+          {issuing ? <Loader2 className="size-4 " /> : <Smartphone className="size-4" />}
+          {issuing ? <span className="sr-only">Sending code…</span> : 'Send code by SMS'}
         </Button>
       </form>
     );
@@ -93,8 +90,8 @@ export default function PhoneVerifyForm({ defaultPhone = '' }) {
         </div>
 
         <Button type="submit" size="lg" className="w-full" disabled={confirming}>
-          {confirming ? <Loader2 className="size-4 animate-spin" /> : null}
-          {confirming ? 'Checking…' : 'Verify mobile'}
+          {confirming ? <Loader2 className="size-4 " /> : null}
+          {confirming ? <span className="sr-only">Checking…</span> : 'Verify mobile'}
         </Button>
       </form>
 
@@ -105,7 +102,7 @@ export default function PhoneVerifyForm({ defaultPhone = '' }) {
           disabled={issuing}
           className="text-meta font-semibold text-brand-700 hover:underline disabled:text-ink-400"
         >
-          {issuing ? 'Sending…' : 'Resend code'}
+          {issuing ? <Loader2 label="Sending code" /> : 'Resend code'}
         </button>
       </form>
     </div>

@@ -1,4 +1,5 @@
 'use client';
+import RentraLoader from '@/components/ui/rentra-loader';
 
 import { startTransition } from 'react';
 import { useSavedPlaces } from '@/components/customer/SavedPlacesProvider';
@@ -54,7 +55,7 @@ export default function SaveButton({
         className="inline-flex items-center gap-1.5 rounded-sm px-2 py-1 text-meta font-semibold text-ink-700 underline decoration-ink-300 underline-offset-4 transition-colors hover:bg-ink-50 hover:text-ink-900"
       >
         <Heart className={`size-4 ${saved ? 'fill-danger text-danger' : ''}`} aria-hidden="true" />
-        {saved ? 'Saved' : 'Save'}
+        {places.busy ? <RentraLoader label="Updating saved place" /> : saved ? 'Saved' : 'Save'}
       </button>
     );
   }
@@ -69,10 +70,14 @@ export default function SaveButton({
       aria-label={label}
       className="absolute top-2.5 right-2.5 grid size-11 place-items-center rounded-full bg-white/90 backdrop-blur transition hover:bg-white"
     >
-      <Heart
-        className={`size-4 ${saved ? 'fill-danger text-danger' : 'text-ink-900'}`}
-        aria-hidden="true"
-      />
+      {places.busy ? (
+        <RentraLoader label="Updating saved place" />
+      ) : (
+        <Heart
+          className={`size-4 ${saved ? 'fill-danger text-danger' : 'text-ink-900'}`}
+          aria-hidden="true"
+        />
+      )}
     </button>
   );
 }

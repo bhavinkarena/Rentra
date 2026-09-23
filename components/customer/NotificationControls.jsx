@@ -1,4 +1,5 @@
 'use client';
+import RentraLoader from '@/components/ui/rentra-loader';
 import { useActionState } from 'react';
 import { manageNotification } from '@/lib/actions/admin';
 export default function NotificationControls({ id, unknown }) {
@@ -21,8 +22,9 @@ export default function NotificationControls({ id, unknown }) {
           </span>
         </label>
       ) : null}
-      <button disabled={pending} className="min-h-11 text-brand-700 underline">
-        {unknown ? 'Reconcile original delivery' : 'Retry safe delivery'}
+      <button aria-busy={pending} disabled={pending} className="min-h-11 text-brand-700 underline">
+        {pending ? <RentraLoader label="Updating notification" /> : null}
+        {!pending ? (unknown ? 'Reconcile original delivery' : 'Retry safe delivery') : null}
       </button>
       {state.error ? <p role="alert">{state.error}</p> : null}
       {state.message ? <p role="status">{state.message}</p> : null}

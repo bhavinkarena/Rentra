@@ -1,9 +1,10 @@
 'use client';
+import Loader2 from '@/components/ui/rentra-loader';
 
 import { useCallback, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Loader2, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, X } from 'lucide-react';
 import { RentraLogo } from '@/components/rentra/Logo';
 import { ListingChrome, STEP_FORM_ID } from './chrome';
 import { ChapterBar, MobileStepDisclosure, StepRail } from './WizardProgress';
@@ -151,8 +152,16 @@ export default function WizardShell({
                 disabled={busy}
                 className="ml-auto inline-flex shrink-0 items-center gap-2 rounded-full bg-brand-600 px-6 py-3 text-meta font-semibold text-white shadow-sm transition-all hover:bg-brand-700 hover:shadow active:scale-[0.98] disabled:bg-ink-200 disabled:text-ink-500 disabled:shadow-none"
               >
-                {busy ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : null}
-                {busy ? (pending ? 'Saving…' : 'Opening next step…') : continueLabel}
+                {busy ? <Loader2 className="size-4 " aria-hidden="true" /> : null}
+                {busy ? (
+                  pending ? (
+                    <span className="sr-only">Saving…</span>
+                  ) : (
+                    <span className="sr-only">Opening next step…</span>
+                  )
+                ) : (
+                  continueLabel
+                )}
                 {!busy ? <ArrowRight className="size-4" aria-hidden="true" /> : null}
               </button>
             ) : null}

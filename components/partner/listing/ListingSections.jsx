@@ -1,8 +1,8 @@
 'use client';
+import Loader2 from '@/components/ui/rentra-loader';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
 import {
-  Loader2,
   Check,
   Trash2,
   Upload,
@@ -144,7 +144,8 @@ function Section({ id, title, intro, state, pending, children }) {
 
       {pending ? (
         <p className="mt-3 inline-flex items-center gap-1.5 text-meta text-ink-500">
-          <Loader2 className="size-4 animate-spin" aria-hidden="true" /> Saving…
+          <Loader2 className="size-4 " aria-hidden="true" />
+          <span className="sr-only">Saving…</span>
         </p>
       ) : null}
     </section>
@@ -158,7 +159,7 @@ function SaveButton({ pending, label = 'Save' }) {
 
   return (
     <Button type="submit" disabled={pending}>
-      {pending ? <Loader2 className="size-4 animate-spin" /> : null}
+      {pending ? <Loader2 className="size-4 " /> : null}
       {label}
     </Button>
   );
@@ -985,7 +986,7 @@ export function PhotosSection({ listing, photos }) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={f.url} alt="" className="aspect-4/3 w-full object-cover opacity-60" />
               <span className="absolute inset-0 grid place-items-center bg-white/60">
-                <Loader2 className="size-5 animate-spin text-brand-700" aria-hidden="true" />
+                <Loader2 className="size-5  text-brand-700" aria-hidden="true" />
               </span>
             </li>
           ))}
@@ -1030,13 +1031,19 @@ export function PhotosSection({ listing, photos }) {
               }`}
             >
               {pending ? (
-                <Loader2 className="size-5 animate-spin" aria-hidden="true" />
+                <Loader2 className="size-5 " aria-hidden="true" />
               ) : (
                 <Upload className="size-5" aria-hidden="true" />
               )}
             </span>
             <span className="text-body font-semibold text-ink-900">
-              {pending ? 'Uploading…' : dragging ? 'Drop them here' : 'Add photos'}
+              {pending ? (
+                <span className="sr-only">Uploading…</span>
+              ) : dragging ? (
+                'Drop them here'
+              ) : (
+                'Add photos'
+              )}
             </span>
             <span className="text-tiny text-ink-500">
               Tap to choose, or drag them in · JPG, PNG or WEBP · up to 2MB each · {room} more
@@ -1229,7 +1236,7 @@ function PauseControl({ listing }) {
         className="inline-flex items-center gap-1.5 text-meta font-semibold text-ink-700 underline underline-offset-4 hover:text-ink-900 disabled:opacity-50"
       >
         {pending ? (
-          <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+          <Loader2 className="size-4 " aria-hidden="true" />
         ) : paused ? (
           <Play className="size-4" aria-hidden="true" />
         ) : (
@@ -1327,7 +1334,7 @@ export function SubmitBar({ listing, completion, submitAction }) {
         <form action={action}>
           <input type="hidden" name="id" value={listing.id} />
           <Button type="submit" size="lg" className="w-full" disabled={pending}>
-            {pending ? <Loader2 className="size-4 animate-spin" /> : null}
+            {pending ? <Loader2 className="size-4 " /> : null}
             Submit for review
           </Button>
           <p className="mt-2 text-center text-tiny text-ink-500">

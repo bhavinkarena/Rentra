@@ -1,4 +1,5 @@
 'use client';
+import RentraLoader from '@/components/ui/rentra-loader';
 
 import { useActionState } from 'react';
 import { setPaymentGatewayConfiguration as savePaymentGatewaySettings } from '@/lib/actions/admin';
@@ -73,7 +74,7 @@ export default function PaymentGatewaySettings({ configuration, providers }) {
         disabled={pending}
         className="min-h-11 rounded-md bg-brand-600 px-5 py-2.5 text-meta font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
       >
-        {pending ? 'Saving…' : 'Save payment settings'}
+        {pending ? <RentraLoader label="Saving…" /> : 'Save payment settings'}
       </button>
     </form>
   );

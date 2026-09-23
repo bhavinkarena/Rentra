@@ -1,4 +1,4 @@
-import { RentraMark } from '@/components/rentra/Logo';
+import BrandLoader from '@/components/ui/rentra-loader';
 
 function Skeleton({ className = '' }) {
   return (
@@ -9,32 +9,8 @@ function Skeleton({ className = '' }) {
   );
 }
 
-export function RentraLoader({ label = 'Opening your Rentra workspace…', inverse = false }) {
-  return (
-    <div className="flex flex-col items-center text-center" role="status" aria-live="polite">
-      <div className="relative grid size-20 place-items-center">
-        <span
-          className={`rentra-loader-orbit absolute inset-0 rounded-full border-2 border-transparent ${
-            inverse
-              ? 'border-t-brand-300 border-r-white/15'
-              : 'border-t-brand-600 border-r-brand-100'
-          }`}
-          aria-hidden="true"
-        />
-        <span
-          className={`grid size-14 place-items-center rounded-xl shadow-sm ${inverse ? 'bg-white/8' : 'bg-white ring-1 ring-brand-100'}`}
-        >
-          <RentraMark tone={inverse ? 'inverse' : 'brand'} className="size-9" />
-        </span>
-      </div>
-      <p className={`mt-4 text-meta font-semibold ${inverse ? 'text-white' : 'text-ink-800'}`}>
-        {label}
-      </p>
-      <p className={`mt-1 text-tiny ${inverse ? 'text-white/45' : 'text-ink-500'}`}>
-        Your data is on its way.
-      </p>
-    </div>
-  );
+export function RentraLoader({ label = 'Opening your workspace', inverse = false }) {
+  return <BrandLoader variant="page" label={label} inverse={inverse} />;
 }
 
 export function FullScreenRentraLoader() {

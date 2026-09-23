@@ -1,7 +1,8 @@
 'use client';
+import Loader2 from '@/components/ui/rentra-loader';
 
 import { useActionState, useState } from 'react';
-import { Loader2, Check, X, FileText, ExternalLink } from 'lucide-react';
+import { Check, X, FileText, ExternalLink } from 'lucide-react';
 import { reviewDocument } from '@/lib/actions/admin';
 import { ID_DOCUMENT_BY_ID } from '@/lib/constants';
 
@@ -164,11 +165,7 @@ function DocRow({ doc }) {
             disabled={reviewing}
             className="inline-flex items-center gap-1.5 rounded-md border border-brand-600 bg-brand-50 px-3 py-2 text-meta font-semibold text-brand-700 hover:bg-brand-100"
           >
-            {reviewing ? (
-              <Loader2 className="size-3.5 animate-spin" />
-            ) : (
-              <Check className="size-3.5" />
-            )}
+            {reviewing ? <Loader2 className="size-3.5 " /> : <Check className="size-3.5" />}
             Accept
           </button>
           <button

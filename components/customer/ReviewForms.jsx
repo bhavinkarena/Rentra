@@ -1,4 +1,6 @@
 'use client';
+import RentraLoader from '@/components/ui/rentra-loader';
+
 import { useActionState } from 'react';
 import { submitCustomerReview, customerReviewReport } from '@/lib/actions/customer';
 import { ownerReviewReply, ownerReviewReport } from '@/lib/actions/partner';
@@ -60,7 +62,7 @@ export function CustomerReviewForm({ visits }) {
         immediately. You can submit one review per visit.
       </p>
       <button disabled={pending} className="min-h-11 rounded bg-brand-700 px-4 text-white">
-        {pending ? 'Submitting…' : 'Submit review'}
+        {pending ? <RentraLoader label="Submitting…" /> : 'Submit review'}
       </button>
       <Result state={state} />
     </form>
@@ -108,15 +110,17 @@ export function ReviewControl({ kind, id, version, body = '' }) {
         />
       </label>
       <button disabled={pending} className="min-h-11 rounded border border-border px-4">
-        {pending
-          ? 'Saving…'
-          : kind === 'reply'
-            ? 'Save owner reply'
-            : kind === 'resolve'
-              ? 'Close report'
-              : report
-                ? 'Submit report'
-                : 'Save moderation decision'}
+        {pending ? (
+          <RentraLoader label="Saving…" />
+        ) : kind === 'reply' ? (
+          'Save owner reply'
+        ) : kind === 'resolve' ? (
+          'Close report'
+        ) : report ? (
+          'Submit report'
+        ) : (
+          'Save moderation decision'
+        )}
       </button>
       <Result state={state} />
     </form>

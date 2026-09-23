@@ -1,5 +1,6 @@
 'use client';
-import { API_URL } from '@/lib/api/client';
+import RentraLoader from '@/components/ui/rentra-loader';
+import { fetchAvailability, availabilityMonthRange } from '@/lib/api/availability';
 import { measureBrowser } from '@/lib/domain/browser-measurement';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -67,16 +68,12 @@ export default function AvailabilityPicker({ code, prices, nextDates }) {
 
     async function load() {
       try {
-        /* Straight to the API. Public data, so no credentials — and it must
-           never be cached: a calendar from an hour ago invites a guest to pick
-           a Saturday that sold twenty minutes back. */
-        const res = await fetch(
-          `${API_URL}/discovery/listings/${code}/availability?from=${monthStart}&days=31&guests=${guests}`,
-          { signal: controller.signal, cache: 'no-store' },
-        );
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const payload = await res.json();
-        const data = payload?.data ?? payload;
+        const data = await fetchAvailability({
+          code,
+          ...availabilityMonthRange(monthStart, propertyToday()),
+          guests,
+          signal: controller.signal,
+        });
         if (!controller.signal.aborted)
           setResult({
             code,
@@ -87,8 +84,8 @@ export default function AvailabilityPicker({ code, prices, nextDates }) {
             message: data.message,
             state: 'ready',
           });
-      } catch (err) {
-        if (err.name !== 'AbortError' && !controller.signal.aborted)
+      } catch {
+        if (!controller.signal.aborted)
           setResult({ code, retry, guests, monthStart, days: null, state: 'error' });
       }
     }
@@ -277,7 +274,7 @@ export default function AvailabilityPicker({ code, prices, nextDates }) {
                     : open
                       ? 'font-medium text-ink-900 hover:bg-brand-50 hover:text-brand-700'
                       : 'text-ink-300',
-                  pending && !selected && 'animate-pulse bg-ink-50 text-transparent',
+                  pending && !selected && 'animate-pulse bg-ink-50 text-ink-500',
                   (isPast || open === false) &&
                     'cursor-not-allowed line-through decoration-ink-300',
                 ]
@@ -349,7 +346,9 @@ function Legend({ state, nextDates, slot, onRetry }) {
         Available
       </span>
       <span className="flex items-center gap-1.5 line-through decoration-ink-300">Unavailable</span>
-      {state === 'loading' ? <span className="ml-auto animate-pulse">Checking dates…</span> : null}
+      {state === 'loading' ? (
+        <RentraLoader className="ml-auto" label="Checking live dates" />
+      ) : null}
     </div>
   );
 }

@@ -1,4 +1,5 @@
-import AdminLoading from '@/components/admin/AdminLoading';
+import RentraLoader from '@/components/ui/rentra-loader';
+
 export default function Loading() {
-  return <AdminLoading label="operations overview" rows={4} />;
+  return <RentraLoader variant="page" label="Loading your page" />;
 }

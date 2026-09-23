@@ -1,8 +1,9 @@
 'use client';
+import LoaderCircle from '@/components/ui/rentra-loader';
 
 import { useRef, useTransition } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { LoaderCircle, RotateCcw, Search } from 'lucide-react';
+import { RotateCcw, Search } from 'lucide-react';
 
 const OPTIONS = [
   { value: 'all', label: 'All statuses' },
@@ -100,10 +101,7 @@ export default function PropertyFilters({ query = '', status = 'all' }) {
 
         <span className="grid size-5 shrink-0 place-items-center" role="status" aria-live="polite">
           {pending ? (
-            <LoaderCircle
-              className="size-4 animate-spin text-brand-600"
-              aria-label="Updating properties"
-            />
+            <LoaderCircle className="size-4  text-brand-600" aria-label="Updating properties" />
           ) : null}
         </span>
       </div>

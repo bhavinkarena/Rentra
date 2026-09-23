@@ -1,4 +1,6 @@
 'use client';
+import RentraLoader from '@/components/ui/rentra-loader';
+
 import Link from 'next/link';
 import { useRef, useState } from 'react';
 import { previewCustomerCancellation, cancelCustomerVisits } from '@/lib/actions/customer';
@@ -129,7 +131,7 @@ export default function CancelVisits({ record }) {
             onClick={() => run()}
             className="min-h-11 rounded-md border border-border px-4"
           >
-            {busy ? 'Checking…' : 'Preview cancellation'}
+            {busy ? <RentraLoader label="Checking…" /> : 'Preview cancellation'}
           </button>
           {preview ? (
             <section className="space-y-4 rounded-md bg-ink-50 p-4">
@@ -177,7 +179,7 @@ export default function CancelVisits({ record }) {
                 onClick={() => run(true)}
                 className="min-h-11 rounded-md bg-brand-700 px-4 text-white"
               >
-                Confirm cancellation
+                {busy ? <RentraLoader label="Confirming cancellation" /> : 'Confirm cancellation'}
               </button>
             </section>
           ) : null}

@@ -1,4 +1,6 @@
 'use client';
+import RentraLoader from '@/components/ui/rentra-loader';
+
 import Link from 'next/link';
 import { useBookingQuote } from './BookingQuoteProvider';
 import { formatINRMinor } from '@/lib/domain/booking-money';
@@ -22,7 +24,9 @@ export default function QuoteSummary() {
   return (
     <div className="mt-4" aria-live="polite">
       {notice ? <p className="mb-3 text-meta text-brand-700">{notice}</p> : null}
-      {loading ? <p>Checking availability and the latest price…</p> : null}
+      {loading ? (
+        <RentraLoader label="Checking availability and the latest price" className="my-4" />
+      ) : null}
       {error ? (
         <>
           <p role="alert" className="text-danger">
@@ -90,14 +94,21 @@ export default function QuoteSummary() {
             Each visit ends at its listed departure time. Time between visits is not included.
             Reviewing does not reserve dates or take payment.
           </p>
+          {!quote.payment.enabled ? (
+            <p className="mt-3 rounded-md bg-ink-50 p-3 text-meta" role="status">
+              Test payments are temporarily unavailable. You can still check dates and save this
+              place.
+            </p>
+          ) : null}
           <button
             type="button"
             onClick={accept}
-            className="mt-4 min-h-11 w-full rounded-md bg-brand-600 px-4 text-white"
+            disabled={!quote.payment.enabled}
+            className="mt-4 min-h-11 w-full rounded-md bg-brand-600 px-4 text-white disabled:opacity-50"
           >
             {accepted ? 'Booking details reviewed' : 'Review booking'}
           </button>
-          {accepted ? (
+          {accepted && quote.payment.enabled ? (
             <div className="mt-3 rounded-md bg-brand-50 p-3 text-meta">
               <p>Review the contact details and booking terms before test payment.</p>
               {isCustomer === true ? (
@@ -115,7 +126,7 @@ export default function QuoteSummary() {
                   disabled={loggingIn}
                   className="min-h-11 font-semibold text-brand-700 underline"
                 >
-                  {loggingIn ? 'Opening login…' : 'Continue with login'}
+                  {loggingIn ? <RentraLoader label="Opening login…" /> : 'Continue with login'}
                 </button>
               ) : null}
             </div>

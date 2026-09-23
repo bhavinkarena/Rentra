@@ -1,4 +1,5 @@
 'use client';
+import RentraLoader from '@/components/ui/rentra-loader';
 
 import { useActionState } from 'react';
 import {
@@ -40,7 +41,7 @@ function ActionForm({ action, rentableId, title, children, button = 'Save' }) {
         disabled={pending}
         className="min-h-11 rounded-md bg-brand-600 px-5 py-2 font-semibold text-white disabled:opacity-50"
       >
-        {pending ? 'Saving…' : button}
+        {pending ? <RentraLoader label="Saving…" /> : button}
       </button>
     </form>
   );

@@ -1,7 +1,8 @@
 'use client';
+import LoaderCircle from '@/components/ui/rentra-loader';
 
 import Link, { useLinkStatus } from 'next/link';
-import { LoaderCircle, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 function LinkContent({ label, pendingLabel }) {
   const { pending } = useLinkStatus();
@@ -9,11 +10,11 @@ function LinkContent({ label, pendingLabel }) {
   return (
     <span className="inline-flex items-center gap-2" aria-live="polite">
       {pending ? (
-        <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
+        <LoaderCircle className="size-4 " aria-hidden="true" />
       ) : (
         <Plus className="size-4" aria-hidden="true" />
       )}
-      {pending ? pendingLabel : label}
+      {pending ? <span className="sr-only">{pendingLabel}</span> : label}
     </span>
   );
 }

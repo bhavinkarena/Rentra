@@ -1,4 +1,5 @@
 'use client';
+import RentraLoader from '@/components/ui/rentra-loader';
 
 import Link from 'next/link';
 import Script from 'next/script';
@@ -426,7 +427,7 @@ export default function Checkout({ data }) {
             disabled={busy || !accepted || remaining <= 0 || !quote.payment.enabled}
           >
             {' '}
-            {busy ? 'Reserving your dates…' : 'Continue to test payment'}
+            {busy ? <RentraLoader label="Reserving your dates…" /> : 'Continue to test payment'}
           </button>
           <p className="text-meta">
             This creates a temporary hold. Payment opens on the next screen.
@@ -441,7 +442,7 @@ export default function Checkout({ data }) {
               disabled={busy || !scriptReady}
               className={button}
             >
-              {busy ? 'Checking payment…' : 'Continue to test payment'}
+              {busy ? <RentraLoader label="Checking payment…" /> : 'Continue to test payment'}
             </button>
           ) : null}
           {!confirmed ? (
@@ -450,7 +451,7 @@ export default function Checkout({ data }) {
               disabled={busy}
               className="min-h-11 rounded-md border border-border px-4"
             >
-              Check payment status
+              {busy ? <RentraLoader label="Checking payment status" /> : 'Check payment status'}
             </button>
           ) : null}
         </div>
@@ -475,7 +476,11 @@ export default function Checkout({ data }) {
           onClick={replaceQuote}
           className="min-h-11 text-brand-700 underline"
         >
-          Release unpaid hold and review a fresh quote
+          {busy ? (
+            <RentraLoader label="Releasing hold" />
+          ) : (
+            'Release unpaid hold and review a fresh quote'
+          )}
         </button>
       ) : null}
       <Link

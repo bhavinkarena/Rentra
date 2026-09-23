@@ -1,5 +1,5 @@
-import { SettingsSkeleton } from '@/components/partner/PartnerLoading';
+import RentraLoader from '@/components/ui/rentra-loader';
 
 export default function Loading() {
-  return <SettingsSkeleton />;
+  return <RentraLoader variant="page" label="Loading your page" />;
 }

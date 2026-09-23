@@ -1,7 +1,7 @@
 'use client';
+import LoaderCircle from '@/components/ui/rentra-loader';
 
 import { useFormStatus } from 'react-dom';
-import { LoaderCircle } from 'lucide-react';
 
 export default function PendingSubmitButton({
   children,
@@ -12,8 +12,8 @@ export default function PendingSubmitButton({
 
   return (
     <button type="submit" disabled={pending} className={className} aria-live="polite">
-      {pending ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : null}
-      {pending ? pendingLabel : children}
+      {pending ? <LoaderCircle className="size-4 " aria-hidden="true" /> : null}
+      {pending ? <span className="sr-only">{pendingLabel}</span> : children}
     </button>
   );
 }

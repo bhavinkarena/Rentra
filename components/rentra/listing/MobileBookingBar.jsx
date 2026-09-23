@@ -1,4 +1,5 @@
 'use client';
+import RentraLoader from '@/components/ui/rentra-loader';
 
 import { useEffect, useRef, useState } from 'react';
 import { formatINRMinor } from '@/lib/domain/booking-money';
@@ -96,11 +97,13 @@ export default function MobileBookingBar({ sentinelId = 'gallery-end' }) {
           <div className="min-w-0">
             <p className="flex items-baseline gap-1.5">
               <span className="text-h4 font-extrabold tracking-tight tabular" data-money>
-                {quote
-                  ? formatINRMinor(quote.totals.totalMinor)
-                  : loading
-                    ? 'Checking…'
-                    : 'Choose dates'}
+                {quote ? (
+                  formatINRMinor(quote.totals.totalMinor)
+                ) : loading ? (
+                  <RentraLoader label="Checking…" />
+                ) : (
+                  'Choose dates'
+                )}
               </span>
               <span className="truncate text-tiny text-ink-600">
                 {quote ? 'booking total' : ''}
@@ -109,7 +112,7 @@ export default function MobileBookingBar({ sentinelId = 'gallery-end' }) {
             <p className="truncate text-tiny text-ink-500">
               {dates.length ? `${dates.length} visits selected` : 'Pick dates'}
               {' · '}
-              Booking opens in a later release
+              Razorpay Test · no real charge
             </p>
           </div>
 
@@ -118,6 +121,11 @@ export default function MobileBookingBar({ sentinelId = 'gallery-end' }) {
             type="button"
             ref={opener}
             onClick={() => {
+              if (!dates.length) {
+                document.getElementById('availability')?.scrollIntoView();
+                document.querySelector('#availability select')?.focus({ preventScroll: true });
+                return;
+              }
               previousOverflow.current = document.body.style.overflow;
               document.body.style.overflow = 'hidden';
               dialog.current.returnValue = '';
@@ -126,7 +134,7 @@ export default function MobileBookingBar({ sentinelId = 'gallery-end' }) {
             tabIndex={shown ? 0 : -1}
             className="ml-auto min-h-12 shrink-0 rounded-md bg-brand-600 px-4 text-white"
           >
-            View summary
+            {dates.length ? 'Review booking' : 'Choose dates'}
           </button>
         </div>
       </div>
