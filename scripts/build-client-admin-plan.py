@@ -195,9 +195,18 @@ DELIVERED = {
     <div class="card"><span class="num">CP09 · explicitly not delivered</span><h3>Limits recorded at the gate</h3>
       <ul><li>No owner photo previews (private store until a public delivery bucket exists).</li>
       <li>No owner-side field diff or effect preview before a trust edit.</li>
-      <li>Date price overrides and open/block-date commands have no stale-screen guard yet (CP10).</li>
+      <li>Date-operation stale guards and previews were subsequently delivered in CP10.</li>
       <li>Review SLA copy unchanged; finance figures remain CP15.</li>
       <li>No hosted environment or human screen-reader pass.</li></ul></div>''',
+    "CP10": '''<div class="card"><span class="num">CP10 · complete</span><h3>Portfolio calendar and interval operations</h3><p>Shared visual and agenda calendars over the authoritative inventory services:</p>
+      <ul><li>Portfolio and property week/31-day month/agenda views, URL-backed filters and property pagination.</li>
+      <li>Bookings, temporary holds, owner blocks, overnight intervals, buffers, closed dates and price overrides have text labels and source/action links. Expired holds are excluded.</li>
+      <li>Date additions, overrides, blocks and releases require exact-input previews and a current calendar snapshot. Previews roll back every write; confirmations commit atomically under the existing inventory mutex.</li>
+      <li>Up to 31 dates per property; affected-slot preview and addition receipt. Closed rows and booking reservations are preserved. Owner unblock cannot release a booking.</li>
+      <li>Stale changes keep typed input and offer reload. Foreign records, revoked sessions and API outages are handled explicitly.</li></ul>
+      <p class="small"><strong>Gate passed — 26 September 2026:</strong> disposable-PostgreSQL concurrency/inventory gate; <strong>37/37 browser/API checks plus 2/2 outage checks</strong>. Desktop/mobile and filtered month: no overflow or serious/critical axe violations. Backend 92/92; frontend 19/19; lint, format, migration-file checks and Webpack build passed. No migration or configured-database write. <a href="rentra-client-admin-part10.md">Handoff, API contract and runbook ↗</a></p></div>
+      <div class="card"><span class="num">CP10 · limits</span><h3>Recorded scope boundaries</h3><ul><li>Rolling 31-day month; property filters list the current page of up to 10 properties.</li><li>One-property bulk changes only. Existing legacy closed slots remain closed.</li><li>No hosted deployment, live-finance activation, large-portfolio benchmark or human screen-reader pass.</li></ul></div>''',
+
 }
 missing = [key for key, status in statuses.items() if status == "COMPLETE" and key not in DELIVERED]
 assert not missing, f"Add DELIVERED cards for {missing}"

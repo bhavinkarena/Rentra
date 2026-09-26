@@ -15,6 +15,12 @@ const NAV_GROUPS = [
         capability: 'client.listings.write',
       },
       {
+        href: '/partner/calendar',
+        label: 'Portfolio calendar',
+        icon: CalendarDays,
+        capability: 'client.calendar.read',
+      },
+      {
         href: '/partner/bookings',
         label: 'Bookings',
         icon: CalendarDays,
@@ -30,6 +36,7 @@ const NAV_GROUPS = [
 ];
 
 function routeLabel(pathname) {
+  if (pathname.startsWith('/partner/calendar')) return 'Portfolio calendar';
   if (pathname.startsWith('/partner/bookings')) return 'Bookings';
   if (pathname.startsWith('/partner/listings/')) return 'Property workspace';
   if (pathname === '/partner/listings') return 'Properties';

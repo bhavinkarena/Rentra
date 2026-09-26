@@ -1,6 +1,6 @@
 # Rentra client and Super Admin session roadmap
 
-Planning date: 26 September 2026. **Implementation: 9/32 parts complete. Next: CP10.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration. CP05–CP08 migrations `0024`–`0027` were applied to the configured database on 26 September 2026 (verified read-only afterwards: 28 of 28 recorded, none pending).
+Planning date: 26 September 2026. **Implementation: 10/32 parts complete. Next: CP11.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration. CP05–CP08 migrations `0024`–`0027` were applied to the configured database on 26 September 2026 (verified read-only afterwards: 28 of 28 recorded, none pending).
 
 Read the [requirements plan](rentra-client-admin-plan.md) and [source-backed gap audit](rentra-client-admin-ui-audit.md) together with this roadmap. These CP numbers are a new workstream; they do not replace customer Parts 01–22 or change their completion claims. Client means the existing owner/authorized-agent portal.
 
@@ -10,7 +10,7 @@ One part is the target for one implementation session, including its meaningful 
 
 Each part owns its end-to-end slice: necessary Express API/service/schema changes, frontend integration, server-side permissions, persisted loading/error/success behavior, and regression evidence. Reuse existing foundations. Routes and models in the requirements plan are proposals until implemented. Never bypass the backend by adding direct frontend database access.
 
-CP01–CP09 are **COMPLETE**. All other parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
+CP01–CP10 are **COMPLETE**. All other parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
 
 | Part | Session scope | Dependencies | Status |
 | --- | --- | --- | --- |
@@ -23,7 +23,7 @@ CP01–CP09 are **COMPLETE**. All other parts are **PLANNED**, including externa
 | CP07 | Verification and publication | CP06 | COMPLETE |
 | CP08 | Revisions and admin publication restrictions | CP06–07 | COMPLETE |
 | CP09 | Client property operations hub | CP02, CP06–08 | COMPLETE |
-| CP10 | Portfolio calendar and interval operations | CP09 | PLANNED |
+| CP10 | Portfolio calendar and interval operations | CP09 | COMPLETE |
 | CP11 | Versioned pricing and booking policy | CP08, CP10; applicable business decisions | PLANNED |
 | CP12 | Booking work queues and operational detail | CP02–04, CP09 | PLANNED |
 | CP13 | Visit evidence and incidents | CP12 | PLANNED |
@@ -134,6 +134,8 @@ The sequence favors closing the missing property approval workflow early. Indepe
 **Deliver:** Add a visual portfolio/per-property calendar over current availability services. Show bookings, owner blocks, holds, buffers and overrides distinctly, with a keyboard-accessible list alternative. Interval detail links its source record and allowed actions. Bound bulk changes with affected-interval preview and explicit atomicity/result semantics.
 
 **Gate:** Exercise last-space booking versus blocking, overnight intervals, buffers, expired holds and stale overrides. Owner unblock never releases a booking reservation. Acceptance: CA01, CA06, CA21–22. Reuse authoritative inventory transactions; calendar color is not availability authority.
+
+**Gate passed — 26 September 2026:** a disposable-PostgreSQL integration gate and a 37-check browser/API gate passed, plus two outage checks. Portfolio and property calendars now show agenda/week/31-day month views with URL-backed property/slot/date filters, bookings, active holds, owner blocks, buffers, closed dates and overrides. Keyboard disclosures link the source booking or permitted owner action. Date additions (up to 31 dates), price overrides, blocks and releases use exact-input previews, shared inventory locks and stale-snapshot refusal. Previews roll back all writes and audit entries; confirmation commits atomically. The gate covered overnight buffers, expired holds, one winner in a booking-vs-block race, preserved closed dates, booking-id unblock refusal and concurrent releases. Browser checks covered 1280/390px, axe clean, keyboard expansion, month filters, persisted blocks/releases, stale typed price preservation/reload, foreign ids, audience rejection and immediate session revocation. Both outage routes offered retry. Backend 92/92, frontend 19/19, lint/format, migration-file checks and Webpack build passed. No migration or configured-database write. [CP10 handoff and contract](rentra-client-admin-part10.md).
 
 ### CP11 — Versioned pricing and supported booking policy
 
@@ -285,6 +287,6 @@ Update this table and the audit dispositions only when the evidence supports the
 
 ## Prompt for the next implementation session
 
-> Start CP10 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP09 handoffs, inspect current frontend/backend changes and applicable repository instructions, then implement only CP10's end-to-end scope. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
+> Start CP11 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP10 handoffs, inspect current frontend/backend changes and applicable repository instructions, then implement only CP11's end-to-end scope. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
 
-Replace CP10 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.
+Replace CP11 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.

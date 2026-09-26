@@ -1,0 +1,152 @@
+{
+  "results": [
+    {
+      "check": "anonymous portfolio denied",
+      "pass": true
+    },
+    {
+      "check": "admin audience denied",
+      "pass": true
+    },
+    {
+      "check": "other owner interval denied",
+      "pass": true
+    },
+    {
+      "check": "invalid calendar filters rejected",
+      "pass": true
+    },
+    {
+      "check": "foreign mutation denied",
+      "pass": true
+    },
+    {
+      "check": "owner reads portfolio",
+      "pass": true
+    },
+    {
+      "check": "no customer identity in calendar",
+      "pass": true
+    },
+    {
+      "check": "override preview succeeds",
+      "pass": true
+    },
+    {
+      "check": "apply without preview denied",
+      "pass": true
+    },
+    {
+      "check": "changed preview inputs denied",
+      "pass": true
+    },
+    {
+      "check": "exact preview commits",
+      "pass": true
+    },
+    {
+      "check": "stale override rejected",
+      "pass": true
+    },
+    {
+      "check": "bulk bound enforced",
+      "pass": true
+    },
+    {
+      "check": "portfolio heading",
+      "pass": true
+    },
+    {
+      "check": "booking source link",
+      "pass": true
+    },
+    {
+      "check": "buffer detail",
+      "pass": true
+    },
+    {
+      "check": "price override shown",
+      "pass": true
+    },
+    {
+      "check": "portfolio desktop: no horizontal overflow",
+      "pass": true
+    },
+    {
+      "check": "portfolio desktop: axe serious/critical clean",
+      "pass": true
+    },
+    {
+      "check": "portfolio mobile: no horizontal overflow",
+      "pass": true
+    },
+    {
+      "check": "portfolio mobile: axe serious/critical clean",
+      "pass": true
+    },
+    {
+      "check": "agenda is URL backed",
+      "pass": true
+    },
+    {
+      "check": "keyboard interval expansion",
+      "pass": true
+    },
+    {
+      "check": "month and property/slot filters persist",
+      "pass": true
+    },
+    {
+      "check": "filtered month mobile: no horizontal overflow",
+      "pass": true
+    },
+    {
+      "check": "filtered month mobile: axe serious/critical clean",
+      "pass": true
+    },
+    {
+      "check": "property mobile: no horizontal overflow",
+      "pass": true
+    },
+    {
+      "check": "property mobile: axe serious/critical clean",
+      "pass": true
+    },
+    {
+      "check": "preview retains input",
+      "pass": true
+    },
+    {
+      "check": "affected slots shown",
+      "pass": true
+    },
+    {
+      "check": "open dates receipt",
+      "pass": true
+    },
+    {
+      "check": "stale UI retains typed rent",
+      "pass": true
+    },
+    {
+      "check": "stale UI offers reload",
+      "pass": true
+    },
+    {
+      "check": "owner block persisted",
+      "pass": true
+    },
+    {
+      "check": "owner unblock persists",
+      "pass": true
+    },
+    {
+      "check": "foreign property shows not found",
+      "pass": true
+    },
+    {
+      "check": "revoked session denied on next calendar read",
+      "pass": true
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "results": [
+    {
+      "check": "Retryable calendar outage (portfolio)",
+      "pass": true
+    },
+    {
+      "check": "Retryable calendar outage (property)",
+      "pass": true
+    }
+  ]
+}
