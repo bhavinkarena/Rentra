@@ -159,6 +159,19 @@ DELIVERED = {
       <li>Reviewers flag sections, not individual fields.</li>
       <li>Listing copy promising email/WhatsApp replies remains for CP09.</li>
       <li>No hosted environment or human screen-reader pass.</li></ul></div>''',
+    "CP07": '''<div class="card"><span class="num">CP07 · complete</span><h3>Verification scheduling and publication</h3><p>The verification and publication workflow on the existing schema:</p>
+      <ul><li>Migration <code>0026</code> ties each <code>verification_visit</code> to the exact submitted revision, allows one open visit per property, and adds version, cancellation and attribution columns. It also adds <code>published_submission_id/at/by</code> to <code>rentable</code>.</li>
+      <li><code>POST …/verifications</code>, <code>…/reschedule</code>, <code>…/cancel</code> and <code>…/outcome</code>: video call or site visit in IST. A pass needs all six checklist items, written findings and, on site, coordinates. A failure returns the property to the client; a no-show keeps it waiting.</li>
+      <li><code>POST …/publish</code> publishes only the verified revision. It records the actor, revision and time, invalidates the public caches, and reports whether the property is bookable. There is no waiver.</li>
+      <li>New <strong>Verification &amp; publication</strong> tab with blockers, the inventory note, visit history and command forms. The client sees the scheduled visit, then live with a cannot-book-yet note.</li>
+      <li>Fixed: refused commands no longer drop checkbox state (also in the CP06 decision form).</li></ul>
+      <p class="small"><strong>Gate passed — 26 September 2026:</strong> disposable-DB service test plus a <strong>53/53</strong> browser/API gate, twice. It covered 401/403/400/409 on all five commands and the tab at 1280/390px with axe clean. Scheduling, rescheduling and evidence were recorded through the UI; incomplete evidence was refused with typed values kept. Unverified, other-revision and repeat publishing were refused. UI publication went live; the public page shows no address or evidence, and the client state is correct. CP02–CP06 gates passed as regression. <strong>Migrations 0024–0026 are not yet applied</strong> to the configured database. <a href="rentra-client-admin-part07.md">Handoff, API contract and runbook ↗</a></p></div>
+    <div class="card"><span class="num">CP07 · explicitly not delivered</span><h3>Limits recorded at the gate</h3>
+      <ul><li>No waiver path; no photo or file attachments on verification evidence.</li>
+      <li>No email, SMS or calendar invite for appointments.</li>
+      <li>No separate visit reassignment; the scheduling operator is assigned.</li>
+      <li>Publishing does not open inventory; owners still confirm hours and dates.</li>
+      <li>No hosted environment or human screen-reader pass.</li></ul></div>''',
 }
 missing = [key for key, status in statuses.items() if status == "COMPLETE" and key not in DELIVERED]
 assert not missing, f"Add DELIVERED cards for {missing}"

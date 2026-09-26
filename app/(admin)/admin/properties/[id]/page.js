@@ -15,11 +15,14 @@ import {
 } from '@/components/portal/DetailLayout';
 import { AdminPage } from '@/components/admin/AdminPrimitives';
 import PropertyReviewForm from '@/components/admin/PropertyReviewForm';
+import VerificationPanel from '@/components/admin/VerificationPanel';
 import { normalizePublicPhotos } from '@/lib/domain/listing-content';
+import { listingPath } from '@/lib/domain/listing-url';
 
 const tabs = [
   { key: 'submission', label: 'Submitted property' },
   { key: 'decision', label: 'Review & decision' },
+  { key: 'verification', label: 'Verification & publication' },
   { key: 'history', label: 'History' },
 ];
 const STATUS_TONE = {
@@ -37,6 +40,7 @@ const ist = (value) =>
         timeStyle: 'short',
       })
     : '—';
+const VISIT_MODE = { video_call: 'Video call', physical: 'Site visit' };
 const display = (value) =>
   value == null
     ? 'Not provided'
@@ -118,6 +122,18 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
           { label: 'Evidence', value: snap?.documents?.length ?? 0, hint: 'private documents' },
           { label: 'Submissions', value: data.submissions.length, hint: 'immutable revisions' },
           { label: 'Decisions', value: data.history.length, hint: 'recorded' },
+          {
+            label: 'Publication',
+            value:
+              data.property.status === 'live'
+                ? 'Live'
+                : data.publication.eligible
+                  ? 'Ready'
+                  : 'Blocked',
+            hint: data.publication.inventory.bookable ? 'bookable' : 'not bookable yet',
+            tone:
+              data.property.status === 'live' || data.publication.eligible ? 'success' : 'neutral',
+          },
         ]}
       />
       {data.stale ? (
@@ -287,6 +303,89 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
             <p className="mt-4 text-meta">There is no pending submission to decide.</p>
           )}
         </SectionCard>
+      ) : null}
+      {tab === 'verification' ? (
+        <div className="mt-5 space-y-5">
+          <SectionCard
+            title="Publication readiness"
+            description="Only a passed verification of the exact submitted revision can publish it. There is no waiver."
+          >
+            {data.property.status === 'live' ? (
+              <p role="status" className="rounded-md bg-success-bg p-3 text-meta text-brand-900">
+                Published {ist(data.publication.publishedAt)} IST.{' '}
+                {data.property.publicCode ? (
+                  <Link
+                    href={listingPath(data.property.slug, data.property.publicCode)}
+                    target="_blank"
+                    className="font-semibold underline"
+                  >
+                    Open public page
+                  </Link>
+                ) : null}
+              </p>
+            ) : data.publication.eligible ? (
+              <p className="flex items-center gap-2 text-meta font-semibold text-brand-800">
+                <CheckCircle2 className="size-4" aria-hidden="true" /> Ready to publish
+              </p>
+            ) : (
+              <ul className="space-y-1.5 text-meta" aria-label="Publication blockers">
+                {data.publication.blockers.map((blocker) => (
+                  <li key={blocker} className="flex items-start gap-2">
+                    <CircleAlert
+                      className="mt-0.5 size-4 shrink-0 text-danger"
+                      aria-hidden="true"
+                    />
+                    {blocker}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="mt-3 text-meta text-ink-600">{data.publication.inventory.note}</p>
+          </SectionCard>
+          <SectionCard title="Verification">
+            <VerificationPanel
+              id={id}
+              data={data}
+              writable={admin.capabilities.includes('admin.properties.write')}
+            />
+            {!data.verifications.some((v) => v.status === 'scheduled') &&
+            data.property.status !== 'pending_verification' ? (
+              <p className="text-meta text-ink-600">
+                Verification is scheduled after the submission is approved for verification.
+              </p>
+            ) : null}
+          </SectionCard>
+          <SectionCard title="Verification history">
+            <ul className="space-y-4">
+              {data.verifications.map((v) => (
+                <li key={v.id} className="text-meta">
+                  <strong>
+                    {VISIT_MODE[v.mode]} · {ist(v.scheduledAt)} IST ·{' '}
+                    {v.status === 'completed' ? v.outcome.replaceAll('_', ' ') : v.status}
+                  </strong>
+                  <p className="mt-1 text-ink-600">
+                    {v.submissionId === data.publication.submissionId
+                      ? 'Current revision'
+                      : 'Earlier revision'}
+                    {v.recordedBy ? ` · recorded by ${v.recordedBy} ${ist(v.completedAt)} IST` : ''}
+                    {v.cancelReason ? ` · ${v.cancelReason}` : ''}
+                  </p>
+                  {v.report?.findings ? (
+                    <p className="mt-1 whitespace-pre-wrap">{v.report.findings}</p>
+                  ) : null}
+                  {v.geo ? (
+                    <p className="mt-1 text-ink-600">
+                      On-site at {v.geo.lat}, {v.geo.lng}
+                    </p>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+            {!data.verifications.length ? (
+              <p className="text-meta">No verification scheduled yet.</p>
+            ) : null}
+          </SectionCard>
+        </div>
       ) : null}
       {tab === 'history' ? (
         <div className="mt-5 space-y-5">

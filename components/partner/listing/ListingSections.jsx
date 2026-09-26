@@ -1316,6 +1316,12 @@ export function SubmitBar({ listing, completion, submitAction }) {
           Price and calendar changes apply immediately. Changing photos, the address, capacity or
           amenities sends it back for a quick re-check.
         </p>
+        {listing.bookingConfig?.inventoryReady !== true ? (
+          <p className="mt-2 text-meta font-semibold text-amber-800">
+            Guests can see it but cannot book yet: confirm your booking hours and open dates on the
+            calendar.
+          </p>
+        ) : null}
         <PauseControl listing={listing} />
       </div>
     );
@@ -1364,6 +1370,19 @@ export function SubmitBar({ listing, completion, submitAction }) {
             ? 'Your submitted revision is approved for verification. It is not published yet.'
             : 'Your submitted revision is waiting for review. If you edit it, resubmit the updated version. Check this workspace for the decision.'}
         </p>
+        {listing.status === 'pending_verification' ? (
+          <p className="mt-2 text-meta font-semibold text-ink-800">
+            {listing.reviewVerification
+              ? `${listing.reviewVerification.mode === 'physical' ? 'Site visit' : 'Video call'} scheduled for ${new Date(
+                  listing.reviewVerification.scheduledAt,
+                ).toLocaleString('en-IN', {
+                  timeZone: listing.reviewVerification.timeZone,
+                  dateStyle: 'medium',
+                  timeStyle: 'short',
+                })} (${listing.reviewVerification.timeZone}).`
+              : 'Rentra will schedule a video call or site visit with you. Editing the property now sends it back for review.'}
+          </p>
+        ) : null}
       </div>
     );
   }

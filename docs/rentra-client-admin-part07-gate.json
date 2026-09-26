@@ -1,0 +1,214 @@
+[
+  {
+    "check": "client cookie rejected on verifications",
+    "pass": true
+  },
+  {
+    "check": "records-only operator denied verifications",
+    "pass": true
+  },
+  {
+    "check": "client cookie rejected on reschedule",
+    "pass": true
+  },
+  {
+    "check": "records-only operator denied reschedule",
+    "pass": true
+  },
+  {
+    "check": "client cookie rejected on cancel",
+    "pass": true
+  },
+  {
+    "check": "records-only operator denied cancel",
+    "pass": true
+  },
+  {
+    "check": "client cookie rejected on outcome",
+    "pass": true
+  },
+  {
+    "check": "records-only operator denied outcome",
+    "pass": true
+  },
+  {
+    "check": "client cookie rejected on publish",
+    "pass": true
+  },
+  {
+    "check": "records-only operator denied publish",
+    "pass": true
+  },
+  {
+    "check": "malformed visit ID rejected",
+    "pass": true
+  },
+  {
+    "check": "scheduling before Gate 2 approval refused",
+    "pass": true
+  },
+  {
+    "check": "Gate 2 approval recorded",
+    "pass": true
+  },
+  {
+    "check": "publishing without evidence refused",
+    "pass": true
+  },
+  {
+    "check": "public page hidden before publication",
+    "pass": true
+  },
+  {
+    "check": "blockers explain missing evidence 1280px",
+    "pass": true
+  },
+  {
+    "check": "no publish action without evidence 1280px",
+    "pass": true
+  },
+  {
+    "check": "tab keeps return context 1280px",
+    "pass": true
+  },
+  {
+    "check": "verification tab 1280px has no page overflow",
+    "pass": true
+  },
+  {
+    "check": "verification tab 1280px axe serious/critical",
+    "pass": true
+  },
+  {
+    "check": "blockers explain missing evidence 390px",
+    "pass": true
+  },
+  {
+    "check": "no publish action without evidence 390px",
+    "pass": true
+  },
+  {
+    "check": "tab keeps return context 390px",
+    "pass": true
+  },
+  {
+    "check": "verification tab 390px has no page overflow",
+    "pass": true
+  },
+  {
+    "check": "verification tab 390px axe serious/critical",
+    "pass": true
+  },
+  {
+    "check": "past verification time refused",
+    "pass": true
+  },
+  {
+    "check": "refused schedule keeps chosen mode",
+    "pass": true
+  },
+  {
+    "check": "refused schedule keeps typed note",
+    "pass": true
+  },
+  {
+    "check": "scheduled visit persists as physical for this revision",
+    "pass": true
+  },
+  {
+    "check": "duplicate open verification refused",
+    "pass": true
+  },
+  {
+    "check": "stale reschedule refused",
+    "pass": true
+  },
+  {
+    "check": "client sees the scheduled site visit in IST",
+    "pass": true
+  },
+  {
+    "check": "UI reschedule advances the visit version",
+    "pass": true
+  },
+  {
+    "check": "incomplete checklist refused",
+    "pass": true
+  },
+  {
+    "check": "refused outcome keeps findings",
+    "pass": true
+  },
+  {
+    "check": "physical visit requires coordinates",
+    "pass": true
+  },
+  {
+    "check": "checklist survives refused outcome",
+    "pass": true
+  },
+  {
+    "check": "passed verification recorded with attribution",
+    "pass": true
+  },
+  {
+    "check": "passing does not publish",
+    "pass": true
+  },
+  {
+    "check": "inventory note shown before publish",
+    "pass": true
+  },
+  {
+    "check": "publishing another revision refused",
+    "pass": true
+  },
+  {
+    "check": "records-only operator cannot publish",
+    "pass": true
+  },
+  {
+    "check": "UI publication makes the property live",
+    "pass": true
+  },
+  {
+    "check": "published revision is the verified submission",
+    "pass": true
+  },
+  {
+    "check": "second publication refused",
+    "pass": true
+  },
+  {
+    "check": "published verification tab has no page overflow",
+    "pass": true
+  },
+  {
+    "check": "published verification tab axe serious/critical",
+    "pass": true
+  },
+  {
+    "check": "public page live after publication",
+    "pass": true
+  },
+  {
+    "check": "public page hides exact address",
+    "pass": true
+  },
+  {
+    "check": "public page hides findings",
+    "pass": true
+  },
+  {
+    "check": "public page hides coordinates",
+    "pass": true
+  },
+  {
+    "check": "public page hides checklist",
+    "pass": true
+  },
+  {
+    "check": "client sees live and not-bookable state",
+    "pass": true
+  }
+]

@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useRef, useState } from 'react';
+import { useActionState, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { propertyReviewCommand } from '@/lib/actions/admin';
 import ValidationSummary from '@/components/portal/ValidationSummary';
@@ -27,6 +27,7 @@ export default function PropertyReviewForm({
   writable,
 }) {
   const [state, action, pending] = useActionState(propertyReviewCommand, {});
+  const [, startTransition] = useTransition();
   const [reason, setReason] = useState('');
   const [outcome, setOutcome] = useState('changes_requested');
   const [flagged, setFlagged] = useState([]);
@@ -35,7 +36,17 @@ export default function PropertyReviewForm({
   if (!writable)
     return <p className="mt-4 text-meta">You have read-only access to property reviews.</p>;
   return (
-    <form ref={form} action={action} className="mt-5 space-y-5">
+    <form
+      ref={form}
+      className="mt-5 space-y-5"
+      onSubmit={(event) => {
+        // Not `<form action>`: React's post-action reset would uncheck the
+        // controlled section checkboxes after a refused decision.
+        event.preventDefault();
+        const data = new FormData(event.currentTarget, event.nativeEvent.submitter);
+        startTransition(() => action(data));
+      }}
+    >
       <input type="hidden" name="id" value={id} />
       <input type="hidden" name="submissionId" value={submissionId} />
       <ValidationSummary errors={state.errors} scope={form} />

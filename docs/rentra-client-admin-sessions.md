@@ -1,6 +1,6 @@
 # Rentra client and Super Admin session roadmap
 
-Planning date: 26 September 2026. **Implementation: 6/32 parts complete. Next: CP07.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration. CP05 migration `0024` and CP06 migration `0025` are **not yet applied** to the configured database; run `npm run db:migrate` before running this code against it.
+Planning date: 26 September 2026. **Implementation: 7/32 parts complete. Next: CP08.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration. CP05 migration `0024`, CP06 migration `0025` and CP07 migration `0026` are **not yet applied** to the configured database; run `npm run db:migrate` before running this code against it.
 
 Read the [requirements plan](rentra-client-admin-plan.md) and [source-backed gap audit](rentra-client-admin-ui-audit.md) together with this roadmap. These CP numbers are a new workstream; they do not replace customer Parts 01–22 or change their completion claims. Client means the existing owner/authorized-agent portal.
 
@@ -10,7 +10,7 @@ One part is the target for one implementation session, including its meaningful 
 
 Each part owns its end-to-end slice: necessary Express API/service/schema changes, frontend integration, server-side permissions, persisted loading/error/success behavior, and regression evidence. Reuse existing foundations. Routes and models in the requirements plan are proposals until implemented. Never bypass the backend by adding direct frontend database access.
 
-CP01–CP06 are **COMPLETE**. All other parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
+CP01–CP07 are **COMPLETE**. All other parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
 
 | Part | Session scope | Dependencies | Status |
 | --- | --- | --- | --- |
@@ -20,7 +20,7 @@ CP01–CP06 are **COMPLETE**. All other parts are **PLANNED**, including externa
 | CP04 | Customer directory and account controls | CP01–02 | COMPLETE |
 | CP05 | Gate 1 application review | CP03 | COMPLETE |
 | CP06 | Gate 2 property review | CP03, CP05 | COMPLETE |
-| CP07 | Verification and publication | CP06 | PLANNED |
+| CP07 | Verification and publication | CP06 | COMPLETE |
 | CP08 | Revisions and admin publication restrictions | CP06–07 | PLANNED |
 | CP09 | Client property operations hub | CP02, CP06–08 | PLANNED |
 | CP10 | Portfolio calendar and interval operations | CP09 | PLANNED |
@@ -110,6 +110,8 @@ The sequence favors closing the missing property approval workflow early. Indepe
 **Deliver:** Build on existing verification schema for assignment, appointments, cancellation/rescheduling, evidence, findings and history. Specify required evidence and any explicitly authorized waiver policy. Publish only the eligible reviewed revision after server-side checks; record actor, revision, time and decision. Update client progress and public visibility/cache behavior.
 
 **Gate:** Complete the full submission-to-publication journey through UI/API; insufficient evidence and stale revisions cannot publish. Exact/private location and verification attachments stay protected. Acceptance: CA03–05, CA19, CA23. Publication must not falsely imply saleable inventory exists.
+
+**Gate passed — 26 September 2026:** a disposable-PostgreSQL service test and a 53-check browser/API gate passed. Verification uses the existing `verification_visit` table, extended by migration `0026`. Each visit is tied to the exact submitted revision, allows one open visit per property, and is version-guarded for reschedule and cancel. Evidence policy: a passed outcome needs all six checklist items, at least 20 characters of findings and, for a site visit, on-site coordinates. There is no waiver. The gate scheduled, rescheduled and recorded evidence through the UI; incomplete evidence was refused and the typed values were kept. Publishing without evidence, publishing another revision and a second publish were refused, and a records-only operator got 403. UI publication made the verified revision live with attribution. The public page appeared without the address, findings, coordinates or checklist. The client saw the scheduled visit, then live with a cannot-book-yet note. A React form-reset bug that dropped checkboxes after a refused command was fixed here and in the CP06 decision form. CP02–CP06 gates passed as regression. Migrations `0024`–`0026` are pending on the configured database. [CP07 handoff](rentra-client-admin-part07.md).
 
 ### CP08 — Listing revisions and administrative restrictions
 
@@ -279,6 +281,6 @@ Update this table and the audit dispositions only when the evidence supports the
 
 ## Prompt for the next implementation session
 
-> Start CP07 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP06 handoffs, inspect current frontend/backend changes and applicable repository instructions, then implement only CP07's end-to-end scope. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
+> Start CP08 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP07 handoffs, inspect current frontend/backend changes and applicable repository instructions, then implement only CP08's end-to-end scope. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
 
-Replace CP07 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.
+Replace CP08 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.
