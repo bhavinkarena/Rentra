@@ -14,6 +14,7 @@ import {
   TriangleAlert,
   UserRound,
   Users,
+  ClipboardList,
 } from 'lucide-react';
 import PortalShell from '@/components/portal/PortalShell';
 
@@ -58,6 +59,12 @@ const NAV_GROUPS = [
         href: '/admin/bookings',
         label: 'Bookings',
         icon: CalendarDays,
+        capability: 'admin.records.read',
+      },
+      {
+        href: '/admin/booking-cases',
+        label: 'Booking cases',
+        icon: ClipboardList,
         capability: 'admin.records.read',
       },
       {
@@ -110,6 +117,7 @@ const DETAIL_LABELS = [
   ['/admin/applications/', 'Application review'],
   ['/admin/properties/', 'Property review'],
   ['/admin/bookings/', 'Booking record'],
+  ['/admin/booking-cases/', 'Booking case'],
   ['/admin/support/', 'Support request'],
   ['/admin/clients/', 'Client'],
   ['/admin/customers/', 'Customer'],

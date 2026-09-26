@@ -1,0 +1,140 @@
+{
+  "results": [
+    {
+      "check": "anonymous case request denied",
+      "pass": true
+    },
+    {
+      "check": "foreign owner cannot open a case on the booking",
+      "pass": true
+    },
+    {
+      "check": "owner cookie cannot read the admin case queue",
+      "pass": true
+    },
+    {
+      "check": "owner request opens an open case for exactly one visit",
+      "pass": true
+    },
+    {
+      "check": "owner sees Rentra acknowledge without any booking change",
+      "pass": true
+    },
+    {
+      "check": "owner message recorded",
+      "pass": true
+    },
+    {
+      "check": "booking unchanged while the case is open",
+      "pass": true
+    },
+    {
+      "check": "read-only admin can read the case queue",
+      "pass": true
+    },
+    {
+      "check": "read-only admin cannot preview or resolve",
+      "pass": true
+    },
+    {
+      "check": "case queue link keyboard focusable",
+      "pass": true
+    },
+    {
+      "check": "admin assigns the case",
+      "pass": true
+    },
+    {
+      "check": "owner cancellation defaults to a full refund",
+      "pass": true
+    },
+    {
+      "check": "preview names the exact visit, release, refund and unaffected visit",
+      "pass": true
+    },
+    {
+      "check": "preview refund equals rent plus fee of visit 1 only",
+      "pass": true
+    },
+    {
+      "check": "stale preview refused",
+      "pass": true
+    },
+    {
+      "check": "previews wrote nothing",
+      "pass": true
+    },
+    {
+      "check": "confirmation cancels visit 1 only; the booking stays confirmed",
+      "pass": true
+    },
+    {
+      "check": "exactly one Test refund obligation for the previewed amount",
+      "pass": true
+    },
+    {
+      "check": "repeat resolution refused without a second refund",
+      "pass": true
+    },
+    {
+      "check": "owner sees the resolution",
+      "pass": true
+    },
+    {
+      "check": "customer booking page still renders",
+      "pass": true
+    },
+    {
+      "check": "customer sees the shared resolution",
+      "pass": true
+    },
+    {
+      "check": "customer never sees owner-only messages",
+      "pass": true
+    },
+    {
+      "check": "customer record carries no case internals",
+      "pass": true
+    },
+    {
+      "check": "change preview checks new dates and says nothing is reserved",
+      "pass": true
+    },
+    {
+      "check": "admin case resolve mobile no overflow",
+      "pass": true
+    },
+    {
+      "check": "admin case resolve mobile axe clean",
+      "pass": true
+    },
+    {
+      "check": "declined change leaves visit 2 booked with no new refund",
+      "pass": true
+    },
+    {
+      "check": "owner does not see the customer-only change request",
+      "pass": true
+    },
+    {
+      "check": "owner requests mobile no overflow",
+      "pass": true
+    },
+    {
+      "check": "owner requests mobile axe clean",
+      "pass": true
+    },
+    {
+      "check": "admin case queue mobile no overflow",
+      "pass": true
+    },
+    {
+      "check": "admin case queue mobile axe clean",
+      "pass": true
+    },
+    {
+      "check": "revocation blocks the next owner request",
+      "pass": true
+    }
+  ]
+}

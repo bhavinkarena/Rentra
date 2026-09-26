@@ -2,7 +2,9 @@
 
 Status: **COMPLETE — 27 September 2026.** The database, browser/API and failure-path gates passed (evidence below). Baseline: frontend `a1348db`, backend `9601911`, plus the uncommitted CP11/CP12 changes; CP13 changes are also uncommitted.
 
-**Migration `0028_visit_evidence_records` is not applied to the configured database.** Apply it before deploying this backend: booking detail now reads the new tables for every actor, so an unmigrated database would fail those pages. Apply it to any other target database the same way. The migration has been applied only to disposable local databases.
+**Migration `0028_visit_evidence_records` was applied to the configured database on 27 September 2026.** Before applying it, a read-only check showed it was the only pending migration (28 of 29 recorded) and that none of its tables, functions or columns already existed. Afterwards, a read-only check confirmed 29 of 29 recorded with none pending, the three tables, the nullable `visit_evidence.visit_version` column, 6 triggers and 12 indexes. Apply it to any other target database before deploying CP13 backend code, because booking detail reads the new tables for every actor.
+
+Recorded hashes for `0009`, `0024` and `0026` differ from the current files. This predates CP13: `0009` has its forward repair in `0012`, and `0024`/`0026` were applied before their single committed edit. Drizzle applies by timestamp and did not re-run them. Review that drift separately.
 
 Linked IDs: CP13; CA01, CA07, CA19; G12 (linked issues remainder), G14.
 
@@ -102,7 +104,7 @@ All runtime checks used disposable databases on a local PostgreSQL 14 server (`1
 
 ## Remaining limits and next step
 
-- Apply migration 0028 before deploying the backend. Deploy frontend and backend together: the frontend sends photos and uses the new routes.
+- Migration 0028 is applied to the configured database; apply it to any other target first. Deploy frontend and backend together: the frontend sends photos and uses the new routes.
 - No automatic retention deletion (CP27). No incident reopening, assignment or messaging (cases: CP14/CP17). No liability, deposit or charge decisions (CP23).
 - Photos are stored as uploaded. Camera metadata stays in the private original to preserve evidence integrity, and only authorized operators can read it.
 - Orphan objects: if the database write fails after an upload, the content-addressed object remains unreferenced. A retry reuses it; there is no sweeper yet.

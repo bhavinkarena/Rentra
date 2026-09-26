@@ -4,6 +4,7 @@ import { CalendarDays, Clock, Globe, MapPin, Phone, UserRound } from 'lucide-rea
 import { bookingMoney as money, bookingTime as time } from '@/lib/domain/booking-record';
 import { VisitLifecycle } from '@/components/customer/VisitLifecycle';
 import { VisitEvidence } from '@/components/booking/VisitEvidence';
+import { AdminOrderCases } from '@/components/booking/CasePanels';
 import { AdminPage, StatusBadge } from './AdminPrimitives';
 import {
   DetailHeader,
@@ -39,6 +40,7 @@ export default function AdminBookingDetail({ record, tab, params, listHref = '/a
     { key: 'visits', label: 'Visits', count: record.visits.length },
     { key: 'payments', label: 'Payments', count: record.payments.length },
     { key: 'guest', label: 'Guest & arrival' },
+    { key: 'cases', label: 'Cases', count: (record.cases ?? []).length },
     { key: 'records', label: 'Records' },
   ];
   const active = pickTab(tab, tabs);
@@ -177,6 +179,17 @@ export default function AdminBookingDetail({ record, tab, params, listHref = '/a
                 </article>
               ))}
             </div>
+          </SectionCard>
+        ) : null}
+
+        {active === 'cases' ? (
+          <SectionCard
+            id="cases"
+            title="Booking cases"
+            description="Change, cancellation and operational requests for exact visits"
+            flush
+          >
+            <AdminOrderCases record={record} />
           </SectionCard>
         ) : null}
 

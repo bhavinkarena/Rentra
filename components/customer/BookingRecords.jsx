@@ -16,6 +16,7 @@ import { randomUUID } from 'node:crypto';
 import { bookingMoney as money, bookingTime as time } from '@/lib/domain/booking-record';
 import { VisitLifecycle } from './VisitLifecycle';
 import { VisitEvidence } from '@/components/booking/VisitEvidence';
+import { CustomerCaseUpdates, OwnerCases } from '@/components/booking/CasePanels';
 
 const linkClass =
   'inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-semibold text-brand-700 transition hover:border-brand-300 hover:bg-brand-50';
@@ -481,6 +482,13 @@ export function BookingDetail({
             ))}
           </ul>
         </section>
+        {operational ? (
+          base === '/partner/bookings' ? (
+            <OwnerCases record={record} />
+          ) : null
+        ) : (
+          <CustomerCaseUpdates record={record} />
+        )}
         <section
           id="getting-there"
           className="scroll-mt-24 rounded-2xl border border-border bg-card p-5 sm:p-7 [&_h2]:mb-4 [&_p]:leading-relaxed"

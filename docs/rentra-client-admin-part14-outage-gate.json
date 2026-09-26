@@ -1,0 +1,28 @@
+{
+  "results": [
+    {
+      "check": "Preview during outage: error shown, no confirm button",
+      "pass": true
+    },
+    {
+      "check": "Lost resolve response: honest retry message, note kept",
+      "pass": true
+    },
+    {
+      "check": "Lost resolve response: the resolution did commit once",
+      "pass": true
+    },
+    {
+      "check": "Retry with the same form replays: still one refund obligation",
+      "pass": true
+    },
+    {
+      "check": "Refresh after resolution offers no second resolve",
+      "pass": true
+    },
+    {
+      "check": "Retry and refresh released visit 1 once; visit 2 still booked",
+      "pass": true
+    }
+  ]
+}
