@@ -12,6 +12,8 @@ import {
 
 const TABS = [
   { value: 'all', label: 'All bookings' },
+  { value: 'today', label: 'Today' },
+  { value: 'action_needed', label: 'Action needed' },
   { value: 'upcoming', label: 'Upcoming' },
   { value: 'past', label: 'Past' },
   { value: 'cancelled', label: 'Cancelled' },
@@ -22,6 +24,7 @@ function queryHref(data, changes) {
     tab: data.tab,
     q: data.q,
     page: String(data.page),
+    ...(data.property ? { property: data.property } : {}),
     ...changes,
   });
   return `/admin/bookings?${params}`;
@@ -50,13 +53,11 @@ function bookingTone(state) {
 
 function paymentSummary(payments) {
   if (!payments.length) return { text: 'No payment', tone: 'text-ink-500', dot: 'bg-ink-300' };
-  if (payments.some((payment) => ['captured', 'paid', 'succeeded'].includes(payment.state))) {
-    return { text: 'Paid', tone: 'text-brand-800', dot: 'bg-success' };
-  }
-  if (payments.some((payment) => ['failed', 'cancelled'].includes(payment.state))) {
-    return { text: 'Failed', tone: 'text-danger', dot: 'bg-danger' };
-  }
-  return { text: label(payments[0].state), tone: 'text-amber-800', dot: 'bg-warning' };
+  return {
+    text: payments.map((p) => `${p.environment}: ${label(p.state)}`).join(' · '),
+    tone: 'text-ink-700',
+    dot: 'bg-ink-300',
+  };
 }
 
 export default function AdminBookingHistory({ data }) {
@@ -96,7 +97,7 @@ export default function AdminBookingHistory({ data }) {
         <KpiCard
           label="Past"
           value={summary.past}
-          hint="Visits already completed"
+          hint="Includes visits whose scheduled end has passed"
           icon={CircleDollarSign}
         />
         <KpiCard
@@ -119,6 +120,7 @@ export default function AdminBookingHistory({ data }) {
             </div>
             <form action="/admin/bookings" className="flex w-full max-w-xl gap-2">
               <input type="hidden" name="tab" value={data.tab} />
+              {data.property && <input type="hidden" name="property" value={data.property} />}
               <label className="relative min-w-0 flex-1">
                 <span className="sr-only">Search property or booking reference</span>
                 <Search
@@ -182,7 +184,7 @@ export default function AdminBookingHistory({ data }) {
               </thead>
               <tbody className="divide-y divide-border">
                 {data.items.map((item) => (
-                  <BookingRow key={item.id} item={item} />
+                  <BookingRow key={item.id} item={item} listHref={queryHref(data, {})} />
                 ))}
               </tbody>
             </table>
@@ -228,7 +230,7 @@ export default function AdminBookingHistory({ data }) {
   );
 }
 
-function BookingRow({ item }) {
+function BookingRow({ item, listHref }) {
   const payment = paymentSummary(item.payments);
 
   return (
@@ -268,7 +270,7 @@ function BookingRow({ item }) {
       </td>
       <td className="px-5 py-4 text-right">
         <Link
-          href={`/admin/bookings/${item.id}`}
+          href={`/admin/bookings/${item.id}?from=${encodeURIComponent(listHref)}`}
           className="inline-flex size-9 items-center justify-center rounded-md text-ink-400 transition hover:bg-brand-50 hover:text-brand-700"
           aria-label={`Open booking ${item.reference}`}
         >

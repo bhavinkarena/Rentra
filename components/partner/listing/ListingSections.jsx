@@ -1,4 +1,5 @@
 'use client';
+import { usePolicyAction, PolicyPreview, PolicyHistory } from './PolicyPreview';
 import Loader2 from '@/components/ui/rentra-loader';
 
 import { createContext, useActionState, useContext, useEffect, useRef, useState } from 'react';
@@ -769,7 +770,7 @@ const SLOTS = [
 ];
 
 export function PricingSection({ listing, prices }) {
-  const [state, action, pending] = useActionState(savePricing, {});
+  const { state, pending, preview, form } = usePolicyAction(savePricing);
   const e = state.errors ?? {};
   const bySlot = Object.fromEntries(prices.map((p) => [p.slot, p]));
 
@@ -781,7 +782,7 @@ export function PricingSection({ listing, prices }) {
       state={state}
       pending={pending}
     >
-      <form id={useStepFormId()} action={action} className="space-y-4">
+      <form id={useStepFormId()} {...form} className="space-y-4">
         <input type="hidden" name="id" value={listing.id} />
         <VersionField listing={listing} states={[state]} />
         <div className="overflow-x-auto">
@@ -836,17 +837,10 @@ export function PricingSection({ listing, prices }) {
               className="w-28 tabular"
             />
           </Field>
-          <Field id="extraHourCharge" label="Extra hour" error={e.extraHourCharge}>
-            <Input
-              id="extraHourCharge"
-              name="extraHourCharge"
-              inputMode="numeric"
-              defaultValue={0}
-              className="w-28 tabular"
-            />
-          </Field>
         </div>
-        <SaveButton pending={pending} label="Save pricing" />
+        <PolicyPreview preview={preview} state={state} />
+        <SaveButton pending={pending} label={preview ? 'Confirm pricing' : 'Preview pricing'} />
+        <PolicyHistory listing={listing} />
       </form>
     </Section>
   );
@@ -855,7 +849,7 @@ export function PricingSection({ listing, prices }) {
 /* --------------------------------- terms --------------------------------- */
 
 export function TermsSection({ listing }) {
-  const [state, action, pending] = useActionState(saveTerms, {});
+  const { state, pending, preview, form } = usePolicyAction(saveTerms);
   const e = state.errors ?? {};
 
   return (
@@ -866,13 +860,13 @@ export function TermsSection({ listing }) {
       state={state}
       pending={pending}
     >
-      <form id={useStepFormId()} action={action} className="space-y-4">
+      <form id={useStepFormId()} {...form} className="space-y-4">
         <input type="hidden" name="id" value={listing.id} />
         <VersionField listing={listing} states={[state]} />
         <Field
           id="depositAmount"
-          label="Refundable deposit"
-          hint="Locally this runs around 40–50% of your 24-hour weekend rate."
+          label="Separate deposit estimate"
+          hint="Displayed separately. This value does not authorize online collection or promise a refund."
           error={e.depositAmount}
         >
           <Input
@@ -896,10 +890,11 @@ export function TermsSection({ listing }) {
           </select>
         </Field>
         <p className="rounded-md border-l-4 border-blue bg-info-bg p-3 text-tiny text-ink-700">
-          The deposit is always returned in full on a cancellation, whichever tier you pick. It is
-          not a penalty instrument.
+          Accepted bookings keep their original cancellation policy. Deposit collection and
+          settlement policy remain separately governed; this estimate is not a collected balance.
         </p>
-        <SaveButton pending={pending} />
+        <PolicyPreview preview={preview} state={state} />
+        <SaveButton pending={pending} label={preview ? 'Confirm terms' : 'Preview terms'} />
       </form>
     </Section>
   );
@@ -1237,7 +1232,7 @@ export function OwnershipSection({ listing, documents, clientType, kycName }) {
                     ? 'bg-brand-50 text-brand-700'
                     : d.status === 'rejected'
                       ? 'bg-danger-bg text-danger'
-                      : 'bg-amber-100 text-amber-700'
+                      : 'bg-amber-100 text-amber-900'
                 }`}
               >
                 {d.status}

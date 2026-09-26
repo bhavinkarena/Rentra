@@ -1,0 +1,92 @@
+{
+  "results": [
+    {
+      "check": "Records outage owner queue: retryable state, context kept",
+      "pass": true
+    },
+    {
+      "check": "Records outage owner queue: axe clean",
+      "pass": true
+    },
+    {
+      "check": "Records outage owner queue: retry keyboard focusable",
+      "pass": true
+    },
+    {
+      "check": "Records outage owner queue: retry recovers in place",
+      "pass": true
+    },
+    {
+      "check": "Records outage owner detail: retryable state, context kept",
+      "pass": true
+    },
+    {
+      "check": "Records outage owner detail: axe clean",
+      "pass": true
+    },
+    {
+      "check": "Records outage owner detail: retry keyboard focusable",
+      "pass": true
+    },
+    {
+      "check": "Records outage owner detail: retry recovers in place",
+      "pass": true
+    },
+    {
+      "check": "Records outage admin queue: retryable state, context kept",
+      "pass": true
+    },
+    {
+      "check": "Records outage admin queue: axe clean",
+      "pass": true
+    },
+    {
+      "check": "Records outage admin queue: retry keyboard focusable",
+      "pass": true
+    },
+    {
+      "check": "Records outage admin queue: retry recovers in place",
+      "pass": true
+    },
+    {
+      "check": "Records outage admin detail: retryable state, context kept",
+      "pass": true
+    },
+    {
+      "check": "Records outage admin detail: axe clean",
+      "pass": true
+    },
+    {
+      "check": "Records outage admin detail: retry keyboard focusable",
+      "pass": true
+    },
+    {
+      "check": "Records outage admin detail: retry recovers in place",
+      "pass": true
+    },
+    {
+      "check": "Full API outage owner queue: retryable boundary, no login or false empty",
+      "pass": true
+    },
+    {
+      "check": "Full API outage owner detail: retryable boundary, no login or false empty",
+      "pass": true
+    },
+    {
+      "check": "Full API outage admin queue: retryable boundary, no login or false empty",
+      "pass": true
+    },
+    {
+      "check": "Full API outage admin detail: retryable boundary, no login or false empty",
+      "pass": true
+    },
+    {
+      "check": "Full API outage property policy editor: retryable, no editable stale form",
+      "pass": true
+    },
+    {
+      "check": "Full API outage setup pricing step: retryable, no editable stale form",
+      "pass": true
+    }
+  ]
+}

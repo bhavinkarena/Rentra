@@ -61,6 +61,34 @@ export default function AdminBookingDetail({ record, tab, params, listHref = '/a
         ]}
       />
 
+      {record.relationships && (
+        <nav aria-label="Related records" className="my-4 flex flex-wrap gap-4 text-sm">
+          <Link
+            className="min-h-11 underline"
+            href={`/admin/properties/${record.relationships.propertyId}`}
+          >
+            Property detail
+          </Link>
+          <Link
+            className="min-h-11 underline"
+            href={`/admin/clients/${record.relationships.clientId}`}
+          >
+            Client detail
+          </Link>
+          <Link
+            className="min-h-11 underline"
+            href={`/admin/customers/${record.relationships.customerId}`}
+          >
+            Customer detail
+          </Link>
+        </nav>
+      )}
+      <p className="my-3 text-sm">
+        Payment status applies to the booking; visit states and evidence are independent.{' '}
+        {new Set(record.visits.map((v) => v.state)).size > 1
+          ? 'Mixed visit states — inspect each visit below.'
+          : ''}
+      </p>
       <MetricStrip
         items={[
           {
@@ -126,6 +154,9 @@ export default function AdminBookingDetail({ record, tab, params, listHref = '/a
                     />
                   </div>
                   <div className="mt-4 rounded-md bg-ink-25 p-4">
+                    {visit.operation && (
+                      <p className="mb-3 text-sm font-semibold">{visit.operation.label}</p>
+                    )}
                     <VisitLifecycle
                       key={`${visit.id}-${visit.version}`}
                       requestKey={randomUUID()}
@@ -181,7 +212,12 @@ export default function AdminBookingDetail({ record, tab, params, listHref = '/a
             <SectionCard id="guest" title="Customer and purpose">
               <FieldGrid
                 fields={[
-                  { label: 'Name', value: record.contact.name || 'Not recorded' },
+                  {
+                    label: 'Name',
+                    value: record.contact.withheld
+                      ? 'Contact hidden — no active fulfillment'
+                      : record.contact.name || 'Not recorded',
+                  },
                   { label: 'Phone', value: record.contact.phone || 'Not recorded' },
                 ]}
               />

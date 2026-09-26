@@ -1,6 +1,6 @@
 # Rentra client and Super Admin session roadmap
 
-Planning date: 26 September 2026. **Implementation: 10/32 parts complete. Next: CP11.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration. CP05–CP08 migrations `0024`–`0027` were applied to the configured database on 26 September 2026 (verified read-only afterwards: 28 of 28 recorded, none pending).
+Planning date: 26 September 2026. **Implementation: 12/32 parts complete. Next: CP13.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration. CP05–CP08 migrations `0024`–`0027` were applied to the configured database on 26 September 2026 (verified read-only afterwards: 28 of 28 recorded, none pending). CP09–CP12 have no migration.
 
 Read the [requirements plan](rentra-client-admin-plan.md) and [source-backed gap audit](rentra-client-admin-ui-audit.md) together with this roadmap. These CP numbers are a new workstream; they do not replace customer Parts 01–22 or change their completion claims. Client means the existing owner/authorized-agent portal.
 
@@ -10,7 +10,7 @@ One part is the target for one implementation session, including its meaningful 
 
 Each part owns its end-to-end slice: necessary Express API/service/schema changes, frontend integration, server-side permissions, persisted loading/error/success behavior, and regression evidence. Reuse existing foundations. Routes and models in the requirements plan are proposals until implemented. Never bypass the backend by adding direct frontend database access.
 
-CP01–CP10 are **COMPLETE**. All other parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
+CP01–CP12 are **COMPLETE**. All later parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
 
 | Part | Session scope | Dependencies | Status |
 | --- | --- | --- | --- |
@@ -24,8 +24,8 @@ CP01–CP10 are **COMPLETE**. All other parts are **PLANNED**, including externa
 | CP08 | Revisions and admin publication restrictions | CP06–07 | COMPLETE |
 | CP09 | Client property operations hub | CP02, CP06–08 | COMPLETE |
 | CP10 | Portfolio calendar and interval operations | CP09 | COMPLETE |
-| CP11 | Versioned pricing and booking policy | CP08, CP10; applicable business decisions | PLANNED |
-| CP12 | Booking work queues and operational detail | CP02–04, CP09 | PLANNED |
+| CP11 | Versioned pricing and booking policy | CP08, CP10; applicable business decisions | COMPLETE |
+| CP12 | Booking work queues and operational detail | CP02–04, CP09 | COMPLETE |
 | CP13 | Visit evidence and incidents | CP12 | PLANNED |
 | CP14 | Admin booking resolution cases | CP12–13 | PLANNED |
 | CP15 | Client tasks, updates and preferences | CP05–14 | PLANNED |
@@ -143,11 +143,15 @@ The sequence favors closing the missing property approval workflow early. Indepe
 
 **Gate:** Verify invalid/racing updates, boundary dates, existing booking snapshots and customer quote totals. Acceptance: CA06, CA17, CA23. Customer Part 20 still owns unresolved live commercial decisions; do not silently select taxes, commission, deposits or settlement promises to finish this part.
 
+**Gate passed — 26 September 2026:** a disposable-PostgreSQL integration test, a 44-check browser/API gate and a 22-check outage gate passed (shared with CP12). Existing owner rates, terms and schedule controls now use exact-input previews, versioned confirmation and safe before/after history. Previews write nothing. Invalid, foreign and unpreviewed writes are refused, and racing confirmations have one winner and one audit entry. New quotes snapshot cancellation bands and pricing constants; old quotes are refused with `QUOTE_CHANGED`, and accepted booking snapshots are unchanged. Stale prices keep typed input, reload to the latest saved value and then save. The setup wizard previews before advancing. The policy page passed at 1280/390px with axe clean, and the editor and setup step show a retryable outage state. No live tax, commission, deposit or settlement policy was selected. Backend 96/96, frontend 19/19, lint/format and the isolated production build passed. No migration or configured-database write. [CP11 handoff and contract](rentra-client-admin-part11.md).
+
 ### CP12 — Booking work queues and operational detail
 
 **Deliver:** Extend existing booking records/detail rather than rebuilding them. Add role-specific upcoming/today/action-needed filters, property links and per-visit status/action presentation. Clearly distinguish booking-wide payment status from mixed visit states. Scope arrival instructions and customer contact to authorized operational need; connect admin customer/client details.
 
 **Gate:** Verify multi-visit and mixed-state bookings, empty/error states and cross-owner access. Existing automatic confirmation after verified capture remains intact. Acceptance: CA01, CA07, CA21–23. Do not add owner accept/reject booking decisions.
+
+**Gate passed — 26 September 2026:** the same integration, browser/API (44/44) and outage (22/22) gates passed. Owner/admin Today and Action needed queues work over existing records with ownership-scoped property filters and preserved list context. Mixed confirmed/cancelled visits and booking-wide payment state are shown separately. Per-visit cues offer only the applicable evidence action; handover/return/completion replays produce one effect. Arrival and contact are limited to active fulfilment, and admin detail links customer, client and property. Access checks passed: foreign owner, audience, read-only admin and revocation. Owner queue/detail and admin detail passed at 390px with axe clean. A records-service outage shows a retryable state that keeps filters and recovers on **Try again**. Verified Test capture still confirms automatically through the real checkout services, and customer cancellation still honours the accepted snapshot idempotently. Running that regression exposed and fixed a pre-existing double-encoded JSON write in checkout; the webhook path has the same defect and is recorded as a follow-up. No owner accept/reject step. No migration. [CP12 handoff](rentra-client-admin-part12.md).
 
 ### CP13 — Visit evidence and incident records
 
@@ -287,6 +291,6 @@ Update this table and the audit dispositions only when the evidence supports the
 
 ## Prompt for the next implementation session
 
-> Start CP11 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP10 handoffs, inspect current frontend/backend changes and applicable repository instructions, then implement only CP11's end-to-end scope. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
+> Start CP13 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP12 handoffs, inspect current frontend/backend changes and applicable repository instructions, and confirm CP12's visit transitions and evidence replay behavior in the current source. Consider first fixing the recorded webhook `redacted_payload` double-encoding (CP12 follow-up), with a webhook integration test. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
 
-Replace CP11 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.
+Replace CP13 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.

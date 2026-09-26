@@ -21,7 +21,7 @@ const linkClass =
 const badge =
   'inline-block rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-800';
 function href(base, data, changes) {
-  return `${base}?${new URLSearchParams({ tab: data.tab, q: data.q, page: String(data.page), ...changes })}`;
+  return `${base}?${new URLSearchParams({ tab: data.tab, q: data.q, page: String(data.page), ...(data.property ? { property: data.property } : {}), ...changes })}`;
 }
 
 function PropertyPhoto({ photo, title, hero = false }) {
@@ -87,6 +87,7 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
       <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
         <form action={base} className="flex items-end gap-3">
           <input type="hidden" name="tab" value={data.tab} />
+          {data.property && <input type="hidden" name="property" value={data.property} />}
           <label className="min-w-0 flex-1">
             <span className="sr-only">Search property or booking reference</span>
             <span className="flex h-12 items-center gap-3 rounded-xl border border-border px-4">
@@ -105,14 +106,17 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
           </button>
         </form>
         <nav aria-label="Booking history filters" className="mt-5 flex gap-2 overflow-x-auto pb-1">
-          {['all', 'upcoming', 'past', 'cancelled'].map((tab) => (
+          {(operational
+            ? ['all', 'today', 'upcoming', 'action_needed', 'past', 'cancelled']
+            : ['all', 'upcoming', 'past', 'cancelled']
+          ).map((tab) => (
             <Link
               key={tab}
               aria-current={data.tab === tab ? 'page' : undefined}
               className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm text-ink-600 hover:bg-ink-50 aria-[current=page]:bg-brand-700 aria-[current=page]:font-semibold aria-[current=page]:text-white"
               href={href(base, data, { tab, page: '1' })}
             >
-              {tab[0].toUpperCase() + tab.slice(1)}
+              {tab === 'action_needed' ? 'Action needed' : tab[0].toUpperCase() + tab.slice(1)}
               {data.summary && (
                 <span className="text-xs opacity-75">
                   {tab === 'all' ? data.summary.total : data.summary[tab]}
@@ -129,7 +133,7 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
         {data.items.map((item) => (
           <li key={item.id}>
             <Link
-              href={`${base}/${item.id}`}
+              href={`${base}/${item.id}${operational ? `?from=${encodeURIComponent(href(base, data, {}))}` : ''}`}
               className="group grid overflow-hidden rounded-2xl border border-border bg-card transition hover:border-brand-300 hover:shadow-md sm:grid-cols-[240px_1fr]"
             >
               <PropertyPhoto photo={item.photo} title={item.title} />
@@ -161,6 +165,12 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
                 </div>
                 <div className="flex flex-wrap gap-2 text-xs text-ink-500">
                   <span>{item.reference}</span>
+                  {operational && (
+                    <span>
+                      Visit states: {item.visitStates.join(', ').replaceAll('_', ' ')}. Payment
+                      below applies to the booking.
+                    </span>
+                  )}
                   {item.payments.map((payment, index) => (
                     <span key={index}>
                       · {payment.environment === 'test' ? 'Test payment: ' : 'Payment: '}
@@ -178,15 +188,26 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
         <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-14 text-center">
           <CalendarDays className="mx-auto mb-5 size-10 text-brand-600" />
           <h2 className="text-xl font-semibold">
-            {data.q ? 'No matching bookings' : 'Your next memory starts here'}
+            {operational
+              ? 'No bookings in this queue'
+              : data.q
+                ? 'No matching bookings'
+                : 'Your next memory starts here'}
           </h2>
           <p className="mx-auto mt-3 mb-6 max-w-sm text-sm leading-relaxed text-ink-500">
-            {data.q
-              ? 'Try another property name or booking reference.'
-              : 'When you book a place, you’ll find your visit details and updates here.'}
+            {operational
+              ? 'Change your filters to view other bookings.'
+              : data.q
+                ? 'Try another property name or booking reference.'
+                : 'When you book a place, you’ll find your visit details and updates here.'}
           </p>
-          <Link href={data.q || data.tab !== 'all' ? base : '/search'} className={linkClass}>
-            {data.q || data.tab !== 'all' ? 'View all bookings' : 'Explore farmhouses'}
+          <Link
+            href={operational || data.q || data.tab !== 'all' ? base : '/search'}
+            className={linkClass}
+          >
+            {operational || data.q || data.tab !== 'all'
+              ? 'View all bookings'
+              : 'Explore farmhouses'}
             <ArrowUpRight className="size-4" />
           </Link>
         </div>
@@ -215,17 +236,44 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
   );
 }
 
-export function BookingDetail({ record, base = '/bookings', operational = false }) {
+export function BookingDetail({
+  record,
+  base = '/bookings',
+  operational = false,
+  listHref = base,
+}) {
   const test = record.payments.some((p) => p.environment === 'test');
   const confirmed = record.visits.some((v) =>
     ['confirmed', 'handed_over', 'returned', 'completed', 'disputed'].includes(v.state),
   );
   return (
     <article className="mx-auto max-w-5xl space-y-6 break-words">
-      <Link href={base} className={linkClass}>
+      <Link href={listHref} className={linkClass}>
         <ArrowLeft className="size-4" />
         Back to bookings
       </Link>
+      {operational && record.relationships && (
+        <nav aria-label="Related records" className="flex flex-wrap gap-4">
+          <Link
+            className={linkClass}
+            href={`/partner/listings/${record.relationships.propertyId}/overview`}
+          >
+            Property overview
+          </Link>
+          <Link
+            className={linkClass}
+            href={`/partner/listings/${record.relationships.propertyId}/calendar`}
+          >
+            Property calendar
+          </Link>
+        </nav>
+      )}
+      {operational && (
+        <p className="text-sm">
+          Payment status applies to the whole booking. Each visit has its own state and evidence.
+          Verified capture confirms automatically; no owner acceptance is needed.
+        </p>
+      )}
       <header className="overflow-hidden rounded-3xl border border-border bg-card">
         <PropertyPhoto photo={record.photo} title={record.title} hero />
         <div className="p-6 sm:p-8">
@@ -335,8 +383,10 @@ export function BookingDetail({ record, base = '/bookings', operational = false 
         <section className="rounded-2xl border border-border bg-card p-5 sm:p-7 [&_h2]:mb-4 [&_p]:leading-relaxed">
           <h2 className="text-h3">Customer and purpose</h2>
           <p>
-            {record.contact.name || 'Name not recorded'} ·{' '}
-            {record.contact.phone || 'Phone not recorded'}
+            {record.contact.withheld
+              ? 'Contact hidden — no active visit requires fulfillment'
+              : record.contact.name || 'Name not recorded'}{' '}
+            · {record.contact.phone || 'Phone not recorded'}
           </p>
           <p>{record.purpose || 'Purpose not recorded'}</p>
         </section>
@@ -374,6 +424,9 @@ export function BookingDetail({ record, base = '/bookings', operational = false 
                 </h3>
                 <p className="break-all text-meta">Visit {v.reference}</p>
                 <span className={badge}>{v.state}</span>
+                {operational && v.operation && (
+                  <p className="text-sm font-semibold">{v.operation.label}</p>
+                )}
                 <p>
                   Arrival: {time(v.startsAt, record.timeZone)}
                   <br />

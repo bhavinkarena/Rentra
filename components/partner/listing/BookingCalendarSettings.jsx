@@ -32,7 +32,7 @@ function Field({ label, ...props }) {
 }
 function ActionForm({ action, rentableId, title, children, button = 'Save', id }) {
   const version = useContext(CalendarVersion);
-  const guarded = action !== saveSchedule;
+  const guarded = true;
   const router = useRouter();
   const [state, formAction, pending] = useActionState(action, {});
   const [, startTransition] = useTransition();
@@ -96,6 +96,9 @@ function ActionForm({ action, rentableId, title, children, button = 'Save', id }
         {state.ok && (
           <p role="status" className="text-meta text-brand-700">
             Saved.
+            {state.result?.version || state.result?.effectiveVersion
+              ? ` Effective booking version ${state.result.version || state.result.effectiveVersion}.`
+              : ''}
             {typeof state.result?.added === 'number'
               ? ` Added ${state.result.added} date slots; existing slots were preserved.`
               : ''}
@@ -110,7 +113,7 @@ function ActionForm({ action, rentableId, title, children, button = 'Save', id }
             <p className="text-sm">{preview.semantics} Nothing has been saved yet.</p>
             <ul className="space-y-1 text-sm">
               {Object.entries(preview.values)
-                .filter(([key]) => !['rentableId', 'blockId'].includes(key))
+                .filter(([key]) => !['rentableId', 'blockId', 'expectedVersion'].includes(key))
                 .map(([key, value]) => (
                   <li key={key}>
                     {{
@@ -119,11 +122,13 @@ function ActionForm({ action, rentableId, title, children, button = 'Save', id }
                       startTime: 'Start time (India)',
                       endTime: 'End time (India)',
                       reason: 'Reason',
+                      leadTimeMinutes: 'Minimum notice (minutes)',
+                      bookingHorizonDays: 'Booking horizon (days)',
                       day: 'Visit start date',
                       slot: 'Slot',
                       rent: 'Rent (₹)',
                       reset: 'Reset to base price',
-                    }[key] || key}
+                    }[key] || key.replaceAll('_', ' ').replace(/([A-Z])/g, ' $1')}
                     : {value}
                   </li>
                 ))}

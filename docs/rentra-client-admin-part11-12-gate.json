@@ -1,0 +1,180 @@
+{
+  "results": [
+    {
+      "check": "anonymous owner queue denied",
+      "pass": true
+    },
+    {
+      "check": "owner cookie cannot read admin queue",
+      "pass": true
+    },
+    {
+      "check": "foreign record denied",
+      "pass": true
+    },
+    {
+      "check": "customer-only filters remain bounded",
+      "pass": true
+    },
+    {
+      "check": "invalid price denied",
+      "pass": true
+    },
+    {
+      "check": "foreign pricing denied",
+      "pass": true
+    },
+    {
+      "check": "unpreviewed price denied",
+      "pass": true
+    },
+    {
+      "check": "pricing preview returns effect",
+      "pass": true
+    },
+    {
+      "check": "preview did not mutate version",
+      "pass": true
+    },
+    {
+      "check": "concurrent pricing confirmation one winner",
+      "pass": true
+    },
+    {
+      "check": "price preview retains input",
+      "pass": true
+    },
+    {
+      "check": "price receipt shows effective version",
+      "pass": true
+    },
+    {
+      "check": "terms persisted",
+      "pass": true
+    },
+    {
+      "check": "property policy desktop no overflow",
+      "pass": true
+    },
+    {
+      "check": "property policy desktop axe clean",
+      "pass": true
+    },
+    {
+      "check": "property policy mobile no overflow",
+      "pass": true
+    },
+    {
+      "check": "property policy mobile axe clean",
+      "pass": true
+    },
+    {
+      "check": "stale price preserves typed input",
+      "pass": true
+    },
+    {
+      "check": "reload shows latest saved price",
+      "pass": true
+    },
+    {
+      "check": "stale pricing recovers after refresh",
+      "pass": true
+    },
+    {
+      "check": "schedule preview preserves input",
+      "pass": true
+    },
+    {
+      "check": "schedule confirmation receipt",
+      "pass": true
+    },
+    {
+      "check": "wizard previews before advancing",
+      "pass": true
+    },
+    {
+      "check": "wizard advances after confirmation",
+      "pass": true
+    },
+    {
+      "check": "owner action queue contains mixed states",
+      "pass": true
+    },
+    {
+      "check": "owner queue mobile no overflow",
+      "pass": true
+    },
+    {
+      "check": "owner queue mobile axe clean",
+      "pass": true
+    },
+    {
+      "check": "owner detail has mixed states",
+      "pass": true
+    },
+    {
+      "check": "filtered return link",
+      "pass": true
+    },
+    {
+      "check": "property overview link",
+      "pass": true
+    },
+    {
+      "check": "due visit action",
+      "pass": true
+    },
+    {
+      "check": "owner detail mobile no overflow",
+      "pass": true
+    },
+    {
+      "check": "owner detail mobile axe clean",
+      "pass": true
+    },
+    {
+      "check": "cancelled visit has no arrival access",
+      "pass": true
+    },
+    {
+      "check": "admin cross-record links",
+      "pass": true
+    },
+    {
+      "check": "admin mixed state wording",
+      "pass": true
+    },
+    {
+      "check": "admin detail mobile no overflow",
+      "pass": true
+    },
+    {
+      "check": "admin detail mobile axe clean",
+      "pass": true
+    },
+    {
+      "check": "admin relationship keyboard focus",
+      "pass": true
+    },
+    {
+      "check": "browser records handover",
+      "pass": true
+    },
+    {
+      "check": "browser evidence replay one effect",
+      "pass": true
+    },
+    {
+      "check": "read-only admin cannot operate visit",
+      "pass": true
+    },
+    {
+      "check": "operational empty state",
+      "pass": true
+    },
+    {
+      "check": "revocation blocks next operational request",
+      "pass": true
+    }
+  ]
+}

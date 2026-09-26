@@ -7,7 +7,9 @@ import { recordOwnerVisit } from '@/lib/actions/partner';
 import { recordAdminVisit } from '@/lib/actions/admin';
 
 export function VisitLifecycle({ visit, requestKey, admin = false }) {
-  const phase = { confirmed: 'handover', handed_over: 'return', returned: 'complete' }[visit.state];
+  const phase = visit.operation
+    ? visit.operation.action
+    : { confirmed: 'handover', handed_over: 'return', returned: 'complete' }[visit.state];
   const [state, action, pending] = useActionState(admin ? recordAdminVisit : recordOwnerVisit, {});
   const [key] = useState(requestKey);
   if (!phase || !visit.startsAt) return null;
