@@ -48,7 +48,8 @@ export const metadata = {
 export default async function ListingBuilderPage({ params, searchParams }) {
   const user = await requireActiveClient();
   const { id } = await params; // Next 16: params is a Promise
-  const listHref = safeReturnPath((await searchParams)?.from, '/partner/listings');
+  const query = (await searchParams) ?? {};
+  const listHref = safeReturnPath(query.from, '/partner/listings');
 
   // Scoped to this Client on the API — another Client's listing id returns
   // 404, not their property. An outage is shown as an outage, not as a missing listing.
@@ -67,6 +68,15 @@ export default async function ListingBuilderPage({ params, searchParams }) {
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
+      {query.submitted && listing.status === 'pending_review' ? (
+        <p
+          role="status"
+          className="mb-5 rounded-lg border border-brand-200 bg-success-bg p-4 text-meta text-brand-900"
+        >
+          <strong className="font-bold">Submitted for review.</strong> Rentra reviews this exact
+          version. The decision appears here; if you edit the property first, submit it again.
+        </p>
+      ) : null}
       <DetailHeader
         breadcrumbs={[{ href: listHref, label: 'Properties' }, { label: title }]}
         title={title}

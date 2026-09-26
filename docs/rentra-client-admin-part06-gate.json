@@ -1,0 +1,158 @@
+[
+  {
+    "check": "client cookie rejected by admin API",
+    "pass": true
+  },
+  {
+    "check": "limited operator denied queue",
+    "pass": true
+  },
+  {
+    "check": "limited operator denied detail",
+    "pass": true
+  },
+  {
+    "check": "foreign owner denied property",
+    "pass": true
+  },
+  {
+    "check": "queue filter all loads",
+    "pass": true
+  },
+  {
+    "check": "queue filter draft loads",
+    "pass": true
+  },
+  {
+    "check": "queue filter rejected loads",
+    "pass": true
+  },
+  {
+    "check": "queue filter pending_verification loads",
+    "pass": true
+  },
+  {
+    "check": "malformed property ID rejected",
+    "pass": true
+  },
+  {
+    "check": "limited operator denied private document",
+    "pass": true
+  },
+  {
+    "check": "queue loads at 1280px",
+    "pass": true
+  },
+  {
+    "check": "queue carries filtered return context 1280px",
+    "pass": true
+  },
+  {
+    "check": "queue has no page overflow 1280px",
+    "pass": true
+  },
+  {
+    "check": "queue axe serious/critical 1280px",
+    "pass": true
+  },
+  {
+    "check": "submitted exact address visible only in admin detail 1280px",
+    "pass": true
+  },
+  {
+    "check": "detail has no page overflow 1280px",
+    "pass": true
+  },
+  {
+    "check": "detail axe serious/critical 1280px",
+    "pass": true
+  },
+  {
+    "check": "queue loads at 390px",
+    "pass": true
+  },
+  {
+    "check": "queue carries filtered return context 390px",
+    "pass": true
+  },
+  {
+    "check": "queue has no page overflow 390px",
+    "pass": true
+  },
+  {
+    "check": "queue axe serious/critical 390px",
+    "pass": true
+  },
+  {
+    "check": "submitted exact address visible only in admin detail 390px",
+    "pass": true
+  },
+  {
+    "check": "detail has no page overflow 390px",
+    "pass": true
+  },
+  {
+    "check": "detail axe serious/critical 390px",
+    "pass": true
+  },
+  {
+    "check": "assignment persists through UI",
+    "pass": true
+  },
+  {
+    "check": "different reviewer cannot decide assignment",
+    "pass": true
+  },
+  {
+    "check": "server validates correction sections",
+    "pass": true
+  },
+  {
+    "check": "failed decision preserves reason",
+    "pass": true
+  },
+  {
+    "check": "correction request persists",
+    "pass": true
+  },
+  {
+    "check": "client sees correction reason",
+    "pass": true
+  },
+  {
+    "check": "client sees requested sections",
+    "pass": true
+  },
+  {
+    "check": "other client cannot resubmit",
+    "pass": true
+  },
+  {
+    "check": "client resubmits through the UI and sees confirmation",
+    "pass": true
+  },
+  {
+    "check": "new submission has distinct identity and next pass",
+    "pass": true
+  },
+  {
+    "check": "old reviewer screen is rejected",
+    "pass": true
+  },
+  {
+    "check": "approval stops at pending verification",
+    "pass": true
+  },
+  {
+    "check": "decision history retains both passes",
+    "pass": true
+  },
+  {
+    "check": "publication outcome rejected by server",
+    "pass": true
+  },
+  {
+    "check": "client sees verification next state",
+    "pass": true
+  }
+]

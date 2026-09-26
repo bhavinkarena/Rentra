@@ -2,6 +2,7 @@
 
 import {
   Activity,
+  Building2,
   CalendarDays,
   CreditCard,
   LayoutDashboard,
@@ -22,6 +23,12 @@ const NAV_GROUPS = [
   {
     label: 'Work queues',
     items: [
+      {
+        href: '/admin/properties',
+        label: 'Property review',
+        icon: Building2,
+        capability: 'admin.properties.read',
+      },
       {
         href: '/admin',
         label: 'Applications',
@@ -101,6 +108,7 @@ const NAV_GROUPS = [
 
 const DETAIL_LABELS = [
   ['/admin/applications/', 'Application review'],
+  ['/admin/properties/', 'Property review'],
   ['/admin/bookings/', 'Booking record'],
   ['/admin/support/', 'Support request'],
   ['/admin/clients/', 'Client'],

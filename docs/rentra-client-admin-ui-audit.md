@@ -26,7 +26,7 @@ This audit supports the [requirements plan](rentra-client-admin-plan.md) and [im
 
 | ID | State / priority | Observed gap and source | Required outcome | Parts |
 | --- | --- | --- | --- | --- |
-| G01 | Missing / P0 | Backend `src/routes/admin.route.js` mounts application review but no property review/publication API; partner `submitListing` enters `pending_review` | Complete Gate 2 queue, property detail, revision decision, verification and publication workflow | CP06–CP08 |
+| G01 | Missing / P0 | Backend `src/routes/admin.route.js` mounts application review but no property review/publication API; partner `submitListing` enters `pending_review` | Complete Gate 2 queue, property detail, revision decision, verification and publication workflow | CP06–CP08 — **CP06: Gate 2 queue, submitted-revision detail and decisions complete, 26 September 2026** ([handoff](rentra-client-admin-part06.md)); verification and publication remain CP07–CP08 |
 | G02 | Partial / P1 | Partner detail is a full editor; wizard also exists, but no separate property operations hub | Overview tying approval, readiness, upcoming visits, calendar, issues and public preview together | CP09 |
 | G03 | Partial / P1 | Partner overview emphasizes onboarding/property portfolio counts rather than today's fulfillment | Task-based arrivals/departures/attention dashboard with real counts and drill-downs | CP12/CP15 |
 | G04 | Verify / P1 | Partner overview hard-codes an ₹8,000–₹14,500 earnings range; its live-listing hint says “Visible and bookable by guests” | Remove or substantiate earnings claims; distinguish publication from actual availability/readiness | CP09/CP15 |

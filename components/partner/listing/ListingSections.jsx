@@ -1351,7 +1351,7 @@ export function SubmitBar({ listing, completion, submitAction }) {
     );
   }
 
-  if (completion.inReview) {
+  if (completion.inReview && !listing.reviewNeedsResubmission) {
     return (
       <div className="rounded-lg border border-amber-300 bg-amber-100 p-4">
         <p className="text-h4 font-bold text-amber-700">
@@ -1361,8 +1361,8 @@ export function SubmitBar({ listing, completion, submitAction }) {
         </p>
         <p className="mt-1 text-meta text-ink-700">
           {listing.status === 'pending_verification'
-            ? 'We will arrange a walkthrough — video call or a visit — then publish it.'
-            : 'Nothing more to do. We reply within 2 working days either way.'}
+            ? 'Your submitted revision is approved for verification. It is not published yet.'
+            : 'Your submitted revision is waiting for review. If you edit it, resubmit the updated version. Check this workspace for the decision.'}
         </p>
       </div>
     );
@@ -1376,9 +1376,30 @@ export function SubmitBar({ listing, completion, submitAction }) {
         </p>
       ) : null}
 
-      {listing.status === 'rejected' && listing.rejectionReason ? (
+      {listing.rejectionReason ? (
         <p className="mb-3 rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger">
           <strong>Sent back:</strong> {listing.rejectionReason}
+        </p>
+      ) : null}
+
+      {listing.reviewFlaggedFields?.length ? (
+        <p className="mb-3 text-meta text-amber-800">
+          Sections to correct:{' '}
+          {listing.reviewFlaggedFields.map((section, index) => (
+            <span key={section}>
+              {index ? ', ' : ''}
+              <a className="underline" href={`#${sectionAnchorId(section)}`}>
+                {section}
+              </a>
+            </span>
+          ))}
+          . Update these sections, then resubmit for review.
+        </p>
+      ) : null}
+      {listing.reviewNeedsResubmission ? (
+        <p className="mb-3 text-meta text-amber-800">
+          This property has changes that have not been submitted. Resubmit so Rentra can review the
+          current version.
         </p>
       ) : null}
 

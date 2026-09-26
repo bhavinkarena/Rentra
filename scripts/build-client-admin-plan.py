@@ -146,6 +146,19 @@ DELIVERED = {
       <li>Listing copy promising email/WhatsApp replies is left for CP06/CP09.</li>
       <li>Partner booking detail and editor bodies keep their existing layout.</li>
       <li>No hosted environment or human screen-reader pass.</li></ul></div>''',
+    "CP06": '''<div class="card"><span class="num">CP06 · complete</span><h3>Gate 2 listing queue and review detail</h3><p>The missing property review API and screens:</p>
+      <ul><li><code>GET /admin/properties</code> (status, reviewer, search) and <code>GET /admin/properties/:id</code> render the exact submitted revision: fields, photos, amenities, prices, private evidence and readiness.</li>
+      <li>Migration <code>0025</code>: immutable <code>listing_submission</code> snapshots plus a trigger-maintained <code>content_version</code>. Content or child-record edits make a revision stale, so old screens answer 409.</li>
+      <li><code>POST …/assign</code> and <code>…/decision</code>: request changes (with sections), reject, or approve for verification. One review row and one audit entry per revision; <code>published</code> is refused.</li>
+      <li>The client sees the reason and the sections to correct, resubmits through the shared submit service, and gets a confirmation.</li>
+      <li>Fixed: <code>status=all</code> queue failure; decision reason kept on failure. Queue and detail on the shared layout.</li></ul>
+      <p class="small"><strong>Gate passed — 26 September 2026:</strong> disposable-DB service test plus a <strong>39/39</strong> browser/API gate. It covered 401/403/404/400 access checks, every filter, 1280/390px layouts with axe clean, assignment conflicts, and required sections with the reason preserved. Also: UI resubmission with a new pass identity, 409 for an old screen, approval stopping at pending verification, and <code>published</code> refused. CP02–CP05 gates passed as regression. <strong>Migrations 0024–0025 are not yet applied</strong> to the configured database. <a href="rentra-client-admin-part06.md">Handoff, API contract and runbook ↗</a></p></div>
+    <div class="card"><span class="num">CP06 · explicitly not delivered</span><h3>Limits recorded at the gate</h3>
+      <ul><li>No publication: verification scheduling and publishing are CP07.</li>
+      <li>Properties already pending review before 0025 need one resubmission.</li>
+      <li>Reviewers flag sections, not individual fields.</li>
+      <li>Listing copy promising email/WhatsApp replies remains for CP09.</li>
+      <li>No hosted environment or human screen-reader pass.</li></ul></div>''',
 }
 missing = [key for key, status in statuses.items() if status == "COMPLETE" and key not in DELIVERED]
 assert not missing, f"Add DELIVERED cards for {missing}"

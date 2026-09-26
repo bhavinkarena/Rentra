@@ -1,6 +1,6 @@
 # Rentra client and Super Admin session roadmap
 
-Planning date: 26 September 2026. **Implementation: 5/32 parts complete. Next: CP06.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration. CP05 migration `0024` is **not yet applied** to the configured database; run `npm run db:migrate` before using the new application queue.
+Planning date: 26 September 2026. **Implementation: 6/32 parts complete. Next: CP07.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration. CP05 migration `0024` and CP06 migration `0025` are **not yet applied** to the configured database; run `npm run db:migrate` before running this code against it.
 
 Read the [requirements plan](rentra-client-admin-plan.md) and [source-backed gap audit](rentra-client-admin-ui-audit.md) together with this roadmap. These CP numbers are a new workstream; they do not replace customer Parts 01–22 or change their completion claims. Client means the existing owner/authorized-agent portal.
 
@@ -10,7 +10,7 @@ One part is the target for one implementation session, including its meaningful 
 
 Each part owns its end-to-end slice: necessary Express API/service/schema changes, frontend integration, server-side permissions, persisted loading/error/success behavior, and regression evidence. Reuse existing foundations. Routes and models in the requirements plan are proposals until implemented. Never bypass the backend by adding direct frontend database access.
 
-CP01–CP05 are **COMPLETE**. All other parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
+CP01–CP06 are **COMPLETE**. All other parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
 
 | Part | Session scope | Dependencies | Status |
 | --- | --- | --- | --- |
@@ -19,7 +19,7 @@ CP01–CP05 are **COMPLETE**. All other parts are **PLANNED**, including externa
 | CP03 | Client directory, detail and lifecycle | CP01–02 | COMPLETE |
 | CP04 | Customer directory and account controls | CP01–02 | COMPLETE |
 | CP05 | Gate 1 application review | CP03 | COMPLETE |
-| CP06 | Gate 2 property review | CP03, CP05 | PLANNED |
+| CP06 | Gate 2 property review | CP03, CP05 | COMPLETE |
 | CP07 | Verification and publication | CP06 | PLANNED |
 | CP08 | Revisions and admin publication restrictions | CP06–07 | PLANNED |
 | CP09 | Client property operations hub | CP02, CP06–08 | PLANNED |
@@ -102,6 +102,8 @@ The sequence favors closing the missing property approval workflow early. Indepe
 **Deliver:** Add the missing admin listing-review API and UI. Queue filters identify pending work and responsible reviewer. Detail renders a specific submitted revision, readiness failures, photos, location, rules, amenities and owner/application links. Persist request-changes, rejection and approval-for-verification decisions with reasons and exact revision attribution; clients can see and address them.
 
 **Gate:** Exercise submission, request changes and resubmission without database editing. Reject stale decisions and unauthorized publication attempts. Acceptance: CA03–04, CA19, CA21. Approval for verification is not publication; CP07 owns that transition.
+
+**Gate passed — 26 September 2026:** a disposable-PostgreSQL service test and a 39-check browser/API gate passed. Submitted revisions are immutable snapshots; content and child-record edits make them stale, so an old screen cannot decide. The gate covered the queue and detail at 1280/390px with axe clean, assignment conflicts, and required correction sections with the typed reason preserved on failure. The client saw the reason and sections and resubmitted through the UI; approval stopped at pending verification, and `published` was refused. Concurrent contradictory decisions produced one review record and one audit entry. Access checks: 401/403/404/400 on the direct API, and private evidence limited to the current revision. A `status=all` queue failure was fixed. CP02–CP05 gates passed as regression. Migrations `0024`–`0025` are pending on the configured database. [CP06 handoff](rentra-client-admin-part06.md).
 
 ### CP07 — Verification scheduling and publication
 
@@ -277,6 +279,6 @@ Update this table and the audit dispositions only when the evidence supports the
 
 ## Prompt for the next implementation session
 
-> Start CP06 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP05 handoffs, inspect current frontend/backend changes and applicable repository instructions, then implement only CP06's end-to-end scope. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
+> Start CP07 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP06 handoffs, inspect current frontend/backend changes and applicable repository instructions, then implement only CP07's end-to-end scope. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
 
-Replace CP06 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.
+Replace CP07 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.
