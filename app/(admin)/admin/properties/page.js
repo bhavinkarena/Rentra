@@ -11,7 +11,16 @@ import {
   StatusBadge,
 } from '@/components/admin/AdminPrimitives';
 
-const statuses = ['pending_review', 'pending_verification', 'draft', 'rejected', 'all'];
+const statuses = [
+  'pending_review',
+  'pending_verification',
+  'live',
+  'paused',
+  'hidden',
+  'draft',
+  'rejected',
+  'all',
+];
 export default async function PropertyReviewQueue({ searchParams }) {
   await requireAdmin();
   const params = await searchParams;
@@ -144,10 +153,14 @@ export default async function PropertyReviewQueue({ searchParams }) {
                     ? 'danger'
                     : item.status === 'pending_verification'
                       ? 'info'
-                      : 'neutral'
+                      : item.status === 'live'
+                        ? 'success'
+                        : item.status === 'hidden'
+                          ? 'danger'
+                          : 'neutral'
               }
             >
-              {item.status.replaceAll('_', ' ')}
+              {item.status === 'hidden' ? 'hidden by Rentra' : item.status.replaceAll('_', ' ')}
             </StatusBadge>
           </li>
         ))}

@@ -1,6 +1,6 @@
 # Rentra client and Super Admin session roadmap
 
-Planning date: 26 September 2026. **Implementation: 7/32 parts complete. Next: CP08.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration. CP05 migration `0024`, CP06 migration `0025` and CP07 migration `0026` are **not yet applied** to the configured database; run `npm run db:migrate` before running this code against it.
+Planning date: 26 September 2026. **Implementation: 8/32 parts complete. Next: CP09.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration. CP05 migration `0024`, CP06 migration `0025`, CP07 migration `0026` and CP08 migration `0027` are **not yet applied** to the configured database; run `npm run db:migrate` before running this code against it.
 
 Read the [requirements plan](rentra-client-admin-plan.md) and [source-backed gap audit](rentra-client-admin-ui-audit.md) together with this roadmap. These CP numbers are a new workstream; they do not replace customer Parts 01–22 or change their completion claims. Client means the existing owner/authorized-agent portal.
 
@@ -10,7 +10,7 @@ One part is the target for one implementation session, including its meaningful 
 
 Each part owns its end-to-end slice: necessary Express API/service/schema changes, frontend integration, server-side permissions, persisted loading/error/success behavior, and regression evidence. Reuse existing foundations. Routes and models in the requirements plan are proposals until implemented. Never bypass the backend by adding direct frontend database access.
 
-CP01–CP07 are **COMPLETE**. All other parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
+CP01–CP08 are **COMPLETE**. All other parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
 
 | Part | Session scope | Dependencies | Status |
 | --- | --- | --- | --- |
@@ -21,7 +21,7 @@ CP01–CP07 are **COMPLETE**. All other parts are **PLANNED**, including externa
 | CP05 | Gate 1 application review | CP03 | COMPLETE |
 | CP06 | Gate 2 property review | CP03, CP05 | COMPLETE |
 | CP07 | Verification and publication | CP06 | COMPLETE |
-| CP08 | Revisions and admin publication restrictions | CP06–07 | PLANNED |
+| CP08 | Revisions and admin publication restrictions | CP06–07 | COMPLETE |
 | CP09 | Client property operations hub | CP02, CP06–08 | PLANNED |
 | CP10 | Portfolio calendar and interval operations | CP09 | PLANNED |
 | CP11 | Versioned pricing and booking policy | CP08, CP10; applicable business decisions | PLANNED |
@@ -118,6 +118,8 @@ The sequence favors closing the missing property approval workflow early. Indepe
 **Deliver:** Add version-aware admin corrections and revision comparison/history. Distinguish owner pause from admin visibility restriction and implement hide/restore with reasons, preview and version guards. Preserve current re-review behavior for material edits unless a reviewed design explicitly introduces separate public/working revisions. Confirmed bookings retain their accepted snapshots.
 
 **Gate:** Race material edit, publication, admin hide and owner resume; an owner cannot undo an admin restriction. Verify existing booking fulfillment remains accessible under the chosen policy. Acceptance: CA03, CA05, CA23. Property archival must handle references; no cascading deletion of business history.
+
+**Gate passed — 26 September 2026:** a disposable-PostgreSQL service test, a pure-rule unit test and a 56-check browser/API gate passed. Admin hide/restore is separate from owner pause and carries a reason, an impact preview and a `lifecycle_version` guard. That version is bumped by the content trigger on every status change, so every writer is covered. Owner edits and pause/resume now decide under the row lock. An owner cannot resume, submit or publish a hidden property, and a trust edit while hidden makes restore return to review. A trust edit on a paused property now also needs review. Races covered: owner pause vs hide (409), hide vs owner resume (refused), concurrent restores (one winner) and publish vs hide (exactly one commits). Confirmed bookings stay confirmed with their accepted snapshot and arrival details. Documented admin corrections of public text are guarded by `content_version`, keep the published revision and are audited with before/after values. The submission tab compares revisions against the published one, and the history tab shows all activity. Review, verification and customer-review foreign keys now restrict deletion; there is no archive state (hide is the retirement control). CP02–CP07 gates passed as regression. Migrations `0024`–`0027` are pending on the configured database. [CP08 handoff](rentra-client-admin-part08.md).
 
 ### CP09 — Client property operations hub
 
@@ -281,6 +283,6 @@ Update this table and the audit dispositions only when the evidence supports the
 
 ## Prompt for the next implementation session
 
-> Start CP08 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP07 handoffs, inspect current frontend/backend changes and applicable repository instructions, then implement only CP08's end-to-end scope. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
+> Start CP09 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP08 handoffs, inspect current frontend/backend changes and applicable repository instructions, then implement only CP09's end-to-end scope. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
 
-Replace CP08 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.
+Replace CP09 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.

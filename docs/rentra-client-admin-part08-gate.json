@@ -1,0 +1,226 @@
+[
+  {
+    "check": "client cookie rejected on hide",
+    "pass": true
+  },
+  {
+    "check": "records-only operator denied hide",
+    "pass": true
+  },
+  {
+    "check": "client cookie rejected on restore",
+    "pass": true
+  },
+  {
+    "check": "records-only operator denied restore",
+    "pass": true
+  },
+  {
+    "check": "client cookie rejected on correction",
+    "pass": true
+  },
+  {
+    "check": "records-only operator denied correction",
+    "pass": true
+  },
+  {
+    "check": "malformed property ID rejected",
+    "pass": true
+  },
+  {
+    "check": "live filter lists the published property",
+    "pass": true
+  },
+  {
+    "check": "fixture starts live with one confirmed visit",
+    "pass": true
+  },
+  {
+    "check": "visibility tab previews the confirmed visit 1280px",
+    "pass": true
+  },
+  {
+    "check": "visibility tab 1280px has no page overflow",
+    "pass": true
+  },
+  {
+    "check": "visibility tab 1280px axe serious/critical",
+    "pass": true
+  },
+  {
+    "check": "visibility tab previews the confirmed visit 390px",
+    "pass": true
+  },
+  {
+    "check": "visibility tab 390px has no page overflow",
+    "pass": true
+  },
+  {
+    "check": "visibility tab 390px axe serious/critical",
+    "pass": true
+  },
+  {
+    "check": "owner pause persists",
+    "pass": true
+  },
+  {
+    "check": "hide prepared before the pause is refused",
+    "pass": true
+  },
+  {
+    "check": "UI hide records the restriction over the owner pause",
+    "pass": true
+  },
+  {
+    "check": "admin sees who hid it and why",
+    "pass": true
+  },
+  {
+    "check": "public page gone while hidden",
+    "pass": true
+  },
+  {
+    "check": "owner sees the restriction reason",
+    "pass": true
+  },
+  {
+    "check": "owner has no resume control while hidden",
+    "pass": true
+  },
+  {
+    "check": "owner resume API cannot undo the restriction",
+    "pass": true
+  },
+  {
+    "check": "still hidden after the owner attempt",
+    "pass": true
+  },
+  {
+    "check": "customer booking record stays available",
+    "pass": true
+  },
+  {
+    "check": "customer keeps arrival details",
+    "pass": true
+  },
+  {
+    "check": "customer booking page shows the accepted snapshot",
+    "pass": true
+  },
+  {
+    "check": "UI restore returns to the owner pause",
+    "pass": true
+  },
+  {
+    "check": "owner resumes after restore",
+    "pass": true
+  },
+  {
+    "check": "API hide succeeds on the current version",
+    "pass": true
+  },
+  {
+    "check": "owner trust edit while hidden keeps the restriction",
+    "pass": true
+  },
+  {
+    "check": "restore target becomes review after a trust edit",
+    "pass": true
+  },
+  {
+    "check": "restore preview states the review requirement",
+    "pass": true
+  },
+  {
+    "check": "restore never publishes unreviewed trust content",
+    "pass": true
+  },
+  {
+    "check": "correction refused while in review",
+    "pass": true
+  },
+  {
+    "check": "visibility tab explains why correction is unavailable",
+    "pass": true
+  },
+  {
+    "check": "owner resubmits the edited revision",
+    "pass": true
+  },
+  {
+    "check": "comparison shows the capacity change",
+    "pass": true
+  },
+  {
+    "check": "comparison omits unchanged fields",
+    "pass": true
+  },
+  {
+    "check": "submission comparison has no page overflow",
+    "pass": true
+  },
+  {
+    "check": "submission comparison axe serious/critical",
+    "pass": true
+  },
+  {
+    "check": "re-approval recorded",
+    "pass": true
+  },
+  {
+    "check": "re-verified revision publishes",
+    "pass": true
+  },
+  {
+    "check": "UI correction keeps the property live",
+    "pass": true
+  },
+  {
+    "check": "correction keeps the published revision",
+    "pass": true
+  },
+  {
+    "check": "stale correction refused",
+    "pass": true
+  },
+  {
+    "check": "public page shows the corrected title",
+    "pass": true
+  },
+  {
+    "check": "owner is told about the correction",
+    "pass": true
+  },
+  {
+    "check": "activity shows Hidden by Rentra",
+    "pass": true
+  },
+  {
+    "check": "activity shows Restored by Rentra",
+    "pass": true
+  },
+  {
+    "check": "activity shows Corrected by Rentra",
+    "pass": true
+  },
+  {
+    "check": "activity shows Paused by the client",
+    "pass": true
+  },
+  {
+    "check": "activity shows Resumed by the client",
+    "pass": true
+  },
+  {
+    "check": "history tab has no page overflow",
+    "pass": true
+  },
+  {
+    "check": "history tab axe serious/critical",
+    "pass": true
+  },
+  {
+    "check": "accepted booking snapshot unchanged by edits and correction",
+    "pass": true
+  }
+]

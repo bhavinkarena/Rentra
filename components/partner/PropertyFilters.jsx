@@ -11,7 +11,7 @@ const OPTIONS = [
   { value: 'review', label: 'In review' },
   { value: 'attention', label: 'Needs attention' },
   { value: 'paused', label: 'Paused' },
-  { value: 'hidden', label: 'Hidden' },
+  { value: 'hidden', label: 'Hidden by Rentra' },
 ];
 
 export default function PropertyFilters({ query = '', status = 'all' }) {

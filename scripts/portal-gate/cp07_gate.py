@@ -80,7 +80,7 @@ with sync_playwright() as pw:
         page.get_by_role('heading', name='Schedule verification', exact=True).first.wait_for()
         check(f'blockers explain missing evidence {width}px', page.get_by_text('No passed verification of this exact revision is recorded.', exact=True).count() > 0)
         check(f'no publish action without evidence {width}px', page.get_by_role('button', name='Publish this revision').count() == 0)
-        check(f'tab keeps return context {width}px', 'from=' in page.get_by_role('link', name='History', exact=True).first.get_attribute('href'))
+        check(f'tab keeps return context {width}px', 'from=' in page.get_by_role('link', name='History & activity', exact=True).first.get_attribute('href'))
         scan(page, f'verification tab {width}px')
     page.set_viewport_size({'width': 1280, 'height': 950})
 

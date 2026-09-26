@@ -30,8 +30,8 @@ const STATUS_META = {
     dot: 'bg-info',
   },
   hidden: {
-    label: 'Hidden',
-    hint: 'Not visible to guests',
+    label: 'Hidden by Rentra',
+    hint: 'Only Rentra can restore it',
     className: 'bg-ink-100 text-ink-700 ring-ink-700/10',
     dot: 'bg-ink-500',
   },

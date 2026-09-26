@@ -172,6 +172,19 @@ DELIVERED = {
       <li>No separate visit reassignment; the scheduling operator is assigned.</li>
       <li>Publishing does not open inventory; owners still confirm hours and dates.</li>
       <li>No hosted environment or human screen-reader pass.</li></ul></div>''',
+    "CP08": '''<div class="card"><span class="num">CP08 · complete</span><h3>Listing revisions and administrative restrictions</h3><p>Race-safe visibility control, separate from the owner's pause:</p>
+      <ul><li>Migration <code>0027</code> adds restriction columns and a trigger-maintained <code>lifecycle_version</code> that every status change bumps. Review, verification and customer-review FKs now restrict deletion instead of cascading.</li>
+      <li><code>POST …/hide</code> and <code>…/restore</code> are version-guarded, with a reason and an impact preview (confirmed visits, holds). The owner cannot resume, submit or publish a hidden property. A trust edit while hidden makes restore return to review.</li>
+      <li>Owner edits decide under the row lock; pause/resume is a conditional update. A trust edit on a paused property now needs review too.</li>
+      <li><code>POST …/correction</code>: documented admin edits of public text, guarded by <code>content_version</code>. The status and published revision are kept; before/after values are audited, and the owner is told.</li>
+      <li>New <strong>Visibility &amp; corrections</strong> tab, revision comparison against the published revision, and an activity timeline. Confirmed bookings keep their accepted snapshot.</li></ul>
+      <p class="small"><strong>Gate passed — 26 September 2026:</strong> service and unit tests plus a <strong>56/56</strong> browser/API gate, twice. It covered 401/403/400 on all three commands and the tab at 1280/390px with axe clean. Owner pause made an earlier hide stale; the owner could not undo the hide through the UI or API; the public page was gone while the customer booking stayed available. Restore went to pause, then to review after a trust edit; the comparison showed capacity 12 → 14. The UI correction stayed live, a stale correction got 409, and the activity was complete. CP02–CP07 gates passed as regression. <strong>Migrations 0024–0027 are not yet applied</strong> to the configured database. <a href="rentra-client-admin-part08.md">Handoff, API contract and runbook ↗</a></p></div>
+    <div class="card"><span class="num">CP08 · explicitly not delivered</span><h3>Limits recorded at the gate</h3>
+      <ul><li>No archived state or redirect policy; hide is the retirement control.</li>
+      <li>No separate public and working revisions: trust edits still leave search until re-published.</li>
+      <li>Corrections cover public text only; trust facts go back through review.</li>
+      <li>No internal-only restriction note; no email or SMS to the owner.</li>
+      <li>No hosted environment or human screen-reader pass.</li></ul></div>''',
 }
 missing = [key for key, status in statuses.items() if status == "COMPLETE" and key not in DELIVERED]
 assert not missing, f"Add DELIVERED cards for {missing}"

@@ -148,8 +148,9 @@ function Section({ id, title, intro, state, pending, children }) {
         <p
           className={`${wizard ? 'mt-5' : 'mt-3'} rounded-md border-l-4 border-amber-500 bg-amber-100 p-3 text-tiny text-amber-700`}
         >
-          <strong>This change needs re-approval.</strong> The listing has left search until we check
-          it — usually within 2 working days. Bookings already confirmed are unaffected.
+          <strong>This change needs re-approval.</strong> Submit the property again so Rentra can
+          review it; it stays out of search until approved. Bookings already confirmed are
+          unaffected.
         </p>
       ) : null}
     </>
@@ -1316,6 +1317,16 @@ export function SubmitBar({ listing, completion, submitAction }) {
           Price and calendar changes apply immediately. Changing photos, the address, capacity or
           amenities sends it back for a quick re-check.
         </p>
+        {listing.adminCorrection ? (
+          <p className="mt-2 rounded-md bg-card p-3 text-meta text-ink-800">
+            <strong>Rentra corrected</strong> {listing.adminCorrection.fields.join(', ')} on{' '}
+            {new Date(listing.adminCorrection.at).toLocaleDateString('en-IN', {
+              timeZone: 'Asia/Kolkata',
+              dateStyle: 'medium',
+            })}
+            : {listing.adminCorrection.reason}
+          </p>
+        ) : null}
         {listing.bookingConfig?.inventoryReady !== true ? (
           <p className="mt-2 text-meta font-semibold text-amber-800">
             Guests can see it but cannot book yet: confirm your booking hours and open dates on the
@@ -1338,7 +1349,8 @@ export function SubmitBar({ listing, completion, submitAction }) {
         <p className="text-h4 font-bold text-ink-900">Paused by you</p>
         <p className="mt-1 text-meta text-ink-600">
           This property is not in search and cannot be booked. Everything about it is saved — resume
-          whenever you are ready.
+          whenever you are ready. Changing photos, the address, capacity or amenities sends it back
+          for review first.
         </p>
         <PauseControl listing={listing} />
       </div>
@@ -1347,11 +1359,17 @@ export function SubmitBar({ listing, completion, submitAction }) {
 
   /** Hidden by Rentra is not the owner's to undo, so no control is offered. */
   if (listing.status === 'hidden') {
+    const reason = listing.restriction?.reason ?? listing.restrictionReason;
     return (
       <div className="rounded-lg border border-amber-300 bg-amber-100 p-4">
         <p className="text-h4 font-bold text-amber-700">Hidden by Rentra</p>
+        {reason ? (
+          <p className="mt-1 text-meta font-semibold text-ink-800">Reason: {reason}</p>
+        ) : null}
         <p className="mt-1 text-meta text-ink-700">
-          {listing.rejectionReason ?? 'Reply to the email we sent and we will look at it again.'}
+          Guests cannot find or book this property, and only Rentra can restore it. Bookings already
+          confirmed still stand. You can keep editing; changes to photos, the address, capacity or
+          amenities will need review after it is restored. Contact Rentra support to resolve it.
         </p>
       </div>
     );

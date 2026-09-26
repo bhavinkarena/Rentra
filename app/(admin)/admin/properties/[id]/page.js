@@ -16,6 +16,8 @@ import {
 import { AdminPage } from '@/components/admin/AdminPrimitives';
 import PropertyReviewForm from '@/components/admin/PropertyReviewForm';
 import VerificationPanel from '@/components/admin/VerificationPanel';
+import PropertyLifecyclePanel from '@/components/admin/PropertyLifecyclePanel';
+import { diffRevisions } from '@/lib/domain/revision-diff';
 import { normalizePublicPhotos } from '@/lib/domain/listing-content';
 import { listingPath } from '@/lib/domain/listing-url';
 
@@ -23,7 +25,8 @@ const tabs = [
   { key: 'submission', label: 'Submitted property' },
   { key: 'decision', label: 'Review & decision' },
   { key: 'verification', label: 'Verification & publication' },
-  { key: 'history', label: 'History' },
+  { key: 'visibility', label: 'Visibility & corrections' },
+  { key: 'history', label: 'History & activity' },
 ];
 const STATUS_TONE = {
   pending_review: 'warning',
@@ -31,7 +34,30 @@ const STATUS_TONE = {
   live: 'success',
   rejected: 'danger',
   draft: 'neutral',
+  paused: 'neutral',
+  hidden: 'danger',
 };
+const ACTION_LABEL = {
+  listing_draft_created: 'Draft created',
+  listing_submitted: 'Submitted for review',
+  listing_review_assigned: 'Reviewer assignment changed',
+  listing_review_decided: 'Review decision',
+  verification_scheduled: 'Verification scheduled',
+  verification_rescheduled: 'Verification rescheduled',
+  verification_cancelled: 'Verification cancelled',
+  verification_recorded: 'Verification outcome recorded',
+  listing_published: 'Published',
+  listing_hidden: 'Hidden by Rentra',
+  listing_restored: 'Restored by Rentra',
+  listing_corrected: 'Corrected by Rentra',
+  listing_paused: 'Paused by the client',
+  listing_resumed: 'Resumed by the client',
+  listing_photos_added: 'Photos added',
+  listing_photos_reordered: 'Photos reordered',
+  ownership_document_uploaded: 'Ownership document uploaded',
+};
+const statusLabel = (status) =>
+  status === 'hidden' ? 'hidden by Rentra' : String(status ?? '—').replaceAll('_', ' ');
 const ist = (value) =>
   value
     ? new Date(value).toLocaleString('en-IN', {
@@ -60,6 +86,13 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
   const snap = selected?.snapshot,
     listing = snap?.listing;
   const photos = normalizePublicPhotos(selected?.displayPhotos ?? snap?.photos);
+  // Compare with the published revision, or else the pass before this one.
+  const published = data.submissions.find((s) => s.id === data.publication.publishedSubmissionId);
+  const base =
+    published && published.id !== selected?.id
+      ? published
+      : data.submissions.find((s) => s.passNumber === (selected?.passNumber ?? 0) - 1);
+  const changes = base && snap ? diffRevisions(base.snapshot, snap) : [];
   const canDecide = Boolean(
     current &&
     !data.stale &&
@@ -73,7 +106,7 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
         title={data.property.title}
         badges={[
           {
-            label: data.property.status.replaceAll('_', ' '),
+            label: statusLabel(data.property.status),
             tone: STATUS_TONE[data.property.status] ?? 'neutral',
           },
           data.stale ? { label: 'Unsubmitted changes', tone: 'danger' } : null,
@@ -189,6 +222,52 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
             <h3 className="mt-4 font-semibold">House rules</h3>
             <p className="mt-2 whitespace-pre-wrap text-meta">{display(listing.houseRules)}</p>
           </SectionCard>
+          {base ? (
+            <SectionCard
+              title={`Changes since pass ${base.passNumber}${base.id === published?.id ? ' (published)' : ''}`}
+              description="Field-level comparison of the two immutable submitted revisions."
+            >
+              {changes.length ? (
+                <div
+                  className="relative overflow-x-auto"
+                  tabIndex={0}
+                  role="region"
+                  aria-label="Revision changes"
+                >
+                  <table className="w-full min-w-[520px] text-left text-meta">
+                    <thead className="text-tiny uppercase text-ink-500">
+                      <tr>
+                        <th scope="col" className="py-2 pr-3">
+                          Field
+                        </th>
+                        <th scope="col" className="py-2 pr-3">
+                          Pass {base.passNumber}
+                        </th>
+                        <th scope="col" className="py-2">
+                          Pass {selected.passNumber}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {changes.map((row) => (
+                        <tr key={row.label} className="border-t border-border align-top">
+                          <th scope="row" className="py-2 pr-3 font-semibold">
+                            {row.label}
+                          </th>
+                          <td className="max-w-xs break-words py-2 pr-3 text-ink-600">
+                            {row.before}
+                          </td>
+                          <td className="max-w-xs break-words py-2">{row.after}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="text-meta">No submitted content changed between these revisions.</p>
+              )}
+            </SectionCard>
+          ) : null}
           <SectionCard title="Photos">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {photos.map((photo, i) => (
@@ -387,6 +466,53 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
           </SectionCard>
         </div>
       ) : null}
+      {tab === 'visibility' ? (
+        <div className="mt-5 space-y-5">
+          <SectionCard
+            title="Current visibility"
+            description="Owner pause and a Rentra restriction are separate: the client cannot resume or undo a restriction."
+          >
+            <FieldGrid
+              fields={[
+                { label: 'Status', value: statusLabel(data.lifecycle.status) },
+                {
+                  label: 'Public page',
+                  value: data.lifecycle.publiclyVisible ? 'Visible in search' : 'Not visible',
+                },
+                { label: 'Status before', value: statusLabel(data.lifecycle.priorStatus) },
+                {
+                  label: 'Upcoming confirmed visits',
+                  value: String(data.lifecycle.upcomingVisits),
+                },
+                { label: 'Checkouts in progress', value: String(data.lifecycle.activeHolds) },
+                { label: 'State version', value: String(data.lifecycle.version) },
+              ]}
+            />
+            {data.lifecycle.restriction ? (
+              <p role="status" className="mt-4 rounded-md bg-danger-bg p-3 text-meta text-danger">
+                Hidden by {data.lifecycle.restriction.by ?? 'Rentra'} on{' '}
+                {ist(data.lifecycle.restriction.at)} IST: {data.lifecycle.restriction.reason}
+              </p>
+            ) : null}
+            {data.lifecycle.visits.length ? (
+              <ul className="mt-4 space-y-1 text-meta" aria-label="Upcoming confirmed visits">
+                {data.lifecycle.visits.map((v) => (
+                  <li key={v.reference}>
+                    {v.reference} · {v.day} · {v.slot.replaceAll('_', ' ')} · {v.state}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </SectionCard>
+          <SectionCard title="Visibility and correction commands">
+            <PropertyLifecyclePanel
+              id={id}
+              lifecycle={data.lifecycle}
+              writable={admin.capabilities.includes('admin.properties.write')}
+            />
+          </SectionCard>
+        </div>
+      ) : null}
       {tab === 'history' ? (
         <div className="mt-5 space-y-5">
           <SectionCard title="Submitted revisions">
@@ -404,6 +530,34 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
                 </li>
               ))}
             </ul>
+          </SectionCard>
+          <SectionCard
+            title="Activity"
+            description="Every recorded lifecycle event, newest first: client, reviewer and system actions."
+          >
+            <ol className="space-y-3">
+              {data.activity.map((a) => (
+                <li key={a.id} className="border-l-2 border-border pl-3 text-meta">
+                  <strong>{ACTION_LABEL[a.action] ?? a.action.replaceAll('_', ' ')}</strong>
+                  {a.before?.status || a.after?.status ? (
+                    <span className="text-ink-600">
+                      {' '}
+                      · {statusLabel(a.before?.status)} → {statusLabel(a.after?.status)}
+                    </span>
+                  ) : null}
+                  <p className="text-tiny text-ink-500">
+                    {a.actor ?? a.actorType} · {ist(a.at)} IST
+                  </p>
+                  {a.action === 'listing_corrected' ? (
+                    <p className="text-tiny text-ink-600">
+                      Changed: {Object.keys(a.after ?? {}).join(', ')}
+                    </p>
+                  ) : null}
+                  {a.reason ? <p className="mt-1 whitespace-pre-wrap">{a.reason}</p> : null}
+                </li>
+              ))}
+            </ol>
+            {!data.activity.length ? <p className="text-meta">No activity recorded yet.</p> : null}
           </SectionCard>
           <SectionCard title="Decision history">
             <ul className="space-y-4">
