@@ -24,7 +24,7 @@ export default function DocumentViewer({ documents = [], kycNameOnDoc, accountNa
   if (documents.length === 0) {
     return (
       <div className="rounded-lg border border-amber-300 bg-amber-100 p-4">
-        <p className="text-meta font-semibold text-amber-700">No identity document uploaded</p>
+        <p className="text-meta font-semibold text-amber-800">No identity document uploaded</p>
         <p className="mt-1 text-tiny text-ink-700">
           The application cannot be approved without one. Send it back asking for photos of an ID.
         </p>
@@ -74,7 +74,7 @@ export default function DocumentViewer({ documents = [], kycNameOnDoc, accountNa
       </dl>
 
       {nameMatch === 'mismatch' ? (
-        <p className="mt-2 rounded-md bg-amber-100 p-2.5 text-tiny text-amber-700">
+        <p className="mt-2 rounded-md bg-amber-100 p-2.5 text-tiny text-amber-800">
           A family or HUF name here is the most common real case and is <strong>not</strong> a
           rejection — ask for a relationship proof or a no-objection letter, or approve them as an
           authorised agent so the listing publicly says &ldquo;Authorised manager&rdquo;.
@@ -123,7 +123,7 @@ function DocRow({ doc }) {
               ? 'bg-brand-50 text-brand-700'
               : status === 'rejected'
                 ? 'bg-danger-bg text-danger'
-                : 'bg-amber-100 text-amber-700'
+                : 'bg-amber-100 text-amber-800'
           }`}
         >
           {status}

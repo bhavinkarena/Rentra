@@ -5,6 +5,7 @@ import { useActionState, useState } from 'react';
 import { Check, HelpCircle, X } from 'lucide-react';
 import { approveApplication, requestMoreInfo, rejectApplication } from '@/lib/actions/admin';
 import { Button } from '@/components/ui/button';
+import RetryButton from '@/components/portal/RetryButton';
 
 const FLAGGABLE = [
   { id: 'phone', label: 'Mobile number' },
@@ -24,14 +25,17 @@ const FLAGGABLE = [
  * as well as here: the Client sees it verbatim, and a silent no generates a
  * support call and a bad review.
  */
-export default function DecisionPanel({ applicationId, strikeCount }) {
+export default function DecisionPanel({ applicationId, strikeCount, reviewVersion }) {
   const [mode, setMode] = useState(null);
   const [approveState, approveAction, approving] = useActionState(approveApplication, {});
   const [infoState, infoAction, requestingInfo] = useActionState(requestMoreInfo, {});
   const [rejectState, rejectAction, rejecting] = useActionState(rejectApplication, {});
 
   const busy = approving || requestingInfo || rejecting;
-  const anyError = approveState.errors?._ ?? infoState.errors?._ ?? rejectState.errors?._;
+  const failure = [approveState, infoState, rejectState].find(
+    (state) => state.errors?._ || (state.error && !state.errors),
+  );
+  const anyError = failure?.errors?._ ?? failure?.error;
   const nextStrike = (strikeCount ?? 0) + 1;
   const willBlock = nextStrike >= 3;
 
@@ -43,9 +47,18 @@ export default function DecisionPanel({ applicationId, strikeCount }) {
       </p>
 
       {anyError ? (
-        <p className="mt-3 rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger">
-          {anyError}
-        </p>
+        <div
+          role="alert"
+          className="mt-3 rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger"
+        >
+          <p>{anyError}</p>
+          <p className="mt-1 text-tiny">
+            Nothing was decided. Reload to see the current application.
+          </p>
+          <div className="mt-3">
+            <RetryButton label="Reload application" />
+          </div>
+        </div>
       ) : null}
 
       {mode === null ? (
@@ -65,10 +78,11 @@ export default function DecisionPanel({ applicationId, strikeCount }) {
       {mode === 'approve' ? (
         <form action={approveAction} className="mt-4 space-y-3">
           <input type="hidden" name="applicationId" value={applicationId} />
+          <input type="hidden" name="expectedVersion" value={reviewVersion} />
           <p className="rounded-md border-l-4 border-brand-600 bg-success-bg p-3 text-meta text-brand-900">
-            This closes Gate&nbsp;1: the account becomes <strong>active</strong>, identity is marked
-            verified, and they can start adding properties. Each property still needs its own
-            approval — that is Gate&nbsp;2.
+            This closes Gate&nbsp;1: the account becomes <strong>active</strong>, identity is
+            recorded as reviewed by Rentra (no KYC provider is connected), and they can start adding
+            properties. Each property still needs its own approval — that is Gate&nbsp;2.
           </p>
           <textarea
             name="reason"
@@ -89,6 +103,7 @@ export default function DecisionPanel({ applicationId, strikeCount }) {
       {mode === 'info' ? (
         <form action={infoAction} className="mt-4 space-y-3">
           <input type="hidden" name="applicationId" value={applicationId} />
+          <input type="hidden" name="expectedVersion" value={reviewVersion} />
           <fieldset>
             <legend className="mb-1.5 text-meta font-semibold text-ink-700">
               Which steps need attention?
@@ -118,6 +133,9 @@ export default function DecisionPanel({ applicationId, strikeCount }) {
               placeholder="The Client sees this word for word. Be specific — “the name on your PAN is Ramesh J. Patel but the light bill says Jayanti Patel; send a relationship proof or a no-objection letter.”"
               className={ta}
             />
+            {infoState.errors?.flagged ? (
+              <p className="mt-1.5 text-tiny font-medium text-danger">{infoState.errors.flagged}</p>
+            ) : null}
             {infoState.errors?.reason ? (
               <p className="mt-1.5 text-tiny font-medium text-danger">{infoState.errors.reason}</p>
             ) : null}
@@ -138,6 +156,7 @@ export default function DecisionPanel({ applicationId, strikeCount }) {
       {mode === 'reject' ? (
         <form action={rejectAction} className="mt-4 space-y-3">
           <input type="hidden" name="applicationId" value={applicationId} />
+          <input type="hidden" name="expectedVersion" value={reviewVersion} />
           <p className="rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger">
             Strike {nextStrike} of 3.
             {willBlock
@@ -179,7 +198,7 @@ const ta =
 function btn(tone) {
   const tones = {
     brand: 'border-brand-600 bg-brand-50 text-brand-700 hover:bg-brand-100',
-    amber: 'border-amber-300 bg-amber-100 text-amber-700 hover:brightness-95',
+    amber: 'border-amber-300 bg-amber-100 text-amber-800 hover:brightness-95',
     danger: 'border-danger/30 bg-danger-bg text-danger hover:brightness-95',
   };
   return (

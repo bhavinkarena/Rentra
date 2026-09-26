@@ -1,6 +1,6 @@
 # Rentra client and Super Admin session roadmap
 
-Planning date: 26 September 2026. **Implementation: 4/32 parts complete. Next: CP05.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration.
+Planning date: 26 September 2026. **Implementation: 5/32 parts complete. Next: CP06.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration. CP05 migration `0024` is **not yet applied** to the configured database; run `npm run db:migrate` before using the new application queue.
 
 Read the [requirements plan](rentra-client-admin-plan.md) and [source-backed gap audit](rentra-client-admin-ui-audit.md) together with this roadmap. These CP numbers are a new workstream; they do not replace customer Parts 01–22 or change their completion claims. Client means the existing owner/authorized-agent portal.
 
@@ -10,7 +10,7 @@ One part is the target for one implementation session, including its meaningful 
 
 Each part owns its end-to-end slice: necessary Express API/service/schema changes, frontend integration, server-side permissions, persisted loading/error/success behavior, and regression evidence. Reuse existing foundations. Routes and models in the requirements plan are proposals until implemented. Never bypass the backend by adding direct frontend database access.
 
-CP01–CP04 are **COMPLETE**. All other parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
+CP01–CP05 are **COMPLETE**. All other parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
 
 | Part | Session scope | Dependencies | Status |
 | --- | --- | --- | --- |
@@ -18,7 +18,7 @@ CP01–CP04 are **COMPLETE**. All other parts are **PLANNED**, including externa
 | CP02 | Shared portal interaction foundations | CP01 | COMPLETE |
 | CP03 | Client directory, detail and lifecycle | CP01–02 | COMPLETE |
 | CP04 | Customer directory and account controls | CP01–02 | COMPLETE |
-| CP05 | Gate 1 application review | CP03 | PLANNED |
+| CP05 | Gate 1 application review | CP03 | COMPLETE |
 | CP06 | Gate 2 property review | CP03, CP05 | PLANNED |
 | CP07 | Verification and publication | CP06 | PLANNED |
 | CP08 | Revisions and admin publication restrictions | CP06–07 | PLANNED |
@@ -94,6 +94,8 @@ The sequence favors closing the missing property approval workflow early. Indepe
 **Deliver:** Upgrade the existing application queue with pagination, filters, assignment, aging and stable return-to-list context. Detail includes safe document access, application history, structured correction requests and approve/reject decisions tied to the reviewed version. Client sees actionable correction requirements and resubmission progress. Replace unsupported verification claims with the actual evidence status.
 
 **Gate:** Two reviewers cannot commit contradictory decisions; duplicate submissions cannot send duplicate decision notifications. Check private document authorization and correction/resubmission. Acceptance: CA01, CA03, CA19, CA21. Reuse current review services instead of introducing a parallel approval system.
+
+**Gate passed — 26 September 2026:** a disposable-PostgreSQL service test and a 35-check browser/API gate passed. They covered the paginated queue with filters, aging and return context, and claim/take-over/release. Two reviewers deciding the same version produced exactly one decision and one audit record (field fingerprints, never values), and duplicate or pre-resubmission decisions got 409. The client saw structured corrections on the flagged steps and resubmitted, and the review showed what changed. Approval was blocked for a payout mismatch or a non-pending account. An approved client stayed signed in. The third strike blocked the account and ended its sessions. Document access was authorized, and cross-client deletion was refused. Existing routes were reused. Fixed on the way: KYC documents were queried by the wrong owner, so the stepper never completed. This session also shipped the owner-requested portal UI refresh: shared shell, collapsible sidebar, workspace type scale, search and tabbed detail pages. CP02–CP04 gates passed on it. [CP05 handoff](rentra-client-admin-part05.md).
 
 ### CP06 — Gate 2 listing queue and review detail
 
@@ -275,6 +277,6 @@ Update this table and the audit dispositions only when the evidence supports the
 
 ## Prompt for the next implementation session
 
-> Start CP05 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP04 handoffs, inspect current frontend/backend changes and applicable repository instructions, then implement only CP05's end-to-end scope. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
+> Start CP06 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP05 handoffs, inspect current frontend/backend changes and applicable repository instructions, then implement only CP06's end-to-end scope. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
 
-Replace CP05 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.
+Replace CP06 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.

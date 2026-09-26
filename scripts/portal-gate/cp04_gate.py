@@ -30,7 +30,12 @@ def ctx(browser, cookie=None, width=1280):
 
 def go(page, url):
     response = page.goto(url)
-    page.wait_for_load_state("networkidle")
+    try:
+        page.wait_for_load_state("networkidle", timeout=10000)
+    except Exception:
+        # A lingering background request (prefetch, revalidation) can keep the
+        # network busy; the document itself has loaded.
+        page.wait_for_load_state("load")
     return response
 
 
@@ -57,7 +62,7 @@ with sync_playwright() as p:
         page = c.new_page()
         r = go(page, f"{WEB}/admin/customers?q=980001")
         check(f"directory loads with search {width}px", r.status == 200 and visible(page.get_by_role("heading", name="All customers")))
-        check(f"list shows masked phone only {width}px", visible(page.get_by_text("••••••0001")) and "9898980001" not in page.content())
+        check(f"list shows the full phone {width}px", visible(page.get_by_text("+91 9898980001")))
         row = page.locator(f"a[href*='/admin/customers/{GUEST}'][href*='from=']").first
         check(f"search finds the customer {width}px", row.count() == 1)
         check(f"no horizontal page overflow {width}px", not page.evaluate("() => document.documentElement.scrollWidth > window.innerWidth"))
@@ -69,7 +74,9 @@ with sync_playwright() as p:
         check(f"detail breadcrumb keeps the search {width}px", "q=980001" in (crumb.get_attribute("href") or ""))
         if width == 1280:
             check("detail shows credential phone and one open session", visible(page.get_by_text("+91 9898980001")) and visible(page.locator("#sessions").get_by_text(re.compile(r"1\s+open session"))))
-            check("phone is not an editable field", page.locator("#profile input[name=phone]").count() == 0)
+            go(page, f"{WEB}/admin/customers/{GUEST}?tab=account")
+            check("phone is not an editable field", page.locator("#profile form").count() == 1 and page.locator("#profile input[name=phone]").count() == 0)
+            go(page, f"{WEB}/admin/customers/{GUEST}?tab=privacy")
             check("privacy links to the privacy workflow", page.locator("#privacy a[href='/admin/privacy']").count() == 1)
             axe(page, "/admin/customers/[id] 1280px")
         c.close()
@@ -87,7 +94,7 @@ with sync_playwright() as p:
 
     c = ctx(browser, full)
     page = c.new_page()
-    go(page, f"{WEB}/admin/customers/{GUEST}")
+    go(page, f"{WEB}/admin/customers/{GUEST}?tab=account")
     profile = page.locator("#profile")
 
     # duplicate email keeps input and explains
@@ -105,7 +112,9 @@ with sync_playwright() as p:
     profile.get_by_role("status").wait_for(timeout=20000)
     page.wait_for_load_state("networkidle")
     check("correction saved and names changed fields", "name" in profile.get_by_role("status").inner_text() and "email" in profile.get_by_role("status").inner_text())
+    go(page, f"{WEB}/admin/customers/{GUEST}?tab=history")
     check("history records fields, not values", visible(page.locator("#history").get_by_text(re.compile("Fields: name, email"))) and "rahul.sharma@fixture.invalid" not in page.locator("#history").inner_text())
+    go(page, f"{WEB}/admin/customers/{GUEST}?tab=account")
 
     go(cpage, f"{WEB}/account")
     check("identity correction does not sign the customer out", "/login" not in cpage.url, cpage.url)

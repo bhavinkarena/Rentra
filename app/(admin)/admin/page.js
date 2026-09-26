@@ -1,18 +1,16 @@
 import Link from 'next/link';
 import {
   AlertTriangle,
-  ArrowRight,
   CheckCircle2,
   CircleCheckBig,
   Clock,
   FileClock,
-  Inbox,
-  MousePointerClick,
   RotateCcw,
 } from 'lucide-react';
 import { requireAdmin } from '@/lib/api/session';
 import { adminApi } from '@/lib/api/endpoints';
 import { SLA_HOURS } from '@/lib/constants';
+import ApplicationQueue from '@/components/admin/ApplicationQueue';
 
 export const metadata = {
   title: 'Review queue',
@@ -30,7 +28,12 @@ export default async function AdminQueuePage({ searchParams }) {
   await requireAdmin();
   const params = await searchParams;
   const [queue, stats, recent] = await Promise.all([
-    adminApi.applications(),
+    adminApi.applications({
+      status: params?.status,
+      assignee: params?.assignee,
+      q: params?.q,
+      page: params?.page,
+    }),
     adminApi.applicationStats(),
     adminApi.recentDecisions(8),
   ]);
@@ -102,93 +105,7 @@ export default async function AdminQueuePage({ searchParams }) {
         />
       </section>
 
-      {queue.length === 0 ? (
-        <section className="mt-6 rounded-lg border border-border bg-card px-6 py-12 text-center shadow-xs">
-          <span className="mx-auto grid size-12 place-items-center rounded-full bg-brand-50 text-brand-700 ring-1 ring-brand-100">
-            <Inbox className="size-6" aria-hidden="true" />
-          </span>
-          <h2 className="mt-4 text-h4 font-bold text-ink-900">Queue cleared</h2>
-          <p className="mx-auto mt-1 max-w-md text-meta leading-6 text-ink-500">
-            There are no submitted applications waiting for review.
-            {stats.drafts
-              ? ` ${stats.drafts} application${stats.drafts === 1 ? ' is' : 's are'} still being prepared.`
-              : ''}
-          </p>
-        </section>
-      ) : (
-        <section className="mt-6 overflow-hidden rounded-lg border border-border bg-card shadow-xs">
-          <div className="flex items-center justify-between gap-4 border-b border-border px-4 py-4 sm:px-5">
-            <div>
-              <h2 className="text-h4 font-bold text-ink-900">Applications to review</h2>
-              <p className="mt-0.5 text-tiny text-ink-500">
-                Oldest and overdue applications should be handled first
-              </p>
-            </div>
-            <span className="shrink-0 rounded-full bg-ink-100 px-2.5 py-1 text-tiny font-bold text-ink-700">
-              {queue.length} open
-            </span>
-          </div>
-          <ul className="divide-y divide-border">
-            {queue.map((application) => (
-              <li key={application.id}>
-                <Link
-                  href={`/admin/applications/${application.id}`}
-                  className="group flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-4 transition-colors hover:bg-ink-50 sm:px-5"
-                >
-                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-50 text-tiny font-bold text-brand-800 ring-1 ring-brand-100">
-                    {(application.legalName || application.email || 'A')
-                      .trim()
-                      .charAt(0)
-                      .toUpperCase()}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-meta font-semibold text-ink-900">
-                      {application.legalName || application.email}
-                    </span>
-                    <span className="block truncate text-tiny text-ink-500">
-                      {application.email}
-                      {application.phone ? ` · +91 ${application.phone}` : ' · no phone'}
-                      {application.clientType === 'authorised_agent' ? ' · agent' : ''}
-                      {application.preferredLocale !== 'en'
-                        ? ` · ${application.preferredLocale}`
-                        : ''}
-                    </span>
-                  </span>
-
-                  {application.blocker ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-danger-bg px-2.5 py-1 text-tiny font-bold text-danger">
-                      <AlertTriangle className="size-3" aria-hidden="true" /> {application.blocker}
-                    </span>
-                  ) : null}
-                  {application.strikeCount > 0 ? (
-                    <span className="rounded-full bg-amber-100 px-2.5 py-1 text-tiny font-bold text-amber-700">
-                      strike {application.strikeCount}/3
-                    </span>
-                  ) : null}
-                  {application.ctaClicks >= 2 ? (
-                    <span
-                      className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-1 text-tiny font-bold text-brand-700"
-                      title="Clicked the locked Add place button repeatedly — they have a property ready"
-                    >
-                      <MousePointerClick className="size-3" aria-hidden="true" />{' '}
-                      {application.ctaClicks} tries
-                    </span>
-                  ) : null}
-                  <span
-                    className={`inline-flex shrink-0 items-center gap-1 text-tiny font-bold tabular ${application.overdue ? 'text-danger' : 'text-ink-500'}`}
-                  >
-                    <Clock className="size-3" aria-hidden="true" /> {application.ageHours}h
-                  </span>
-                  <ArrowRight
-                    className="size-4 shrink-0 text-ink-300 transition-transform group-hover:translate-x-0.5 group-hover:text-brand-700"
-                    aria-hidden="true"
-                  />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <ApplicationQueue data={queue} />
 
       {recent.length > 0 ? (
         <section className="mt-6 overflow-hidden rounded-lg border border-border bg-card shadow-xs">
@@ -260,6 +177,6 @@ function Stat({ label, value, hint, icon: Icon, tone = 'calm' }) {
 function statusTone(status) {
   if (status === 'approved') return 'bg-brand-50 text-brand-700';
   if (status === 'rejected') return 'bg-danger-bg text-danger';
-  if (status === 'more_info_needed') return 'bg-amber-100 text-amber-700';
+  if (status === 'more_info_needed') return 'bg-amber-100 text-amber-800';
   return 'bg-ink-100 text-ink-600';
 }

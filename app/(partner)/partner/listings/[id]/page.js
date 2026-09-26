@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import { Check, Wand2 } from 'lucide-react';
+import { Check, CircleCheck, Users, Wand2 } from 'lucide-react';
 import { requireActiveClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
 import { safeReturnPath } from '@/lib/domain/portal-state';
 import PortalState from '@/components/portal/PortalState';
-import Breadcrumbs from '@/components/portal/Breadcrumbs';
+import { DetailHeader } from '@/components/portal/DetailLayout';
 import UnsavedChangesGuard from '@/components/portal/UnsavedChangesGuard';
 import { listingCompletion } from '@/lib/domain/listing-completion';
 import { submitListing } from '@/lib/actions/partner';
@@ -63,24 +63,38 @@ export default async function ListingBuilderPage({ params, searchParams }) {
 
   const { listing, prices, amenities, photos, documents } = data;
   const completion = listingCompletion(listing, { prices, amenities, photos, documents });
+  const title = listing.title === 'Untitled property' ? 'New property' : listing.title;
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
-      <Breadcrumbs
-        items={[
-          { href: listHref, label: 'Properties' },
-          { label: listing.title === 'Untitled property' ? 'New property' : listing.title },
+      <DetailHeader
+        breadcrumbs={[{ href: listHref, label: 'Properties' }, { label: title }]}
+        title={title}
+        badges={[
+          {
+            label: listing.status.replace(/_/g, ' '),
+            tone:
+              listing.status === 'live'
+                ? 'success'
+                : listing.status === 'rejected'
+                  ? 'danger'
+                  : 'warning',
+          },
+        ]}
+        id={
+          listing.publicCode
+            ? { label: 'Property reference', value: listing.publicCode }
+            : undefined
+        }
+        chips={[
+          { icon: Users, label: 'Up to', value: `${listing.capacity ?? '—'} guests` },
+          {
+            icon: CircleCheck,
+            label: 'Setup',
+            value: `${completion.done} of ${completion.total} sections`,
+          },
         ]}
       />
-
-      <h1 className="mt-4 text-h1">
-        {listing.title === 'Untitled property' ? 'New property' : listing.title}
-      </h1>
-      {listing.publicCode ? (
-        <p className="mt-1 text-tiny text-ink-500">
-          Reference <span className="font-mono">{listing.publicCode}</span>
-        </p>
-      ) : null}
 
       {/* Progress rail: the same two-phase honesty as onboarding — the review
           step is visible from the first visit, so a full bar never sits next

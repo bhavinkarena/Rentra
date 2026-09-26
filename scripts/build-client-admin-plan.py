@@ -132,6 +132,20 @@ DELIVERED = {
       <li>Payment and refund summaries are CP19–CP20.</li>
       <li>Legacy visits without a booking order are not listed.</li>
       <li>No hosted environment or human screen-reader pass.</li></ul></div>''',
+    "CP05": '''<div class="card"><span class="num">CP05 · complete</span><h3>Gate 1 application review</h3><p>Existing review routes upgraded end to end:</p>
+      <ul><li>Paginated queue (<code>status</code>, <code>assignee</code>, <code>q</code>, <code>page</code>) with authoritative counts, overdue aging and return-to-list context; <code>POST /admin/applications/:id/assign</code> to claim, release or take over.</li>
+      <li>Migration <code>0024</code>: <code>review_version</code> and assignment columns. Every submit, withdraw and decision bumps the version, so contradictory, duplicate and pre-resubmission decisions answer 409.</li>
+      <li>One transaction per decision with a single audit entry holding field fingerprints (never values), and “changed since last decision” for reviewers.</li>
+      <li>Structured correction requests appear on the client’s flagged steps; approval no longer signs the client out and never re-activates a suspended account.</li>
+      <li>Fixed: KYC documents were read by the wrong owner, so the stepper could never complete. Honest “reviewed by Rentra” wording.</li>
+      <li>Owner-requested portal refresh: shared shell, collapsible brand sidebar, search, workspace type scale and tabbed detail pages.</li></ul>
+      <p class="small"><strong>Gate passed — 26 September 2026:</strong> disposable-DB service test plus a <strong>35/35</strong> browser/API gate. It covered a two-reviewer race with one winner and one record, assignment conflicts, the correction → resubmission → approval journey with 409 on stale and duplicate decisions, the client staying signed in, the third strike blocking the account, and authorized documents with cross-client deletion refused. CP02–CP04 gates passed on the refreshed UI (34/34, 35/35, 38/38). <strong>Migration 0024 is not yet applied</strong> to the configured database. <a href="rentra-client-admin-part05.md">Handoff, API contract and runbook ↗</a></p></div>
+    <div class="card"><span class="num">CP05 · explicitly not delivered</span><h3>Limits recorded at the gate</h3>
+      <ul><li>No client decision notification channel; outcomes appear in the workspace.</li>
+      <li>Blocked (third-strike) accounts still reopen only by manual appeal.</li>
+      <li>Listing copy promising email/WhatsApp replies is left for CP06/CP09.</li>
+      <li>Partner booking detail and editor bodies keep their existing layout.</li>
+      <li>No hosted environment or human screen-reader pass.</li></ul></div>''',
 }
 missing = [key for key, status in statuses.items() if status == "COMPLETE" and key not in DELIVERED]
 assert not missing, f"Add DELIVERED cards for {missing}"

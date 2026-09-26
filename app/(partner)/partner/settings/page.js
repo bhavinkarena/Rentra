@@ -100,11 +100,13 @@ export default async function SettingsPage() {
               <span className="min-w-0">
                 <span className="block text-tiny font-semibold text-ink-900">
                   Identity{' '}
-                  {user.kycStatus === 'verified' ? 'verified' : user.kycStatus.replace(/_/g, ' ')}
+                  {user.kycStatus === 'verified'
+                    ? 'documents reviewed by Rentra'
+                    : user.kycStatus.replace(/_/g, ' ')}
                 </span>
                 <span className="mt-1 block text-[0.68rem] leading-4 text-ink-500">
                   {user.kycStatus === 'verified'
-                    ? 'Completed once and securely reused for your Rentra account.'
+                    ? 'A Rentra reviewer checked your ID documents. No automated KYC provider is connected.'
                     : 'Your ID is checked as part of partner verification.'}
                 </span>
               </span>

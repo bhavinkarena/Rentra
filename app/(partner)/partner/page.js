@@ -46,7 +46,7 @@ export default async function PartnerDashboard() {
   return (
     <div className="mx-auto w-full max-w-[1480px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       <PartnerPageHeader
-        eyebrow={completion.approved ? 'Verified partner' : 'Getting set up'}
+        eyebrow={completion.approved ? 'Approved partner' : 'Getting set up'}
         title={firstName ? `Welcome back, ${firstName}` : 'Welcome to Rentra'}
         description={
           completion.approved ? (
@@ -295,7 +295,7 @@ function OnboardingDashboard({ completion, application }) {
               Submit for review
             </PendingSubmitButton>
             <p className="mt-2 text-center text-tiny text-ink-500">
-              We reply within 2 working days, by email and WhatsApp.
+              A person reviews it within 2 working days. The decision appears here.
             </p>
           </form>
         ) : null}
@@ -323,6 +323,9 @@ function OnboardingDashboard({ completion, application }) {
             <p className="text-h4 font-bold text-danger">We need a bit more</p>
             <p className="mt-1 text-meta text-ink-700">
               {application.decisionReason || 'Please check the flagged steps above and resubmit.'}
+            </p>
+            <p className="mt-2 text-tiny text-ink-600">
+              Update the steps marked above, then submit again. Your other details stay as they are.
             </p>
           </div>
         ) : null}

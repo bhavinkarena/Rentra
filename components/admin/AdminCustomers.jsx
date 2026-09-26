@@ -1,15 +1,34 @@
 import Link from 'next/link';
-import { UserRound } from 'lucide-react';
-import CopyReference from '@/components/customer/checkout/CopyReference';
+import { CalendarDays, Clock, Mail, Phone, UserRound } from 'lucide-react';
 import AccountLifecyclePanel from './AccountLifecyclePanel';
 import { CustomerProfileCorrection, CustomerSessionRevocation } from './CustomerAccountForms';
-import { Fact, Panel, label, when } from './AdminClients';
+import { HistoryList, label, when } from './AdminClients';
+import {
+  DetailHeader,
+  DetailTabs,
+  FieldGrid,
+  MetricStrip,
+  Row,
+  RowList,
+  SectionCard,
+  pickTab,
+} from '@/components/portal/DetailLayout';
 import { AdminEmpty, AdminPage, AdminPageHeader, Pager, StatusBadge } from './AdminPrimitives';
 import { customerAccountCommand } from '@/lib/actions/admin';
 
-const STATUS = { all: 'All', active: 'Active', suspended: 'Restricted', blocked: 'Blocked' };
-const VERBS = { suspend: 'Restrict access', reinstate: 'Reinstate access' };
-const tone = (status) => (status === 'active' ? 'success' : 'danger');
+const STATUS = {
+  all: 'All',
+  active: 'Active',
+  pending_application: 'Not activated',
+  suspended: 'Restricted',
+  blocked: 'Blocked',
+};
+const verbsFor = (status) => ({
+  suspend: 'Restrict access',
+  reinstate: status === 'pending_application' ? 'Activate access' : 'Reinstate access',
+});
+const tone = (status) =>
+  status === 'active' ? 'success' : status === 'pending_application' ? 'warning' : 'danger';
 
 function listHref({ q, status, page }) {
   const params = new URLSearchParams();
@@ -27,7 +46,7 @@ export function AdminCustomerList({ data }) {
       <AdminPageHeader
         eyebrow="People"
         title="Customers"
-        description="Guest accounts with their bookings, support, reviews and privacy requests. Phone numbers are masked in this list."
+        description="Guest accounts with their bookings, support, reviews and privacy requests."
       />
       <nav aria-label="Filter by status" className="mt-6 flex flex-wrap gap-2">
         {Object.entries(STATUS).map(([key, text]) => (
@@ -111,12 +130,12 @@ export function AdminCustomerList({ data }) {
                         {customer.email || 'No email'}
                       </p>
                     </td>
-                    <td className="px-4 py-4 font-mono text-tiny text-ink-600">
-                      {customer.phoneMasked ?? '—'}
+                    <td className="whitespace-nowrap px-4 py-4 text-meta text-ink-700 tabular">
+                      {customer.phone ? `+91 ${customer.phone}` : '—'}
                     </td>
                     <td className="px-4 py-4">
                       <StatusBadge tone={tone(customer.accountStatus)}>
-                        {STATUS[customer.accountStatus]}
+                        {STATUS[customer.accountStatus] ?? label(customer.accountStatus)}
                       </StatusBadge>
                     </td>
                     <td className="px-4 py-4 text-tiny text-ink-600 tabular">
@@ -132,7 +151,7 @@ export function AdminCustomerList({ data }) {
                         href={`/admin/customers/${customer.id}?from=${encodeURIComponent(here)}`}
                       >
                         Open
-                        <span className="sr-only"> {customer.name || customer.phoneMasked}</span> →
+                        <span className="sr-only"> {customer.name || customer.phone}</span> →
                       </Link>
                     </td>
                   </tr>
@@ -164,245 +183,306 @@ export function AdminCustomerList({ data }) {
   );
 }
 
-function RecordList({ items, empty, render }) {
-  if (!items.length) return <p className="text-meta text-ink-600">{empty}</p>;
-  return <ul className="divide-y divide-border">{items.map(render)}</ul>;
-}
-
-const SECTIONS = [
-  ['#profile', 'Profile'],
-  ['#bookings', 'Bookings'],
-  ['#support', 'Support'],
-  ['#reviews', 'Reviews'],
-  ['#privacy', 'Privacy'],
-  ['#sessions', 'Sessions'],
-  ['#lifecycle', 'Account status'],
-  ['#history', 'History'],
+const CUSTOMER_TABS = (data) => [
+  { key: 'overview', label: 'Overview' },
+  { key: 'bookings', label: 'Bookings', count: data.bookings.total },
+  { key: 'support', label: 'Support', count: data.support.total },
+  { key: 'reviews', label: 'Reviews', count: data.reviews.total },
+  { key: 'privacy', label: 'Privacy', count: data.privacy.length },
+  { key: 'account', label: 'Account details' },
+  { key: 'history', label: 'Activity log', count: data.history.length },
 ];
 
-export function AdminCustomerDetail({ data, listHref: backHref = '/admin/customers' }) {
+function BookingRow({ order }) {
+  return (
+    <Row
+      primary={order.title}
+      secondary={`${order.reference} · first visit ${order.firstVisit ?? '—'} · booked ${when(order.createdAt)}`}
+      trailing={<StatusBadge tone="info">{label(order.state)}</StatusBadge>}
+      href={`/admin/bookings/${order.id}`}
+      hrefLabel={
+        <>
+          Record<span className="sr-only"> {order.reference}</span>
+        </>
+      }
+    />
+  );
+}
+
+function SupportRow({ request }) {
+  return (
+    <Row
+      primary={request.subject}
+      secondary={`${request.reference} · updated ${when(request.updatedAt)}`}
+      trailing={<StatusBadge tone="neutral">{label(request.state)}</StatusBadge>}
+      href={`/admin/support/${request.id}`}
+      hrefLabel={
+        <>
+          Open<span className="sr-only"> {request.reference}</span>
+        </>
+      }
+    />
+  );
+}
+
+export function AdminCustomerDetail({
+  data,
+  listHref: backHref = '/admin/customers',
+  tab,
+  params,
+}) {
   const { customer, bookings, support, reviews, privacy, sessions, history } = data;
   const title =
     customer.name || `Customer ${customer.phone ? `••${customer.phone.slice(-4)}` : ''}`;
-  return (
-    <AdminPage width="max-w-6xl">
-      <AdminPageHeader
-        breadcrumbs={[{ href: backHref, label: 'Customers' }, { label: title }]}
-        eyebrow="Customer"
-        title={title}
-        description={`Joined ${when(customer.createdAt)} · last sign-in ${when(customer.lastLoginAt)}`}
-        action={
-          <StatusBadge tone={tone(customer.accountStatus)}>
-            {STATUS[customer.accountStatus]}
-          </StatusBadge>
-        }
+  const tabs = CUSTOMER_TABS(data);
+  const active = pickTab(tab, tabs);
+  const openSupport = support.items.filter((request) => request.state !== 'resolved').length;
+  const effects = data.lifecycle.effects;
+
+  const sessionPanel = (
+    <SectionCard
+      id="sessions"
+      title="Sessions"
+      description={`${sessions.open} open session${sessions.open === 1 ? '' : 's'} · latest sign-in ${when(sessions.latest, { dateStyle: 'medium', timeStyle: 'short' })}`}
+    >
+      <CustomerSessionRevocation customer={customer} openSessions={sessions.open} />
+    </SectionCard>
+  );
+  const sidebar = (
+    <div className="space-y-5 lg:sticky lg:top-20">
+      {sessionPanel}
+      <AccountLifecyclePanel
+        subjectId={customer.id}
+        preview={data.lifecycle}
+        command={customerAccountCommand}
+        verbs={verbsFor(customer.accountStatus)}
+        statuses={STATUS}
       />
-      <div className="mt-4">
-        <CopyReference reference={customer.id} label="Customer ID" />
-      </div>
-      <nav aria-label="Sections" className="mt-5 flex flex-wrap gap-2 text-tiny font-semibold">
-        {SECTIONS.map(([href, text]) => (
-          <a
-            key={href}
-            href={href}
-            className="inline-flex min-h-9 items-center rounded-full border border-border bg-card px-3 text-ink-700 hover:bg-ink-50"
+      <p className="px-1 text-tiny text-ink-500">
+        No impersonation: staff never sign in as a customer. Authentication recovery (a lost phone)
+        is not available here.
+      </p>
+    </div>
+  );
+  const bookingRows = (items) => (
+    <RowList
+      items={items}
+      empty="No bookings."
+      render={(order) => <BookingRow key={order.id} order={order} />}
+    />
+  );
+  const supportRows = (items) => (
+    <RowList
+      items={items}
+      empty="No support requests."
+      render={(request) => <SupportRow key={request.id} request={request} />}
+    />
+  );
+
+  return (
+    <AdminPage width="max-w-[1320px]">
+      <DetailHeader
+        breadcrumbs={[{ href: backHref, label: 'Customers' }, { label: title }]}
+        title={title}
+        badges={[
+          { label: STATUS[customer.accountStatus], tone: tone(customer.accountStatus) },
+          { label: 'Customer', tone: 'info' },
+          customer.phoneVerifiedAt ? { label: 'Phone verified', tone: 'success' } : null,
+        ].filter(Boolean)}
+        id={{ label: 'Customer ID', value: customer.id, display: customer.id.slice(0, 8) }}
+        chips={[
+          customer.phone ? { icon: Phone, value: `+91 ${customer.phone}` } : null,
+          customer.email ? { icon: Mail, value: customer.email } : null,
+          { icon: CalendarDays, label: 'Joined', value: when(customer.createdAt) },
+          {
+            icon: Clock,
+            label: 'Last sign-in',
+            value: when(customer.lastLoginAt, { dateStyle: 'medium', timeStyle: 'short' }),
+          },
+        ]}
+      />
+
+      <MetricStrip
+        items={[
+          { label: 'Bookings', value: bookings.total, hint: 'booking orders' },
+          {
+            label: 'Upcoming visits',
+            value: effects.upcomingVisits,
+            hint: 'confirmed or in progress',
+          },
+          {
+            label: 'Open support',
+            value: effects.openSupport,
+            hint: 'not resolved',
+            tone: effects.openSupport ? 'warning' : 'neutral',
+          },
+          { label: 'Reviews', value: reviews.total, hint: 'written' },
+          { label: 'Open sessions', value: sessions.open, hint: 'signed-in devices' },
+          {
+            label: 'Privacy',
+            value: privacy.filter((request) => request.state !== 'closed').length,
+            hint: 'open requests',
+          },
+        ]}
+      />
+
+      <DetailTabs
+        tabs={tabs}
+        active={active}
+        basePath={`/admin/customers/${customer.id}`}
+        params={params}
+      />
+
+      <div className="mt-6">
+        {active === 'overview' ? (
+          <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+            <div className="space-y-5">
+              <SectionCard id="recent-bookings" title="Recent bookings" flush>
+                {bookingRows(bookings.items.slice(0, 5))}
+              </SectionCard>
+              <SectionCard
+                id="recent-support"
+                title="Support"
+                description={openSupport ? `${openSupport} open on this list` : undefined}
+                flush
+              >
+                {supportRows(support.items.slice(0, 5))}
+              </SectionCard>
+            </div>
+            {sidebar}
+          </div>
+        ) : null}
+
+        {active === 'bookings' ? (
+          <SectionCard
+            id="bookings"
+            title="Bookings"
+            description={
+              bookings.total > bookings.items.length
+                ? `Latest ${bookings.items.length} of ${bookings.total}`
+                : 'Newest first'
+            }
+            flush
           >
-            {text}
-          </a>
-        ))}
-      </nav>
+            {bookingRows(bookings.items)}
+          </SectionCard>
+        ) : null}
 
-      <div className="mt-6 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
-        <div className="space-y-5">
-          <Panel id="profile" title="Profile">
-            <dl>
-              <Fact term="Phone (sign-in)">
-                {customer.phone ? `+91 ${customer.phone}` : '—'}
-                {customer.phoneVerifiedAt ? ' · verified' : ''}
-              </Fact>
-              <Fact term="Email">
-                {customer.email ?? '—'}
-                {customer.email
-                  ? customer.emailVerifiedAt
-                    ? ' · verified'
-                    : ' · not verified'
-                  : ''}
-              </Fact>
-              <Fact term="Language">{customer.preferredLocale}</Fact>
-              <Fact term="Marketing messages">
-                {customer.marketingConsent ? 'Opted in' : 'Not opted in'}
-              </Fact>
-            </dl>
-            <CustomerProfileCorrection customer={customer} />
-          </Panel>
+        {active === 'support' ? (
+          <SectionCard id="support" title="Support requests" flush>
+            {supportRows(support.items)}
+          </SectionCard>
+        ) : null}
 
-          <Panel id="bookings" title={`Bookings (${bookings.total})`}>
-            <RecordList
-              items={bookings.items}
-              empty="No bookings."
-              render={(order) => (
-                <li
-                  key={order.id}
-                  className="flex flex-wrap items-baseline justify-between gap-2 py-2.5"
-                >
-                  <span className="min-w-0">
-                    <span className="block font-semibold text-ink-900">{order.title}</span>
-                    <span className="text-tiny text-ink-500">
-                      {order.reference} · first visit {order.firstVisit ?? '—'}
-                    </span>
-                  </span>
-                  <span className="flex items-center gap-3">
-                    <StatusBadge tone="info">{label(order.state)}</StatusBadge>
-                    <Link
-                      href={`/admin/bookings/${order.id}`}
-                      className="text-tiny font-bold text-brand-700 hover:underline"
-                    >
-                      Record<span className="sr-only"> {order.reference}</span> →
-                    </Link>
-                  </span>
-                </li>
-              )}
-            />
-          </Panel>
-
-          <Panel id="support" title={`Support requests (${support.total})`}>
-            <RecordList
-              items={support.items}
-              empty="No support requests."
-              render={(request) => (
-                <li
-                  key={request.id}
-                  className="flex flex-wrap items-baseline justify-between gap-2 py-2.5"
-                >
-                  <span className="min-w-0">
-                    <span className="block font-semibold text-ink-900">{request.subject}</span>
-                    <span className="text-tiny text-ink-500">
-                      {request.reference} · updated {when(request.updatedAt)}
-                    </span>
-                  </span>
-                  <span className="flex items-center gap-3">
-                    <StatusBadge tone="neutral">{label(request.state)}</StatusBadge>
-                    <Link
-                      href={`/admin/support/${request.id}`}
-                      className="text-tiny font-bold text-brand-700 hover:underline"
-                    >
-                      Open<span className="sr-only"> {request.reference}</span> →
-                    </Link>
-                  </span>
-                </li>
-              )}
-            />
-          </Panel>
-
-          <Panel id="reviews" title={`Reviews written (${reviews.total})`}>
-            <RecordList
+        {active === 'reviews' ? (
+          <SectionCard
+            id="reviews"
+            title="Reviews written"
+            description="Read only — ratings are never edited from a customer record"
+            action={
+              <Link
+                href="/admin/reviews"
+                className="text-tiny font-bold text-brand-700 hover:underline"
+              >
+                Open moderation →
+              </Link>
+            }
+            flush
+          >
+            <RowList
               items={reviews.items}
               empty="No reviews."
               render={(review) => (
-                <li
+                <Row
                   key={review.id}
-                  className="flex flex-wrap items-baseline justify-between gap-2 py-2.5"
-                >
-                  <span className="min-w-0">
-                    <span className="block font-semibold text-ink-900">
-                      {review.rating}/5 · {review.listingTitle ?? 'Property'}
-                    </span>
-                    <span className="text-tiny text-ink-500">{when(review.createdAt)}</span>
-                  </span>
-                  <StatusBadge tone="neutral">{label(review.moderationState)}</StatusBadge>
-                </li>
+                  primary={`${review.rating}/5 · ${review.listingTitle ?? 'Property'}`}
+                  secondary={when(review.createdAt)}
+                  trailing={
+                    <StatusBadge tone="neutral">{label(review.moderationState)}</StatusBadge>
+                  }
+                />
               )}
             />
-            <p className="mt-2 text-tiny text-ink-500">
-              Moderation happens in{' '}
-              <Link href="/admin/reviews" className="font-semibold text-brand-700 hover:underline">
-                Reviews
-              </Link>
-              ; ratings are never edited from a customer record.
-            </p>
-          </Panel>
+          </SectionCard>
+        ) : null}
 
-          <Panel id="privacy" title="Privacy requests">
-            <RecordList
+        {active === 'privacy' ? (
+          <SectionCard
+            id="privacy"
+            title="Privacy requests"
+            description="Export and deletion fulfillment arrives with privacy jobs (CP27)"
+            action={
+              <Link
+                href="/admin/privacy"
+                className="text-tiny font-bold text-brand-700 hover:underline"
+              >
+                Privacy workflow →
+              </Link>
+            }
+            flush
+          >
+            <RowList
               items={privacy}
               empty="No privacy requests."
               render={(request) => (
-                <li
+                <Row
                   key={request.id}
-                  className="flex flex-wrap items-baseline justify-between gap-2 py-2.5"
-                >
-                  <span className="font-semibold text-ink-900 capitalize">
-                    {request.kind} request · {when(request.createdAt)}
-                  </span>
-                  <StatusBadge tone="neutral">{label(request.state)}</StatusBadge>
-                </li>
+                  primary={<span className="capitalize">{request.kind} request</span>}
+                  secondary={when(request.createdAt)}
+                  trailing={<StatusBadge tone="neutral">{label(request.state)}</StatusBadge>}
+                />
               )}
             />
-            <p className="mt-2 text-tiny text-ink-500">
-              Export and deletion are handled in the{' '}
-              <Link href="/admin/privacy" className="font-semibold text-brand-700 hover:underline">
-                privacy workflow
-              </Link>
-              ; fulfillment arrives with privacy jobs (CP27).
-            </p>
-          </Panel>
+          </SectionCard>
+        ) : null}
 
-          <Panel id="history" title="History">
-            <RecordList
-              items={history}
-              empty="No recorded activity."
-              render={(event) => (
-                <li key={event.id} className="py-2.5 text-meta">
-                  <p className="flex flex-wrap items-baseline gap-x-3">
-                    <span className="font-mono text-tiny text-ink-500">
-                      {when(event.at, { dateStyle: 'short', timeStyle: 'short' })}
-                    </span>
-                    <span className="font-semibold text-ink-900">{label(event.action)}</span>
-                    <span className="text-tiny text-ink-500">
-                      {event.adminEmail ? `by ${event.adminEmail}` : event.actorType}
-                    </span>
-                  </p>
-                  {event.fields ? (
-                    <p className="text-tiny text-ink-600">Fields: {event.fields.join(', ')}</p>
-                  ) : null}
-                  {event.fromStatus || event.toStatus ? (
-                    <p className="text-tiny text-ink-600">
-                      {STATUS[event.fromStatus] ?? event.fromStatus} →{' '}
-                      {STATUS[event.toStatus] ?? event.toStatus}
-                    </p>
-                  ) : null}
-                  {event.revoked != null ? (
-                    <p className="text-tiny text-ink-600">{event.revoked} session(s) ended</p>
-                  ) : null}
-                  {event.reason ? (
-                    <p className="text-tiny text-ink-600">&ldquo;{event.reason}&rdquo;</p>
-                  ) : null}
-                </li>
-              )}
-            />
-          </Panel>
-        </div>
+        {active === 'account' ? (
+          <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+            <SectionCard id="profile" title="Account details">
+              <FieldGrid
+                fields={[
+                  { label: 'Customer ID', value: customer.id, mono: true },
+                  { label: 'Name', value: customer.name || '—' },
+                  {
+                    label: 'Phone (sign-in)',
+                    value: customer.phone
+                      ? `+91 ${customer.phone}${customer.phoneVerifiedAt ? ' · verified' : ''}`
+                      : '—',
+                  },
+                  {
+                    label: 'Email',
+                    value: customer.email
+                      ? `${customer.email}${customer.emailVerifiedAt ? ' · verified' : ' · not verified'}`
+                      : '—',
+                  },
+                  { label: 'Language', value: customer.preferredLocale },
+                  {
+                    label: 'Marketing messages',
+                    value: customer.marketingConsent ? 'Opted in' : 'Not opted in',
+                  },
+                  { label: 'Account status', value: STATUS[customer.accountStatus] },
+                  {
+                    label: 'Joined',
+                    value: when(customer.createdAt, { dateStyle: 'medium', timeStyle: 'short' }),
+                  },
+                ]}
+              />
+              <CustomerProfileCorrection customer={customer} />
+            </SectionCard>
+            {sidebar}
+          </div>
+        ) : null}
 
-        <div className="space-y-5 lg:sticky lg:top-24">
-          <Panel id="sessions" title="Sessions">
-            <p className="text-meta text-ink-700">
-              <strong>{sessions.open}</strong> open session{sessions.open === 1 ? '' : 's'} · latest
-              sign-in {when(sessions.latest, { dateStyle: 'medium', timeStyle: 'short' })}
-            </p>
-            <CustomerSessionRevocation customer={customer} openSessions={sessions.open} />
-          </Panel>
-          <AccountLifecyclePanel
-            subjectId={customer.id}
-            preview={data.lifecycle}
-            command={customerAccountCommand}
-            verbs={VERBS}
-            statuses={STATUS}
-          />
-          <p className="px-1 text-tiny text-ink-500">
-            No impersonation: staff never sign in as a customer. Authentication recovery (a lost
-            phone) is not available here.
-          </p>
-        </div>
+        {active === 'history' ? (
+          <SectionCard
+            id="history"
+            title="Activity log"
+            description="Admin actions and account events; routine sign-ins excluded"
+            flush
+          >
+            <HistoryList history={history} statuses={STATUS} />
+          </SectionCard>
+        ) : null}
       </div>
     </AdminPage>
   );

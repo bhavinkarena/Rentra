@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { randomUUID } from 'node:crypto';
-import { Clock3, Inbox, LifeBuoy, MessageSquareText } from 'lucide-react';
+import { CalendarDays, Clock3, Inbox, LifeBuoy, MessageSquareText } from 'lucide-react';
 import { supportCategories, supportStates } from '@/lib/domain/help';
 import { SupportReplyForm } from '@/components/customer/SupportForms';
 import {
@@ -11,6 +11,7 @@ import {
   Pager,
   StatusBadge,
 } from './AdminPrimitives';
+import { DetailHeader } from '@/components/portal/DetailLayout';
 
 const time = (value) =>
   new Date(value).toLocaleString('en-IN', {
@@ -168,17 +169,27 @@ export function AdminSupportList({ data }) {
 
 export function AdminSupportDetail({ record, listHref = '/admin/support' }) {
   return (
-    <AdminPage width="max-w-6xl">
-      <AdminPageHeader
+    <AdminPage width="max-w-[1320px]">
+      <DetailHeader
         breadcrumbs={[{ href: listHref, label: 'Support inbox' }, { label: record.reference }]}
-        eyebrow={record.reference}
         title={record.subject}
-        description={`${supportCategories[record.category]} · Created ${time(record.createdAt)}`}
-        action={
-          <StatusBadge tone={stateTone(record.state)}>{supportStates[record.state]}</StatusBadge>
-        }
+        badges={[
+          { label: supportStates[record.state], tone: stateTone(record.state) },
+          { label: supportCategories[record.category], tone: 'info' },
+        ]}
+        id={{ label: 'Request reference', value: record.reference }}
+        chips={[
+          { icon: CalendarDays, label: 'Created', value: time(record.createdAt) },
+          record.updatedAt
+            ? { icon: Clock3, label: 'Updated', value: time(record.updatedAt) }
+            : null,
+          {
+            icon: MessageSquareText,
+            value: `${record.messages.length} message${record.messages.length === 1 ? '' : 's'}`,
+          },
+        ]}
       />
-      <div className="mt-7 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="mt-6 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
         <section className="overflow-hidden rounded-lg border border-border bg-card shadow-xs">
           <div className="border-b border-border px-5 py-4">
             <h2 className="text-h4 font-bold">Conversation</h2>

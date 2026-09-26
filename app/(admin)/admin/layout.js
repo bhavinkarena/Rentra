@@ -3,6 +3,8 @@ import { RentraLogo } from '@/components/rentra/Logo';
 import { getCurrentAdmin } from '@/lib/api/session';
 import { adminLogout } from '@/lib/actions/auth';
 import AdminShell from '@/components/admin/AdminShell';
+import { adminApi } from '@/lib/api/endpoints';
+import { portalFont } from '@/lib/portal-font';
 
 export const metadata = {
   title: 'Rentra Admin',
@@ -14,15 +16,25 @@ export default async function AdminLayout({ children }) {
   const admin = await getCurrentAdmin();
 
   if (admin) {
+    // Sidebar badge only; a failure (or missing permission) just hides it.
+    const stats = admin.capabilities?.includes('admin.applications.read')
+      ? await adminApi.applicationStats().catch(() => null)
+      : null;
     return (
-      <AdminShell admin={admin} logoutAction={adminLogout}>
-        {children}
-      </AdminShell>
+      <div className={portalFont.variable}>
+        <AdminShell
+          admin={admin}
+          logoutAction={adminLogout}
+          counts={{ waitingApplications: stats?.submitted || undefined }}
+        >
+          {children}
+        </AdminShell>
+      </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-ink-25">
+    <div className={`portal-ui flex min-h-screen flex-col bg-ink-25 ${portalFont.variable}`}>
       <header className="border-b-2 border-ink-900 bg-ink-900">
         <div className="mx-auto flex w-full max-w-(--container-page) items-center gap-4 px-4 py-4 sm:px-6">
           {/* `inverse` swaps the artwork to the palette greens that hold up on

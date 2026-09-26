@@ -7,8 +7,9 @@ import { AdminClientDetail } from '@/components/admin/AdminClients';
 export const metadata = { title: 'Client', robots: { index: false, follow: false } };
 
 export default async function Page({ params, searchParams }) {
-  const listHref = safeReturnPath((await searchParams)?.from, '/admin/clients');
+  const query = (await searchParams) ?? {};
+  const listHref = safeReturnPath(query.from, '/admin/clients');
   const { data, failure } = await settle(adminApi.client((await params).id));
   if (failure) return <PortalState kind={failure} backHref={listHref} backLabel="Clients" />;
-  return <AdminClientDetail data={data} listHref={listHref} />;
+  return <AdminClientDetail data={data} listHref={listHref} tab={query.tab} params={query} />;
 }

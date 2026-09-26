@@ -108,6 +108,8 @@ Evidence type: fixture and disposable-database evidence only. No hosted environm
 
 ## 5. Limitations and next step
 
+- **Changed after this handoff (CP05 session, owner request):** the customer list now shows the full phone number instead of a masked one. Customers with status `pending_application` are shown as "Not activated" and can be activated with the versioned reinstate command. See the CP05 handoff.
+
 - There is no authentication recovery for a customer who lost their phone; that needs a separate verified recovery design.
 - The bookings list shows booking orders; legacy visits without an order are not listed.
 - Payment/refund summaries (CP19–20), dispute cases (CP23) and privacy fulfillment (CP27) are later parts.

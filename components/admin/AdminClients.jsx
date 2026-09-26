@@ -1,9 +1,18 @@
 import Link from 'next/link';
-import { Users } from 'lucide-react';
-import CopyReference from '@/components/customer/checkout/CopyReference';
+import { CalendarDays, Clock, Mail, Phone, Users } from 'lucide-react';
 import AccountLifecyclePanel from './AccountLifecyclePanel';
 import { changeClientLifecycle } from '@/lib/actions/admin';
 import { AdminEmpty, AdminPage, AdminPageHeader, Pager, StatusBadge } from './AdminPrimitives';
+import {
+  DetailHeader,
+  DetailTabs,
+  FieldGrid,
+  MetricStrip,
+  Row,
+  RowList,
+  SectionCard,
+  pickTab,
+} from '@/components/portal/DetailLayout';
 
 const STATUS = {
   all: 'All',
@@ -171,258 +180,357 @@ export function AdminClientList({ data }) {
   );
 }
 
-export function Panel({ id, title, children, className = '' }) {
-  return (
-    <section
-      id={id}
-      aria-labelledby={`${id}-title`}
-      className={`scroll-mt-24 rounded-lg border border-border bg-card p-5 ${className}`}
-    >
-      <h2 id={`${id}-title`} className="text-h4 font-bold text-ink-900">
-        {title}
-      </h2>
-      <div className="mt-3">{children}</div>
-    </section>
-  );
-}
-
-export function Fact({ term, children }) {
-  return (
-    <div className="flex items-baseline justify-between gap-3 border-b border-dashed border-border py-1.5 text-meta last:border-b-0">
-      <dt className="shrink-0 text-ink-600">{term}</dt>
-      <dd className="min-w-0 text-right font-medium break-words text-ink-900">{children}</dd>
-    </div>
-  );
-}
-
-const SECTIONS = [
-  ['#profile', 'Profile'],
-  ['#application', 'Application'],
-  ['#properties', 'Properties'],
-  ['#upcoming', 'Upcoming visits'],
-  ['#lifecycle', 'Account status'],
-  ['#history', 'History'],
-  ['#later', 'Not yet available'],
+const CLIENT_TABS = (data) => [
+  { key: 'overview', label: 'Overview' },
+  { key: 'properties', label: 'Properties', count: data.listings.length },
+  { key: 'visits', label: 'Upcoming visits', count: data.upcoming.total },
+  { key: 'application', label: 'Application' },
+  { key: 'account', label: 'Account details' },
+  { key: 'history', label: 'Activity log', count: data.history.length },
 ];
 
-export function AdminClientDetail({ data, listHref: backHref = '/admin/clients' }) {
+function VisitRow({ visit }) {
+  return (
+    <Row
+      primary={`${visit.day} · ${label(visit.slot)} · ${visit.listingTitle}`}
+      secondary={`${visit.reference} · ${visit.guests} guest${visit.guests === 1 ? '' : 's'} · ${when(visit.startsAt, { timeZone: visit.timeZone, dateStyle: 'medium', timeStyle: 'short' })} (${visit.timeZone})`}
+      trailing={<StatusBadge tone="info">{label(visit.state)}</StatusBadge>}
+      href={visit.orderId ? `/admin/bookings/${visit.orderId}` : null}
+      hrefLabel={
+        <>
+          Booking<span className="sr-only"> {visit.orderReference}</span>
+        </>
+      }
+    />
+  );
+}
+
+function ListingRow({ listing }) {
+  return (
+    <Row
+      primary={listing.title}
+      secondary={`${listing.cityName ?? 'City not set'} · ${listing.publicCode} · updated ${when(listing.updatedAt)}`}
+      trailing={
+        <StatusBadge tone={listing.status === 'live' ? 'success' : 'neutral'}>
+          {label(listing.status)}
+        </StatusBadge>
+      }
+    />
+  );
+}
+
+export function HistoryList({ history, statuses = STATUS }) {
+  return (
+    <RowList
+      items={history}
+      empty="No recorded activity."
+      render={(event) => (
+        <li key={event.id} className="flex gap-3 px-5 py-3.5 text-meta">
+          <span className="mt-1.5 size-2 shrink-0 rounded-full bg-brand-600" aria-hidden="true" />
+          <span className="min-w-0">
+            <span className="block font-semibold text-ink-900 capitalize">
+              {label(event.action)}
+            </span>
+            <span className="block text-tiny text-ink-500">
+              {when(event.at, { dateStyle: 'medium', timeStyle: 'short' })} ·{' '}
+              {event.adminEmail ? `by ${event.adminEmail}` : event.actorType}
+            </span>
+            {event.fields ? (
+              <span className="block text-tiny text-ink-600">
+                Fields: {event.fields.join(', ')}
+              </span>
+            ) : null}
+            {event.fromStatus || event.toStatus ? (
+              <span className="block text-tiny text-ink-600">
+                {statuses[event.fromStatus] ?? event.fromStatus} →{' '}
+                {statuses[event.toStatus] ?? event.toStatus}
+              </span>
+            ) : null}
+            {event.revoked != null ? (
+              <span className="block text-tiny text-ink-600">{event.revoked} session(s) ended</span>
+            ) : null}
+            {event.reason ? (
+              <span className="block text-tiny text-ink-600">&ldquo;{event.reason}&rdquo;</span>
+            ) : null}
+          </span>
+        </li>
+      )}
+    />
+  );
+}
+
+function NotYetAvailable() {
+  return (
+    <SectionCard id="later" title="Not yet available">
+      <ul className="space-y-2 text-tiny text-ink-600">
+        <li>
+          <strong className="text-ink-800">Statements and payouts</strong> — arrive with payout
+          destinations and statements (CP21–CP22).
+        </li>
+        <li>
+          <strong className="text-ink-800">Team and caretakers</strong> — arrive with team access
+          (CP16).
+        </li>
+        <li>
+          <strong className="text-ink-800">Ownership transfer</strong> — unavailable. Moving a
+          property to another client needs a reviewed transfer that preserves historical booking and
+          payee attribution; there is no owner-ID edit.
+        </li>
+      </ul>
+    </SectionCard>
+  );
+}
+
+export function AdminClientDetail({ data, listHref: backHref = '/admin/clients', tab, params }) {
   const { client, application, listings, upcoming, history } = data;
   const title = client.name || client.email;
+  const tabs = CLIENT_TABS(data);
+  const active = pickTab(tab, tabs);
+  const live = listings.filter((listing) => listing.status === 'live').length;
+  const strikes = application?.strikeCount ?? 0;
+  const lifecycle = (
+    <AccountLifecyclePanel
+      subjectId={client.id}
+      preview={data.lifecycle}
+      command={changeClientLifecycle}
+    />
+  );
+  const hiddenNote =
+    client.accountStatus !== 'active' && live ? (
+      <p className="px-5 pb-4 text-tiny text-ink-600">
+        Live listings are hidden from the public while this account is not active.
+      </p>
+    ) : null;
+  const visitRows = (items) => (
+    <RowList
+      items={items}
+      empty="No upcoming visits."
+      render={(visit) => <VisitRow key={visit.id} visit={visit} />}
+    />
+  );
+  const listingRows = (items) => (
+    <RowList
+      items={items}
+      empty="No properties yet."
+      render={(listing) => <ListingRow key={listing.id} listing={listing} />}
+    />
+  );
+
   return (
-    <AdminPage width="max-w-6xl">
-      <AdminPageHeader
+    <AdminPage width="max-w-[1320px]">
+      <DetailHeader
         breadcrumbs={[{ href: backHref, label: 'Clients' }, { label: title }]}
-        eyebrow={client.clientType === 'authorised_agent' ? 'Authorised agent' : 'Owner'}
         title={title}
-        description={`${client.email ?? 'No email'} · joined ${when(client.createdAt)}`}
-        action={
-          <StatusBadge tone={statusTone(client.accountStatus)}>
-            {STATUS[client.accountStatus]}
-          </StatusBadge>
-        }
+        badges={[
+          { label: STATUS[client.accountStatus], tone: statusTone(client.accountStatus) },
+          {
+            label: client.clientType === 'authorised_agent' ? 'Authorised agent' : 'Owner',
+            tone: 'info',
+          },
+          application
+            ? {
+                label: `Application ${label(application.status)}`,
+                tone: application.status === 'approved' ? 'success' : 'warning',
+              }
+            : null,
+        ].filter(Boolean)}
+        id={{ label: 'Client ID', value: client.id, display: client.id.slice(0, 8) }}
+        chips={[
+          { icon: Mail, value: client.email ?? 'No email' },
+          client.phone ? { icon: Phone, value: `+91 ${client.phone}` } : null,
+          { icon: CalendarDays, label: 'Joined', value: when(client.createdAt) },
+          {
+            icon: Clock,
+            label: 'Last sign-in',
+            value: when(client.lastLoginAt, { dateStyle: 'medium', timeStyle: 'short' }),
+          },
+        ]}
       />
-      <div className="mt-4">
-        <CopyReference reference={client.id} label="Client ID" />
-      </div>
 
-      <nav aria-label="Sections" className="mt-5 flex flex-wrap gap-2 text-tiny font-semibold">
-        {SECTIONS.map(([href, text]) => (
-          <a
-            key={href}
-            href={href}
-            className="inline-flex min-h-9 items-center rounded-full border border-border bg-card px-3 text-ink-700 hover:bg-ink-50"
+      <MetricStrip
+        items={[
+          {
+            label: 'Live properties',
+            value: `${live} / ${listings.length}`,
+            hint: 'live of all',
+            tone: live ? 'success' : 'neutral',
+          },
+          { label: 'Upcoming visits', value: upcoming.total, hint: 'confirmed or in progress' },
+          {
+            label: 'Open sessions',
+            value: data.lifecycle.effects.openSessions,
+            hint: 'portal sign-ins',
+          },
+          {
+            label: 'Application',
+            value: application ? label(application.status) : 'Not started',
+            hint: 'Gate 1',
+          },
+          {
+            label: 'Strikes',
+            value: `${strikes} / 3`,
+            hint: 'rejections',
+            tone: strikes >= 2 ? 'danger' : 'neutral',
+          },
+          {
+            label: 'Identity',
+            value: client.kycStatus === 'verified' ? 'Reviewed' : label(client.kycStatus),
+            hint: client.kycStatus === 'verified' ? 'by Rentra staff' : 'documents',
+          },
+        ]}
+      />
+
+      <DetailTabs
+        tabs={tabs}
+        active={active}
+        basePath={`/admin/clients/${client.id}`}
+        params={params}
+      />
+
+      <div className="mt-6">
+        {active === 'overview' ? (
+          <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+            <div className="space-y-5">
+              <SectionCard
+                id="upcoming"
+                title="Next visits"
+                description={upcoming.total ? `${upcoming.total} upcoming` : undefined}
+                flush
+              >
+                {visitRows(upcoming.items.slice(0, 5))}
+              </SectionCard>
+              <SectionCard id="properties-summary" title="Properties" flush>
+                {listingRows(listings.slice(0, 5))}
+                {hiddenNote}
+              </SectionCard>
+              <NotYetAvailable />
+            </div>
+            <div className="space-y-5 lg:sticky lg:top-24">{lifecycle}</div>
+          </div>
+        ) : null}
+
+        {active === 'properties' ? (
+          <SectionCard
+            id="properties"
+            title="All properties"
+            description="Newest change first"
+            flush
           >
-            {text}
-          </a>
-        ))}
-      </nav>
+            {listingRows(listings)}
+            {hiddenNote}
+          </SectionCard>
+        ) : null}
 
-      <div className="mt-6 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
-        <div className="space-y-5">
-          <Panel id="profile" title="Profile">
-            <dl>
-              <Fact term="Email">
-                {client.email ?? '—'} {client.emailVerifiedAt ? '· verified' : '· not verified'}
-              </Fact>
-              <Fact term="Mobile">
-                {client.phone ? `+91 ${client.phone}` : '—'}{' '}
-                {client.phone ? (client.phoneVerifiedAt ? '· verified' : '· not verified') : ''}
-              </Fact>
-              <Fact term="KYC status">{label(client.kycStatus)}</Fact>
-              <Fact term="Language">{client.preferredLocale}</Fact>
-              <Fact term="Last sign-in">
-                {when(client.lastLoginAt, { dateStyle: 'medium', timeStyle: 'short' })}
-              </Fact>
-            </dl>
-          </Panel>
-
-          <Panel id="application" title="Partner application">
-            {application ? (
-              <dl>
-                <Fact term="Status">{label(application.status)}</Fact>
-                <Fact term="Legal name">{application.legalName || '—'}</Fact>
-                <Fact term="Submitted">{when(application.submittedAt)}</Fact>
-                <Fact term="Reviewed">{when(application.reviewedAt)}</Fact>
-                <Fact term="Strikes">{application.strikeCount} of 3</Fact>
-                {application.decisionReason ? (
-                  <Fact term="Last reason">&ldquo;{application.decisionReason}&rdquo;</Fact>
-                ) : null}
-                <div className="pt-3">
-                  <Link
-                    href={`/admin/applications/${application.id}`}
-                    className="text-tiny font-bold text-brand-700 hover:underline"
-                  >
-                    Open application review →
-                  </Link>
-                </div>
-              </dl>
-            ) : (
-              <p className="text-meta text-ink-600">No application started yet.</p>
-            )}
-          </Panel>
-
-          <Panel id="properties" title={`Properties (${listings.length})`}>
-            {listings.length ? (
-              <ul className="divide-y divide-border">
-                {listings.map((listing) => (
-                  <li
-                    key={listing.id}
-                    className="flex flex-wrap items-baseline justify-between gap-2 py-2.5"
-                  >
-                    <span className="min-w-0">
-                      <span className="block font-semibold text-ink-900">{listing.title}</span>
-                      <span className="text-tiny text-ink-500">
-                        {listing.cityName ?? 'City not set'} · {listing.publicCode} · updated{' '}
-                        {when(listing.updatedAt)}
-                      </span>
-                    </span>
-                    <StatusBadge tone={listing.status === 'live' ? 'success' : 'neutral'}>
-                      {label(listing.status)}
-                    </StatusBadge>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-meta text-ink-600">No properties yet.</p>
-            )}
-            {client.accountStatus !== 'active' && listings.some((l) => l.status === 'live') ? (
-              <p className="mt-3 text-tiny text-ink-600">
-                Live listings are hidden from the public while this account is not active.
-              </p>
-            ) : null}
-          </Panel>
-
-          <Panel id="upcoming" title={`Upcoming visits (${upcoming.total})`}>
-            {upcoming.items.length ? (
-              <>
-                <ul className="divide-y divide-border">
-                  {upcoming.items.map((visit) => (
-                    <li
-                      key={visit.id}
-                      className="flex flex-wrap items-baseline justify-between gap-2 py-2.5"
-                    >
-                      <span className="min-w-0">
-                        <span className="block font-semibold text-ink-900">
-                          {visit.day} · {label(visit.slot)} · {visit.listingTitle}
-                        </span>
-                        <span className="text-tiny text-ink-500">
-                          {visit.reference} · {visit.guests} guest{visit.guests === 1 ? '' : 's'} ·{' '}
-                          {when(visit.startsAt, {
-                            timeZone: visit.timeZone,
-                            dateStyle: 'medium',
-                            timeStyle: 'short',
-                          })}{' '}
-                          ({visit.timeZone})
-                        </span>
-                      </span>
-                      <span className="flex items-center gap-3">
-                        <StatusBadge tone="info">{label(visit.state)}</StatusBadge>
-                        {visit.orderId ? (
-                          <Link
-                            href={`/admin/bookings/${visit.orderId}`}
-                            className="text-tiny font-bold text-brand-700 hover:underline"
-                          >
-                            Booking<span className="sr-only"> {visit.orderReference}</span> →
-                          </Link>
-                        ) : null}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                {upcoming.total > upcoming.items.length ? (
-                  <p className="mt-2 text-tiny text-ink-500">
-                    Showing the next {upcoming.items.length} of {upcoming.total}.
-                  </p>
-                ) : null}
-              </>
-            ) : (
-              <p className="text-meta text-ink-600">No upcoming visits.</p>
-            )}
+        {active === 'visits' ? (
+          <SectionCard
+            id="upcoming"
+            title="Upcoming visits"
+            description={
+              upcoming.total > upcoming.items.length
+                ? `Showing the next ${upcoming.items.length} of ${upcoming.total}`
+                : 'Times in the property timezone'
+            }
+            flush
+          >
+            {visitRows(upcoming.items)}
             {client.accountStatus === 'suspended' && upcoming.total ? (
-              <p className="mt-3 rounded-md bg-info-bg p-3 text-tiny text-ink-700">
+              <p className="m-5 rounded-md bg-info-bg p-3 text-tiny text-ink-700">
                 Resolution path: these visits stay confirmed for customers. The client cannot sign
                 in, so Rentra operates them from the admin booking records.
               </p>
             ) : null}
-          </Panel>
+          </SectionCard>
+        ) : null}
 
-          <Panel id="history" title="History">
-            {history.length ? (
-              <ol className="divide-y divide-border">
-                {history.map((event) => (
-                  <li key={event.id} className="py-2.5 text-meta">
-                    <p className="flex flex-wrap items-baseline gap-x-3">
-                      <span className="font-mono text-tiny text-ink-500">
-                        {when(event.at, { dateStyle: 'short', timeStyle: 'short' })}
-                      </span>
-                      <span className="font-semibold text-ink-900">{label(event.action)}</span>
-                      <span className="text-tiny text-ink-500">
-                        {event.adminEmail ? `by ${event.adminEmail}` : event.actorType}
-                      </span>
-                    </p>
-                    {event.fromStatus || event.toStatus ? (
-                      <p className="text-tiny text-ink-600">
-                        {STATUS[event.fromStatus] ?? event.fromStatus} →{' '}
-                        {STATUS[event.toStatus] ?? event.toStatus}
-                      </p>
-                    ) : null}
-                    {event.reason ? (
-                      <p className="text-tiny text-ink-600">&ldquo;{event.reason}&rdquo;</p>
-                    ) : null}
-                  </li>
-                ))}
-              </ol>
+        {active === 'application' ? (
+          <SectionCard
+            id="application"
+            title="Partner application"
+            action={
+              application ? (
+                <Link
+                  href={`/admin/applications/${application.id}`}
+                  className="text-tiny font-bold text-brand-700 hover:underline"
+                >
+                  Open application review →
+                </Link>
+              ) : null
+            }
+          >
+            {application ? (
+              <FieldGrid
+                fields={[
+                  { label: 'Status', value: label(application.status) },
+                  { label: 'Legal name', value: application.legalName || '—' },
+                  { label: 'Submitted', value: when(application.submittedAt) },
+                  { label: 'Reviewed', value: when(application.reviewedAt) },
+                  { label: 'Strikes', value: `${application.strikeCount} of 3` },
+                  application.decisionReason
+                    ? { label: 'Last reason', value: `“${application.decisionReason}”` }
+                    : null,
+                ]}
+              />
             ) : (
-              <p className="text-meta text-ink-600">No recorded activity.</p>
+              <p className="text-meta text-ink-600">No application started yet.</p>
             )}
-          </Panel>
-        </div>
+          </SectionCard>
+        ) : null}
 
-        <div className="space-y-5 lg:sticky lg:top-24">
-          <AccountLifecyclePanel
-            subjectId={client.id}
-            preview={data.lifecycle}
-            command={changeClientLifecycle}
-          />
+        {active === 'account' ? (
+          <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+            <SectionCard id="profile" title="Account details">
+              <FieldGrid
+                fields={[
+                  { label: 'Client ID', value: client.id, mono: true },
+                  { label: 'Name', value: client.name || '—' },
+                  {
+                    label: 'Email',
+                    value: `${client.email ?? '—'}${client.emailVerifiedAt ? ' · verified' : ''}`,
+                  },
+                  {
+                    label: 'Mobile',
+                    value: client.phone
+                      ? `+91 ${client.phone}${client.phoneVerifiedAt ? ' · verified' : ''}`
+                      : '—',
+                  },
+                  {
+                    label: 'Listing as',
+                    value: client.clientType === 'authorised_agent' ? 'Authorised agent' : 'Owner',
+                  },
+                  {
+                    label: 'Identity documents',
+                    value:
+                      client.kycStatus === 'verified'
+                        ? 'Reviewed by Rentra staff'
+                        : label(client.kycStatus),
+                  },
+                  { label: 'Language', value: client.preferredLocale },
+                  { label: 'Account status', value: STATUS[client.accountStatus] },
+                  {
+                    label: 'Joined',
+                    value: when(client.createdAt, { dateStyle: 'medium', timeStyle: 'short' }),
+                  },
+                  {
+                    label: 'Last sign-in',
+                    value: when(client.lastLoginAt, { dateStyle: 'medium', timeStyle: 'short' }),
+                  },
+                ]}
+              />
+            </SectionCard>
+            <div className="space-y-5 lg:sticky lg:top-24">{lifecycle}</div>
+          </div>
+        ) : null}
 
-          <Panel id="later" title="Not yet available">
-            <ul className="space-y-2 text-tiny text-ink-600">
-              <li>
-                <strong className="text-ink-800">Statements and payouts</strong> — arrive with
-                payout destinations and statements (CP21–CP22).
-              </li>
-              <li>
-                <strong className="text-ink-800">Team and caretakers</strong> — arrive with team
-                access (CP16).
-              </li>
-              <li>
-                <strong className="text-ink-800">Ownership transfer</strong> — unavailable. Moving a
-                property to another client needs a reviewed transfer that preserves historical
-                booking and payee attribution; there is no owner-ID edit.
-              </li>
-            </ul>
-          </Panel>
-        </div>
+        {active === 'history' ? (
+          <SectionCard
+            id="history"
+            title="Activity log"
+            description="Latest 50 account and application events"
+            flush
+          >
+            <HistoryList history={history} />
+          </SectionCard>
+        ) : null}
       </div>
     </AdminPage>
   );

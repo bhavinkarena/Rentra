@@ -30,7 +30,12 @@ def ctx(browser, cookie=None, width=1280):
 
 def go(page, url):
     response = page.goto(url)
-    page.wait_for_load_state("networkidle")
+    try:
+        page.wait_for_load_state("networkidle", timeout=10000)
+    except Exception:
+        # A lingering background request (prefetch, revalidation) can keep the
+        # network busy; the document itself has loaded.
+        page.wait_for_load_state("load")
     return response
 
 
@@ -100,7 +105,9 @@ with sync_playwright() as p:
     page.get_by_role("status").filter(has_text="Suspended").wait_for(timeout=20000)
     page.wait_for_load_state("networkidle")
     check("UI suspend commits and reports new status", visible(page.get_by_text("The account is now Suspended")))
+    go(page, f"{WEB}/admin/clients/{CLIENT}?tab=history")
     check("history records suspension with reason", visible(page.locator("#history").get_by_text("Guest safety report under review")))
+    go(page, f"{WEB}/admin/clients/{CLIENT}")
     check("panel now offers reinstatement", visible(page.locator("#lifecycle").get_by_role("button", name="Reinstate account")))
     c.close()
 

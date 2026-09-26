@@ -3,6 +3,7 @@ import { RentraLogo } from '@/components/rentra/Logo';
 import { getCurrentUser } from '@/lib/api/session';
 import { logout } from '@/lib/actions/auth';
 import PartnerShell from '@/components/partner/PartnerShell';
+import { portalFont } from '@/lib/portal-font';
 
 export const metadata = {
   title: 'Partner',
@@ -23,9 +24,11 @@ export default async function PartnerLayout({ children }) {
 
   if (user) {
     return (
-      <PartnerShell user={user} logoutAction={logout}>
-        {children}
-      </PartnerShell>
+      <div className={portalFont.variable}>
+        <PartnerShell user={user} logoutAction={logout}>
+          {children}
+        </PartnerShell>
+      </div>
     );
   }
 

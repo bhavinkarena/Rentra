@@ -470,3 +470,46 @@
     transform: scale(1);
   }
 }
+
+/*
+ * Client and Super Admin workspaces: a denser, data-first type scale (about
+ * 1-2px smaller) and Inter, which has clear tabular figures. Scoped to the
+ * portal shell, so the customer site keeps its own scale and typeface.
+ */
+.portal-ui {
+  --text-h1: 1.625rem;
+  --text-h2: 1.375rem;
+  --text-h3: 1.0625rem;
+  --text-h4: 0.9375rem;
+  --text-body-lg: 0.9375rem;
+  --text-body: 0.875rem;
+  --text-meta: 0.8125rem;
+  --text-tiny: 0.6875rem;
+  font-family: var(--font-portal), var(--font-sans);
+  font-size: 0.875rem;
+  font-feature-settings: 'cv11', 'ss01';
+}
+.portal-ui .tabular,
+.portal-ui td,
+.portal-ui dd {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Thin, in-panel sidebar scrollbar in the portal greens. */
+.portal-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(144 188 163 / 0.35) transparent;
+}
+.portal-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.portal-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.portal-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgb(144 188 163 / 0.35);
+}
+.portal-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgb(144 188 163 / 0.6);
+}

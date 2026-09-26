@@ -93,18 +93,20 @@ function Phase({ label, first }) {
 }
 
 function StepRow({ step, index }) {
+  // A step the reviewer flagged needs attention even though its data exists.
+  const open = !step.done || step.flagged;
   const body = (
     <>
       <span
         className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-tiny font-bold ${
-          step.done
+          step.done && !step.flagged
             ? 'bg-brand-600 text-white'
             : step.failed
               ? 'bg-danger text-white'
               : 'bg-ink-200 text-ink-600'
         }`}
       >
-        {step.done ? (
+        {step.done && !step.flagged ? (
           <Check className="size-3" aria-hidden="true" />
         ) : step.failed ? (
           <AlertTriangle className="size-3" aria-hidden="true" />
@@ -113,16 +115,20 @@ function StepRow({ step, index }) {
         )}
       </span>
       <span className="flex-1">
-        <span className={`font-semibold ${step.done ? 'text-ink-500' : 'text-ink-900'}`}>
+        <span className={`font-semibold ${open ? 'text-ink-900' : 'text-ink-500'}`}>
           {step.label}
         </span>
         <span className="block text-tiny text-ink-500">
           {/* A rejected check is not the same as an unstarted one. Say which.
               And when their side is done but ours is not, say that too. */}
-          {step.failed ? 'Needs attention — please redo this step' : (step.note ?? step.hint)}
+          {step.flagged
+            ? step.note
+            : step.failed
+              ? 'Needs attention — please redo this step'
+              : (step.note ?? step.hint)}
         </span>
       </span>
-      {!step.done && step.href ? (
+      {open && step.href ? (
         <span className="mt-0.5 shrink-0 text-tiny font-semibold text-brand-700">
           {step.failed ? 'Fix' : 'Start'} →
         </span>
@@ -135,7 +141,7 @@ function StepRow({ step, index }) {
 
   return (
     <li>
-      {!step.done && step.href ? (
+      {open && step.href ? (
         <Link href={step.href} className={`${cls} -mx-2 rounded px-2 hover:bg-ink-50`}>
           {body}
         </Link>
