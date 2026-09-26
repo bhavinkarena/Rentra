@@ -1,6 +1,6 @@
 # CP06 — Gate 2 listing queue and review detail
 
-Status: **COMPLETE — 26 September 2026.** Started in an earlier session and finished here. A disposable-PostgreSQL service test and a 39-check browser/API gate passed. Migration `0025_listing_review` is **not yet applied** to the configured database, and neither is CP05's `0024` (see §4).
+Status: **COMPLETE — 26 September 2026.** Started in an earlier session and finished here. A disposable-PostgreSQL service test and a 39-check browser/API gate passed. Migration `0025_listing_review` was applied to the configured database on 26 September 2026 (after the gate), and neither is CP05's `0024` (see §4).
 
 ## 1. Scope and revisions
 
@@ -91,9 +91,9 @@ Gate note: Next streams a hidden copy of each page and swaps it in during hydrat
 | Environment | Status |
 | --- | --- |
 | Disposable local databases | `0025` applied by the tests and the gate fixture |
-| Configured database (Neon) | **Not applied**, and CP05's `0024` is also pending (read-only check: 24 migrations, no `listing_submission`, no `review_version`) |
+| Configured database (Neon) | **Applied 26 September 2026** with `0024`–`0027`. `0026` had been applied outside the migrator; its objects were checked against the file and the migration was recorded before `0027` ran. Afterwards: 28 of 28 migrations recorded, none pending. At the gate: and CP05's `0024` is also pending (read-only check: 24 migrations, no `listing_submission`, no `review_version`) |
 
-**The configured database needs `npm run db:migrate` in `rentra-backend` before this code runs against it.** Without it, the client property page, property submission, the property review pages and the CP05 application queue all fail there.
+The configured database has since been migrated (26 September 2026); other target databases still need `npm run db:migrate` in `rentra-backend` before this code runs against them.
 
 No new configuration or secrets. Not deployed.
 

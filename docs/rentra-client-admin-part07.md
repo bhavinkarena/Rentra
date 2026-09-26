@@ -1,6 +1,6 @@
 # CP07 — Verification scheduling and publication
 
-Status: **COMPLETE — 26 September 2026.** A disposable-PostgreSQL service test and a 53-check browser/API gate passed. Migration `0026_verification_publication` is **not yet applied** to the configured database, and neither are `0024` (CP05) and `0025` (CP06). See §4.
+Status: **COMPLETE — 26 September 2026.** A disposable-PostgreSQL service test and a 53-check browser/API gate passed. Migration `0026_verification_publication` was applied to the configured database on 26 September 2026 (after the gate), and neither are `0024` (CP05) and `0025` (CP06). See §4.
 
 ## 1. Scope and revisions
 
@@ -160,9 +160,9 @@ Gate notes:
 | Environment | Status |
 | --- | --- |
 | Disposable local databases | `0026` applied by the tests and both gate fixtures |
-| Configured database (Neon) | **Not applied**, and neither are `0024` and `0025` |
+| Configured database (Neon) | **Applied 26 September 2026** with `0024`–`0027`. `0026` had been applied outside the migrator; its objects were checked against the file and the migration was recorded before `0027` ran. Afterwards: 28 of 28 migrations recorded, none pending. At the gate: and neither are `0024` and `0025` |
 
-**The configured database needs `npm run db:migrate` in `rentra-backend` before this code runs against it.** Without it, the property review pages, verification, publication, the client property page and the CP05 application queue all fail there.
+The configured database has since been migrated (26 September 2026); other target databases still need `npm run db:migrate` in `rentra-backend` before this code runs against them.
 
 No new configuration or secrets. Not deployed.
 

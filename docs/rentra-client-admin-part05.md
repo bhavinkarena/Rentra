@@ -1,6 +1,6 @@
 # CP05 — Gate 1 application review
 
-Status: **COMPLETE — 26 September 2026.** A disposable-PostgreSQL service test and a 35-check browser/API gate passed. Migration `0024_application_review` is **not yet applied** to the configured database (see §4).
+Status: **COMPLETE — 26 September 2026.** A disposable-PostgreSQL service test and a 35-check browser/API gate passed. Migration `0024_application_review` was applied to the configured database on 26 September 2026 (after the gate) (see §4).
 
 This session also delivered a **portal-wide UI refresh** requested by the project owner: a shared shell and sidebar, a denser workspace type scale, and tabbed detail pages (§3). It builds on CP02's foundations and does not change any permission or data rule.
 
@@ -113,7 +113,7 @@ Gate fixture notes: `mint.mjs` now also creates a second full reviewer, two comp
 | Environment | Migration `0024` |
 | --- | --- |
 | Disposable local databases | Applied by the tests and gates, then dropped |
-| Configured database (Neon) | **Not applied** (read-only check: 24 migrations, no `review_version`). Until `npm run db:migrate` runs, the new application queue, assignment and decisions fail there, and approval still signs the client out |
+| Configured database (Neon) | **Applied 26 September 2026** with `0024`–`0027`. `0026` had been applied outside the migrator; its objects were checked against the file and the migration was recorded before `0027` ran. Afterwards: 28 of 28 migrations recorded, none pending. At the gate: (read-only check: 24 migrations, no `review_version`). Until `npm run db:migrate` runs, the new application queue, assignment and decisions fail there, and approval still signs the client out |
 
 No new configuration or secrets. Not deployed.
 

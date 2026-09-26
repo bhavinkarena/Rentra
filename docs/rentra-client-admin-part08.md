@@ -1,6 +1,6 @@
 # CP08 — Listing revisions and administrative restrictions
 
-Status: **COMPLETE — 26 September 2026.** A disposable-PostgreSQL service test, a pure-rule unit test and a 56-check browser/API gate passed. Migration `0027_property_restrictions` is **not yet applied** to the configured database, and neither are `0024`–`0026` (see §4).
+Status: **COMPLETE — 26 September 2026.** A disposable-PostgreSQL service test, a pure-rule unit test and a 56-check browser/API gate passed. Migration `0027_property_restrictions` was applied to the configured database on 26 September 2026 (after the gate), and neither are `0024`–`0026` (see §4).
 
 ## 1. Scope and revisions
 
@@ -188,9 +188,9 @@ Gate notes:
 | Environment | Status |
 | --- | --- |
 | Disposable local databases | `0027` applied by the tests and gate fixtures |
-| Configured database (Neon) | **Not applied**, and neither are `0024`–`0026` |
+| Configured database (Neon) | **Applied 26 September 2026** with `0024`–`0027`. `0026` had been applied outside the migrator; its objects were checked against the file and the migration was recorded before `0027` ran. Afterwards: 28 of 28 migrations recorded, none pending. At the gate: and neither are `0024`–`0026` |
 
-**The configured database needs `npm run db:migrate` in `rentra-backend` before this code runs against it.**
+The configured database has since been migrated (26 September 2026); other target databases still need `npm run db:migrate` in `rentra-backend` before this code runs against them.
 
 No new configuration or secrets. Not deployed.
 
