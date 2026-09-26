@@ -1,11 +1,15 @@
 'use client';
 import RentraLoader from '@/components/ui/rentra-loader';
 
-import { startTransition } from 'react';
+import { startTransition, useSyncExternalStore } from 'react';
 import { useSavedPlaces } from '@/components/customer/SavedPlacesProvider';
 import { useAppSelector } from '@/lib/store/hooks';
 import { useBookingQuote } from './listing/BookingQuoteProvider';
 import { Heart } from 'lucide-react';
+
+const subscribe = () => () => {};
+const clientSnapshot = () => true;
+const serverSnapshot = () => false;
 
 /**
  * @param {object} props
@@ -23,7 +27,14 @@ export default function SaveButton({
   const search = useAppSelector((state) => state.search);
   const context = useBookingQuote();
   const booking = context?.rentableId === rentableId ? context : null;
-  const saved = Boolean(places.entries?.some((e) => e.rentableId === rentableId));
+  // Streamed cards may hydrate after the provider has already loaded saves.
+  // Keep every saved-state attribute identical to the server for that first render.
+  const hydrated = useSyncExternalStore(subscribe, clientSnapshot, serverSnapshot);
+  const saved = hydrated && Boolean(places.entries?.some((e) => e.rentableId === rentableId));
+  const busy = hydrated && places.busy;
+  const disabled =
+    !hydrated || !places.ready || busy || (Boolean(booking) && !booking.selectionReady);
+  const error = hydrated ? places.error : null;
   function onClick(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -50,12 +61,12 @@ export default function SaveButton({
         type="button"
         onClick={onClick}
         aria-pressed={saved}
-        disabled={!places.ready || places.busy || (Boolean(booking) && !booking.selectionReady)}
-        title={places.error ?? undefined}
+        disabled={disabled}
+        title={error ?? undefined}
         className="inline-flex items-center gap-1.5 rounded-sm px-2 py-1 text-meta font-semibold text-ink-700 underline decoration-ink-300 underline-offset-4 transition-colors hover:bg-ink-50 hover:text-ink-900"
       >
         <Heart className={`size-4 ${saved ? 'fill-danger text-danger' : ''}`} aria-hidden="true" />
-        {places.busy ? <RentraLoader label="Updating saved place" /> : saved ? 'Saved' : 'Save'}
+        {busy ? <RentraLoader label="Updating saved place" /> : saved ? 'Saved' : 'Save'}
       </button>
     );
   }
@@ -65,12 +76,12 @@ export default function SaveButton({
       type="button"
       onClick={onClick}
       aria-pressed={saved}
-      disabled={!places.ready || places.busy || (Boolean(booking) && !booking.selectionReady)}
-      title={places.error ?? undefined}
+      disabled={disabled}
+      title={error ?? undefined}
       aria-label={label}
       className="absolute top-2.5 right-2.5 grid size-11 place-items-center rounded-full bg-white/90 backdrop-blur transition hover:bg-white"
     >
-      {places.busy ? (
+      {busy ? (
         <RentraLoader label="Updating saved place" />
       ) : (
         <Heart

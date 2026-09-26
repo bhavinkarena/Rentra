@@ -13,7 +13,6 @@ import {
   Landmark,
   LandPlot,
   Lock,
-  MapPin,
   Music,
   ShieldCheck,
   Sparkles,
@@ -271,77 +270,6 @@ export function HouseRules({ listing }) {
         </p>
       ) : null}
     </>
-  );
-}
-
-/* --------------------------------------------------------- area location */
-
-/**
- * A locality illustration using only public area and city names.
- *
- * This is the information release ladder rendered: a browsing visitor sees
- * roughly where the farm is, and the street address unlocks on confirmation.
- * It is drawn rather than fetched from a tile provider on purpose — a real
- * map here would either need a key and a third-party request on every listing
- * view, or would tempt someone into dropping the true coordinates into it.
- */
-export function AreaCircle({ listing: { areaName, cityName } }) {
-  return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card">
-      <div className="relative h-56 bg-brand-50">
-        <svg
-          viewBox="0 0 400 224"
-          className="absolute inset-0 size-full"
-          role="img"
-          aria-label={`Area illustration — ${areaName}, ${cityName}`}
-        >
-          <defs>
-            <pattern id="lanes" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M0 40 H40 M40 0 V40" fill="none" stroke="#DDEBE2" strokeWidth="2" />
-            </pattern>
-            <radialGradient id="fade" cx="50%" cy="50%" r="50%">
-              <stop offset="55%" stopColor="#2E6449" stopOpacity="0.16" />
-              <stop offset="100%" stopColor="#2E6449" stopOpacity="0" />
-            </radialGradient>
-          </defs>
-
-          <rect width="400" height="224" fill="url(#lanes)" />
-          {/* A wider road through, so the panel reads as a place, not a texture. */}
-          <path
-            d="M-10 150 Q 140 120 200 96 T 410 70"
-            fill="none"
-            stroke="#BCD8C7"
-            strokeWidth="7"
-          />
-          <circle cx="200" cy="112" r="96" fill="url(#fade)" />
-          <circle
-            cx="200"
-            cy="112"
-            r="72"
-            fill="#2E6449"
-            fillOpacity="0.1"
-            stroke="#2E6449"
-            strokeWidth="2"
-            strokeDasharray="7 6"
-          />
-          <circle cx="200" cy="112" r="5" fill="#2E6449" />
-        </svg>
-
-        <p className="absolute inset-x-0 bottom-3 mx-auto w-fit rounded-full bg-card/95 px-3.5 py-1.5 text-meta font-bold shadow-sm backdrop-blur">
-          <MapPin className="mr-1 inline size-3.5 text-brand-600" aria-hidden="true" />
-          {areaName}, {cityName}
-        </p>
-      </div>
-
-      <div className="flex items-start gap-2.5 p-4">
-        <Lock className="mt-0.5 size-4 shrink-0 text-ink-500" aria-hidden="true" />
-        <p className="text-meta text-ink-600">
-          This illustration represents the area. The exact address, map directions and the
-          owner&rsquo;s number are released the moment your booking is confirmed and those details
-          are available to you.
-        </p>
-      </div>
-    </div>
   );
 }
 

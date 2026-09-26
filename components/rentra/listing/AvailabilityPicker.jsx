@@ -4,7 +4,8 @@ import { fetchAvailability, availabilityMonthRange } from '@/lib/api/availabilit
 import { measureBrowser } from '@/lib/domain/browser-measurement';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, Info } from 'lucide-react';
+import { Dialog } from 'radix-ui';
+import { ChevronLeft, ChevronRight, Info, X, CalendarDays } from 'lucide-react';
 
 import { SLOTS } from '@/lib/domain/pricing';
 import { propertyToday } from '@/lib/domain/booking-dates';
@@ -22,6 +23,8 @@ import { toISODate, parseISODate, formatDayLabel } from './booking-state';
  */
 export default function AvailabilityPicker({ code, prices, nextDates }) {
   const {
+    calendarOpen,
+    setCalendarOpen,
     date,
     dates,
     slot,
@@ -71,7 +74,12 @@ export default function AvailabilityPicker({ code, prices, nextDates }) {
         const request = () =>
           fetchAvailability({
             code,
-            ...availabilityMonthRange(monthStart, propertyToday()),
+            from: availabilityMonthRange(monthStart, propertyToday()).from,
+            days: Math.round(
+              (addMonths(monthCursor, 2) -
+                parseISODate(availabilityMonthRange(monthStart, propertyToday()).from)) /
+                86400000,
+            ),
             guests,
             signal: controller.signal,
           });
@@ -100,7 +108,7 @@ export default function AvailabilityPicker({ code, prices, nextDates }) {
     load();
 
     return () => controller.abort();
-  }, [code, retry, guests, monthStart]);
+  }, [code, retry, guests, monthStart, monthCursor]);
 
   const openOn = (iso) => {
     if (!availability) return null; // unknown, not "unavailable"
@@ -109,13 +117,8 @@ export default function AvailabilityPicker({ code, prices, nextDates }) {
     return slot === 'full_day' ? entry.full === true : entry[slot] === true;
   };
 
-  const weeks = useMemo(() => buildMonth(monthCursor), [monthCursor]);
+  const months = useMemo(() => [monthCursor, addMonths(monthCursor, 1)], [monthCursor]);
   const today = propertyToday();
-  const monthLabel = monthCursor.toLocaleDateString('en-IN', {
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'UTC',
-  });
   const canGoBack = startOfMonth(parseISODate(today)) < monthCursor;
 
   return (
@@ -123,190 +126,253 @@ export default function AvailabilityPicker({ code, prices, nextDates }) {
       <h2 id="availability-heading" className="text-h2">
         Choose your visits
       </h2>
-      {currentResult?.message ? (
-        <p role="status" className="mt-2 text-meta text-ink-600">
-          {currentResult.message}
-        </p>
-      ) : null}
-      <p className="mt-2 max-w-prose text-body text-ink-600">
-        Choose up to 10 visits with the same visit type and guest count. Each date has its own
-        arrival and departure; gaps between visits are not included.
+      <p className="mt-2 text-sm text-ink-600">
+        Day picnic, overnight or full day. Pick one date or plan up to 10 visits.
       </p>
-
-      <div className="mt-5">
-        <div role="group" aria-label="Visit type" className="flex flex-wrap gap-2">
-          {Object.values(SLOTS).map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              aria-pressed={slot === item.id}
-              disabled={!prices?.[item.id] || !selectionReady}
-              onClick={() => setSlot(item.id)}
-              className={`min-h-11 rounded-md border px-4 ${slot === item.id ? 'bg-brand-600 text-white' : 'bg-card'} disabled:opacity-40`}
+      <button
+        type="button"
+        onClick={() => setCalendarOpen(true)}
+        className="mt-5 flex min-h-14 w-full items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left hover:border-brand-500"
+      >
+        <CalendarDays className="size-5 text-brand-700" />
+        <span className="flex-1">
+          {dates.length
+            ? `${dates.length} visit${dates.length === 1 ? '' : 's'} selected · ${SLOTS[slot].label}`
+            : 'Choose dates & visit type'}
+        </span>
+        <span className="text-sm font-semibold text-brand-700">
+          {dates.length ? 'Edit' : 'Open calendar'}
+        </span>
+      </button>
+      <Dialog.Root open={calendarOpen} onOpenChange={setCalendarOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-[80] bg-ink-900/30 backdrop-blur-[2px]" />
+          <Dialog.Content className="fixed top-1/2 left-1/2 z-[90] max-h-[92dvh] w-[calc(100%-1rem)] max-w-4xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl bg-card p-4 shadow-2xl sm:p-8">
+            <Dialog.Title className="pr-10 text-2xl font-semibold">
+              {dates.length
+                ? `${dates.length} visit${dates.length === 1 ? '' : 's'} selected`
+                : 'Choose your dates'}
+            </Dialog.Title>
+            <Dialog.Description className="mt-2 text-sm text-ink-600">
+              Choose up to 10 visits. Each date has its own arrival and departure.
+            </Dialog.Description>
+            <Dialog.Close
+              aria-label="Close calendar"
+              className="absolute top-3 right-3 grid size-11 place-items-center rounded-full hover:bg-ink-50"
             >
-              {item.label}
-            </button>
-          ))}
-        </div>
-        <label className="mt-4 block text-meta font-semibold">
-          Date mode
-          <select
-            aria-label="Date mode"
-            value={mode}
-            disabled={!selectionReady}
-            onChange={(event) => setMode(event.target.value)}
-            className="ml-3 min-h-11 rounded-md border border-border bg-card px-3"
-          >
-            <option value="single">Single date</option>
-            <option value="consecutive">Consecutive dates</option>
-            <option value="separate">Separate dates</option>
-          </select>
-        </label>
-        <p className="mt-2 text-meta text-ink-600">
-          {mode === 'consecutive'
-            ? anchor
-              ? 'Choose the last date. Every date in between will be checked.'
-              : 'Choose the first date, then the last date.'
-            : mode === 'separate'
-              ? 'Tap dates to add or remove visits.'
-              : 'Tap a date to replace your selection.'}
-        </p>
-        <p role="status" className="mt-2 text-meta text-brand-700">
-          {notice || `${dates.length} visit${dates.length === 1 ? '' : 's'} selected.`}
-        </p>
-        <ul aria-label="Selected visits" className="mt-3 flex flex-wrap gap-2">
-          {dates.map((day) => (
-            <li key={day}>
+              <X className="size-5" />
+            </Dialog.Close>
+            {currentResult?.message ? (
+              <p role="status" className="mt-2 text-xs text-ink-600">
+                {currentResult.message}
+              </p>
+            ) : null}
+            <div className="mt-5">
+              <div role="group" aria-label="Visit type" className="grid grid-cols-3 gap-2">
+                {Object.values(SLOTS).map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    aria-pressed={slot === item.id}
+                    disabled={!prices?.[item.id] || !selectionReady}
+                    onClick={() => setSlot(item.id)}
+                    className={`min-h-11 rounded-md border px-2 text-sm ${slot === item.id ? 'bg-brand-600 text-white' : 'bg-card'} disabled:opacity-40`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+              <label className="mt-4 block text-meta font-semibold">
+                Date mode
+                <select
+                  aria-label="Date mode"
+                  value={mode}
+                  disabled={!selectionReady}
+                  onChange={(event) => setMode(event.target.value)}
+                  className="ml-3 min-h-11 rounded-md border border-border bg-card px-3"
+                >
+                  <option value="single">Single date</option>
+                  <option value="consecutive">Consecutive dates</option>
+                  <option value="separate">Separate dates</option>
+                </select>
+              </label>
+              <p className="mt-2 text-xs text-ink-600">
+                {mode === 'consecutive'
+                  ? anchor
+                    ? 'Choose the last date. Every date in between will be checked.'
+                    : 'Choose the first date, then the last date.'
+                  : mode === 'separate'
+                    ? 'Tap dates to add or remove visits.'
+                    : 'Tap a date to replace your selection.'}
+              </p>
+              <p role="status" className="sr-only">
+                {notice || `${dates.length} visit${dates.length === 1 ? '' : 's'} selected.`}
+              </p>
+            </div>
+
+            <div className="mt-5">
+              <div className="mb-4 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setMonthCursor(addMonths(monthCursor, -1))}
+                  disabled={!canGoBack}
+                  aria-label="Previous month"
+                  className="grid size-11 place-items-center rounded-full hover:bg-brand-50 disabled:opacity-30"
+                >
+                  <ChevronLeft className="size-5" />
+                </button>
+                <p className="text-xs text-ink-500">Select the dates you’ll visit</p>
+                <button
+                  type="button"
+                  onClick={() => setMonthCursor(addMonths(monthCursor, 1))}
+                  disabled={monthCursor >= addMonths(startOfMonth(parseISODate(today)), 12)}
+                  aria-label="Next month"
+                  className="grid size-11 place-items-center rounded-full hover:bg-brand-50 disabled:opacity-30"
+                >
+                  <ChevronRight className="size-5" />
+                </button>
+              </div>
+              <div className="grid gap-6 sm:grid-cols-2">
+                {months.map((cursor, monthIndex) => (
+                  <div key={toISODate(cursor)} className={monthIndex ? 'hidden sm:block' : ''}>
+                    <h3 className="rounded-lg bg-brand-50 py-3 text-center font-semibold">
+                      {cursor.toLocaleDateString('en-IN', {
+                        month: 'long',
+                        year: 'numeric',
+                        timeZone: 'UTC',
+                      })}
+                    </h3>
+                    <div className="mt-3 grid grid-cols-7 gap-1" aria-hidden="true">
+                      {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((d, i) => (
+                        <span key={i} className="py-1 text-center text-tiny font-bold text-ink-500">
+                          {d}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="mt-1 grid grid-cols-7 gap-1">
+                      {buildMonth(cursor).map((cell, i) => {
+                        if (!cell) return <span key={`pad-${i}`} />;
+                        const iso = toISODate(cell);
+                        const isPast = iso < today;
+                        const open = openOn(iso);
+                        const selected = dates.includes(iso);
+                        // While availability is loading, dates are neither open nor shut.
+                        // Showing everything as bookable and then taking it away is worse
+                        // than a brief skeleton.
+                        const pending = state === 'loading' && !isPast;
+
+                        return (
+                          <button
+                            key={iso}
+                            type="button"
+                            aria-disabled={
+                              !selectionReady || isPast || (open !== true && !selected)
+                            }
+                            aria-pressed={selected}
+                            data-visit-date={iso}
+                            onKeyDown={(event) => {
+                              const offsets = {
+                                ArrowLeft: -1,
+                                ArrowRight: 1,
+                                ArrowUp: -7,
+                                ArrowDown: 7,
+                              };
+                              if (!(event.key in offsets)) return;
+                              event.preventDefault();
+                              const target = new Date(cell);
+                              target.setUTCDate(target.getUTCDate() + offsets[event.key]);
+                              if (toISODate(target) < today) return;
+                              setMonthCursor(startOfMonth(target));
+                              requestAnimationFrame(() =>
+                                document
+                                  .querySelector(
+                                    `[role="dialog"] [data-visit-date="${toISODate(target)}"]`,
+                                  )
+                                  ?.focus(),
+                              );
+                            }}
+                            aria-label={`${formatDayLabel(iso)}${open === false ? ' — not available' : ''}`}
+                            onClick={() => {
+                              if (selectionReady && !isPast && (open === true || selected)) {
+                                if (!selected)
+                                  measureBrowser(
+                                    'dates_selected',
+                                    dates.length ? 'multiple' : 'single',
+                                  );
+                                pickDate(iso);
+                              }
+                            }}
+                            className={[
+                              'relative min-h-11 rounded-full py-2 text-center text-meta tabular transition-colors',
+                              selected
+                                ? 'bg-brand-600 font-bold text-white'
+                                : open
+                                  ? 'font-medium text-ink-900 hover:bg-brand-50 hover:text-brand-700'
+                                  : 'text-ink-300',
+                              pending && !selected && 'animate-pulse bg-ink-50 text-ink-500',
+                              (isPast || open === false) &&
+                                'cursor-not-allowed line-through decoration-ink-300',
+                            ]
+                              .filter(Boolean)
+                              .join(' ')}
+                          >
+                            {cell.getUTCDate()}
+                            {iso === today && !selected ? (
+                              <span className="absolute inset-x-0 -bottom-0.5 mx-auto size-1 rounded-full bg-brand-600" />
+                            ) : null}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Legend
+                state={state}
+                nextDates={nextDates}
+                slot={slot}
+                onRetry={() => {
+                  setRetry((value) => value + 1);
+                }}
+              />
+            </div>
+            <ul aria-label="Selected visits" className="mt-3 flex flex-wrap gap-2">
+              {dates.map((day) => (
+                <li key={day}>
+                  <button
+                    type="button"
+                    aria-label={`Remove ${formatDayLabel(day)}`}
+                    onClick={() => removeDate(day)}
+                    className="min-h-11 rounded-full border border-brand-200 bg-brand-50 px-3 text-meta"
+                  >
+                    {formatDayLabel(day)} ×
+                    {conflicts.some((c) => c.date === day) ||
+                    (availability?.[day] && openOn(day) === false)
+                      ? ' · needs attention'
+                      : ''}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            {dates.length ? (
               <button
                 type="button"
-                aria-label={`Remove ${formatDayLabel(day)}`}
-                onClick={() => removeDate(day)}
-                className="min-h-11 rounded-full border border-brand-200 bg-brand-50 px-3 text-meta"
+                onClick={clearDates}
+                className="min-h-11 text-meta text-brand-700 underline"
               >
-                {formatDayLabel(day)} ×
-                {conflicts.some((c) => c.date === day) ||
-                (availability?.[day] && openOn(day) === false)
-                  ? ' · needs attention'
-                  : ''}
+                Clear dates
               </button>
-            </li>
-          ))}
-        </ul>
-        {dates.length ? (
-          <button
-            type="button"
-            onClick={clearDates}
-            className="min-h-11 text-meta text-brand-700 underline"
-          >
-            Clear dates
-          </button>
-        ) : null}
-      </div>
-
-      <div className="mt-6 max-w-lg rounded-lg border border-border bg-card p-4 shadow-xs">
-        <div className="flex items-center justify-between gap-3">
-          <button
-            type="button"
-            onClick={() => setMonthCursor(addMonths(monthCursor, -1))}
-            disabled={!canGoBack}
-            aria-label="Previous month"
-            className="grid size-11 place-items-center rounded-sm text-ink-600 transition-colors hover:bg-ink-50 hover:text-ink-900 disabled:pointer-events-none disabled:opacity-30"
-          >
-            <ChevronLeft className="size-4" aria-hidden="true" />
-          </button>
-          <p aria-live="polite" className="text-h4 font-bold">
-            {monthLabel}
-          </p>
-          <button
-            type="button"
-            onClick={() => setMonthCursor(addMonths(monthCursor, 1))}
-            disabled={monthCursor >= addMonths(startOfMonth(parseISODate(today)), 12)}
-            aria-label="Next month"
-            className="grid size-11 place-items-center rounded-sm text-ink-600 transition-colors hover:bg-ink-50 hover:text-ink-900"
-          >
-            <ChevronRight className="size-4" aria-hidden="true" />
-          </button>
-        </div>
-
-        <div className="mt-3 grid grid-cols-7 gap-1" aria-hidden="true">
-          {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
-            <span key={i} className="py-1 text-center text-tiny font-bold text-ink-500">
-              {d}
-            </span>
-          ))}
-        </div>
-
-        <div className="mt-1 grid grid-cols-7 gap-1">
-          {weeks.map((cell, i) => {
-            if (!cell) return <span key={`pad-${i}`} />;
-            const iso = toISODate(cell);
-            const isPast = iso < today;
-            const open = openOn(iso);
-            const selected = dates.includes(iso);
-            // While availability is loading, dates are neither open nor shut.
-            // Showing everything as bookable and then taking it away is worse
-            // than a brief skeleton.
-            const pending = state === 'loading' && !isPast;
-
-            return (
-              <button
-                key={iso}
-                type="button"
-                aria-disabled={!selectionReady || isPast || (open !== true && !selected)}
-                aria-pressed={selected}
-                data-visit-date={iso}
-                onKeyDown={(event) => {
-                  const offsets = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 };
-                  if (!(event.key in offsets)) return;
-                  event.preventDefault();
-                  const target = new Date(cell);
-                  target.setUTCDate(target.getUTCDate() + offsets[event.key]);
-                  if (toISODate(target) < today) return;
-                  setMonthCursor(startOfMonth(target));
-                  requestAnimationFrame(() =>
-                    document.querySelector(`[data-visit-date="${toISODate(target)}"]`)?.focus(),
-                  );
-                }}
-                aria-label={`${formatDayLabel(iso)}${open === false ? ' — not available' : ''}`}
-                onClick={() => {
-                  if (selectionReady && !isPast && (open === true || selected)) {
-                    if (!selected)
-                      measureBrowser('dates_selected', dates.length ? 'multiple' : 'single');
-                    pickDate(iso);
-                  }
-                }}
-                className={[
-                  'relative min-h-11 rounded-sm py-2 text-center text-meta tabular transition-colors',
-                  selected
-                    ? 'bg-brand-600 font-bold text-white'
-                    : open
-                      ? 'font-medium text-ink-900 hover:bg-brand-50 hover:text-brand-700'
-                      : 'text-ink-300',
-                  pending && !selected && 'animate-pulse bg-ink-50 text-ink-500',
-                  (isPast || open === false) &&
-                    'cursor-not-allowed line-through decoration-ink-300',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-              >
-                {cell.getUTCDate()}
-                {iso === today && !selected ? (
-                  <span className="absolute inset-x-0 -bottom-0.5 mx-auto size-1 rounded-full bg-brand-600" />
-                ) : null}
-              </button>
-            );
-          })}
-        </div>
-
-        <Legend
-          state={state}
-          nextDates={nextDates}
-          slot={slot}
-          onRetry={() => {
-            setRetry((value) => value + 1);
-          }}
-        />
-      </div>
+            ) : null}
+            <div className="sticky -bottom-4 mt-4 flex items-center justify-between border-t border-border bg-card py-3 sm:-bottom-8">
+              <p className="text-xs text-ink-500">{dates.length} of 10 visits selected</p>
+              <Dialog.Close className="min-h-11 rounded-lg bg-brand-700 px-7 text-sm font-semibold text-white hover:bg-brand-800">
+                Done
+              </Dialog.Close>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </section>
   );
 }

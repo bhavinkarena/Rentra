@@ -17,7 +17,7 @@ import QuoteSummary from './QuoteSummary';
  * than by measuring anything at runtime.
  */
 export default function MobileBookingBar({ sentinelId = 'gallery-end' }) {
-  const { dates, quote, loading } = useBookingQuote();
+  const { dates, quote, loading, setCalendarOpen } = useBookingQuote();
   const [shown, setShown] = useState(false);
   const dialog = useRef(null);
   const opener = useRef(null);
@@ -122,8 +122,7 @@ export default function MobileBookingBar({ sentinelId = 'gallery-end' }) {
             ref={opener}
             onClick={() => {
               if (!dates.length) {
-                document.getElementById('availability')?.scrollIntoView();
-                document.querySelector('#availability select')?.focus({ preventScroll: true });
+                setCalendarOpen(true);
                 return;
               }
               previousOverflow.current = document.body.style.overflow;
@@ -145,8 +144,7 @@ export default function MobileBookingBar({ sentinelId = 'gallery-end' }) {
         onClose={() => {
           document.body.style.overflow = previousOverflow.current;
           if (dialog.current.returnValue === 'edit') {
-            document.getElementById('availability')?.scrollIntoView();
-            document.querySelector('#availability select')?.focus();
+            setCalendarOpen(true);
           } else opener.current?.focus();
         }}
         className="fixed inset-x-0 top-auto bottom-0 m-0 max-h-[85dvh] w-full max-w-none overflow-y-auto rounded-t-xl bg-card p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] backdrop:bg-black/50"

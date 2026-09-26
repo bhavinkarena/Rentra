@@ -1,14 +1,17 @@
 'use client';
-import RentraLoader from '@/components/ui/rentra-loader';
-
 import { useActionState, useEffect, useState } from 'react';
+import { ArrowRight, Smartphone } from 'lucide-react';
 import { requestCustomerOtp, verifyCustomerOtp } from '@/lib/actions/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import RentraLoader from '@/components/ui/rentra-loader';
+import OtpDialog, { OtpInput } from '@/components/auth/OtpDialog';
 
 export default function CustomerLoginForm() {
+  const [open, setOpen] = useState(false);
   const [sent, send, sending] = useActionState(async (previous, formData) => {
     const result = await requestCustomerOtp(null, formData);
+    if (!result.error) setOpen(true);
     return result.error ? { ...previous, error: result.error } : result;
   }, null);
   const [verified, verify, verifying] = useActionState(verifyCustomerOtp, null);
@@ -21,86 +24,106 @@ export default function CustomerLoginForm() {
     return () => clearInterval(timer);
   }, [sent?.challengeId, sent?.resendAfter]);
   return (
-    <div className="mt-8 space-y-6">
+    <div className="mt-8 space-y-5">
       <form action={send} className="space-y-4">
-        <label htmlFor="phone" className="block text-meta font-semibold">
+        <label htmlFor="phone" className="block text-sm font-semibold">
           Mobile number
         </label>
-        <Input
-          id="phone"
-          name="phone"
-          type="tel"
-          autoComplete="tel"
-          required
-          maxLength={18}
-          placeholder="98765 43210"
-          readOnly={Boolean(sent?.challengeId)}
-          defaultValue={sent?.phone ?? ''}
-        />
-        {sent?.error ? (
-          <p role="alert" className="text-meta text-danger">
+        <div className="flex h-14 items-center rounded-xl border border-input bg-card px-4 focus-within:ring-2 focus-within:ring-brand-100">
+          <Smartphone className="mr-2 size-5 text-ink-500" aria-hidden="true" />
+          <span className="mr-3 border-r border-border pr-3 text-sm">+91</span>
+          <Input
+            id="phone"
+            name="phone"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel-national"
+            required
+            maxLength={18}
+            placeholder="98765 43210"
+            className="h-12 border-0 px-0 shadow-none focus-visible:ring-0"
+          />
+        </div>
+        {sent?.error && (
+          <p role="alert" className="text-sm text-danger">
             {sent.error}
           </p>
-        ) : null}
+        )}
         <Button
           type="submit"
-          size="lg"
-          className="w-full"
+          className="h-12 w-full rounded-xl"
           disabled={sending || verifying || seconds > 0}
         >
           {sending ? (
-            <RentraLoader label="Requesting code…" />
+            <RentraLoader label="Sending code…" />
           ) : seconds > 0 ? (
-            `Resend in ${seconds}s`
-          ) : sent?.challengeId ? (
-            'Resend code'
+            `Send again in ${seconds}s`
           ) : (
-            'Send code'
+            <>
+              Continue <ArrowRight className="size-4" />
+            </>
           )}
         </Button>
+        {sent?.challengeId && (
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="min-h-11 text-sm font-semibold text-brand-700"
+          >
+            Already have a code? Enter it here
+          </button>
+        )}
       </form>
-      {sent?.challengeId ? (
-        <form action={verify} className="space-y-4" key={sent.challengeId}>
-          <p role="status" className="text-meta text-ink-600">
-            {sent.development
-              ? 'Development login: enter 123456. No SMS is sent.'
-              : `Code requested for +91 ••••••${sent.phone.slice(-4)}. It expires in 5 minutes.`}
-          </p>
-          <input type="hidden" name="phone" value={sent.phone} />
-          <label htmlFor="code" className="block text-meta font-semibold">
-            One-time code
-          </label>
-          <Input
-            id="code"
-            name="code"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            pattern="[0-9]{6}"
-            minLength={6}
-            maxLength={6}
-            required
-          />
-          {verified?.error ? (
-            <p role="alert" className="text-meta text-danger">
+      <p className="text-xs leading-relaxed text-ink-500">
+        We’ll send a 6-digit code to verify your number. No password to remember.
+      </p>
+      <OtpDialog
+        open={open}
+        onOpenChange={setOpen}
+        busy={sending || verifying}
+        description={
+          sent?.development
+            ? 'Development login: enter 123456. No SMS is sent.'
+            : `Enter the code sent to +91 ${sent?.phone ?? ''}. It expires in 5 minutes.`
+        }
+      >
+        <form action={verify} key={sent?.challengeId} className="space-y-5">
+          <input type="hidden" name="phone" value={sent?.phone ?? ''} />
+          <OtpInput error={Boolean(verified?.error)} disabled={verifying} />
+          {verified?.error && (
+            <p role="alert" className="text-sm text-danger">
               {verified.error}
             </p>
-          ) : null}
-          <Button type="submit" size="lg" className="w-full" disabled={verifying || sending}>
-            {verifying ? <RentraLoader label="Checking code…" /> : 'Log in'}
+          )}
+          <Button type="submit" disabled={verifying || sending} className="h-12 w-full rounded-xl">
+            {verifying ? <RentraLoader label="Checking code…" /> : 'Verify & log in'}
           </Button>
-          {/* Full navigation resets the OTP action state when changing numbers. */}
-          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-          <a
-            href="/login"
-            className="inline-flex min-h-11 items-center text-meta text-brand-700 underline"
-          >
-            Use a different number
-          </a>
         </form>
-      ) : null}
-      <p className="text-tiny text-ink-500">
-        Searching never needs an account. Signing in does not reserve your dates.
-      </p>
+        <div className="mt-5 flex items-center justify-between gap-3 text-sm">
+          <button
+            type="button"
+            className="min-h-11 text-ink-600"
+            onClick={() => setOpen(false)}
+            disabled={verifying || sending}
+          >
+            Change number
+          </button>
+          <form action={send}>
+            <input type="hidden" name="phone" value={sent?.phone ?? ''} />
+            <button
+              disabled={sending || verifying || seconds > 0}
+              className="min-h-11 font-semibold text-brand-700 disabled:text-ink-400"
+            >
+              {seconds > 0 ? `Resend in ${seconds}s` : sending ? 'Sending…' : 'Resend code'}
+            </button>
+          </form>
+        </div>
+        {sent?.error && (
+          <p role="alert" className="text-sm text-danger">
+            {sent.error}
+          </p>
+        )}
+      </OtpDialog>
     </div>
   );
 }

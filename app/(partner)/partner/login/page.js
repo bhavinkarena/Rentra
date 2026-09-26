@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import AuthLayout from '@/components/auth/AuthLayout';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/api/session';
 import LoginForm from '@/components/partner/LoginForm';
@@ -29,10 +30,10 @@ export default async function PartnerLoginPage({ searchParams }) {
   }
 
   return (
-    <div className="mx-auto flex min-h-[80vh] max-w-md flex-col justify-center px-6 py-16">
+    <AuthLayout partner>
       <h1 className="text-h1">Earn from your farmhouse</h1>
       <p className="mt-2 text-body text-ink-600">
-        We photograph it, list it, and handle the money. You keep the calendar.
+        Sign in to manage your property, welcome guests and make room for more bookings.
       </p>
 
       {params?.blocked ? (
@@ -51,6 +52,6 @@ export default async function PartnerLoginPage({ searchParams }) {
           Guest log in
         </Link>
       </p>
-    </div>
+    </AuthLayout>
   );
 }

@@ -1,3 +1,4 @@
+import LocationMap from '@/components/rentra/listing/LocationMap';
 import { publicMetadata, serializeJsonLd } from '@/lib/seo/metadata';
 import Link from 'next/link';
 import { cache, Suspense } from 'react';
@@ -21,7 +22,6 @@ import {
   VisitHours,
   AmenityGrid,
   HouseRules,
-  AreaCircle,
   Reviews,
   OwnerCard,
   CancellationPolicy,
@@ -258,15 +258,6 @@ export default async function ListingPage({ params, searchParams }) {
               <HouseRules listing={listing} />
             </Section>
 
-            <Section
-              id="location"
-              title="Where you will be"
-              intro="This public page shows the area only. Confirmed customers can access arrival details for their booking."
-              className="mt-10"
-            >
-              <AreaCircle listing={listing} />
-            </Section>
-
             <Section id="reviews" title="Reviews" className="mt-10">
               <Reviews listing={listing} />
             </Section>
@@ -298,6 +289,8 @@ export default async function ListingPage({ params, searchParams }) {
             <BookingPriceBox
               rentableId={listing.id}
               listingTitle={listing.title}
+              schedules={listing.slotSchedules}
+              capacity={listing.capacity}
               prices={listing.prices}
               deposit={listing.depositAmount}
               cancellationTier={listing.cancellationTier}
@@ -309,6 +302,14 @@ export default async function ListingPage({ params, searchParams }) {
             </div>
           </aside>
         </div>
+
+        <Section id="location" title="Location" className="mt-12">
+          <LocationMap
+            areaName={listing.areaName}
+            cityName={listing.cityName}
+            center={listing.approximateLocation}
+          />
+        </Section>
 
         <div className="mt-12 lg:hidden">
           <MoneyNote />

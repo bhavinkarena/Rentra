@@ -1,129 +1,114 @@
 'use client';
-import Loader2 from '@/components/ui/rentra-loader';
-
-import { useActionState } from 'react';
-import { Mail, ArrowLeft } from 'lucide-react';
+import { useActionState, useState } from 'react';
+import { Mail, ArrowRight } from 'lucide-react';
 import { requestClientOtp, verifyClientOtp } from '@/lib/actions/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import RentraLoader from '@/components/ui/rentra-loader';
+import OtpDialog, { OtpInput } from '@/components/auth/OtpDialog';
 
-/**
- * Two-step email OTP. No password, ever — nothing to forget, phish or reset.
- *
- * Two `useActionState` hooks rather than one dispatching action: the phase is
- * then derived from the server's own response (`issueState.step`), so a failed
- * code entry cannot bounce the user back to the email step and lose their
- * place.
- */
 export default function LoginForm() {
-  const [issueState, issueAction, issuing] = useActionState(requestClientOtp, { step: 'email' });
-  const [verifyState, verifyAction, verifying] = useActionState(verifyClientOtp, { step: 'code' });
-
-  const phase = issueState.step === 'code' ? 'code' : 'email';
+  const [open, setOpen] = useState(false);
+  const [issueState, issueAction, issuing] = useActionState(
+    async (previous, form) => {
+      const result = await requestClientOtp(previous, form);
+      if (result.step === 'code' && !result.error && !result.errors) setOpen(true);
+      return result.error || result.errors ? { ...previous, ...result } : result;
+    },
+    { step: 'email' },
+  );
+  const [verifyState, verifyAction, verifying] = useActionState(verifyClientOtp, {});
   const email = issueState.email ?? '';
-
-  if (phase === 'email') {
-    return (
+  return (
+    <div className="space-y-5">
       <form action={issueAction} className="space-y-4">
-        <div>
-          <label htmlFor="email" className="mb-1.5 block text-meta font-semibold text-ink-700">
-            Email address
-          </label>
+        <label htmlFor="email" className="block text-sm font-semibold">
+          Email address
+        </label>
+        <div className="flex h-14 items-center gap-3 rounded-xl border border-input bg-card px-4 focus-within:ring-2 focus-within:ring-brand-100">
+          <Mail className="size-5 shrink-0 text-ink-500" aria-hidden="true" />
           <Input
             id="email"
             name="email"
             type="email"
             autoComplete="email"
-            inputMode="email"
             placeholder="you@example.com"
             defaultValue={email}
-            aria-invalid={issueState.errors?.email ? true : undefined}
-            aria-describedby={issueState.errors?.email ? 'email-error' : 'email-hint'}
             required
+            className="h-12 border-0 px-0 focus-visible:ring-0"
           />
-          {issueState.errors?.email ? (
-            <p id="email-error" className="mt-1.5 text-tiny font-medium text-danger">
-              {issueState.errors.email}
-            </p>
+        </div>
+        {(issueState.error || issueState.errors?.email) && (
+          <p role="alert" className="text-sm text-danger">
+            {issueState.errors?.email || issueState.error}
+          </p>
+        )}
+        <Button type="submit" className="h-12 w-full rounded-xl" disabled={issuing || verifying}>
+          {issuing ? (
+            <RentraLoader label="Sending code…" />
           ) : (
-            <p id="email-hint" className="mt-1.5 text-tiny text-ink-500">
-              We send a 6-digit code. No password needed.
+            <>
+              Continue <ArrowRight className="size-4" />
+            </>
+          )}
+        </Button>
+        {issueState.step === 'code' && (
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="min-h-11 text-sm font-semibold text-brand-700"
+          >
+            Already have a code? Enter it here
+          </button>
+        )}
+      </form>
+      <p className="text-xs text-ink-500">We’ll email you a 6-digit code. No password needed.</p>
+      <OtpDialog
+        open={open}
+        onOpenChange={setOpen}
+        busy={verifying || issuing}
+        description={`Enter the code sent to ${email}. It expires in 10 minutes.`}
+      >
+        <form action={verifyAction} className="space-y-5" key={email}>
+          <input type="hidden" name="email" value={email} />
+          <OtpInput
+            error={Boolean(verifyState.error || verifyState.errors?.code)}
+            disabled={verifying}
+          />
+          {(verifyState.error || verifyState.errors?.code) && (
+            <p role="alert" className="text-sm text-danger">
+              {verifyState.errors?.code || verifyState.error}
             </p>
           )}
-        </div>
-
-        <Button type="submit" size="lg" className="w-full" disabled={issuing}>
-          {issuing ? <Loader2 className="size-4 " /> : <Mail className="size-4" />}
-          {issuing ? <span className="sr-only">Sending code…</span> : 'Send code'}
-        </Button>
-      </form>
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      <div className="flex items-start gap-2 rounded-md bg-brand-50 p-3 text-meta text-brand-800">
-        <Mail className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-        <p>
-          Code sent to <strong className="font-semibold">{email}</strong>. It expires in 10 minutes.
-        </p>
-      </div>
-
-      <form action={verifyAction} className="space-y-4">
-        <input type="hidden" name="email" value={email} />
-        <div>
-          <label htmlFor="code" className="mb-1.5 block text-meta font-semibold text-ink-700">
-            6-digit code
-          </label>
-          <Input
-            id="code"
-            name="code"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            maxLength={6}
-            placeholder="000000"
-            className="text-center font-mono text-h3 tracking-[0.35em]"
-            aria-invalid={verifyState.errors?.code ? true : undefined}
-            aria-describedby={verifyState.errors?.code ? 'code-error' : undefined}
-            autoFocus
-            required
-          />
-          {verifyState.errors?.code ? (
-            <p id="code-error" className="mt-1.5 text-tiny font-medium text-danger">
-              {verifyState.errors.code}
-            </p>
-          ) : null}
-        </div>
-
-        <Button type="submit" size="lg" className="w-full" disabled={verifying}>
-          {verifying ? <Loader2 className="size-4 " /> : null}
-          {verifying ? <span className="sr-only">Checking…</span> : 'Verify and continue'}
-        </Button>
-      </form>
-
-      <div className="flex items-center justify-between gap-3 pt-1">
-        {/* Resend re-runs the issue action, which enforces the 60-second
-            cooldown server-side and returns a friendly message if too soon. */}
-        <form action={issueAction}>
-          <input type="hidden" name="email" value={email} />
-          <button
-            type="submit"
-            disabled={issuing}
-            className="text-meta font-semibold text-brand-700 hover:underline disabled:text-ink-400 disabled:no-underline"
-          >
-            {issuing ? <Loader2 label="Sending code" /> : 'Resend code'}
-          </button>
+          <Button type="submit" className="h-12 w-full rounded-xl" disabled={verifying || issuing}>
+            {verifying ? <RentraLoader label="Checking code…" /> : 'Verify & continue'}
+          </Button>
         </form>
-
-        <button
-          type="button"
-          onClick={() => window.location.reload()}
-          className="inline-flex items-center gap-1 text-meta text-ink-600 hover:text-ink-900"
-        >
-          <ArrowLeft className="size-3.5" aria-hidden="true" />
-          Use a different email
-        </button>
-      </div>
+        <div className="mt-5 flex items-center justify-between text-sm">
+          <button
+            type="button"
+            className="min-h-11 text-ink-600"
+            onClick={() => setOpen(false)}
+            disabled={verifying || issuing}
+          >
+            Change email
+          </button>
+          <form action={issueAction}>
+            <input type="hidden" name="email" value={email} />
+            <button
+              disabled={issuing || verifying}
+              className="min-h-11 font-semibold text-brand-700"
+            >
+              {issuing ? 'Sending…' : 'Resend code'}
+            </button>
+          </form>
+        </div>
+        {(issueState.error || issueState.errors?.email) && (
+          <p role="alert" className="text-sm text-danger">
+            {issueState.errors?.email || issueState.error}
+          </p>
+        )}
+      </OtpDialog>
     </div>
   );
 }

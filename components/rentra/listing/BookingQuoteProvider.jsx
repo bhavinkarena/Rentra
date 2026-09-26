@@ -20,6 +20,7 @@ export default function BookingQuoteProvider({ rentableId, defaultDate, defaultS
     mode: 'single',
     anchor: null,
   });
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [identity, setIdentity] = useState(null);
   const [loginError, setLoginError] = useState(null);
   const [notice, setNotice] = useState('');
@@ -160,6 +161,8 @@ export default function BookingQuoteProvider({ rentableId, defaultDate, defaultS
     <Context.Provider
       value={{
         ...selection,
+        calendarOpen,
+        setCalendarOpen,
         rentableId,
         date: dates[0] ?? '',
         selectionReady: Boolean(identity),

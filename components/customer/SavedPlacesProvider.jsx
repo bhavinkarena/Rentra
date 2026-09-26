@@ -46,6 +46,7 @@ export function signalSavedChange() {
 export default function SavedPlacesProvider({ children }) {
   const pathname = usePathname();
   const [state, setState] = useState(null);
+  const [identity, setIdentity] = useState(null);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
   const [undo, setUndo] = useState(null);
@@ -63,6 +64,7 @@ export default function SavedPlacesProvider({ children }) {
         const actor = await loadSavedPlaces();
         if (epoch !== generation.current) return;
         if (actor.error) throw new Error(actor.error);
+        setIdentity({ mode: actor.mode, profile: actor.profile });
         if (lastScope.current !== actor.scope) {
           lastScope.current = actor.scope;
           try {
@@ -135,6 +137,7 @@ export default function SavedPlacesProvider({ children }) {
     window.addEventListener('storage', changed);
     window.addEventListener('focus', refresh);
     window.addEventListener('rentra-saved-changed', refresh);
+    window.addEventListener('rentra-profile-changed', refresh);
     document.addEventListener('visibilitychange', hidden);
     return () => {
       clearTimeout(timer);
@@ -142,6 +145,7 @@ export default function SavedPlacesProvider({ children }) {
       window.removeEventListener('storage', changed);
       window.removeEventListener('focus', refresh);
       window.removeEventListener('rentra-saved-changed', refresh);
+      window.removeEventListener('rentra-profile-changed', refresh);
       document.removeEventListener('visibilitychange', hidden);
     };
   }, [refresh]);
@@ -247,7 +251,16 @@ export default function SavedPlacesProvider({ children }) {
   };
   return (
     <Context.Provider
-      value={{ ...current, ready: Boolean(current), busy, error, refresh, change, undo: restore }}
+      value={{
+        ...identity,
+        ...current,
+        ready: Boolean(current),
+        busy,
+        error,
+        refresh,
+        change,
+        undo: restore,
+      }}
     >
       {children}
       {error && pathname !== '/saved' ? (
