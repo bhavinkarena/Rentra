@@ -20,12 +20,13 @@ import {
   ShieldCheck,
   Star,
   TriangleAlert,
+  Users,
 } from 'lucide-react';
 import { RentraLogo, RentraMark } from '@/components/rentra/Logo';
 import NavDrawer from '@/components/portal/NavDrawer';
 
 // Grouped per the CP02 navigation plan. Only delivered destinations appear;
-// later groups (People, Properties, Audit, Settings) arrive with their parts.
+// later groups (Properties, Audit, Settings) arrive with their parts.
 const NAV_GROUPS = [
   {
     label: 'Work queues',
@@ -37,6 +38,12 @@ const NAV_GROUPS = [
         exact: true,
         capability: 'admin.applications.read',
       },
+    ],
+  },
+  {
+    label: 'People',
+    items: [
+      { href: '/admin/clients', label: 'Clients', icon: Users, capability: 'admin.clients.read' },
     ],
   },
   {
@@ -103,6 +110,7 @@ function routeLabel(pathname) {
   if (pathname.startsWith('/admin/applications/')) return 'Application review';
   if (pathname.startsWith('/admin/bookings/')) return 'Booking record';
   if (pathname.startsWith('/admin/support/')) return 'Support request';
+  if (pathname.startsWith('/admin/clients/')) return 'Client';
   const item = NAV_GROUPS.flatMap((group) => group.items).find(
     (entry) => pathname === entry.href || pathname.startsWith(`${entry.href}/`),
   );

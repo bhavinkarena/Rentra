@@ -84,7 +84,7 @@ export default function PropertyTable({
   return (
     <>
       <div
-        className="hidden overflow-x-auto md:block"
+        className="relative hidden overflow-x-auto md:block"
         tabIndex={0}
         role="region"
         aria-label="Properties table"

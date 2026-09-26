@@ -1,6 +1,6 @@
 # Rentra client and Super Admin session roadmap
 
-Planning date: 26 September 2026. **Implementation: 2/32 parts complete. Next: CP03.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration.
+Planning date: 26 September 2026. **Implementation: 3/32 parts complete. Next: CP04.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is **not yet applied** to the configured database; run `npm run db:migrate` before using the admin client pages.
 
 Read the [requirements plan](rentra-client-admin-plan.md) and [source-backed gap audit](rentra-client-admin-ui-audit.md) together with this roadmap. These CP numbers are a new workstream; they do not replace customer Parts 01–22 or change their completion claims. Client means the existing owner/authorized-agent portal.
 
@@ -10,13 +10,13 @@ One part is the target for one implementation session, including its meaningful 
 
 Each part owns its end-to-end slice: necessary Express API/service/schema changes, frontend integration, server-side permissions, persisted loading/error/success behavior, and regression evidence. Reuse existing foundations. Routes and models in the requirements plan are proposals until implemented. Never bypass the backend by adding direct frontend database access.
 
-CP01 and CP02 are **COMPLETE**. All other parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
+CP01–CP03 are **COMPLETE**. All other parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
 
 | Part | Session scope | Dependencies | Status |
 | --- | --- | --- | --- |
 | CP01 | Access, capabilities and session revocation | Current auth baseline | COMPLETE |
 | CP02 | Shared portal interaction foundations | CP01 | COMPLETE |
-| CP03 | Client directory, detail and lifecycle | CP01–02 | PLANNED |
+| CP03 | Client directory, detail and lifecycle | CP01–02 | COMPLETE |
 | CP04 | Customer directory and account controls | CP01–02 | PLANNED |
 | CP05 | Gate 1 application review | CP03 | PLANNED |
 | CP06 | Gate 2 property review | CP03, CP05 | PLANNED |
@@ -78,6 +78,8 @@ The sequence favors closing the missing property approval workflow early. Indepe
 **Deliver:** Searchable, paginated client directory and detail with profile, onboarding status, linked properties/bookings and lifecycle history. Implement explicit suspension/reinstatement commands with reason, impact preview and concurrency protection. Apply CP01's fulfillment policy; show upcoming obligations and a safe resolution path. Reserve financial/team tabs for their later real integrations.
 
 **Gate:** Suspend and reinstate through the UI and direct API, verify permission changes, stale-version conflicts and upcoming-booking visibility. Acceptance: CA01–03, CA19, CA21. Do not implement property ownership transfer as an unguarded owner-ID edit; list it as unavailable until historical attribution is preserved.
+
+**Gate passed — 26 September 2026:** a disposable-PostgreSQL service test and a 35-check browser/API gate passed. They covered the directory with authoritative counts, URL-backed search/filter and mobile layout, and client detail with upcoming visits and an impact preview. UI suspend and reinstate each committed once with a reason and audit entry. The client's session ended on the next request, and the owner's listing left and returned to public pages while the upcoming visit stayed confirmed. A second admin's stale view got 409 with reload, and a concurrent race let exactly one command win. Direct API: 401 for anonymous and client cookies, 403 for a read-only operator writing, 422 for a missing reason, 409 for stale or invalid transitions. Reinstatement restores the pre-suspension status. axe found no serious/critical issues; backend and frontend checks passed. Ownership transfer is listed as unavailable. [CP03 handoff and API contract](rentra-client-admin-part03.md).
 
 ### CP04 — Admin customer directory and account controls
 
@@ -271,6 +273,6 @@ Update this table and the audit dispositions only when the evidence supports the
 
 ## Prompt for the next implementation session
 
-> Start CP03 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP02 handoffs, inspect current frontend/backend changes and applicable repository instructions, then implement only CP03's end-to-end scope. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
+> Start CP04 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP03 handoffs, inspect current frontend/backend changes and applicable repository instructions, then implement only CP04's end-to-end scope. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
 
-Replace CP03 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.
+Replace CP04 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.

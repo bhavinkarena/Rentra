@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Check, X, AlertTriangle } from 'lucide-react';
 import { requireAdmin } from '@/lib/api/session';
 import { adminApi } from '@/lib/api/endpoints';
@@ -34,7 +35,13 @@ export default async function ApplicationReviewPage({ params }) {
           </p>
           <h1 className="mt-1 text-h1">{app.legalName || user.email}</h1>
           <p className="mt-2 text-meta text-ink-500">
-            Review identity, payout details, consent, and submitted evidence.
+            Review identity, payout details, consent, and submitted evidence.{' '}
+            <Link
+              href={`/admin/clients/${user.id}`}
+              className="font-semibold text-brand-700 hover:underline"
+            >
+              Open client record →
+            </Link>
           </p>
         </div>
         <span

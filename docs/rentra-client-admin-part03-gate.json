@@ -1,0 +1,177 @@
+[
+ {
+  "check": "directory loads with filters 1280px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "search finds seeded client 1280px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "no horizontal page overflow 1280px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "axe WCAG A/AA serious/critical: /admin/clients 1280px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "detail breadcrumb returns to filtered list 1280px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "upcoming visit listed for fulfillment",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "impact preview names upcoming visits and live listings",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "ownership transfer shown as unavailable",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "axe WCAG A/AA serious/critical: /admin/clients/[id] 1280px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "directory loads with filters 390px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "search finds seeded client 390px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "no horizontal page overflow 390px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "axe WCAG A/AA serious/critical: /admin/clients 390px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "detail breadcrumb returns to filtered list 390px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "public listing reachable while active",
+  "pass": true,
+  "detail": "200"
+ },
+ {
+  "check": "UI suspend commits and reports new status",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "history records suspension with reason",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "panel now offers reinstatement",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "suspended client's session ends on next request",
+  "pass": true,
+  "detail": "http://localhost:3100/partner/login?session=ended"
+ },
+ {
+  "check": "suspended owner's listing leaves public pages",
+  "pass": true,
+  "detail": "200"
+ },
+ {
+  "check": "stale UI command answers conflict",
+  "pass": true,
+  "detail": "This account changed after you reviewed it. Reload to see the current status and impact.\n\nReload current status"
+ },
+ {
+  "check": "reload shows current state (reinstate offered)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "API: anonymous command is 401",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "API: client cookie on admin API is 401",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "API: clients.read admin cannot reinstate (403)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "API: clients.read admin can read detail",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "API: records-only admin cannot read clients (403)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "API: missing reason is 422",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "API: stale version is 409",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "API: suspend of already suspended is 409",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "API: unknown client is 404",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "UI reinstate returns account to active",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "listing public again after reinstatement",
+  "pass": true,
+  "detail": "200"
+ },
+ {
+  "check": "unknown client id shows not-found",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "People > Clients in admin navigation",
+  "pass": true,
+  "detail": ""
+ }
+]

@@ -24,7 +24,6 @@ const DECIDED_MESSAGE = {
   more_info: 'Sent back with questions. Not counted as a strike.',
   rejected: 'Rejected. They can correct it and resubmit.',
   blocked: 'Rejected and blocked — third strike. Only a manual appeal reopens it.',
-  suspended: 'Client suspended. Confirmed bookings are still honoured.',
 };
 
 export default async function AdminQueuePage({ searchParams }) {

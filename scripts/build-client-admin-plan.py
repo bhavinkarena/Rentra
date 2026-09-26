@@ -105,6 +105,20 @@ DELIVERED = {
       <li>Pages outside the representative flows still use the route-level error fallback, which cannot tell forbidden from outage.</li>
       <li>Fixture database without PostGIS: maps and geo search were not under test.</li>
       <li>No human screen-reader pass and no hosted environment.</li></ul></div>''',
+    "CP03": '''<div class="card"><span class="num">CP03 · complete</span><h3>Admin client directory and lifecycle</h3><p>New backend API and admin screens:</p>
+      <ul><li><code>GET /admin/clients</code> (search, status, authoritative counts, pagination), <code>GET /admin/clients/:id</code> and <code>/lifecycle-preview</code>; <code>POST …/suspend</code> and <code>…/reinstate</code> with reason and <code>expectedVersion</code>.</li>
+      <li>Migration <code>0023_client_lifecycle</code>: <code>user.lifecycle_version</code>, bumped only by lifecycle commands; stale or invalid transitions answer 409.</li>
+      <li>One transaction per command: lock, version and transition check, update, admin audit with reason and impact; CP01 trigger revokes sessions.</li>
+      <li>Suspended owner = no new business: every public listing read uses one “live and owner active” predicate; upcoming visits stay confirmed and are listed for admin fulfillment.</li>
+      <li>Reinstatement restores the recorded pre-suspension status; blocked accounts stay with application review.</li>
+      <li>Unguarded <code>POST /admin/clients/suspend</code> removed. People → Clients navigation.</li></ul>
+      <p class="small"><strong>Gate passed — 26 September 2026:</strong> disposable-DB service test plus a <strong>35/35</strong> browser/API gate: directory 1280/390px, detail with upcoming visits and impact preview, UI suspend/reinstate with audit, the client session ending, and public listing hide/return. Also: a stale second-admin view (409 + reload), a concurrent race with one winner, and 401/403/422/409/404 on the direct API; axe clean. Backend 77 pass / 2 skipped without the disposable URL; frontend tests, lint and build pass; CP02 gate regression passed. <strong>Migration 0023 is not yet applied</strong> to the configured database. <a href="rentra-client-admin-part03.md">Handoff, API contract and runbook ↗</a></p></div>
+    <div class="card"><span class="num">CP03 · explicitly not delivered</span><h3>Limits recorded at the gate</h3>
+      <ul><li>No profile corrections, verification requests, archive/retention or session revocation without suspension (CP04/CP26/CP27).</li>
+      <li>Statements, payouts and team tabs are placeholders (CP16, CP21–CP22).</li>
+      <li>Ownership transfer is listed as unavailable; there is no owner-ID edit.</li>
+      <li>Legacy visits without a booking order show without a record link.</li>
+      <li>No hosted environment or human screen-reader pass.</li></ul></div>''',
 }
 missing = [key for key, status in statuses.items() if status == "COMPLETE" and key not in DELIVERED]
 assert not missing, f"Add DELIVERED cards for {missing}"
