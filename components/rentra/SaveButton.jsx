@@ -13,9 +13,10 @@ const serverSnapshot = () => false;
 
 /**
  * @param {object} props
- * @param {'overlay'|'inline'} [props.variant] `overlay` is the heart floating
+ * @param {'overlay'|'inline'|'icon'} [props.variant] `overlay` is the heart floating
  *   on a card photo. `inline` is the labelled control in a listing's title
- *   block, where it sits next to Share and needs a visible word.
+ *   block, where it sits next to Share and needs a visible word. `icon` is the
+ *   round heart in the booking card's header, where every pixel of height counts.
  */
 export default function SaveButton({
   rentableId,
@@ -67,6 +68,29 @@ export default function SaveButton({
       >
         <Heart className={`size-4 ${saved ? 'fill-danger text-danger' : ''}`} aria-hidden="true" />
         {busy ? <RentraLoader label="Updating saved place" /> : saved ? 'Saved' : 'Save'}
+      </button>
+    );
+  }
+
+  if (variant === 'icon') {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        aria-pressed={saved}
+        disabled={disabled}
+        title={error ?? (saved ? 'Saved' : 'Save')}
+        aria-label={label}
+        className="grid size-11 shrink-0 place-items-center rounded-full border border-border bg-card transition hover:border-brand-300 hover:bg-brand-50"
+      >
+        {busy ? (
+          <RentraLoader label="Updating saved place" />
+        ) : (
+          <Heart
+            className={`size-4.5 ${saved ? 'fill-danger text-danger' : 'text-ink-700'}`}
+            aria-hidden="true"
+          />
+        )}
       </button>
     );
   }

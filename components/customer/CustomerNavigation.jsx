@@ -29,10 +29,12 @@ export default function CustomerNavigation({ authenticated = false, compact = fa
               ? 'page'
               : undefined
           }
-          className="inline-flex min-h-11 items-center gap-2 rounded-full px-2.5 hover:bg-brand-50 aria-[current=page]:bg-brand-50 aria-[current=page]:text-brand-800 sm:px-3"
+          title={label}
+          className="inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full hover:bg-brand-50 aria-[current=page]:bg-brand-50 aria-[current=page]:text-brand-800 sm:px-3"
         >
-          <Icon className="size-[18px]" aria-hidden="true" />
-          <span className="max-[380px]:sr-only">{label}</span>
+          <Icon className="size-4.5" aria-hidden="true" />
+          {/* Phones get the icon row; the words return once they fit beside the logo. */}
+          <span className="max-sm:sr-only">{label}</span>
         </Link>
       ))}
       {customer ? (

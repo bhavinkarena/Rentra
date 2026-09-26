@@ -419,7 +419,10 @@ export function BookingDetail({ record, base = '/bookings', operational = false 
             ))}
           </ul>
         </section>
-        <section className="rounded-2xl border border-border bg-card p-5 sm:p-7 [&_h2]:mb-4 [&_p]:leading-relaxed">
+        <section
+          id="getting-there"
+          className="scroll-mt-24 rounded-2xl border border-border bg-card p-5 sm:p-7 [&_h2]:mb-4 [&_p]:leading-relaxed"
+        >
           <h2 className="flex items-center gap-2 text-h3">
             <MapPin className="size-5 text-brand-700" />
             Getting there

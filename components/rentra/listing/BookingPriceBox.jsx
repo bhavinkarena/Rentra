@@ -1,20 +1,15 @@
 'use client';
 import { useState } from 'react';
 import { Popover } from 'radix-ui';
-import { ChevronDown, Minus, Plus, ShieldCheck } from 'lucide-react';
+import { ChevronDown, Minus, Plus } from 'lucide-react';
 import { useBookingQuote } from './BookingQuoteProvider';
 import { formatINRMinor } from '@/lib/domain/booking-money';
 import { SLOTS } from '@/lib/domain/pricing';
+import { clockTime, localDay, shortDay } from '@/lib/domain/checkout-display';
 import SaveButton from '@/components/rentra/SaveButton';
+import { SLOT_ICONS } from '@/components/rentra/slot-icons';
 import QuoteSummary from './QuoteSummary';
 
-const shortDate = (date) =>
-  new Intl.DateTimeFormat('en-GB', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    timeZone: 'Asia/Kolkata',
-  }).format(new Date(date));
 export default function BookingPriceBox({
   rentableId,
   listingTitle,
@@ -35,48 +30,55 @@ export default function BookingPriceBox({
   return (
     <div
       id="booking-summary"
-      className="scroll-mt-24 rounded-2xl border border-border bg-card p-5 shadow-[0_12px_32px_-16px_rgba(0,0,0,0.25)] sm:p-6"
+      className="scroll-mt-24 rounded-2xl border border-border bg-card p-5 shadow-[0_12px_32px_-16px_rgba(0,0,0,0.25)]"
     >
       <h2 className="sr-only">Price for your visit</h2>
-      <div className="mb-6">
-        <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-          {!quote && basePrice !== null && <span className="text-sm text-ink-500">From</span>}
-          <span className="text-3xl font-bold tracking-tight text-ink-900">
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            {!quote && basePrice !== null && <span className="text-sm text-ink-500">From</span>}
+            <span className="text-3xl font-bold tracking-tight text-ink-900">
+              {quote
+                ? formatINRMinor(quote.totals.totalMinor)
+                : basePrice !== null
+                  ? formatINRMinor(basePrice)
+                  : 'Choose dates'}
+            </span>
+            <span className="text-sm text-ink-600">
+              {quote
+                ? ` / ${dates.length} visit${multiple ? 's' : ''}`
+                : ` / ${SLOTS[slot]?.label.toLowerCase() ?? 'visit'}`}
+            </span>
+          </p>
+          <p className="mt-1 text-xs text-ink-500">
             {quote
-              ? formatINRMinor(quote.totals.totalMinor)
-              : basePrice !== null
-                ? formatINRMinor(basePrice)
-                : 'Choose dates'}
-          </span>
-          <span className="text-sm text-ink-600">
-            {quote
-              ? ` / ${dates.length} visit${multiple ? 's' : ''}`
-              : ` / ${SLOTS[slot]?.label.toLowerCase() ?? 'visit'}`}
-          </span>
-        </p>
-        <p className="mt-1 text-xs text-ink-500">
-          {quote
-            ? 'Includes platform fee · refundable deposit separate'
-            : 'Base rent · final price depends on dates and guests'}
-        </p>
+              ? 'Includes platform fee'
+              : 'Base rent · final price depends on dates and guests'}
+          </p>
+        </div>
+        <SaveButton rentableId={rentableId} listingTitle={listingTitle} variant="icon" />
       </div>
       <div
         className="mb-3 flex gap-1 rounded-lg bg-ink-50 p-1"
         role="group"
         aria-label="Booking visit type"
       >
-        {Object.values(SLOTS).map((item) => (
-          <button
-            type="button"
-            key={item.id}
-            disabled={!selectionReady || !prices?.[item.id]}
-            aria-pressed={slot === item.id}
-            onClick={() => setSlot(item.id)}
-            className="min-h-10 flex-1 rounded-md px-2 text-xs font-semibold text-ink-600 transition aria-pressed:bg-white aria-pressed:text-brand-800 aria-pressed:shadow-sm disabled:opacity-40"
-          >
-            {item.label}
-          </button>
-        ))}
+        {Object.values(SLOTS).map((item) => {
+          const Icon = SLOT_ICONS[item.id];
+          return (
+            <button
+              type="button"
+              key={item.id}
+              disabled={!selectionReady || !prices?.[item.id]}
+              aria-pressed={slot === item.id}
+              onClick={() => setSlot(item.id)}
+              className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-md px-1.5 text-xs font-semibold text-ink-600 transition aria-pressed:bg-white aria-pressed:text-brand-800 aria-pressed:shadow-sm disabled:opacity-40"
+            >
+              <Icon className="size-3.5 shrink-0" aria-hidden="true" />
+              {item.label}
+            </button>
+          );
+        })}
       </div>
       <div className="rounded-xl border border-ink-300">
         <button
@@ -87,44 +89,54 @@ export default function BookingPriceBox({
           aria-label="Choose arrival and departure dates"
           className="grid w-full grid-cols-2 rounded-t-xl text-left transition hover:bg-brand-50 disabled:opacity-50"
         >
-          <span className="min-w-0 border-r border-ink-300 px-4 py-3">
+          <span className="min-w-0 border-r border-ink-300 px-4 py-2.5">
             <span className="block text-[11px] font-bold uppercase">
               {multiple ? 'Visit dates' : 'Arrival'}
             </span>
-            <span className="mt-1 block text-sm">
+            <span className="mt-0.5 block truncate text-sm">
               {multiple
                 ? `${dates.length} dates selected`
                 : first
-                  ? shortDate(first.startsAt)
+                  ? shortDay(first.startsAt, quote.timeZone)
                   : dates[0]
-                    ? shortDate(dates[0])
+                    ? localDay(dates[0])
                     : 'Add date'}
             </span>
+            {!multiple && first ? (
+              <span className="block text-xs text-ink-500">
+                {clockTime(first.startsAt, quote.timeZone)}
+              </span>
+            ) : null}
           </span>
-          <span className="min-w-0 px-4 py-3">
+          <span className="min-w-0 px-4 py-2.5">
             <span className="block text-[11px] font-bold uppercase">
               {multiple ? 'Visit schedule' : 'Departure'}
             </span>
-            <span className="mt-1 block text-sm">
+            <span className="mt-0.5 block truncate text-sm">
               {multiple
                 ? 'View each visit'
                 : first
-                  ? shortDate(first.endsAt)
+                  ? shortDay(first.endsAt, quote.timeZone)
                   : dates[0]
                     ? 'Checking hours…'
                     : 'Add date'}
             </span>
+            {!multiple && first ? (
+              <span className="block text-xs text-ink-500">
+                {clockTime(first.endsAt, quote.timeZone)}
+              </span>
+            ) : null}
           </span>
         </button>
         <Popover.Root open={guestsOpen} onOpenChange={setGuestsOpen}>
           <Popover.Trigger
             disabled={!selectionReady}
-            className="flex min-h-18 w-full items-center justify-between rounded-b-xl border-t border-ink-300 px-4 py-3 text-left hover:bg-brand-50 disabled:opacity-50"
+            className="flex min-h-14 w-full items-center justify-between rounded-b-xl border-t border-ink-300 px-4 py-2.5 text-left hover:bg-brand-50 disabled:opacity-50"
             aria-label={`Guests per visit: ${guests}`}
           >
             <span>
               <span className="block text-[11px] font-bold uppercase">Guests per visit</span>
-              <span className="mt-1 block text-sm">
+              <span className="mt-0.5 block text-sm">
                 {guests} guest{guests === 1 ? '' : 's'}
               </span>
             </span>
@@ -182,16 +194,6 @@ export default function BookingPriceBox({
         </Popover.Root>
       </div>
       <QuoteSummary compact onChooseDates={() => setCalendarOpen(true)} />
-      <div
-        id="booking-save"
-        className="mt-4 flex items-center justify-between border-t border-border pt-4"
-      >
-        <span className="inline-flex items-center gap-1.5 text-xs text-ink-500">
-          <ShieldCheck className="size-4" />
-          Review before payment
-        </span>
-        <SaveButton rentableId={rentableId} listingTitle={listingTitle} variant="inline" />
-      </div>
     </div>
   );
 }

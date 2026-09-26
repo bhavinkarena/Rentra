@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { customerApi, bookingApi } from '@/lib/api/endpoints';
 import { ApiError } from '@/lib/api/client';
 import Checkout from '@/components/customer/Checkout';
-export const metadata = { title: 'Test booking status' };
+export const metadata = { title: 'Your test booking' };
 export default async function CheckoutPage({ params }) {
   await customerApi.account();
   const { orderId } = await params;

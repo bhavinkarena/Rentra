@@ -71,3 +71,107 @@ tile provider, configure `NEXT_PUBLIC_MAP_TILE_URL` and
 `NEXT_PUBLIC_MAP_ATTRIBUTION` before building the frontend. Do not use a secret
 key in either public variable. Leaflet interaction API:
 [official reference](https://leafletjs.com/reference).
+
+Map verification (2026-09-26, completing the interrupted session): the fixture
+browser check passed for desktop and 390px mobile, zoom, expanded-map dialog
+with Escape and focus return, no horizontal overflow, tile failure with retry,
+and zero automated axe WCAG 2 A/AA violations. The live backend already returns
+`approximateLocation` and the live listing page renders the new map.
+
+## Checkout and confirmation redesign
+
+`/checkout/review/[quoteId]` ("Confirm your booking") and `/checkout/[orderId]`
+("Complete your payment" / "You're all set!") share `components/customer/Checkout.jsx`.
+Only presentation changed; hold, payment, verification, polling and recovery
+calls are the same.
+
+Research references (patterns, not copies):
+
+- Airbnb confirm-and-pay: two columns, sticky price card, "Your trip" rows with
+  Edit, one-line cancellation summary, consent next to the final button, and
+  "You won't be charged yet" under the listing button.
+- Booking.com: Review → Pay → Confirmed step bar, a shaded "pay now" band, a
+  copyable booking number and icon rows on the confirmation, and a sticky
+  mobile price-and-button bar.
+- MakeMyTrip post-booking redesign: icon-led cards, and a cancellation
+  _timeline_ instead of paragraphs.
+- Ticketmaster: the hold timer stays visible throughout checkout.
+- Baymard: the review page is a summary of known facts with no new fees, the
+  main button is the most prominent element, and it says what happens next.
+- WCAG 2.2.1 / UK DWP: warn before a time limit ends and explain what to do after.
+- India's CCPA dark-pattern guidelines (2023): no false urgency (the timer is
+  the real server hold) and no drip pricing (the deposit is shown before payment).
+
+Decisions:
+
+- Review: a stepper, a hold timer pinned in the sticky summary card (header on
+  phones), trip facts as icon rows, a visit tile per date, and a price card that
+  separates Total, Pay now, Remaining and the refundable deposit. The
+  cancellation policy is a refund ladder computed from `CANCELLATION_TIERS` for
+  the first visit. House rules get keyword icons. Purpose has quick-pick chips
+  and a 0/160 counter. The consent tick-box names the deposit amount.
+  The button stays enabled; native validation points at what is missing.
+- Payment: one status banner per state (held, failed, pending, time up, expired,
+  cancelled, updated, needs resolution) with a single obvious next action. The
+  Pay button says the amount and that it opens Razorpay. Each button shows its
+  own progress rather than every button spinning at once.
+- Confirmation: a self-drawing tick, the test-mode badge, a copyable reference,
+  a stay card, four icon quick actions (booking, calendar, arrival details, help),
+  "What happens next", payment summary and the next refund deadline. It no
+  longer offers "request a fresh quote" after payment.
+- Phones: a compact property row at the top, price after the trip details,
+  and a sticky bar (amount, total, time left, action) shown only while the
+  in-page action is scrolled away.
+- Dates and times come from numeric Intl parts plus fixed English names, so
+  the server render and every browser agree (no "Sep"/"Sept" hydration errors).
+
+Fixes found while testing:
+
+- Razorpay button stuck on "Loading secure payment" after Reserve: the review
+  page briefly renders the checkout script before navigating, and `next/script`
+  then wires only `onLoad` (not `onReady`) on the payment page. The script now
+  sets readiness from both callbacks. This race predates the redesign.
+- Razorpay `timeout` is set to the seconds left on the hold, so its window
+  closes when the dates would be released.
+- Customer header overflowed at 381–480px widths; phones now show the logo mark
+  and icon-only navigation with accessible names and tooltips.
+
+Backend: the checkout review response adds public `photo`, `area`, `rating` and
+`reviewCount` (the same allowlist a browsing guest sees). No migration. The
+frontend falls back to a placeholder when these fields are absent, so either
+app can be deployed first.
+
+## Listing booking box (height and consent)
+
+Reference feedback: the button belongs after the price calculation, the box
+should fit on a laptop screen, the date mode needs a proper dropdown and the
+deposit note needs a proper tick-box.
+
+- Order is now price → visit type → dates and guests → breakdown → deposit
+  tick-box → "Review booking" → "You won't be charged yet".
+- The tick-box replaces the separate "Review booking" click (it records the
+  exact quote reviewed; any price, date or guest change clears it). Clicking the
+  button without it shows an inline prompt and focuses the box. Guests who must
+  log in first are not asked twice.
+- Save became a heart icon in the header (Save and Share remain in the title
+  block). Date fields show weekday and hours, so a single visit needs no extra
+  row. "1 visit selected" is announced by the calendar instead of shown.
+- Height with a quote went from 825px to 598px (desktop, 1440px viewport).
+- Date mode is a Radix Select listbox with an icon, name and hint per option:
+  keyboard arrows, typeahead and Escape work, and Escape does not close the calendar.
+
+Verification (isolated API fixtures, real Chrome):
+
+- 12 checkout states × desktop and 390px mobile rendered with no page errors,
+  hydration warnings or horizontal overflow.
+- End-to-end: purpose chip → tick → hold → payment page with the Pay button
+  ready, status check, copy reference, quick-action links, legacy API response
+  and the incomplete-profile state.
+- Automated axe WCAG 2 A/AA and 2.1 AA: zero violations on all ten checkout
+  states, the profile step and the phone booking sheet.
+- Listing box: dropdown by mouse, keyboard and Escape; tick-box gating and reset;
+  navigation; phone sheet.
+- Frontend: 15 unit tests (5 new for checkout helpers), lint, Prettier and
+  production build passed. Backend: 71 tests and lint passed. The new review
+  query was run against a throwaway local Postgres with the same columns; it was
+  not run against the hosted database.

@@ -9,7 +9,9 @@ import { ChevronLeft, ChevronRight, Info, X, CalendarDays } from 'lucide-react';
 
 import { SLOTS } from '@/lib/domain/pricing';
 import { propertyToday } from '@/lib/domain/booking-dates';
+import { SLOT_ICONS } from '@/components/rentra/slot-icons';
 import { useBookingQuote } from './BookingQuoteProvider';
+import DateModeSelect from './DateModeSelect';
 import { toISODate, parseISODate, formatDayLabel } from './booking-state';
 
 /**
@@ -169,33 +171,26 @@ export default function AvailabilityPicker({ code, prices, nextDates }) {
             ) : null}
             <div className="mt-5">
               <div role="group" aria-label="Visit type" className="grid grid-cols-3 gap-2">
-                {Object.values(SLOTS).map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    aria-pressed={slot === item.id}
-                    disabled={!prices?.[item.id] || !selectionReady}
-                    onClick={() => setSlot(item.id)}
-                    className={`min-h-11 rounded-md border px-2 text-sm ${slot === item.id ? 'bg-brand-600 text-white' : 'bg-card'} disabled:opacity-40`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
+                {Object.values(SLOTS).map((item) => {
+                  const Icon = SLOT_ICONS[item.id];
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      aria-pressed={slot === item.id}
+                      disabled={!prices?.[item.id] || !selectionReady}
+                      onClick={() => setSlot(item.id)}
+                      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md border px-2 text-sm ${slot === item.id ? 'border-brand-600 bg-brand-600 font-semibold text-white' : 'bg-card hover:border-brand-400'} disabled:opacity-40`}
+                    >
+                      <Icon className="size-4 shrink-0" aria-hidden="true" />
+                      {item.label}
+                    </button>
+                  );
+                })}
               </div>
-              <label className="mt-4 block text-meta font-semibold">
-                Date mode
-                <select
-                  aria-label="Date mode"
-                  value={mode}
-                  disabled={!selectionReady}
-                  onChange={(event) => setMode(event.target.value)}
-                  className="ml-3 min-h-11 rounded-md border border-border bg-card px-3"
-                >
-                  <option value="single">Single date</option>
-                  <option value="consecutive">Consecutive dates</option>
-                  <option value="separate">Separate dates</option>
-                </select>
-              </label>
+              <div className="mt-4">
+                <DateModeSelect value={mode} onValueChange={setMode} disabled={!selectionReady} />
+              </div>
               <p className="mt-2 text-xs text-ink-600">
                 {mode === 'consecutive'
                   ? anchor

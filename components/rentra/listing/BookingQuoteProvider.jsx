@@ -145,7 +145,8 @@ export default function BookingQuoteProvider({ rentableId, defaultDate, defaultS
       const next = pickVisitDate(selection, date);
       setSelection(next);
       setAccepted(null);
-      setNotice(`${next.dates.length} visit${next.dates.length === 1 ? '' : 's'} selected.`);
+      // The calendar announces the running count itself; the price card stays quiet.
+      setNotice('');
     } catch (error) {
       setNotice(error.message);
     }
@@ -181,6 +182,7 @@ export default function BookingQuoteProvider({ rentableId, defaultDate, defaultS
         },
         accepted: Boolean(quote && accepted === fingerprint),
         accept: () => setAccepted(fingerprint),
+        unaccept: () => setAccepted(null),
         pickDate: pick,
         removeDate: (date) => update((s) => removeVisitDate(s, date)),
         setMode: (mode) => update((s) => changeVisitMode(s, mode)),

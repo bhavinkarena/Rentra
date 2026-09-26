@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { RentraLogo } from '@/components/rentra/Logo';
+import { RentraLogo, RentraMark } from '@/components/rentra/Logo';
 import CustomerNavigation from '@/components/customer/CustomerNavigation';
 import { requireCustomer } from '@/lib/api/session';
 
@@ -16,8 +16,9 @@ export default async function CustomerLayout({ children }) {
       </a>
       <header className="border-b border-border bg-background">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3">
-          <Link href="/" aria-label="Rentra home">
-            <RentraLogo className="h-7 w-auto" />
+          <Link href="/" aria-label="Rentra home" className="shrink-0">
+            <RentraLogo className="hidden h-7 w-auto sm:block" />
+            <RentraMark className="size-8 sm:hidden" />
           </Link>
           <CustomerNavigation authenticated compact profile={{ name: user.name }} />
         </div>
