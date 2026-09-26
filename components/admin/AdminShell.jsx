@@ -105,7 +105,7 @@ function NavigationLink({ item, pathname, onNavigate }) {
   );
 }
 
-function Navigation({ pathname, onNavigate }) {
+function Navigation({ pathname, onNavigate, capabilities }) {
   return (
     <nav className="mt-8 space-y-7" aria-label="Admin navigation">
       {NAV_GROUPS.map((group) => (
@@ -114,14 +114,24 @@ function Navigation({ pathname, onNavigate }) {
             {group.label}
           </p>
           <div className="space-y-1">
-            {group.items.map((item) => (
-              <NavigationLink
-                key={item.href}
-                item={item}
-                pathname={pathname}
-                onNavigate={onNavigate}
-              />
-            ))}
+            {group.items
+              .filter((item) => {
+                const domain =
+                  item.href === '/admin'
+                    ? 'applications'
+                    : item.href === '/admin/bookings'
+                      ? 'records'
+                      : item.href.split('/').at(-1);
+                return capabilities?.includes(`admin.${domain}.read`);
+              })
+              .map((item) => (
+                <NavigationLink
+                  key={item.href}
+                  item={item}
+                  pathname={pathname}
+                  onNavigate={onNavigate}
+                />
+              ))}
           </div>
         </div>
       ))}
@@ -193,7 +203,7 @@ function SidebarContent({ pathname, admin, logoutAction, onNavigate }) {
         <span className="whitespace-nowrap text-tiny font-semibold text-white/50">admin</span>
       </Link>
 
-      <Navigation pathname={pathname} onNavigate={onNavigate} />
+      <Navigation pathname={pathname} onNavigate={onNavigate} capabilities={admin.capabilities} />
 
       <div className="mt-auto pt-6">
         <div className="mb-3 rounded-lg border border-brand-300/15 bg-brand-300/8 p-3">

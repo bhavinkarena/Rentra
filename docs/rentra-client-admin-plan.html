@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><meta name="robots" content="noindex,nofollow"><meta name="description" content="Rentra client and Super Admin plan: UI gaps, detail pages, data controls and 32 implementation sessions."><title>Rentra — Client & Super Admin plan</title><style>
+    :root{--forest:#1A3529;--green:#2E6449;--hover:#26503C;--sage:#DDEBE2;--pale:#F1F7F3;--paper:#FAFBFA;--white:#FFFFFF;--ink:#171A18;--muted:#5A635D;--line:#DCE1DD;--amber:#A6640F;--amber-bg:#FDF2DE;--blue:#2563A5;--blue-bg:#EAF1F8;--red:#C0362C;--red-bg:#FBEDEC;--radius:20px;--shadow:0 14px 46px #1a35290b}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:90px}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}h1,h2,h3,h4,p{margin:0}h1,h2,h3,h4{line-height:1.18;letter-spacing:-.035em;text-wrap:balance}h1{font-size:clamp(42px,5.8vw,78px);font-weight:650}h2{font-size:clamp(28px,3.2vw,43px);margin:8px 0 18px}h3{font-size:21px;margin:0 0 12px}h4{font-size:17px;margin:0 0 8px}p+p{margin-top:12px}a{color:var(--hover);text-underline-offset:3px}button,input,select{font:inherit}button,a,input,select,summary{-webkit-tap-highlight-color:transparent}:focus-visible{outline:3px solid var(--blue);outline-offset:4px}button{cursor:pointer}button:disabled{cursor:not-allowed}code{font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--pale);padding:2px 5px;border-radius:4px;overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--forest);color:#fff;padding:24px;border-radius:14px;font:12px/1.8 ui-monospace,monospace}pre code{background:none;color:inherit;padding:0}ul,ol{padding-left:21px;margin:12px 0 0}li+li{margin-top:7px}small,.small{font-size:13px;line-height:1.6}.muted{color:var(--muted)}.label{font-size:11px;letter-spacing:.15em;text-transform:uppercase;font-weight:750;color:var(--green)}.skip{position:absolute;top:-70px;left:16px;background:#fff;padding:12px;z-index:99}.skip:focus{top:12px}.wrap{width:min(1180px,calc(100% - 64px));margin:auto}.topbar{position:sticky;top:0;background:#fafbfaed;backdrop-filter:blur(16px);border-bottom:1px solid var(--line);z-index:20}.topbar .wrap{display:flex;align-items:center;min-height:70px;gap:26px}.wordmark{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--forest);font-size:23px;font-weight:750;letter-spacing:-1px}.mark{width:25px;height:29px;background:var(--green);border-radius:14px 14px 6px 6px;position:relative}.mark:after{content:"";position:absolute;width:7px;height:13px;bottom:0;left:9px;background:var(--paper);border-radius:5px 5px 0 0}.topnav{display:flex;gap:6px;margin-left:auto;overflow:auto;white-space:nowrap}.topnav a{padding:8px 12px;font-size:12px;font-weight:650;color:var(--muted);text-decoration:none;border-radius:30px}.topnav a:hover,.topnav a.active{color:var(--green);background:var(--sage)}.button{display:inline-flex;justify-content:center;align-items:center;gap:9px;min-height:44px;padding:10px 18px;background:var(--green);border:1px solid var(--green);border-radius:11px;color:#fff;text-decoration:none;font-size:13px;font-weight:650}.button:hover{background:var(--hover)}.button.secondary{background:var(--white);color:var(--forest);border-color:var(--line)}.button.secondary:hover{background:var(--pale)}.button:disabled{background:#EBEEEB;color:var(--muted);border-color:var(--line)}.hero{padding:76px 0 58px;position:relative;overflow:hidden}.hero-grid{display:grid;grid-template-columns:1.12fr 1fr;gap:64px;align-items:center}.hero h1{margin:21px 0;color:var(--forest);max-width:12ch}.hero h1 em{font-family:Georgia,serif;font-weight:400;color:var(--green)}.hero .intro{font-size:17px;max-width:53ch;color:var(--muted)}.hero .actions{display:flex;gap:10px;flex-wrap:wrap;margin:26px 0}.metadata{font-size:11px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap}.hero-card{background:white;border:1px solid var(--line);border-radius:25px;box-shadow:var(--shadow);padding:15px;transform:rotate(1.5deg)}.scene{width:100%;display:block;border-radius:15px;background:#dce8dc}.hero-card .caption{padding:19px 8px 9px;display:flex;justify-content:space-between;gap:16px}.hero-card h3{font-size:18px;margin-bottom:5px}.hero-card .mini-stats{display:flex;gap:8px;flex-wrap:wrap;padding:10px 8px}.chip{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:6px;background:var(--pale);color:var(--green);font-size:11px;font-weight:650}.chip.amber{background:var(--amber-bg);color:var(--amber)}.chip.blue{background:var(--blue-bg);color:var(--blue)}.chip.red{background:var(--red-bg);color:var(--red)}.hero-card .illustration-label{font-size:10px;color:var(--muted);padding:4px 8px}.principles{background:var(--forest);color:#fff;padding:25px 0}.principles .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:28px}.principles strong{display:block;font-size:14px;margin-bottom:5px}.principles p{font-size:12px;color:#DDEBE2}.doc-layout{display:grid;grid-template-columns:170px minmax(0,1fr);gap:46px}.index{align-self:start;position:sticky;top:96px;padding:39px 0;max-height:calc(100vh - 96px);overflow:auto}.index .label{margin-bottom:14px}.index a{display:block;font-size:12px;text-decoration:none;color:var(--muted);padding:7px 10px;border-left:2px solid transparent}.index a:hover,.index a.active{border-color:var(--green);color:var(--green);background:var(--pale)}.index .divider{border-top:1px solid var(--line);margin:16px 0}.index .progress-label{font-size:11px;margin:10px 0;color:var(--muted)}progress{width:100%;height:6px;accent-color:var(--green);border:0}progress::-webkit-progress-bar{background:var(--line);border-radius:8px}progress::-webkit-progress-value{background:var(--green);border-radius:8px}.section{padding:54px 0;border-bottom:1px solid var(--line)}.section>.lede{color:var(--muted);font-size:16px;max-width:72ch;margin-bottom:25px}.section h3:not(:first-child){margin-top:26px}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:23px}.cards.three{grid-template-columns:repeat(3,minmax(0,1fr))}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px}.card p,.card li{font-size:13px;color:var(--muted)}.card h3{font-size:18px}.card .num{display:block;font:12px ui-monospace,monospace;color:var(--green);margin-bottom:17px}.callout{padding:19px 22px;border-radius:12px;background:var(--pale);border-left:3px solid var(--green);margin:22px 0;font-size:13px}.callout.amber{background:var(--amber-bg);border-color:var(--amber)}.callout.blue{background:var(--blue-bg);border-color:var(--blue)}.callout.red{background:var(--red-bg);border-color:var(--red)}.table-scroll{overflow:auto;margin:23px 0;border:1px solid var(--line);border-radius:12px;background:#fff}table{width:100%;border-collapse:collapse;font-size:12px;min-width:660px}caption{text-align:left;padding:14px 16px;color:var(--muted);font-size:11px}th{text-align:left;padding:12px 15px;background:var(--pale);color:var(--forest);font-weight:700}td{padding:14px 15px;vertical-align:top;border-top:1px solid var(--line)}td strong{display:block;margin-bottom:5px}td ul{margin:0;padding-left:14px}tbody tr:hover{background:#fafbfa}.source-link{font-size:11px;font-weight:650;white-space:nowrap}.journey{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:23px 0}.step{padding:15px;background:#fff;border:1px solid var(--line);border-radius:12px;position:relative}.step span{font:11px ui-monospace,monospace;color:var(--green)}.step h3{font-size:15px;margin:12px 0 8px!important}.step p{font-size:11px;color:var(--muted)}.palette{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:25px 0}.swatch{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}.swatch .paint{height:75px;background:var(--swatch)}.swatch .meta{padding:10px 8px;font-size:10px}.swatch b{display:block;font-size:11px;margin-bottom:3px}.specimen{background:var(--forest);color:white;padding:34px;border-radius:20px;margin:25px 0;display:flex;gap:26px;align-items:center;justify-content:space-between}.specimen h3{font-size:28px;margin:8px 0}.specimen p{font-size:12px;color:var(--sage)}.specimen .button{background:#fff;color:var(--forest);border:0;flex-shrink:0}.preview{border:1px solid var(--line);background:white;border-radius:20px;overflow:hidden;margin-top:26px}.preview-toolbar{background:var(--pale);padding:12px 18px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--green);display:flex;justify-content:space-between;gap:10px}.preview-body{padding:25px}.preview-title{display:flex;justify-content:space-between;align-items:flex-start;gap:15px}.preview-title h3{font-size:27px;margin:0 0 8px!important}.preview-title .tiny-actions{display:flex;gap:7px}.preview-title .button{padding:8px 10px;min-height:44px}.gallery-wire{display:grid;grid-template-columns:1.65fr 1fr;gap:8px;margin:22px 0;border-radius:12px;overflow:hidden}.gallery-wire .scene{border-radius:0;height:225px;object-fit:cover}.gallery-side{display:grid;grid-template-rows:1fr 1fr;gap:8px}.photo-placeholder{display:flex;align-items:flex-end;padding:15px;color:var(--forest);font-size:12px;background:linear-gradient(140deg,#d5e6d6,#ecede2)}.photo-placeholder.pool{background:linear-gradient(130deg,#bddcd4,#e1e8e5)}.detail-columns{display:grid;grid-template-columns:1.25fr 1fr;gap:23px}.detail-summary p{font-size:12px;color:var(--muted)}.detail-summary h4{margin-top:20px}.fact-row{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.booking-card{border:1px solid var(--line);border-radius:14px;padding:19px;background:#fff;box-shadow:0 4px 20px #171a1808}.price{font-size:25px;font-weight:750;letter-spacing:-1px}.price small{font-size:11px;font-weight:400;letter-spacing:0;color:var(--muted)}.price-row{display:flex;justify-content:space-between;gap:12px;font-size:12px;margin:9px 0}.price-row.total{padding-top:12px;border-top:1px solid var(--line);font-weight:700}.full{width:100%}.mock-nav{display:flex;gap:18px;font-size:11px;border-bottom:1px solid var(--line);padding:14px 0;margin-bottom:18px;overflow:auto}.mock-nav span:first-child{color:var(--green);font-weight:700}.prototype{background:#fff;border:1px solid var(--line);border-radius:20px;margin-top:24px;padding:24px}.prototype-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:24px}.segmented{display:flex;gap:5px;background:var(--pale);border:1px solid var(--line);border-radius:10px;padding:4px;margin:15px 0}.segmented button{border:0;background:transparent;color:var(--muted);flex:1;min-height:42px;border-radius:7px;font-size:12px}.segmented button[aria-pressed="true"]{background:var(--green);color:#fff;box-shadow:0 1px 5px #171a180f}.calendar-head{display:flex;justify-content:space-between;margin:17px 0;align-items:center}.calendar-head button{background:white;border:1px solid var(--line);border-radius:8px;width:44px;height:44px}.calendar-head b{font-size:14px}.week,.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.week span{text-align:center;font-size:10px;color:var(--muted);padding:4px}.calendar button,.calendar .blank{min-height:49px;border-radius:7px;border:1px solid transparent}.calendar button{font-size:12px;background:var(--pale);color:var(--ink);padding:4px 1px}.calendar button small{display:block;font-size:8px;color:var(--muted)}.calendar button[aria-pressed="true"]{background:var(--green);color:white}.calendar button[aria-pressed="true"] small{color:white}.calendar button:disabled{background:#F5F7F5;color:#7c857f;text-decoration:line-through}.calendar button:disabled small{text-decoration:none}.calendar-legend{display:flex;gap:15px;flex-wrap:wrap;font-size:10px;color:var(--muted);margin-top:12px}.calendar-legend span:before{content:"";display:inline-block;width:7px;height:7px;border-radius:2px;background:var(--pale);border:1px solid var(--green);margin-right:5px}.calendar-legend .chosen:before{background:var(--green)}.calendar-legend .blocked:before{background:var(--line);border-color:var(--muted)}.field{display:block;font-size:12px;font-weight:650;margin-bottom:6px}.input{width:100%;border:1px solid #6E7871;border-radius:9px;padding:10px;background:#fff;min-height:44px}.selected-list{display:flex;flex-direction:column;gap:7px;margin:13px 0}.date-pill{display:flex;align-items:center;justify-content:space-between;font-size:11px;background:var(--pale);border-radius:8px;padding:5px 7px 5px 10px}.date-pill button{border:0;background:transparent;min-width:38px;min-height:38px;color:var(--green);font-size:17px}.live-message{font-size:12px;min-height:40px;margin-top:12px;color:var(--green)}.demo-confirmation{background:var(--pale);padding:16px;border-radius:12px;margin-top:14px;font-size:12px}.demo-confirmation[hidden]{display:none}.state-flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:white;border:1px solid var(--line);padding:20px;border-radius:12px;margin-top:20px}.state-flow span{font-size:11px;background:var(--pale);padding:8px;border-radius:7px}.state-flow b{color:var(--muted);font-weight:400}.schema-map{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin:23px 0}.schema-node{padding:16px;border:1px solid var(--line);border-radius:12px;background:white;font-size:11px}.schema-node b{font:600 13px ui-monospace,monospace;color:var(--green);display:block;margin-bottom:8px}.schema-node.main{grid-column:1/-1;background:var(--forest);color:var(--sage)}.schema-node.main b{color:white}.phase{margin:16px 0;border:1px solid var(--line);border-radius:15px;background:#fff;overflow:hidden}.phase summary{display:flex;gap:16px;align-items:center;cursor:pointer;padding:21px;list-style:none}.phase summary::-webkit-details-marker{display:none}.phase summary:after{content:"+";font-size:22px;margin-left:auto;color:var(--green)}.phase[open] summary:after{content:"−"}.phase-code{font:700 12px ui-monospace,monospace;padding:10px;background:var(--pale);border-radius:10px;color:var(--green)}.phase summary h3{font-size:18px;margin:0 0 4px!important}.phase summary p{font-size:11px;color:var(--muted)}.phase-body{border-top:1px solid var(--line);padding:5px 24px 22px}.checklist{padding:0;list-style:none}.checklist li{margin:0;border-bottom:1px solid var(--line)}.checklist li:last-child{border:0}.checklist label{display:flex;align-items:flex-start;gap:12px;padding:13px 0;font-size:12px;cursor:pointer}.checklist input{accent-color:var(--green);width:19px;height:19px;flex-shrink:0;margin-top:2px}.checklist label:has(input:checked) span{color:var(--muted);text-decoration:line-through}.gate{margin-top:17px;padding:14px;background:var(--pale);font-size:12px;border-radius:8px}.source-list{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:14px}.source-list li{margin:0;padding:18px;border:1px solid var(--line);background:white;border-radius:12px;font-size:12px;scroll-margin-top:90px}.source-list strong{display:block;font-size:11px;color:var(--green);margin-bottom:7px}.source-list p{font-size:11px;color:var(--muted);margin-top:7px}.footer{padding:40px 0;color:var(--muted);font-size:12px}.footer .wrap{display:flex;justify-content:space-between;gap:25px;flex-wrap:wrap}.no-js{background:var(--amber-bg);padding:15px;margin:20px 0;font-size:13px}.print-button{white-space:nowrap}.only-print{display:none}.print-note{font-size:10px;color:var(--muted);margin-top:8px}
+    @media(min-width:1440px){.wrap{width:min(1320px,calc(100% - 100px))}.doc-layout{grid-template-columns:185px minmax(0,1fr);gap:64px}}
+    @media(max-width:1050px){.topnav a:nth-last-child(-n+2){display:none}.hero-grid{gap:30px}.doc-layout{grid-template-columns:135px minmax(0,1fr);gap:25px}.cards.three{grid-template-columns:1fr 1fr}.prototype-grid{grid-template-columns:1fr}.palette{grid-template-columns:repeat(3,1fr)}.detail-columns{grid-template-columns:1fr}.schema-map{grid-template-columns:1fr 1fr}}
+    @media(max-width:760px){.wrap{width:calc(100% - 34px)}.topbar .wrap{gap:10px;min-height:64px}.wordmark{font-size:20px}.topnav{gap:0}.topnav a{font-size:11px;padding:7px}.topnav a:nth-child(n+3){display:none}.print-button{font-size:11px;padding:7px 9px}.hero{padding:40px 0}.hero-grid{grid-template-columns:1fr;gap:29px}.hero h1{max-width:14ch}.hero-card{transform:none;max-width:500px}.hero-card .scene{max-height:270px}.principles .wrap{grid-template-columns:1fr 1fr;gap:20px}.doc-layout{display:block}.index{display:none}.section{padding:39px 0}.cards,.cards.three{grid-template-columns:1fr}.journey{grid-template-columns:1fr 1fr}.specimen{padding:23px;display:block}.specimen .button{margin-top:16px}.preview-body{padding:17px}.preview-title{display:block}.preview-title .tiny-actions{margin-top:12px}.gallery-wire .scene{height:170px}.gallery-side{font-size:10px}.prototype{padding:15px}.prototype-grid{gap:18px}.schema-map{grid-template-columns:1fr}.source-list{grid-template-columns:1fr}.preview-title h3{font-size:23px}.calendar button,.calendar .blank{min-height:46px}.phase summary{padding:16px}.phase-body{padding:5px 16px 18px}.metadata{font-size:10px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
+    @media print{@page{size:A4;margin:15mm}body{font-size:10pt;background:white;color:#111;-webkit-print-color-adjust:exact;print-color-adjust:exact}.wrap{width:100%;max-width:none}.topbar,.index,.skip,.print-button,.prototype,.tiny-actions,.hero .actions{display:none!important}.doc-layout{display:block}.hero{padding:10px 0 25px}.hero-grid{gap:25px;grid-template-columns:1.2fr 1fr}.hero h1{font-size:36pt}.hero-card{transform:none;box-shadow:none}.principles{padding:18px}.principles .wrap{grid-template-columns:repeat(4,1fr)}.section{padding:25px 0;break-before:auto}.section h2{font-size:23pt;break-after:avoid}h3,h4{break-after:avoid}table{min-width:0;font-size:8pt}th,td{padding:8px}tr,.card,.source-list li,.schema-node,.gate{break-inside:avoid}.table-scroll{overflow:visible}.cards.three{grid-template-columns:1fr 1fr}.palette{grid-template-columns:repeat(6,1fr)}.source-list{grid-template-columns:1fr 1fr}.phase{overflow:visible}.phase-body{display:block!important}.phase:not([open])>div{display:block!important}.phase summary:after{display:none}.only-print{display:block}.footer{padding:20px 0}a{color:var(--forest)}.preview,.specimen{break-inside:avoid}.preview-body{padding:18px}.gallery-wire .scene{height:170px}.detail-columns{grid-template-columns:1.2fr 1fr}}
+  
+.hero h1{max-width:15ch}.hero-card{padding:26px;transform:none}.flow-row{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.hero-card hr{border:0;border-top:1px solid var(--line);margin:24px 0}.hero-card .caption{padding:0}.prose>p,.prose>ul,.prose>ol{margin-bottom:16px}.prose>h3{margin-top:30px}.prose blockquote{margin:20px 0;padding:18px 22px;background:var(--pale);border-left:3px solid var(--green)}.session-card h3{margin-top:0!important}.session-card p+p{margin-top:16px}.session-card{scroll-margin-top:100px}.session-card.complete{border-color:var(--green);box-shadow:inset 3px 0 0 var(--green)}.review-list label{display:flex;gap:12px;padding:12px 0;cursor:pointer}.review-list input{width:20px;height:20px;flex-shrink:0;accent-color:var(--green);margin-top:3px}.mobile-index{display:none}.table-scroll:focus-visible{outline-offset:2px}.prose a,td{overflow-wrap:anywhere}.section{scroll-margin-top:10px}#review-status{margin-top:14px}.hero-card .label{margin-bottom:12px}.footer{border-top:1px solid var(--line);padding:28px 0;color:var(--muted);font-size:12px}
+@media(max-width:760px){.mobile-index{display:block;margin-top:24px;border:1px solid var(--line);padding:16px;border-radius:12px;background:white}.mobile-index nav{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.mobile-index a{font-size:12px}.hero h1{font-size:42px}.hero-card{padding:22px}.session-grid{grid-template-columns:1fr}.topnav a:nth-child(n+3){display:none}}
+@media print{.mobile-index,.review-list input{display:none}.session-grid{display:block}.session-card{margin:14px 0;break-inside:auto}.prose>h3{break-after:avoid}.hero-card{break-inside:avoid}.table-scroll{border-radius:0}thead{display:table-header-group}.section{overflow:visible}.hero h1{font-size:34pt}}
+</style></head><body><a class="skip" href="#main">Skip to the plan</a>
+<div class="topbar"><div class="wrap"><a class="wordmark" href="#top" aria-label="Rentra client and Super Admin plan, top"><span class="mark" aria-hidden="true"></span>rentra</a><nav class="topnav" aria-label="Primary document navigation"><a href="#client">Client</a><a href="#admin">Super Admin</a><a href="#gaps">UI gaps</a><a href="#controls">Data controls</a><a href="#roadmap">Build plan</a></nav><button class="button secondary print-button" id="print-plan" type="button">Print / PDF ↗</button></div></div>
+<header class="hero" id="top"><div class="wrap hero-grid"><div><div class="label">Product blueprint / Client & Super Admin</div><h1>Every property.<br>Every operation.<br><em>A clear next step.</em></h1><p class="intro">A complete plan for the people who run Rentra: client workspaces, Super Admin controls, useful detail pages and the workflows behind them.</p><div class="actions"><a class="button" href="#client">Explore the screens ↗</a><a class="button secondary" href="#roadmap">Go to delivery plan</a></div><div class="metadata"><span>26 September 2026</span><span>Source audit + requirements</span><span>1 of 32 parts complete · Next: CP02</span></div></div>
+<div class="hero-card"><div class="label">Two workspaces. One connected operation.</div><h3>Client / owner & agent</h3><p class="small muted">Understand approval, prepare the property, manage visits and follow every outcome.</p><div class="flow-row"><span class="chip">Submit</span><span class="chip">Prepare</span><span class="chip">Host</span><span class="chip">Reconcile</span></div><hr><h3>Super Admin</h3><p class="small muted">Find the record, inspect the evidence, take the right action and preserve its history.</p><div class="flow-row"><span class="chip blue">Review</span><span class="chip blue">Publish</span><span class="chip blue">Resolve</span><span class="chip blue">Audit</span></div><div class="callout amber"><strong>First operational priority:</strong> close the missing property-review and publication workflow.</div><div class="caption"><span class="small muted">32 source-backed gaps</span><span class="chip">1 of 32 sessions complete</span></div></div></div></header>
+<div class="principles"><div class="wrap"><div><strong>Build on what exists</strong><p>Keep the updated customer experience and current portal foundations.</p></div><div><strong>Detail before action</strong><p>Show relationships, evidence, history and the effect of a change.</p></div><div><strong>Full control, clear history</strong><p>Manage business data through explicit, accountable commands.</p></div><div><strong>Prove each part</strong><p>Separate delivered work, browser review and provider acceptance.</p></div></div></div>
+<div class="wrap"><details class="mobile-index"><summary>Inside this plan</summary><nav aria-label="Mobile document sections"><a href="#baseline">01 / Current app</a><a href="#scope">02 / Product scope</a><a href="#controls">03 / Admin controls</a><a href="#experience">04 / UI &amp; navigation</a><a href="#client">05 / Client screens</a><a href="#admin">06 / Super Admin screens</a><a href="#architecture">07 / Backend &amp; data</a><a href="#acceptance">08 / Acceptance checks</a><a href="#decisions">09 / Business decisions</a><a href="#delivery">10 / Delivery discipline</a><a href="#gaps">11 / Source-backed audit</a><a href="#roadmap">12 / Build plan</a><a href="#review">13 / Your review</a><a href="#sources">14 / Companion documents</a></nav></details></div>
+<div class="wrap doc-layout"><aside class="index"><div class="label">Inside this plan</div><nav aria-label="Document sections"><a href="#baseline">01 / Current app</a><a href="#scope">02 / Product scope</a><a href="#controls">03 / Admin controls</a><a href="#experience">04 / UI &amp; navigation</a><a href="#client">05 / Client screens</a><a href="#admin">06 / Super Admin screens</a><a href="#architecture">07 / Backend &amp; data</a><a href="#acceptance">08 / Acceptance checks</a><a href="#decisions">09 / Business decisions</a><a href="#delivery">10 / Delivery discipline</a><a href="#gaps">11 / Source-backed audit</a><a href="#roadmap">12 / Build plan</a><a href="#review">13 / Your review</a><a href="#sources">14 / Companion documents</a></nav><div class="divider"></div><div class="label">Delivery status</div><p class="progress-label">1 of 32 parts complete · Next: CP02</p><progress max="32" value="1" aria-label="Recorded implementation parts complete"></progress><p class="small muted"><a href="#build-status">Recorded status ↗</a></p><div class="divider"></div><a href="rentra-customer-plan.html">Customer plan ↗</a><a href="rentra-client-admin-sessions.md">Session roadmap ↗</a></aside><main id="main"><section class="section" id="baseline"><div class="label">01 / Current app</div><h2>What this plan is based on</h2><div class="prose"><p>Source review covers the Next frontend at <code>Rentra/</code> (HEAD <code>86f3e5a</code>) and Express backend at <code>rentra-backend/</code> (HEAD <code>ad320ae</code>). Paths in this document are relative to those repositories unless stated otherwise. Both working trees were inspected before planning; no runtime data, credentials, gateway configuration or migrations were changed.</p>
+<p>This is a <strong>source and requirements audit</strong>, not a new authenticated browser test or deployed-database certification. Existing test reports are historical evidence. Responsive layout, focus, contrast and deployed behavior must be measured during implementation; they are not declared broken or passing merely from reading JSX.</p>
+<p>The current UI already has partner/admin shells, loading states, application review, property editing, calendars, booking details, review moderation, support conversations and operational monitoring. Reuse those investments. The largest missing workflow is <strong>Gate 2 property review and publication</strong>: partner submission can enter <code>pending_review</code>, but the mounted admin API has no listing-review/publication workflow.</p>
+<p>The customer tracker calls Part 19 complete while explicitly carrying actual hosted Test acceptance into Parts 20–22. Preserve that recorded distinction. A fixture pass or Test API credential probe does not establish a successful hosted capture, refund or deployed webhook.</p></div></section><section class="section" id="scope"><div class="label">02 / Product scope</div><h2>Product outcomes and scope</h2><div class="prose"><p><strong>Client outcome:</strong> an approved owner or authorized agent can create and maintain a property, understand approval requirements, manage inventory, prepare for visits, record what happened, resolve issues, read reviews and reconcile understandable financial records. An unapproved client can finish onboarding and understand the next action.</p>
+<p><strong>Super Admin outcome:</strong> authorized staff can find every relevant business record, inspect its relationships, correct editable data, control publication/access/configuration, manage operational cases, investigate money movement, fulfill reviewed data requests and see who changed what. Routine operations should not need SQL scripts.</p>
+<p><strong>Full control means complete business authority with recorded consequences.</strong> Super Admin can manage all supported domains, including account lifecycle, properties, reference data, policies, operational cases and service settings. Financial facts, accepted booking terms and audit evidence are corrected through explicit reversal, revision or adjudication workflows. A generic edit/delete button must not silently erase the explanation of a payment or change a customer's accepted booking.</p>
+<div aria-label="scope table 1" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">Release</th>
+<th scope="col">Included</th>
+<th scope="col">Exit condition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R1: operational core</td>
+<td>Identity controls, client/customer records, both approval gates, property hubs, calendars and booking operations</td>
+<td>A submitted property can be reviewed and published without a seed/script; an actual persisted booking can be operated by the correct owner/admin</td>
+</tr>
+<tr>
+<td>R2: complete Test back office</td>
+<td>Staff, support, review detail, Test financial investigation/refunds, reference data, policy management, privacy fulfillment, audit and reporting</td>
+<td>Cross-role flows and actual hosted Test acceptance pass; unknown outcomes remain visible and recoverable</td>
+</tr>
+<tr>
+<td>R3: live finance</td>
+<td>Approved live provider configuration, actual settlement/payout execution and provider-backed deposit flows where selected</td>
+<td>Customer Parts 20–22 and the associated business/provider prerequisites pass before live UI actions activate</td>
+</tr>
+</tbody>
+</table></div>
+<p>No new owner “accept booking” step is assumed. Current checkout confirms after verified capture and inventory reservation. Owner acknowledgement is an operational note, not a second confirmation gate. An approval-before-payment model would be a separately approved change to the customer product and payment/hold contracts.</p></div></section><section class="section" id="controls"><div class="label">03 / Admin controls</div><h2>Roles, ownership and full-control rules</h2><div class="prose"><p>Start with the existing separate admin identity and client/customer identities. Super Admin has all application capabilities. Design permissions now so later staff invitations can grant narrower access without duplicating services.</p>
+<div aria-label="controls table 1" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">Domain</th>
+<th scope="col">Client / assigned caretaker</th>
+<th scope="col">Super Admin</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Client identity and KYC</td>
+<td>Own profile, verified contact changes, submit/re-submit own documents; caretaker has no KYC access</td>
+<td>Search, inspect, approve/request changes/reject, suspend/reinstate, review documents and account correction requests</td>
+</tr>
+<tr>
+<td>Customer accounts</td>
+<td>Booking-scoped contact only when operationally authorized; no customer directory</td>
+<td>Directory, account detail, suspend/reinstate, session revocation, identity correction and privacy case handling</td>
+</tr>
+<tr>
+<td>Listings and publication</td>
+<td>Create/edit own listings; pause/resume eligible own listings; caretaker sees assigned properties only</td>
+<td>All listings, revision review, verification scheduling, publish/hide/restore/archive, documented edits and restricted ownership-transfer workflow</td>
+</tr>
+<tr>
+<td>Inventory and prices</td>
+<td>Own schedule, blocks and overrides; caretaker permissions do not include pricing by default</td>
+<td>Inspect all inventory, correct configuration and owner blocks through the same conflict-safe services</td>
+</tr>
+<tr>
+<td>Bookings and visits</td>
+<td>Own property bookings, permitted contact, handover/return/completion; report a problem</td>
+<td>All bookings, case-based cancellation/change resolution, evidence review, disputes and audited operational corrections</td>
+</tr>
+<tr>
+<td>Payments and refunds</td>
+<td>Own statement and refund impact; never arbitrary payment-state editing</td>
+<td>All payment/refund evidence, reconciliation and bounded refund commands; provider outcomes establish success</td>
+</tr>
+<tr>
+<td>Payout destination and payouts</td>
+<td>Own destination submission, masked display, statements and explanation of holds</td>
+<td>Review destination changes, suspend eligibility, inspect/reconcile payouts; live execution remains provider-gated</td>
+</tr>
+<tr>
+<td>Reviews and conversations</td>
+<td>Reply/report own property reviews; own support threads; no deletion of unfavorable reviews</td>
+<td>Moderate according to policy, investigate reports, assign/reply/escalate cases and retain action history</td>
+</tr>
+<tr>
+<td>Configuration and content</td>
+<td>Read applicable policies and client preferences</td>
+<td>Versioned business settings, taxonomy, public content, support hours, service enablement and approved provider selection</td>
+</tr>
+<tr>
+<td>Audit, exports and privacy</td>
+<td>Own authorized downloads and own privacy requests</td>
+<td>Scoped, logged exports; sensitive access history; reviewed privacy fulfillment and retention exceptions</td>
+</tr>
+<tr>
+<td>Access management</td>
+<td>Invite/revoke own narrowly scoped caretakers once implemented</td>
+<td>Manage admin operators and permissions, revoke sessions, recover access, preserve at least one usable Super Admin</td>
+</tr>
+</tbody>
+</table></div>
+<p>Every mutation needs server-side actor/ownership checks, input allowlists, expected version or equivalent concurrency protection, an idempotency key where retries can duplicate effects, and an audit entry committed with the business change. UI visibility is a convenience, not authorization.</p>
+<h3 id="controls-heading-1">Data lifecycle policy</h3>
+<div aria-label="controls table 2" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">Record</th>
+<th scope="col">Editable information</th>
+<th scope="col">Removal/correction behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unreferenced draft / unused reference item</td>
+<td>Validated fields</td>
+<td>Delete only after a server-side dependency check; show impact and audit the action</td>
+</tr>
+<tr>
+<td>Published property / referenced taxonomy</td>
+<td>Allowed current metadata and explicit revisions</td>
+<td>Archive/deactivate or redirect; preserve booking relationships and historical labels</td>
+</tr>
+<tr>
+<td>Client/customer account</td>
+<td>Correctable profile fields; verified contact-change workflow</td>
+<td>Suspend/reinstate operational access; separately reviewed anonymization/deletion with retention result</td>
+</tr>
+<tr>
+<td>Accepted booking and visit terms</td>
+<td>Operational annotations; explicit change/cancellation case</td>
+<td>Preserve original snapshots; show original and resulting records, financial effect and inventory effect</td>
+</tr>
+<tr>
+<td>Verified capture/refund/payout</td>
+<td>Provider reconciliation metadata and appended corrections</td>
+<td>No manual “paid” toggle and no historical deletion; use supported refund/reversal/recovery commands</td>
+</tr>
+<tr>
+<td>Evidence, KYC and support attachments</td>
+<td>Replacement through versioned records where appropriate</td>
+<td>Restricted storage/access and reviewed retention/deletion; never public URLs for private evidence</td>
+</tr>
+<tr>
+<td>Audit log</td>
+<td>Nothing through normal admin CRUD</td>
+<td>Append events; restricted retention/archival procedure and access audit</td>
+</tr>
+</tbody>
+</table></div>
+<p>Provide an <strong>impact preview</strong> before suspension, ownership transfer, archive, bulk status changes, refund, destination changes or configuration publication. It identifies affected records, effective time, financial implications and customer/client-visible consequences. Ordinary low-impact edits can use inline save; do not surround every action with a confirmation dialog.</p></div></section><section class="section" id="experience"><div class="label">04 / UI &amp; navigation</div><h2>Navigation and shared UI contract</h2><div class="prose"><p>Retain Rentra's green palette, typography, existing portal shells and current customer booking-card improvements. Improve workflow density and discoverability before redesigning the visual identity again.</p>
+<p><strong>Client navigation:</strong> Overview; Properties; Portfolio calendar; Bookings; Reviews; Support; Updates; Finance (statements, payouts and destination); Team; Settings. Keep onboarding visible until approved. Restricted items explain the required step. Show finance readiness honestly; an unconfigured payout destination is not a working payout system.</p>
+<p><strong>Admin navigation:</strong> Overview; Work queues (applications, listing reviews, verification); People (clients, customers, team); Properties; Bookings; Finance (payments, refunds, payouts, disputes); Support; Reviews; Content and catalogues; Privacy; Operations; Audit; Settings. Keep gateway settings at a stable bookmark, with an explicit link from finance; do not silently replace <code>/admin/payments</code>' current settings meaning.</p>
+<p><strong>Every list:</strong> descriptive title; authoritative total; filter scope; bounded search; URL-backed filters/sort/page; labeled status; row primary link; accessible actions; last refresh; pagination; empty/loading/error/permission states. Counts based on the current page must explicitly say “on this page.” High-impact bulk actions use selection summaries, server eligibility checks, partial-result reporting and a receipt.</p>
+<p><strong>Every detail page:</strong> breadcrumb/back to filtered list; human reference plus copyable internal ID; name/title; state and environment badges; owner/assignee; meaningful primary action; last-updated/version indicator; summary; related records; timeline; attachments; action history. Deep-link tabs or sections. Separate internal notes, shared messages and provider/system events.</p>
+<p><strong>Every form:</strong> labeled controls; units/timezone; saved values; inline errors; focused error summary where needed; pending/success/error state; preserved input on validation/network failure; conflict/reload flow for stale versions; unsaved-change warning when leaving a dirty multi-section editor. Never turn an API outage into a false empty list or “not found.”</p>
+<p><strong>Responsive behavior:</strong> test 360/390px, tablet and desktop. Lists can switch to compact cards or focusable horizontal table regions. Primary actions remain reachable; long references wrap/copy; sticky controls do not cover content. Drawers/dialogs restore focus, trap it where appropriate and support Escape. Actions require accessible names, keyboard operation and reduced-motion behavior. No icon-only unexplained destructive commands.</p>
+<p><strong>Operational details:</strong> all visit times show the property's timezone, overnight end day and turnover buffers; money shows currency and whether it is quoted, collected, refunded, deposit or payout. Test/simulated/legacy/live namespaces remain distinct in badges, filters, totals, downloads and drill-downs.</p></div></section><section class="section" id="client"><div class="label">05 / Client screens</div><h2>Client screens and detail-page requirements</h2><div class="prose"><p>Routes below are <strong>proposed</strong> unless the audit identifies them as existing. Preserve working bookmarks with redirects when adding a property overview separate from editing.</p>
+<div aria-label="client table 1" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">Destination</th>
+<th scope="col">Required experience and actions</th>
+<th scope="col">Data / acceptance requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/partner</code></td>
+<td>Existing onboarding or approved overview; add today's arrivals/departures, incomplete handovers, review requests, blocked availability and unread updates; property/date filters and actionable cards</td>
+<td>Counts come from operational read models; no invented earnings or occupancy; every card drills into its matching filtered list</td>
+</tr>
+<tr>
+<td><code>/partner/onboarding/*</code></td>
+<td>Keep current stepper; show flagged fields/documents, submission receipt, decision history, next action and actual review status; allow resubmission without retyping unrelated data</td>
+<td>Gate 1 server decisions and client progress agree; no claim that a masked bank suffix proves a verified beneficiary</td>
+</tr>
+<tr>
+<td><code>/partner/listings</code></td>
+<td>Reuse current property table/filter; cover draft/review/verification/live/paused/hidden/rejected/archived; display next action, public visibility, booking readiness and owner action restrictions</td>
+<td>“Live” and “bookable” are separate: missing hours/open inventory or suspended account must be explained</td>
+</tr>
+<tr>
+<td><code>/partner/listings/[id]/overview</code></td>
+<td>Property operations hub: cover photo, public preview, approval/readiness summary, upcoming visits, calendar link, latest change request, verification appointments and activity</td>
+<td>Existing <code>/partner/listings/[id]</code> can remain the editor initially; no duplicate editors or loss of wizard resume URLs</td>
+</tr>
+<tr>
+<td>Existing property editor and wizard</td>
+<td>Reuse independently saved sections; add field-level feedback, draft/revision diff, save status and effect preview before trust changes</td>
+<td>Current confirmed bookings retain accepted snapshots; price/calendar edits and trust edits follow different review policies</td>
+</tr>
+<tr>
+<td><code>/partner/calendar</code> and existing per-property calendar</td>
+<td>Portfolio agenda/week/month with property/slot filters; distinguish owner blocks, held inventory, committed visits, closed dates and maintenance; click opens interval detail</td>
+<td>Mutations continue through shared inventory locks; bulk date actions preview all conflicts and never partly apply silently</td>
+</tr>
+<tr>
+<td>Calendar/price detail panel</td>
+<td>Exact interval including buffers, owner-block reason, source record, override price, expiry if held and actions permitted in this state</td>
+<td>Releasing an owner block cannot release a booking reservation; stale price/config writes return a conflict</td>
+</tr>
+<tr>
+<td><code>/partner/bookings</code></td>
+<td>Existing records list adapted to owner tasks: arriving, in house, departing, action needed, completed, cancelled; filters for property, dates, visit state and payment environment</td>
+<td>Avoid mixing parent-order state with individual visit state; an order with several visits is still one order</td>
+</tr>
+<tr>
+<td><code>/partner/bookings/[orderId]</code></td>
+<td>Keep accepted terms, visit cards, lifecycle forms, payments, downloads and arrival information. Add operational checklist, linked issues/support, internal notes and action receipts</td>
+<td>No new accept/decline gate. Any proposed owner cancellation goes through the admin case workflow rather than a direct status edit</td>
+</tr>
+<tr>
+<td>Visit evidence / incident panel</td>
+<td>Record handover, return and completion; display who/when, attestation and state sequence; add protected condition photos and incident submission</td>
+<td>Retry-safe uploads/transitions; timestamps and ownership checked; Test/seed evidence never becomes actual-visit evidence</td>
+</tr>
+<tr>
+<td><code>/partner/reviews</code> and optional <code>[reviewId]</code></td>
+<td>Make the existing route discoverable; show property/visit context, score/subscores, moderation visibility, response history and report outcome</td>
+<td>Reply/report services already exist; no rating-selective suppression or replacement of the guest's text</td>
+</tr>
+<tr>
+<td><code>/partner/support</code> and <code>[id]</code></td>
+<td>Client-originated cases linked to own property, application, booking or payout; thread, status, attachment limits and escalation category</td>
+<td>Separate authorization from customer support. Clients must not gain access to customer private threads via a shared booking ID</td>
+</tr>
+<tr>
+<td><code>/partner/updates</code></td>
+<td>Persisted operational inbox with unread/read, type filters and links; distinguish stored notification, delivery acceptance, delivery failure and SMS opt-out</td>
+<td>No automatic historical-message replay; no promise that a provider accepted message was delivered</td>
+</tr>
+<tr>
+<td><code>/partner/finance</code> and <code>/partner/statements/[id]</code></td>
+<td>Period/property-filtered quote value, verified receipts, refunds, net eligible amounts and adjustments with downloadable statements</td>
+<td>Existing live-only accounting is the authority; Test overview is visibly separate and produces zero bank-money payout eligibility</td>
+</tr>
+<tr>
+<td><code>/partner/payouts</code> and <code>[id]</code></td>
+<td>Itemized payout/hold history, contributing visits, deductions, destination version, provider reference and failed/unknown recovery status</td>
+<td>No fabricated settlement date or UTR. Disbursement remains disabled until the live readiness gates pass</td>
+</tr>
+<tr>
+<td><code>/partner/settings/payout</code></td>
+<td>Destination submission, masked history, verification state and pending-change effect; never expose full stored credentials in normal UI</td>
+<td>Existing settings currently perform name comparison and retain a masked bank suffix, not a provider-verified payout destination</td>
+</tr>
+<tr>
+<td><code>/partner/team</code> and <code>[id]</code></td>
+<td>Invite assigned caretakers, choose property scopes and allowed tasks, revoke immediately, review recent actions</td>
+<td>Default no pricing, finance, KYC or staff-invitation rights; direct API requests obey the same scope</td>
+</tr>
+<tr>
+<td><code>/partner/settings</code></td>
+<td>Profile/contact verification, actual notification preferences, timezone/language display, consent versions, own sessions and access help</td>
+<td>A language choice is not a translated UI; publish only implemented languages/channels</td>
+</tr>
+</tbody>
+</table></div></div></section><section class="section" id="admin"><div class="label">06 / Super Admin screens</div><h2>Super Admin screens and detail-page requirements</h2><div class="prose"><h3 id="admin-heading-1">6.1 Overview and work queues</h3>
+<p>Add a business overview at <code>/admin/overview</code>; retain <code>/admin</code> as the current application queue until an explicit navigation migration. Summary cards cover outstanding applications, listing reviews, visits needing verification, today's bookings, refund/payment exceptions, support, privacy and service health. Each metric declares its period and namespace and links to source records. Do not sum Test booking value into live revenue.</p>
+<p>Queues need status, age, assignee, priority/reason, pagination and saved personal views. Define elapsed hours versus staffed/business hours before publishing SLA language; current <code>SLA_HOURS = 48</code> uses elapsed time.</p>
+<h3 id="admin-heading-2">6.2 People and account control</h3>
+<div aria-label="admin table 1" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">Route</th>
+<th scope="col">Detail sections</th>
+<th scope="col">Commands and safeguards</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/admin/clients</code>, <code>/admin/clients/[id]</code></td>
+<td>Identity, owner/agent status, application/KYC, verified contacts, properties, bookings, staff, payout destination versions, cases and audit</td>
+<td>Edit permitted profile data, request verification, suspend/reinstate, revoke sessions, archive through reviewed retention workflow. Preview upcoming bookings and support continuity before restricting access</td>
+</tr>
+<tr>
+<td><code>/admin/customers</code>, <code>/admin/customers/[id]</code></td>
+<td>Profile/contact verification, booking history, payment/refund summary, reviews, support/privacy requests and account activity</td>
+<td>Correct permitted data, initiate verified contact change, restrict/reinstate access, revoke sessions and open a privacy case. Never expose passwords/OTP secrets or silently merge accounts sharing a phone</td>
+</tr>
+<tr>
+<td>Existing <code>/admin/applications/[id]</code></td>
+<td>Retain current reviewer detail and document viewer; add assignee, changed-field comparison, review pass, decision history and linked client detail</td>
+<td>Approve/request information/reject with reason and stale-version check. Sensitive document reads remain protected and audited</td>
+</tr>
+<tr>
+<td><code>/admin/team</code>, <code>/admin/team/[id]</code>, <code>/admin/security</code></td>
+<td>Operators, permission sets, active sessions, MFA enrollment/recovery state and activity</td>
+<td>Super Admin invites/revokes operators, changes permissions, revokes sessions; protect the last active Super Admin; recovery must not depend on exposing a TOTP secret in the UI</td>
+</tr>
+</tbody>
+</table></div>
+<p>Define a restricted suspension mode for clients who still have future bookings: prevent new listings/checkouts while allowing only explicitly approved fulfillment/help access, or assign fulfillment to an admin. Current active-client guards broadly deny suspended clients; do not promise continued owner access without implementing that distinction.</p>
+<p>Ownership transfer is exceptional: show all affected listing permissions, future visits, statements and current destination relationships; require a reason and recent authentication. Do not silently change historical booking owner/payee attribution. Until a complete safe transfer service exists, show a case action rather than a raw <code>client_id</code> editor.</p>
+<h3 id="admin-heading-3">6.3 Properties, Gate 2 and verification</h3>
+<p>Provide <code>/admin/listings</code>, <code>/admin/listings/[id]</code>, <code>/admin/listing-reviews</code> and <code>/admin/verifications/[id]</code>.</p>
+<p>The listing detail has <strong>Overview, Content, Location, Schedule &amp; pricing, Documents, Review &amp; verification, Bookings, Activity</strong> sections. Include public/private preview modes, owner link, exact versus publicly approximate location, readiness blockers, current publication state and the submitted revision under review.</p>
+<p>Review compares the submitted immutable revision with the last approved revision. Approve only the reviewed version; if the owner changes material content, surface the conflict. Admin may request field-specific changes, reject with reason, approve for verification, record verification outcome, publish, hide, restore or archive according to the transition contract.</p>
+<p>Verification detail includes property/revision, mode (video/physical), assignee, scheduled timezone/date, reschedule history, checklist, restricted evidence, outcome and decision reason. A completed form does not itself prove a site visit. Publication checks document/content requirements, account eligibility, inventory readiness and the applicable verification rule.</p>
+<div aria-label="admin table 2" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">Current state / trigger</th>
+<th scope="col">Proposed transition</th>
+<th scope="col">Guard and visible consequence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Complete draft or corrected rejected listing</td>
+<td>Pending review</td>
+<td>Capture revision and review pass; client gets a receipt</td>
+</tr>
+<tr>
+<td>Pending review needs correction</td>
+<td>Changes requested</td>
+<td>Use existing review outcome plus correction metadata; choose whether a new listing enum is necessary during schema design rather than assuming it exists</td>
+</tr>
+<tr>
+<td>Review accepted for inspection</td>
+<td>Pending verification</td>
+<td>Schedule/record actual verification; publication remains blocked</td>
+</tr>
+<tr>
+<td>Verification and review requirements satisfied</td>
+<td>Live</td>
+<td>Authorized publish with evidence and revision match; refresh discovery/detail/sitemap caches</td>
+</tr>
+<tr>
+<td>Live owner pause</td>
+<td>Paused</td>
+<td>Stops new discovery/checkout as appropriate; preserves bookings and records</td>
+</tr>
+<tr>
+<td>Admin safety restriction</td>
+<td>Hidden / admin restriction</td>
+<td>Record reason and affected bookings; owner resume cannot undo admin restriction</td>
+</tr>
+<tr>
+<td>Trust-field edit on live content</td>
+<td>Pending revision/re-review</td>
+<td>Current code removes live status on trust edits. Preserve that behavior initially and show its impact; retaining the old approved public version needs a separately implemented revision model</td>
+</tr>
+<tr>
+<td>Restore/re-publish</td>
+<td>Eligible prior publication state</td>
+<td>Recheck current restrictions, account state and material review requirements; never blind status toggling</td>
+</tr>
+<tr>
+<td>Retirement</td>
+<td>Archived</td>
+<td>Add explicit archive metadata/state if required; preserve referenced history and URLs according to approved redirect policy</td>
+</tr>
+</tbody>
+</table></div>
+<p>Admin editing is available through typed sections and the same validation used by clients. Price changes affect future quotes; accepted bookings remain unchanged. Admin calendar overrides must resolve or refuse conflicts, not bypass the reservation exclusion constraint.</p>
+<h3 id="admin-heading-4">6.4 Booking operations and case detail</h3>
+<p>Extend the existing <code>/admin/bookings</code> and <code>/admin/bookings/[orderId]</code>; do not rebuild them as unrelated records. Detail sections: <strong>Summary, Visits, Customer &amp; client, Accepted terms, Payments &amp; refunds, Issues, Notes &amp; communications, Timeline &amp; audit</strong>. Include links to both people, property and payment/refund details.</p>
+<p>Distinguish parent order, individual visit, payment, refund, fulfillment and support state. A refund can be pending after cancellation; closing support does not close a refund. Notes must state whether they are internal or customer/client-visible.</p>
+<p>Add <code>/admin/booking-cases/[id]</code> for owner cancellation, date/guest change requests, no-show, late arrival and operational corrections. Show original terms, requested outcome, affected visits, recalculated availability/policy/financial result and customer communications. Execute a previewed, idempotent command. A requested rebooking does not reserve replacement dates. Use existing cancel-and-rebook behavior until an atomic amendment product is explicitly selected and built.</p>
+<p>Visit evidence detail retains original evidence and actor/time. Correct mistakes through a superseding evidence decision with reason; do not fabricate actual evidence by relabeling Test/seed visits or allowing a global “completed” dropdown.</p>
+<h3 id="admin-heading-5">6.5 Finance and disputes</h3>
+<p>Keep <code>/admin/payments</code> as gateway settings initially. Add <code>/admin/finance/payments</code>, <code>/admin/finance/payments/[id]</code>, <code>/admin/refunds/[id]</code>, <code>/admin/payouts/[id]</code> and <code>/admin/disputes/[id]</code> with corresponding searchable lists.</p>
+<div aria-label="admin table 3" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">Detail</th>
+<th scope="col">Required information</th>
+<th scope="col">Permitted operator actions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Payment</td>
+<td>Provider/environment, booking/customer, expected amount and collection purpose, attempts, server verification, capture allocations, sanitized event history, reconciliation state, linked refunds</td>
+<td>Re-fetch/reconcile existing outcome, inspect safe errors, open case. Never mark captured from a callback screenshot or manually change a transaction amount</td>
+</tr>
+<tr>
+<td>Refund</td>
+<td>Original capture, per-visit/component caps, prior obligations, reason/policy, requested versus verified result, retry history and destination/provider reference</td>
+<td>Preview then request eligible refund; retry/reconcile the original unknown obligation; escalation. No second refund for an uncertain first result</td>
+</tr>
+<tr>
+<td>Payout</td>
+<td>Verified live funding sources, owner and destination version, adjustments/holds, execution attempts, provider reference and reconciliation</td>
+<td>Review/hold/release eligibility and reconcile. Actual send requires Parts 20–22, provider adapter and permission checks; Test cannot fund payout</td>
+</tr>
+<tr>
+<td>Deposit / dispute</td>
+<td>Whether a deposit was actually collected and by whom; visit/evidence, claimed damage, responses, deadlines, decision, financial effect and appeal/escalation</td>
+<td>Open/assign/request evidence/adjudicate; release or refund only verifiable collected funds under the selected policy. A listing deposit estimate is not a refundable balance</td>
+</tr>
+</tbody>
+</table></div>
+<p>Super Admin manages installed provider enablement, full/advance policy and readiness. Secret values stay in deployment secret management; UI shows readiness and masked references. New gateways require reviewed code adapters; admin configuration cannot upload executable provider code. Disable blocks <strong>new</strong> attempts while callbacks, webhooks, refunds and reconciliation for existing obligations continue.</p>
+<p>Finance exports must reconcile to source facts, preserve integer minor-unit accuracy, explicitly separate Test/simulation/live and show filters/as-of time. Do not derive revenue from a booking total, saved destination or legacy payout cache. Tax rates, settlement promises and deposit policy remain business inputs requiring their own review; this plan supplies no legal/tax determination.</p>
+<h3 id="admin-heading-6">6.6 Support, reviews, privacy and operations</h3>
+<div aria-label="admin table 4" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">Destination</th>
+<th scope="col">Extend or add</th>
+<th scope="col">Required detail behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Existing support inbox/thread</td>
+<td>Add assignment, priority, internal notes, client-originated cases, related-record links, escalation and controlled attachments</td>
+<td>Separate private participant channels; save before success; stale replies and concurrent status changes handled; message delivery distinct from thread persistence</td>
+</tr>
+<tr>
+<td>Existing review queue; <code>/admin/reviews/[id]</code></td>
+<td>Detail-first moderation and report history</td>
+<td>Author/eligible visit, exact text and subscores, owner reply, reports, publication decisions and reasons; consistent treatment of low/high scores</td>
+</tr>
+<tr>
+<td>Existing privacy queue; <code>/admin/privacy/[id]</code></td>
+<td>Fulfillment workflow beyond the current “start review”</td>
+<td>Requester verification, inventory of affected data, retention decisions, approvals, export artifact/expiry, deletion/anonymization job outcome and completion receipt; partial failures visible</td>
+</tr>
+<tr>
+<td>Existing delivery list; <code>/admin/notifications/[id]</code></td>
+<td>Searchable outbox/event detail and safe replay controls</td>
+<td>Template/version/channel, recipient access restrictions, attempts, provider acceptance/delivery, suppression reason; uncertain POSTs reconciled before retry</td>
+</tr>
+<tr>
+<td>Existing operations; <code>/admin/operations/incidents/[id]</code></td>
+<td>Alert drill-down, ownership, acknowledge/snooze/escalate/resolve, related job/record links</td>
+<td>Acknowledgement does not clear the underlying failure; missing heartbeat stays unknown/stale; recovered service and human incident resolution are separate</td>
+</tr>
+<tr>
+<td><code>/admin/audit</code> and event detail</td>
+<td>Search/filter immutable business events and sensitive reads</td>
+<td>Actor, entity, request/correlation reference, reason, redacted before/after, result and links; document access/export is itself audited</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="admin-heading-7">6.7 Catalogues, content and settings</h3>
+<p>Create a typed management area rather than a generic database-table editor.</p>
+<div aria-label="admin table 5" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">Admin-managed resource</th>
+<th scope="col">Required controls</th>
+<th scope="col">Dependency behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cities and areas</td>
+<td>Name, slug, hierarchy, active status, approved approximate map centre</td>
+<td>Validate coordinate ranges and city membership; preserve referenced locations; preview affected discovery URLs and redirects</td>
+</tr>
+<tr>
+<td>Categories and amenities</td>
+<td>Labels, active status, ordering, allowed attribute/value types, requirements</td>
+<td>Do not change an amenity's value type in place when data exists; use migration/replacement with affected-listing preview</td>
+</tr>
+<tr>
+<td>Search intents</td>
+<td>Slug, label, compatible filters, publication and ordering</td>
+<td>Existing <code>INTENTS</code> is code-defined in frontend/backend. Migrate both consumers to a validated registry; arbitrary routes/query expressions are not editable input</td>
+</tr>
+<tr>
+<td>Help, terms, privacy and cancellation explanations</td>
+<td>Draft, preview, review, publish version and effective date, rollback by new version</td>
+<td>Keep previously accepted versions addressable; public explanation changes alone cannot change booking computation</td>
+</tr>
+<tr>
+<td>Business policy</td>
+<td>Versioned supported fee/collection/limits/cancellation settings and effective date</td>
+<td>Separate business-configurable values from code-enforced safety limits; re-quote changed future selections and preserve accepted snapshots</td>
+</tr>
+<tr>
+<td>Support contact/hours and templates</td>
+<td>Verified channels, timezone/staffed hours, validated template variables, preview and test recipient control</td>
+<td>No fake live chat, fabricated response promises or arbitrary bulk sends; actual sends require the documented operator action</td>
+</tr>
+<tr>
+<td>Public media/content</td>
+<td>Approved image assets, alt text, ordering, publication schedule where supported</td>
+<td>Reuse upload validation; no arbitrary scripts/HTML/remote code; keep private KYC/evidence outside the public media library</td>
+</tr>
+<tr>
+<td>Feature/provider controls</td>
+<td>Installed capability, role/cohort scope if supported, readiness, version and reason</td>
+<td>A feature toggle cannot activate an unimplemented payment method or bypass an external release gate</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>src/services/constants.js</code> contains search intents, accepted document types and upload limits. Classify each before exposing controls: editorial taxonomy can become data-managed; document-policy changes need a reviewed effective version; upload/type/security ceilings remain bounded implementation controls. Do not make every constant freely editable simply because Super Admin has global authority.</p></div></section><section class="section" id="architecture"><div class="label">07 / Backend &amp; data</div><h2>Backend, API and data design</h2><div class="prose"><p>Keep database/auth/payment mutations in <strong>rentra-backend</strong>, using its routes → controllers → services → Drizzle structure. The Next app uses existing server API wrappers/actions or RTK Query services for interactive screens. Do not recreate old Next direct-database services from historical runbook paths.</p>
+<p>Backend API examples below are <strong>proposed relative to the configured API prefix</strong>, not currently available promises: <code>/admin/clients/:id</code>, <code>/admin/customers/:id</code>, <code>/admin/listings/:id/reviews</code>, <code>/admin/verifications/:id</code>, <code>/admin/finance/payments/:id</code>, <code>/admin/refunds/:id/reconcile</code>, <code>/partner/support/:id</code>, <code>/partner/team/:id</code>, <code>/admin/catalogues/:type</code> and <code>/admin/audit</code>.</p>
+<p>Every part documents exact method/path/body/response/error/permission contracts before wiring a button. Keep the existing response envelope, 401/403 semantics, redirect/revalidation metadata, request correlation and raw signed-webhook ordering. Use 409 for stale/conflicting operations where appropriate; distinguish missing records from service unavailability. Scope object reads as strictly as writes, including downloads, attachments and related-record suggestions.</p>
+<p>Use a consistent bounded query contract: validated <code>q</code>, status, property/owner, date interval, environment, sort allowlist and pagination. Cap export/list size, return authoritative totals where promised and index the actual predicates. Full-text search and joins must not leak another client's record through counts or autocomplete.</p>
+<h3 id="architecture-heading-1">Reuse versus new schema</h3>
+<div aria-label="architecture table 1" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">Existing foundation to reuse</th>
+<th scope="col">Likely addition / explicit design work</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user</code>, <code>admin_user</code>, <code>client_application</code>, document records</td>
+<td>Admin capability grants, revocable admin/client session records where missing, identity correction and account action history</td>
+</tr>
+<tr>
+<td><code>rentable</code>, <code>listing_review</code>, <code>verification_visit</code>, prices/availability</td>
+<td>Immutable submitted revisions, review assignment/versioning, verification artifacts, archive/restriction metadata and controlled transfer records</td>
+</tr>
+<tr>
+<td>Booking orders/visits, inventory reservations, visit evidence</td>
+<td>Operational cases, evidence attachments and correction decisions; never replace the reservation/ledger model</td>
+</tr>
+<tr>
+<td>Payment/refund/allocation/payout foundations</td>
+<td>Read models and safe operator command records; beneficiary versions and payout execution only with the live finance work</td>
+</tr>
+<tr>
+<td>Customer support, review reports, privacy requests, notification outbox</td>
+<td>Participant-aware partner support, assignments/internal notes, case attachments, privacy fulfillment/export jobs and operator alert cases</td>
+</tr>
+<tr>
+<td><code>client_staff</code></td>
+<td>Real invitation/authentication/property-scoping/revocation; an existing table is not a delivered staff feature</td>
+</tr>
+<tr>
+<td>Audit log, service health, aggregate measurement</td>
+<td>Admin audit readers, append-only enforcement review, export manifests, scoped configuration versions and operational event links</td>
+</tr>
+</tbody>
+</table></div>
+<p>Inspect the current backend migration journal before choosing migration numbers. The customer refresh documents <code>0021_customer_profile_photo</code>, but file registration is not proof of deployment. Add forward migrations with data backfill verification where needed; never edit applied history or duplicate backend schema in the frontend.</p>
+<p>Customer-visible invalidation is part of admin correctness: publication, property edits, review moderation and reference changes must update listing/search/home/sitemap data; private state changes must invalidate only the affected authenticated caches. Clear RTK private caches on identity changes. Multi-step service transitions need database transactions; external calls run through durable state/outbox patterns with uncertain outcomes preserved.</p></div></section><section class="section" id="acceptance"><div class="label">08 / Acceptance checks</div><h2>Acceptance scenarios</h2><div class="prose"><div aria-label="acceptance table 1" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">ID</th>
+<th scope="col">Scenario / pass condition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CA01</td>
+<td>A client cannot read/mutate another owner's property, visit, staff, statement or attachment through UI, API, download or guessed IDs</td>
+</tr>
+<tr>
+<td>CA02</td>
+<td>Customer/partner cookies cannot access admin; revoked/suspended/permission-changed actors lose access on the next protected operation; suspended-client fulfillment follows the selected policy</td>
+</tr>
+<tr>
+<td>CA03</td>
+<td>Two admins decide the same application/revision: one committed decision, one clear conflict; no duplicate notification or contradictory audit result</td>
+</tr>
+<tr>
+<td>CA04</td>
+<td>Client submits a property, admin requests changes, client resubmits, verification is recorded and the reviewed revision publishes without SQL</td>
+</tr>
+<tr>
+<td>CA05</td>
+<td>Material edit, admin hide and owner resume race safely; owner resume cannot undo admin restriction; old confirmed booking snapshots remain intact</td>
+</tr>
+<tr>
+<td>CA06</td>
+<td>Last-space booking versus owner/admin block has one valid winner; overnight/buffer conflicts and bulk preview failures leave no partial surprise</td>
+</tr>
+<tr>
+<td>CA07</td>
+<td>Multi-visit detail shows mixed visit states correctly; repeated handover/completion/cancellation commands create one business effect and evidence chain</td>
+</tr>
+<tr>
+<td>CA08</td>
+<td>Admin booking change/cancellation preview identifies exact affected visits, amounts and replacement-inventory limitations; refresh/retry cannot release/refund twice</td>
+</tr>
+<tr>
+<td>CA09</td>
+<td>Test/simulation/legacy amounts never enter live earnings/payout; payment/refund lists, detail, totals and exports reconcile without duplicated joins</td>
+</tr>
+<tr>
+<td>CA10</td>
+<td>Invalid provider evidence cannot mark paid; disable blocks new payment attempts but preserves outstanding callback/webhook/refund/reconciliation handling</td>
+</tr>
+<tr>
+<td>CA11</td>
+<td>Concurrent refund requests respect remaining captured allocations; uncertain outcomes retry/reconcile the same obligation and remain visibly pending</td>
+</tr>
+<tr>
+<td>CA12</td>
+<td>Destination changes do not redirect already pinned payout obligations; failed verification prevents disbursement and exposes a recovery path</td>
+</tr>
+<tr>
+<td>CA13</td>
+<td>Scoped caretaker can operate only assigned visits and cannot change prices, see owner earnings, review KYC or invite staff</td>
+</tr>
+<tr>
+<td>CA14</td>
+<td>Client/customer support participants and internal notes stay isolated; assignment, replies, attachments and resolution persist before success</td>
+</tr>
+<tr>
+<td>CA15</td>
+<td>Review moderation has score-neutral reasons/history; publication/removal updates the public detail and aggregates without deleting evidence</td>
+</tr>
+<tr>
+<td>CA16</td>
+<td>Referenced taxonomy cannot be blindly deleted; deactivation/replacement preserves old records and expected URLs/canonical discovery behavior</td>
+</tr>
+<tr>
+<td>CA17</td>
+<td>Policy/configuration publication has preview/version/history; stale quotes revalidate while historical accepted rules and URLs remain available</td>
+</tr>
+<tr>
+<td>CA18</td>
+<td>Privacy export contains only authorized data, expires and logs access; deletion/anonymization reports retained records and failed stages accurately</td>
+</tr>
+<tr>
+<td>CA19</td>
+<td>Export jobs, dangerous bulk operations and sensitive document reads are authorized, bounded and audited; secrets never appear in lists, logs or exports</td>
+</tr>
+<tr>
+<td>CA20</td>
+<td>Stale or failed workers and provider queues produce actionable drill-downs; acknowledging an alert does not fake service recovery</td>
+</tr>
+<tr>
+<td>CA21</td>
+<td>API outage differs from empty/not-found; filters, form input and context survive retry/back navigation; no optimistic financial success</td>
+</tr>
+<tr>
+<td>CA22</td>
+<td>Keyboard and mobile critical journeys pass on measured routes; dialog focus, labels, errors, contrast, table access and loading states are verified</td>
+</tr>
+<tr>
+<td>CA23</td>
+<td>Existing customer login, selection, quote, checkout, bookings, cancellation, privacy, review, support and approximate-location behavior do not regress</td>
+</tr>
+<tr>
+<td>CA24</td>
+<td>Actual hosted Razorpay Test capture/refund/webhook scenarios have independent evidence; fixtures and screenshots of a success callback are insufficient</td>
+</tr>
+</tbody>
+</table></div>
+<p>CA24 and live-finance prerequisites are release gates, not checkboxes that documentation can satisfy. Record what ran, where, against which revision, and which provider/migration actions were actually performed.</p></div></section><section class="section" id="decisions"><div class="label">09 / Business decisions</div><h2>Decisions to settle before dependent implementation</h2><div class="prose"><p>Planning can proceed with the defaults below; implementation must record the selected business rule before building a conflicting irreversible workflow.</p>
+<div aria-label="decisions table 1" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">Decision</th>
+<th scope="col">Proposed planning default</th>
+<th scope="col">Needed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Client meaning</td>
+<td>Existing owner and authorized-agent roles; no new rental-vendor category assumed</td>
+<td>CP03/CP05</td>
+</tr>
+<tr>
+<td>Suspended clients with upcoming visits</td>
+<td>Block new business; admin-controlled fulfillment/help path with narrow permissions</td>
+<td>CP01/CP03</td>
+</tr>
+<tr>
+<td>Verification requirement</td>
+<td>Keep existing pending-verification concept; define qualifying evidence and who may waive requirements, if anyone</td>
+<td>CP07</td>
+</tr>
+<tr>
+<td>Live listing trust edits</td>
+<td>Preserve current re-review/unpublish behavior initially; approved-public-revision continuity is an explicit follow-up design choice</td>
+<td>CP08</td>
+</tr>
+<tr>
+<td>Owner cancellation and guest changes</td>
+<td>Case-based admin resolution and existing cancel/rebook rules; no silent owner cancellation</td>
+<td>CP14</td>
+</tr>
+<tr>
+<td>High-impact approvals</td>
+<td>Recent authentication + reason + impact preview for Super Admin; optional second approver when an organization actually has another qualified operator</td>
+<td>CP20/CP21/CP26/CP28</td>
+</tr>
+<tr>
+<td>Client-originated support</td>
+<td>Separate participant-scoped cases with optional admin-linked customer case, not a shared private conversation</td>
+<td>CP17</td>
+</tr>
+<tr>
+<td>Live commission/tax/deposit/settlement policy</td>
+<td>Remains unanswered in customer Part 20 until the business records it; no rates or payout promises invented here</td>
+<td>CP11/CP22/CP23/CP32</td>
+</tr>
+<tr>
+<td>Language and communications</td>
+<td>Keep implemented English and configured channels; translate/add channels only through explicit deliverables</td>
+<td>CP15/CP25</td>
+</tr>
+<tr>
+<td>Public content editor</td>
+<td>Structured fields and validated media, no arbitrary scripts or executable HTML</td>
+<td>CP25</td>
+</tr>
+</tbody>
+</table></div></div></section><section class="section" id="delivery"><div class="label">10 / Delivery discipline</div><h2>Delivery discipline</h2><div class="prose"><p>Use the <a href="rentra-client-admin-sessions.md">session roadmap</a>. Every part includes frontend, backend, relevant schema/API work, meaningful verification and a handoff when required by that slice. A database table, route stub or beautiful mock does not count as a complete feature.</p>
+<p>Start with <strong>CP01</strong>, then CP02–CP08: access foundations, directories and the two approval workflows close the highest operational gaps. Do not begin by replacing every shell or adding decorative dashboards. Preserve customer releases and their outstanding payment gates throughout.</p>
+<p>For each completed part, update the session status, audit gap disposition and <code>rentra-client-admin-partNN.md</code> runbook with changes, actual check results, migration/deployment status, limitations and the next part. Keep historical customer completion counts separate from this new roadmap. This planning change itself does not complete any CP implementation part.</p></div></section><section class="section" id="gaps"><div class="label">11 / Source-backed audit</div><h2>32 gaps, with a clear path to resolution.</h2><div class="prose"><p class="lede">Source review dated 26 September 2026. Existing, partial and missing capabilities are distinguished from runtime behavior that still needs verification.</p><h3>Current foundations to preserve</h3><div aria-label="audit current foundations to preserve table 1" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">Area</th>
+<th scope="col">Source evidence</th>
+<th scope="col">Current capability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Partner/admin shells</td>
+<td><code>components/partner/PartnerShell.jsx</code>, <code>components/admin/AdminShell.jsx</code></td>
+<td>Grouped navigation, desktop/mobile shell components, pending-link indicators and role-specific chrome already exist</td>
+</tr>
+<tr>
+<td>Client onboarding</td>
+<td><code>app/(partner)/partner/onboarding/*</code>, backend <code>src/routes/partner.route.js</code></td>
+<td>Details, phone, documents, consent/payout setup, application submission and withdrawal</td>
+</tr>
+<tr>
+<td>Gate 1 admin review</td>
+<td><code>app/(admin)/admin/applications/[id]/page.js</code>; backend <code>src/services/auth/admin-actions.js</code></td>
+<td>Application inspection, KYC document review, approve/more-info/reject and client suspension</td>
+</tr>
+<tr>
+<td>Property creation/editing</td>
+<td>Wizard routes, existing <code>/partner/listings/[id]</code>, backend <code>src/services/auth/listings.js</code></td>
+<td>Independent section saves, ownership-scoped reads, uploads, submission, trust-field re-review and pause/resume</td>
+</tr>
+<tr>
+<td>Booking calendar</td>
+<td><code>BookingCalendarSettings.jsx</code>; backend <code>src/services/booking/owner-settings.js</code>, <code>inventory.js</code></td>
+<td>Schedule, guest limits, open dates, owner blocks and price overrides; use the existing authoritative inventory logic</td>
+</tr>
+<tr>
+<td>Owner/admin records</td>
+<td>Existing role booking routes, <code>AdminBookingDetail.jsx</code>, operational <code>BookingRecords.jsx</code></td>
+<td>Lists/details, accepted terms, customer/purpose, visits, payments, arrival data, summary/calendar downloads and evidence-based transitions</td>
+</tr>
+<tr>
+<td>Reviews</td>
+<td><code>/partner/reviews</code>, <code>/admin/reviews</code>; backend <code>src/services/reviews/service.js</code></td>
+<td>Owner replies/reports and admin moderation/report decisions; add discoverability/detail workflow rather than rebuilding eligibility</td>
+</tr>
+<tr>
+<td>Customer support</td>
+<td><code>/admin/support</code>, <code>/admin/support/[id]</code>; backend <code>src/services/support/service.js</code></td>
+<td>Persisted private customer conversations, admin replies and status management</td>
+</tr>
+<tr>
+<td>Financial foundations</td>
+<td>Backend <code>src/services/payments/*</code>, schema and worker</td>
+<td>Test adapter/configuration, verification/webhooks/reconciliation/refunds, allocation accounting and live-funding boundaries</td>
+</tr>
+<tr>
+<td>Operational foundations</td>
+<td><code>/admin/operations</code>, <code>/admin/notifications</code>; backend operations/notifications services</td>
+<td>Health, aggregate metrics, namespace totals, outbox monitoring and constrained retry/reconciliation</td>
+</tr>
+<tr>
+<td>API architecture</td>
+<td>Frontend <code>lib/api/*</code>, <code>lib/services/*</code>; backend routes/controllers/services</td>
+<td>Next frontend over Express API, response metadata, auth middleware, validated services, cron registry and forward migrations</td>
+</tr>
+</tbody>
+</table></div><h3>Gap register</h3><div aria-label="audit gap register table 1" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">ID</th>
+<th scope="col">State / priority</th>
+<th scope="col">Observed gap and source</th>
+<th scope="col">Required outcome</th>
+<th scope="col">Parts</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G01</td>
+<td>Missing / P0</td>
+<td>Backend <code>src/routes/admin.route.js</code> mounts application review but no property review/publication API; partner <code>submitListing</code> enters <code>pending_review</code></td>
+<td>Complete Gate 2 queue, property detail, revision decision, verification and publication workflow</td>
+<td>CP06–CP08</td>
+</tr>
+<tr>
+<td>G02</td>
+<td>Partial / P1</td>
+<td>Partner detail is a full editor; wizard also exists, but no separate property operations hub</td>
+<td>Overview tying approval, readiness, upcoming visits, calendar, issues and public preview together</td>
+<td>CP09</td>
+</tr>
+<tr>
+<td>G03</td>
+<td>Partial / P1</td>
+<td>Partner overview emphasizes onboarding/property portfolio counts rather than today's fulfillment</td>
+<td>Task-based arrivals/departures/attention dashboard with real counts and drill-downs</td>
+<td>CP12/CP15</td>
+</tr>
+<tr>
+<td>G04</td>
+<td>Verify / P1</td>
+<td>Partner overview hard-codes an ₹8,000–₹14,500 earnings range; its live-listing hint says “Visible and bookable by guests”</td>
+<td>Remove or substantiate earnings claims; distinguish publication from actual availability/readiness</td>
+<td>CP09/CP15</td>
+</tr>
+<tr>
+<td>G05</td>
+<td>Missing / P0</td>
+<td>Admin navigation/routes lack a general client directory/detail and reinstatement workflow; suspension exists as an action</td>
+<td>Search all clients, inspect relationships, manage account lifecycle and preserve fulfillment obligations</td>
+<td>CP03</td>
+</tr>
+<tr>
+<td>G06</td>
+<td>Missing / P1</td>
+<td>No admin customer directory/detail/session-control workflow was found</td>
+<td>Customer account operations with verified corrections and cross-record links</td>
+<td>CP04</td>
+</tr>
+<tr>
+<td>G07</td>
+<td>Partial / P0</td>
+<td>Admin guards establish an active admin, but no capability grants or per-session admin-management surface exists; client routes broadly require active status</td>
+<td>Capability foundation, revocable access, explicit suspended-client fulfillment contract</td>
+<td>CP01/CP26 — <strong>CP01 foundation complete, 26 September 2026</strong> (<a href="rentra-client-admin-part01.md">handoff</a>); operator management remains CP26</td>
+</tr>
+<tr>
+<td>G08</td>
+<td>Partial / P1</td>
+<td>Gate 1 queue query returns submitted applications without bounded pagination/filter contract; review/decision pages already exist</td>
+<td>Paginated assigned queue, field-level correction history and stale-decision protection</td>
+<td>CP05</td>
+</tr>
+<tr>
+<td>G09</td>
+<td>Partial / P1</td>
+<td><code>listing_review</code> and <code>verification_visit</code> exist in schema but no mounted operational admin workflow was found</td>
+<td>Scheduled verification detail, evidence checklist, outcome and authorized publication</td>
+<td>CP07</td>
+</tr>
+<tr>
+<td>G10</td>
+<td>Partial / P1</td>
+<td><code>applyEdit</code> sends live trust edits back to review; pause/resume is a current-state toggle</td>
+<td>Explicit revision diff and optimistic versioning; review/hide/edit/resume race safety and separate admin restrictions</td>
+<td>CP08</td>
+</tr>
+<tr>
+<td>G11</td>
+<td>Partial / P1</td>
+<td>Calendar screen is schedule/block/override forms for one property</td>
+<td>Portfolio visual agenda and interval drill-down while preserving backend inventory authority</td>
+<td>CP10</td>
+</tr>
+<tr>
+<td>G12</td>
+<td>Partial / P1</td>
+<td>Partner booking pages reuse the customer record component with <code>operational</code>; useful detail and transitions exist</td>
+<td>Owner-focused work views/checklists, linked issues and visit-level state clarity</td>
+<td>CP12/CP13</td>
+</tr>
+<tr>
+<td>G13</td>
+<td>Missing / P1</td>
+<td>No mounted admin booking amendment/owner-cancellation case workflow</td>
+<td>Previewed, idempotent case resolution using accepted rules and available inventory</td>
+<td>CP14</td>
+</tr>
+<tr>
+<td>G14</td>
+<td>Partial / P1</td>
+<td>Visit evidence stores note/attestation/time; no dedicated condition-photo/incident case workflow found</td>
+<td>Restricted evidence attachments, incident detail and superseding correction history</td>
+<td>CP13/CP23</td>
+</tr>
+<tr>
+<td>G15</td>
+<td>Discoverability / P1</td>
+<td><code>/partner/reviews</code> exists but <code>PartnerShell</code>'s nav groups omit Reviews</td>
+<td>Link and improve the existing feature; connect review detail/report status to the eligible visit</td>
+<td>CP02/CP18</td>
+</tr>
+<tr>
+<td>G16</td>
+<td>Missing / P1</td>
+<td>Partner routes have no client-originated support or operational inbox surface</td>
+<td>Client support cases and persisted updates with participant isolation</td>
+<td>CP15/CP17</td>
+</tr>
+<tr>
+<td>G17</td>
+<td>Schema only / P1</td>
+<td><code>client_staff</code> schema exists; mounted partner routes expose no staff invitation/auth/property-scoping management</td>
+<td>Working caretaker permissions, invitation/revocation and property assignment UI/API</td>
+<td>CP16</td>
+</tr>
+<tr>
+<td>G18</td>
+<td>Partial / P1</td>
+<td><code>/admin/payments</code> is <strong>Gateway settings</strong>, not a searchable payment investigation console</td>
+<td>Separate finance payment list/detail, attempts, allocation/event timeline and reconcile action</td>
+<td>CP19</td>
+</tr>
+<tr>
+<td>G19</td>
+<td>Partial / P1</td>
+<td>Refund accounting/services exist; no dedicated admin refund list/detail/preview command interface</td>
+<td>Bounded refund operations and recovery; unknown outcomes cannot create duplicate obligations</td>
+<td>CP20</td>
+</tr>
+<tr>
+<td>G20</td>
+<td>Partial / P1</td>
+<td>Partner payout settings compare entered names and save a masked bank suffix; no provider-backed beneficiary verification or versioned approval surface</td>
+<td>Accurate readiness copy, destination history/verification workflow and pinned payout destinations</td>
+<td>CP21</td>
+</tr>
+<tr>
+<td>G21</td>
+<td>Missing UI / P1</td>
+<td>Live-only accounting readers and payout schema exist; no dedicated owner statement/payout detail or admin payout console</td>
+<td>Reconciled read-only finance screens first; actual execution behind the existing live release gates</td>
+<td>CP22/CP32</td>
+</tr>
+<tr>
+<td>G22</td>
+<td>Schema/enum foundation / P1</td>
+<td>Booking <code>disputed</code> and payout <code>frozen</code> values exist without a complete dispute/deposit case interface</td>
+<td>Evidence-based case detail, party responses, adjudication and verifiable financial effect</td>
+<td>CP23</td>
+</tr>
+<tr>
+<td>G23</td>
+<td>Missing / P1</td>
+<td>Cities/areas/categories/amenities are read by listing/catalogue APIs; mounted admin routes have no catalogue CRUD</td>
+<td>Validated admin management, reference-aware archive/replacement and public invalidation</td>
+<td>CP24</td>
+</tr>
+<tr>
+<td>G24</td>
+<td>Code-defined / P1</td>
+<td><code>src/services/constants.js</code>, booking policy and frontend equivalents contain intents/labels/limits; public policy versions are code data</td>
+<td>Separate editorial/business settings from technical limits; draft/publish/version/rollback workflows</td>
+<td>CP11/CP25/CP29</td>
+</tr>
+<tr>
+<td>G25</td>
+<td>Partial / P1</td>
+<td>Privacy admin can list requests and start review; UI explicitly says export/deletion are separate</td>
+<td>Request detail, reviewed retention plan, export/anonymization jobs and verified completion receipt</td>
+<td>CP27</td>
+</tr>
+<tr>
+<td>G26</td>
+<td>Backend foundation / P1</td>
+<td><code>audit_log</code> and audited actions exist, but no admin audit browser or governed export console</td>
+<td>Searchable/redacted event history, sensitive-read audit and scoped export jobs</td>
+<td>CP28</td>
+</tr>
+<tr>
+<td>G27</td>
+<td>Partial / P1</td>
+<td>Operations and delivery pages exist; no incident assignment/escalation/detail path for every alert</td>
+<td>Actionable alert links, incident workflow and safe provider/delivery recovery</td>
+<td>CP29</td>
+</tr>
+<tr>
+<td>G28</td>
+<td>Verify / P1</td>
+<td>Property edit page uses <code>partnerApi.listing(id).catch(() =&gt; null)</code> before <code>notFound()</code></td>
+<td>Distinguish missing/unauthorized records from API outage; preserve recovery and do not mislabel a service failure as a missing property</td>
+<td>CP02/CP09</td>
+</tr>
+<tr>
+<td>G29</td>
+<td>Verify / P1</td>
+<td>Current KYC and payout settings copy can read as stronger verification than name comparison; old client plan includes unverified targets and policy assumptions</td>
+<td>Copy tied to recorded evidence, configured capabilities and approved commercial rules</td>
+<td>CP05/CP21/CP25</td>
+</tr>
+<tr>
+<td>G30</td>
+<td>Runtime verification pending / P1</td>
+<td>Shells/loaders/tables exist, but this review did not interact with authenticated mobile/keyboard journeys</td>
+<td>Measured route-level responsive/accessibility/performance and permission coverage</td>
+<td>CP30/CP31</td>
+</tr>
+<tr>
+<td>G31</td>
+<td>External gate / P0 for release</td>
+<td>Part 19 provider acceptance record remains unexecuted in the inspected customer handoff; Part 20 is in progress</td>
+<td>Actual hosted Test capture/refund/webhook evidence before live enablement; no success inference from fixtures</td>
+<td>CP30/CP32</td>
+</tr>
+<tr>
+<td>G32</td>
+<td>Cross-application / P0</td>
+<td>Customer UI and API extraction changed after older runbooks; source paths and some historical commands no longer describe the live code layout</td>
+<td>Build in Express/Next current architecture, keep shared contracts coherent and re-run current customer flows</td>
+<td>Every part; CP30</td>
+</tr>
+</tbody>
+</table></div><h3>UI improvements by surface</h3><div aria-label="audit ui improvements by surface table 1" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">Surface</th>
+<th scope="col">Keep</th>
+<th scope="col">Add / refine</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Partner shell</td>
+<td>Existing responsive navigation, account state and pending navigation feedback</td>
+<td>Reviews, calendar, support, updates, finance and team only when real routes are delivered; accurate current breadcrumb and capability-based navigation</td>
+</tr>
+<tr>
+<td>Admin shell</td>
+<td>Existing grouped dark sidebar and reusable admin primitives</td>
+<td>People, properties/reviews/verification, finance, audit/content/settings; avoid a very long flat navigation list</td>
+</tr>
+<tr>
+<td>Property editor</td>
+<td>Existing stepwise creation and independent section editing</td>
+<td>Operations overview, revision state, field feedback, unsaved state, conflict recovery and change-effect preview</td>
+</tr>
+<tr>
+<td>Calendar</td>
+<td>Existing hours/price/block mutations</td>
+<td>Readable slot/status legend, buffer/overnight presentation, event detail and bulk impact preview</td>
+</tr>
+<tr>
+<td>Booking detail</td>
+<td>Accepted snapshots, per-visit timeline, payment information, arrival data and downloads</td>
+<td>Task-oriented owner header, admin linked records, internal note boundaries, cases and action receipts</td>
+</tr>
+<tr>
+<td>Admin application</td>
+<td>Existing complete review page and private document viewer</td>
+<td>Queue context, assignment, decision/history diff and conflict-safe review</td>
+</tr>
+<tr>
+<td>Payment settings</td>
+<td>Existing Test gateway/version controls</td>
+<td>Clear separation from transaction investigation; readiness without showing secret values</td>
+</tr>
+<tr>
+<td>Support and review queues</td>
+<td>Current persistence, replies/moderation and honest on-page counts</td>
+<td>Search/filter/pagination consistency, dedicated review detail, assignment/internal notes and related-record navigation</td>
+</tr>
+<tr>
+<td>Privacy/operations</td>
+<td>Existing acknowledgement, health, delivery and namespace separation</td>
+<td>Fulfillment/detail/recovery workflows; no “resolved” or “completed” claims without the underlying operation</td>
+</tr>
+</tbody>
+</table></div><h3>How findings become verified</h3><p>During each implementation part, record the route, role, fixture/data source, before/after behavior and executed check. Screenshots alone cannot prove authorization, finance correctness or persistence. Use screenshots for layout/focus evidence, API assertions for access boundaries, database concurrency checks for races and independent provider evidence for payment outcomes.</p>
+<p>No existing shell should be discarded solely because it appears in this audit. “Missing” rows become complete only when their UI, API, data rules and acceptance gate are delivered together. Update the gap row with the completed part/runbook and date; do not rewrite this baseline as if the feature had always existed.</p><h3>Source entry points</h3><ul>
+<li><a href="architecture-alignment.md">Frontend architecture notes</a></li>
+<li><a href="customer-experience-refresh.md">Customer refresh and later map/card work</a></li>
+<li><a href="../components/admin/AdminShell.jsx">Admin navigation</a> and <a href="../components/partner/PartnerShell.jsx">partner navigation</a></li>
+<li><a href="../components/admin/AdminBookingDetail.jsx">Admin booking detail</a> and <a href="../components/customer/BookingRecords.jsx">shared booking records</a></li>
+<li><a href="../../rentra-backend/src/routes/admin.route.js">Backend admin routes</a> and <a href="../../rentra-backend/src/routes/partner.route.js">partner routes</a></li>
+<li><a href="../../rentra-backend/src/services/db/schema/index.js">Backend schema</a></li>
+<li><a href="../../rentra-backend/src/services/auth/listings.js">Listing edit/review transitions</a></li>
+<li><a href="../../rentra-backend/src/services/auth/settings.js">Payout settings implementation</a></li>
+<li><a href="../../rentra-backend/src/services/constants.js">Current backend constants</a></li>
+<li><a href="rentra-customer-part19-provider-acceptance.md">Existing hosted Test acceptance record</a></li>
+</ul></div></section><section class="section" id="roadmap"><div class="label">12 / Build plan</div><h2>32 sessions. Three release boundaries.</h2><div class="prose"><div class="callout blue" id="build-status"><strong>Recorded implementation status: 1 of 32 parts complete.</strong> Next: CP02. This HTML presents the requirements and session roadmap; it does not certify implementation. The <a href="rentra-client-admin-sessions.md">Markdown session tracker</a> remains the status source. Regenerate this page when the source documents change.</div><div class="table-scroll" tabindex="0" role="region" aria-label="Release milestones"><table><caption>Recorded release status. A release is complete only when every one of its parts has passed its own gate.</caption><thead><tr><th scope="col">Release</th><th scope="col">Parts</th><th scope="col">Complete</th><th scope="col">Status</th></tr></thead><tbody><tr><td>R1 — Core operations</td><td>CP01–CP18</td><td>1 of 18</td><td>In progress</td></tr><tr><td>R2 — Complete Test back office</td><td>CP19–CP31</td><td>0 of 13</td><td>Planned</td></tr><tr><td>R3 — Live finance</td><td>CP32</td><td>0 of 1</td><td>Planned</td></tr></tbody></table></div><h3>Delivered parts</h3><div class="cards three"><div class="card"><span class="num">CP01 · complete</span><h3>Access, capabilities and revocable sessions</h3><p>Server-enforced access for every client and Super Admin route:</p>
+      <ul><li><code>src/services/auth/capabilities.js</code> — explicit Super Admin, pending/active client and contract-only caretaker capability sets; unmapped routes fail closed.</li>
+      <li><code>requirePortalCapability</code> mounted before all <code>/partner</code> and <code>/admin</code> controllers, including document downloads: 401 when the session ended, 403 <code>CAPABILITY_REQUIRED</code> otherwise.</li>
+      <li>Migration <code>0022_portal_access</code>: <code>portal_session</code> table, <code>admin_user.permissions</code> and a trigger that revokes sessions on role, status, email, permission, password, TOTP or deactivation changes.</li>
+      <li>Audience-bound tokens; issuance locks the principal so a sign-in racing a suspension never yields a valid session. Logout revokes and audits once.</li>
+      <li>Suspended/blocked clients have no portal access; new business was already blocked; admins fulfil existing bookings.</li>
+      <li>Frontend navigation follows returned capabilities; login pages explain ended and restricted sessions; an API outage is no longer shown as a sign-out.</li></ul>
+      <p class="small"><strong>Gate passed — 26 September 2026:</strong> the disposable-PostgreSQL integration test passed against the real <code>0022</code> SQL, DAL and Express middleware (cross-audience cookies, permission-less download denial, revocation, suspension, credential changes, expiry, legacy tokens, issuance race, customer session preserved). Backend <code>npm test</code> 75 pass / 1 skipped without the disposable URL, <code>db:check</code> 23 files, ESLint/Prettier; frontend tests 15/15 and the Webpack build passed. Customer tokens stay valid; client/admin users sign in once. <strong>Migration 0022 is not applied</strong> to the configured database — apply it before deploying the backend. <a href="rentra-client-admin-part01.md">Handoff, permission matrix and runbook ↗</a></p></div>
+    <div class="card"><span class="num">CP01 · explicitly not delivered</span><h3>Limits recorded at the gate</h3>
+      <ul><li>No screen or API to edit <code>admin_user.permissions</code>; <code>NULL</code> keeps full Super Admin access. Operator management is CP26.</li>
+      <li>No restricted-fulfillment mode for suspended clients; fulfillment is admin-controlled. Suspension impact preview is CP03.</li>
+      <li>Caretaker capabilities are a contract only; authentication and property assignment are CP16.</li>
+      <li>Hidden admin pages still open by URL; their API calls return 403. Explicit forbidden states are CP02.</li>
+      <li>No authenticated browser, hosted environment or deployment checks were run.</li></ul></div></div><h3>How to use this roadmap</h3><p>One part is the target for one implementation session, including its meaningful checks and handoff. This is a scope boundary, not a promise about token capacity or elapsed time. Recheck the current source and dependencies before starting; other developers may have changed the baseline. If a part exceeds the available session, leave it in progress with a precise continuation record. Do not declare it complete because its UI or schema alone exists.</p>
+<p>Each part owns its end-to-end slice: necessary Express API/service/schema changes, frontend integration, server-side permissions, persisted loading/error/success behavior, and regression evidence. Reuse existing foundations. Routes and models in the requirements plan are proposals until implemented. Never bypass the backend by adding direct frontend database access.</p>
+<p>CP01 is <strong>COMPLETE</strong>. All other parts are <strong>PLANNED</strong>, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.</p>
+<div aria-label="roadmap how to use this roadmap table 1" class="table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th scope="col">Part</th>
+<th scope="col">Session scope</th>
+<th scope="col">Dependencies</th>
+<th scope="col">Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CP01</td>
+<td>Access, capabilities and session revocation</td>
+<td>Current auth baseline</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td>CP02</td>
+<td>Shared portal interaction foundations</td>
+<td>CP01</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP03</td>
+<td>Client directory, detail and lifecycle</td>
+<td>CP01–02</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP04</td>
+<td>Customer directory and account controls</td>
+<td>CP01–02</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP05</td>
+<td>Gate 1 application review</td>
+<td>CP03</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP06</td>
+<td>Gate 2 property review</td>
+<td>CP03, CP05</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP07</td>
+<td>Verification and publication</td>
+<td>CP06</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP08</td>
+<td>Revisions and admin publication restrictions</td>
+<td>CP06–07</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP09</td>
+<td>Client property operations hub</td>
+<td>CP02, CP06–08</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP10</td>
+<td>Portfolio calendar and interval operations</td>
+<td>CP09</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP11</td>
+<td>Versioned pricing and booking policy</td>
+<td>CP08, CP10; applicable business decisions</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP12</td>
+<td>Booking work queues and operational detail</td>
+<td>CP02–04, CP09</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP13</td>
+<td>Visit evidence and incidents</td>
+<td>CP12</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP14</td>
+<td>Admin booking resolution cases</td>
+<td>CP12–13</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP15</td>
+<td>Client tasks, updates and preferences</td>
+<td>CP05–14</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP16</td>
+<td>Caretaker invitations and property access</td>
+<td>CP01, CP09, CP12–13</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP17</td>
+<td>Client support and admin case assignment</td>
+<td>CP03–04, CP12</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP18</td>
+<td>Review detail and moderation history</td>
+<td>CP02–04, CP09</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP19</td>
+<td>Payment investigation console</td>
+<td>CP04, CP12</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP20</td>
+<td>Refund operations</td>
+<td>CP14, CP19</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP21</td>
+<td>Versioned payout destinations</td>
+<td>CP01, CP03</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP22</td>
+<td>Statements and payout read models</td>
+<td>CP19–21; approved display definitions</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP23</td>
+<td>Dispute and deposit cases</td>
+<td>CP13–14, CP17, CP19–20</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP24</td>
+<td>Reference-aware catalogue administration</td>
+<td>CP08–09</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP25</td>
+<td>Content and policy publication</td>
+<td>CP11, CP24</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP26</td>
+<td>Admin operator and security management</td>
+<td>CP01–02</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP27</td>
+<td>Privacy fulfillment</td>
+<td>CP04, CP17, CP26</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP28</td>
+<td>Audit browser and governed exports</td>
+<td>CP03–27</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP29</td>
+<td>Operational incidents and service controls</td>
+<td>CP15, CP19–20, CP26, CP28</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP30</td>
+<td>Cross-role regression and hosted Test acceptance</td>
+<td>CP01–29; hosted Test environment</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP31</td>
+<td>Accessibility, performance and operator handoff</td>
+<td>CP30 for release; UI checks may start earlier</td>
+<td>PLANNED</td>
+</tr>
+<tr>
+<td>CP32</td>
+<td>Later live-finance activation</td>
+<td>CP30–31, customer Parts 20–22 and external gates</td>
+<td>PLANNED</td>
+</tr>
+</tbody>
+</table></div><h3>Release boundaries</h3><ul>
+<li><strong>R1 — Core operations:</strong> CP01–18. Clients can submit, correct and operate properties; admins can review, publish, control accounts and resolve operational cases. Run relevant customer regression and accessibility checks for these journeys before an R1 deployment. Incomplete finance controls remain unavailable.</li>
+<li><strong>R2 — Complete Test back office:</strong> CP19–31, including security, privacy, audit and operator handoff. Actual hosted Test evidence is required for the payment acceptance claim. Fixture success alone cannot complete that gate.</li>
+<li><strong>R3 — Live finance:</strong> CP32 only after the existing customer live-payment, refund and payout workstream and external prerequisites pass. R1/R2 do not imply permission or readiness to collect or disburse live money.</li>
+</ul>
+<p>The sequence favors closing the missing property approval workflow early. Independent parts can be reordered when their dependencies pass. Do not launch unverified later controls simply because navigation has been added.</p><h3>One bounded part per session</h3><p>Each card includes deliverables and a verification gate. Session size is a target, not a token or delivery-time guarantee.</p><div class="cards session-grid"><article class="card session-card complete" id="cp01"><span class="num">CP01 · complete</span><h3>Access, capabilities and revocable sessions</h3><p><strong>Deliver:</strong> Inventory protected routes and define explicit Super Admin, client and future caretaker capabilities. Enforce the capability checks in Express; add a revocable-session or equivalent server-checked version mechanism across protected operations. Agree the suspended-client fulfillment rule and distinguish restricted fulfillment access from creating new business. Frontend receives only permitted actions and clear expired/revoked/restricted states.</p>
+<p><strong>Gate:</strong> Verify cross-audience cookie rejection, direct API denial, session revocation and suspension on the next protected request, including downloads. Record a permission matrix and session migration/logout behavior. Acceptance: CA01–02, CA19. Defer operator management screens to CP26; preserve existing valid sign-in journeys.</p>
+<p><strong>Gate passed — 26 September 2026:</strong> the disposable-PostgreSQL integration test passed against the real <code>0022</code> SQL, DAL and Express middleware. It covered cross-audience cookie rejection, 403 on a permission-less document download, revocation on logout, suspension, permission, password, TOTP and deactivation changes, expiry, legacy tokens and an issuance/suspension race. Backend <code>npm test</code> (75 pass, 1 skipped without the disposable URL), <code>db:check</code>, ESLint/Prettier, frontend tests (15/15) and the Webpack build also passed. Customer tokens remain valid; client/admin users sign in once. Suspended clients have no portal access; admins fulfill existing bookings. Migration <code>0022</code> is <strong>not applied</strong> to the configured database. <a href="rentra-client-admin-part01.md">CP01 handoff and permission matrix</a>.</p><p class="small"><a href="rentra-client-admin-part01.md">CP01 handoff and runbook ↗</a></p></article><article class="card session-card" id="cp02"><span class="num">CP02 · planned</span><h3>Shared list, detail and form behavior</h3><p><strong>Deliver:</strong> Extend existing portal primitives with consistent page headers, breadcrumbs, URL-backed filtering/pagination, detail tabs, contextual actions, validation summaries and explicit empty/error/forbidden/not-found states. Add the planned navigation structure with only available destinations enabled; expose the existing partner reviews route. Define mobile list/card and action-menu behavior, dialog focus, dirty-form handling and retry preservation.</p>
+<p><strong>Gate:</strong> Demonstrate representative client and admin list/detail/form flows with keyboard and narrow viewport checks. An API outage must not become an empty list or false 404. Acceptance: CA21–22. Do not restyle every page in this session.</p></article><article class="card session-card" id="cp03"><span class="num">CP03 · planned</span><h3>Admin client directory and lifecycle</h3><p><strong>Deliver:</strong> Searchable, paginated client directory and detail with profile, onboarding status, linked properties/bookings and lifecycle history. Implement explicit suspension/reinstatement commands with reason, impact preview and concurrency protection. Apply CP01's fulfillment policy; show upcoming obligations and a safe resolution path. Reserve financial/team tabs for their later real integrations.</p>
+<p><strong>Gate:</strong> Suspend and reinstate through the UI and direct API, verify permission changes, stale-version conflicts and upcoming-booking visibility. Acceptance: CA01–03, CA19, CA21. Do not implement property ownership transfer as an unguarded owner-ID edit; list it as unavailable until historical attribution is preserved.</p></article><article class="card session-card" id="cp04"><span class="num">CP04 · planned</span><h3>Admin customer directory and account controls</h3><p><strong>Deliver:</strong> Customer search and detail with linked bookings, support, reviews and privacy records. Add permitted profile corrections, account restriction/reinstatement and session revocation with reason/history. Separate identity corrections from authentication recovery; no plaintext credentials, secrets or unrestricted impersonation.</p>
+<p><strong>Gate:</strong> Verify object-level permissions, sensitive-field minimization, duplicate/invalid correction handling and revocation while a session is active. Acceptance: CA02, CA19, CA21, CA23. Deletion/export requests link to the privacy workflow; fulfillment arrives in CP27.</p></article><article class="card session-card" id="cp05"><span class="num">CP05 · planned</span><h3>Gate 1 application review</h3><p><strong>Deliver:</strong> Upgrade the existing application queue with pagination, filters, assignment, aging and stable return-to-list context. Detail includes safe document access, application history, structured correction requests and approve/reject decisions tied to the reviewed version. Client sees actionable correction requirements and resubmission progress. Replace unsupported verification claims with the actual evidence status.</p>
+<p><strong>Gate:</strong> Two reviewers cannot commit contradictory decisions; duplicate submissions cannot send duplicate decision notifications. Check private document authorization and correction/resubmission. Acceptance: CA01, CA03, CA19, CA21. Reuse current review services instead of introducing a parallel approval system.</p></article><article class="card session-card" id="cp06"><span class="num">CP06 · planned</span><h3>Gate 2 listing queue and review detail</h3><p><strong>Deliver:</strong> Add the missing admin listing-review API and UI. Queue filters identify pending work and responsible reviewer. Detail renders a specific submitted revision, readiness failures, photos, location, rules, amenities and owner/application links. Persist request-changes, rejection and approval-for-verification decisions with reasons and exact revision attribution; clients can see and address them.</p>
+<p><strong>Gate:</strong> Exercise submission, request changes and resubmission without database editing. Reject stale decisions and unauthorized publication attempts. Acceptance: CA03–04, CA19, CA21. Approval for verification is not publication; CP07 owns that transition.</p></article><article class="card session-card" id="cp07"><span class="num">CP07 · planned</span><h3>Verification scheduling and publication</h3><p><strong>Deliver:</strong> Build on existing verification schema for assignment, appointments, cancellation/rescheduling, evidence, findings and history. Specify required evidence and any explicitly authorized waiver policy. Publish only the eligible reviewed revision after server-side checks; record actor, revision, time and decision. Update client progress and public visibility/cache behavior.</p>
+<p><strong>Gate:</strong> Complete the full submission-to-publication journey through UI/API; insufficient evidence and stale revisions cannot publish. Exact/private location and verification attachments stay protected. Acceptance: CA03–05, CA19, CA23. Publication must not falsely imply saleable inventory exists.</p></article><article class="card session-card" id="cp08"><span class="num">CP08 · planned</span><h3>Listing revisions and administrative restrictions</h3><p><strong>Deliver:</strong> Add version-aware admin corrections and revision comparison/history. Distinguish owner pause from admin visibility restriction and implement hide/restore with reasons, preview and version guards. Preserve current re-review behavior for material edits unless a reviewed design explicitly introduces separate public/working revisions. Confirmed bookings retain their accepted snapshots.</p>
+<p><strong>Gate:</strong> Race material edit, publication, admin hide and owner resume; an owner cannot undo an admin restriction. Verify existing booking fulfillment remains accessible under the chosen policy. Acceptance: CA03, CA05, CA23. Property archival must handle references; no cascading deletion of business history.</p></article><article class="card session-card" id="cp09"><span class="num">CP09 · planned</span><h3>Client property operations hub</h3><p><strong>Deliver:</strong> Give a property a real overview distinct from its editor: approval/readiness, saleable inventory, upcoming visits, calendar, pricing, rules, photos and action history. Improve editor section errors, save/conflict feedback and actionable review corrections. Replace unsupported earnings ranges and misleading live/bookable copy. Preserve public preview and setup routes where useful.</p>
+<p><strong>Gate:</strong> A client can move from directory to property status, correction, save and calendar without losing context. Verify another owner's IDs are denied and network errors remain recoverable. Acceptance: CA01, CA04–05, CA21–22. Do not invent earnings estimates without a documented data basis.</p></article><article class="card session-card" id="cp10"><span class="num">CP10 · planned</span><h3>Portfolio calendar and interval detail</h3><p><strong>Deliver:</strong> Add a visual portfolio/per-property calendar over current availability services. Show bookings, owner blocks, holds, buffers and overrides distinctly, with a keyboard-accessible list alternative. Interval detail links its source record and allowed actions. Bound bulk changes with affected-interval preview and explicit atomicity/result semantics.</p>
+<p><strong>Gate:</strong> Exercise last-space booking versus blocking, overnight intervals, buffers, expired holds and stale overrides. Owner unblock never releases a booking reservation. Acceptance: CA01, CA06, CA21–22. Reuse authoritative inventory transactions; calendar color is not availability authority.</p></article><article class="card session-card" id="cp11"><span class="num">CP11 · planned</span><h3>Versioned pricing and supported booking policy</h3><p><strong>Deliver:</strong> Classify current code constants into business-editable settings versus security/technical limits. Implement only approved pricing/policy controls with typed validation, preview, effective version and audit history. Persist accepted policy snapshots and invalidate/revalidate stale quotes. Document precedence between property prices, overrides and permitted platform settings.</p>
+<p><strong>Gate:</strong> Verify invalid/racing updates, boundary dates, existing booking snapshots and customer quote totals. Acceptance: CA06, CA17, CA23. Customer Part 20 still owns unresolved live commercial decisions; do not silently select taxes, commission, deposits or settlement promises to finish this part.</p></article><article class="card session-card" id="cp12"><span class="num">CP12 · planned</span><h3>Booking work queues and operational detail</h3><p><strong>Deliver:</strong> Extend existing booking records/detail rather than rebuilding them. Add role-specific upcoming/today/action-needed filters, property links and per-visit status/action presentation. Clearly distinguish booking-wide payment status from mixed visit states. Scope arrival instructions and customer contact to authorized operational need; connect admin customer/client details.</p>
+<p><strong>Gate:</strong> Verify multi-visit and mixed-state bookings, empty/error states and cross-owner access. Existing automatic confirmation after verified capture remains intact. Acceptance: CA01, CA07, CA21–23. Do not add owner accept/reject booking decisions.</p></article><article class="card session-card" id="cp13"><span class="num">CP13 · planned</span><h3>Visit evidence and incident records</h3><p><strong>Deliver:</strong> Extend existing visit transitions with private attachments, permitted evidence types, upload limits, server validation and retention classification. Add visit-linked incidents and correction records that supersede earlier evidence without erasing it. Record actor, time, provenance and version for handover/return/completion evidence.</p>
+<p><strong>Gate:</strong> Duplicate or stale transitions produce one effect; unsafe/unauthorized uploads and guessed downloads fail. Distinguish real from simulated evidence. Acceptance: CA01, CA07, CA19. Financial liability adjudication belongs to CP23, not an incident checkbox.</p></article><article class="card session-card" id="cp14"><span class="num">CP14 · planned</span><h3>Admin booking change and cancellation cases</h3><p><strong>Deliver:</strong> Add cases linked to exact visits with requester, reason, assignment, evidence and outcome. Preview cancellation effects on inventory and refund eligibility using existing rules. For changes, expose the supported cancel-and-rebook route and replacement-inventory limitations; do not mutate confirmed booking snapshots in place. Provide customer/client progress communication.</p>
+<p><strong>Gate:</strong> Repeat and race resolution requests without duplicate releases or refunds. Make partial/multi-visit effects explicit and do not promise replacement inventory before it is reserved. Acceptance: CA07–08, CA11, CA23. Refund-provider operations are CP20.</p></article><article class="card session-card" id="cp15"><span class="num">CP15 · planned</span><h3>Client task dashboard and persisted updates</h3><p><strong>Deliver:</strong> Replace decorative overview content with scoped tasks derived from existing approval, readiness, visit and case states. Add a persisted client updates inbox with read status, deep links and supported notification preferences. Ensure task counts and destinations agree; distinguish informational updates from required work.</p>
+<p><strong>Gate:</strong> Verify counts and permissions after state changes, repeat delivery, read/unread persistence and failed-load recovery. Acceptance: CA01, CA20–21. Scope to current channels and defined operational events; this is not a marketing campaign builder or a new chat system.</p></article><article class="card session-card" id="cp16"><span class="num">CP16 · planned</span><h3>Caretaker and team access</h3><p><strong>Deliver:</strong> Turn existing staff foundations into owner-managed invitation, acceptance, assigned-property access and revocation. Enforce a narrow caretaker capability set for assigned visits/evidence and permitted operational contact. Expire/revoke invitations and active sessions; show owner-visible membership history.</p>
+<p><strong>Gate:</strong> Test guessed property IDs, reassignment, expired/reused invites and revoked active sessions. Caretakers cannot access earnings, KYC, pricing or staff administration. Acceptance: CA01–02, CA13, CA19. Owner permission does not grant platform administration.</p></article><article class="card session-card" id="cp17"><span class="num">CP17 · planned</span><h3>Client support and assigned admin cases</h3><p><strong>Deliver:</strong> Add client-originated cases and threads alongside current customer support. Admin detail supports assignment, status, internal notes, attachments and links to relevant records. Keep participants explicit; linking client/customer cases never shares their private threads. Persist messages before showing success.</p>
+<p><strong>Gate:</strong> Verify customer/client/internal-note isolation, reassignment conflicts, duplicate reply handling and private attachments. Acceptance: CA01, CA14, CA19, CA21. Reuse configured delivery and existing thread semantics where appropriate.</p></article><article class="card session-card" id="cp18"><span class="num">CP18 · planned</span><h3>Review detail and moderation history</h3><p><strong>Deliver:</strong> Complete client review discoverability and admin review/report detail with booking/property links, response/report history and reasoned moderation. Show what becomes public before a reply or moderation decision is committed. Keep evidence and previous decisions while updating visible content and aggregates consistently.</p>
+<p><strong>Gate:</strong> Check score-neutral moderation, report resolution, concurrent changes and public review count/rating invalidation. Acceptance: CA01, CA15, CA21, CA23. Negative sentiment alone is not a removal reason; no rewriting guest ratings through admin profile editing.</p></article><article class="card session-card" id="cp19"><span class="num">CP19 · planned</span><h3>Payment investigation console</h3><p><strong>Deliver:</strong> Add transaction lists and details separate from gateway settings: environment/provenance, attempt/order/payment IDs, allocations, linked bookings, evidence, events and reconciliation state. Build accurate filters, pagination and totals from authoritative records. Expose only supported safe reconciliation commands with idempotency and audit.</p>
+<p><strong>Gate:</strong> Verify totals against fixture ledger cases without duplicated joins or live/Test mixing. Invalid callback evidence cannot mark paid; disabled gateway behavior still handles outstanding obligations. Acceptance: CA09–10, CA19, CA21. Provider credentials and raw sensitive payloads are not general UI fields.</p></article><article class="card session-card" id="cp20"><span class="num">CP20 · planned</span><h3>Refund operations queue and detail</h3><p><strong>Deliver:</strong> Implement refund eligibility preview, exact allocation/amount breakdown, guarded submission and processing/uncertain/failed/succeeded detail. Link cancellation cases and provider events; retry or reconcile the same obligation after ambiguity. Explain rejection and recovery paths without optimistic refunded labels.</p>
+<p><strong>Gate:</strong> Concurrent requests cannot exceed remaining captured funds. Verify duplicate callbacks, timeout-after-provider-acceptance and repeated operator commands. Acceptance: CA08–11, CA19. Test fixtures validate logic; real provider acceptance is recorded separately in CP30.</p></article><article class="card session-card" id="cp21"><span class="num">CP21 · planned</span><h3>Versioned payout destinations</h3><p><strong>Deliver:</strong> Replace misleading name-match claims with explicit draft/submitted/verified/failed states based on actual available evidence. Introduce safe destination versions, masked display, access controls, recent-authentication requirements and a provider verification boundary. Obligations pin their destination version; unsupported verification remains visibly unavailable/pending.</p>
+<p><strong>Gate:</strong> Verify private field handling, failed verification, stale changes and destination pinning. Acceptance: CA02, CA12, CA19. No live payout activation or provider verification success claim without corresponding integration/evidence; a last-four-digit comparison is not verification.</p></article><article class="card session-card" id="cp22"><span class="num">CP22 · planned</span><h3>Statements and payout read models</h3><p><strong>Deliver:</strong> Define and implement owner/admin statements, period filters, booking/allocation links, adjustments and payout detail from current immutable evidence. Label pending, eligible, held and settled amounts precisely; separate all environments. Show unavailable capabilities honestly when live settlement has not shipped.</p>
+<p><strong>Gate:</strong> Reconcile list/detail/statement totals, partial refunds, old-owner attribution and pinned destinations. Acceptance: CA01, CA09, CA12, CA19. This is a read-model/UI session, not implementation of a new live payout engine or permission to disburse.</p></article><article class="card session-card" id="cp23"><span class="num">CP23 · planned</span><h3>Dispute and deposit adjudication cases</h3><p><strong>Deliver:</strong> Add case intake, evidence, assignment, requested response and reasoned resolution linked to visits/payments. Distinguish service disputes from provider disputes. Where an approved deposit policy and actual collection exist, show the supported release/deduction consequences and money workflow links; otherwise show deposit collection as unavailable.</p>
+<p><strong>Gate:</strong> Verify isolated participants/evidence, conflicting resolutions and monetary effects routed through authoritative refund/payment services. Acceptance: CA07–11, CA14, CA19. Never refund an uncollected deposit or turn an incident into an automatic charge. Actual provider dispute submission is conditional on a supported adapter.</p></article><article class="card session-card" id="cp24"><span class="num">CP24 · planned</span><h3>Reference-aware catalogue administration</h3><p><strong>Deliver:</strong> Add scoped catalogue screens and details for supported categories, amenities and location/reference data. Implement validation, ordering, active status, usage counts and replacement/deactivation previews. Preserve existing references, attribute types and public navigation semantics.</p>
+<p><strong>Gate:</strong> Referenced records cannot be blindly deleted; check replacement effects, duplicate labels/slugs, stale writes and customer discovery regression. Acceptance: CA16, CA19, CA23. Changes requiring data migration are explicit migrations, not unconstrained field edits.</p></article><article class="card session-card" id="cp25"><span class="num">CP25 · planned</span><h3>Public help, content and policy publication</h3><p><strong>Deliver:</strong> Add structured draft/preview/publish/history workflows for the agreed help/contact/policy content. Keep immutable published policy versions and historical URLs where referenced. Link applicable versions to customer acceptance; invalidate appropriate public caches and provide rollback as a new publication.</p>
+<p><strong>Gate:</strong> Verify permissions, input sanitization, stale publication, historical references and customer rendering. Acceptance: CA17, CA19, CA23. Do not allow arbitrary scripts, invent legal promises or silently rewrite previously accepted terms.</p></article><article class="card session-card" id="cp26"><span class="num">CP26 · planned</span><h3>Admin operator and security management</h3><p><strong>Deliver:</strong> Add Super Admin operator directory/detail, permitted capability assignment, activation/deactivation, session management and supported MFA enrollment/recovery. Use CP01 enforcement. Require recent authentication for high-impact access changes and prevent accidental removal of the last usable Super Admin.</p>
+<p><strong>Gate:</strong> Verify lost/revoked factors, role changes during active sessions, direct endpoint denial, self-lockout prevention and recovery auditing. Acceptance: CA02, CA19. Recovery does not expose existing passwords or TOTP seeds to operators.</p></article><article class="card session-card" id="cp27"><span class="num">CP27 · planned</span><h3>Privacy fulfillment jobs</h3><p><strong>Deliver:</strong> Extend the existing acknowledgment screen into identity/authority review, scoped export and deletion/anonymization jobs with stage tracking, retries and outcome receipts. Exports expire and require authorized download. Document which financial/audit records remain under the approved retention policy and how identifying fields are handled.</p>
+<p><strong>Gate:</strong> Verify foreign-account exclusion, expired downloads, partial failure/restart and accurate retained/deleted results. Acceptance: CA18–19, CA23. Do not claim full deletion when required stages failed or retained records remain; privacy jobs must not erase financial evidence.</p></article><article class="card session-card" id="cp28"><span class="num">CP28 · planned</span><h3>Audit browser and governed exports</h3><p><strong>Deliver:</strong> Build admin audit search/detail with actor, action, target, reason, correlation and safe before/after differences. Add bounded asynchronous exports for explicitly authorized datasets and receipts for supported bulk operations. Record sensitive reads/downloads and keep export access scoped and expiring.</p>
+<p><strong>Gate:</strong> Verify authorization at job creation and retrieval, revoked access, redaction, bounds and retry-safe execution. Acceptance: CA02, CA09, CA19. No generic SQL console, unrestricted table editor or delete-history control; bulk business mutations require their existing preview/command semantics.</p></article><article class="card session-card" id="cp29"><span class="num">CP29 · planned</span><h3>Operational incidents and service settings</h3><p><strong>Deliver:</strong> Connect existing operations/delivery monitors to actionable record drill-downs, incident assignment/notes/resolution and supported retry/reconciliation commands. Add typed controls only for the settings approved in the requirements plan, with change history and impact preview. Separate alert acknowledgment from measured recovery.</p>
+<p><strong>Gate:</strong> Verify worker/provider backlog and failure fixtures, stale data, recovery evidence and duplicate retry commands. Acceptance: CA10, CA17, CA20–21. Gateway disable still preserves outstanding processing; changing a setting does not imply infrastructure deployment or provider readiness.</p></article><article class="card session-card" id="cp30"><span class="num">CP30 · planned</span><h3>Cross-role regression and hosted Test acceptance</h3><p><strong>Deliver:</strong> Run integrated customer/client/caretaker/admin journeys against the completed code, including direct API abuse and concurrency cases. Validate the split frontend/backend deployment boundary. Exercise actual hosted Razorpay Test capture, cancellation/refund and webhook/reconciliation scenarios with server evidence, pinned revisions and sanitized provider identifiers.</p>
+<p><strong>Gate:</strong> Record CA01–24 results, fixes and unresolved blockers. Fixtures are separate evidence from actual provider execution. Required Test credentials belong in local/deployment secret storage, never documentation. Without a usable hosted environment/provider configuration, keep the provider gate blocked and this part incomplete; independent regression work can still finish.</p></article><article class="card session-card" id="cp31"><span class="num">CP31 · planned</span><h3>Accessibility, performance and operator handoff</h3><p><strong>Deliver:</strong> Audit critical client/admin workflows on representative mobile/desktop sizes and keyboard/screen-reader paths. Measure list/detail responsiveness and pagination under a documented data volume; resolve material problems. Finish navigation, empty/error states, help text and operator runbooks for approvals, booking incidents, refunds, privacy and recovery.</p>
+<p><strong>Gate:</strong> Record tested routes, measured conditions, accessibility issues resolved and any remaining limitations. Acceptance: CA19–24 plus relevant release regressions. UI verification may start while CP30 is waiting for external input; the R2 release gate remains incomplete until required CP30 evidence passes.</p></article><article class="card session-card" id="cp32"><span class="num">CP32 · planned</span><h3>Later live-finance activation</h3><p><strong>Deliver:</strong> Integrate and expose the already-delivered customer Parts 20–22 live payment/refund/payout capabilities in these admin/client screens. Check live configuration, commercial policy, destination verification, environment separation, reconciliation, operations ownership and rollout/rollback controls. Activate only capabilities whose underlying engine and external gates have passed.</p>
+<p><strong>Gate:</strong> Record required provider/business approval, actual environment-specific acceptance, accounting reconciliation and deployment evidence. Acceptance: CA09–12, CA19–20, CA23 plus the live-workstream gates. CP30 Test evidence does not certify live behavior. If the underlying live engine is missing, this slice stays blocked; building that engine is not hidden inside this one-session UI activation part.</p></article></div><h3>Verification and completion record</h3><p>Choose meaningful feature checks for the changed behavior, including API permissions and concurrency where applicable. Run repository checks appropriate to the touched code. At this baseline the frontend provides <code>npm run lint</code>, <code>npm run format:check</code>, <code>npm test</code> and <code>npm run build</code>; use the documented Webpack build option when the environment requires it. The backend has its own checks and <code>npm run db:check</code>; inspect its current scripts before running them. A source review or successful build does not prove runtime or provider acceptance.</p>
+<p>Schema work must record forward migration files, schema/journal agreement, compatibility and whether each target database was actually migrated. Use isolated verification data for destructive/concurrency tests. Do not assume a configured database is current because a historical handoff says a migration was generated.</p>
+<p>For each completed part create <code>rentra-client-admin-partNN.md</code> with:</p>
+<ol>
+<li>Scope delivered, affected frontend/backend revisions and linked CP/CA/G IDs.</li>
+<li>Screens, business commands and schema/API changes, including important decisions.</li>
+<li>Actual verification commands/scenarios and results; distinguish fixture, browser, hosted Test and live evidence.</li>
+<li>Migration, configuration and deployment status for each environment, with no secrets.</li>
+<li>Remaining limitations, external dependencies and the exact next step.</li>
+</ol>
+<p>Update this table and the audit dispositions only when the evidence supports the status. Use PLANNED, IN PROGRESS, BLOCKED or COMPLETE. A blocked part names the dependency and what remains actionable; a completed part has working behavior and passed required gates, not merely a merged design.</p><h3>Prompt for the next implementation session</h3><blockquote>
+<p>Start CP02 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01 handoff, inspect current frontend/backend changes and applicable repository instructions, then implement only CP02's end-to-end scope. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.</p>
+</blockquote>
+<p>Replace CP02 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.</p></div></section><section class="section" id="review"><div class="label">13 / Your review</div><h2>Ready for the next implementation session.</h2><div class="prose"><p class="lede">A personal review checklist, saved only in this browser. These checks do not change recorded delivery status or verify application behavior.</p><div class="card review-list"><label><input type="checkbox" data-review="0"><span>Review the client screen and property-detail requirements</span></label><label><input type="checkbox" data-review="1"><span>Review Super Admin data controls and approval workflows</span></label><label><input type="checkbox" data-review="2"><span>Settle the business decisions needed by the next part</span></label><label><input type="checkbox" data-review="3"><span>Review UI gaps, dependencies and acceptance scenarios</span></label><label><input type="checkbox" data-review="4"><span>Record implementation evidence before changing delivery status</span></label></div><p class="small muted" id="review-status" aria-live="polite">0 of 5 reviewed</p></div></section><section class="section" id="sources"><div class="label">14 / Companion documents</div><h2>One plan, in the format you need.</h2><div class="prose"><div class="cards"><article class="card"><h3>Requirements & evidence</h3><p><a href="rentra-client-admin-plan.md">Full requirements Markdown</a></p><p><a href="rentra-client-admin-ui-audit.md">Source-backed UI audit</a></p><p><a href="rentra-client-admin-sessions.md">Authoritative session tracker</a></p></article><article class="card"><h3>Existing Rentra plans</h3><p><a href="rentra-customer-plan.html">Customer experience plan</a></p><p><a href="rentra-client-plan.html">Earlier client concept</a></p><p><a href="architecture-alignment.md">Frontend/backend architecture</a></p></article></div><p class="small muted">This is a standalone, offline document generated from the three client/admin Markdown files. No credentials, network assets or application data are loaded.</p></div></section></main></div>
+<footer class="footer"><div class="wrap">Rentra / Client & Super Admin blueprint · 1 of 32 parts complete · Next: CP02 · Status source: <a href="rentra-client-admin-sessions.md">session tracker</a>.</div></footer>
+<script>
+document.getElementById('print-plan').addEventListener('click', () => window.print());
+const storageKey = 'rentra-client-admin-plan-review-v1';
+const checks = [...document.querySelectorAll('[data-review]')];
+let saved = [];
+let storageAvailable = true;
+try { const value = JSON.parse(localStorage.getItem(storageKey) || '[]'); if (Array.isArray(value)) saved = value; } catch { storageAvailable = false; }
+const updateReview = () => { document.getElementById('review-status').textContent = `${checks.filter(input => input.checked).length} of ${checks.length} reviewed · Delivery status is unchanged.${storageAvailable ? '' : ' Browser storage unavailable; checks last only for this page visit.'}`; };
+checks.forEach(input => {
+  input.checked = saved.includes(input.dataset.review);
+  input.addEventListener('change', () => {
+    try { localStorage.setItem(storageKey, JSON.stringify(checks.filter(item => item.checked).map(item => item.dataset.review))); } catch { storageAvailable = false; }
+    updateReview();
+  });
+});
+updateReview();
+if ('IntersectionObserver' in window) {
+  const links = [...document.querySelectorAll('.index nav a, .topnav a')];
+  const observer = new IntersectionObserver(entries => {
+    const visible = entries.filter(entry => entry.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+    if (!visible) return;
+    links.forEach(link => { const active = link.hash === '#' + visible.target.id; link.classList.toggle('active', active); if (active) link.setAttribute('aria-current', 'location'); else link.removeAttribute('aria-current'); });
+  }, {rootMargin: '-90px 0px -65% 0px', threshold: 0});
+  document.querySelectorAll('main > section').forEach(section => observer.observe(section));
+}
+</script></body></html>

@@ -107,7 +107,7 @@ function NavigationLink({ item, pathname, enabled, onNavigate }) {
   );
 }
 
-function Navigation({ pathname, accountActive, onNavigate }) {
+function Navigation({ pathname, capabilities, onNavigate }) {
   return (
     <nav className="mt-8 space-y-7" aria-label="Owner navigation">
       {NAV_GROUPS.map((group) => (
@@ -121,7 +121,14 @@ function Navigation({ pathname, accountActive, onNavigate }) {
                 key={item.href}
                 item={item}
                 pathname={pathname}
-                enabled={!item.requiresActive || accountActive}
+                enabled={
+                  !item.requiresActive ||
+                  capabilities?.includes(
+                    item.href === '/partner/bookings'
+                      ? 'client.records.read'
+                      : 'client.listings.write',
+                  )
+                }
                 onNavigate={onNavigate}
               />
             ))}
@@ -195,11 +202,7 @@ function SidebarContent({ pathname, user, logoutAction, onNavigate }) {
         <span className="whitespace-nowrap text-tiny font-semibold text-white/50">for owners</span>
       </Link>
 
-      <Navigation
-        pathname={pathname}
-        accountActive={user.accountStatus === 'active'}
-        onNavigate={onNavigate}
-      />
+      <Navigation pathname={pathname} capabilities={user.capabilities} onNavigate={onNavigate} />
 
       <div className="mt-auto pt-6">
         <div className="mb-3 rounded-lg border border-brand-300/15 bg-brand-300/8 p-3">

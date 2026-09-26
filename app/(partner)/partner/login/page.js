@@ -25,7 +25,7 @@ export default async function PartnerLoginPage({ searchParams }) {
   const user = await getCurrentUser();
 
   // Already signed in — no reason to show a login form.
-  if (user?.role === 'client' && user.accountStatus !== 'blocked') {
+  if (user?.role === 'client' && !['blocked', 'suspended'].includes(user.accountStatus)) {
     redirect('/partner');
   }
 
@@ -38,7 +38,14 @@ export default async function PartnerLoginPage({ searchParams }) {
 
       {params?.blocked ? (
         <p className="mt-5 rounded-md border border-danger/30 bg-danger-bg p-3 text-meta text-danger">
-          This account has been blocked. Reply to any Rentra email to appeal.
+          This account is restricted. Contact Rentra for account review and help with existing
+          bookings.
+        </p>
+      ) : null}
+
+      {params?.session === 'ended' ? (
+        <p role="status" className="mt-5 rounded-md border border-border bg-card p-3 text-meta">
+          Sign in again to continue. Your previous session may have expired or been revoked.
         </p>
       ) : null}
 

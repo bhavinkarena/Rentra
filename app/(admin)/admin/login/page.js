@@ -15,12 +15,19 @@ export const metadata = {
  * is also how a password is reset. A self-service reset flow on the account
  * that releases payouts is a phishing surface with no upside.
  */
-export default async function AdminLoginPage() {
+export default async function AdminLoginPage({ searchParams }) {
+  const params = await searchParams;
   if (await getCurrentAdmin()) redirect('/admin');
 
   return (
     <div className="mx-auto flex min-h-[calc(100vh-66px)] w-full max-w-md flex-col justify-center px-4 py-12 sm:px-6">
       <div className="rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8">
+        {params?.session === 'ended' ? (
+          <p role="status" className="mb-5 rounded-md border border-border bg-ink-25 p-3 text-meta">
+            Sign in again to continue. Your session may have expired or been revoked after an access
+            change.
+          </p>
+        ) : null}
         <span className="grid size-11 place-items-center rounded-lg bg-brand-50 text-brand-700 ring-1 ring-brand-100">
           <LockKeyhole className="size-5" aria-hidden="true" />
         </span>
