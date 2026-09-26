@@ -1,6 +1,6 @@
 # Rentra client and Super Admin session roadmap
 
-Planning date: 26 September 2026. **Implementation: 12/32 parts complete. Next: CP13.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration. CP05–CP08 migrations `0024`–`0027` were applied to the configured database on 26 September 2026 (verified read-only afterwards: 28 of 28 recorded, none pending). CP09–CP12 have no migration.
+Planning date: 26 September 2026. **Implementation: 13/32 parts complete. Next: CP14.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration. CP05–CP08 migrations `0024`–`0027` were applied to the configured database on 26 September 2026 (verified read-only afterwards: 28 of 28 recorded, none pending). CP09–CP12 have no migration. CP13 migration `0028_visit_evidence_records` is **not applied** to the configured database; apply it before deploying CP13 backend code.
 
 Read the [requirements plan](rentra-client-admin-plan.md) and [source-backed gap audit](rentra-client-admin-ui-audit.md) together with this roadmap. These CP numbers are a new workstream; they do not replace customer Parts 01–22 or change their completion claims. Client means the existing owner/authorized-agent portal.
 
@@ -10,7 +10,7 @@ One part is the target for one implementation session, including its meaningful 
 
 Each part owns its end-to-end slice: necessary Express API/service/schema changes, frontend integration, server-side permissions, persisted loading/error/success behavior, and regression evidence. Reuse existing foundations. Routes and models in the requirements plan are proposals until implemented. Never bypass the backend by adding direct frontend database access.
 
-CP01–CP12 are **COMPLETE**. All later parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
+CP01–CP13 are **COMPLETE**. All later parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
 
 | Part | Session scope | Dependencies | Status |
 | --- | --- | --- | --- |
@@ -26,7 +26,7 @@ CP01–CP12 are **COMPLETE**. All later parts are **PLANNED**, including externa
 | CP10 | Portfolio calendar and interval operations | CP09 | COMPLETE |
 | CP11 | Versioned pricing and booking policy | CP08, CP10; applicable business decisions | COMPLETE |
 | CP12 | Booking work queues and operational detail | CP02–04, CP09 | COMPLETE |
-| CP13 | Visit evidence and incidents | CP12 | PLANNED |
+| CP13 | Visit evidence and incidents | CP12 | COMPLETE |
 | CP14 | Admin booking resolution cases | CP12–13 | PLANNED |
 | CP15 | Client tasks, updates and preferences | CP05–14 | PLANNED |
 | CP16 | Caretaker invitations and property access | CP01, CP09, CP12–13 | PLANNED |
@@ -158,6 +158,8 @@ The sequence favors closing the missing property approval workflow early. Indepe
 **Deliver:** Extend existing visit transitions with private attachments, permitted evidence types, upload limits, server validation and retention classification. Add visit-linked incidents and correction records that supersede earlier evidence without erasing it. Record actor, time, provenance and version for handover/return/completion evidence.
 
 **Gate:** Duplicate or stale transitions produce one effect; unsafe/unauthorized uploads and guessed downloads fail. Distinguish real from simulated evidence. Acceptance: CA01, CA07, CA19. Financial liability adjudication belongs to CP23, not an incident checkbox.
+
+**Gate passed — 27 September 2026:** a disposable-PostgreSQL integration test, 4 unit tests, a 31-check browser/API gate and 6 failure-path checks passed; the CP11/CP12 gate re-ran 44/44 as regression. Handover, return and completion evidence can carry up to 3 private photos (JPEG/PNG/WebP detected from bytes, 2MB each, 30 per visit), stored with content-addressed keys and no overwrite. Photos are served only through an authorized, audited proxy; foreign, guessed and mismatched ids get 404. Owners and admins report visit-linked incidents with photos, and admins close them with a version guard and an operational note only; liability stays with CP23. Admin corrections supersede evidence in one linear chain without erasing the original, refuse stale or out-of-order changes, never reverse a visit state and never relabel Test evidence as actual. Evidence shows actor, times, visit version and an Actual or Test badge. Replays are one effect; unsafe or stale submissions write and upload nothing; forms keep input on failure; direct SQL edits and deletes are refused by triggers. An open incident is admin Action needed work. Backend 101/101, frontend 19/19, lint/format and the isolated build passed. **Migration `0028` is not applied to the configured database; apply it before deploying.** [CP13 handoff and contract](rentra-client-admin-part13.md).
 
 ### CP14 — Admin booking change and cancellation cases
 
@@ -291,6 +293,6 @@ Update this table and the audit dispositions only when the evidence supports the
 
 ## Prompt for the next implementation session
 
-> Start CP13 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP12 handoffs, inspect current frontend/backend changes and applicable repository instructions, and confirm CP12's visit transitions and evidence replay behavior in the current source. Consider first fixing the recorded webhook `redacted_payload` double-encoding (CP12 follow-up), with a webhook integration test. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
+> Start CP14 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP13 handoffs, inspect current frontend/backend changes and applicable repository instructions, and confirm that migration `0028` status and the CP13 incident/evidence records are present in the current source. Consider first fixing the recorded webhook `redacted_payload` double-encoding (CP12 follow-up), with a webhook integration test. Preserve the existing customer behavior and the existing cancel-and-rebook rules. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
 
-Replace CP13 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.
+Replace CP14 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.

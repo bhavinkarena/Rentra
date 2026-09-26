@@ -1,0 +1,28 @@
+{
+  "results": [
+    {
+      "check": "Incident submit during outage: honest retry message",
+      "pass": true
+    },
+    {
+      "check": "Incident submit during outage: typed input and photo kept",
+      "pass": true
+    },
+    {
+      "check": "Incident submit during outage: nothing recorded while down",
+      "pass": true
+    },
+    {
+      "check": "Incident retry after outage: exactly one incident with its photo",
+      "pass": true
+    },
+    {
+      "check": "Photo link during outage: 503 plain text, not a broken page",
+      "pass": true
+    },
+    {
+      "check": "Photo link after outage: served again",
+      "pass": true
+    }
+  ]
+}

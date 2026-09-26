@@ -15,6 +15,7 @@ import {
 import { randomUUID } from 'node:crypto';
 import { bookingMoney as money, bookingTime as time } from '@/lib/domain/booking-record';
 import { VisitLifecycle } from './VisitLifecycle';
+import { VisitEvidence } from '@/components/booking/VisitEvidence';
 
 const linkClass =
   'inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-semibold text-brand-700 transition hover:border-brand-300 hover:bg-brand-50';
@@ -449,23 +450,31 @@ export function BookingDetail({
                 {record.arrival?.visitIds.includes(v.id) ? (
                   <p className="text-meta">Confirmed visit: arrival details below apply.</p>
                 ) : null}
-                {v.evidence?.length ? (
+                {!operational && v.evidence?.length ? (
                   <ul className="text-meta">
                     {v.evidence.map((e) => (
                       <li key={e.id}>
                         {e.kind} recorded ({e.nature}) · occurred{' '}
                         {time(e.occurredAt, record.timeZone)}
-                        {operational ? <p>{e.note}</p> : null}
                       </li>
                     ))}
                   </ul>
                 ) : null}
                 {operational ? (
-                  <VisitLifecycle
-                    key={`${v.id}-${v.version}`}
-                    requestKey={randomUUID()}
+                  <VisitEvidence
                     visit={v}
+                    orderId={record.id}
+                    base={base}
+                    timeZone={record.timeZone}
                     admin={base === '/admin/bookings'}
+                    action={
+                      <VisitLifecycle
+                        key={`${v.id}-${v.version}`}
+                        requestKey={randomUUID()}
+                        visit={v}
+                        admin={base === '/admin/bookings'}
+                      />
+                    }
                   />
                 ) : null}
               </li>

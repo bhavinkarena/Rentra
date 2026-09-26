@@ -1,0 +1,128 @@
+{
+  "results": [
+    {
+      "check": "anonymous attachment request denied",
+      "pass": true
+    },
+    {
+      "check": "unsupported photo refused, typed evidence kept",
+      "pass": true
+    },
+    {
+      "check": "refused upload recorded nothing",
+      "pass": true
+    },
+    {
+      "check": "browser handover with two private photos",
+      "pass": true
+    },
+    {
+      "check": "no storage key in the record",
+      "pass": true
+    },
+    {
+      "check": "evidence shows actor, visit version and actual badge",
+      "pass": true
+    },
+    {
+      "check": "owner opens photo through the same-origin link",
+      "pass": true
+    },
+    {
+      "check": "foreign owner photo link 404",
+      "pass": true
+    },
+    {
+      "check": "foreign owner photo API 404",
+      "pass": true
+    },
+    {
+      "check": "guessed photo id 404",
+      "pass": true
+    },
+    {
+      "check": "photo under another order id 404",
+      "pass": true
+    },
+    {
+      "check": "admin opens photo",
+      "pass": true
+    },
+    {
+      "check": "read-only admin can view photo",
+      "pass": true
+    },
+    {
+      "check": "photo link keyboard focusable",
+      "pass": true
+    },
+    {
+      "check": "browser incident with photo is open",
+      "pass": true
+    },
+    {
+      "check": "incident replay is one effect",
+      "pass": true
+    },
+    {
+      "check": "foreign owner cannot report on the visit",
+      "pass": true
+    },
+    {
+      "check": "open incident is admin work, not owner work",
+      "pass": true
+    },
+    {
+      "check": "read-only admin cannot close incident",
+      "pass": true
+    },
+    {
+      "check": "read-only admin cannot correct evidence",
+      "pass": true
+    },
+    {
+      "check": "owner cannot use the admin correction route",
+      "pass": true
+    },
+    {
+      "check": "admin closes incident in the browser",
+      "pass": true
+    },
+    {
+      "check": "stale incident close refused",
+      "pass": true
+    },
+    {
+      "check": "admin correction supersedes without erasing the original",
+      "pass": true
+    },
+    {
+      "check": "stale correction refused",
+      "pass": true
+    },
+    {
+      "check": "admin evidence mobile no overflow",
+      "pass": true
+    },
+    {
+      "check": "admin evidence mobile axe clean",
+      "pass": true
+    },
+    {
+      "check": "owner sees the correction but has no correction form",
+      "pass": true
+    },
+    {
+      "check": "owner evidence mobile no overflow",
+      "pass": true
+    },
+    {
+      "check": "owner evidence mobile axe clean",
+      "pass": true
+    },
+    {
+      "check": "revocation blocks the next photo read",
+      "pass": true
+    }
+  ]
+}

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { CalendarDays, Clock, Globe, MapPin, Phone, UserRound } from 'lucide-react';
 import { bookingMoney as money, bookingTime as time } from '@/lib/domain/booking-record';
 import { VisitLifecycle } from '@/components/customer/VisitLifecycle';
+import { VisitEvidence } from '@/components/booking/VisitEvidence';
 import { AdminPage, StatusBadge } from './AdminPrimitives';
 import {
   DetailHeader,
@@ -157,11 +158,20 @@ export default function AdminBookingDetail({ record, tab, params, listHref = '/a
                     {visit.operation && (
                       <p className="mb-3 text-sm font-semibold">{visit.operation.label}</p>
                     )}
-                    <VisitLifecycle
-                      key={`${visit.id}-${visit.version}`}
-                      requestKey={randomUUID()}
+                    <VisitEvidence
                       visit={visit}
+                      orderId={record.id}
+                      base="/admin/bookings"
+                      timeZone={record.timeZone}
                       admin
+                      action={
+                        <VisitLifecycle
+                          key={`${visit.id}-${visit.version}`}
+                          requestKey={randomUUID()}
+                          visit={visit}
+                          admin
+                        />
+                      }
                     />
                   </div>
                 </article>

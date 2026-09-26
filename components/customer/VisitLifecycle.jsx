@@ -5,18 +5,21 @@ import { useActionState, useState } from 'react';
 import { bookAgain } from '@/lib/actions/customer';
 import { recordOwnerVisit } from '@/lib/actions/partner';
 import { recordAdminVisit } from '@/lib/actions/admin';
+import { Outcome, PhotoField, useKeptInputAction } from '@/components/booking/EvidenceForms';
 
 export function VisitLifecycle({ visit, requestKey, admin = false }) {
   const phase = visit.operation
     ? visit.operation.action
     : { confirmed: 'handover', handed_over: 'return', returned: 'complete' }[visit.state];
-  const [state, action, pending] = useActionState(admin ? recordAdminVisit : recordOwnerVisit, {});
+  const { state, pending, onSubmit } = useKeptInputAction(
+    admin ? recordAdminVisit : recordOwnerVisit,
+  );
   const [key] = useState(requestKey);
   if (!phase || !visit.startsAt) return null;
   return (
     <details className="mt-4 rounded-md border border-border p-3">
       <summary className="cursor-pointer font-semibold">Record {phase} evidence</summary>
-      <form action={action} className="mt-3 space-y-3">
+      <form onSubmit={onSubmit} className="mt-3 space-y-3">
         <input type="hidden" name="visitId" value={visit.id} />
         <input type="hidden" name="phase" value={phase} />
         <input type="hidden" name="version" value={visit.version} />
@@ -46,6 +49,7 @@ export function VisitLifecycle({ visit, requestKey, admin = false }) {
             placeholder="Describe the guest handover, return inspection or completion check. Do not include IDs, access codes or payment details."
           />
         </label>
+        <PhotoField error={state.errors?.photos} />
         <label className="flex items-start gap-2">
           <input type="checkbox" name="attested" required className="mt-1 size-5" />I confirm this
           observation and its time. A scheduled date alone is not evidence.
@@ -53,8 +57,7 @@ export function VisitLifecycle({ visit, requestKey, admin = false }) {
         <button disabled={pending} className="min-h-11 rounded bg-brand-700 px-4 text-white">
           {pending ? <RentraLoader label="Recording…" /> : `Record ${phase}`}
         </button>
-        {state.error ? <p role="alert">{state.error}</p> : null}
-        {state.message ? <p role="status">{state.message}</p> : null}
+        <Outcome state={state} />
       </form>
     </details>
   );
