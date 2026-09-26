@@ -243,12 +243,25 @@ DELIVERED = {
       <li>Migration <code>0030</code>: <code>client_update</code> rows written by triggers on audit, booking lifecycle and case updates, in the causing transaction. Unique event keys make replays no-ops; only client-safe detail is stored.</li>
       <li><code>/partner/updates</code>: unread/read, needs-action and type filters, deep links that mark read, mark all read, and a badge that only shows a real count.</li>
       <li>Version-guarded preferences: property, booking and case information can arrive already read; required work cannot be muted. The copy says owner updates are not sent by SMS or email.</li></ul>
-      <p class="small"><strong>Gate passed — 27 September 2026:</strong> disposable-DB service test plus a <strong>38/38</strong> browser/API gate, twice. It covered 401/404/422 permissions; counts that matched their lists before and after a hide; repeat case delivery as one update; open-marks-read; mark-all-read persisting across reload; muting through the UI with stale-save 409; and a failed-load retry state. CP02–CP14 gates passed as regression. <strong>Migration 0030 is not yet applied</strong> to the configured database. <a href="rentra-client-admin-part15.md">Handoff, API contract and runbook ↗</a></p></div>
+      <p class="small"><strong>Gate passed — 27 September 2026:</strong> disposable-DB service test plus a <strong>38/38</strong> browser/API gate, twice. It covered 401/404/422 permissions; counts that matched their lists before and after a hide; repeat case delivery as one update; open-marks-read; mark-all-read persisting across reload; muting through the UI with stale-save 409; and a failed-load retry state. CP02–CP14 gates passed as regression. Migration 0030 was pending at the gate; <strong>since applied to the configured database</strong>. <a href="rentra-client-admin-part15.md">Handoff, API contract and runbook ↗</a></p></div>
     <div class="card"><span class="num">CP15 · explicitly not delivered</span><h3>Limits recorded at the gate</h3>
       <ul><li>In-app only: no SMS, email or push to owners.</li>
       <li>No historical backfill; updates start when 0030 is applied.</li>
       <li>Incident closure and pricing events produce no updates.</li>
       <li>Client support threads remain CP17; no retention control yet.</li>
+      <li>No hosted environment or human screen-reader pass.</li></ul></div>''',
+    "CP16": '''<div class="card"><span class="num">CP16 · complete</span><h3>Caretaker and team access</h3><p>Owner-managed caretakers with a narrow, live scope:</p>
+      <ul><li><code>/partner/team</code>: invite by name and mobile with a one-time, hashed, 72-hour link shown once (the owner shares it; Rentra sends nothing). Choose properties and the evidence grant; reassign, revoke with a reason; membership history.</li>
+      <li>Migration <code>0031</code>: <code>staff_property</code>, <code>staff_invitation</code>, <code>portal_session.staff_id</code>, the <code>staff</code> audit actor, and a caretaker branch in the database evidence trigger.</li>
+      <li><code>/staff</code>: join with the link plus a code to the invited phone; separate <code>rentra_staff</code> session; phone sign-in with no account discovery.</li>
+      <li>Caretakers see assigned visits only (address, owner contact, accepted house rules, evidence). They record handover/return/completion only with the grant. No money, pricing, KYC, team or guest identity.</li>
+      <li>Reassignment, revocation and owner suspension apply on the next request; caretaker evidence is attributed as “Caretaker · name”.</li></ul>
+      <p class="small"><strong>Gate passed — 27 September 2026:</strong> service and capability tests plus a <strong>51/51</strong> browser/API gate. It covered guessed property and booking ids, used and replaced links, wrong codes, view-only 403, a UI evidence grant and caretaker handover, reassignment to 404, UI revocation ending the active session, the revoked number's sign-in, and 401 on owner/admin APIs with a caretaker cookie. CP02–CP15 gates passed as regression. <strong>Migration 0031 is not yet applied</strong> to the configured database. <a href="rentra-client-admin-part16.md">Handoff, API contract and runbook ↗</a></p></div>
+    <div class="card"><span class="num">CP16 · explicitly not delivered</span><h3>Limits recorded at the gate</h3>
+      <ul><li>No SMS provider: outside development caretaker codes cannot be delivered (same as owner sign-in).</li>
+      <li>Caretakers cannot report incidents or see guest identity.</li>
+      <li>No owner picker for a caretaker working for several owners.</li>
+      <li>No per-caretaker activity reports beyond attribution and history.</li>
       <li>No hosted environment or human screen-reader pass.</li></ul></div>''',
 }
 missing = [key for key, status in statuses.items() if status == "COMPLETE" and key not in DELIVERED]

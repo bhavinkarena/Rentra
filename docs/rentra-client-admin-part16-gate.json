@@ -1,0 +1,206 @@
+[
+  {
+    "check": "team page 1280px has no page overflow",
+    "pass": true
+  },
+  {
+    "check": "team page 1280px axe serious/critical",
+    "pass": true
+  },
+  {
+    "check": "team page 390px has no page overflow",
+    "pass": true
+  },
+  {
+    "check": "team page 390px axe serious/critical",
+    "pass": true
+  },
+  {
+    "check": "guessed property id refused on invite",
+    "pass": true
+  },
+  {
+    "check": "invitation link shown once to the owner",
+    "pass": true
+  },
+  {
+    "check": "member is invited, view only, on one property",
+    "pass": true
+  },
+  {
+    "check": "duplicate invite for the same number refused",
+    "pass": true
+  },
+  {
+    "check": "another owner sees no team members",
+    "pass": true
+  },
+  {
+    "check": "another owner cannot revoke this caretaker",
+    "pass": true
+  },
+  {
+    "check": "admin session is not an owner session for team",
+    "pass": true
+  },
+  {
+    "check": "join page 390px has no page overflow",
+    "pass": true
+  },
+  {
+    "check": "join page 390px axe serious/critical",
+    "pass": true
+  },
+  {
+    "check": "wrong code refused and nothing granted",
+    "pass": true
+  },
+  {
+    "check": "caretaker lands on assigned visits",
+    "pass": true
+  },
+  {
+    "check": "caretaker visits 390px has no page overflow",
+    "pass": true
+  },
+  {
+    "check": "caretaker visits 390px axe serious/critical",
+    "pass": true
+  },
+  {
+    "check": "joined caretaker is active for the owner",
+    "pass": true
+  },
+  {
+    "check": "a used link cannot be used again",
+    "pass": true
+  },
+  {
+    "check": "in-progress visit needs the caretaker",
+    "pass": true
+  },
+  {
+    "check": "visit detail carries arrival and owner contact",
+    "pass": true
+  },
+  {
+    "check": "visit detail has no money or guest contact",
+    "pass": true
+  },
+  {
+    "check": "guessed booking id is not found",
+    "pass": true
+  },
+  {
+    "check": "caretaker cookie refused on /partner/listings",
+    "pass": true
+  },
+  {
+    "check": "caretaker cookie refused on /partner/records/6dfa4ec7-363d-4e4e-81a0-6c914b9b52d6",
+    "pass": true
+  },
+  {
+    "check": "caretaker cookie refused on /partner/listings/2b1add47-bf80-4460-92ac-e417ff4da392/calendar",
+    "pass": true
+  },
+  {
+    "check": "caretaker cookie refused on /partner/documents",
+    "pass": true
+  },
+  {
+    "check": "caretaker cookie refused on /partner/team",
+    "pass": true
+  },
+  {
+    "check": "caretaker cookie refused on /partner/updates",
+    "pass": true
+  },
+  {
+    "check": "caretaker cookie refused on /admin/properties",
+    "pass": true
+  },
+  {
+    "check": "view-only caretaker cannot record evidence",
+    "pass": true
+  },
+  {
+    "check": "view-only page offers no evidence form",
+    "pass": true
+  },
+  {
+    "check": "caretaker page shows no price",
+    "pass": true
+  },
+  {
+    "check": "caretaker visit 390px has no page overflow",
+    "pass": true
+  },
+  {
+    "check": "caretaker visit 390px axe serious/critical",
+    "pass": true
+  },
+  {
+    "check": "evidence grant persisted",
+    "pass": true
+  },
+  {
+    "check": "stale access change refused",
+    "pass": true
+  },
+  {
+    "check": "handover recorded and attributed to the caretaker",
+    "pass": true
+  },
+  {
+    "check": "owner booking shows the caretaker as recorder",
+    "pass": true
+  },
+  {
+    "check": "owner reassigns the caretaker",
+    "pass": true
+  },
+  {
+    "check": "reassigned caretaker loses the old booking",
+    "pass": true
+  },
+  {
+    "check": "reassigned caretaker lists no old visits",
+    "pass": true
+  },
+  {
+    "check": "revoked caretaker API session refused",
+    "pass": true
+  },
+  {
+    "check": "revoked caretaker page sends them to sign in",
+    "pass": true
+  },
+  {
+    "check": "revoked number cannot sign in again",
+    "pass": true
+  },
+  {
+    "check": "a replaced link cannot be used",
+    "pass": true
+  },
+  {
+    "check": "membership history shows Invited",
+    "pass": true
+  },
+  {
+    "check": "membership history shows Joined",
+    "pass": true
+  },
+  {
+    "check": "membership history shows Access changed",
+    "pass": true
+  },
+  {
+    "check": "membership history shows Access revoked",
+    "pass": true
+  },
+  {
+    "check": "membership history shows New link issued",
+    "pass": true
+  }
+]

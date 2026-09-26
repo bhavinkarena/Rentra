@@ -7,12 +7,13 @@ import { recordOwnerVisit } from '@/lib/actions/partner';
 import { recordAdminVisit } from '@/lib/actions/admin';
 import { Outcome, PhotoField, useKeptInputAction } from '@/components/booking/EvidenceForms';
 
-export function VisitLifecycle({ visit, requestKey, admin = false }) {
+export function VisitLifecycle({ visit, requestKey, admin = false, action = null }) {
   const phase = visit.operation
     ? visit.operation.action
     : { confirmed: 'handover', handed_over: 'return', returned: 'complete' }[visit.state];
+  // `action` lets another operator (a CP16 caretaker) reuse the same kept-input form.
   const { state, pending, onSubmit } = useKeptInputAction(
-    admin ? recordAdminVisit : recordOwnerVisit,
+    action ?? (admin ? recordAdminVisit : recordOwnerVisit),
   );
   const [key] = useState(requestKey);
   if (!phase || !visit.startsAt) return null;

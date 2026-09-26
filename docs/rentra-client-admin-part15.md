@@ -1,6 +1,6 @@
 # CP15 — Client task dashboard and persisted updates
 
-Status: **COMPLETE — 27 September 2026.** A disposable-PostgreSQL service test and a 38-check browser/API gate passed. Migration `0030_client_updates` is **not applied** to the configured database, and neither is CP14's `0029` (see §4).
+Status: **COMPLETE — 27 September 2026.** A disposable-PostgreSQL service test and a 38-check browser/API gate passed. Migration `0030_client_updates` and CP14's `0029` were pending at the gate; both were applied to the configured database afterwards (read-only check, 27 September 2026, see §4).
 
 ## 1. Scope and revisions
 
@@ -136,7 +136,7 @@ Gate notes:
 | Environment | Status |
 | --- | --- |
 | Disposable local databases | `0030` applied by the tests and gate fixtures |
-| Configured database (Neon) | **Not applied** (read-only check, 27 September 2026: 29 of 31 recorded; pending `0029_booking_cases` and `0030_client_updates`) |
+| Configured database (Neon) | **Applied** after the gate: `0029` and `0030` are recorded (read-only check during CP16, 27 September 2026). At the gate it had 29 of 31 recorded. |
 
 Run `npm run db:migrate` in `rentra-backend` before this code runs against the configured database. Before `0030`, the updates and tasks endpoints fail, and so do the dashboard's task and update panels (they show their retry state).
 

@@ -1,6 +1,14 @@
 'use client';
 
-import { Bell, Building2, CalendarDays, LayoutDashboard, Settings2, Star } from 'lucide-react';
+import {
+  Bell,
+  Building2,
+  CalendarDays,
+  LayoutDashboard,
+  Settings2,
+  Star,
+  Users,
+} from 'lucide-react';
 import PortalShell from '@/components/portal/PortalShell';
 
 const NAV_GROUPS = [
@@ -38,7 +46,10 @@ const NAV_GROUPS = [
   },
   {
     label: 'Account',
-    items: [{ href: '/partner/settings', label: 'Settings & payouts', icon: Settings2 }],
+    items: [
+      { href: '/partner/team', label: 'Team', icon: Users, capability: 'client.team.read' },
+      { href: '/partner/settings', label: 'Settings & payouts', icon: Settings2 },
+    ],
   },
 ];
 
@@ -49,6 +60,7 @@ function routeLabel(pathname) {
   if (pathname === '/partner/listings') return 'Properties';
   if (pathname.startsWith('/partner/reviews')) return 'Reviews';
   if (pathname.startsWith('/partner/updates')) return 'Updates';
+  if (pathname.startsWith('/partner/team')) return 'Team';
   if (pathname.startsWith('/partner/settings')) return 'Settings & payouts';
   if (pathname.startsWith('/partner/onboarding')) return 'Partner verification';
   return 'Overview';

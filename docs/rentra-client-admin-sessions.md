@@ -1,6 +1,6 @@
 # Rentra client and Super Admin session roadmap
 
-Planning date: 26 September 2026. **Implementation: 15/32 parts complete. Next: CP16.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration. CP05–CP08 migrations `0024`–`0027` were applied to the configured database on 26 September 2026 (verified read-only afterwards: 28 of 28 recorded, none pending). CP09–CP12 have no migration. CP13 migration `0028_visit_evidence_records` was applied to the configured database on 27 September 2026 (verified read-only afterwards: 29 of 29 recorded, none pending). CP14 migration `0029_booking_cases` and CP15 migration `0030_client_updates` are **not applied** to the configured database; apply them before deploying CP14–CP15 backend code.
+Planning date: 26 September 2026. **Implementation: 16/32 parts complete. Next: CP17.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration. CP05–CP08 migrations `0024`–`0027` were applied to the configured database on 26 September 2026 (verified read-only afterwards: 28 of 28 recorded, none pending). CP09–CP12 have no migration. CP13 migration `0028_visit_evidence_records` was applied to the configured database on 27 September 2026 (verified read-only afterwards: 29 of 29 recorded, none pending). CP14 migration `0029_booking_cases` and CP15 migration `0030_client_updates` are applied to the configured database (verified read-only on 27 September 2026: 31 of 32 recorded). CP16 migration `0031_caretaker_access` is **not applied**; apply it before deploying CP16 backend code.
 
 Read the [requirements plan](rentra-client-admin-plan.md) and [source-backed gap audit](rentra-client-admin-ui-audit.md) together with this roadmap. These CP numbers are a new workstream; they do not replace customer Parts 01–22 or change their completion claims. Client means the existing owner/authorized-agent portal.
 
@@ -10,7 +10,7 @@ One part is the target for one implementation session, including its meaningful 
 
 Each part owns its end-to-end slice: necessary Express API/service/schema changes, frontend integration, server-side permissions, persisted loading/error/success behavior, and regression evidence. Reuse existing foundations. Routes and models in the requirements plan are proposals until implemented. Never bypass the backend by adding direct frontend database access.
 
-CP01–CP15 are **COMPLETE**. All later parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
+CP01–CP16 are **COMPLETE**. All later parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
 
 | Part | Session scope | Dependencies | Status |
 | --- | --- | --- | --- |
@@ -29,7 +29,7 @@ CP01–CP15 are **COMPLETE**. All later parts are **PLANNED**, including externa
 | CP13 | Visit evidence and incidents | CP12 | COMPLETE |
 | CP14 | Admin booking resolution cases | CP12–13 | COMPLETE |
 | CP15 | Client tasks, updates and preferences | CP05–14 | COMPLETE |
-| CP16 | Caretaker invitations and property access | CP01, CP09, CP12–13 | PLANNED |
+| CP16 | Caretaker invitations and property access | CP01, CP09, CP12–13 | COMPLETE |
 | CP17 | Client support and admin case assignment | CP03–04, CP12 | PLANNED |
 | CP18 | Review detail and moderation history | CP02–04, CP09 | PLANNED |
 | CP19 | Payment investigation console | CP04, CP12 | PLANNED |
@@ -183,6 +183,8 @@ The sequence favors closing the missing property approval workflow early. Indepe
 
 **Gate:** Test guessed property IDs, reassignment, expired/reused invites and revoked active sessions. Caretakers cannot access earnings, KYC, pricing or staff administration. Acceptance: CA01–02, CA13, CA19. Owner permission does not grant platform administration.
 
+**Gate passed — 27 September 2026:** a disposable-PostgreSQL service test, a capability unit test and a 51-check browser/API gate passed. Owners invite caretakers at `/partner/team` with a one-time, hashed, 72-hour link shown once. They choose properties and whether the caretaker may record evidence, then reassign or revoke with a reason, and see the membership history. Caretakers join at `/staff/join/[token]` with the link plus a code sent to the invited phone. They get a separate `rentra_staff` session and see only assigned visits: address, owner contact, accepted house rules and evidence, with no money, pricing, KYC, team or guest identity. They record handover/return/completion only with the grant; the database evidence trigger enforces the same scope. Assignment and revocation apply on the next request, and owner suspension ends caretaker sessions. The gate covered guessed property and booking ids, reassignment, used/replaced links, wrong codes, a revoked active session and a revoked number's sign-in, and 401 on owner/admin APIs with a caretaker cookie. Regression: CP02–CP15 gates all passed. Migration `0031` is pending on the configured database. [CP16 handoff](rentra-client-admin-part16.md).
+
 ### CP17 — Client support and assigned admin cases
 
 **Deliver:** Add client-originated cases and threads alongside current customer support. Admin detail supports assignment, status, internal notes, attachments and links to relevant records. Keep participants explicit; linking client/customer cases never shares their private threads. Persist messages before showing success.
@@ -297,6 +299,6 @@ Update this table and the audit dispositions only when the evidence supports the
 
 ## Prompt for the next implementation session
 
-> Start CP16 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP15 handoffs, inspect current frontend/backend changes and applicable repository instructions, and confirm migration `0029`–`0030` status. Caretaker access must reuse the CP01 capability contract and the CP12–CP13 visit records rather than duplicate them. The webhook `redacted_payload` double-encoding (CP12 follow-up) is still open. Implement only CP16's end-to-end scope. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
+> Start CP17 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP16 handoffs, inspect current frontend/backend changes and applicable repository instructions, and confirm migration `0031` status. Client support must stay separate from customer support threads (no access to a customer's private thread through a shared booking), and reuse the CP14 case and CP15 update foundations rather than duplicate them. The webhook `redacted_payload` double-encoding (CP12 follow-up) is still open. Implement only CP17's end-to-end scope.
 
-Replace CP16 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.
+Replace CP17 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.

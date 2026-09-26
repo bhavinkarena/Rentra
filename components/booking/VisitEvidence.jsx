@@ -24,6 +24,8 @@ function Nature({ nature }) {
 }
 
 function who(kind, name, admin) {
+  // CP16: caretakers are named to the owner and to other caretakers too.
+  if (kind === 'staff') return `Caretaker${name ? ` · ${name}` : ''}`;
   if (admin) return `${kind === 'owner' ? 'Owner' : 'Admin'}${name ? ` · ${name}` : ''}`;
   return kind === 'owner' ? 'You' : 'Rentra operations';
 }
@@ -158,7 +160,15 @@ function Incident({ incident, href, timeZone, admin }) {
  * CP13 operational evidence for one visit: the transition evidence chain with
  * private photos and corrections, then visit-linked incidents.
  */
-export function VisitEvidence({ visit, orderId, base, timeZone, admin = false, action = null }) {
+export function VisitEvidence({
+  visit,
+  orderId,
+  base,
+  timeZone,
+  admin = false,
+  action = null,
+  canReport = true,
+}) {
   const href = (id) => `${base}/${orderId}/attachments/${id}`;
   const incidents = visit.incidents ?? [];
   return (
@@ -189,7 +199,8 @@ export function VisitEvidence({ visit, orderId, base, timeZone, admin = false, a
             ))}
           </ol>
         ) : null}
-        {REPORTABLE.includes(visit.state) && visit.startsAt ? (
+        {/* Caretakers (CP16) see incidents but report them through the owner. */}
+        {canReport && REPORTABLE.includes(visit.state) && visit.startsAt ? (
           <IncidentForm
             key={`${visit.id}-incidents-${incidents.length}`}
             visit={visit}
