@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, CalendarDays, LayoutDashboard, Settings2, Star } from 'lucide-react';
+import { Bell, Building2, CalendarDays, LayoutDashboard, Settings2, Star } from 'lucide-react';
 import PortalShell from '@/components/portal/PortalShell';
 
 const NAV_GROUPS = [
@@ -27,6 +27,13 @@ const NAV_GROUPS = [
         capability: 'client.records.read',
       },
       { href: '/partner/reviews', label: 'Reviews', icon: Star, capability: 'client.reviews.read' },
+      {
+        href: '/partner/updates',
+        label: 'Updates',
+        icon: Bell,
+        capability: 'client.updates.read',
+        badgeKey: 'unreadUpdates',
+      },
     ],
   },
   {
@@ -41,12 +48,13 @@ function routeLabel(pathname) {
   if (pathname.startsWith('/partner/listings/')) return 'Property workspace';
   if (pathname === '/partner/listings') return 'Properties';
   if (pathname.startsWith('/partner/reviews')) return 'Reviews';
+  if (pathname.startsWith('/partner/updates')) return 'Updates';
   if (pathname.startsWith('/partner/settings')) return 'Settings & payouts';
   if (pathname.startsWith('/partner/onboarding')) return 'Partner verification';
   return 'Overview';
 }
 
-export default function PartnerShell({ children, user, logoutAction }) {
+export default function PartnerShell({ children, user, logoutAction, counts = {} }) {
   const displayName = user.name || user.email || 'Rentra partner';
   const initials = displayName
     .split(/\s+/)
@@ -61,6 +69,8 @@ export default function PartnerShell({ children, user, logoutAction }) {
       // Not a link: the required step is stated in text, not only a hover title.
       locked: Boolean(item.capability && !user.capabilities?.includes(item.capability)),
       lockedNote: 'After your partner profile is approved',
+      // Only a real, positive count is shown: no empty badges.
+      badge: item.badgeKey && counts[item.badgeKey] > 0 ? counts[item.badgeKey] : undefined,
     })),
   }));
 

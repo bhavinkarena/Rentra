@@ -84,7 +84,8 @@ export default async function SettingsPage() {
                   {user.phone ?? 'No mobile number yet'}
                 </span>
                 <span className="mt-1 block text-[0.68rem] leading-4 text-ink-500">
-                  Booking alerts and important property updates arrive here.
+                  Guests call this number on the day. Rentra does not send owner updates by SMS yet;
+                  they appear in Updates.
                 </span>
                 <Link
                   href="/partner/onboarding/phone"

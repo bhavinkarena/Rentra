@@ -12,7 +12,16 @@ export const metadata = {
   robots: { index: false, follow: false, nocache: true },
 };
 
-const FILTERS = new Set(['all', 'live', 'review', 'attention', 'paused', 'hidden']);
+const FILTERS = new Set([
+  'all',
+  'live',
+  'review',
+  'attention',
+  'resubmit',
+  'unbookable',
+  'paused',
+  'hidden',
+]);
 
 function pageHref({ query, status, page }) {
   const params = new URLSearchParams();

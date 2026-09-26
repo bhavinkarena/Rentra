@@ -10,6 +10,8 @@ const OPTIONS = [
   { value: 'live', label: 'Live' },
   { value: 'review', label: 'In review' },
   { value: 'attention', label: 'Needs attention' },
+  { value: 'resubmit', label: 'Edited, resubmit' },
+  { value: 'unbookable', label: 'Live, not bookable' },
   { value: 'paused', label: 'Paused' },
   { value: 'hidden', label: 'Hidden by Rentra' },
 ];

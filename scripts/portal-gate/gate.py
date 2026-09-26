@@ -153,7 +153,8 @@ with sync_playwright() as p:
     go(page, f"{WEB}/admin/bookings")
     nav = page.get_by_role("navigation", name="Admin navigation")
     names = nav.get_by_role("link").all_inner_texts()
-    check("limited admin nav shows only permitted destinations", [n.strip() for n in names] == ["Bookings"], str(names))
+    # CP14 added Booking cases, also granted by admin.records.read.
+    check("limited admin nav shows only permitted destinations", [n.strip() for n in names] == ["Bookings", "Booking cases"], str(names))
     go(page, f"{WEB}/admin/support")
     check("limited admin gets forbidden state, not outage/empty", page.get_by_role("heading", name="You do not have access to this").filter(visible=True).count() > 0)
     c.close()

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { RentraLogo } from '@/components/rentra/Logo';
 import { getCurrentUser } from '@/lib/api/session';
+import { partnerApi } from '@/lib/api/endpoints';
 import { logout } from '@/lib/actions/auth';
 import PartnerShell from '@/components/partner/PartnerShell';
 import { portalFont } from '@/lib/portal-font';
@@ -23,9 +24,13 @@ export default async function PartnerLayout({ children }) {
   const user = await getCurrentUser();
 
   if (user) {
+    // The badge is a convenience: an outage leaves it off rather than failing the page.
+    const unread = user.capabilities?.includes('client.updates.read')
+      ? await partnerApi.unreadUpdates().catch(() => null)
+      : null;
     return (
       <div className={portalFont.variable}>
-        <PartnerShell user={user} logoutAction={logout}>
+        <PartnerShell user={user} logoutAction={logout} counts={{ unreadUpdates: unread?.unread }}>
           {children}
         </PartnerShell>
       </div>

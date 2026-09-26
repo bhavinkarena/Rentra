@@ -1,0 +1,154 @@
+[
+  {
+    "check": "publication journey produced persisted updates",
+    "pass": true
+  },
+  {
+    "check": "updates carry no findings or operator identity",
+    "pass": true
+  },
+  {
+    "check": "signed-out request refused",
+    "pass": true
+  },
+  {
+    "check": "another owner sees none of these updates",
+    "pass": true
+  },
+  {
+    "check": "another owner cannot mark this update read",
+    "pass": true
+  },
+  {
+    "check": "malformed update id refused",
+    "pass": true
+  },
+  {
+    "check": "live-not-bookable task matches its list",
+    "pass": true
+  },
+  {
+    "check": "attention task matches its list",
+    "pass": true
+  },
+  {
+    "check": "unread task matches the inbox",
+    "pass": true
+  },
+  {
+    "check": "dashboard shows the not-bookable task 1280px",
+    "pass": true
+  },
+  {
+    "check": "decorative portfolio health removed 1280px",
+    "pass": true
+  },
+  {
+    "check": "dashboard 1280px has no page overflow",
+    "pass": true
+  },
+  {
+    "check": "dashboard 1280px axe serious/critical",
+    "pass": true
+  },
+  {
+    "check": "dashboard shows the not-bookable task 390px",
+    "pass": true
+  },
+  {
+    "check": "decorative portfolio health removed 390px",
+    "pass": true
+  },
+  {
+    "check": "dashboard 390px has no page overflow",
+    "pass": true
+  },
+  {
+    "check": "dashboard 390px axe serious/critical",
+    "pass": true
+  },
+  {
+    "check": "updates badge shows the unread count",
+    "pass": true
+  },
+  {
+    "check": "task opens its filtered list with the same count",
+    "pass": true
+  },
+  {
+    "check": "Rentra hides the property",
+    "pass": true
+  },
+  {
+    "check": "hide becomes required work in tasks",
+    "pass": true
+  },
+  {
+    "check": "hidden and unbookable counts follow the new state",
+    "pass": true
+  },
+  {
+    "check": "inbox shows the required update with its reason",
+    "pass": true
+  },
+  {
+    "check": "updates inbox has no page overflow",
+    "pass": true
+  },
+  {
+    "check": "updates inbox axe serious/critical",
+    "pass": true
+  },
+  {
+    "check": "needs-action filter lists only required work",
+    "pass": true
+  },
+  {
+    "check": "opening an update leads to its property",
+    "pass": true
+  },
+  {
+    "check": "opening marks it read and persists",
+    "pass": true
+  },
+  {
+    "check": "replayed Rentra message creates one update",
+    "pass": true
+  },
+  {
+    "check": "internal case notes never reach the owner",
+    "pass": true
+  },
+  {
+    "check": "preference persisted",
+    "pass": true
+  },
+  {
+    "check": "stale preference save refused",
+    "pass": true
+  },
+  {
+    "check": "required work cannot be muted",
+    "pass": true
+  },
+  {
+    "check": "muted information is kept but arrives read",
+    "pass": true
+  },
+  {
+    "check": "mark all read persists across reload",
+    "pass": true
+  },
+  {
+    "check": "no empty badge once everything is read",
+    "pass": true
+  },
+  {
+    "check": "settings no longer promise owner SMS alerts",
+    "pass": true
+  },
+  {
+    "check": "outage shows a retryable state, not an empty inbox",
+    "pass": true
+  }
+]
