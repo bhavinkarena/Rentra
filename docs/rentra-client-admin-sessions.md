@@ -1,6 +1,6 @@
 # Rentra client and Super Admin session roadmap
 
-Planning date: 26 September 2026. **Implementation: 1/32 parts complete. Next: CP02.** CP01 migration `0022` is not yet applied to the configured database; apply it before deploying CP01 backend code.
+Planning date: 26 September 2026. **Implementation: 2/32 parts complete. Next: CP03.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration.
 
 Read the [requirements plan](rentra-client-admin-plan.md) and [source-backed gap audit](rentra-client-admin-ui-audit.md) together with this roadmap. These CP numbers are a new workstream; they do not replace customer Parts 01–22 or change their completion claims. Client means the existing owner/authorized-agent portal.
 
@@ -10,12 +10,12 @@ One part is the target for one implementation session, including its meaningful 
 
 Each part owns its end-to-end slice: necessary Express API/service/schema changes, frontend integration, server-side permissions, persisted loading/error/success behavior, and regression evidence. Reuse existing foundations. Routes and models in the requirements plan are proposals until implemented. Never bypass the backend by adding direct frontend database access.
 
-CP01 is **COMPLETE**. All other parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
+CP01 and CP02 are **COMPLETE**. All other parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
 
 | Part | Session scope | Dependencies | Status |
 | --- | --- | --- | --- |
 | CP01 | Access, capabilities and session revocation | Current auth baseline | COMPLETE |
-| CP02 | Shared portal interaction foundations | CP01 | PLANNED |
+| CP02 | Shared portal interaction foundations | CP01 | COMPLETE |
 | CP03 | Client directory, detail and lifecycle | CP01–02 | PLANNED |
 | CP04 | Customer directory and account controls | CP01–02 | PLANNED |
 | CP05 | Gate 1 application review | CP03 | PLANNED |
@@ -63,13 +63,15 @@ The sequence favors closing the missing property approval workflow early. Indepe
 
 **Gate:** Verify cross-audience cookie rejection, direct API denial, session revocation and suspension on the next protected request, including downloads. Record a permission matrix and session migration/logout behavior. Acceptance: CA01–02, CA19. Defer operator management screens to CP26; preserve existing valid sign-in journeys.
 
-**Gate passed — 26 September 2026:** the disposable-PostgreSQL integration test passed against the real `0022` SQL, DAL and Express middleware. It covered cross-audience cookie rejection, 403 on a permission-less document download, revocation on logout, suspension, permission, password, TOTP and deactivation changes, expiry, legacy tokens and an issuance/suspension race. Backend `npm test` (75 pass, 1 skipped without the disposable URL), `db:check`, ESLint/Prettier, frontend tests (15/15) and the Webpack build also passed. Customer tokens remain valid; client/admin users sign in once. Suspended clients have no portal access; admins fulfill existing bookings. Migration `0022` is **not applied** to the configured database. [CP01 handoff and permission matrix](rentra-client-admin-part01.md).
+**Gate passed — 26 September 2026:** the disposable-PostgreSQL integration test passed against the real `0022` SQL, DAL and Express middleware. It covered cross-audience cookie rejection, 403 on a permission-less document download, revocation on logout, suspension, permission, password, TOTP and deactivation changes, expiry, legacy tokens and an issuance/suspension race. Backend `npm test` (75 pass, 1 skipped without the disposable URL), `db:check`, ESLint/Prettier, frontend tests (15/15) and the Webpack build also passed. Customer tokens remain valid; client/admin users sign in once. Suspended clients have no portal access; admins fulfill existing bookings. Migration `0022` was applied to the configured database on 26 September 2026. [CP01 handoff and permission matrix](rentra-client-admin-part01.md).
 
 ### CP02 — Shared list, detail and form behavior
 
 **Deliver:** Extend existing portal primitives with consistent page headers, breadcrumbs, URL-backed filtering/pagination, detail tabs, contextual actions, validation summaries and explicit empty/error/forbidden/not-found states. Add the planned navigation structure with only available destinations enabled; expose the existing partner reviews route. Define mobile list/card and action-menu behavior, dialog focus, dirty-form handling and retry preservation.
 
 **Gate:** Demonstrate representative client and admin list/detail/form flows with keyboard and narrow viewport checks. An API outage must not become an empty list or false 404. Acceptance: CA21–22. Do not restyle every page in this session.
+
+**Gate passed — 26 September 2026:** a 35-check headless Chrome gate passed against a disposable local stack. It covered the client property list/editor/calendar at 1280px and 390px, a filtered list carried into the detail breadcrumb, not-found for foreign and malformed ids, and a focused server validation summary with preserved input. It also covered the unsaved-change warning, the keyboard drawer (focus in, trapped, Escape, focus restored), capability navigation, and the forbidden state for a limited admin. With the API stopped, saves announced the failure and kept the input, and pages showed a retryable outage instead of a 404 or an empty list. axe found no serious/critical WCAG A/AA issues on the scanned routes. Frontend tests (17/17), ESLint, Prettier and the Webpack build passed. No backend or schema change. [CP02 handoff](rentra-client-admin-part02.md).
 
 ### CP03 — Admin client directory and lifecycle
 
@@ -269,6 +271,6 @@ Update this table and the audit dispositions only when the evidence supports the
 
 ## Prompt for the next implementation session
 
-> Start CP02 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01 handoff, inspect current frontend/backend changes and applicable repository instructions, then implement only CP02's end-to-end scope. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
+> Start CP03 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP02 handoffs, inspect current frontend/backend changes and applicable repository instructions, then implement only CP03's end-to-end scope. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
 
-Replace CP02 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.
+Replace CP03 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.

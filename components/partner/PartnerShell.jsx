@@ -8,6 +8,7 @@ import { useFormStatus } from 'react-dom';
 import {
   ArrowUpRight,
   Building2,
+  CalendarDays,
   ChevronRight,
   LayoutDashboard,
   Lock,
@@ -15,17 +16,29 @@ import {
   Menu,
   Settings2,
   ShieldCheck,
-  X,
+  Star,
 } from 'lucide-react';
 import { RentraLogo, RentraMark } from '@/components/rentra/Logo';
+import NavDrawer from '@/components/portal/NavDrawer';
 
 const NAV_GROUPS = [
   {
     label: 'Workspace',
     items: [
       { href: '/partner', label: 'Overview', icon: LayoutDashboard, exact: true },
-      { href: '/partner/listings', label: 'Properties', icon: Building2, requiresActive: true },
-      { href: '/partner/bookings', label: 'Bookings', icon: LayoutDashboard, requiresActive: true },
+      {
+        href: '/partner/listings',
+        label: 'Properties',
+        icon: Building2,
+        capability: 'client.listings.write',
+      },
+      {
+        href: '/partner/bookings',
+        label: 'Bookings',
+        icon: CalendarDays,
+        capability: 'client.records.read',
+      },
+      { href: '/partner/reviews', label: 'Reviews', icon: Star, capability: 'client.reviews.read' },
     ],
   },
   {
@@ -43,6 +56,7 @@ function routeLabel(pathname) {
   if (pathname.startsWith('/partner/bookings')) return 'Bookings';
   if (pathname.startsWith('/partner/listings/')) return 'Property workspace';
   if (pathname === '/partner/listings') return 'Properties';
+  if (pathname.startsWith('/partner/reviews')) return 'Reviews';
   if (pathname.startsWith('/partner/settings')) return 'Settings & payouts';
   if (pathname.startsWith('/partner/onboarding')) return 'Partner verification';
   return 'Overview';
@@ -68,13 +82,16 @@ function NavigationLink({ item, pathname, enabled, onNavigate }) {
   const active = isActive(pathname, item);
 
   if (!enabled) {
+    // Not a link: explain the required step in text, not only in a hover title.
     return (
-      <div
-        className="flex min-h-11 cursor-not-allowed items-center gap-3 rounded-md px-3 text-meta font-medium text-white/35"
-        title="Available after your partner profile is approved"
-      >
+      <div className="flex min-h-11 cursor-not-allowed items-center gap-3 rounded-md px-3 text-meta font-medium text-white/60">
         <Icon className="size-[18px]" aria-hidden="true" />
-        <span>{item.label}</span>
+        <span>
+          {item.label}
+          <span className="block text-[0.65rem] font-normal text-white/60">
+            After your partner profile is approved
+          </span>
+        </span>
         <Lock className="ml-auto size-3.5" aria-hidden="true" />
       </div>
     );
@@ -112,7 +129,7 @@ function Navigation({ pathname, capabilities, onNavigate }) {
     <nav className="mt-8 space-y-7" aria-label="Owner navigation">
       {NAV_GROUPS.map((group) => (
         <div key={group.label}>
-          <p className="mb-2 px-3 text-[0.65rem] font-bold tracking-[0.16em] text-white/35 uppercase">
+          <p className="mb-2 px-3 text-[0.65rem] font-bold tracking-[0.16em] text-white/60 uppercase">
             {group.label}
           </p>
           <div className="space-y-1">
@@ -121,14 +138,7 @@ function Navigation({ pathname, capabilities, onNavigate }) {
                 key={item.href}
                 item={item}
                 pathname={pathname}
-                enabled={
-                  !item.requiresActive ||
-                  capabilities?.includes(
-                    item.href === '/partner/bookings'
-                      ? 'client.records.read'
-                      : 'client.listings.write',
-                  )
-                }
+                enabled={!item.capability || capabilities?.includes(item.capability)}
                 onNavigate={onNavigate}
               />
             ))}
@@ -207,7 +217,7 @@ function SidebarContent({ pathname, user, logoutAction, onNavigate }) {
       <div className="mt-auto pt-6">
         <div className="mb-3 rounded-lg border border-brand-300/15 bg-brand-300/8 p-3">
           <p className="text-tiny font-semibold text-brand-100">Need a hand?</p>
-          <p className="mt-1 text-[0.68rem] leading-4 text-white/45">
+          <p className="mt-1 text-[0.68rem] leading-4 text-white/65">
             Rentra support can help with verification and listing setup.
           </p>
         </div>
@@ -275,37 +285,14 @@ export default function PartnerShell({ children, user, logoutAction }) {
         <main className="min-h-[calc(100vh-4rem)]">{children}</main>
       </div>
 
-      {mobileOpen ? (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <button
-            type="button"
-            className="absolute inset-0 bg-ink-900/55 backdrop-blur-[2px]"
-            aria-label="Close navigation"
-            onClick={() => setMobileOpen(false)}
-          />
-          <aside
-            className="relative h-full w-[min(86vw,320px)] bg-brand-950 shadow-xl"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Owner navigation"
-          >
-            <button
-              type="button"
-              onClick={() => setMobileOpen(false)}
-              className="absolute top-4 right-4 z-10 grid size-9 place-items-center rounded-md bg-white/8 text-white/70 hover:bg-white/12 hover:text-white"
-              aria-label="Close navigation"
-            >
-              <X className="size-5" aria-hidden="true" />
-            </button>
-            <SidebarContent
-              pathname={pathname}
-              user={user}
-              logoutAction={logoutAction}
-              onNavigate={() => setMobileOpen(false)}
-            />
-          </aside>
-        </div>
-      ) : null}
+      <NavDrawer open={mobileOpen} onClose={() => setMobileOpen(false)} label="Owner navigation">
+        <SidebarContent
+          pathname={pathname}
+          user={user}
+          logoutAction={logoutAction}
+          onNavigate={() => setMobileOpen(false)}
+        />
+      </NavDrawer>
     </div>
   );
 }

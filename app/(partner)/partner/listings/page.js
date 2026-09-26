@@ -108,6 +108,7 @@ export default async function ListingsPage({ searchParams }) {
         <PropertyFilters query={query} status={status} />
         <PropertyTable
           listings={result.items}
+          from={pageHref({ query, status, page: result.page })}
           emptyTitle={summary.total ? 'No matching properties' : 'No properties yet'}
           emptyDescription={
             summary.total
@@ -132,7 +133,7 @@ export default async function ListingsPage({ searchParams }) {
                 ← Previous
               </Link>
             ) : (
-              <span className="cursor-not-allowed rounded-sm border border-border px-3 py-2 text-ink-400">
+              <span className="cursor-not-allowed rounded-sm border border-border px-3 py-2 text-ink-500">
                 ← Previous
               </span>
             )}
@@ -150,7 +151,7 @@ export default async function ListingsPage({ searchParams }) {
                 Next →
               </Link>
             ) : (
-              <span className="cursor-not-allowed rounded-sm border border-border px-3 py-2 text-ink-400">
+              <span className="cursor-not-allowed rounded-sm border border-border px-3 py-2 text-ink-500">
                 Next →
               </span>
             )}

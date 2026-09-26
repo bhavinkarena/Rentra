@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Breadcrumbs from '@/components/portal/Breadcrumbs';
 
 export function AdminPage({ children, width = 'max-w-[1480px]' }) {
   return (
@@ -13,10 +14,15 @@ export function AdminPageHeader({
   action,
   backHref,
   backLabel = 'Back',
+  breadcrumbs,
 }) {
   return (
     <header>
-      {backHref ? (
+      {breadcrumbs ? (
+        <div className="mb-4">
+          <Breadcrumbs items={breadcrumbs} />
+        </div>
+      ) : backHref ? (
         <Link
           href={backHref}
           className="mb-4 inline-flex min-h-9 items-center text-tiny font-semibold text-brand-700 hover:underline"

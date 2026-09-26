@@ -28,6 +28,7 @@ const stateTone = (state) =>
         : 'danger';
 
 export function AdminSupportList({ data }) {
+  const listHref = `/admin/support?state=${encodeURIComponent(data.state)}&page=${data.page}`;
   const open = data.items.filter((item) => item.state === 'open').length;
   const waiting = data.items.filter((item) => item.state === 'waiting_customer').length;
   return (
@@ -69,7 +70,9 @@ export function AdminSupportList({ data }) {
         <div className="flex flex-col gap-4 border-b border-border p-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="text-h4 font-bold text-ink-900">Requests</h2>
-            <p className="mt-1 text-tiny text-ink-500">Most recently updated first</p>
+            <p className="mt-1 text-tiny text-ink-500">
+              Most recently updated first · Loaded {time(new Date())}
+            </p>
           </div>
           <form action="/admin/support" className="flex items-end gap-2">
             <label className="text-tiny font-semibold text-ink-600">
@@ -93,7 +96,12 @@ export function AdminSupportList({ data }) {
           </form>
         </div>
         {data.items.length ? (
-          <div className="overflow-x-auto">
+          <div
+            className="overflow-x-auto"
+            tabIndex={0}
+            role="region"
+            aria-label="Support requests table"
+          >
             <table className="w-full min-w-[760px] text-left">
               <thead className="bg-ink-25 text-[0.65rem] font-bold tracking-wider text-ink-500 uppercase">
                 <tr>
@@ -125,9 +133,9 @@ export function AdminSupportList({ data }) {
                     <td className="px-5 py-4 text-right">
                       <Link
                         className="text-tiny font-bold text-brand-700 hover:underline"
-                        href={`/admin/support/${request.id}`}
+                        href={`/admin/support/${request.id}?from=${encodeURIComponent(listHref)}`}
                       >
-                        Open →
+                        Open<span className="sr-only"> {request.reference}</span> →
                       </Link>
                     </td>
                   </tr>
@@ -158,12 +166,11 @@ export function AdminSupportList({ data }) {
   );
 }
 
-export function AdminSupportDetail({ record }) {
+export function AdminSupportDetail({ record, listHref = '/admin/support' }) {
   return (
     <AdminPage width="max-w-6xl">
       <AdminPageHeader
-        backHref="/admin/support"
-        backLabel="Support inbox"
+        breadcrumbs={[{ href: listHref, label: 'Support inbox' }, { label: record.reference }]}
         eyebrow={record.reference}
         title={record.subject}
         description={`${supportCategories[record.category]} · Created ${time(record.createdAt)}`}

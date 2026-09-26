@@ -1,0 +1,177 @@
+[
+ {
+  "check": "client list loads 1280px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "row link carries filtered list 1280px",
+  "pass": true,
+  "detail": "/partner/listings/c297a962-3330-4e67-aa5f-355539f00163?from=%2Fpartner%2Flistings%3Fstatus%3Dlive"
+ },
+ {
+  "check": "table region keyboard-focusable",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "reviews destination in owner navigation",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "axe WCAG A/AA serious/critical: /partner/listings 1280px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "detail breadcrumb returns to filtered list 1280px",
+  "pass": true,
+  "detail": "/partner/listings?status=live"
+ },
+ {
+  "check": "axe WCAG A/AA serious/critical: /partner/listings/[id] 1280px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "client list loads 390px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "row link carries filtered list 390px",
+  "pass": true,
+  "detail": "/partner/listings/c297a962-3330-4e67-aa5f-355539f00163?from=%2Fpartner%2Flistings%3Fstatus%3Dlive"
+ },
+ {
+  "check": "mobile uses card list, table hidden",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "no horizontal page overflow at 390px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "axe WCAG A/AA serious/critical: /partner/listings 390px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "detail breadcrumb returns to filtered list 390px",
+  "pass": true,
+  "detail": "/partner/listings?status=live"
+ },
+ {
+  "check": "another owner's listing shows not-found UI, no data (streamed status recorded)",
+  "pass": true,
+  "detail": "200"
+ },
+ {
+  "check": "malformed listing id shows not-found",
+  "pass": true,
+  "detail": "200"
+ },
+ {
+  "check": "validation summary shown and focused",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "typed value preserved after failed save",
+  "pass": true,
+  "detail": "'   abc    '"
+ },
+ {
+  "check": "summary entry moves focus to its field",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "unsaved-change warning blocks in-app navigation",
+  "pass": true,
+  "detail": "http://localhost:3100/partner/listings/96ceb5de-2873-4fb2-ac57-ce251b19deda"
+ },
+ {
+  "check": "drawer receives focus",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "focus stays inside modal drawer",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "Escape closes drawer",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "focus returns to menu button",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "axe WCAG A/AA serious/critical: /partner 390px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "admin support list loads",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "full admin sees grouped nav incl. Gateway settings",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "axe WCAG A/AA serious/critical: /admin/support 1280px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "unknown support id shows not-found",
+  "pass": true,
+  "detail": "200"
+ },
+ {
+  "check": "limited admin nav shows only permitted destinations",
+  "pass": true,
+  "detail": "['Bookings']"
+ },
+ {
+  "check": "limited admin gets forbidden state, not outage/empty",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "network failure on save is announced",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "input preserved after network failure",
+  "pass": true,
+  "detail": "Outage-proof title text"
+ },
+ {
+  "check": "detail during outage shows unavailable+retry, not 404",
+  "pass": true,
+  "detail": "200"
+ },
+ {
+  "check": "list during outage is not an empty list",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "retry keeps list filters in URL",
+  "pass": true,
+  "detail": ""
+ }
+]

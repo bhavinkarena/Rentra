@@ -33,8 +33,32 @@ import { Input as BaseInput } from '@/components/ui/input';
 import { sectionAnchorId } from '@/lib/domain/listing-steps';
 import { photoId } from '@/lib/domain/listing-photos';
 import { useChrome, useIsWizard, useStepFormId } from './chrome';
+import ValidationSummary from '@/components/portal/ValidationSummary';
+import { DIRTY_EVENT } from '@/components/portal/UnsavedChangesGuard';
 
 /* ------------------------------ primitives ------------------------------ */
+
+/**
+ * Put the submitted values back after a failed save.
+ *
+ * React 19 resets an uncontrolled <form action> once the action returns, even
+ * when it returned an error, which would silently drop what the owner typed.
+ */
+function restoreForm(form, data) {
+  const seen = {};
+  for (const element of form.elements) {
+    const { name, type } = element;
+    if (!name || ['file', 'hidden', 'submit', 'button'].includes(type)) continue;
+    const values = data.getAll(name).map(String);
+    if (type === 'checkbox' || type === 'radio') element.checked = values.includes(element.value);
+    else if (element.multiple)
+      for (const option of element.options) option.selected = values.includes(option.value);
+    else {
+      const index = (seen[name] = (seen[name] ?? -1) + 1);
+      if (index < values.length) element.value = values[index];
+    }
+  }
+}
 
 const inputCls =
   'min-h-12 w-full rounded-md border border-input bg-card px-3.5 py-3 text-meta ' +
@@ -64,6 +88,26 @@ function Field({ id, label, hint, error, children }) {
 function Section({ id, title, intro, state, pending, children }) {
   const { variant, onSaved, onPending } = useChrome();
   const wizard = variant === 'wizard';
+  const sectionRef = useRef(null);
+  const submitted = useRef(null);
+
+  const fieldErrors = Object.keys(state?.errors ?? {}).some((key) => key !== '_');
+  // Validation failures list their fields; any other failure (network, conflict,
+  // permission) must still be said out loud rather than leave a silent form.
+  const formError = state?.errors?._ ?? (!fieldErrors && !state?.ok ? state?.error : null);
+  const failed = Boolean(formError || fieldErrors);
+
+  useEffect(() => {
+    const last = submitted.current;
+    if (!failed || !last) return;
+    restoreForm(last.form, last.data);
+    last.form.dispatchEvent(new Event(DIRTY_EVENT, { bubbles: true }));
+  }, [state, failed]);
+
+  const onSubmitCapture = (event) => {
+    if (event.target instanceof HTMLFormElement)
+      submitted.current = { form: event.target, data: new FormData(event.target) };
+  };
 
   /**
    * Tell the walkthrough a save landed so it can move to the next step.
@@ -86,13 +130,16 @@ function Section({ id, title, intro, state, pending, children }) {
 
   const notices = (
     <>
-      {state?.errors?._ ? (
+      {formError ? (
         <p
+          role="alert"
           className={`${wizard ? 'mt-5' : 'mt-3'} rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger`}
         >
-          {state.errors._}
+          {formError}
+          {!state?.errors?._ ? ' Your changes are still in the form — try saving again.' : null}
         </p>
       ) : null}
+      <ValidationSummary errors={state?.errors} scope={sectionRef} />
 
       {/* Trust-field edits on a LIVE listing pull it out of search until
           re-approved. Confirmed bookings are untouched — say so, or it reads
@@ -115,7 +162,7 @@ function Section({ id, title, intro, state, pending, children }) {
      * progress, Back, Next — and nothing that is about this step's content.
      */
     return (
-      <section id={sectionAnchorId(id)}>
+      <section id={sectionAnchorId(id)} ref={sectionRef} onSubmitCapture={onSubmitCapture}>
         <h1 className="text-h1">{title}</h1>
         {intro ? <p className="mt-2 max-w-prose text-body text-ink-600">{intro}</p> : null}
         {notices}
@@ -127,6 +174,8 @@ function Section({ id, title, intro, state, pending, children }) {
   return (
     <section
       id={sectionAnchorId(id)}
+      ref={sectionRef}
+      onSubmitCapture={onSubmitCapture}
       className="scroll-mt-24 rounded-lg border border-border bg-card p-5"
     >
       <h2 className="text-h3">{title}</h2>
@@ -137,7 +186,10 @@ function Section({ id, title, intro, state, pending, children }) {
       <div className="mt-4 space-y-4">{children}</div>
 
       {state?.ok ? (
-        <p className="mt-3 inline-flex items-center gap-1.5 text-meta font-semibold text-brand-700">
+        <p
+          role="status"
+          className="mt-3 inline-flex items-center gap-1.5 text-meta font-semibold text-brand-700"
+        >
           <Check className="size-4" aria-hidden="true" /> Saved
         </p>
       ) : null}
@@ -925,7 +977,7 @@ export function PhotosSection({ listing, photos }) {
               </div>
 
               {i === 0 ? (
-                <span className="absolute top-2 left-2 rounded-full bg-brand-600 px-2 py-0.5 text-tiny font-bold text-white">
+                <span className="absolute top-2 left-2 rounded-full bg-brand-700 px-2 py-0.5 text-tiny font-bold text-white">
                   Cover
                 </span>
               ) : null}

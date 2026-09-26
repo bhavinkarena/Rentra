@@ -84,13 +84,27 @@ DELIVERED = {
       <li>Audience-bound tokens; issuance locks the principal so a sign-in racing a suspension never yields a valid session. Logout revokes and audits once.</li>
       <li>Suspended/blocked clients have no portal access; new business was already blocked; admins fulfil existing bookings.</li>
       <li>Frontend navigation follows returned capabilities; login pages explain ended and restricted sessions; an API outage is no longer shown as a sign-out.</li></ul>
-      <p class="small"><strong>Gate passed — 26 September 2026:</strong> the disposable-PostgreSQL integration test passed against the real <code>0022</code> SQL, DAL and Express middleware (cross-audience cookies, permission-less download denial, revocation, suspension, credential changes, expiry, legacy tokens, issuance race, customer session preserved). Backend <code>npm test</code> 75 pass / 1 skipped without the disposable URL, <code>db:check</code> 23 files, ESLint/Prettier; frontend tests 15/15 and the Webpack build passed. Customer tokens stay valid; client/admin users sign in once. <strong>Migration 0022 is not applied</strong> to the configured database — apply it before deploying the backend. <a href="rentra-client-admin-part01.md">Handoff, permission matrix and runbook ↗</a></p></div>
+      <p class="small"><strong>Gate passed — 26 September 2026:</strong> the disposable-PostgreSQL integration test passed against the real <code>0022</code> SQL, DAL and Express middleware (cross-audience cookies, permission-less download denial, revocation, suspension, credential changes, expiry, legacy tokens, issuance race, customer session preserved). Backend <code>npm test</code> 75 pass / 1 skipped without the disposable URL, <code>db:check</code> 23 files, ESLint/Prettier; frontend tests 15/15 and the Webpack build passed. Customer tokens stay valid; client/admin users sign in once. <strong>Migration 0022 was applied</strong> to the configured database on 26 September 2026 (23 migrations, table, column and triggers verified); other targets need it before deployment. <a href="rentra-client-admin-part01.md">Handoff, permission matrix and runbook ↗</a></p></div>
     <div class="card"><span class="num">CP01 · explicitly not delivered</span><h3>Limits recorded at the gate</h3>
       <ul><li>No screen or API to edit <code>admin_user.permissions</code>; <code>NULL</code> keeps full Super Admin access. Operator management is CP26.</li>
       <li>No restricted-fulfillment mode for suspended clients; fulfillment is admin-controlled. Suspension impact preview is CP03.</li>
       <li>Caretaker capabilities are a contract only; authentication and property assignment are CP16.</li>
       <li>Hidden admin pages still open by URL; their API calls return 403. Explicit forbidden states are CP02.</li>
       <li>No authenticated browser, hosted environment or deployment checks were run.</li></ul></div>''',
+    "CP02": '''<div class="card"><span class="num">CP02 · complete</span><h3>Shared list, detail and form behavior</h3><p>Shared portal pieces, applied to representative client and admin flows:</p>
+      <ul><li><code>settle()</code> + <code>PortalState</code> — only a definite missing record is not-found; 403 is forbidden; network/5xx is a retryable outage, never an empty list or false 404 (fixes G28).</li>
+      <li>Breadcrumbs with return-to-list context: list rows carry <code>?from=</code>, validated to the same list prefix.</li>
+      <li>Focused validation summary; failed saves keep typed input (React 19 form reset) and network/conflict errors are no longer silent.</li>
+      <li>Unsaved-change warning for the multi-section property editor; native modal <code>&lt;dialog&gt;</code> navigation drawer.</li>
+      <li>Capability navigation grouped per plan: owner Reviews link (G15); admin “Gateway settings” keeps the <code>/admin/payments</code> bookmark.</li>
+      <li>Named row actions, focusable table regions and contrast fixes found by axe.</li></ul>
+      <p class="small"><strong>Gate passed — 26 September 2026:</strong> headless Chrome gate <strong>35/35</strong> on a disposable local stack. It covered 1280/390px lists and editor, filtered-list breadcrumbs, not-found for foreign and malformed ids, a focused validation summary with preserved input and the unsaved-change warning. Also: the keyboard drawer (focus trapped, Escape, focus restored), a limited admin seeing only Bookings and a forbidden state, and API-down saves and pages showing retryable outages with filters kept. axe: no serious/critical WCAG A/AA issues on the scanned routes. Frontend tests 17/17, ESLint, Prettier and the Webpack build passed. No backend or schema change. <a href="rentra-client-admin-part02.md">Handoff, gate reproduction and runbook ↗</a></p></div>
+    <div class="card"><span class="num">CP02 · explicitly not delivered</span><h3>Limits recorded at the gate</h3>
+      <ul><li>Browser Back is not intercepted by the unsaved-change guard; reload, close and in-app links are.</li>
+      <li>A streamed not-found detail returns HTTP 200 (the page is <code>noindex</code>).</li>
+      <li>Pages outside the representative flows still use the route-level error fallback, which cannot tell forbidden from outage.</li>
+      <li>Fixture database without PostGIS: maps and geo search were not under test.</li>
+      <li>No human screen-reader pass and no hosted environment.</li></ul></div>''',
 }
 missing = [key for key, status in statuses.items() if status == "COMPLETE" and key not in DELIVERED]
 assert not missing, f"Add DELIVERED cards for {missing}"

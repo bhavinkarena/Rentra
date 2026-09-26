@@ -26,9 +26,20 @@ function actionLabel(status) {
   return 'Manage';
 }
 
-function actionHref(listing) {
+/** `from` carries the filtered list URL so the detail breadcrumb returns to it. */
+function actionHref(listing, from) {
   const base = `/partner/listings/${listing.id}`;
-  return listing.status === 'draft' || listing.status === 'rejected' ? `${base}/setup` : base;
+  if (listing.status === 'draft' || listing.status === 'rejected') return `${base}/setup`;
+  return from ? `${base}?from=${encodeURIComponent(from)}` : base;
+}
+
+function ActionText({ listing }) {
+  return (
+    <>
+      {actionLabel(listing.status)}
+      <span className="sr-only">: {displayTitle(listing.title)}</span>
+    </>
+  );
 }
 
 function PropertyIdentity({ listing }) {
@@ -52,6 +63,7 @@ function PropertyIdentity({ listing }) {
 export default function PropertyTable({
   listings,
   compact = false,
+  from,
   emptyTitle = 'No properties found',
   emptyDescription = 'Try a different search or status filter.',
 }) {
@@ -71,7 +83,12 @@ export default function PropertyTable({
 
   return (
     <>
-      <div className="hidden overflow-x-auto md:block">
+      <div
+        className="hidden overflow-x-auto md:block"
+        tabIndex={0}
+        role="region"
+        aria-label="Properties table"
+      >
         <table className="w-full min-w-[760px] border-collapse text-left">
           <thead>
             <tr className="border-b border-border bg-ink-25/80">
@@ -152,10 +169,10 @@ export default function PropertyTable({
                 </td>
                 <td className="px-5 py-3.5 text-right">
                   <Link
-                    href={actionHref(listing)}
+                    href={actionHref(listing, from)}
                     className="inline-flex items-center gap-1.5 rounded-sm border border-border bg-card px-3 py-2 text-tiny font-semibold text-ink-700 transition-colors group-hover:border-ink-300 hover:bg-ink-50 hover:text-ink-900"
                   >
-                    {actionLabel(listing.status)}
+                    <ActionText listing={listing} />
                     <ArrowRight className="size-3.5" aria-hidden="true" />
                   </Link>
                 </td>
@@ -174,23 +191,23 @@ export default function PropertyTable({
             </div>
             <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-dashed border-border pt-3 text-tiny">
               <div>
-                <dt className="text-ink-400">Location</dt>
+                <dt className="text-ink-500">Location</dt>
                 <dd className="mt-0.5 truncate font-medium text-ink-700">
                   {displayLocation(listing)}
                 </dd>
               </div>
               <div>
-                <dt className="text-ink-400">Updated</dt>
+                <dt className="text-ink-500">Updated</dt>
                 <dd className="mt-0.5 font-medium text-ink-700">
                   {displayDate(listing.updatedAt)}
                 </dd>
               </div>
             </dl>
             <Link
-              href={actionHref(listing)}
+              href={actionHref(listing, from)}
               className="mt-4 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-md border border-border bg-card text-tiny font-semibold text-ink-800"
             >
-              {actionLabel(listing.status)}
+              <ActionText listing={listing} />
               <ArrowRight className="size-3.5" aria-hidden="true" />
             </Link>
           </li>

@@ -1,8 +1,9 @@
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { ArrowLeft, Check, X, AlertTriangle } from 'lucide-react';
+import { Check, X, AlertTriangle } from 'lucide-react';
 import { requireAdmin } from '@/lib/api/session';
 import { adminApi } from '@/lib/api/endpoints';
+import { settle } from '@/lib/api/page-state';
+import PortalState from '@/components/portal/PortalState';
+import Breadcrumbs from '@/components/portal/Breadcrumbs';
 import DecisionPanel from '@/components/admin/DecisionPanel';
 import DocumentViewer from '@/components/admin/DocumentViewer';
 
@@ -15,20 +16,16 @@ export default async function ApplicationReviewPage({ params }) {
   await requireAdmin();
   const { id } = await params; // Next 16: params is a Promise
 
-  const data = await adminApi.application(id).catch(() => null);
-  if (!data) notFound();
+  const { data, failure } = await settle(adminApi.application(id));
+  if (failure) return <PortalState kind={failure} backHref="/admin" backLabel="Applications" />;
 
   const { app, user, trail, listings, completion } = data;
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-      <Link
-        href="/admin"
-        className="inline-flex items-center gap-1.5 text-meta font-medium text-ink-600 hover:text-ink-900"
-      >
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        Back to queue
-      </Link>
+      <Breadcrumbs
+        items={[{ href: '/admin', label: 'Applications' }, { label: app.legalName || user.email }]}
+      />
 
       <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
         <div>
@@ -63,8 +60,28 @@ export default async function ApplicationReviewPage({ params }) {
         </p>
       ) : null}
 
+      <nav aria-label="Sections" className="mt-5 flex flex-wrap gap-2 text-tiny font-semibold">
+        {[
+          ['#checklist', 'Checklist'],
+          ['#documents', 'Documents'],
+          ...(app.status === 'submitted' ? [['#decision', 'Decision']] : []),
+          ['#history', 'History'],
+        ].map(([href, label]) => (
+          <a
+            key={href}
+            href={href}
+            className="inline-flex min-h-9 items-center rounded-full border border-border bg-card px-3 text-ink-700 hover:bg-ink-50"
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
+
       {/* ---------------- the checklist ---------------- */}
-      <section className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <section
+        id="checklist"
+        className="mt-7 grid scroll-mt-24 gap-4 sm:grid-cols-2 xl:grid-cols-3"
+      >
         <Panel title="Identity">
           <Row label="Email" value={user.email} ok={Boolean(user.emailVerifiedAt)} />
           <Row
@@ -147,7 +164,7 @@ export default async function ApplicationReviewPage({ params }) {
       </section>
 
       {/* Full width: this is the evidence the whole decision rests on. */}
-      <div className="mt-4">
+      <div id="documents" className="mt-4 scroll-mt-24">
         <DocumentViewer
           documents={data.documents ?? []}
           kycNameOnDoc={app.kycNameOnDoc}
@@ -156,13 +173,13 @@ export default async function ApplicationReviewPage({ params }) {
       </div>
 
       {app.status === 'submitted' ? (
-        <div className="mt-6">
+        <div id="decision" className="mt-6 scroll-mt-24">
           <DecisionPanel applicationId={app.id} strikeCount={app.strikeCount} />
         </div>
       ) : null}
 
       {/* ---------------- audit trail ---------------- */}
-      <section className="mt-8">
+      <section id="history" className="mt-8 scroll-mt-24">
         <h2 className="text-h3">Everything that has happened</h2>
         <p className="mt-1 text-meta text-ink-600">
           This is what makes a decision defensible three months from now.

@@ -20,27 +20,76 @@ import {
   ShieldCheck,
   Star,
   TriangleAlert,
-  X,
 } from 'lucide-react';
 import { RentraLogo, RentraMark } from '@/components/rentra/Logo';
+import NavDrawer from '@/components/portal/NavDrawer';
 
+// Grouped per the CP02 navigation plan. Only delivered destinations appear;
+// later groups (People, Properties, Audit, Settings) arrive with their parts.
 const NAV_GROUPS = [
   {
-    label: 'Workspace',
+    label: 'Work queues',
     items: [
-      { href: '/admin', label: 'Review queue', icon: LayoutDashboard, exact: true },
-      { href: '/admin/bookings', label: 'Bookings', icon: CalendarDays },
-      { href: '/admin/reviews', label: 'Reviews', icon: Star },
-      { href: '/admin/support', label: 'Support inbox', icon: MessageSquareText },
+      {
+        href: '/admin',
+        label: 'Applications',
+        icon: LayoutDashboard,
+        exact: true,
+        capability: 'admin.applications.read',
+      },
     ],
   },
   {
     label: 'Operations',
     items: [
-      { href: '/admin/operations', label: 'Operations', icon: Activity },
-      { href: '/admin/notifications', label: 'Delivery', icon: Send },
-      { href: '/admin/payments', label: 'Payments', icon: CreditCard },
-      { href: '/admin/privacy', label: 'Privacy requests', icon: ShieldCheck },
+      {
+        href: '/admin/bookings',
+        label: 'Bookings',
+        icon: CalendarDays,
+        capability: 'admin.records.read',
+      },
+      {
+        href: '/admin/support',
+        label: 'Support inbox',
+        icon: MessageSquareText,
+        capability: 'admin.support.read',
+      },
+      { href: '/admin/reviews', label: 'Reviews', icon: Star, capability: 'admin.reviews.read' },
+    ],
+  },
+  {
+    label: 'Finance',
+    items: [
+      // Stable bookmark: this page is gateway settings, not payment investigation (CP19).
+      {
+        href: '/admin/payments',
+        label: 'Gateway settings',
+        icon: CreditCard,
+        capability: 'admin.payments.read',
+      },
+    ],
+  },
+  {
+    label: 'Compliance & health',
+    items: [
+      {
+        href: '/admin/privacy',
+        label: 'Privacy requests',
+        icon: ShieldCheck,
+        capability: 'admin.privacy.read',
+      },
+      {
+        href: '/admin/operations',
+        label: 'Service health',
+        icon: Activity,
+        capability: 'admin.operations.read',
+      },
+      {
+        href: '/admin/notifications',
+        label: 'Message delivery',
+        icon: Send,
+        capability: 'admin.notifications.read',
+      },
     ],
   },
 ];
@@ -53,6 +102,7 @@ function isActive(pathname, item) {
 function routeLabel(pathname) {
   if (pathname.startsWith('/admin/applications/')) return 'Application review';
   if (pathname.startsWith('/admin/bookings/')) return 'Booking record';
+  if (pathname.startsWith('/admin/support/')) return 'Support request';
   const item = NAV_GROUPS.flatMap((group) => group.items).find(
     (entry) => pathname === entry.href || pathname.startsWith(`${entry.href}/`),
   );
@@ -108,23 +158,18 @@ function NavigationLink({ item, pathname, onNavigate }) {
 function Navigation({ pathname, onNavigate, capabilities }) {
   return (
     <nav className="mt-8 space-y-7" aria-label="Admin navigation">
-      {NAV_GROUPS.map((group) => (
-        <div key={group.label}>
-          <p className="mb-2 px-3 text-[0.65rem] font-bold tracking-[0.16em] text-white/35 uppercase">
-            {group.label}
-          </p>
-          <div className="space-y-1">
-            {group.items
-              .filter((item) => {
-                const domain =
-                  item.href === '/admin'
-                    ? 'applications'
-                    : item.href === '/admin/bookings'
-                      ? 'records'
-                      : item.href.split('/').at(-1);
-                return capabilities?.includes(`admin.${domain}.read`);
-              })
-              .map((item) => (
+      {NAV_GROUPS.map((group) => ({
+        ...group,
+        items: group.items.filter((item) => capabilities?.includes(item.capability)),
+      }))
+        .filter((group) => group.items.length)
+        .map((group) => (
+          <div key={group.label}>
+            <p className="mb-2 px-3 text-[0.65rem] font-bold tracking-[0.16em] text-white/60 uppercase">
+              {group.label}
+            </p>
+            <div className="space-y-1">
+              {group.items.map((item) => (
                 <NavigationLink
                   key={item.href}
                   item={item}
@@ -132,9 +177,9 @@ function Navigation({ pathname, onNavigate, capabilities }) {
                   onNavigate={onNavigate}
                 />
               ))}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
     </nav>
   );
 }
@@ -211,7 +256,7 @@ function SidebarContent({ pathname, admin, logoutAction, onNavigate }) {
             <FileCheck2 className="size-4" aria-hidden="true" />
             <p className="text-tiny font-semibold">Operations console</p>
           </div>
-          <p className="mt-1 text-[0.68rem] leading-4 text-white/45">
+          <p className="mt-1 text-[0.68rem] leading-4 text-white/65">
             Changes here can affect live bookings, partners, and customers.
           </p>
         </div>
@@ -282,37 +327,14 @@ export default function AdminShell({ children, admin, logoutAction }) {
         <main className="min-h-[calc(100vh-4rem)]">{children}</main>
       </div>
 
-      {mobileOpen ? (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <button
-            type="button"
-            className="absolute inset-0 bg-ink-900/55 backdrop-blur-[2px]"
-            aria-label="Close navigation"
-            onClick={() => setMobileOpen(false)}
-          />
-          <aside
-            className="relative h-full w-[min(86vw,320px)] bg-brand-950 shadow-xl"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Admin navigation"
-          >
-            <button
-              type="button"
-              onClick={() => setMobileOpen(false)}
-              className="absolute top-4 right-4 z-10 grid size-9 place-items-center rounded-md bg-white/8 text-white/70 hover:bg-white/12 hover:text-white"
-              aria-label="Close navigation"
-            >
-              <X className="size-5" aria-hidden="true" />
-            </button>
-            <SidebarContent
-              pathname={pathname}
-              admin={admin}
-              logoutAction={logoutAction}
-              onNavigate={() => setMobileOpen(false)}
-            />
-          </aside>
-        </div>
-      ) : null}
+      <NavDrawer open={mobileOpen} onClose={() => setMobileOpen(false)} label="Admin navigation">
+        <SidebarContent
+          pathname={pathname}
+          admin={admin}
+          logoutAction={logoutAction}
+          onNavigate={() => setMobileOpen(false)}
+        />
+      </NavDrawer>
     </div>
   );
 }

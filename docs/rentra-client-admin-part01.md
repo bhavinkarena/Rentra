@@ -1,6 +1,6 @@
 # CP01 — Access, capabilities and revocable sessions
 
-Status: **COMPLETE — 26 September 2026.** Gate verified against a disposable local PostgreSQL cluster. Migration `0022_portal_access` is **not yet applied** to the configured application database (see §4).
+Status: **COMPLETE — 26 September 2026.** Gate verified against a disposable local PostgreSQL cluster. Migration `0022_portal_access` was applied to the configured database on 26 September 2026 (see §4).
 
 ## 1. Scope and revisions
 
@@ -90,7 +90,7 @@ Evidence type: fixture and disposable-database evidence only. No authenticated b
 | Environment | Status |
 | --- | --- |
 | Disposable local cluster | `0022` applied inside the integration test and dropped afterwards |
-| Configured application database (Neon, from `rentra-backend/.env`) | **Not applied.** A read-only check on 26 September 2026 found 22 recorded migrations (through `0021`), no `portal_session` table and no `admin_user.permissions` column |
+| Configured application database (Neon, from `rentra-backend/.env`) | **Applied — 26 September 2026** with `npm run db:migrate`. Verified afterwards: 23 recorded migrations, `portal_session` table, `admin_user.permissions` column and both revocation triggers present. Before that, client sign-in failed on this database: the OTP passed but `createSession` hit the missing table |
 | Deployments | Not deployed |
 
 **Deployment order:** run `npm run db:migrate` in `rentra-backend` **before** starting the new backend code. Without the migration, client and admin sign-in fail because `portal_session` does not exist. After deployment every client and admin signs in once; customers are unaffected. No new configuration or secrets.
@@ -101,4 +101,5 @@ Evidence type: fixture and disposable-database evidence only. No authenticated b
 - A restricted-fulfillment mode for suspended clients is not built; the policy is admin-controlled fulfillment.
 - Admin pages hidden from navigation still render if opened by URL. Their API calls return 403; CP02 owns explicit forbidden states.
 - The `/auth/me` protected-page path no longer converts an API outage into a sign-in redirect. This applies to customer pages too: an outage now shows the error page instead of `/login`.
-- **Next:** apply migration `0022` to each target database, then start CP02.
+- **Follow-up fix — 26 September 2026:** `runAction` (`rentra-backend/src/utils/runAction.js`) rethrew unexpected errors from an async handler that Express 4 never catches, so the request hung. With the missing table this appeared as an endless spinner after the OTP. `runAction` now goes through `asyncHandler`, so every action route returns an error response instead. Regression test: `test/utils/runAction.test.js`. After the migration, a dev-code sign-in against the running API returned 200 and `/auth/me` returned the client; logout revoked that test session.
+- **Next:** apply migration `0022` to any other target database before deploying; CP02 is complete.

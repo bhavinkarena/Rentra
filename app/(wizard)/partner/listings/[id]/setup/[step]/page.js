@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
 import { requireActiveClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
+import { settle } from '@/lib/api/page-state';
+import PortalState from '@/components/portal/PortalState';
 import { listingCompletion } from '@/lib/domain/listing-completion';
 import {
   LISTING_CHAPTERS,
@@ -51,8 +53,9 @@ export default async function SetupStepPage({ params }) {
   if (!isListingStep(stepId)) notFound();
 
   /* Scoped to this Client on the API — another Client's id answers 404. */
-  const data = await partnerApi.listing(id).catch(() => null);
-  if (!data) notFound();
+  const { data, failure } = await settle(partnerApi.listing(id));
+  if (failure)
+    return <PortalState kind={failure} backHref="/partner/listings" backLabel="All properties" />;
 
   const { listing, prices, amenities, photos, documents } = data;
   const completion = listingCompletion(listing, data);

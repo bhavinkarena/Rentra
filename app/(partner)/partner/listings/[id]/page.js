@@ -1,8 +1,12 @@
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { ArrowLeft, Check, Wand2 } from 'lucide-react';
+import { Check, Wand2 } from 'lucide-react';
 import { requireActiveClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
+import { settle } from '@/lib/api/page-state';
+import { safeReturnPath } from '@/lib/domain/portal-state';
+import PortalState from '@/components/portal/PortalState';
+import Breadcrumbs from '@/components/portal/Breadcrumbs';
+import UnsavedChangesGuard from '@/components/portal/UnsavedChangesGuard';
 import { listingCompletion } from '@/lib/domain/listing-completion';
 import { submitListing } from '@/lib/actions/partner';
 import {
@@ -41,14 +45,15 @@ export const metadata = {
  *     hostile, and a Client with three farmhouses edits far more than they
  *     create.
  */
-export default async function ListingBuilderPage({ params }) {
+export default async function ListingBuilderPage({ params, searchParams }) {
   const user = await requireActiveClient();
   const { id } = await params; // Next 16: params is a Promise
+  const listHref = safeReturnPath((await searchParams)?.from, '/partner/listings');
 
   // Scoped to this Client on the API — another Client's listing id returns
-  // nothing, not their property.
-  const data = await partnerApi.listing(id).catch(() => null);
-  if (!data) notFound();
+  // 404, not their property. An outage is shown as an outage, not as a missing listing.
+  const { data, failure } = await settle(partnerApi.listing(id));
+  if (failure) return <PortalState kind={failure} backHref={listHref} backLabel="All properties" />;
 
   const [catalogue, categories, cities] = await Promise.all([
     partnerApi.amenityCatalogue(),
@@ -61,17 +66,21 @@ export default async function ListingBuilderPage({ params }) {
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
-      <Link
-        href="/partner/listings"
-        className="inline-flex items-center gap-1.5 text-meta font-medium text-ink-600 hover:text-ink-900"
-      >
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        All properties
-      </Link>
+      <Breadcrumbs
+        items={[
+          { href: listHref, label: 'Properties' },
+          { label: listing.title === 'Untitled property' ? 'New property' : listing.title },
+        ]}
+      />
 
-      <h1 className="mt-5 text-h1">
+      <h1 className="mt-4 text-h1">
         {listing.title === 'Untitled property' ? 'New property' : listing.title}
       </h1>
+      {listing.publicCode ? (
+        <p className="mt-1 text-tiny text-ink-500">
+          Reference <span className="font-mono">{listing.publicCode}</span>
+        </p>
+      ) : null}
 
       {/* Progress rail: the same two-phase honesty as onboarding — the review
           step is visible from the first visit, so a full bar never sits next
@@ -153,6 +162,7 @@ export default async function ListingBuilderPage({ params }) {
       </div>
 
       <ListingChrome variant="card">
+        <UnsavedChangesGuard />
         <div className="mt-6 space-y-5">
           <BasicsSection listing={listing} categories={categories} />
           <LocationSection listing={listing} cities={cities} />

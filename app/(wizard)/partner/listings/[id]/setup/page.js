@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation';
-import { notFound } from 'next/navigation';
 import { requireActiveClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
+import { settle } from '@/lib/api/page-state';
+import PortalState from '@/components/portal/PortalState';
 import { listingCompletion } from '@/lib/domain/listing-completion';
 import { firstIncompleteStepId, stepHref } from '@/lib/domain/listing-steps';
 
@@ -24,8 +25,9 @@ export default async function SetupEntryPage({ params }) {
   await requireActiveClient();
   const { id } = await params; // Next 16: params is a Promise
 
-  const data = await partnerApi.listing(id).catch(() => null);
-  if (!data) notFound();
+  const { data, failure } = await settle(partnerApi.listing(id));
+  if (failure)
+    return <PortalState kind={failure} backHref="/partner/listings" backLabel="All properties" />;
 
   const completion = listingCompletion(data.listing, data);
   redirect(stepHref(id, firstIncompleteStepId(completion)));
