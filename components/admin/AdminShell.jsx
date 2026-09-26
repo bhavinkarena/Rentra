@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   Star,
   TriangleAlert,
+  UserRound,
   Users,
 } from 'lucide-react';
 import { RentraLogo, RentraMark } from '@/components/rentra/Logo';
@@ -44,6 +45,12 @@ const NAV_GROUPS = [
     label: 'People',
     items: [
       { href: '/admin/clients', label: 'Clients', icon: Users, capability: 'admin.clients.read' },
+      {
+        href: '/admin/customers',
+        label: 'Customers',
+        icon: UserRound,
+        capability: 'admin.customers.read',
+      },
     ],
   },
   {
@@ -111,6 +118,7 @@ function routeLabel(pathname) {
   if (pathname.startsWith('/admin/bookings/')) return 'Booking record';
   if (pathname.startsWith('/admin/support/')) return 'Support request';
   if (pathname.startsWith('/admin/clients/')) return 'Client';
+  if (pathname.startsWith('/admin/customers/')) return 'Customer';
   const item = NAV_GROUPS.flatMap((group) => group.items).find(
     (entry) => pathname === entry.href || pathname.startsWith(`${entry.href}/`),
   );

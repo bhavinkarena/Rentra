@@ -13,7 +13,8 @@ const [client] = await sql`SELECT id FROM "user" WHERE role='client' AND email='
 await sql`INSERT INTO admin_user(email,password_hash,name,permissions) VALUES
   ('full@fixture.invalid','fixture-not-a-hash','Full Admin',NULL),
   ('limited@fixture.invalid','fixture-not-a-hash','Limited Admin','["admin.records.read"]'::jsonb),
-  ('reader@fixture.invalid','fixture-not-a-hash','Clients Reader','["admin.clients.read"]'::jsonb)
+  ('reader@fixture.invalid','fixture-not-a-hash','Clients Reader','["admin.clients.read"]'::jsonb),
+  ('custreader@fixture.invalid','fixture-not-a-hash','Customers Reader','["admin.customers.read"]'::jsonb)
   ON CONFLICT (email) DO NOTHING`;
 // CP03 fixture: one upcoming confirmed visit on the seeded client's live listing.
 await sql`INSERT INTO booking(reference,rentable_id,customer_id,day,slot,amount_rent,amount_fee,state,starts_at,ends_at)
@@ -39,6 +40,17 @@ const out = {
   }),
 };
 for (const a of admins) out[a.email.split('@')[0]] = await adminToken(a.id);
+// CP04 fixture: a signed-in customer and a second customer holding an email.
+const [guest] = await sql`SELECT id FROM "user" WHERE role='customer' AND phone='9898980001'`;
+await sql`UPDATE "user" SET email='taken@fixture.invalid' WHERE role='customer' AND phone='9898980002'`;
+const [guestSession] =
+  await sql`INSERT INTO customer_session(user_id,expires_at) VALUES (${guest.id},now()+interval '1 day') RETURNING id`;
+out.customer = await encryptSession({
+  userId: guest.id,
+  role: 'customer',
+  sessionId: guestSession.id,
+});
+out.customerId = guest.id;
 const [listing] =
   await sql`SELECT r.id, r.slug, r.public_code FROM rentable r JOIN booking b ON b.rentable_id=r.id
     WHERE r.client_id=${client.id} AND r.status='live' AND b.reference='GATEUP1'`;

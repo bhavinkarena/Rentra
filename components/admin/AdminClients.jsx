@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { Users } from 'lucide-react';
 import CopyReference from '@/components/customer/checkout/CopyReference';
-import ClientLifecyclePanel from './ClientLifecyclePanel';
+import AccountLifecyclePanel from './AccountLifecyclePanel';
+import { changeClientLifecycle } from '@/lib/actions/admin';
 import { AdminEmpty, AdminPage, AdminPageHeader, Pager, StatusBadge } from './AdminPrimitives';
 
 const STATUS = {
@@ -17,8 +18,8 @@ const statusTone = (status) =>
     : status === 'suspended' || status === 'blocked'
       ? 'danger'
       : 'warning';
-const label = (value) => String(value ?? '—').replaceAll('_', ' ');
-const when = (value, options = { dateStyle: 'medium' }) =>
+export const label = (value) => String(value ?? '—').replaceAll('_', ' ');
+export const when = (value, options = { dateStyle: 'medium' }) =>
   value ? new Date(value).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', ...options }) : '—';
 
 function listHref({ q, status, page }) {
@@ -170,7 +171,7 @@ export function AdminClientList({ data }) {
   );
 }
 
-function Panel({ id, title, children, className = '' }) {
+export function Panel({ id, title, children, className = '' }) {
   return (
     <section
       id={id}
@@ -185,7 +186,7 @@ function Panel({ id, title, children, className = '' }) {
   );
 }
 
-function Fact({ term, children }) {
+export function Fact({ term, children }) {
   return (
     <div className="flex items-baseline justify-between gap-3 border-b border-dashed border-border py-1.5 text-meta last:border-b-0">
       <dt className="shrink-0 text-ink-600">{term}</dt>
@@ -398,7 +399,11 @@ export function AdminClientDetail({ data, listHref: backHref = '/admin/clients' 
         </div>
 
         <div className="space-y-5 lg:sticky lg:top-24">
-          <ClientLifecyclePanel clientId={client.id} preview={data.lifecycle} />
+          <AccountLifecyclePanel
+            subjectId={client.id}
+            preview={data.lifecycle}
+            command={changeClientLifecycle}
+          />
 
           <Panel id="later" title="Not yet available">
             <ul className="space-y-2 text-tiny text-ink-600">

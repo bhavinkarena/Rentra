@@ -4,7 +4,6 @@ import { useActionState, useRef, useState } from 'react';
 import LoaderCircle from '@/components/ui/rentra-loader';
 import RetryButton from '@/components/portal/RetryButton';
 import ValidationSummary from '@/components/portal/ValidationSummary';
-import { changeClientLifecycle } from '@/lib/actions/admin';
 
 const STATUS = {
   active: 'Active',
@@ -12,6 +11,7 @@ const STATUS = {
   suspended: 'Suspended',
   blocked: 'Blocked',
 };
+const VERBS = { suspend: 'Suspend account', reinstate: 'Reinstate account' };
 
 /**
  * Suspend / reinstate with the impact the admin actually reviewed.
@@ -20,12 +20,24 @@ const STATUS = {
  * account first the API answers 409 and nothing is applied. The reason is
  * controlled state so a failed submit never clears what was typed.
  */
-export default function ClientLifecyclePanel({ clientId, preview }) {
-  const [state, action, pending] = useActionState(changeClientLifecycle, {});
+/**
+ * `command` is the server action; `verbs` names the two actions for this
+ * kind of account (a customer is "restricted", a client "suspended").
+ */
+export default function AccountLifecyclePanel({
+  subjectId,
+  preview,
+  command,
+  verbs = VERBS,
+  statuses = STATUS,
+}) {
+  const [state, action, pending] = useActionState(command, {});
   const [reason, setReason] = useState('');
   const formRef = useRef(null);
   const suspend = preview.action === 'suspend';
-  const stale = state.code === 'LIFECYCLE_CONFLICT' || state.code === 'LIFECYCLE_NOT_ALLOWED';
+  const stale = ['LIFECYCLE_CONFLICT', 'ACCOUNT_CONFLICT', 'LIFECYCLE_NOT_ALLOWED'].includes(
+    state.code,
+  );
 
   return (
     <section
@@ -37,13 +49,13 @@ export default function ClientLifecyclePanel({ clientId, preview }) {
         Account status
       </h2>
       <p className="mt-1 text-tiny text-ink-500">
-        Current: <strong className="text-ink-800">{STATUS[preview.fromStatus]}</strong> · version{' '}
+        Current: <strong className="text-ink-800">{statuses[preview.fromStatus]}</strong> · version{' '}
         {preview.expectedVersion}
       </p>
 
       {state.ok ? (
         <p role="status" className="mt-3 rounded-md bg-success-bg p-3 text-meta text-brand-900">
-          Saved. The account is now <strong>{STATUS[state.accountStatus]}</strong>.
+          Saved. The account is now <strong>{statuses[state.accountStatus]}</strong>.
         </p>
       ) : null}
 
@@ -53,21 +65,20 @@ export default function ClientLifecyclePanel({ clientId, preview }) {
         </p>
       ) : (
         <form ref={formRef} action={action} className="mt-4 space-y-4">
-          <input type="hidden" name="clientId" value={clientId} />
+          <input type="hidden" name="id" value={subjectId} />
           <input type="hidden" name="action" value={preview.action} />
           <input type="hidden" name="expectedVersion" value={preview.expectedVersion} />
 
           <div className="rounded-md border border-warning/30 bg-warning-bg p-3 text-meta text-amber-900">
             <p className="font-semibold">
-              {suspend ? 'Suspend' : 'Reinstate'}: {STATUS[preview.fromStatus]} →{' '}
-              {STATUS[preview.toStatus]}
+              {verbs[preview.action]}: {statuses[preview.fromStatus]} → {statuses[preview.toStatus]}
             </p>
             <ul className="mt-2 list-disc space-y-1 pl-5">
               {preview.consequences.map((line) => (
                 <li key={line}>{line}</li>
               ))}
             </ul>
-            {suspend && preview.upcomingVisits.length ? (
+            {suspend && preview.upcomingVisits?.length ? (
               <p className="mt-2">
                 Next visit: {preview.upcomingVisits[0].reference} ·{' '}
                 {preview.upcomingVisits[0].listingTitle} · {preview.upcomingVisits[0].day}. See
@@ -126,7 +137,7 @@ export default function ClientLifecyclePanel({ clientId, preview }) {
             }`}
           >
             {pending ? <LoaderCircle className="size-4" aria-hidden="true" /> : null}
-            {suspend ? 'Suspend account' : 'Reinstate account'}
+            {verbs[preview.action]}
           </button>
         </form>
       )}

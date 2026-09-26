@@ -1,6 +1,6 @@
 # Rentra client and Super Admin session roadmap
 
-Planning date: 26 September 2026. **Implementation: 3/32 parts complete. Next: CP04.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is **not yet applied** to the configured database; run `npm run db:migrate` before using the admin client pages.
+Planning date: 26 September 2026. **Implementation: 4/32 parts complete. Next: CP05.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration.
 
 Read the [requirements plan](rentra-client-admin-plan.md) and [source-backed gap audit](rentra-client-admin-ui-audit.md) together with this roadmap. These CP numbers are a new workstream; they do not replace customer Parts 01–22 or change their completion claims. Client means the existing owner/authorized-agent portal.
 
@@ -10,14 +10,14 @@ One part is the target for one implementation session, including its meaningful 
 
 Each part owns its end-to-end slice: necessary Express API/service/schema changes, frontend integration, server-side permissions, persisted loading/error/success behavior, and regression evidence. Reuse existing foundations. Routes and models in the requirements plan are proposals until implemented. Never bypass the backend by adding direct frontend database access.
 
-CP01–CP03 are **COMPLETE**. All other parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
+CP01–CP04 are **COMPLETE**. All other parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
 
 | Part | Session scope | Dependencies | Status |
 | --- | --- | --- | --- |
 | CP01 | Access, capabilities and session revocation | Current auth baseline | COMPLETE |
 | CP02 | Shared portal interaction foundations | CP01 | COMPLETE |
 | CP03 | Client directory, detail and lifecycle | CP01–02 | COMPLETE |
-| CP04 | Customer directory and account controls | CP01–02 | PLANNED |
+| CP04 | Customer directory and account controls | CP01–02 | COMPLETE |
 | CP05 | Gate 1 application review | CP03 | PLANNED |
 | CP06 | Gate 2 property review | CP03, CP05 | PLANNED |
 | CP07 | Verification and publication | CP06 | PLANNED |
@@ -86,6 +86,8 @@ The sequence favors closing the missing property approval workflow early. Indepe
 **Deliver:** Customer search and detail with linked bookings, support, reviews and privacy records. Add permitted profile corrections, account restriction/reinstatement and session revocation with reason/history. Separate identity corrections from authentication recovery; no plaintext credentials, secrets or unrestricted impersonation.
 
 **Gate:** Verify object-level permissions, sensitive-field minimization, duplicate/invalid correction handling and revocation while a session is active. Acceptance: CA02, CA19, CA21, CA23. Deletion/export requests link to the privacy workflow; fulfillment arrives in CP27.
+
+**Gate passed — 26 September 2026:** a disposable-PostgreSQL service test and a 38-check browser/API gate passed. They covered the directory with masked phones (the full number never appears in list output), search by phone digits, and detail with bookings, support, reviews, privacy requests and sessions, with no secrets in the response. Corrections rejected invalid values, duplicate emails, no-op edits and stale versions, and kept typed input. Audit entries record field names, not values. The phone credential is not editable, and a correction does not sign the customer out. Sign out everywhere ended an active customer session on the next request. Restriction and reinstatement are version guarded, with one winner in a race, and never revive sessions. Direct API: 401 for anonymous and customer cookies, 403 for read-only or clients-only operators, 404 for client ids. CP02 and CP03 gates passed as regression; backend 81/81 with all disposable-DB tests. No migration. [CP04 handoff and API contract](rentra-client-admin-part04.md).
 
 ### CP05 — Gate 1 application review
 
@@ -273,6 +275,6 @@ Update this table and the audit dispositions only when the evidence supports the
 
 ## Prompt for the next implementation session
 
-> Start CP04 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP03 handoffs, inspect current frontend/backend changes and applicable repository instructions, then implement only CP04's end-to-end scope. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
+> Start CP05 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP04 handoffs, inspect current frontend/backend changes and applicable repository instructions, then implement only CP05's end-to-end scope. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
 
-Replace CP04 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.
+Replace CP05 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.

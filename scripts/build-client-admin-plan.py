@@ -112,12 +112,25 @@ DELIVERED = {
       <li>Suspended owner = no new business: every public listing read uses one “live and owner active” predicate; upcoming visits stay confirmed and are listed for admin fulfillment.</li>
       <li>Reinstatement restores the recorded pre-suspension status; blocked accounts stay with application review.</li>
       <li>Unguarded <code>POST /admin/clients/suspend</code> removed. People → Clients navigation.</li></ul>
-      <p class="small"><strong>Gate passed — 26 September 2026:</strong> disposable-DB service test plus a <strong>35/35</strong> browser/API gate: directory 1280/390px, detail with upcoming visits and impact preview, UI suspend/reinstate with audit, the client session ending, and public listing hide/return. Also: a stale second-admin view (409 + reload), a concurrent race with one winner, and 401/403/422/409/404 on the direct API; axe clean. Backend 77 pass / 2 skipped without the disposable URL; frontend tests, lint and build pass; CP02 gate regression passed. <strong>Migration 0023 is not yet applied</strong> to the configured database. <a href="rentra-client-admin-part03.md">Handoff, API contract and runbook ↗</a></p></div>
+      <p class="small"><strong>Gate passed — 26 September 2026:</strong> disposable-DB service test plus a <strong>35/35</strong> browser/API gate: directory 1280/390px, detail with upcoming visits and impact preview, UI suspend/reinstate with audit, the client session ending, and public listing hide/return. Also: a stale second-admin view (409 + reload), a concurrent race with one winner, and 401/403/422/409/404 on the direct API; axe clean. Backend 77 pass / 2 skipped without the disposable URL; frontend tests, lint and build pass; CP02 gate regression passed. Migration 0023 is applied to the configured database (verified read-only). <a href="rentra-client-admin-part03.md">Handoff, API contract and runbook ↗</a></p></div>
     <div class="card"><span class="num">CP03 · explicitly not delivered</span><h3>Limits recorded at the gate</h3>
       <ul><li>No profile corrections, verification requests, archive/retention or session revocation without suspension (CP04/CP26/CP27).</li>
       <li>Statements, payouts and team tabs are placeholders (CP16, CP21–CP22).</li>
       <li>Ownership transfer is listed as unavailable; there is no owner-ID edit.</li>
       <li>Legacy visits without a booking order show without a record link.</li>
+      <li>No hosted environment or human screen-reader pass.</li></ul></div>''',
+    "CP04": '''<div class="card"><span class="num">CP04 · complete</span><h3>Admin customer directory and account controls</h3><p>New backend API and admin screens:</p>
+      <ul><li><code>GET /admin/customers</code> (search by name, email or phone digits; masked phones) and <code>GET /admin/customers/:id</code> with bookings, support, reviews, privacy requests, sessions and history.</li>
+      <li><code>POST …/profile</code> corrects name, email and language only; the phone credential is not editable. Duplicate, invalid, no-op and stale edits are refused; audit records field names, not values.</li>
+      <li><code>POST …/sessions/revoke</code> signs out everywhere; <code>…/restrict</code> and <code>…/reinstate</code> change access. The 0011 trigger revokes sessions and reinstatement never revives them.</li>
+      <li>Every command takes a reason and <code>expectedVersion</code>; corrections also check the customer’s own profile version.</li>
+      <li>New <code>admin.customers.*</code> capability; People → Customers navigation; shared account lifecycle panel.</li></ul>
+      <p class="small"><strong>Gate passed — 26 September 2026:</strong> disposable-DB service test plus a <strong>38/38</strong> browser/API gate. It covered masked phones (the full number never appears in lists), no secrets in detail, and a duplicate email keeping typed input. It also covered a field-only audit, an active customer session ended on the next request, a stale admin view (409 + reload), UI restrict and reinstate, and 401/403/404/409/422 on the direct API; axe clean. Backend 81/81 with all disposable-DB tests; CP02 and CP03 gates passed as regression. No migration. <a href="rentra-client-admin-part04.md">Handoff, API contract and runbook ↗</a></p></div>
+    <div class="card"><span class="num">CP04 · explicitly not delivered</span><h3>Limits recorded at the gate</h3>
+      <ul><li>No authentication recovery for a lost phone and no staff phone change; no impersonation.</li>
+      <li>Privacy export and deletion fulfillment is CP27 (linked, not performed).</li>
+      <li>Payment and refund summaries are CP19–CP20.</li>
+      <li>Legacy visits without a booking order are not listed.</li>
       <li>No hosted environment or human screen-reader pass.</li></ul></div>''',
 }
 missing = [key for key, status in statuses.items() if status == "COMPLETE" and key not in DELIVERED]

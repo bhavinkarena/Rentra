@@ -1,0 +1,192 @@
+[
+ {
+  "check": "directory loads with search 1280px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "list shows masked phone only 1280px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "search finds the customer 1280px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "no horizontal page overflow 1280px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "axe WCAG A/AA serious/critical: /admin/customers 1280px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "detail breadcrumb keeps the search 1280px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "detail shows credential phone and one open session",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "phone is not an editable field",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "privacy links to the privacy workflow",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "axe WCAG A/AA serious/critical: /admin/customers/[id] 1280px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "directory loads with search 390px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "list shows masked phone only 390px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "search finds the customer 390px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "no horizontal page overflow 390px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "axe WCAG A/AA serious/critical: /admin/customers 390px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "detail breadcrumb keeps the search 390px",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "customer session works before revocation",
+  "pass": true,
+  "detail": "http://localhost:3100/account"
+ },
+ {
+  "check": "duplicate email rejected with field message",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "typed email and reason preserved after rejection",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "correction saved and names changed fields",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "history records fields, not values",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "identity correction does not sign the customer out",
+  "pass": true,
+  "detail": "http://localhost:3100/account"
+ },
+ {
+  "check": "admin revokes the open session",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "customer is signed out on the next request",
+  "pass": true,
+  "detail": "http://localhost:3100/login"
+ },
+ {
+  "check": "stale admin view answers conflict",
+  "pass": true,
+  "detail": "This account changed after you opened it. Reload to see the current details.\n\nReload current status"
+ },
+ {
+  "check": "UI restriction commits",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "UI reinstatement commits",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "API detail omits secrets",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "API: anonymous is 401",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "API: customer cookie on admin API is 401",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "API: customers.read admin can read",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "API: customers.read admin cannot correct (403)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "API: clients.read admin cannot list customers (403)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "API: invalid email is 422",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "API: stale version is 409",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "API: unknown customer is 404",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "API: a client id is not a customer (404)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "People > Customers in admin navigation",
+  "pass": true,
+  "detail": ""
+ }
+]

@@ -1,6 +1,6 @@
 # CP03 — Admin client directory, detail and lifecycle
 
-Status: **COMPLETE — 26 September 2026.** Service integration test and a 35-check browser/API gate passed on disposable databases. Migration `0023_client_lifecycle` is **not yet applied** to the configured database (see §4).
+Status: **COMPLETE — 26 September 2026.** Service integration test and a 35-check browser/API gate passed on disposable databases. Migration `0023_client_lifecycle` is applied to the configured database (see §4).
 
 ## 1. Scope and revisions
 
@@ -94,7 +94,7 @@ Evidence type: fixture and disposable-database evidence only. No hosted environm
 | Environment | Status |
 | --- | --- |
 | Disposable local databases | `0023` applied by the tests and the gate fixture, then dropped |
-| Configured application database (Neon, `rentra-backend/.env`) | **Not applied.** Run `npm run db:migrate` in `rentra-backend` before using the client pages. Until then only `/admin/clients*` fails (the column is missing); other routes select explicit columns and are unaffected |
+| Configured application database (Neon, `rentra-backend/.env`) | **Applied** (by the project owner after the CP03 handoff). A read-only check on 26 September 2026 found 24 recorded migrations and the `user.lifecycle_version` column |
 | Deployments | Not deployed |
 
 No new configuration or secrets. Gate reproduction is the same as in the CP02 handoff, with `scripts/portal-gate/cp03_gate.py`. `mint.mjs` now also creates a clients-reader operator and one upcoming visit on the seeded client.
@@ -105,4 +105,4 @@ No new configuration or secrets. Gate reproduction is the same as in the CP02 ha
 - Upcoming visits created as legacy rows (no booking order) show without a booking-record link.
 - Ownership transfer, archive/retention, profile corrections and verification requests are not implemented.
 - History shows lifecycle, application and session-revocation events for the account, capped at the latest 50.
-- **Next:** apply `0023` to the configured database, then start CP04 (admin customer directory and account controls).
+- **Next:** CP04 (admin customer directory and account controls).
