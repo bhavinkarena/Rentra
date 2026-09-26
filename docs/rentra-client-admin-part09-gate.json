@@ -1,0 +1,166 @@
+[
+  {
+    "check": "owner reads own overview",
+    "pass": true
+  },
+  {
+    "check": "other owner denied overview API",
+    "pass": true
+  },
+  {
+    "check": "malformed overview id rejected",
+    "pass": true
+  },
+  {
+    "check": "other owner sees not found, not the property",
+    "pass": true
+  },
+  {
+    "check": "other owner cannot save this property",
+    "pass": true
+  },
+  {
+    "check": "directory opens the overview with list context 1280px",
+    "pass": true
+  },
+  {
+    "check": "breadcrumb returns to the filtered list 1280px",
+    "pass": true
+  },
+  {
+    "check": "overview 1280px has no page overflow",
+    "pass": true
+  },
+  {
+    "check": "overview 1280px axe serious/critical",
+    "pass": true
+  },
+  {
+    "check": "directory opens the overview with list context 390px",
+    "pass": true
+  },
+  {
+    "check": "breadcrumb returns to the filtered list 390px",
+    "pass": true
+  },
+  {
+    "check": "overview 390px has no page overflow",
+    "pass": true
+  },
+  {
+    "check": "overview 390px axe serious/critical",
+    "pass": true
+  },
+  {
+    "check": "live is not shown as bookable",
+    "pass": true
+  },
+  {
+    "check": "upcoming visit listed with its booking link",
+    "pass": true
+  },
+  {
+    "check": "public page link for a live property",
+    "pass": true
+  },
+  {
+    "check": "activity shows publication and verification outcome",
+    "pass": true
+  },
+  {
+    "check": "overview does not expose verification findings",
+    "pass": true
+  },
+  {
+    "check": "overview does not expose operator email",
+    "pass": true
+  },
+  {
+    "check": "overview does not expose exact address",
+    "pass": true
+  },
+  {
+    "check": "calendar breadcrumb keeps the filtered list",
+    "pass": true
+  },
+  {
+    "check": "calendar breadcrumb returns to the overview",
+    "pass": true
+  },
+  {
+    "check": "editor breadcrumb links back to the overview",
+    "pass": true
+  },
+  {
+    "check": "save from another tab succeeds",
+    "pass": true
+  },
+  {
+    "check": "API refuses a save against an older version",
+    "pass": true
+  },
+  {
+    "check": "editor explains the conflict",
+    "pass": true
+  },
+  {
+    "check": "conflict keeps the typed value",
+    "pass": true
+  },
+  {
+    "check": "conflicting save wrote nothing",
+    "pass": true
+  },
+  {
+    "check": "reload shows the latest saved version",
+    "pass": true
+  },
+  {
+    "check": "Rentra requests changes on the resubmitted revision",
+    "pass": true
+  },
+  {
+    "check": "overview shows the requested changes and reason",
+    "pass": true
+  },
+  {
+    "check": "overview links each flagged section",
+    "pass": true
+  },
+  {
+    "check": "editor marks the flagged section",
+    "pass": true
+  },
+  {
+    "check": "unflagged sections are not marked",
+    "pass": true
+  },
+  {
+    "check": "editor keeps the attention list context",
+    "pass": true
+  },
+  {
+    "check": "flagged section saves",
+    "pass": true
+  },
+  {
+    "check": "resubmitted from the overview",
+    "pass": true
+  },
+  {
+    "check": "dashboard has no invented earnings range",
+    "pass": true
+  },
+  {
+    "check": "live KPI separates bookable from live",
+    "pass": true
+  },
+  {
+    "check": "submission banner promises no email or WhatsApp reply",
+    "pass": true
+  },
+  {
+    "check": "outage shows a retryable state, not not-found",
+    "pass": true
+  }
+]

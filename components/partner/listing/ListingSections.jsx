@@ -1,7 +1,7 @@
 'use client';
 import Loader2 from '@/components/ui/rentra-loader';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
+import { createContext, useActionState, useContext, useEffect, useRef, useState } from 'react';
 import {
   Check,
   Trash2,
@@ -60,6 +60,33 @@ function restoreForm(form, data) {
   }
 }
 
+/**
+ * Review corrections for the editor (CP09): which sections Rentra asked the
+ * owner to change, and why. Provided by the editor page; empty elsewhere.
+ */
+const ReviewFlagsContext = createContext({ sections: [], reason: null });
+
+export function ReviewFlags({ sections = [], reason = null, children }) {
+  return (
+    <ReviewFlagsContext.Provider value={{ sections, reason }}>
+      {children}
+    </ReviewFlagsContext.Provider>
+  );
+}
+
+/**
+ * The content version this form was rendered from. The API refuses a save made
+ * against content that changed since, instead of silently overwriting it. A
+ * section's own last save may be newer than the page props, so take the max.
+ */
+function VersionField({ listing, states = [] }) {
+  const version = Math.max(
+    Number(listing.contentVersion) || 0,
+    ...states.map((state) => Number(state?.contentVersion) || 0),
+  );
+  return version ? <input type="hidden" name="contentVersion" value={version} /> : null;
+}
+
 const inputCls =
   'min-h-12 w-full rounded-md border border-input bg-card px-3.5 py-3 text-meta ' +
   'text-ink-900 placeholder:text-ink-400 focus:border-brand-600 focus:outline-none';
@@ -87,7 +114,10 @@ function Field({ id, label, hint, error, children }) {
 /** Wraps a section: heading, save state, and the "sent back for review" note. */
 function Section({ id, title, intro, state, pending, children }) {
   const { variant, onSaved, onPending } = useChrome();
+  const flags = useContext(ReviewFlagsContext);
+  const flagged = flags.sections.includes(id);
   const wizard = variant === 'wizard';
+  const changedElsewhere = state?.code === 'LISTING_CHANGED';
   const sectionRef = useRef(null);
   const submitted = useRef(null);
 
@@ -130,7 +160,33 @@ function Section({ id, title, intro, state, pending, children }) {
 
   const notices = (
     <>
-      {formError ? (
+      {flagged ? (
+        <p
+          className={`${wizard ? 'mt-5' : 'mt-3'} rounded-md border-l-4 border-amber-500 bg-amber-100 p-3 text-meta text-amber-800`}
+        >
+          <strong>Rentra asked for changes here.</strong>
+          {flags.reason ? ` ${flags.reason}` : ''} Save this section, then resubmit the property.
+        </p>
+      ) : null}
+      {changedElsewhere ? (
+        <div
+          role="alert"
+          className={`${wizard ? 'mt-5' : 'mt-3'} rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger`}
+        >
+          <p>{formError}</p>
+          <p className="mt-1 text-tiny text-ink-700">
+            Nothing was saved. Your typed changes are still in the form; copy anything you need,
+            because reloading shows the latest saved version.
+          </p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mt-2 inline-flex min-h-10 items-center rounded-md border border-danger bg-card px-3 text-tiny font-semibold text-danger"
+          >
+            Reload latest version
+          </button>
+        </div>
+      ) : formError ? (
         <p
           role="alert"
           className={`${wizard ? 'mt-5' : 'mt-3'} rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger`}
@@ -234,6 +290,7 @@ export function BasicsSection({ listing, categories }) {
     >
       <form id={useStepFormId()} action={action} className="space-y-4">
         <input type="hidden" name="id" value={listing.id} />
+        <VersionField listing={listing} states={[state]} />
         <Field id="categoryId" label="Category" error={e.categoryId}>
           <select
             id="categoryId"
@@ -325,6 +382,7 @@ export function LocationSection({ listing, cities }) {
     >
       <form id={useStepFormId()} action={action} className="space-y-4">
         <input type="hidden" name="id" value={listing.id} />
+        <VersionField listing={listing} states={[state]} />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field id="cityId" label="City" error={e.cityId}>
             <select
@@ -429,6 +487,7 @@ export function CapacitySection({ listing }) {
     >
       <form id={useStepFormId()} action={action} className="space-y-4">
         <input type="hidden" name="id" value={listing.id} />
+        <VersionField listing={listing} states={[state]} />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field id="capacity" label="Maximum guests" error={e.capacity}>
             <Input
@@ -533,6 +592,7 @@ export function AmenitiesSection({ listing, catalogue, selected }) {
     >
       <form id={useStepFormId()} action={action} className="space-y-5">
         <input type="hidden" name="id" value={listing.id} />
+        <VersionField listing={listing} states={[state]} />
         {catalogue.map((group) => (
           <fieldset key={group.slug}>
             <legend className="mb-2 text-tiny font-bold tracking-wider text-brand-700 uppercase">
@@ -606,6 +666,7 @@ export function RulesSection({ listing }) {
     >
       <form id={useStepFormId()} action={action} className="space-y-4">
         <input type="hidden" name="id" value={listing.id} />
+        <VersionField listing={listing} states={[state]} />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
             id="checkInFrom"
@@ -722,6 +783,7 @@ export function PricingSection({ listing, prices }) {
     >
       <form id={useStepFormId()} action={action} className="space-y-4">
         <input type="hidden" name="id" value={listing.id} />
+        <VersionField listing={listing} states={[state]} />
         <div className="overflow-x-auto">
           <table className="w-full min-w-md text-meta">
             <thead>
@@ -806,6 +868,7 @@ export function TermsSection({ listing }) {
     >
       <form id={useStepFormId()} action={action} className="space-y-4">
         <input type="hidden" name="id" value={listing.id} />
+        <VersionField listing={listing} states={[state]} />
         <Field
           id="depositAmount"
           label="Refundable deposit"
@@ -993,6 +1056,7 @@ export function PhotosSection({ listing, photos }) {
                 ) : null}
                 <form action={removeAction}>
                   <input type="hidden" name="id" value={listing.id} />
+                  <VersionField listing={listing} states={[state, removeState]} />
                   <input type="hidden" name="key" value={photoId(p)} />
                   <button
                     type="submit"
@@ -1056,6 +1120,7 @@ export function PhotosSection({ listing, photos }) {
       {/* ------------------------- the dropzone ------------------------- */}
       <form ref={formRef} action={action} className="space-y-3">
         <input type="hidden" name="id" value={listing.id} />
+        <VersionField listing={listing} states={[state, removeState]} />
 
         {room > 0 ? (
           <label

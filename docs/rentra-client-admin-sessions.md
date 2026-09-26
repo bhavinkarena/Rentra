@@ -1,6 +1,6 @@
 # Rentra client and Super Admin session roadmap
 
-Planning date: 26 September 2026. **Implementation: 8/32 parts complete. Next: CP09.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration. CP05–CP08 migrations `0024`–`0027` were applied to the configured database on 26 September 2026 (verified read-only afterwards: 28 of 28 recorded, none pending).
+Planning date: 26 September 2026. **Implementation: 9/32 parts complete. Next: CP10.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration. CP05–CP08 migrations `0024`–`0027` were applied to the configured database on 26 September 2026 (verified read-only afterwards: 28 of 28 recorded, none pending).
 
 Read the [requirements plan](rentra-client-admin-plan.md) and [source-backed gap audit](rentra-client-admin-ui-audit.md) together with this roadmap. These CP numbers are a new workstream; they do not replace customer Parts 01–22 or change their completion claims. Client means the existing owner/authorized-agent portal.
 
@@ -10,7 +10,7 @@ One part is the target for one implementation session, including its meaningful 
 
 Each part owns its end-to-end slice: necessary Express API/service/schema changes, frontend integration, server-side permissions, persisted loading/error/success behavior, and regression evidence. Reuse existing foundations. Routes and models in the requirements plan are proposals until implemented. Never bypass the backend by adding direct frontend database access.
 
-CP01–CP08 are **COMPLETE**. All other parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
+CP01–CP09 are **COMPLETE**. All other parts are **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
 
 | Part | Session scope | Dependencies | Status |
 | --- | --- | --- | --- |
@@ -22,7 +22,7 @@ CP01–CP08 are **COMPLETE**. All other parts are **PLANNED**, including externa
 | CP06 | Gate 2 property review | CP03, CP05 | COMPLETE |
 | CP07 | Verification and publication | CP06 | COMPLETE |
 | CP08 | Revisions and admin publication restrictions | CP06–07 | COMPLETE |
-| CP09 | Client property operations hub | CP02, CP06–08 | PLANNED |
+| CP09 | Client property operations hub | CP02, CP06–08 | COMPLETE |
 | CP10 | Portfolio calendar and interval operations | CP09 | PLANNED |
 | CP11 | Versioned pricing and booking policy | CP08, CP10; applicable business decisions | PLANNED |
 | CP12 | Booking work queues and operational detail | CP02–04, CP09 | PLANNED |
@@ -126,6 +126,8 @@ The sequence favors closing the missing property approval workflow early. Indepe
 **Deliver:** Give a property a real overview distinct from its editor: approval/readiness, saleable inventory, upcoming visits, calendar, pricing, rules, photos and action history. Improve editor section errors, save/conflict feedback and actionable review corrections. Replace unsupported earnings ranges and misleading live/bookable copy. Preserve public preview and setup routes where useful.
 
 **Gate:** A client can move from directory to property status, correction, save and calendar without losing context. Verify another owner's IDs are denied and network errors remain recoverable. Acceptance: CA01, CA04–05, CA21–22. Do not invent earnings estimates without a documented data basis.
+
+**Gate passed — 26 September 2026:** a disposable-PostgreSQL service test and a 41-check browser/API gate passed. The new `/partner/listings/[id]/overview` hub shows status and next step, Rentra's requested changes with links to each flagged section, bookability (live vs bookable, hours, open dates, next open date), upcoming visits linked to their bookings, a content summary, setup progress and client-safe activity. Verification findings, notes, assignment and operator identities are never shown. Directory rows open the overview; editor and calendar breadcrumbs return through it to the filtered list. Editor saves send the content version they were rendered from; a stale save gets 409 `LISTING_CHANGED`, writes nothing, keeps the typed values and offers a reload. Flagged editor sections carry Rentra's reason. The invented earnings range and the "visible and bookable" claim are gone, and the KPI counts bookable properties. Another owner's ids give 404/not found, and an API outage shows a retryable state, not not-found. No migration. CP02–CP08 gates passed as regression. [CP09 handoff](rentra-client-admin-part09.md).
 
 ### CP10 — Portfolio calendar and interval detail
 
@@ -283,6 +285,6 @@ Update this table and the audit dispositions only when the evidence supports the
 
 ## Prompt for the next implementation session
 
-> Start CP09 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP08 handoffs, inspect current frontend/backend changes and applicable repository instructions, then implement only CP09's end-to-end scope. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
+> Start CP10 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP09 handoffs, inspect current frontend/backend changes and applicable repository instructions, then implement only CP10's end-to-end scope. Preserve the existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
 
-Replace CP09 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.
+Replace CP10 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.

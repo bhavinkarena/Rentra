@@ -185,6 +185,19 @@ DELIVERED = {
       <li>Corrections cover public text only; trust facts go back through review.</li>
       <li>No internal-only restriction note; no email or SMS to the owner.</li>
       <li>No hosted environment or human screen-reader pass.</li></ul></div>''',
+    "CP09": '''<div class="card"><span class="num">CP09 · complete</span><h3>Client property operations hub</h3><p>A property overview in front of the editor:</p>
+      <ul><li><code>/partner/listings/[id]/overview</code>: status and next step, Rentra's requested changes with links to each flagged section, bookability (live vs bookable, hours, open dates), upcoming visits, content summary, setup and client-safe activity.</li>
+      <li><code>GET /partner/listings/:id/overview</code> is owner-scoped. Its activity never includes findings, notes, assignment or operator identities. The summary now counts <code>bookable</code>.</li>
+      <li>Editor saves carry the content version they were rendered from. A stale save gets 409 <code>LISTING_CHANGED</code>, writes nothing, keeps the typed values and offers a reload. Flagged sections carry Rentra's reason.</li>
+      <li>Directory, editor and calendar keep the filtered list through the overview.</li>
+      <li>The invented earnings range, the “visible and bookable” claim and the email/WhatsApp reply promise are gone.</li></ul>
+      <p class="small"><strong>Gate passed — 26 September 2026:</strong> disposable-DB service test plus a <strong>41/41</strong> browser/API gate, twice. It covered another owner's ids (404, not found, no save), the overview at 1280/390px with axe clean, not-bookable live state, visit and public links, no private evidence, calendar and editor context, the stale-save conflict with typed values kept, the correction journey from the attention list to resubmission, honest copy, and the outage state. CP02–CP08 gates passed as regression. No migration. <a href="rentra-client-admin-part09.md">Handoff, API contract and runbook ↗</a></p></div>
+    <div class="card"><span class="num">CP09 · explicitly not delivered</span><h3>Limits recorded at the gate</h3>
+      <ul><li>No owner photo previews (private store until a public delivery bucket exists).</li>
+      <li>No owner-side field diff or effect preview before a trust edit.</li>
+      <li>Date price overrides and open/block-date commands have no stale-screen guard yet (CP10).</li>
+      <li>Review SLA copy unchanged; finance figures remain CP15.</li>
+      <li>No hosted environment or human screen-reader pass.</li></ul></div>''',
 }
 missing = [key for key, status in statuses.items() if status == "COMPLETE" and key not in DELIVERED]
 assert not missing, f"Add DELIVERED cards for {missing}"

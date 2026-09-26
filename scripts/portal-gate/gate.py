@@ -80,7 +80,7 @@ with sync_playwright() as p:
             check("no horizontal page overflow at 390px", not overflow)
         axe(page, f"/partner/listings {width}px")
         link.click()
-        page.wait_for_url(re.compile(r"/partner/listings/[0-9a-f-]+\?from="))
+        page.wait_for_url(re.compile(r"/partner/listings/[0-9a-f-]+(/overview)?\?from="))  # CP09: rows open the overview
         crumb = page.get_by_role("navigation", name="Breadcrumb").get_by_role("link", name=re.compile("Properties")).filter(visible=True).first
         check(f"detail breadcrumb returns to filtered list {width}px", "status=live" in (crumb.get_attribute("href") or ""), crumb.get_attribute("href"))
         if width == 1280:

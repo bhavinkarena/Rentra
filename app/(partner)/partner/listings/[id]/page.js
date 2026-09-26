@@ -20,6 +20,7 @@ import {
   PhotosSection,
   OwnershipSection,
   SubmitBar,
+  ReviewFlags,
 } from '@/components/partner/listing/ListingSections';
 import { ListingChrome } from '@/components/partner/listing/chrome';
 import { firstIncompleteStepId, sectionAnchorId, stepHref } from '@/lib/domain/listing-steps';
@@ -65,6 +66,11 @@ export default async function ListingBuilderPage({ params, searchParams }) {
   const { listing, prices, amenities, photos, documents } = data;
   const completion = listingCompletion(listing, { prices, amenities, photos, documents });
   const title = listing.title === 'Untitled property' ? 'New property' : listing.title;
+  const overviewHref = `/partner/listings/${id}/overview?from=${encodeURIComponent(listHref)}`;
+  // Review corrections are actionable only while the owner is fixing them.
+  const needsChanges =
+    ['draft', 'rejected'].includes(listing.status) &&
+    ['changes_requested', 'rejected'].includes(listing.reviewOutcome);
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
@@ -78,7 +84,11 @@ export default async function ListingBuilderPage({ params, searchParams }) {
         </p>
       ) : null}
       <DetailHeader
-        breadcrumbs={[{ href: listHref, label: 'Properties' }, { label: title }]}
+        breadcrumbs={[
+          { href: listHref, label: 'Properties' },
+          { href: overviewHref, label: title },
+          { label: 'Edit' },
+        ]}
         title={title}
         badges={[
           {
@@ -176,33 +186,46 @@ export default async function ListingBuilderPage({ params, searchParams }) {
       ) : null}
 
       <div className="mt-5">
-        <Link
-          href={`/partner/listings/${id}/calendar`}
-          className="mb-4 inline-flex min-h-11 items-center rounded-md border border-border px-4 text-meta font-semibold text-brand-700"
-        >
-          Manage booking hours, dates and prices
-        </Link>
+        <div className="mb-4 flex flex-wrap gap-2">
+          <Link
+            href={overviewHref}
+            className="inline-flex min-h-11 items-center rounded-md border border-border px-4 text-meta font-semibold text-brand-700"
+          >
+            Property overview
+          </Link>
+          <Link
+            href={`/partner/listings/${id}/calendar?from=${encodeURIComponent(listHref)}`}
+            className="inline-flex min-h-11 items-center rounded-md border border-border px-4 text-meta font-semibold text-brand-700"
+          >
+            Manage booking hours, dates and prices
+          </Link>
+        </div>
         <SubmitBar listing={listing} completion={completion} submitAction={submitListing} />
       </div>
 
       <ListingChrome variant="card">
         <UnsavedChangesGuard />
-        <div className="mt-6 space-y-5">
-          <BasicsSection listing={listing} categories={categories} />
-          <LocationSection listing={listing} cities={cities} />
-          <CapacitySection listing={listing} />
-          <AmenitiesSection listing={listing} catalogue={catalogue} selected={amenities} />
-          <RulesSection listing={listing} />
-          <PricingSection listing={listing} prices={prices} />
-          <TermsSection listing={listing} />
-          <PhotosSection listing={listing} photos={photos} />
-          <OwnershipSection
-            listing={listing}
-            documents={documents}
-            clientType={user.clientType}
-            kycName={user.name}
-          />
-        </div>
+        <ReviewFlags
+          sections={needsChanges ? (listing.reviewFlaggedFields ?? []) : []}
+          reason={needsChanges ? listing.rejectionReason : null}
+        >
+          <div className="mt-6 space-y-5">
+            <BasicsSection listing={listing} categories={categories} />
+            <LocationSection listing={listing} cities={cities} />
+            <CapacitySection listing={listing} />
+            <AmenitiesSection listing={listing} catalogue={catalogue} selected={amenities} />
+            <RulesSection listing={listing} />
+            <PricingSection listing={listing} prices={prices} />
+            <TermsSection listing={listing} />
+            <PhotosSection listing={listing} photos={photos} />
+            <OwnershipSection
+              listing={listing}
+              documents={documents}
+              clientType={user.clientType}
+              kycName={user.name}
+            />
+          </div>
+        </ReviewFlags>
       </ListingChrome>
     </div>
   );

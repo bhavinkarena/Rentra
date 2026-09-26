@@ -10,7 +10,6 @@ import GatedAddPlaceButton from '@/components/partner/GatedAddPlaceButton';
 import PendingSubmitButton from '@/components/partner/PendingSubmitButton';
 import PropertyTable from '@/components/partner/PropertyTable';
 import { KpiCard, PartnerPageHeader } from '@/components/partner/PortalPrimitives';
-import { formatINR } from '@/lib/domain/pricing';
 
 export const metadata = {
   title: 'Your dashboard',
@@ -49,20 +48,11 @@ export default async function PartnerDashboard() {
         eyebrow={completion.approved ? 'Approved partner' : 'Getting set up'}
         title={firstName ? `Welcome back, ${firstName}` : 'Welcome to Rentra'}
         description={
-          completion.approved ? (
-            summary.total > 0 ? (
-              `Here’s a clear view of all ${summary.total} ${summary.total === 1 ? 'property' : 'properties'} in your Rentra portfolio.`
-            ) : (
-              'Your partner account is ready. Add your first property to start building your portfolio.'
-            )
-          ) : (
-            <>
-              Farmhouses around Surat earn between{' '}
-              <strong className="font-semibold text-ink-800">{formatINR(8000)}</strong> and{' '}
-              <strong className="font-semibold text-ink-800">{formatINR(14500)}</strong> a night.
-              Finish your verification so you can publish with confidence.
-            </>
-          )
+          completion.approved
+            ? summary.total > 0
+              ? `Here’s a clear view of all ${summary.total} ${summary.total === 1 ? 'property' : 'properties'} in your Rentra portfolio.`
+              : 'Your partner account is ready. Add your first property to start building your portfolio.'
+            : 'Finish your verification so you can add and publish properties with confidence.'
         }
         action={
           <GatedAddPlaceButton
@@ -101,7 +91,7 @@ function ApprovedDashboard({ summary }) {
         <KpiCard
           label="Live listings"
           value={summary.live}
-          hint="Visible and bookable by guests"
+          hint={`Visible to guests · ${summary.bookable ?? 0} bookable now`}
           icon={Eye}
           tone="success"
         />

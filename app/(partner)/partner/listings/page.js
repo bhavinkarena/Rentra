@@ -44,8 +44,8 @@ export default async function ListingsPage({ searchParams }) {
         <div className="mb-6 flex items-start gap-3 rounded-lg border border-brand-200 bg-success-bg p-4 text-meta text-brand-900">
           <span className="mt-0.5 size-2 shrink-0 rounded-full bg-success" aria-hidden="true" />
           <p>
-            <strong className="font-bold">Property submitted.</strong> We check every property
-            before it goes live and will reply within 2 working days by email and WhatsApp.
+            <strong className="font-bold">Property submitted.</strong> Rentra checks every property
+            before it goes live. The decision appears in this workspace.
           </p>
         </div>
       ) : null}
@@ -67,7 +67,7 @@ export default async function ListingsPage({ searchParams }) {
         <KpiCard
           label="Live"
           value={summary.live}
-          hint="Visible and bookable by guests"
+          hint={`Visible to guests · ${summary.bookable ?? 0} bookable now`}
           icon={Eye}
           tone="success"
         />

@@ -26,10 +26,13 @@ function actionLabel(status) {
   return 'Manage';
 }
 
-/** `from` carries the filtered list URL so the detail breadcrumb returns to it. */
+/**
+ * Every row opens the property overview (CP09): status, the review correction,
+ * setup, calendar and visits start there. `from` carries the filtered list URL
+ * so every breadcrumb onward returns to it.
+ */
 function actionHref(listing, from) {
-  const base = `/partner/listings/${listing.id}`;
-  if (listing.status === 'draft' || listing.status === 'rejected') return `${base}/setup`;
+  const base = `/partner/listings/${listing.id}/overview`;
   return from ? `${base}?from=${encodeURIComponent(from)}` : base;
 }
 
