@@ -18,6 +18,7 @@ export const metadata = { title: 'Account' };
 const shortcuts = [
   ['/bookings', CalendarDays, 'Your bookings', 'Upcoming visits, payments and trip details'],
   ['/saved', Heart, 'Saved places', 'Your favourites, ready for your next escape'],
+  ['/disputes', CircleHelp, 'Disputes', 'Respond to or review a booking dispute'],
   ['/support', CircleHelp, 'Help & support', 'Get help with a booking or view your requests'],
 ];
 export default async function AccountPage() {

@@ -47,6 +47,13 @@ export default function AdminBookingDetail({ record, tab, params, listHref = '/a
 
   return (
     <AdminPage width="max-w-[1320px]">
+      <Link
+        className="inline-flex min-h-11 items-center underline"
+        href={`/admin/disputes/new?order=${record.id}`}
+      >
+        Open dispute or deposit case
+      </Link>
+
       <DetailHeader
         breadcrumbs={[{ href: listHref, label: 'Bookings' }, { label: record.reference }]}
         title={record.title}

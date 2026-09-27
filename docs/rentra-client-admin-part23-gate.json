@@ -1,0 +1,105 @@
+{
+  "completed": true,
+  "results": [
+    {
+      "check": "anonymous denied",
+      "pass": true
+    },
+    {
+      "check": "admin payment read required",
+      "pass": true
+    },
+    {
+      "check": "foreign booking context hidden",
+      "pass": true
+    },
+    {
+      "check": "deposit unavailable visible",
+      "pass": true
+    },
+    {
+      "check": "owner body private",
+      "pass": true
+    },
+    {
+      "check": "foreign case hidden",
+      "pass": true
+    },
+    {
+      "check": "assignment persisted",
+      "pass": true
+    },
+    {
+      "check": "stale reply preserves input",
+      "pass": true
+    },
+    {
+      "check": "owner photo saved",
+      "pass": true
+    },
+    {
+      "check": "owner download returns image and no-store",
+      "pass": true
+    },
+    {
+      "check": "customer cannot read owner photo",
+      "pass": true
+    },
+    {
+      "check": "customer response deadline recorded",
+      "pass": true
+    },
+    {
+      "check": "customer response clears request",
+      "pass": true
+    },
+    {
+      "check": "customer photo stays private",
+      "pass": true
+    },
+    {
+      "check": "admin sees both participant evidence",
+      "pass": true
+    },
+    {
+      "check": "resolution keyboard focus",
+      "pass": true
+    },
+    {
+      "check": "preview does not resolve",
+      "pass": true
+    },
+    {
+      "check": "resolution shared",
+      "pass": true
+    },
+    {
+      "check": "refund workflow linked",
+      "pass": true
+    },
+    {
+      "check": "admin mobile no overflow",
+      "pass": true
+    },
+    {
+      "check": "admin mobile axe clean",
+      "pass": true
+    },
+    {
+      "check": "owner mobile no overflow",
+      "pass": true
+    },
+    {
+      "check": "owner mobile axe clean",
+      "pass": true
+    },
+    {
+      "check": "customer mobile no overflow",
+      "pass": true
+    },
+    {
+      "check": "customer mobile axe clean",
+      "pass": true
+    }
+  ]
+}

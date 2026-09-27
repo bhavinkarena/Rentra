@@ -1,6 +1,10 @@
 import Link from 'next/link';
 import { RentraLogo, RentraMark } from '@/components/rentra/Logo';
 import CustomerNavigation from '@/components/customer/CustomerNavigation';
+import { redirect } from 'next/navigation';
+import { ApiError } from '@/lib/api/client';
+import { failureKind } from '@/lib/domain/portal-state';
+import PortalState from '@/components/portal/PortalState';
 import { requireCustomer } from '@/lib/api/session';
 
 export const metadata = {
@@ -8,7 +12,18 @@ export const metadata = {
   robots: { index: false, follow: false, nocache: true },
 };
 export default async function CustomerLayout({ children }) {
-  const user = await requireCustomer();
+  let user;
+  try {
+    user = await requireCustomer();
+  } catch (error) {
+    if (!(error instanceof ApiError)) throw error;
+    if (error.status === 401) redirect('/login');
+    return (
+      <main className="mx-auto max-w-5xl px-4 py-8">
+        <PortalState kind={failureKind(error)} backHref="/" backLabel="Home" />
+      </main>
+    );
+  }
   return (
     <div className="min-h-screen bg-ink-25">
       <a href="#customer-content" className="sr-only focus:not-sr-only focus:block focus:p-3">

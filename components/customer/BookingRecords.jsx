@@ -285,6 +285,13 @@ export function BookingDetail({
       <header className="overflow-hidden rounded-3xl border border-border bg-card">
         <PropertyPhoto photo={record.photo} title={record.title} hero />
         <div className="p-6 sm:p-8">
+          <Link
+            className={linkClass}
+            href={`${operational ? '/partner/disputes' : '/disputes'}/new?order=${record.id}`}
+          >
+            Open a dispute for this booking
+          </Link>
+
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <span className={badge}>{record.state.replaceAll('_', ' ')}</span>

@@ -47,6 +47,12 @@ const NAV_GROUPS = [
   {
     label: 'Account',
     items: [
+      {
+        href: '/partner/disputes',
+        label: 'Disputes',
+        icon: Bell,
+        capability: 'client.disputes.read',
+      },
       { href: '/partner/support', label: 'Support', icon: Bell, capability: 'client.support.read' },
       {
         href: '/partner/finance',
