@@ -1,0 +1,110 @@
+{
+  "completed": false,
+  "interruption": "Run stopped at stale-reply textarea selector after the checks below. Explicit accessible label added afterwards; final rerun blocked by automatic approval review usage limit.",
+  "results": [
+    {
+      "check": "anonymous support denied",
+      "pass": true
+    },
+    {
+      "check": "customer audience cannot use client support",
+      "pass": true
+    },
+    {
+      "check": "owner audience cannot use admin support",
+      "pass": true
+    },
+    {
+      "check": "client empty inbox",
+      "pass": true
+    },
+    {
+      "check": "client message persisted",
+      "pass": true
+    },
+    {
+      "check": "client thread desktop no overflow",
+      "pass": true
+    },
+    {
+      "check": "client thread desktop axe clean",
+      "pass": true
+    },
+    {
+      "check": "client thread mobile no overflow",
+      "pass": true
+    },
+    {
+      "check": "client thread mobile axe clean",
+      "pass": true
+    },
+    {
+      "check": "other owner thread denied",
+      "pass": true
+    },
+    {
+      "check": "customer cannot read client thread",
+      "pass": true
+    },
+    {
+      "check": "owner cannot read customer thread",
+      "pass": true
+    },
+    {
+      "check": "admin participant filter",
+      "pass": true
+    },
+    {
+      "check": "admin inbox desktop no overflow",
+      "pass": true
+    },
+    {
+      "check": "admin inbox desktop axe clean",
+      "pass": true
+    },
+    {
+      "check": "assignment and related case persisted",
+      "pass": true
+    },
+    {
+      "check": "admin link and assignment hidden from client",
+      "pass": true
+    },
+    {
+      "check": "assignment race one winner",
+      "pass": true
+    },
+    {
+      "check": "internal note absent from client DOM",
+      "pass": true
+    },
+    {
+      "check": "internal photo denied to client",
+      "pass": true
+    },
+    {
+      "check": "internal photo denied to customer",
+      "pass": true
+    },
+    {
+      "check": "admin private photo proxy",
+      "pass": true
+    },
+    {
+      "check": "admin public reply visible to client",
+      "pass": true
+    },
+    {
+      "check": "same-origin client attachment download",
+      "pass": true
+    },
+    {
+      "check": "duplicate reply returns success twice",
+      "pass": true
+    },
+    {
+      "check": "duplicate reply one persisted message",
+      "pass": true
+    }
+  ]
+}

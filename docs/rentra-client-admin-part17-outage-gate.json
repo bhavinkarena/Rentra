@@ -1,0 +1,20 @@
+{
+  "results": [
+    {
+      "check": "Retryable support outage /partner/support",
+      "pass": true
+    },
+    {
+      "check": "Retryable support outage /partner/support/3db57d2a-1619-4967-9161-4946532138ec",
+      "pass": true
+    },
+    {
+      "check": "Retryable support outage /admin/support",
+      "pass": true
+    },
+    {
+      "check": "Retryable support outage /admin/support/3db57d2a-1619-4967-9161-4946532138ec",
+      "pass": true
+    }
+  ]
+}

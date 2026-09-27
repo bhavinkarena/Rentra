@@ -9,8 +9,8 @@ const time = (value) =>
     dateStyle: 'medium',
     timeStyle: 'short',
   });
-export function SupportList({ data, admin = false }) {
-  const base = admin ? '/admin/support' : '/support';
+export function SupportList({ data, admin = false, owner = false }) {
+  const base = admin ? '/admin/support' : owner ? '/partner/support' : '/support';
   return (
     <section className="mx-auto max-w-4xl space-y-5 p-4">
       <h1 className="text-h1">{admin ? 'Support inbox' : 'Your support requests'}</h1>
@@ -20,7 +20,7 @@ export function SupportList({ data, admin = false }) {
       </p>
       {!admin ? (
         <nav className="flex flex-wrap gap-5">
-          <Link className={link} href="/support/new">
+          <Link className={link} href={`${base}/new`}>
             New support request
           </Link>
           <Link className={link} href="/help">
@@ -77,8 +77,8 @@ export function SupportList({ data, admin = false }) {
     </section>
   );
 }
-export function SupportDetail({ record, admin = false }) {
-  const base = admin ? '/admin/support' : '/support';
+export function SupportDetail({ record, admin = false, owner = false }) {
+  const base = admin ? '/admin/support' : owner ? '/partner/support' : '/support';
   return (
     <article className="mx-auto max-w-3xl space-y-6 break-words p-4">
       <Link className={link} href={base}>
@@ -97,7 +97,10 @@ export function SupportDetail({ record, admin = false }) {
         </p>
         {record.orderId ? (
           <>
-            <Link className={link} href={`${admin ? '/admin' : ''}/bookings/${record.orderId}`}>
+            <Link
+              className={link}
+              href={`${admin ? '/admin' : owner ? '/partner' : ''}/bookings/${record.orderId}`}
+            >
               {record.context.reference} — {record.context.title}
             </Link>
             <p>
@@ -128,6 +131,15 @@ export function SupportDetail({ record, admin = false }) {
           </Link>
         </p>
       </section>
+      <p>
+        Participants: {record.participant === 'client' ? 'You (client)' : 'You (customer)'} and
+        Rentra support. Other cases linked by admins keep their own private conversations.
+      </p>
+      {record.propertyId && (
+        <Link className={link} href={`/partner/listings/${record.propertyId}`}>
+          Property: {record.context.propertyTitle}
+        </Link>
+      )}
       <section>
         <h2 className="text-h3">Conversation</h2>
         <ol className="mt-4 space-y-4">
@@ -138,6 +150,15 @@ export function SupportDetail({ record, admin = false }) {
                 {time(m.at)} India time · {supportStates[m.state]}
               </p>
               <p className="mt-3 whitespace-pre-wrap break-words">{m.body}</p>
+              {(m.attachments || []).map((photo, i) => (
+                <Link
+                  key={photo.id}
+                  className={link}
+                  href={`${base}/${record.id}/attachments/${photo.id}`}
+                >
+                  Private photo {i + 1}
+                </Link>
+              ))}
             </li>
           ))}
         </ol>
@@ -148,9 +169,10 @@ export function SupportDetail({ record, admin = false }) {
         </h2>
         <SupportReplyForm
           key={record.version}
-          record={{ id: record.id, version: record.version }}
+          record={{ id: record.id, version: record.version, participant: record.participant }}
           requestKey={randomUUID()}
           admin={admin}
+          owner={owner}
         />
       </section>
     </article>

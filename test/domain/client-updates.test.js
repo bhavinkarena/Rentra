@@ -39,3 +39,15 @@ test('only tasks with work appear, required work first', () => {
     ],
   );
 });
+
+test('support replies open only their participant-scoped support record', () => {
+  const id = '12345678-1234-1234-1234-123456789abc';
+  assert.equal(
+    updateHref({ action: 'support_reply', detail: { supportId: id }, orderId: 'o1' }),
+    `/partner/support/${id}`,
+  );
+  assert.equal(
+    updateHref({ action: 'support_reply', detail: { supportId: 'https://example.com' } }),
+    '/partner',
+  );
+});

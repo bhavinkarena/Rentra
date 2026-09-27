@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import SupportManagement from './SupportManagement';
 import { randomUUID } from 'node:crypto';
 import { CalendarDays, Clock3, Inbox, LifeBuoy, MessageSquareText } from 'lucide-react';
 import { supportCategories, supportStates } from '@/lib/domain/help';
@@ -29,7 +30,7 @@ const stateTone = (state) =>
         : 'danger';
 
 export function AdminSupportList({ data }) {
-  const listHref = `/admin/support?state=${encodeURIComponent(data.state)}&page=${data.page}`;
+  const listHref = `/admin/support?state=${encodeURIComponent(data.state)}&participant=${data.participant}&assignment=${data.assignment}&page=${data.page}`;
   const open = data.items.filter((item) => item.state === 'open').length;
   const waiting = data.items.filter((item) => item.state === 'waiting_customer').length;
   return (
@@ -37,7 +38,7 @@ export function AdminSupportList({ data }) {
       <AdminPageHeader
         eyebrow="Customer care"
         title="Support inbox"
-        description="Review customer requests, keep conversations moving, and separate support replies from booking or privacy operations."
+        description="Review client and customer requests, assign operators, and separate support replies from booking or privacy operations."
       />
       <section className="mt-7 grid grid-cols-2 gap-3 xl:grid-cols-4">
         <AdminKpiCard
@@ -54,10 +55,10 @@ export function AdminSupportList({ data }) {
           tone={open ? 'danger' : 'neutral'}
         />
         <AdminKpiCard
-          label="Waiting on customer"
+          label="Waiting on participant"
           value={waiting}
           icon={Clock3}
-          hint="Customer response requested"
+          hint="Participant response requested"
           tone="warning"
         />
         <AdminKpiCard
@@ -75,7 +76,7 @@ export function AdminSupportList({ data }) {
               Most recently updated first · Loaded {time(new Date())}
             </p>
           </div>
-          <form action="/admin/support" className="flex items-end gap-2">
+          <form action="/admin/support" className="flex flex-wrap items-end gap-2">
             <label className="text-tiny font-semibold text-ink-600">
               Status
               <select
@@ -89,6 +90,30 @@ export function AdminSupportList({ data }) {
                     {text}
                   </option>
                 ))}
+              </select>
+            </label>
+            <label className="text-tiny font-semibold">
+              Participant
+              <select
+                className="ml-2 min-h-11 rounded border p-2"
+                name="participant"
+                defaultValue={data.participant}
+              >
+                <option value="all">All</option>
+                <option value="client">Clients</option>
+                <option value="customer">Customers</option>
+              </select>
+            </label>
+            <label className="text-tiny font-semibold">
+              Assignment
+              <select
+                className="ml-2 min-h-11 rounded border p-2"
+                name="assignment"
+                defaultValue={data.assignment}
+              >
+                <option value="all">All</option>
+                <option value="mine">Assigned to me</option>
+                <option value="unassigned">Unassigned</option>
               </select>
             </label>
             <button className="min-h-10 rounded-md bg-brand-700 px-4 text-tiny font-semibold text-white">
@@ -118,6 +143,10 @@ export function AdminSupportList({ data }) {
                   <tr key={request.id} className="hover:bg-ink-25">
                     <td className="px-5 py-4">
                       <p className="font-semibold text-ink-900">{request.subject}</p>
+                      <p className="text-tiny">
+                        {request.participant} · {request.priority}
+                        {request.assignedTo ? ' · Assigned' : ' · Unassigned'}
+                      </p>
                       <p className="mt-1 font-mono text-[0.68rem] text-ink-500">
                         {request.reference}
                       </p>
@@ -148,7 +177,7 @@ export function AdminSupportList({ data }) {
           <AdminEmpty
             icon={Inbox}
             title="No requests match this view"
-            description="Choose another status or check back when customers contact support."
+            description="Choose another status or check back when clients or customers contact support."
           />
         )}
         <footer className="flex justify-between border-t border-border px-5 py-4">
@@ -158,8 +187,8 @@ export function AdminSupportList({ data }) {
           <Pager
             page={data.page}
             hasNext={data.hasNext}
-            previousHref={`?state=${data.state}&page=${data.page - 1}`}
-            nextHref={`?state=${data.state}&page=${data.page + 1}`}
+            previousHref={`?state=${data.state}&participant=${data.participant}&assignment=${data.assignment}&page=${data.page - 1}`}
+            nextHref={`?state=${data.state}&participant=${data.participant}&assignment=${data.assignment}&page=${data.page + 1}`}
           />
         </footer>
       </section>
@@ -167,7 +196,7 @@ export function AdminSupportList({ data }) {
   );
 }
 
-export function AdminSupportDetail({ record, listHref = '/admin/support' }) {
+export function AdminSupportDetail({ record, listHref = '/admin/support', canWrite = true }) {
   return (
     <AdminPage width="max-w-[1320px]">
       <DetailHeader
@@ -189,6 +218,31 @@ export function AdminSupportDetail({ record, listHref = '/admin/support' }) {
           },
         ]}
       />
+      <p className="mt-4">
+        Participants: {record.participant} and Rentra support. Internal notes stay with admins.
+      </p>
+      <nav className="flex flex-wrap gap-4 py-4">
+        <Link
+          className="min-h-11 underline"
+          href={
+            record.clientId
+              ? `/admin/clients/${record.clientId}`
+              : `/admin/customers/${record.customerId}`
+          }
+        >
+          Participant detail
+        </Link>
+        {record.propertyId && (
+          <Link className="min-h-11 underline" href={`/admin/listings/${record.propertyId}`}>
+            Property detail
+          </Link>
+        )}
+        {record.relatedRequestId && (
+          <Link className="min-h-11 underline" href={`/admin/support/${record.relatedRequestId}`}>
+            Related case (separate thread)
+          </Link>
+        )}
+      </nav>
       <div className="mt-6 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
         <section className="overflow-hidden rounded-lg border border-border bg-card shadow-xs">
           <div className="border-b border-border px-5 py-4">
@@ -204,17 +258,45 @@ export function AdminSupportDetail({ record, listHref = '/admin/support' }) {
                 className={`max-w-[85%] rounded-lg p-4 ${message.author === 'Rentra support' ? 'ml-auto bg-brand-50' : 'border border-border bg-ink-25'}`}
               >
                 <div className="flex flex-wrap justify-between gap-2">
-                  <p className="text-tiny font-bold text-ink-900">{message.author}</p>
+                  <p className="text-tiny font-bold text-ink-900">
+                    {message.author}
+                    {message.internal ? ' · Internal note — admins only' : ''}
+                  </p>
                   <p className="text-[0.65rem] text-ink-500">{time(message.at)}</p>
                 </div>
                 <p className="mt-2 whitespace-pre-wrap text-meta leading-6 text-ink-700">
                   {message.body}
                 </p>
+                {(message.attachments || []).map((photo, i) => (
+                  <Link
+                    key={photo.id}
+                    className="inline-flex min-h-11 items-center underline"
+                    href={`/admin/support/${record.id}/attachments/${photo.id}`}
+                  >
+                    Private photo {i + 1}
+                  </Link>
+                ))}
               </li>
             ))}
           </ol>
         </section>
         <aside className="space-y-5">
+          {canWrite && (
+            <section className="rounded border border-border bg-card p-5">
+              <SupportManagement key={record.version} record={record} />
+            </section>
+          )}
+          <details className="rounded border border-border p-4">
+            <summary className="min-h-11 cursor-pointer">Case history</summary>
+            <ul className="space-y-3">
+              {(record.history || []).map((entry, i) => (
+                <li key={i}>
+                  {entry.action.replaceAll('_', ' ')} · {time(entry.at)}
+                  {entry.after?.reason && <p>{entry.after.reason}</p>}
+                </li>
+              ))}
+            </ul>
+          </details>
           <section className="rounded-lg border border-border bg-card p-5 shadow-xs">
             <h2 className="text-h4 font-bold">Request context</h2>
             {record.orderId ? (
@@ -246,12 +328,14 @@ export function AdminSupportDetail({ record, listHref = '/admin/support' }) {
           </section>
           <section className="rounded-lg border border-border bg-card p-5 shadow-xs">
             <h2 className="mb-4 text-h4 font-bold">Reply and update</h2>
-            <SupportReplyForm
-              key={record.version}
-              record={{ id: record.id, version: record.version }}
-              requestKey={randomUUID()}
-              admin
-            />
+            {canWrite && (
+              <SupportReplyForm
+                key={record.version}
+                record={{ id: record.id, version: record.version, participant: record.participant }}
+                requestKey={randomUUID()}
+                admin
+              />
+            )}
           </section>
         </aside>
       </div>

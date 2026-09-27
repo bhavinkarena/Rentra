@@ -1,7 +1,9 @@
 'use client';
 import RentraLoader from '@/components/ui/rentra-loader';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useState, useTransition } from 'react';
+import { openOwnerSupport, replyOwnerSupport } from '@/lib/actions/partner';
+import { useRouter } from 'next/navigation';
 import { openSupport, replyCustomerSupport } from '@/lib/actions/customer';
 import { replyAdminSupport } from '@/lib/actions/admin';
 import { supportCategories, supportStates } from '@/lib/domain/help';
@@ -25,8 +27,10 @@ export function OpenSupportForm({
   orderId = '',
   privacyRequestId = '',
   category = 'other',
+  owner = false,
+  propertyId = '',
 }) {
-  const [state, action, pending] = useActionState(openSupport, {});
+  const [state, action, pending] = useActionState(owner ? openOwnerSupport : openSupport, {});
   const categories = Object.entries(supportCategories).filter(([key]) =>
     privacyRequestId ? key === 'privacy' : orderId || ['privacy', 'other'].includes(key),
   );
@@ -41,6 +45,7 @@ export function OpenSupportForm({
       <input type="hidden" name="requestKey" value={key} />
       <input type="hidden" name="orderId" value={orderId} />
       <input type="hidden" name="privacyRequestId" value={privacyRequestId} />
+      {owner && <input type="hidden" name="propertyId" value={propertyId} />}
       <label className="block">
         Topic
         <select
@@ -93,25 +98,50 @@ export function OpenSupportForm({
     </form>
   );
 }
-export function SupportReplyForm({ record, requestKey, admin = false }) {
+export function SupportReplyForm({ record, requestKey, admin = false, owner = false }) {
   const [state, action, pending] = useActionState(
-    admin ? replyAdminSupport : replyCustomerSupport,
+    admin ? replyAdminSupport : owner ? replyOwnerSupport : replyCustomerSupport,
     {},
   );
+  const router = useRouter();
+  const [, startTransition] = useTransition();
+  const [internal, setInternal] = useState(false);
   const [key] = useState(requestKey),
     [body, setBody] = useState(''),
     [status, setStatus] = useState(admin ? 'in_progress' : 'open');
   return (
-    <form action={action} className="space-y-4">
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        startTransition(() => action(data));
+      }}
+      className="space-y-4"
+    >
       <input type="hidden" name="id" value={record.id} />
       <input type="hidden" name="version" value={record.version} />
       <input type="hidden" name="requestKey" value={key} />
+      {admin && (
+        <label className="block">
+          Visibility
+          <select
+            className={field}
+            name="internal"
+            value={String(internal)}
+            onChange={(e) => setInternal(e.target.value === 'true')}
+          >
+            <option value="false">Reply to {record.participant || 'customer'}</option>
+            <option value="true">Internal note — admins only</option>
+          </select>
+        </label>
+      )}
       <label className="block">
-        Your reply
+        {internal ? 'Internal note' : 'Your reply'}
         <textarea
           className={field}
           name="body"
           value={body}
+          aria-label={internal ? 'Internal note' : 'Your reply'}
           onChange={(e) => setBody(e.target.value)}
           rows={5}
           required
@@ -124,6 +154,7 @@ export function SupportReplyForm({ record, requestKey, admin = false }) {
         <select
           className={field}
           name="state"
+          disabled={internal}
           value={status}
           onChange={(e) => setStatus(e.target.value)}
         >
@@ -136,14 +167,43 @@ export function SupportReplyForm({ record, requestKey, admin = false }) {
             ))}
         </select>
       </label>
+      {internal && <input type="hidden" name="state" value="open" />}
+      <label className="block">
+        Private photos
+        <input
+          className={field}
+          type="file"
+          name="photos"
+          multiple
+          accept="image/jpeg,image/png,image/webp"
+        />
+      </label>
       <p className="text-meta">
-        Replies are visible to the customer and Rentra staff. Resolving this conversation does not
-        cancel, refund or change a booking, or complete a privacy request.
+        Up to 3 JPG, PNG or WebP photos, 2MB each. Do not attach identity documents, access codes or
+        payment credentials.
+      </p>
+      <p className="text-meta">
+        {internal
+          ? 'This note and its photos are visible only to authorized Rentra admins.'
+          : `Replies and photos are visible to this ${record.participant || (owner ? 'client' : 'customer')} and authorized Rentra staff.`}{' '}
+        Resolving this conversation does not cancel, refund or change a booking, or complete a
+        privacy request.
       </p>
       <button className={button} disabled={pending}>
-        {pending ? <RentraLoader label="Saving…" /> : 'Save reply and status'}
+        {pending ? (
+          <RentraLoader label="Saving…" />
+        ) : internal ? (
+          'Save internal note'
+        ) : (
+          'Save reply and status'
+        )}
       </button>
       <Result state={state} />
+      {state.code === 'STALE_REQUEST' && (
+        <button type="button" className="min-h-11 underline" onClick={() => router.refresh()}>
+          Reload conversation
+        </button>
+      )}
     </form>
   );
 }

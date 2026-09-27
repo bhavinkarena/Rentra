@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { settle } from '@/lib/api/page-state';
+import PortalState from '@/components/portal/PortalState';
 import { RentraLogo } from '@/components/rentra/Logo';
 import { getCurrentAdmin } from '@/lib/api/session';
 import { adminLogout } from '@/lib/actions/auth';
@@ -13,7 +15,13 @@ export const metadata = {
 };
 
 export default async function AdminLayout({ children }) {
-  const admin = await getCurrentAdmin();
+  const { data: admin, failure } = await settle(getCurrentAdmin());
+  if (failure)
+    return (
+      <main className={`portal-ui min-h-screen ${portalFont.variable}`}>
+        <PortalState kind={failure} backHref="/admin" backLabel="Admin home" />
+      </main>
+    );
 
   if (admin) {
     // Sidebar badge only; a failure (or missing permission) just hides it.

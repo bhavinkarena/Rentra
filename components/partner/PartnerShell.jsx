@@ -47,6 +47,7 @@ const NAV_GROUPS = [
   {
     label: 'Account',
     items: [
+      { href: '/partner/support', label: 'Support', icon: Bell, capability: 'client.support.read' },
       { href: '/partner/team', label: 'Team', icon: Users, capability: 'client.team.read' },
       { href: '/partner/settings', label: 'Settings & payouts', icon: Settings2 },
     ],
@@ -60,6 +61,7 @@ function routeLabel(pathname) {
   if (pathname === '/partner/listings') return 'Properties';
   if (pathname.startsWith('/partner/reviews')) return 'Reviews';
   if (pathname.startsWith('/partner/updates')) return 'Updates';
+  if (pathname.startsWith('/partner/support')) return 'Support';
   if (pathname.startsWith('/partner/team')) return 'Team';
   if (pathname.startsWith('/partner/settings')) return 'Settings & payouts';
   if (pathname.startsWith('/partner/onboarding')) return 'Partner verification';

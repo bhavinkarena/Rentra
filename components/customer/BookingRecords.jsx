@@ -263,6 +263,12 @@ export function BookingDetail({
             Property overview
           </Link>
           <Link
+            className="inline-flex min-h-11 items-center underline"
+            href={`/partner/support/new?orderId=${record.id}`}
+          >
+            Contact support about this booking
+          </Link>
+          <Link
             className={linkClass}
             href={`/partner/listings/${record.relationships.propertyId}/calendar`}
           >

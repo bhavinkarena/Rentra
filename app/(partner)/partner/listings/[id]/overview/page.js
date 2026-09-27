@@ -275,6 +275,12 @@ export default async function PropertyOverviewPage({ params, searchParams }) {
           >
             {inventory ? (
               <>
+                <Link
+                  className="inline-flex min-h-11 items-center underline"
+                  href={`/partner/support/new?propertyId=${id}`}
+                >
+                  Contact support
+                </Link>
                 <FieldGrid
                   fields={[
                     { label: 'Live on Rentra', value: yesNo(listing.status === 'live') },
