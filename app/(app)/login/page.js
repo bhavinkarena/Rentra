@@ -1,3 +1,4 @@
+import IdentityActionForm from '@/components/auth/IdentityActionForm';
 import Link from 'next/link';
 import AuthLayout from '@/components/auth/AuthLayout';
 import { Button } from '@/components/ui/button';
@@ -37,11 +38,11 @@ export default async function CustomerLoginPage() {
               You are signed in as {admin ? 'an administrator' : 'a partner'}. Customer booking uses
               a separate account.
             </p>
-            <form action={switchToCustomer}>
+            <IdentityActionForm action={switchToCustomer}>
               <Button type="submit" className="w-full">
                 Sign out and continue as customer
               </Button>
-            </form>
+            </IdentityActionForm>
             <Link
               href={admin ? '/admin' : '/partner'}
               className="inline-flex min-h-11 items-center text-brand-700 underline"

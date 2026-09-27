@@ -29,7 +29,7 @@ export default function PropertyFilters({ query = '', status = 'all' }) {
     const suffix = params.toString();
 
     startTransition(() => {
-      router.replace(suffix ? `${pathname}?${suffix}` : pathname, { scroll: false });
+      router.push(suffix ? `${pathname}?${suffix}` : pathname, { scroll: false });
     });
   }
 

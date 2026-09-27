@@ -1,0 +1,193 @@
+import Form from 'next/form';
+import Link from 'next/link';
+import { ArrowUpRight, CalendarDays, Search } from 'lucide-react';
+import { bookingMoney as money } from '@/lib/domain/booking-record';
+import { linkClass, badge, PropertyPhoto, totalPrice } from './BookingDisplay';
+function href(base, data, changes) {
+  return `${base}?${new URLSearchParams({ tab: data.tab, q: data.q, page: String(data.page), ...(data.property ? { property: data.property } : {}), ...changes })}`;
+}
+
+function shortDate(value) {
+  return value
+    ? new Intl.DateTimeFormat('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        timeZone: 'Asia/Kolkata',
+      }).format(new Date(value))
+    : 'Dates in booking details';
+}
+
+export function BookingHistory({ data, base = '/bookings', operational = false }) {
+  return (
+    <div className="mx-auto max-w-5xl space-y-7">
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="mb-2 text-xs font-semibold tracking-widest text-brand-700 uppercase">
+            Time well spent
+          </p>
+          <h1 className="text-h1">{operational ? 'Booking records' : 'Your bookings'}</h1>
+          <p className="mt-2 text-ink-600">
+            {operational
+              ? 'Manage reservations and individual visits.'
+              : 'Your next escape and the places you’ve already enjoyed.'}
+          </p>
+        </div>
+        {!operational && (
+          <Link href="/search" className={linkClass}>
+            Explore places
+            <ArrowUpRight className="size-4" />
+          </Link>
+        )}
+      </header>
+      <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+        <Form action={base} className="flex items-end gap-3">
+          <input type="hidden" name="tab" value={data.tab} />
+          {data.property && <input type="hidden" name="property" value={data.property} />}
+          <label className="min-w-0 flex-1">
+            <span className="sr-only">Search property or booking reference</span>
+            <span className="flex h-12 items-center gap-3 rounded-xl border border-border px-4">
+              <Search className="size-4 shrink-0 text-ink-400" />
+              <input
+                className="w-full min-w-0 bg-transparent text-sm outline-none"
+                name="q"
+                maxLength={100}
+                defaultValue={data.q}
+                placeholder="Search property or booking reference"
+              />
+            </span>
+          </label>
+          <button className="min-h-12 rounded-xl bg-brand-700 px-5 text-sm font-semibold text-white hover:bg-brand-800">
+            Search
+          </button>
+        </Form>
+        <nav aria-label="Booking history filters" className="mt-5 flex gap-2 overflow-x-auto pb-1">
+          {(operational
+            ? ['all', 'today', 'upcoming', 'action_needed', 'past', 'cancelled']
+            : ['all', 'upcoming', 'past', 'cancelled']
+          ).map((tab) => (
+            <Link
+              key={tab}
+              aria-current={data.tab === tab ? 'page' : undefined}
+              className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm text-ink-600 hover:bg-ink-50 aria-[current=page]:bg-brand-700 aria-[current=page]:font-semibold aria-[current=page]:text-white"
+              href={href(base, data, { tab, page: '1' })}
+            >
+              {tab === 'action_needed' ? 'Action needed' : tab[0].toUpperCase() + tab.slice(1)}
+              {data.summary && (
+                <span className="text-xs opacity-75">
+                  {tab === 'all' ? data.summary.total : data.summary[tab]}
+                </span>
+              )}
+            </Link>
+          ))}
+        </nav>
+      </div>
+      <p className="text-sm text-ink-500">
+        {data.total} booking{data.total === 1 ? '' : 's'} found
+      </p>
+      <ul className="space-y-5">
+        {data.items.map((item) => (
+          <li key={item.id}>
+            <Link
+              href={`${base}/${item.id}${operational ? `?from=${encodeURIComponent(href(base, data, {}))}` : ''}`}
+              className="group grid overflow-hidden rounded-2xl border border-border bg-card transition hover:border-brand-300 hover:shadow-md sm:grid-cols-[240px_1fr]"
+            >
+              <PropertyPhoto photo={item.photo} title={item.title} />
+              <div className="flex flex-col gap-4 p-5 sm:p-6">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <span className={badge}>{item.state.replaceAll('_', ' ')}</span>
+                    <h2 className="mt-3 text-xl font-semibold group-hover:text-brand-700">
+                      {item.title}
+                    </h2>
+                  </div>
+                  <ArrowUpRight className="size-5 text-ink-400 group-hover:text-brand-700" />
+                </div>
+                <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-600">
+                  <span className="inline-flex items-center gap-2">
+                    <CalendarDays className="size-4" />
+                    {shortDate(item.firstVisit)}
+                  </span>
+                  <span>
+                    {item.visitCount} visit{item.visitCount === 1 ? '' : 's'}
+                  </span>
+                </div>
+                <div className="mt-auto flex flex-wrap items-end justify-between gap-3 border-t border-border pt-4">
+                  <div>
+                    <p className="text-xs text-ink-500">Accepted total · separate deposit</p>
+                    <p className="mt-1 text-xl font-semibold">{money(totalPrice(item))}</p>
+                  </div>
+                  <span className="text-sm font-semibold text-brand-700">View booking →</span>
+                </div>
+                <div className="flex flex-wrap gap-2 text-xs text-ink-500">
+                  <span>{item.reference}</span>
+                  {operational && (
+                    <span>
+                      Visit states: {item.visitStates.join(', ').replaceAll('_', ' ')}. Payment
+                      below applies to the booking.
+                    </span>
+                  )}
+                  {item.payments.map((payment, index) => (
+                    <span key={index}>
+                      · {payment.environment === 'test' ? 'Test payment: ' : 'Payment: '}
+                      {payment.state}
+                    </span>
+                  ))}
+                  {!item.payments.length && <span>· No verified payment</span>}
+                </div>
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      {!data.items.length && (
+        <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-14 text-center">
+          <CalendarDays className="mx-auto mb-5 size-10 text-brand-600" />
+          <h2 className="text-xl font-semibold">
+            {operational
+              ? 'No bookings in this queue'
+              : data.q
+                ? 'No matching bookings'
+                : 'Your next memory starts here'}
+          </h2>
+          <p className="mx-auto mt-3 mb-6 max-w-sm text-sm leading-relaxed text-ink-500">
+            {operational
+              ? 'Change your filters to view other bookings.'
+              : data.q
+                ? 'Try another property name or booking reference.'
+                : 'When you book a place, you’ll find your visit details and updates here.'}
+          </p>
+          <Link
+            href={operational || data.q || data.tab !== 'all' ? base : '/search'}
+            className={linkClass}
+          >
+            {operational || data.q || data.tab !== 'all'
+              ? 'View all bookings'
+              : 'Explore farmhouses'}
+            <ArrowUpRight className="size-4" />
+          </Link>
+        </div>
+      )}
+      {data.total > 0 && (
+        <nav
+          aria-label="Booking pages"
+          className="flex flex-wrap items-center justify-center gap-5"
+        >
+          {data.page > 1 && (
+            <Link className={linkClass} href={href(base, data, { page: String(data.page - 1) })}>
+              Previous
+            </Link>
+          )}
+          <span className="text-sm text-ink-500">
+            Page {data.page} of {data.pages}
+          </span>
+          {data.page < data.pages && (
+            <Link className={linkClass} href={href(base, data, { page: String(data.page + 1) })}>
+              Next
+            </Link>
+          )}
+        </nav>
+      )}
+    </div>
+  );
+}

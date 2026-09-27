@@ -1,3 +1,6 @@
+import { cookies } from 'next/headers';
+import PartnerPortal from '@/components/partner/PartnerPortal';
+import { partnerCacheEnabled } from '@/lib/partner/flags';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { RentraLogo } from '@/components/rentra/Logo';
@@ -24,18 +27,27 @@ export const metadata = {
 export default async function PartnerLayout({ children }) {
   const user = await getCurrentUser();
 
-  if (user) {
+  if (user?.role === 'client') {
     // The badge is a convenience: an outage leaves it off rather than failing the page.
     const unread = user.capabilities?.includes('client.updates.read') ? (
       <Suspense fallback={null}>
         <UnreadUpdatesCount />
       </Suspense>
     ) : null;
+    const cached = partnerCacheEnabled() && user.accountStatus === 'active' && user.cacheScope;
+    const Shell = cached ? PartnerPortal : PartnerShell;
+    const revision = (await cookies()).get('rentra_partner_revision')?.value ?? '';
     return (
       <div className={portalFont.variable}>
-        <PartnerShell user={user} logoutAction={logout} counts={{ unreadUpdates: unread }}>
+        <Shell
+          key={user.cacheScope ?? user.id}
+          user={user}
+          revision={revision}
+          logoutAction={logout}
+          counts={{ unreadUpdates: unread }}
+        >
           {children}
-        </PartnerShell>
+        </Shell>
       </div>
     );
   }

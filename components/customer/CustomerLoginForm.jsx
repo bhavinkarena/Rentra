@@ -1,4 +1,5 @@
 'use client';
+import { runIdentityAction } from '@/lib/auth/identity-signal';
 import { useActionState, useEffect, useState } from 'react';
 import { ArrowRight, Smartphone } from 'lucide-react';
 import { requestCustomerOtp, verifyCustomerOtp } from '@/lib/actions/auth';
@@ -14,7 +15,10 @@ export default function CustomerLoginForm() {
     if (!result.error) setOpen(true);
     return result.error ? { ...previous, error: result.error } : result;
   }, null);
-  const [verified, verify, verifying] = useActionState(verifyCustomerOtp, null);
+  const [verified, verify, verifying] = useActionState(
+    (state, form) => runIdentityAction(verifyCustomerOtp, state, form),
+    null,
+  );
   const [seconds, setSeconds] = useState(0);
   useEffect(() => {
     if (!sent?.challengeId) return;

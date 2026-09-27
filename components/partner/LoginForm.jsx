@@ -1,4 +1,5 @@
 'use client';
+import { runIdentityAction } from '@/lib/auth/identity-signal';
 import { useActionState, useState } from 'react';
 import { Mail, ArrowRight } from 'lucide-react';
 import { requestClientOtp, verifyClientOtp } from '@/lib/actions/auth';
@@ -17,7 +18,10 @@ export default function LoginForm() {
     },
     { step: 'email' },
   );
-  const [verifyState, verifyAction, verifying] = useActionState(verifyClientOtp, {});
+  const [verifyState, verifyAction, verifying] = useActionState(
+    (state, form) => runIdentityAction(verifyClientOtp, state, form),
+    {},
+  );
   const email = issueState.email ?? '';
   return (
     <div className="space-y-5">
