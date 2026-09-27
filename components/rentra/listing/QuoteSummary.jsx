@@ -1,5 +1,6 @@
 'use client';
 import RentraLoader from '@/components/ui/rentra-loader';
+import QuoteLoading from './QuoteLoading';
 import CheckboxCard from '@/components/ui/checkbox-card';
 
 import Link from '@/components/navigation/NavigationLink';
@@ -55,9 +56,7 @@ export default function QuoteSummary({ compact = false, onChooseDates }) {
           {notice}
         </p>
       ) : null}
-      {loading ? (
-        <RentraLoader label="Checking availability and the latest price" className="my-4" />
-      ) : null}
+      {loading ? <QuoteLoading /> : null}
       {error ? (
         <>
           <p role="alert" className="text-danger">

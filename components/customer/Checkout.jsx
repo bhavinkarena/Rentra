@@ -41,6 +41,7 @@ import {
 import { BOOKING_POLICY } from '@/lib/domain/booking-policy';
 import { checkoutStage, mayLaunchCheckout } from '@/lib/domain/checkout-display';
 import { formatINRMinor as money } from '@/lib/domain/booking-money';
+import PaymentVerification from './checkout/PaymentVerification';
 import ConfirmedView from './checkout/ConfirmedView';
 import {
   CancellationPolicy,
@@ -158,7 +159,8 @@ export default function Checkout({ data }) {
   const [purpose, setPurpose] = useState(data.purpose ?? '');
   const [accepted, setAccepted] = useState(false);
   const [message, setMessage] = useState('');
-  // Which action is in flight: 'hold' | 'status' | 'release' | 'pay'.
+  const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
+  // Which action is in flight: 'hold' | 'status' | 'release' | 'pay' | 'verify'.
   const [busyAction, setBusyAction] = useState('');
   const busy = Boolean(busyAction);
   const [scriptReady, setScriptReady] = useState(false);
@@ -201,6 +203,9 @@ export default function Checkout({ data }) {
       setAccepted(false);
       return null;
     }
+    if (result.checkout?.state !== 'held' || result.checkout?.paymentState === 'failed') {
+      setAwaitingConfirmation(false);
+    }
     setCheckout(result.checkout);
     return result.checkout;
   }
@@ -208,6 +213,7 @@ export default function Checkout({ data }) {
     if (!checkout || gate.current) return;
     gate.current = true;
     setBusyAction('status');
+    setMessage('');
     const sequence = ++statusSequence.current;
     try {
       receive(
@@ -328,7 +334,9 @@ export default function Checkout({ data }) {
         },
         handler: async (response) => {
           const verification = ++statusSequence.current;
-          setMessage('Checking payment with the server…');
+          setBusyAction('verify');
+          setAwaitingConfirmation(true);
+          setMessage('');
           try {
             receive(
               await verifyCustomerTestPayment({
@@ -366,7 +374,9 @@ export default function Checkout({ data }) {
 
   const stage = checkoutStage(checkout, remaining);
   const clock = `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, '0')}`;
-  const canPay = mayLaunchCheckout(checkout, remaining);
+  const verifyingPayment =
+    busyAction === 'verify' || stage === 'pending' || (awaitingConfirmation && stage === 'held');
+  const canPay = !verifyingPayment && mayLaunchCheckout(checkout, remaining);
   const review = stage === 'review';
   const payNow = money(checkout?.expectedMinor ?? quote.payment.expectedMinor);
   // Phones get a sticky action bar while the in-page action is scrolled away.
@@ -400,13 +410,16 @@ export default function Checkout({ data }) {
       ? `${remaining <= 60 ? 'Less than 1 minute' : 'Less than 2 minutes'} left to ${review ? 'continue with this price' : 'complete your payment'}.`
       : '';
 
-  const banner = STAGES[stage];
+  const banner = verifyingPayment ? null : STAGES[stage];
   const alert = message ? (
     <p
       role="alert"
-      className="flex items-start gap-3 rounded-xl border border-danger/25 bg-danger-bg p-4 text-sm text-ink-900"
+      className={`flex items-start gap-3 rounded-xl border p-4 text-sm text-ink-900 ${verifyingPayment ? 'border-border bg-ink-50' : 'border-danger/25 bg-danger-bg'}`}
     >
-      <CircleAlert className="mt-0.5 size-4 shrink-0 text-danger" aria-hidden="true" />
+      <CircleAlert
+        className={`mt-0.5 size-4 shrink-0 ${verifyingPayment ? 'text-ink-500' : 'text-danger'}`}
+        aria-hidden="true"
+      />
       {message}
     </p>
   ) : null;
@@ -498,7 +511,7 @@ export default function Checkout({ data }) {
                   {canPay ? 'Pay securely' : 'Payment status'}
                 </h2>
                 <p className="text-sm text-ink-600">
-                  Due now{' '}
+                  {verifyingPayment ? 'Payment amount' : 'Due now'}{' '}
                   <strong className="text-base text-ink-900 tabular" data-money>
                     {payNow}
                   </strong>
@@ -519,6 +532,11 @@ export default function Checkout({ data }) {
                     via Razorpay
                   </li>
                 </ul>
+              ) : null}
+              {verifyingPayment ? (
+                <PaymentVerification
+                  checking={busyAction === 'verify' || busyAction === 'status'}
+                />
               ) : null}
               {alert ? <div className="mt-4">{alert}</div> : null}
               {canPay ? (
@@ -567,10 +585,12 @@ export default function Checkout({ data }) {
                   </button>
                 ) : null}
               </div>
-              <p className="mt-4 text-xs text-ink-600">
-                Paid already but still seeing this? Check the payment status first so you don’t pay
-                twice. You can reload this page anytime — your hold is saved.
-              </p>
+              {!verifyingPayment && (
+                <p className="mt-4 text-xs text-ink-600">
+                  Paid already but still seeing this? Check the payment status first so you don’t
+                  pay twice. You can reload this page anytime — your hold is saved.
+                </p>
+              )}
             </section>
           ) : null}
 
@@ -705,6 +725,11 @@ export default function Checkout({ data }) {
                 <p className="mt-4 rounded-xl bg-warning-bg p-3.5 text-sm text-ink-900">
                   Test checkout is currently disabled. You can still browse dates and prices.
                 </p>
+              ) : null}
+              {verifyingPayment ? (
+                <PaymentVerification
+                  checking={busyAction === 'verify' || busyAction === 'status'}
+                />
               ) : null}
               {alert ? <div className="mt-4">{alert}</div> : null}
               <button

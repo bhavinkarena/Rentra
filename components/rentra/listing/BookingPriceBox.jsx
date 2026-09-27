@@ -17,8 +17,17 @@ export default function BookingPriceBox({
   schedules = [],
   capacity = 500,
 }) {
-  const { guests, setGuests, selectionReady, dates, slot, setSlot, quote, setCalendarOpen } =
-    useBookingQuote();
+  const {
+    guests,
+    setGuests,
+    selectionReady,
+    dates,
+    slot,
+    setSlot,
+    quote,
+    loading,
+    setCalendarOpen,
+  } = useBookingQuote();
   const [guestsOpen, setGuestsOpen] = useState(false);
   const schedule = schedules.find((item) => item.slot === slot);
   const maxGuests = Math.max(1, Math.min(500, schedule?.capacity ?? capacity));

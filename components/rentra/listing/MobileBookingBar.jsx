@@ -1,5 +1,4 @@
 'use client';
-import RentraLoader from '@/components/ui/rentra-loader';
 
 import { useEffect, useRef, useState } from 'react';
 import { formatINRMinor } from '@/lib/domain/booking-money';
@@ -100,7 +99,9 @@ export default function MobileBookingBar({ sentinelId = 'gallery-end' }) {
                 {quote ? (
                   formatINRMinor(quote.totals.totalMinor)
                 ) : loading ? (
-                  <RentraLoader label="Checking…" />
+                  <span role="status" className="text-sm font-medium text-ink-600">
+                    Updating total…
+                  </span>
                 ) : (
                   'Choose dates'
                 )}
