@@ -268,13 +268,16 @@ export function AdminSupportDetail({ record, listHref = '/admin/support', canWri
                   {message.body}
                 </p>
                 {(message.attachments || []).map((photo, i) => (
-                  <Link
+                  // A plain link, never a prefetching <Link>: every photo view is an audited read.
+                  <a
                     key={photo.id}
                     className="inline-flex min-h-11 items-center underline"
                     href={`/admin/support/${record.id}/attachments/${photo.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
                     Private photo {i + 1}
-                  </Link>
+                  </a>
                 ))}
               </li>
             ))}

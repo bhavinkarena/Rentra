@@ -1,0 +1,13 @@
+import { RefundDetail } from '@/components/admin/RefundOperations';
+import PortalState from '@/components/portal/PortalState';
+import { adminApi } from '@/lib/api/endpoints';
+import { settle } from '@/lib/api/page-state';
+
+export const metadata = { title: 'Refund detail', robots: { index: false, follow: false } };
+
+export default async function RefundPage({ params }) {
+  const { data, failure } = await settle(adminApi.refund((await params).id));
+  if (failure)
+    return <PortalState kind={failure} backHref="/admin/finance/refunds" backLabel="Refunds" />;
+  return <RefundDetail refund={data} />;
+}

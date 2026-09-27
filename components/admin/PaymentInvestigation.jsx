@@ -372,7 +372,17 @@ export function PaymentDetail({ payment: p }) {
           <SectionCard
             id="refunds"
             title="Refunds"
-            description="Read-only here; refund operations are a separate part"
+            description="Open a refund for its status, provider events and commands"
+            action={
+              p.environment === 'test' && p.capturedMinor > 0 ? (
+                <Link
+                  href={`/admin/finance/refunds/new?order=${p.booking.id}`}
+                  className="text-tiny font-semibold text-brand-700 underline"
+                >
+                  Request a refund
+                </Link>
+              ) : null
+            }
             flush
           >
             <Rows
@@ -381,7 +391,13 @@ export function PaymentDetail({ payment: p }) {
               render={(r) => (
                 <li key={r.id} className="space-y-1 px-5 py-4 text-meta">
                   <p className="flex flex-wrap items-center gap-2 font-semibold">
-                    {money(r.expectedMinor)} ·{' '}
+                    <Link
+                      href={`/admin/finance/refunds/${r.id}`}
+                      className="text-brand-700 underline"
+                    >
+                      {money(r.expectedMinor)}
+                    </Link>{' '}
+                    ·{' '}
                     <StatusBadge
                       tone={
                         r.state === 'succeeded'

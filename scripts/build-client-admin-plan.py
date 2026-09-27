@@ -288,6 +288,18 @@ DELIVERED = {
       <li>No admin event-reprocess control; failed events retry through the existing job.</li>
       <li>Configured-database migration hash drift not reviewed; no hosted Razorpay Test run or screen-reader pass.</li></ul></div>''',
     "CP18": '''<div class="card"><span class="num">CP18 · complete</span><h3>Review detail and moderation history</h3><ul><li>Owner/admin detail with property and booking links, scoped reports, resolutions and retained reply/moderation history.</li><li>Signed publication/reply previews, version checks and reasoned policy decisions; guest text and ratings remain immutable.</li><li>Score-neutral publication, independent report closure and consistent public listing/search aggregates.</li></ul><p>Gate: backend 111/111, frontend 23/23, browser/API 34/34 and outage 4/4. No CP18 migration. CP17 remains in progress independently. <a href="rentra-client-admin-part18.md">CP18 handoff and limits ↗</a></p></div>''',
+    "CP20": '''<div class="card"><span class="num">CP20 · complete</span><h3>Refund operations queue and detail</h3><p>Refund obligations become an operable queue, never a manual toggle:</p>
+      <ul><li><code>/admin/finance/refunds</code>: environment tabs, status chips (needs attention, queued, processing, uncertain, failed at provider, refunded), source filter, search and one totals card per environment.</li>
+      <li>Detail explains what each state means and how it recovers, with requested vs verified amounts, per-visit/component allocations, origin (customer cancellation, booking case, operator refund or late capture), signed provider events and operator history.</li>
+      <li>Operator refunds are previewed per component against the remaining verified capture, accepted only for that preview's hash, request-keyed and serialised by the listing lock; concurrent requests give one success and one <code>PREVIEW_CHANGED</code>.</li>
+      <li><strong>Send to provider now</strong> / <strong>Check with provider</strong> reuse the single-dispatch engine: at most one provider POST per obligation, even after a lost response, repeated or concurrent commands, or duplicate callbacks. A failed provider refund keeps its reservation and is never resent.</li>
+      <li>CP17 support attachments no longer prefetch (which recorded audited views nobody made).</li></ul>
+      <p class="small"><strong>Gate passed — 27 September 2026:</strong> backend <strong>120/120</strong> with an integration test against real checkout, cancellation, webhook and refund services and a fake Razorpay transport; <strong>42/42</strong> browser/API checks; CP02–CP19 gates re-ran as regression. Frontend 23/23, lint, format and webpack build passed. No migration. <a href="rentra-client-admin-part20.md">Handoff, contract and runbook ↗</a></p></div>
+    <div class="card"><span class="num">CP20 · explicitly not delivered</span><h3>Limits recorded at the gate</h3>
+      <ul><li>Live refunds and a hosted Razorpay Test refund remain CP30; the Test console is the only operable environment.</li>
+      <li>No second provider refund for a failed or uncertain first one; resolution goes through Razorpay and the next check.</li>
+      <li>One visit per operator refund request; no escalation queue beyond the needs-attention filter.</li>
+      <li>Configured-database migration hash drift not reviewed; no screen-reader pass.</li></ul></div>''',
 }
 missing = [key for key, status in statuses.items() if status == "COMPLETE" and key not in DELIVERED]
 assert not missing, f"Add DELIVERED cards for {missing}"

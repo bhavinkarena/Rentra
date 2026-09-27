@@ -126,9 +126,14 @@ with sync_playwright() as p:
     page.keyboard.press("Enter")
     page.locator("dialog[open]").wait_for()
     check("drawer receives focus", active_inside(page, "dialog[open]"))
+    # A native modal <dialog> passes focus to the browser chrome (document.body here) once per
+    # cycle; the requirement is that Tab never reaches the page content behind the drawer.
+    escaped = []
     for _ in range(25):
         page.keyboard.press("Tab")
-    check("focus stays inside modal drawer", active_inside(page, "dialog[open]"))
+        if not page.evaluate("() => document.activeElement === document.body || !!document.querySelector('dialog[open]')?.contains(document.activeElement)"):
+            escaped.append(page.evaluate("() => document.activeElement?.outerHTML?.slice(0, 80)"))
+    check("focus stays inside modal drawer", not escaped, str(escaped[:2]))
     page.keyboard.press("Escape")
     page.wait_for_timeout(300)
     check("Escape closes drawer", page.locator("dialog[open]").count() == 0)

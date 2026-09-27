@@ -151,13 +151,16 @@ export function SupportDetail({ record, admin = false, owner = false }) {
               </p>
               <p className="mt-3 whitespace-pre-wrap break-words">{m.body}</p>
               {(m.attachments || []).map((photo, i) => (
-                <Link
+                // A plain link, never a prefetching <Link>: every photo view is an audited read.
+                <a
                   key={photo.id}
                   className={link}
                   href={`${base}/${record.id}/attachments/${photo.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   Private photo {i + 1}
-                </Link>
+                </a>
               ))}
             </li>
           ))}

@@ -4,18 +4,19 @@ import {
   Activity,
   Building2,
   CalendarDays,
+  ClipboardList,
   CreditCard,
   LayoutDashboard,
   MessageSquareText,
+  ReceiptText,
   Search,
   Send,
   ShieldCheck,
   Star,
   TriangleAlert,
+  Undo2,
   UserRound,
   Users,
-  ClipboardList,
-  ReceiptText,
 } from 'lucide-react';
 import PortalShell from '@/components/portal/PortalShell';
 
@@ -86,6 +87,12 @@ const NAV_GROUPS = [
         icon: ReceiptText,
         capability: 'admin.payments.read',
       },
+      {
+        href: '/admin/finance/refunds',
+        label: 'Refunds',
+        icon: Undo2,
+        capability: 'admin.payments.read',
+      },
       // Stable bookmark: this page is gateway settings, not payment investigation (CP19).
       {
         href: '/admin/payments',
@@ -126,6 +133,7 @@ const DETAIL_LABELS = [
   ['/admin/bookings/', 'Booking record'],
   ['/admin/booking-cases/', 'Booking case'],
   ['/admin/finance/payments/', 'Payment detail'],
+  ['/admin/finance/refunds/', 'Refund detail'],
   ['/admin/support/', 'Support request'],
   ['/admin/clients/', 'Client'],
   ['/admin/customers/', 'Customer'],
