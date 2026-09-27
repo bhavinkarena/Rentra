@@ -15,6 +15,7 @@ import {
   UserRound,
   Users,
   ClipboardList,
+  ReceiptText,
 } from 'lucide-react';
 import PortalShell from '@/components/portal/PortalShell';
 
@@ -79,6 +80,12 @@ const NAV_GROUPS = [
   {
     label: 'Finance',
     items: [
+      {
+        href: '/admin/finance/payments',
+        label: 'Payments',
+        icon: ReceiptText,
+        capability: 'admin.payments.read',
+      },
       // Stable bookmark: this page is gateway settings, not payment investigation (CP19).
       {
         href: '/admin/payments',
@@ -118,6 +125,7 @@ const DETAIL_LABELS = [
   ['/admin/properties/', 'Property review'],
   ['/admin/bookings/', 'Booking record'],
   ['/admin/booking-cases/', 'Booking case'],
+  ['/admin/finance/payments/', 'Payment detail'],
   ['/admin/support/', 'Support request'],
   ['/admin/clients/', 'Client'],
   ['/admin/customers/', 'Customer'],

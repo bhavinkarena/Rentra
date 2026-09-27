@@ -1,0 +1,40 @@
+{
+  "results": [
+    {
+      "check": "Payments API outage list: retryable state, context kept",
+      "pass": true
+    },
+    {
+      "check": "Payments API outage list: Try again recovers in place",
+      "pass": true
+    },
+    {
+      "check": "Payments API outage detail: retryable state, context kept",
+      "pass": true
+    },
+    {
+      "check": "Payments API outage detail: Try again recovers in place",
+      "pass": true
+    },
+    {
+      "check": "Re-fetch during outage: honest retry message, nothing recorded",
+      "pass": true
+    },
+    {
+      "check": "Lost re-fetch response: the request did reach the provider once",
+      "pass": true
+    },
+    {
+      "check": "Retry with the same form replays: still one audited re-fetch, still pending",
+      "pass": true
+    },
+    {
+      "check": "Full API outage list: retryable, no false empty or login",
+      "pass": true
+    },
+    {
+      "check": "Full API outage detail: retryable, no false empty or login",
+      "pass": true
+    }
+  ]
+}

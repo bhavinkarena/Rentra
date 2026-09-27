@@ -65,3 +65,5 @@ Runtime checks used disposable databases on a local PostgreSQL 14 server (`127.0
 - No hosted deployment or human screen-reader pass. Queue counts are matching orders, not mutually exclusive totals.
 
 Next part: **CP13 — Visit evidence and incident records** (depends on CP12).
+
+**Update — 27 September 2026:** the webhook `redacted_payload` follow-up is **closed in CP19**. The double-encoded string failed `payment_event_valid_chk`, so signed webhook events could not be stored at all, which was worse than the silent no-op described above. Events now store as objects and settle through the provider re-fetch. See the [CP19 handoff](rentra-client-admin-part19.md).

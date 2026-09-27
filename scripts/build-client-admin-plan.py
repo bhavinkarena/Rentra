@@ -275,6 +275,18 @@ DELIVERED = {
       <li>No application or payout references (applicants use the application flow; payouts wait for CP22) and no direct link from a support thread to a booking case.</li>
       <li>No orphan-object sweeper and no automatic retention deletion for private photos.</li>
       <li>The CP15/CP16 Python regression runners were not run here; no hosted environment or human screen-reader pass.</li></ul></div>''',
+    "CP19": '''<div class="card"><span class="num">CP19 · complete</span><h3>Payment investigation console</h3><p>Verified payment facts, separate from gateway settings:</p>
+      <ul><li><code>/admin/finance/payments</code>: Test (default), Simulated, Live and All tabs, with one totals card per environment. Money is aggregated per payment first, so joins cannot inflate totals, and actual bank money outside live is ₹0.</li>
+      <li>Filters for needs review, state, booking/payment/provider id and India dates, with pagination and an as-of time.</li>
+      <li>Detail: attempts, verified transactions with visit allocations, refunds, signed provider events, history, and a masked pinned key. No secrets or raw payloads.</li>
+      <li>One audited, replay-safe command, <strong>Re-fetch from provider</strong>. It keeps working while new attempts are paused, and unconfirmed outcomes stay pending; there is no manual paid toggle.</li>
+      <li>Webhook events are now stored as objects (they previously failed the payload check) and a disagreeing provider record cannot mark paid.</li></ul>
+      <p class="small"><strong>Gate passed — 27 September 2026:</strong> backend <strong>116/116</strong> with integration tests against real settlement and a fake Razorpay transport; <strong>34/34</strong> browser/API checks (<code>completed: true</code>) plus <strong>9/9</strong> failure-path checks, including a lost response after commit that replays; CP14 34/34 and CP17 39/39 as regression. Frontend 23/23, lint, format and webpack build passed. No migration. <a href="rentra-client-admin-part19.md">Handoff, contract and runbook ↗</a></p></div>
+    <div class="card"><span class="num">CP19 · explicitly not delivered</span><h3>Limits recorded at the gate</h3>
+      <ul><li>Refund operations are CP20; refunds are read-only here.</li>
+      <li>No CSV export (CP28) and no live adapter (the Live tab shows an honest empty state).</li>
+      <li>No admin event-reprocess control; failed events retry through the existing job.</li>
+      <li>Configured-database migration hash drift not reviewed; no hosted Razorpay Test run or screen-reader pass.</li></ul></div>''',
     "CP18": '''<div class="card"><span class="num">CP18 · complete</span><h3>Review detail and moderation history</h3><ul><li>Owner/admin detail with property and booking links, scoped reports, resolutions and retained reply/moderation history.</li><li>Signed publication/reply previews, version checks and reasoned policy decisions; guest text and ratings remain immutable.</li><li>Score-neutral publication, independent report closure and consistent public listing/search aggregates.</li></ul><p>Gate: backend 111/111, frontend 23/23, browser/API 34/34 and outage 4/4. No CP18 migration. CP17 remains in progress independently. <a href="rentra-client-admin-part18.md">CP18 handoff and limits ↗</a></p></div>''',
 }
 missing = [key for key, status in statuses.items() if status == "COMPLETE" and key not in DELIVERED]
