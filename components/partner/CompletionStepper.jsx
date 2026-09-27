@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { Check, AlertTriangle, Clock } from 'lucide-react';
 
 /**

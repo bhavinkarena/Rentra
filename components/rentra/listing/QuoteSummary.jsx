@@ -2,7 +2,7 @@
 import RentraLoader from '@/components/ui/rentra-loader';
 import CheckboxCard from '@/components/ui/checkbox-card';
 
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { useRef, useState } from 'react';
 import { Info, Lock } from 'lucide-react';
 import { useBookingQuote } from './BookingQuoteProvider';

@@ -2,7 +2,7 @@
 import Loader2 from '@/components/ui/rentra-loader';
 
 import { useActionState, useMemo, useState } from 'react';
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { ArrowLeft, ArrowRight, Building2, MapPin, ShieldCheck, X } from 'lucide-react';
 import { createListingFromBasics } from '@/lib/actions/partner';
 import { RentraLogo } from '@/components/rentra/Logo';

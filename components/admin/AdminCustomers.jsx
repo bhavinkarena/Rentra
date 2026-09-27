@@ -1,5 +1,5 @@
-import Form from 'next/form';
-import Link from 'next/link';
+import Form from '@/components/navigation/NavigationForm';
+import Link from '@/components/navigation/NavigationLink';
 import { CalendarDays, Clock, Mail, Phone, UserRound } from 'lucide-react';
 import AccountLifecyclePanel from './AccountLifecyclePanel';
 import { CustomerProfileCorrection, CustomerSessionRevocation } from './CustomerAccountForms';

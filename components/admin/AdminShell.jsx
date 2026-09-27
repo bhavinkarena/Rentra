@@ -1,6 +1,6 @@
 'use client';
 
-import Form from 'next/form';
+import Form from '@/components/navigation/NavigationForm';
 import {
   Activity,
   Building2,

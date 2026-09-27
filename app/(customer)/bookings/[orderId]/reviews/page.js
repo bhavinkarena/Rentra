@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { notFound } from 'next/navigation';
 import { customerApi } from '@/lib/api/endpoints';
 import { ApiError } from '@/lib/api/client';

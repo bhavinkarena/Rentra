@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import Breadcrumbs from '@/components/portal/Breadcrumbs';
 
 export function AdminPage({ children, width = 'max-w-[1480px]' }) {

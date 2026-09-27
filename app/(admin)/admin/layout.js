@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { Suspense } from 'react';
 import { settle } from '@/lib/api/page-state';
 import PortalState from '@/components/portal/PortalState';

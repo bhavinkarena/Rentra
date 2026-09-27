@@ -1,5 +1,5 @@
-import Form from 'next/form';
-import Link from 'next/link';
+import Form from '@/components/navigation/NavigationForm';
+import Link from '@/components/navigation/NavigationLink';
 import { AlertTriangle, Clock, Inbox, MousePointerClick, RotateCcw, UserCheck } from 'lucide-react';
 import { AdminEmpty, Pager, StatusBadge } from './AdminPrimitives';
 

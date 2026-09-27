@@ -1,5 +1,5 @@
-import Form from 'next/form';
-import Link from 'next/link';
+import Form from '@/components/navigation/NavigationForm';
+import Link from '@/components/navigation/NavigationLink';
 import { CalendarDays, Clock, Mail, Phone, Users } from 'lucide-react';
 import { randomUUID } from 'node:crypto';
 import AccountLifecyclePanel from './AccountLifecyclePanel';

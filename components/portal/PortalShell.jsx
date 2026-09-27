@@ -1,4 +1,5 @@
 'use client';
+import NavigationProgress from '@/components/navigation/NavigationProgress';
 
 import { useState, useSyncExternalStore } from 'react';
 import Link, { useLinkStatus } from 'next/link';
@@ -55,7 +56,10 @@ function isActive(pathname, item) {
 function PendingHint() {
   const { pending } = useLinkStatus();
   return pending ? (
-    <LoaderCircle className="ml-auto size-3.5 shrink-0 text-white/70" aria-hidden="true" />
+    <>
+      <NavigationProgress active />
+      <LoaderCircle className="ml-auto size-3.5 shrink-0 text-white/70" aria-hidden="true" />
+    </>
   ) : null;
 }
 

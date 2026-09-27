@@ -1,5 +1,7 @@
 # Rentra UI Redirection & Rendering Performance Audit
 
+> **Implementation status (27 September 2026):** This is the original audit, not a current completion checklist. Forms, saved-state effects, navigation feedback, route skeletons, registry caching, concurrent search reads and wizard module separation have received fixes. Production build/browser verification for the latest changes is pending. See [follow-up changes and verification limits](navigation-optimization-followup.md), [earlier performance work](frontend-performance-implementation.md), and [partner cache rollout](partner-query-cache.md). The timing estimates below are not production measurements.
+
 > **Objective:** Diagnose why clicking buttons, navigating links, and redirecting between pages feels slow in the Rentra Next.js application, and provide an actionable, step-by-step roadmap to make all button interactions and route transitions **instant, smooth, and reactive (<100ms perceived response time)**.
 
 ---

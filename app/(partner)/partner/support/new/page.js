@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { requireActiveClient } from '@/lib/api/session';
 import { OpenSupportForm } from '@/components/customer/SupportForms';
 export const metadata = {

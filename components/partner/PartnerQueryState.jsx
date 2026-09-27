@@ -1,3 +1,4 @@
+import RouteSkeleton from '@/components/navigation/RouteSkeleton';
 export function isAccessFailure(error) {
   return [401, 403, 'PORTAL_REDIRECT'].includes(error?.status);
 }
@@ -10,6 +11,7 @@ export default function PartnerQueryState({ queries, children }) {
     );
   if (queries.some((q) => !q.currentData?.data)) {
     const failed = queries.some((q) => q.isError);
+    if (!failed) return <RouteSkeleton label="Loading records" />;
     return (
       <div className="m-6 rounded-lg border border-border p-6" role="status">
         {failed ? 'Unable to load these records.' : 'Loading records…'}

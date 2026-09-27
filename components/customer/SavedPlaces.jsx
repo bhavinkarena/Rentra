@@ -1,6 +1,6 @@
 'use client';
 import RentraLoader from '@/components/ui/rentra-loader';
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import Image from 'next/image';
 import { startTransition } from 'react';
 import { useSavedPlaces } from './SavedPlacesProvider';

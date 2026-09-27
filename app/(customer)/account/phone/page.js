@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { ArrowLeft, Smartphone, ShieldCheck } from 'lucide-react';
 import { customerApi } from '@/lib/api/endpoints';
 import { PhoneChangeForm } from '@/components/customer/AccountForms';

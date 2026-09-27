@@ -1,8 +1,9 @@
 'use client';
+import NavigationProgress from '@/components/navigation/NavigationProgress';
 import Loader2 from '@/components/ui/rentra-loader';
 
 import { useCallback, useState } from 'react';
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, X } from 'lucide-react';
 import { RentraLogo } from '@/components/rentra/Logo';
@@ -58,6 +59,7 @@ export default function WizardShell({
 
   return (
     <ListingChrome variant="wizard" onSaved={handleSaved} onPending={setPending}>
+      <NavigationProgress active={advancing} />
       <div className="flex h-dvh flex-col overflow-hidden bg-background">
         <header className="z-30 shrink-0 border-b border-border bg-card">
           <div className="flex items-center gap-3 px-4 py-2.5 sm:px-6">

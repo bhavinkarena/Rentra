@@ -1,5 +1,5 @@
 'use client';
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 export default function DiscoveryError({ reset }) {
   return (
     <section className="mx-auto max-w-xl px-6 py-12">

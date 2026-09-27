@@ -1,5 +1,5 @@
-import Form from 'next/form';
-import Link from 'next/link';
+import Form from '@/components/navigation/NavigationForm';
+import Link from '@/components/navigation/NavigationLink';
 import SupportManagement from './SupportManagement';
 import { randomUUID } from 'node:crypto';
 import { CalendarDays, Clock3, Inbox, LifeBuoy, MessageSquareText } from 'lucide-react';

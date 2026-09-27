@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { ClipboardList, MessageSquareText } from 'lucide-react';
 import { bookingTime as time } from '@/lib/domain/booking-record';
 import { CaseMessageForm, CreateCaseForm } from './CaseForms';

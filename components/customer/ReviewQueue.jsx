@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { ReviewControl } from './ReviewForms';
 export default function ReviewQueue({ data, admin = false }) {
   return (

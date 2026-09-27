@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { notFound, redirect } from 'next/navigation';
 import { ArrowLeft, UserRound } from 'lucide-react';
 import { customerApi, bookingApi } from '@/lib/api/endpoints';

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { notFound } from 'next/navigation';
 import { Clock, Home, Search, Video } from 'lucide-react';
 import { requireActiveClient } from '@/lib/api/session';

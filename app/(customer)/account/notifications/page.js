@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { customerApi } from '@/lib/api/endpoints';
 import { readNotification } from '@/lib/actions/customer';
 export const metadata = { title: 'Booking updates', robots: { index: false, follow: false } };

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { ArrowLeft } from 'lucide-react';
 
 export default function OnboardingShell({ step, total = 6, title, intro, children }) {

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { ArrowLeft, CalendarDays, MapPin, Wallet, Users, Download, LifeBuoy } from 'lucide-react';
 import { randomUUID } from 'node:crypto';
 import { bookingMoney as money, bookingTime as time } from '@/lib/domain/booking-record';

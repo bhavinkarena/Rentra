@@ -1,4 +1,5 @@
 'use client';
+import NavigationProgress from '@/components/navigation/NavigationProgress';
 import LoaderCircle from '@/components/ui/rentra-loader';
 
 import { useRef, useTransition } from 'react';
@@ -49,6 +50,7 @@ export default function PropertyFilters({ query = '', status = 'all' }) {
 
   return (
     <div className="flex flex-col gap-3 border-b border-border bg-ink-25/55 p-4 sm:flex-row sm:items-center">
+      <NavigationProgress active={pending} />
       <form onSubmit={handleSubmit} className="relative min-w-0 flex-1">
         <Search
           className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-ink-400"

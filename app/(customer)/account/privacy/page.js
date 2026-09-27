@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { customerApi } from '@/lib/api/endpoints';
 import { PrivacyForm } from '@/components/customer/AccountForms';
 export const metadata = { title: 'Privacy requests' };

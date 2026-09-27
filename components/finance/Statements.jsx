@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 
 export function money(value) {
   const minor = BigInt(value ?? 0),

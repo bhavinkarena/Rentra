@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { AlertTriangle, Check, ChevronDown, ListChecks } from 'lucide-react';
 
 /** Five compact chapter segments used in the pinned wizard header. */

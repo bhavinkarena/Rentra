@@ -1,6 +1,6 @@
-import Form from 'next/form';
+import Form from '@/components/navigation/NavigationForm';
 import { publicMetadata } from '@/lib/seo/metadata';
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { faqs, supportContact } from '@/lib/domain/help';
 export async function generateMetadata({ searchParams }) {
   const filtered = Boolean((await searchParams)?.q);

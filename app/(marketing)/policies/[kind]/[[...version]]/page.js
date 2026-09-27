@@ -1,5 +1,5 @@
 import { publicMetadata } from '@/lib/seo/metadata';
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { notFound } from 'next/navigation';
 import { POLICY_VERSION, policyVersions } from '@/lib/domain/help';
 async function document(params) {

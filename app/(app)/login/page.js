@@ -1,5 +1,5 @@
 import IdentityActionForm from '@/components/auth/IdentityActionForm';
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import AuthLayout from '@/components/auth/AuthLayout';
 import { Button } from '@/components/ui/button';
 import CustomerLoginForm from '@/components/customer/CustomerLoginForm';

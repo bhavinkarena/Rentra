@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { History, ShieldAlert, ShieldCheck, WalletCards } from 'lucide-react';
 import { PartnerPageHeader } from './PortalPrimitives';
 import { ChangeDestinationForm, SignInAgain, SubmitDraftForm } from './PayoutDestinationForms';

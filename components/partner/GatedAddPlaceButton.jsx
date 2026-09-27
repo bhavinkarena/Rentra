@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { Lock, X } from 'lucide-react';
 import CreateListingButton from '@/components/partner/CreateListingButton';
 

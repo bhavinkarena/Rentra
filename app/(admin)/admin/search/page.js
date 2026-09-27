@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { adminApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
 import { AdminPage, AdminPageHeader, StatusBadge } from '@/components/admin/AdminPrimitives';

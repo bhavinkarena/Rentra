@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { ArrowRight, Building2, Star } from 'lucide-react';
 import ListingStatusBadge from '@/components/partner/ListingStatusBadge';
 

@@ -513,3 +513,21 @@
 .portal-scroll::-webkit-scrollbar-thumb:hover {
   background: rgb(144 188 163 / 0.6);
 }
+
+@keyframes navigation-progress {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(400%);
+  }
+}
+.navigation-progress-track {
+  animation: navigation-progress 1.1s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .navigation-progress-track {
+    animation: none;
+    width: 100%;
+  }
+}

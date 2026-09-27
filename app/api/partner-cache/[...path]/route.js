@@ -9,7 +9,7 @@ export async function GET(request, { params }) {
   const headers = { 'Cache-Control': 'private, no-store' };
   if (!paths.has(path)) return Response.json({ success: false }, { status: 404, headers });
   try {
-    const { user } = await authApi.me({
+    const { user } = await authApi.identity({
       signal: AbortSignal.any([request.signal, AbortSignal.timeout(12000)]),
     });
     if (

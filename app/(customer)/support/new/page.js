@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { randomUUID } from 'node:crypto';
 import { notFound } from 'next/navigation';
 import { customerApi } from '@/lib/api/endpoints';

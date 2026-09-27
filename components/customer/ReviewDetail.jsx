@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { ReviewControl } from './ReviewForms';
 const time = (value) => new Date(value).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 const link = 'inline-flex min-h-11 items-center underline';

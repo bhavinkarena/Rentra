@@ -1,5 +1,5 @@
 'use client';
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { ReceiptText, RefreshCw, TriangleAlert } from 'lucide-react';
 export default function CheckoutError({ reset }) {
   return (

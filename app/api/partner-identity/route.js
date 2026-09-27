@@ -4,7 +4,7 @@ import { authApi } from '@/lib/api/endpoints';
 export async function GET(request) {
   let user;
   try {
-    ({ user } = await authApi.me({
+    ({ user } = await authApi.identity({
       signal: AbortSignal.any([request.signal, AbortSignal.timeout(12000)]),
     }));
   } catch (error) {

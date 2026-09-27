@@ -2,7 +2,7 @@
 import RentraLoader from '@/components/ui/rentra-loader';
 import CheckboxCard from '@/components/ui/checkbox-card';
 
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import Script from 'next/script';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';

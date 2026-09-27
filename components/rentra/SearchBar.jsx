@@ -1,4 +1,5 @@
 'use client';
+import NavigationProgress from '@/components/navigation/NavigationProgress';
 
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
@@ -21,15 +22,18 @@ export default function SearchBar() {
   const [pending, startNavigation] = useTransition();
   const setField = (field, value) => setFields((previous) => ({ ...previous, [field]: value }));
 
-  function onSubmit(e) {
-    e.preventDefault();
-    measureBrowser('search_submitted');
+  function destination() {
     const params = new URLSearchParams();
     if (date) params.set('date', date);
     if (slot) params.set('slot', slot);
     if (guests) params.set('guests', String(guests));
     if (area.trim()) params.set('q', area.trim());
-    startNavigation(() => router.push(`/search?${params.toString()}`));
+    return `/search?${params.toString()}`;
+  }
+  function onSubmit(e) {
+    e.preventDefault();
+    measureBrowser('search_submitted');
+    startNavigation(() => router.push(destination()));
   }
 
   return (
@@ -37,6 +41,7 @@ export default function SearchBar() {
       onSubmit={onSubmit}
       className="flex max-w-3xl flex-col overflow-hidden rounded-lg border border-border bg-card shadow-lg md:flex-row md:items-stretch md:rounded-full"
     >
+      <NavigationProgress active={pending} />
       <Cell label="Where">
         <input
           value={area}
@@ -82,6 +87,8 @@ export default function SearchBar() {
 
       <div className="flex items-center p-2">
         <button
+          onPointerEnter={() => router.prefetch(destination())}
+          onFocus={() => router.prefetch(destination())}
           type="submit"
           disabled={pending}
           aria-busy={pending}

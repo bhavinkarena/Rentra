@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import PartnerPortal from '@/components/partner/PartnerPortal';
 import { partnerCacheEnabled } from '@/lib/partner/flags';
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { Suspense } from 'react';
 import { RentraLogo } from '@/components/rentra/Logo';
 import { getCurrentUser } from '@/lib/api/session';

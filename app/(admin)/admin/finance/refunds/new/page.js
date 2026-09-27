@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { AdminPage, AdminPageHeader } from '@/components/admin/AdminPrimitives';
 import { RefundRequest } from '@/components/admin/RefundCommands';
 import PortalState from '@/components/portal/PortalState';

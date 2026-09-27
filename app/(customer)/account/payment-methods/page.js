@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { customerApi } from '@/lib/api/endpoints';
 export const metadata = { title: 'Payment methods' };
 export default async function MethodsPage() {

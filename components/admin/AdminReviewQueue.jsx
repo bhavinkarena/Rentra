@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { Flag, MessageSquareWarning, ShieldCheck, Star } from 'lucide-react';
 import {
   AdminEmpty,

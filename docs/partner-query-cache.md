@@ -6,6 +6,10 @@ Socket.IO, publication/outbox workers, live unread badges, or other portal cache
 Phase D is partially verified; production authentication/deployment checks remain
 before proceeding to the socket stage required by the plan.
 
+Latest navigation follow-up: cache identity checks now use backend `/auth/identity`
+to avoid onboarding/document reads. Deploy that backend endpoint before the
+updated frontend. See [follow-up verification status](navigation-optimization-followup.md).
+
 ## Enable and roll back
 
 1. Deploy the matching backend change. `/auth/me` now returns `user.cacheScope`, a

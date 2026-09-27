@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import AuthLayout from '@/components/auth/AuthLayout';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/api/session';

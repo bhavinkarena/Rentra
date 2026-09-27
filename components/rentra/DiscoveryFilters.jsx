@@ -1,8 +1,8 @@
 'use client';
 
-import Form from 'next/form';
+import Form from '@/components/navigation/NavigationForm';
 import { useState } from 'react';
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { Filter, Plus, Search, X } from 'lucide-react';
 import { addLocalDays, formatLocalDate, propertyToday } from '@/lib/domain/booking-dates';
 import { measureBrowser } from '@/lib/domain/browser-measurement';

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { Check, AlertTriangle, Circle } from 'lucide-react';
 import { LISTING_CHAPTERS, stepHref } from '@/lib/domain/listing-steps';
 import { SubmitBar } from './ListingSections';

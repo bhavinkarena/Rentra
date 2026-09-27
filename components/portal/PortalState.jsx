@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { CloudOff, FileQuestion, LockKeyhole } from 'lucide-react';
 import RetryButton from './RetryButton';
 

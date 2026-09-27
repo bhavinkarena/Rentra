@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { staffApi } from '@/lib/api/endpoints';
 import { staffSession } from '@/lib/api/session';
 import { settle } from '@/lib/api/page-state';

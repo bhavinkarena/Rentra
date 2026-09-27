@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import ListingCard from './ListingCard';
 import DiscoveryFilters from './DiscoveryFilters';
 import { formatLocalDate } from '@/lib/domain/booking-dates';
@@ -13,7 +13,7 @@ import {
 import { discoveryApi } from '@/lib/api/endpoints';
 
 const slotLabels = { day: 'Day visit', night: 'Overnight', full_day: 'Full day' };
-export default async function DiscoveryResults({ query, registry, route = null }) {
+export default async function DiscoveryResults({ query, registry: registryInput, route = null }) {
   const { filters, errors } = parseDiscoveryQuery({
     ...query,
     ...(route?.intent?.slot && !query.slot ? { slot: route.intent.slot } : {}),
@@ -30,6 +30,7 @@ export default async function DiscoveryResults({ query, registry, route = null }
       failed = true;
     }
   }
+  const registry = await registryInput;
   const messages = [...errors, ...(result.errors ?? [])];
   const path = route?.path || '/search';
   const href = (changes) => `${path}?${discoveryQuery(filters, { page: 1, ...changes })}`;

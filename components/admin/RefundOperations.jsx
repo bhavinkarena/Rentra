@@ -1,6 +1,6 @@
-import Form from 'next/form';
+import Form from '@/components/navigation/NavigationForm';
 import { randomUUID } from 'node:crypto';
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { TriangleAlert } from 'lucide-react';
 import { AdminEmpty, AdminPage, AdminPageHeader, StatusBadge } from './AdminPrimitives';
 import { FieldGrid, SectionCard } from '@/components/portal/DetailLayout';

@@ -1,5 +1,5 @@
 import { publicMetadata } from '@/lib/seo/metadata';
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import Image from 'next/image';
 import SearchBar from '@/components/rentra/SearchBar';
 import ListingCard from '@/components/rentra/ListingCard';

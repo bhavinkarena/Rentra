@@ -1,5 +1,5 @@
 'use client';
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { usePathname } from 'next/navigation';
 import { Compass, Heart, CalendarDays } from 'lucide-react';
 import { useSavedPlaces } from './SavedPlacesProvider';

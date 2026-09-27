@@ -1,6 +1,6 @@
 import LocationMap from '@/components/rentra/listing/LocationMap';
 import { publicMetadata, serializeJsonLd } from '@/lib/seo/metadata';
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { cache, Suspense } from 'react';
 import { connection } from 'next/server';
 import { notFound, permanentRedirect } from 'next/navigation';

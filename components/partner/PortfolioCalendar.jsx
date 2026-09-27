@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 
 const style = 'min-h-11 rounded-md border border-border bg-card px-3 py-2';
 const time = (value) =>

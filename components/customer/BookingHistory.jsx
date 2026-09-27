@@ -1,5 +1,5 @@
-import Form from 'next/form';
-import Link from 'next/link';
+import Form from '@/components/navigation/NavigationForm';
+import Link from '@/components/navigation/NavigationLink';
 import { ArrowUpRight, CalendarDays, Search } from 'lucide-react';
 import { bookingMoney as money } from '@/lib/domain/booking-record';
 import { linkClass, badge, PropertyPhoto, totalPrice } from './BookingDisplay';

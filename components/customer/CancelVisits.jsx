@@ -1,7 +1,7 @@
 'use client';
 import RentraLoader from '@/components/ui/rentra-loader';
 
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { useRef, useState } from 'react';
 import { previewCustomerCancellation, cancelCustomerVisits } from '@/lib/actions/customer';
 import { bookingMoney as money, bookingTime as time } from '@/lib/domain/booking-record';

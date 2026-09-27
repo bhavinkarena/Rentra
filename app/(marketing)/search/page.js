@@ -6,11 +6,7 @@ export default async function SearchPage({ searchParams }) {
   return (
     <DiscoveryResults
       query={await searchParams}
-      registry={await degradeOnFailure(
-        () => discoveryApi.registry(),
-        EMPTY_REGISTRY,
-        'search registry',
-      )}
+      registry={degradeOnFailure(() => discoveryApi.registry(), EMPTY_REGISTRY, 'search registry')}
     />
   );
 }

@@ -31,7 +31,7 @@ const api = createServer((req, res) => {
         capabilities: ['client.listings.write', 'client.records.read'],
       };
   let data;
-  if (url.pathname === '/api/v1/auth/me') data = { user };
+  if (['/api/v1/auth/me', '/api/v1/auth/identity'].includes(url.pathname)) data = { user };
   else if (failReads) {
     res.writeHead(503, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ success: false }));

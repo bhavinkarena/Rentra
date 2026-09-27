@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { ArrowRight, Bell, Building2, CircleAlert, Clock3, Eye, ShieldCheck } from 'lucide-react';
 import { requireClient, getCurrentUserWithCompletion } from '@/lib/api/session';
 import { lockedCtaMessage } from '@/lib/domain/profile-completion';

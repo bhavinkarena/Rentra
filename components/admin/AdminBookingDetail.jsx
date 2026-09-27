@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { CalendarDays, Clock, Globe, MapPin, Phone, UserRound } from 'lucide-react';
 import { bookingMoney as money, bookingTime as time } from '@/lib/domain/booking-record';
 import { VisitLifecycle } from '@/components/customer/VisitLifecycle';

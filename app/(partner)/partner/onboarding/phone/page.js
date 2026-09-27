@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { redirect } from 'next/navigation';
 import { ArrowLeft, Check } from 'lucide-react';
 import { requireClient } from '@/lib/api/session';

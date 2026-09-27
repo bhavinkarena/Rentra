@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/navigation/NavigationLink';
 import { RentraLogo, RentraMark } from '@/components/rentra/Logo';
 import CustomerNavigation from '@/components/customer/CustomerNavigation';
 import { redirect } from 'next/navigation';
