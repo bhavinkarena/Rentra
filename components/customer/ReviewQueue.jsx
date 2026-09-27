@@ -18,19 +18,12 @@ export default function ReviewQueue({ data, admin = false }) {
             <p>Status: {r.moderation_state}</p>
             <p className="whitespace-pre-wrap break-words">{r.body}</p>
             {r.owner_reply ? <p>Owner reply: {r.owner_reply}</p> : null}
-            <ReviewControl
-              key={`${r.id}-${r.version}`}
-              kind={admin ? 'moderate' : 'reply'}
-              id={r.id}
-              version={r.version}
-              body={admin ? '' : r.owner_reply || ''}
-            />
-            {!admin ? (
-              <details>
-                <summary className="min-h-11 cursor-pointer">Report review or reply</summary>
-                <ReviewControl kind="ownerReport" id={r.id} />
-              </details>
-            ) : null}
+            <Link
+              className="inline-flex min-h-11 items-center underline"
+              href={`${admin ? '/admin' : '/partner'}/reviews/${r.id}`}
+            >
+              Review detail and history
+            </Link>
           </li>
         ))}
       </ul>

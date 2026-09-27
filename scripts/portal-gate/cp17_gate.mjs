@@ -277,6 +277,67 @@ try {
     'admin empty filtered queue',
     await ap.getByRole('heading', { name: 'No requests match this view' }).isVisible(),
   );
+  // The public admin reply created a CP15 update that opens this support thread.
+  const updates = await owner.newPage();
+  updates.setDefaultTimeout(30000);
+  await updates.goto(`${web}/partner/updates`, { waitUntil: 'networkidle' });
+  await updates
+    // The visually hidden title is its own box, so the accessible name reads "Open : …".
+    .getByRole('button', { name: /^Open\s*:\s*Rentra replied to your support request$/ })
+    .first()
+    .click();
+  await updates.waitForURL(new RegExp(`/partner/support/${id}$`));
+  check('support update deep-links to the support thread', true);
+  // Customer reply with a private photo through the customer thread UI.
+  const cp = await customer.newPage();
+  cp.setDefaultTimeout(30000);
+  await cp.goto(`${web}/support/${guest.id}`, { waitUntil: 'networkidle' });
+  await cp
+    .getByLabel('Your reply', { exact: true })
+    .fill('Photo of the side gate from our arrival.');
+  await cp
+    .getByLabel('Private photos', { exact: true })
+    .setInputFiles({ name: 'gate.png', mimeType: 'image/png', buffer: png });
+  await cp.getByRole('button', { name: 'Save reply and status' }).click();
+  const customerLink = cp.getByRole('link', { name: 'Private photo 1', exact: true });
+  await customerLink.waitFor();
+  const customerDownload = await customer.request.get(
+    web + (await customerLink.getAttribute('href')),
+  );
+  check(
+    'customer reply with photo persists and downloads',
+    customerDownload.ok() && customerDownload.headers()['content-type'].includes('image/png'),
+  );
+  const customerPhoto = (
+    await (await customer.request.get(`${api}/customer/support/${guest.id}`)).json()
+  ).data.messages.flatMap((m) => m.attachments ?? [])[0].id;
+  check(
+    'owner cannot fetch the customer photo',
+    (
+      await owner.request.get(`${api}/partner/support/${guest.id}/attachments/${customerPhoto}`)
+    ).status() === 404,
+  );
+  check(
+    'malformed photo id is 404',
+    (await owner.request.get(`${root}/attachments/not-a-uuid`)).status() === 404,
+  );
+  const managed = (await (await admin.request.get(`${api}/admin/support/${id}`)).json()).data;
+  check(
+    'malformed assignment input refused',
+    (
+      await admin.request.post(`${api}/admin/support/${id}/manage`, {
+        data: { ...raceInput, version: managed.version, priority: 'critical' },
+      })
+    ).status() === 422,
+  );
+  check(
+    'read-only admin cannot be assigned',
+    (
+      await admin.request.post(`${api}/admin/support/${id}/manage`, {
+        data: { ...raceInput, version: managed.version, assignedTo: f.ids.limited },
+      })
+    ).status() === 422,
+  );
   completed = true;
 } finally {
   await browser.close();

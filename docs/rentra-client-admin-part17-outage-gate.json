@@ -5,7 +5,7 @@
       "pass": true
     },
     {
-      "check": "Retryable support outage /partner/support/3db57d2a-1619-4967-9161-4946532138ec",
+      "check": "Retryable support outage /partner/support/bc6565b1-46c0-470d-9ea5-4bfaa021fd40",
       "pass": true
     },
     {
@@ -13,7 +13,7 @@
       "pass": true
     },
     {
-      "check": "Retryable support outage /admin/support/3db57d2a-1619-4967-9161-4946532138ec",
+      "check": "Retryable support outage /admin/support/bc6565b1-46c0-470d-9ea5-4bfaa021fd40",
       "pass": true
     }
   ]

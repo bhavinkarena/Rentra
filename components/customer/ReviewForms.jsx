@@ -1,7 +1,8 @@
 'use client';
+import { useRouter } from 'next/navigation';
 import RentraLoader from '@/components/ui/rentra-loader';
 
-import { useActionState } from 'react';
+import { useActionState, useState, useTransition } from 'react';
 import { submitCustomerReview, customerReviewReport } from '@/lib/actions/customer';
 import { ownerReviewReply, ownerReviewReport } from '@/lib/actions/partner';
 import { moderateCustomerReview, resolveReviewReport } from '@/lib/actions/admin';
@@ -78,8 +79,26 @@ export function ReviewControl({ kind, id, version, body = '' }) {
   }[kind];
   const [state, action, pending] = useActionState(fn, {});
   const report = kind === 'report' || kind === 'ownerReport';
+  const [edited, setEdited] = useState(false);
+  const [, startTransition] = useTransition();
+  const router = useRouter();
+  const guarded = ['reply', 'moderate'].includes(kind);
+  const preview = edited ? null : state.preview;
   return (
-    <form action={action} className="space-y-3">
+    <form
+      className="space-y-3"
+      onChange={() => setEdited(true)}
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        if (guarded) {
+          data.set('mode', preview ? 'apply' : 'preview');
+          if (preview) data.set('previewToken', preview.token);
+        }
+        setEdited(false);
+        startTransition(() => action(data));
+      }}
+    >
       <input type="hidden" name="id" value={id} />
       <input type="hidden" name="version" value={version ?? 0} />
       {kind === 'moderate' ? (
@@ -92,6 +111,18 @@ export function ReviewControl({ kind, id, version, body = '' }) {
           </select>
         </label>
       ) : null}
+      {kind === 'moderate' && (
+        <label className="block">
+          Policy basis
+          <select className={field} name="category">
+            <option value="meets_policy">Meets policy, regardless of score</option>
+            <option value="private_information">Private information</option>
+            <option value="harassment">Harassment</option>
+            <option value="spam">Spam</option>
+            <option value="unrelated_content">Unrelated content</option>
+          </select>
+        </label>
+      )}
       <label className="block">
         {kind === 'reply'
           ? 'Owner reply'
@@ -102,6 +133,15 @@ export function ReviewControl({ kind, id, version, body = '' }) {
               : 'Policy reason (shared with author)'}
         <textarea
           className={field}
+          aria-label={
+            kind === 'reply'
+              ? 'Owner reply'
+              : kind === 'resolve'
+                ? 'Resolution'
+                : report
+                  ? 'Report reason'
+                  : 'Policy reason (shared with author)'
+          }
           name={kind === 'reply' ? 'body' : kind === 'resolve' ? 'resolution' : 'reason'}
           defaultValue={body}
           required
@@ -112,6 +152,12 @@ export function ReviewControl({ kind, id, version, body = '' }) {
       <button disabled={pending} className="min-h-11 rounded border border-border px-4">
         {pending ? (
           <RentraLoader label="Saving…" />
+        ) : guarded ? (
+          preview ? (
+            'Confirm publication change'
+          ) : (
+            'Preview publication change'
+          )
         ) : kind === 'reply' ? (
           'Save owner reply'
         ) : kind === 'resolve' ? (
@@ -122,6 +168,33 @@ export function ReviewControl({ kind, id, version, body = '' }) {
           'Save moderation decision'
         )}
       </button>
+      {preview && (
+        <section
+          role="status"
+          aria-label="Publication preview"
+          className="space-y-3 rounded border border-border p-4"
+        >
+          <h3 className="font-semibold">Review before confirming</h3>
+          <p>{preview.effect}</p>
+          <p>Original rating: {preview.rating}/5</p>
+          <blockquote className="whitespace-pre-wrap break-words">{preview.body}</blockquote>
+          {preview.ownerReply && (
+            <p className="whitespace-pre-wrap break-words">
+              Public owner reply: {preview.ownerReply}
+            </p>
+          )}
+          {preview.values.reason && <p>Reason shared with the author: {preview.values.reason}</p>}
+          <p>Nothing has been saved.</p>
+          <button type="button" className="min-h-11 underline" onClick={() => setEdited(true)}>
+            Cancel preview
+          </button>
+        </section>
+      )}
+      {state.code === 'CHANGED' && (
+        <button type="button" className="min-h-11 underline" onClick={() => router.refresh()}>
+          Reload review
+        </button>
+      )}
       <Result state={state} />
     </form>
   );

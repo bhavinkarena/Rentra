@@ -263,6 +263,19 @@ DELIVERED = {
       <li>No owner picker for a caretaker working for several owners.</li>
       <li>No per-caretaker activity reports beyond attribution and history.</li>
       <li>No hosted environment or human screen-reader pass.</li></ul></div>''',
+    "CP17": '''<div class="card"><span class="num">CP17 · complete</span><h3>Client support and assigned admin cases</h3><p>Participant-scoped support for owners alongside customer support:</p>
+      <ul><li><code>/partner/support</code>: threads about the owner's own property or booking; foreign ids are refused and client and customer threads never share messages.</li>
+      <li>Admin inbox filters by participant, state and assignment. Detail offers version-guarded assignment to active support operators, priority, and an admin-only related-case link.</li>
+      <li>Replies are either participant-visible or internal notes. Up to 3 private photos per message are sniffed from bytes and audited; internal photos are admin-only.</li>
+      <li>Duplicate replies persist once, stale replies keep the typed text, a key reused on another case is refused, and a storage failure saves nothing.</li>
+      <li>A public reply creates one CP15 update that opens the thread; customers reply with private photos too.</li></ul>
+      <p class="small"><strong>Gate passed — 27 September 2026:</strong> backend <strong>112/112</strong> with the original and extended CP17 integration tests; <strong>39/39</strong> browser/API checks (<code>completed: true</code>) plus <strong>4/4</strong> outage checks; CP14 34/34 and CP13 31/31 as regression. Frontend 23/23, lint, format and webpack build passed. Migration <code>0032</code> applied to the configured database (33 of 33 recorded). <a href="rentra-client-admin-part17.md">Handoff, scope resolution and runbook ↗</a></p></div>
+    <div class="card"><span class="num">CP17 · explicitly not delivered</span><h3>Limits recorded at the gate</h3>
+      <ul><li>No email or SMS for support replies; owners get the in-app update, and customers return to their thread.</li>
+      <li>No application or payout references (applicants use the application flow; payouts wait for CP22) and no direct link from a support thread to a booking case.</li>
+      <li>No orphan-object sweeper and no automatic retention deletion for private photos.</li>
+      <li>The CP15/CP16 Python regression runners were not run here; no hosted environment or human screen-reader pass.</li></ul></div>''',
+    "CP18": '''<div class="card"><span class="num">CP18 · complete</span><h3>Review detail and moderation history</h3><ul><li>Owner/admin detail with property and booking links, scoped reports, resolutions and retained reply/moderation history.</li><li>Signed publication/reply previews, version checks and reasoned policy decisions; guest text and ratings remain immutable.</li><li>Score-neutral publication, independent report closure and consistent public listing/search aggregates.</li></ul><p>Gate: backend 111/111, frontend 23/23, browser/API 34/34 and outage 4/4. No CP18 migration. CP17 remains in progress independently. <a href="rentra-client-admin-part18.md">CP18 handoff and limits ↗</a></p></div>''',
 }
 missing = [key for key, status in statuses.items() if status == "COMPLETE" and key not in DELIVERED]
 assert not missing, f"Add DELIVERED cards for {missing}"

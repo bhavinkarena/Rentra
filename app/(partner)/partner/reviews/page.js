@@ -1,11 +1,10 @@
 import { partnerApi } from '@/lib/api/endpoints';
-import ReviewQueue from '@/components/customer/ReviewQueue';
-export const metadata = { title: 'Customer reviews', robots: { index: false, follow: false } };
+import { settle } from '@/lib/api/page-state';
+import PortalState from '@/components/portal/PortalState';
+import Queue from '@/components/customer/ReviewQueue';
+export const metadata = { title: 'Reviews', robots: { index: false, follow: false } };
 export default async function Page({ searchParams }) {
-  return (
-    <ReviewQueue
-      admin={false}
-      data={await partnerApi.reviews({ page: (await searchParams)?.page })}
-    />
-  );
+  const { data, failure } = await settle(partnerApi.reviews({ page: (await searchParams)?.page }));
+  if (failure) return <PortalState kind={failure} backHref="/partner" />;
+  return <Queue data={data} />;
 }

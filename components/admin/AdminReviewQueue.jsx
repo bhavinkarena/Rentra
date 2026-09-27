@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { Flag, MessageSquareWarning, ShieldCheck, Star } from 'lucide-react';
-import { ReviewControl } from '@/components/customer/ReviewForms';
 import {
   AdminEmpty,
   AdminKpiCard,
@@ -73,7 +72,7 @@ export default function AdminReviewQueue({ data }) {
                       {review.moderation_state}
                     </StatusBadge>
                   </div>
-                  <p className="mt-2 text-tiny font-semibold text-amber-700">
+                  <p className="mt-2 text-tiny font-semibold text-amber-900">
                     {'★'.repeat(review.rating)}
                     {'☆'.repeat(5 - review.rating)} · {review.rating}/5
                   </p>
@@ -88,12 +87,12 @@ export default function AdminReviewQueue({ data }) {
                   ) : null}
                 </div>
                 <div className="rounded-lg border border-border bg-ink-25 p-4">
-                  <ReviewControl
-                    key={`${review.id}-${review.version}`}
-                    kind="moderate"
-                    id={review.id}
-                    version={review.version}
-                  />
+                  <Link
+                    className="inline-flex min-h-11 items-center underline"
+                    href={`/admin/reviews/${review.id}`}
+                  >
+                    Review detail and moderation
+                  </Link>
                 </div>
               </li>
             ))}
@@ -135,8 +134,12 @@ export default function AdminReviewQueue({ data }) {
                   </p>
                 </div>
                 <div className="space-y-4">
-                  <ReviewControl kind="moderate" id={report.review_id} version={report.version} />
-                  <ReviewControl kind="resolve" id={report.id} />
+                  <Link
+                    className="inline-flex min-h-11 items-center underline"
+                    href={`/admin/reviews/${report.review_id}#report-${report.id}`}
+                  >
+                    Report detail and resolution
+                  </Link>
                 </div>
               </article>
             ))}
