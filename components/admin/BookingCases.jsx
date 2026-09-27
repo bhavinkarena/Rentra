@@ -1,3 +1,4 @@
+import Form from 'next/form';
 import { randomUUID } from 'node:crypto';
 import Link from 'next/link';
 import { ClipboardList, Search } from 'lucide-react';
@@ -71,7 +72,7 @@ export function BookingCaseList({ data }) {
           All
         </Link>
       </nav>
-      <form
+      <Form
         action="/admin/booking-cases"
         className="mt-4 flex flex-wrap items-end gap-2"
         role="search"
@@ -105,7 +106,7 @@ export function BookingCaseList({ data }) {
           <Search className="size-4" aria-hidden="true" />
           Filter
         </button>
-      </form>
+      </Form>
       <div className="mt-6">
         {data.items.length ? (
           <ul className="divide-y divide-border rounded-lg border border-border bg-card">

@@ -1,3 +1,4 @@
+import Form from 'next/form';
 import Link from 'next/link';
 import { requireAdmin } from '@/lib/api/session';
 import { adminApi } from '@/lib/api/endpoints';
@@ -94,7 +95,7 @@ export default async function PropertyReviewQueue({ searchParams }) {
               </Link>
             ))}
           </nav>
-          <form className="flex items-end gap-2" action="/admin/properties" role="search">
+          <Form className="flex items-end gap-2" action="/admin/properties" role="search">
             <input type="hidden" name="status" value={data.status} />
             <input type="hidden" name="assignee" value={data.assignee} />
             <label className="text-tiny font-semibold text-ink-600">
@@ -109,7 +110,7 @@ export default async function PropertyReviewQueue({ searchParams }) {
             <button className="min-h-10 rounded-md bg-brand-700 px-4 text-tiny font-semibold text-white">
               Search
             </button>
-          </form>
+          </Form>
         </div>
       </div>
       <p className="mt-5 mb-3 text-meta text-ink-600">

@@ -38,12 +38,12 @@ export default async function PartnerDashboard() {
   /* `/auth/me` returns the completion state alongside the actor, so the
      application and the KYC list are not two further round trips. */
   const { completion } = await getCurrentUserWithCompletion();
-  const application = await partnerApi.application();
-
   const locked = lockedCtaMessage(completion);
-  const summary = completion.canPublish ? await partnerApi.summary() : EMPTY_SUMMARY;
-  // Tasks and updates load independently: a failure shows a retry, never zeros.
-  const [tasks, updates] = await Promise.all([
+  // Independent reads start together after authorization. Approved partners
+  // never render the onboarding application, so do not fetch it for them.
+  const [application, summary, tasks, updates] = await Promise.all([
+    completion.approved ? null : partnerApi.application(),
+    completion.canPublish ? partnerApi.summary() : EMPTY_SUMMARY,
     completion.approved ? settle(partnerApi.tasks()) : null,
     settle(partnerApi.updates({ page: 1 })),
   ]);

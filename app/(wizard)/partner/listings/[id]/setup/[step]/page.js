@@ -53,9 +53,29 @@ export default async function SetupStepPage({ params }) {
   if (!isListingStep(stepId)) notFound();
 
   /* Scoped to this Client on the API — another Client's id answers 404. */
-  const { data, failure } = await settle(partnerApi.listing(id));
+  const [listingResult, referenceResult] = await Promise.all([
+    settle(partnerApi.listing(id)),
+    settle(
+      stepId === 'amenities'
+        ? partnerApi.amenityCatalogue()
+        : stepId === 'basics'
+          ? partnerApi.categories()
+          : stepId === 'location'
+            ? partnerApi.places()
+            : Promise.resolve(null),
+    ),
+  ]);
+  const { data, failure } = listingResult;
   if (failure)
     return <PortalState kind={failure} backHref="/partner/listings" backLabel="All properties" />;
+  if (referenceResult.failure)
+    return (
+      <PortalState
+        kind={referenceResult.failure}
+        backHref="/partner/listings"
+        backLabel="All properties"
+      />
+    );
 
   const { listing, prices, amenities, photos, documents } = data;
   const completion = listingCompletion(listing, data);
@@ -64,11 +84,9 @@ export default async function SetupStepPage({ params }) {
 
   // Only fetch what this step actually renders. The amenity catalogue has no
   // business being queried on the pricing step.
-  const [catalogue, categories, cities] = await Promise.all([
-    stepId === 'amenities' ? partnerApi.amenityCatalogue() : null,
-    stepId === 'basics' ? partnerApi.categories() : null,
-    stepId === 'location' ? partnerApi.places() : null,
-  ]);
+  const catalogue = stepId === 'amenities' ? referenceResult.data : null;
+  const categories = stepId === 'basics' ? referenceResult.data : null;
+  const cities = stepId === 'location' ? referenceResult.data : null;
 
   const next = nextStepId(stepId);
   const prev = prevStepId(stepId);

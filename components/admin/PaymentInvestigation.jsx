@@ -1,3 +1,4 @@
+import Form from 'next/form';
 import { randomUUID } from 'node:crypto';
 import Link from 'next/link';
 import { ReceiptText, Search, TriangleAlert } from 'lucide-react';
@@ -149,7 +150,7 @@ export function PaymentList({ data }) {
         </Link>
       </nav>
       <Totals totals={data.totals} asOf={data.asOf} />
-      <form
+      <Form
         action="/admin/finance/payments"
         role="search"
         className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5"
@@ -181,7 +182,7 @@ export function PaymentList({ data }) {
         <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded bg-brand-700 px-4 font-semibold text-white lg:col-start-5">
           <Search className="size-4" aria-hidden="true" /> Filter
         </button>
-      </form>
+      </Form>
       <div className="mt-6">
         {data.items.length ? (
           <ul className="divide-y divide-border rounded-lg border border-border bg-card">

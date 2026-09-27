@@ -101,8 +101,8 @@ export default function PartnerShell({ children, user, logoutAction, counts = {}
       // Not a link: the required step is stated in text, not only a hover title.
       locked: Boolean(item.capability && !user.capabilities?.includes(item.capability)),
       lockedNote: 'After your partner profile is approved',
-      // Only a real, positive count is shown: no empty badges.
-      badge: item.badgeKey && counts[item.badgeKey] > 0 ? counts[item.badgeKey] : undefined,
+      // The server streams a positive count (or null) after the shell is ready.
+      badge: item.badgeKey ? counts[item.badgeKey] : undefined,
     })),
   }));
 

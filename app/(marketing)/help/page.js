@@ -1,3 +1,4 @@
+import Form from 'next/form';
 import { publicMetadata } from '@/lib/seo/metadata';
 import Link from 'next/link';
 import { faqs, supportContact } from '@/lib/domain/help';
@@ -24,7 +25,7 @@ export default async function Help({ searchParams }) {
         <h1 className="text-h1">Help and support</h1>
         <p className="mt-3">Practical answers for planning, booking and visiting.</p>
       </header>
-      <form action="/help" className="flex flex-wrap items-end gap-3">
+      <Form action="/help" className="flex flex-wrap items-end gap-3">
         <label className="min-w-0 flex-1">
           Search help
           <input
@@ -36,7 +37,7 @@ export default async function Help({ searchParams }) {
           />
         </label>
         <button className="min-h-11 rounded bg-brand-700 px-5 text-white">Search help</button>
-      </form>
+      </Form>
       <section>
         <h2 className="text-h3">{q ? `${results.length} matching answers` : 'Common questions'}</h2>
         <div className="mt-4 space-y-3">

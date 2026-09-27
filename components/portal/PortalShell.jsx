@@ -122,15 +122,15 @@ function NavItem({ item, pathname, rail, onNavigate }) {
         <span
           className={
             rail
-              ? 'absolute -top-0.5 -right-0.5 grid min-w-4 place-items-center rounded-full bg-amber-300 px-1 text-[0.6rem] font-bold text-brand-950'
-              : 'ml-auto rounded-full bg-amber-300 px-1.5 text-[0.65rem] font-bold text-brand-950 tabular'
+              ? 'absolute -top-0.5 -right-0.5 grid min-w-4 place-items-center rounded-full bg-amber-300 px-1 text-[0.6rem] font-bold text-brand-950 empty:hidden'
+              : 'ml-auto rounded-full bg-amber-300 px-1.5 text-[0.65rem] font-bold text-brand-950 tabular empty:hidden'
           }
         >
           {item.badge}
-          <span className="sr-only"> waiting</span>
+          {typeof item.badge === 'number' ? <span className="sr-only"> waiting</span> : null}
         </span>
       ) : null}
-      {!rail && !item.badge ? <PendingHint /> : null}
+      {!rail ? <PendingHint /> : null}
     </Link>
   );
 }

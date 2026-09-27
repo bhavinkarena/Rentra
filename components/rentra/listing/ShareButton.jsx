@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Check, Copy, MessageCircle, Share2 } from 'lucide-react';
-import toast from 'react-hot-toast';
 import { copyListingUrl, shareListing, whatsappListingUrl } from '@/lib/domain/listing-share';
 import { measureBrowser } from '@/lib/domain/browser-measurement';
 
@@ -15,6 +14,7 @@ import { measureBrowser } from '@/lib/domain/browser-measurement';
  */
 export default function ShareButton({ title, text, url }) {
   const [copied, setCopied] = useState(false);
+  const [message, setMessage] = useState('');
 
   async function onClick() {
     measureBrowser('share_attempted');
@@ -22,9 +22,9 @@ export default function ShareButton({ title, text, url }) {
     if (['shared', 'copied'].includes(result)) measureBrowser('share_completed');
     if (result === 'copied') {
       setCopied(true);
-      toast.success('Link copied');
+      setMessage('Link copied');
       setTimeout(() => setCopied(false), 2000);
-    } else if (result === 'failed') toast.error('Could not share or copy the link');
+    } else if (result === 'failed') setMessage('Could not share or copy the link');
   }
 
   return (
@@ -53,8 +53,8 @@ export default function ShareButton({ title, text, url }) {
             if (result === 'copied') measureBrowser('share_completed');
             if (result === 'copied') {
               setCopied(true);
-              toast.success('Link copied');
-            } else toast.error('Could not copy the link');
+              setMessage('Link copied');
+            } else setMessage('Could not copy the link');
           }}
           className="flex min-h-11 w-full items-center gap-2 rounded-sm px-3 text-left text-meta font-semibold hover:bg-ink-50"
         >
@@ -69,6 +69,9 @@ export default function ShareButton({ title, text, url }) {
         >
           <MessageCircle className="size-4" aria-hidden="true" /> WhatsApp
         </a>
+        <p role="status" aria-live="polite" className="px-3 text-tiny text-ink-600">
+          {message}
+        </p>
       </div>
     </details>
   );

@@ -1,3 +1,4 @@
+import Form from 'next/form';
 import Link from 'next/link';
 import { AlertTriangle, Clock, Inbox, MousePointerClick, RotateCcw, UserCheck } from 'lucide-react';
 import { AdminEmpty, Pager, StatusBadge } from './AdminPrimitives';
@@ -50,7 +51,7 @@ export default function ApplicationQueue({ data }) {
                 : 'Most recently changed first'}
             </p>
           </div>
-          <form action="/admin" className="flex items-end gap-2" role="search">
+          <Form action="/admin" className="flex items-end gap-2" role="search">
             {data.status !== 'submitted' ? (
               <input type="hidden" name="status" value={data.status} />
             ) : null}
@@ -69,7 +70,7 @@ export default function ApplicationQueue({ data }) {
             <button className="min-h-10 rounded-md bg-brand-700 px-4 text-tiny font-semibold text-white">
               Search
             </button>
-          </form>
+          </Form>
         </div>
         <nav aria-label="Filter by status" className="flex flex-wrap gap-2">
           {Object.entries(STATUS).map(([key, text]) => (

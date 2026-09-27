@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { RentraLogo } from '@/components/rentra/Logo';
 import { getCurrentUser } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
@@ -25,12 +26,14 @@ export default async function PartnerLayout({ children }) {
 
   if (user) {
     // The badge is a convenience: an outage leaves it off rather than failing the page.
-    const unread = user.capabilities?.includes('client.updates.read')
-      ? await partnerApi.unreadUpdates().catch(() => null)
-      : null;
+    const unread = user.capabilities?.includes('client.updates.read') ? (
+      <Suspense fallback={null}>
+        <UnreadUpdatesCount />
+      </Suspense>
+    ) : null;
     return (
       <div className={portalFont.variable}>
-        <PartnerShell user={user} logoutAction={logout} counts={{ unreadUpdates: unread?.unread }}>
+        <PartnerShell user={user} logoutAction={logout} counts={{ unreadUpdates: unread }}>
           {children}
         </PartnerShell>
       </div>
@@ -61,4 +64,14 @@ export default async function PartnerLayout({ children }) {
       <main className="flex-1">{children}</main>
     </div>
   );
+}
+
+async function UnreadUpdatesCount() {
+  const result = await partnerApi.unreadUpdates().catch(() => null);
+  return result?.unread > 0 ? (
+    <>
+      {result.unread}
+      <span className="sr-only"> unread updates</span>
+    </>
+  ) : null;
 }

@@ -1,3 +1,4 @@
+import Form from 'next/form';
 import Link from 'next/link';
 import SupportManagement from './SupportManagement';
 import { randomUUID } from 'node:crypto';
@@ -76,7 +77,7 @@ export function AdminSupportList({ data }) {
               Most recently updated first · Loaded {time(new Date())}
             </p>
           </div>
-          <form action="/admin/support" className="flex flex-wrap items-end gap-2">
+          <Form action="/admin/support" className="flex flex-wrap items-end gap-2">
             <label className="text-tiny font-semibold text-ink-600">
               Status
               <select
@@ -119,7 +120,7 @@ export function AdminSupportList({ data }) {
             <button className="min-h-10 rounded-md bg-brand-700 px-4 text-tiny font-semibold text-white">
               Filter
             </button>
-          </form>
+          </Form>
         </div>
         {data.items.length ? (
           <div

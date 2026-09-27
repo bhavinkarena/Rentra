@@ -1,3 +1,4 @@
+import Form from 'next/form';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -87,7 +88,7 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
         )}
       </header>
       <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
-        <form action={base} className="flex items-end gap-3">
+        <Form action={base} className="flex items-end gap-3">
           <input type="hidden" name="tab" value={data.tab} />
           {data.property && <input type="hidden" name="property" value={data.property} />}
           <label className="min-w-0 flex-1">
@@ -106,7 +107,7 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
           <button className="min-h-12 rounded-xl bg-brand-700 px-5 text-sm font-semibold text-white hover:bg-brand-800">
             Search
           </button>
-        </form>
+        </Form>
         <nav aria-label="Booking history filters" className="mt-5 flex gap-2 overflow-x-auto pb-1">
           {(operational
             ? ['all', 'today', 'upcoming', 'action_needed', 'past', 'cancelled']

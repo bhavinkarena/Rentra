@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { settle } from '@/lib/api/page-state';
 import PortalState from '@/components/portal/PortalState';
 import { RentraLogo } from '@/components/rentra/Logo';
@@ -25,15 +26,17 @@ export default async function AdminLayout({ children }) {
 
   if (admin) {
     // Sidebar badge only; a failure (or missing permission) just hides it.
-    const stats = admin.capabilities?.includes('admin.applications.read')
-      ? await adminApi.applicationStats().catch(() => null)
-      : null;
+    const applications = admin.capabilities?.includes('admin.applications.read') ? (
+      <Suspense fallback={null}>
+        <WaitingApplicationsCount />
+      </Suspense>
+    ) : null;
     return (
       <div className={portalFont.variable}>
         <AdminShell
           admin={admin}
           logoutAction={adminLogout}
-          counts={{ waitingApplications: stats?.submitted || undefined }}
+          counts={{ waitingApplications: applications }}
         >
           {children}
         </AdminShell>
@@ -57,4 +60,14 @@ export default async function AdminLayout({ children }) {
       <main className="flex-1">{children}</main>
     </div>
   );
+}
+
+async function WaitingApplicationsCount() {
+  const result = await adminApi.applicationStats().catch(() => null);
+  return result?.submitted > 0 ? (
+    <>
+      {result.submitted}
+      <span className="sr-only"> waiting applications</span>
+    </>
+  ) : null;
 }

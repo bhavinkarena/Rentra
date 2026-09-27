@@ -3,8 +3,7 @@ import RentraLoader from '@/components/ui/rentra-loader';
 
 import { startTransition, useSyncExternalStore } from 'react';
 import { useSavedPlaces } from '@/components/customer/SavedPlacesProvider';
-import { useAppSelector } from '@/lib/store/hooks';
-import { useBookingQuote } from './listing/BookingQuoteProvider';
+import { useBookingQuote } from './listing/booking-context';
 import { Heart } from 'lucide-react';
 
 const subscribe = () => () => {};
@@ -25,7 +24,6 @@ export default function SaveButton({
   selection: suppliedSelection,
 }) {
   const places = useSavedPlaces();
-  const search = useAppSelector((state) => state.search);
   const context = useBookingQuote();
   const booking = context?.rentableId === rentableId ? context : null;
   // Streamed cards may hydrate after the provider has already loaded saves.
@@ -39,7 +37,8 @@ export default function SaveButton({
   function onClick(e) {
     e.preventDefault();
     e.stopPropagation();
-    const date = booking?.date ?? search.date;
+    // Cards receive search selection from the server; listings use booking context.
+    const date = booking?.date;
     const selection =
       suppliedSelection !== undefined
         ? suppliedSelection
@@ -47,8 +46,8 @@ export default function SaveButton({
           ? {
               rentableId,
               dates: booking?.dates ?? [date],
-              slot: booking?.slot ?? search.slot,
-              guests: booking?.guests ?? search.guests,
+              slot: booking.slot,
+              guests: booking.guests,
             }
           : null;
     startTransition(() => places.change(rentableId, !saved, selection));

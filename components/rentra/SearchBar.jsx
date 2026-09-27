@@ -1,9 +1,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useState, useTransition } from 'react';
 import { Search } from 'lucide-react';
-import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
-import { setField, selectSearch } from '@/lib/store/slices/searchSlice';
 import { SLOTS } from '@/lib/domain/pricing';
 import { measureBrowser } from '@/lib/domain/browser-measurement';
 
@@ -11,14 +10,16 @@ import { measureBrowser } from '@/lib/domain/browser-measurement';
  * Where / When / Slot / Guests — four cells, which is the maximum that stays
  * usable on mobile. The Slot cell is what no reference site has.
  *
- * This is client state (Redux) driving a navigation. It does NOT fetch
+ * These are local form drafts driving a navigation. It does NOT fetch
  * listings — results are rendered by a Server Component at the target route,
  * so the results page stays indexable.
  */
 export default function SearchBar() {
   const router = useRouter();
-  const dispatch = useAppDispatch();
-  const { area, date, slot, guests } = useAppSelector(selectSearch);
+  const [fields, setFields] = useState({ area: '', date: '', slot: 'day', guests: 2 });
+  const { area, date, slot, guests } = fields;
+  const [pending, startNavigation] = useTransition();
+  const setField = (field, value) => setFields((previous) => ({ ...previous, [field]: value }));
 
   function onSubmit(e) {
     e.preventDefault();
@@ -28,7 +29,7 @@ export default function SearchBar() {
     if (slot) params.set('slot', slot);
     if (guests) params.set('guests', String(guests));
     if (area.trim()) params.set('q', area.trim());
-    router.push(`/search?${params.toString()}`);
+    startNavigation(() => router.push(`/search?${params.toString()}`));
   }
 
   return (
@@ -39,7 +40,7 @@ export default function SearchBar() {
       <Cell label="Where">
         <input
           value={area}
-          onChange={(e) => dispatch(setField({ field: 'area', value: e.target.value }))}
+          onChange={(e) => setField('area', e.target.value)}
           placeholder="Kamrej, Surat"
           className="w-full bg-transparent text-meta text-ink-900 placeholder:text-ink-400 focus:outline-none"
         />
@@ -49,7 +50,7 @@ export default function SearchBar() {
         <input
           type="date"
           value={date}
-          onChange={(e) => dispatch(setField({ field: 'date', value: e.target.value }))}
+          onChange={(e) => setField('date', e.target.value)}
           className="w-full bg-transparent text-meta text-ink-900 tabular focus:outline-none"
         />
       </Cell>
@@ -57,7 +58,7 @@ export default function SearchBar() {
       <Cell label="Slot">
         <select
           value={slot}
-          onChange={(e) => dispatch(setField({ field: 'slot', value: e.target.value }))}
+          onChange={(e) => setField('slot', e.target.value)}
           className="w-full bg-transparent text-meta text-ink-900 focus:outline-none"
         >
           {Object.values(SLOTS).map((s) => (
@@ -74,7 +75,7 @@ export default function SearchBar() {
           min={1}
           max={500}
           value={guests}
-          onChange={(e) => dispatch(setField({ field: 'guests', value: Number(e.target.value) }))}
+          onChange={(e) => setField('guests', Number(e.target.value))}
           className="w-full bg-transparent text-meta text-ink-900 tabular focus:outline-none"
         />
       </Cell>
@@ -82,10 +83,12 @@ export default function SearchBar() {
       <div className="flex items-center p-2">
         <button
           type="submit"
+          disabled={pending}
+          aria-busy={pending}
           className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-600 px-6 py-3.5 text-meta font-semibold text-white transition-colors hover:bg-brand-700"
         >
           <Search className="size-4" aria-hidden="true" />
-          Search
+          {pending ? 'Searching…' : 'Search'}
         </button>
       </div>
     </form>

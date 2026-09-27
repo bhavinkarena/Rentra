@@ -1,0 +1,521 @@
+{
+  "recordedAt": "2026-09-27",
+  "source": "Pre-implementation production .next/diagnostics/route-bundle-stats.json; gzip level 6 per chunk, not real transferred bytes",
+  "routes": [
+    {
+      "route": "/listing/[handle]",
+      "rawBytes": 1148535,
+      "gzipBytes": 331320
+    },
+    {
+      "route": "/checkout/review/[quoteId]",
+      "rawBytes": 1085663,
+      "gzipBytes": 309464
+    },
+    {
+      "route": "/partner/login",
+      "rawBytes": 1063242,
+      "gzipBytes": 305551
+    },
+    {
+      "route": "/account",
+      "rawBytes": 1054871,
+      "gzipBytes": 301391
+    },
+    {
+      "route": "/partner/listings/[id]",
+      "rawBytes": 1054399,
+      "gzipBytes": 300166
+    },
+    {
+      "route": "/partner/listings/[id]/overview",
+      "rawBytes": 1054399,
+      "gzipBytes": 300166
+    },
+    {
+      "route": "/partner/listings/[id]/setup/[step]",
+      "rawBytes": 1045150,
+      "gzipBytes": 295882
+    },
+    {
+      "route": "/login",
+      "rawBytes": 1043711,
+      "gzipBytes": 298395
+    },
+    {
+      "route": "/checkout/[orderId]",
+      "rawBytes": 1035408,
+      "gzipBytes": 292643
+    },
+    {
+      "route": "/admin/applications/[id]",
+      "rawBytes": 1025492,
+      "gzipBytes": 290952
+    },
+    {
+      "route": "/account/phone",
+      "rawBytes": 1021221,
+      "gzipBytes": 288772
+    },
+    {
+      "route": "/account/privacy",
+      "rawBytes": 1021221,
+      "gzipBytes": 288772
+    },
+    {
+      "route": "/onboarding",
+      "rawBytes": 1021221,
+      "gzipBytes": 288772
+    },
+    {
+      "route": "/partner/bookings",
+      "rawBytes": 1015497,
+      "gzipBytes": 287074
+    },
+    {
+      "route": "/partner/bookings/[orderId]",
+      "rawBytes": 1015497,
+      "gzipBytes": 287074
+    },
+    {
+      "route": "/partner/onboarding/kyc",
+      "rawBytes": 1014700,
+      "gzipBytes": 288654
+    },
+    {
+      "route": "/partner/onboarding/consent",
+      "rawBytes": 1014408,
+      "gzipBytes": 288187
+    },
+    {
+      "route": "/partner/onboarding/details",
+      "rawBytes": 1014408,
+      "gzipBytes": 288187
+    },
+    {
+      "route": "/partner/onboarding/payout",
+      "rawBytes": 1014408,
+      "gzipBytes": 288187
+    },
+    {
+      "route": "/admin/login",
+      "rawBytes": 1011083,
+      "gzipBytes": 286623
+    },
+    {
+      "route": "/partner/onboarding/phone",
+      "rawBytes": 1008606,
+      "gzipBytes": 286436
+    },
+    {
+      "route": "/partner/settings",
+      "rawBytes": 1007587,
+      "gzipBytes": 286213
+    },
+    {
+      "route": "/admin/bookings/[orderId]",
+      "rawBytes": 1005055,
+      "gzipBytes": 281435
+    },
+    {
+      "route": "/bookings",
+      "rawBytes": 1000055,
+      "gzipBytes": 280254
+    },
+    {
+      "route": "/admin/booking-cases",
+      "rawBytes": 999884,
+      "gzipBytes": 280028
+    },
+    {
+      "route": "/admin/booking-cases/[id]",
+      "rawBytes": 999884,
+      "gzipBytes": 280028
+    },
+    {
+      "route": "/bookings/[orderId]",
+      "rawBytes": 999265,
+      "gzipBytes": 279701
+    },
+    {
+      "route": "/admin/customers",
+      "rawBytes": 999057,
+      "gzipBytes": 279683
+    },
+    {
+      "route": "/admin/customers/[id]",
+      "rawBytes": 999057,
+      "gzipBytes": 279683
+    },
+    {
+      "route": "/partner/listings/new",
+      "rawBytes": 997395,
+      "gzipBytes": 280841
+    },
+    {
+      "route": "/admin/properties/[id]",
+      "rawBytes": 995858,
+      "gzipBytes": 277897
+    },
+    {
+      "route": "/admin/clients",
+      "rawBytes": 994070,
+      "gzipBytes": 278720
+    },
+    {
+      "route": "/admin/clients/[id]",
+      "rawBytes": 994070,
+      "gzipBytes": 278720
+    },
+    {
+      "route": "/admin/finance/refunds",
+      "rawBytes": 993070,
+      "gzipBytes": 278555
+    },
+    {
+      "route": "/admin/finance/refunds/[id]",
+      "rawBytes": 993070,
+      "gzipBytes": 278555
+    },
+    {
+      "route": "/admin/finance/refunds/new",
+      "rawBytes": 991795,
+      "gzipBytes": 278114
+    },
+    {
+      "route": "/admin/support",
+      "rawBytes": 990223,
+      "gzipBytes": 278245
+    },
+    {
+      "route": "/admin/support/[id]",
+      "rawBytes": 990223,
+      "gzipBytes": 278245
+    },
+    {
+      "route": "/admin/finance/payments",
+      "rawBytes": 987702,
+      "gzipBytes": 277079
+    },
+    {
+      "route": "/admin/finance/payments/[id]",
+      "rawBytes": 987702,
+      "gzipBytes": 277079
+    },
+    {
+      "route": "/partner/settings/payout",
+      "rawBytes": 987289,
+      "gzipBytes": 277272
+    },
+    {
+      "route": "/[city]/[category]/[[...place]]",
+      "rawBytes": 985502,
+      "gzipBytes": 277343
+    },
+    {
+      "route": "/search",
+      "rawBytes": 985502,
+      "gzipBytes": 277343
+    },
+    {
+      "route": "/bookings/[orderId]/again",
+      "rawBytes": 984803,
+      "gzipBytes": 276191
+    },
+    {
+      "route": "/partner/team",
+      "rawBytes": 983483,
+      "gzipBytes": 275826
+    },
+    {
+      "route": "/partner/support",
+      "rawBytes": 983259,
+      "gzipBytes": 276681
+    },
+    {
+      "route": "/partner/support/[id]",
+      "rawBytes": 983259,
+      "gzipBytes": 276681
+    },
+    {
+      "route": "/partner/support/new",
+      "rawBytes": 982698,
+      "gzipBytes": 276503
+    },
+    {
+      "route": "/support",
+      "rawBytes": 981819,
+      "gzipBytes": 275799
+    },
+    {
+      "route": "/support/[id]",
+      "rawBytes": 981819,
+      "gzipBytes": 275799
+    },
+    {
+      "route": "/support/new",
+      "rawBytes": 981819,
+      "gzipBytes": 275799
+    },
+    {
+      "route": "/admin/disputes",
+      "rawBytes": 981535,
+      "gzipBytes": 274887
+    },
+    {
+      "route": "/admin/disputes/[id]",
+      "rawBytes": 981535,
+      "gzipBytes": 274887
+    },
+    {
+      "route": "/admin/disputes/new",
+      "rawBytes": 981535,
+      "gzipBytes": 274887
+    },
+    {
+      "route": "/admin/reviews/[id]",
+      "rawBytes": 981266,
+      "gzipBytes": 274958
+    },
+    {
+      "route": "/partner/listings/[id]/calendar",
+      "rawBytes": 980962,
+      "gzipBytes": 275443
+    },
+    {
+      "route": "/",
+      "rawBytes": 980620,
+      "gzipBytes": 276108
+    },
+    {
+      "route": "/partner/disputes",
+      "rawBytes": 978032,
+      "gzipBytes": 274357
+    },
+    {
+      "route": "/partner/disputes/[id]",
+      "rawBytes": 978032,
+      "gzipBytes": 274357
+    },
+    {
+      "route": "/partner/disputes/new",
+      "rawBytes": 978032,
+      "gzipBytes": 274357
+    },
+    {
+      "route": "/partner/reviews",
+      "rawBytes": 977763,
+      "gzipBytes": 274420
+    },
+    {
+      "route": "/partner/reviews/[id]",
+      "rawBytes": 977763,
+      "gzipBytes": 274420
+    },
+    {
+      "route": "/admin/payments",
+      "rawBytes": 977364,
+      "gzipBytes": 273705
+    },
+    {
+      "route": "/bookings/[orderId]/cancel",
+      "rawBytes": 977047,
+      "gzipBytes": 274095
+    },
+    {
+      "route": "/bookings/[orderId]/reviews",
+      "rawBytes": 977006,
+      "gzipBytes": 273954
+    },
+    {
+      "route": "/partner/updates",
+      "rawBytes": 976770,
+      "gzipBytes": 274074
+    },
+    {
+      "route": "/disputes",
+      "rawBytes": 976592,
+      "gzipBytes": 273452
+    },
+    {
+      "route": "/disputes/[id]",
+      "rawBytes": 976592,
+      "gzipBytes": 273452
+    },
+    {
+      "route": "/disputes/new",
+      "rawBytes": 976592,
+      "gzipBytes": 273452
+    },
+    {
+      "route": "/admin/search",
+      "rawBytes": 976326,
+      "gzipBytes": 273457
+    },
+    {
+      "route": "/reviews/[reviewId]/report",
+      "rawBytes": 976323,
+      "gzipBytes": 273523
+    },
+    {
+      "route": "/admin/notifications",
+      "rawBytes": 976267,
+      "gzipBytes": 273413
+    },
+    {
+      "route": "/admin/bookings",
+      "rawBytes": 975620,
+      "gzipBytes": 273092
+    },
+    {
+      "route": "/partner/listings",
+      "rawBytes": 975243,
+      "gzipBytes": 273759
+    },
+    {
+      "route": "/admin",
+      "rawBytes": 974937,
+      "gzipBytes": 272659
+    },
+    {
+      "route": "/admin/finance/allocations/[id]",
+      "rawBytes": 974937,
+      "gzipBytes": 272659
+    },
+    {
+      "route": "/admin/finance/payouts",
+      "rawBytes": 974937,
+      "gzipBytes": 272659
+    },
+    {
+      "route": "/admin/finance/payouts/[id]",
+      "rawBytes": 974937,
+      "gzipBytes": 272659
+    },
+    {
+      "route": "/admin/finance/statements",
+      "rawBytes": 974937,
+      "gzipBytes": 272659
+    },
+    {
+      "route": "/admin/finance/statements/[id]",
+      "rawBytes": 974937,
+      "gzipBytes": 272659
+    },
+    {
+      "route": "/admin/operations",
+      "rawBytes": 974937,
+      "gzipBytes": 272659
+    },
+    {
+      "route": "/admin/privacy",
+      "rawBytes": 974937,
+      "gzipBytes": 272659
+    },
+    {
+      "route": "/admin/properties",
+      "rawBytes": 974937,
+      "gzipBytes": 272659
+    },
+    {
+      "route": "/admin/reviews",
+      "rawBytes": 974937,
+      "gzipBytes": 272659
+    },
+    {
+      "route": "/partner",
+      "rawBytes": 974802,
+      "gzipBytes": 273399
+    },
+    {
+      "route": "/saved",
+      "rawBytes": 973662,
+      "gzipBytes": 273173
+    },
+    {
+      "route": "/partner/allocations/[id]",
+      "rawBytes": 970873,
+      "gzipBytes": 271928
+    },
+    {
+      "route": "/partner/calendar",
+      "rawBytes": 970873,
+      "gzipBytes": 271928
+    },
+    {
+      "route": "/partner/finance",
+      "rawBytes": 970873,
+      "gzipBytes": 271928
+    },
+    {
+      "route": "/partner/payouts",
+      "rawBytes": 970873,
+      "gzipBytes": 271928
+    },
+    {
+      "route": "/partner/payouts/[id]",
+      "rawBytes": 970873,
+      "gzipBytes": 271928
+    },
+    {
+      "route": "/partner/statements/[id]",
+      "rawBytes": 970873,
+      "gzipBytes": 271928
+    },
+    {
+      "route": "/account/notifications",
+      "rawBytes": 969994,
+      "gzipBytes": 271224
+    },
+    {
+      "route": "/account/payment-methods",
+      "rawBytes": 969994,
+      "gzipBytes": 271224
+    },
+    {
+      "route": "/staff/visits/[orderId]",
+      "rawBytes": 965506,
+      "gzipBytes": 269908
+    },
+    {
+      "route": "/help",
+      "rawBytes": 961546,
+      "gzipBytes": 268126
+    },
+    {
+      "route": "/policies/[kind]/[[...version]]",
+      "rawBytes": 961546,
+      "gzipBytes": 268126
+    },
+    {
+      "route": "/staff",
+      "rawBytes": 955075,
+      "gzipBytes": 265940
+    },
+    {
+      "route": "/staff/join/[token]",
+      "rawBytes": 955075,
+      "gzipBytes": 265940
+    },
+    {
+      "route": "/partner/listings/[id]/submitted",
+      "rawBytes": 951974,
+      "gzipBytes": 265178
+    },
+    {
+      "route": "/partner/listings/[id]/setup",
+      "rawBytes": 950891,
+      "gzipBytes": 264794
+    },
+    {
+      "route": "/staff/login",
+      "rawBytes": 944562,
+      "gzipBytes": 261668
+    },
+    {
+      "route": "/_not-found",
+      "rawBytes": 931578,
+      "gzipBytes": 256578
+    }
+  ]
+}

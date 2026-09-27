@@ -1,3 +1,4 @@
+import Form from 'next/form';
 import { randomUUID } from 'node:crypto';
 import Link from 'next/link';
 import { TriangleAlert } from 'lucide-react';
@@ -86,7 +87,7 @@ export function RefundList({ data }) {
           </Link>
         ))}
       </nav>
-      <form action="/admin/finance/refunds" className="mt-4 flex flex-wrap items-end gap-3">
+      <Form action="/admin/finance/refunds" className="mt-4 flex flex-wrap items-end gap-3">
         <input type="hidden" name="environment" value={data.environment} />
         <input type="hidden" name="status" value={data.status} />
         <label className="text-meta font-semibold">
@@ -116,7 +117,7 @@ export function RefundList({ data }) {
         <button className="min-h-11 rounded border border-border bg-card px-4 font-semibold">
           Apply
         </button>
-      </form>
+      </Form>
 
       {data.totals.length ? (
         <section aria-label="Totals by environment" className="mt-6 space-y-3">

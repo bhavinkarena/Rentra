@@ -1,3 +1,4 @@
+import Form from 'next/form';
 import Link from 'next/link';
 import { randomUUID } from 'node:crypto';
 import { supportCategories, supportStates } from '@/lib/domain/help';
@@ -28,7 +29,7 @@ export function SupportList({ data, admin = false, owner = false }) {
           </Link>
         </nav>
       ) : null}
-      <form className="flex flex-wrap items-end gap-3" action={base}>
+      <Form className="flex flex-wrap items-end gap-3" action={base}>
         <label>
           Status
           <select
@@ -45,7 +46,7 @@ export function SupportList({ data, admin = false, owner = false }) {
           </select>
         </label>
         <button className="min-h-11 rounded border border-border px-4">Filter requests</button>
-      </form>
+      </Form>
       <p>{data.total} request(s)</p>
       <ul className="space-y-3">
         {data.items.map((r) => (

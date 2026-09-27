@@ -20,8 +20,7 @@ export const metadata = {
  * Customer and one Client account.
  */
 export default async function CustomerLoginPage() {
-  const user = await getCurrentUser();
-  const admin = await getCurrentAdmin();
+  const [user, admin] = await Promise.all([getCurrentUser(), getCurrentAdmin()]);
   const conflict = admin || (user && user.role !== 'customer');
   if (!conflict && user?.role === 'customer') redirect('/');
   return (

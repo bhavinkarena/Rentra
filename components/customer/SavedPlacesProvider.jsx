@@ -4,6 +4,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
   startTransition,
@@ -53,7 +54,7 @@ export default function SavedPlacesProvider({ children }) {
   const generation = useRef(0);
   const lastScope = useRef(undefined);
   const inFlight = useRef(false);
-  const current = state?.path === pathname ? state : null;
+  const current = state;
   const refresh = useCallback(() => {
     const epoch = ++generation.current;
     setState(null);
@@ -66,9 +67,10 @@ export default function SavedPlacesProvider({ children }) {
         if (actor.error) throw new Error(actor.error);
         setIdentity({ mode: actor.mode, profile: actor.profile });
         if (lastScope.current !== actor.scope) {
+          const hadScope = lastScope.current !== undefined;
           lastScope.current = actor.scope;
           try {
-            localStorage.setItem(SAVED_SIGNAL_KEY, crypto.randomUUID());
+            if (hadScope) localStorage.setItem(SAVED_SIGNAL_KEY, crypto.randomUUID());
           } catch {}
         }
         let entries = actor.entries,
@@ -102,13 +104,14 @@ export default function SavedPlacesProvider({ children }) {
               if (!remaining.length) localStorage.removeItem(GUEST_MERGE_OWNER_KEY);
             }
           } else if (actor.mode === 'guest') {
-            const result = await loadGuestSavedPlaces(claimedFor ? [] : guest);
+            const result =
+              !claimedFor && guest.length ? await loadGuestSavedPlaces(guest) : { entries: [] };
             if (result.error) throw new Error(result.error);
             entries = result.entries;
           }
         }
         if (epoch === generation.current) {
-          setState({ ...actor, entries, path: pathname });
+          setState({ ...actor, entries });
           setError(mergeError);
         }
       } catch (failure) {
@@ -116,26 +119,33 @@ export default function SavedPlacesProvider({ children }) {
           setError(failure.message || 'Saved places could not load. Please retry.');
       }
     });
-  }, [pathname]);
+  }, []);
   useEffect(() => {
-    const timer = setTimeout(refresh, 0);
+    let timer;
+    // Focus and visibility often arrive together; coalesce their live reads.
+    const scheduleRefresh = () => {
+      clearTimeout(timer);
+      timer = setTimeout(refresh, 0);
+    };
+    scheduleRefresh();
     const token = generation;
     const changed = (event) => {
       if (
         !event.key ||
         [GUEST_SAVED_KEY, GUEST_MERGE_OWNER_KEY, SAVED_SIGNAL_KEY].includes(event.key)
       )
-        refresh();
+        scheduleRefresh();
     };
     const hidden = () => {
       if (document.visibilityState === 'hidden') {
+        clearTimeout(timer);
         ++generation.current;
         setState(null);
         setUndo(null);
-      } else refresh();
+      } else scheduleRefresh();
     };
     window.addEventListener('storage', changed);
-    window.addEventListener('focus', refresh);
+    window.addEventListener('focus', scheduleRefresh);
     window.addEventListener('rentra-saved-changed', refresh);
     window.addEventListener('rentra-profile-changed', refresh);
     document.addEventListener('visibilitychange', hidden);
@@ -143,7 +153,7 @@ export default function SavedPlacesProvider({ children }) {
       clearTimeout(timer);
       ++token.current;
       window.removeEventListener('storage', changed);
-      window.removeEventListener('focus', refresh);
+      window.removeEventListener('focus', scheduleRefresh);
       window.removeEventListener('rentra-saved-changed', refresh);
       window.removeEventListener('rentra-profile-changed', refresh);
       document.removeEventListener('visibilitychange', hidden);
@@ -155,113 +165,119 @@ export default function SavedPlacesProvider({ children }) {
     return () => clearTimeout(timer);
   }, [undo, busy]);
 
-  const change = async (rentableId, saved, selection = null, isUndo = false) => {
-    if (!current || inFlight.current) return;
-    if (current.mode === 'other') {
-      setError('Use customer login to save places to an account.');
-      return;
-    }
-    const before = current.entries,
-      removed = before.find((e) => e.rentableId === rentableId);
-    if (saved && !removed && before.length >= SAVED_LIMIT) {
-      setError(`You can save up to ${SAVED_LIMIT} places.`);
-      return;
-    }
-    const epoch = generation.current;
-    inFlight.current = true;
-    setBusy(true);
-    setError(null);
-    const context = validSavedSelection(selection, rentableId);
-    setState({
-      ...current,
-      entries: saved
-        ? [
-            ...before.filter((e) => e.rentableId !== rentableId),
-            removed ?? { rentableId, selection: context, title: 'Saved place', available: false },
-          ]
-        : before.filter((e) => e.rentableId !== rentableId),
-    });
-    try {
-      let entries;
-      if (current.mode === 'customer') {
-        const result = await updateSavedPlace(current.scope, {
-          rentableId,
-          saved,
-          selection: context,
-        });
-        if (result.accountChanged) {
-          refresh();
-          return;
-        }
-        if (result.error) throw new Error(result.error);
-        entries = result.entries;
-      } else {
-        if (localStorage.getItem(GUEST_MERGE_OWNER_KEY)) {
-          localStorage.removeItem(GUEST_SAVED_KEY);
-          localStorage.removeItem(GUEST_MERGE_OWNER_KEY);
-        }
-        const local = readGuest();
-        const existing = local.find((e) => e.rentableId === rentableId);
-        const next = local.filter((e) => e.rentableId !== rentableId);
-        if (saved)
-          next.push({
+  const change = useCallback(
+    async (rentableId, saved, selection = null, isUndo = false) => {
+      if (!current || inFlight.current) return;
+      if (current.mode === 'other') {
+        setError('Use customer login to save places to an account.');
+        return;
+      }
+      const before = current.entries,
+        removed = before.find((e) => e.rentableId === rentableId);
+      if (saved && !removed && before.length >= SAVED_LIMIT) {
+        setError(`You can save up to ${SAVED_LIMIT} places.`);
+        return;
+      }
+      const epoch = generation.current;
+      inFlight.current = true;
+      setBusy(true);
+      setError(null);
+      const context = validSavedSelection(selection, rentableId);
+      setState({
+        ...current,
+        entries: saved
+          ? [
+              ...before.filter((e) => e.rentableId !== rentableId),
+              removed ?? { rentableId, selection: context, title: 'Saved place', available: false },
+            ]
+          : before.filter((e) => e.rentableId !== rentableId),
+      });
+      try {
+        let entries;
+        if (current.mode === 'customer') {
+          const result = await updateSavedPlace(current.scope, {
             rentableId,
-            entryId: existing?.entryId ?? crypto.randomUUID(),
-            selection: context ?? existing?.selection ?? null,
+            saved,
+            selection: context,
           });
-        if (next.length > SAVED_LIMIT) throw new Error(`You can save up to ${SAVED_LIMIT} places.`);
-        writeGuest(next); // A storage failure restores the previous heart and list.
-        const result = await loadGuestSavedPlaces(next);
-        // The save itself persisted even if public metadata is temporarily unavailable.
-        entries =
-          result.entries ??
-          next.map((e) => ({
-            ...e,
-            available: false,
-            detailsUnavailable: true,
-            title: 'Place details temporarily unavailable',
-          }));
+          if (result.accountChanged) {
+            refresh();
+            return;
+          }
+          if (result.error) throw new Error(result.error);
+          entries = result.entries;
+        } else {
+          if (localStorage.getItem(GUEST_MERGE_OWNER_KEY)) {
+            localStorage.removeItem(GUEST_SAVED_KEY);
+            localStorage.removeItem(GUEST_MERGE_OWNER_KEY);
+          }
+          const local = readGuest();
+          const existing = local.find((e) => e.rentableId === rentableId);
+          const next = local.filter((e) => e.rentableId !== rentableId);
+          if (saved)
+            next.push({
+              rentableId,
+              entryId: existing?.entryId ?? crypto.randomUUID(),
+              selection: context ?? existing?.selection ?? null,
+            });
+          if (next.length > SAVED_LIMIT)
+            throw new Error(`You can save up to ${SAVED_LIMIT} places.`);
+          writeGuest(next); // A storage failure restores the previous heart and list.
+          const result = await loadGuestSavedPlaces(next);
+          // The save itself persisted even if public metadata is temporarily unavailable.
+          entries =
+            result.entries ??
+            next.map((e) => ({
+              ...e,
+              available: false,
+              detailsUnavailable: true,
+              title: 'Place details temporarily unavailable',
+            }));
+        }
+        if (epoch === generation.current) {
+          setState({ ...current, entries });
+          setUndo(
+            !saved && removed
+              ? { entry: removed, scope: current.scope, mode: current.mode }
+              : isUndo
+                ? null
+                : undo,
+          );
+          try {
+            localStorage.setItem(SAVED_SIGNAL_KEY, crypto.randomUUID());
+          } catch {}
+        }
+      } catch (failure) {
+        if (epoch === generation.current) {
+          setState({ ...current, entries: before });
+          setError(failure.message || 'Could not save your change. Please retry.');
+        }
+      } finally {
+        inFlight.current = false;
+        setBusy(false);
       }
-      if (epoch === generation.current) {
-        setState({ ...current, entries });
-        setUndo(
-          !saved && removed
-            ? { entry: removed, scope: current.scope, mode: current.mode }
-            : isUndo
-              ? null
-              : undo,
-        );
-        try {
-          localStorage.setItem(SAVED_SIGNAL_KEY, crypto.randomUUID());
-        } catch {}
-      }
-    } catch (failure) {
-      if (epoch === generation.current) {
-        setState({ ...current, entries: before });
-        setError(failure.message || 'Could not save your change. Please retry.');
-      }
-    } finally {
-      inFlight.current = false;
-      setBusy(false);
-    }
-  };
-  const restore = () => {
+    },
+    [current, refresh, undo],
+  );
+  const restore = useCallback(() => {
     if (undo && current?.scope === undo.scope && current?.mode === undo.mode)
       startTransition(() => change(undo.entry.rentableId, true, undo.entry.selection, true));
-  };
+  }, [undo, current, change]);
+  const value = useMemo(
+    () => ({
+      ...identity,
+      ...current,
+      ready: Boolean(current),
+      busy,
+      error,
+      refresh,
+      change,
+      undo: restore,
+    }),
+    [identity, current, busy, error, refresh, change, restore],
+  );
   return (
-    <Context.Provider
-      value={{
-        ...identity,
-        ...current,
-        ready: Boolean(current),
-        busy,
-        error,
-        refresh,
-        change,
-        undo: restore,
-      }}
-    >
+    <Context.Provider value={value}>
       {children}
       {error && pathname !== '/saved' ? (
         <div

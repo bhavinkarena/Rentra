@@ -1,5 +1,6 @@
 'use client';
 
+import Form from 'next/form';
 import { useState } from 'react';
 import Link from 'next/link';
 import { Filter, Plus, Search, X } from 'lucide-react';
@@ -47,7 +48,7 @@ export default function DiscoveryFilters({ filters, registry, route, path }) {
   return (
     /* Sort renders beside the result count, outside this element. It joins this
        form through form="discovery-filters" so one submit carries every choice. */
-    <form
+    <Form
       id="discovery-filters"
       action={path}
       onSubmit={() => measureBrowser('search_submitted')}
@@ -325,6 +326,6 @@ export default function DiscoveryFilters({ filters, registry, route, path }) {
         With dates, prices include rent and the platform fee for every visit and guest. Refundable
         deposits are shown separately.
       </p>
-    </form>
+    </Form>
   );
 }

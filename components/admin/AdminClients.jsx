@@ -1,3 +1,4 @@
+import Form from 'next/form';
 import Link from 'next/link';
 import { CalendarDays, Clock, Mail, Phone, Users } from 'lucide-react';
 import { randomUUID } from 'node:crypto';
@@ -83,7 +84,7 @@ export function AdminClientList({ data }) {
               Newest first · Loaded {when(new Date(), { timeStyle: 'short' })}
             </p>
           </div>
-          <form action="/admin/clients" className="flex items-end gap-2" role="search">
+          <Form action="/admin/clients" className="flex items-end gap-2" role="search">
             {data.status !== 'all' ? (
               <input type="hidden" name="status" value={data.status} />
             ) : null}
@@ -99,7 +100,7 @@ export function AdminClientList({ data }) {
             <button className="min-h-10 rounded-md bg-brand-700 px-4 text-tiny font-semibold text-white">
               Search
             </button>
-          </form>
+          </Form>
         </div>
 
         {data.items.length ? (

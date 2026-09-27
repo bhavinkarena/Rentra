@@ -1,5 +1,6 @@
 'use client';
 
+import Form from 'next/form';
 import {
   Activity,
   Building2,
@@ -211,7 +212,7 @@ export default function AdminShell({ children, admin, logoutAction, counts = {} 
           </span>
         ) : null,
         search: searchable ? (
-          <form action="/admin/search" role="search" className="relative">
+          <Form action="/admin/search" role="search" className="relative">
             <Search
               className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-500"
               aria-hidden="true"
@@ -227,7 +228,7 @@ export default function AdminShell({ children, admin, logoutAction, counts = {} 
               placeholder="Search clients, customers, applications…"
               className="min-h-9 w-full rounded-md border border-border bg-ink-25 pr-3 pl-9 text-meta placeholder:text-ink-500 focus:border-brand-600 focus:bg-white focus:outline-none"
             />
-          </form>
+          </Form>
         ) : null,
       }}
     >

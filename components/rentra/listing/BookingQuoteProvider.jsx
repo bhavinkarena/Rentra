@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useRef, useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { selectionFromSavedUrl, savedListingHref } from '@/lib/domain/saved-places';
 import { beginCustomerLogin, restoreCustomerSelection } from '@/lib/actions/auth';
 import { requestBookingQuote } from '@/lib/actions/customer';
@@ -11,7 +11,8 @@ import {
   quoteReviewFingerprint,
 } from '@/lib/domain/booking-picker';
 
-const Context = createContext(null);
+import { BookingQuoteContext as Context } from './booking-context';
+export { useBookingQuote } from './booking-context';
 export default function BookingQuoteProvider({ rentableId, defaultDate, defaultSlot, children }) {
   const [selection, setSelection] = useState({
     dates: defaultDate ? [defaultDate] : [],
@@ -194,7 +195,4 @@ export default function BookingQuoteProvider({ rentableId, defaultDate, defaultS
       {children}
     </Context.Provider>
   );
-}
-export function useBookingQuote() {
-  return useContext(Context);
 }

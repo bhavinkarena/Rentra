@@ -1,3 +1,4 @@
+import Form from 'next/form';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -118,7 +119,7 @@ export default function AdminBookingHistory({ data }) {
                 Search by property name or booking reference
               </p>
             </div>
-            <form action="/admin/bookings" className="flex w-full max-w-xl gap-2">
+            <Form action="/admin/bookings" className="flex w-full max-w-xl gap-2">
               <input type="hidden" name="tab" value={data.tab} />
               {data.property && <input type="hidden" name="property" value={data.property} />}
               <label className="relative min-w-0 flex-1">
@@ -138,7 +139,7 @@ export default function AdminBookingHistory({ data }) {
               <button className="min-h-11 rounded-md bg-brand-700 px-4 text-meta font-semibold text-white transition hover:bg-brand-800">
                 Search
               </button>
-            </form>
+            </Form>
           </div>
 
           <nav
