@@ -82,6 +82,18 @@ const NAV_GROUPS = [
     label: 'Finance',
     items: [
       {
+        href: '/admin/finance/statements',
+        label: 'Statements',
+        icon: ReceiptText,
+        capability: 'admin.payments.read',
+      },
+      {
+        href: '/admin/finance/payouts',
+        label: 'Payouts',
+        icon: CreditCard,
+        capability: 'admin.payments.read',
+      },
+      {
         href: '/admin/finance/payments',
         label: 'Payments',
         icon: ReceiptText,

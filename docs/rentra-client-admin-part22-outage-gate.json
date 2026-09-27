@@ -1,0 +1,44 @@
+{
+  "results": [
+    {
+      "check": "Retryable finance outage /partner/finance",
+      "pass": true
+    },
+    {
+      "check": "Retryable finance outage /partner/statements/2026-09",
+      "pass": true
+    },
+    {
+      "check": "Retryable finance outage /partner/allocations/538be840-dc6f-448d-8931-7e02e52c7c26",
+      "pass": true
+    },
+    {
+      "check": "Retryable finance outage /partner/payouts",
+      "pass": true
+    },
+    {
+      "check": "Retryable finance outage /partner/payouts/73d9919b-217d-4538-8a7e-e0150a349887",
+      "pass": true
+    },
+    {
+      "check": "Retryable finance outage /admin/finance/statements",
+      "pass": true
+    },
+    {
+      "check": "Retryable finance outage /admin/finance/statements/2026-09",
+      "pass": true
+    },
+    {
+      "check": "Retryable finance outage /admin/finance/allocations/538be840-dc6f-448d-8931-7e02e52c7c26",
+      "pass": true
+    },
+    {
+      "check": "Retryable finance outage /admin/finance/payouts",
+      "pass": true
+    },
+    {
+      "check": "Retryable finance outage /admin/finance/payouts/73d9919b-217d-4538-8a7e-e0150a349887",
+      "pass": true
+    }
+  ]
+}

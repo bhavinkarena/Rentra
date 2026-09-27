@@ -48,6 +48,12 @@ const NAV_GROUPS = [
     label: 'Account',
     items: [
       { href: '/partner/support', label: 'Support', icon: Bell, capability: 'client.support.read' },
+      {
+        href: '/partner/finance',
+        label: 'Finance',
+        icon: Settings2,
+        capability: 'client.finance.read',
+      },
       { href: '/partner/team', label: 'Team', icon: Users, capability: 'client.team.read' },
       { href: '/partner/settings', label: 'Settings & payouts', icon: Settings2 },
     ],
@@ -55,6 +61,12 @@ const NAV_GROUPS = [
 ];
 
 function routeLabel(pathname) {
+  if (
+    ['/partner/finance', '/partner/statements', '/partner/allocations', '/partner/payouts'].some(
+      (p) => pathname.startsWith(p),
+    )
+  )
+    return 'Finance';
   if (pathname.startsWith('/partner/calendar')) return 'Portfolio calendar';
   if (pathname.startsWith('/partner/bookings')) return 'Bookings';
   if (pathname.startsWith('/partner/listings/')) return 'Property workspace';

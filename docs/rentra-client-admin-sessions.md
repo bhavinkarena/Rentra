@@ -1,6 +1,6 @@
 # Rentra client and Super Admin session roadmap
 
-Planning date: 26 September 2026. **Implementation: 21/32 parts complete. Next: CP22.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration. CP05–CP08 migrations `0024`–`0027` were applied to the configured database on 26 September 2026 (verified read-only afterwards: 28 of 28 recorded, none pending). CP09–CP12 have no migration. CP13 migration `0028_visit_evidence_records` was applied to the configured database on 27 September 2026 (verified read-only afterwards: 29 of 29 recorded, none pending). CP14 migration `0029_booking_cases` and CP15 migration `0030_client_updates` are applied to the configured database (verified read-only on 27 September 2026: 31 of 32 recorded). CP16 migration `0031_caretaker_access` is applied (read-only verification on 27 September 2026: 32 of 33 recorded). CP17 migration `0032_support_cases` was applied to the configured database on 27 September 2026 (verified read-only afterwards: 33 of 33 recorded, none pending). CP18–CP20 have no migration (configured database verified read-only on 27 September 2026: 33 of 33 recorded, none pending). CP21 migration `0033_payout_destinations` is **not applied** to the configured database; apply it before deploying CP21 backend code.
+Planning date: 26 September 2026. **Implementation: 22/32 parts complete. Next: CP23.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration. CP05–CP08 migrations `0024`–`0027` were applied to the configured database on 26 September 2026 (verified read-only afterwards: 28 of 28 recorded, none pending). CP09–CP12 have no migration. CP13 migration `0028_visit_evidence_records` was applied to the configured database on 27 September 2026 (verified read-only afterwards: 29 of 29 recorded, none pending). CP14 migration `0029_booking_cases` and CP15 migration `0030_client_updates` are applied to the configured database (verified read-only on 27 September 2026: 31 of 32 recorded). CP16 migration `0031_caretaker_access` is applied (read-only verification on 27 September 2026: 32 of 33 recorded). CP17 migration `0032_support_cases` was applied to the configured database on 27 September 2026 (verified read-only afterwards: 33 of 33 recorded, none pending). CP18–CP20 have no migration (configured database verified read-only on 27 September 2026: 33 of 33 recorded, none pending). CP21 migration `0033_payout_destinations` is **not applied** to the configured database; apply it before deploying CP21 backend code.
 
 Read the [requirements plan](rentra-client-admin-plan.md) and [source-backed gap audit](rentra-client-admin-ui-audit.md) together with this roadmap. These CP numbers are a new workstream; they do not replace customer Parts 01–22 or change their completion claims. Client means the existing owner/authorized-agent portal.
 
@@ -10,7 +10,7 @@ One part is the target for one implementation session, including its meaningful 
 
 Each part owns its end-to-end slice: necessary Express API/service/schema changes, frontend integration, server-side permissions, persisted loading/error/success behavior, and regression evidence. Reuse existing foundations. Routes and models in the requirements plan are proposals until implemented. Never bypass the backend by adding direct frontend database access.
 
-CP01–CP21 are **COMPLETE**. CP22–CP32 remain **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
+CP01–CP22 are **COMPLETE**. CP22 display definitions were approved by the user on 27 September 2026. CP23–CP32 remain **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
 
 | Part | Session scope | Dependencies | Status |
 | --- | --- | --- | --- |
@@ -35,7 +35,7 @@ CP01–CP21 are **COMPLETE**. CP22–CP32 remain **PLANNED**, including external
 | CP19 | Payment investigation console | CP04, CP12 | COMPLETE |
 | CP20 | Refund operations | CP14, CP19 | COMPLETE |
 | CP21 | Versioned payout destinations | CP01, CP03 | COMPLETE |
-| CP22 | Statements and payout read models | CP19–21; approved display definitions | PLANNED |
+| CP22 | Statements and payout read models | CP19–21; approved display definitions | COMPLETE |
 | CP23 | Dispute and deposit cases | CP13–14, CP17, CP19–20 | PLANNED |
 | CP24 | Reference-aware catalogue administration | CP08–09 | PLANNED |
 | CP25 | Content and policy publication | CP11, CP24 | PLANNED |
@@ -231,6 +231,8 @@ The sequence favors closing the missing property approval workflow early. Indepe
 
 **Gate:** Reconcile list/detail/statement totals, partial refunds, old-owner attribution and pinned destinations. Acceptance: CA01, CA09, CA12, CA19. This is a read-model/UI session, not implementation of a new live payout engine or permission to disburse.
 
+**Completed — 27 September 2026:** scoped owner/admin receipt-cohort statements, allocation/refund detail, payout history and pinned destination detail, CSV downloads, and historical-owner attribution. Focused backend 12/12, frontend 23/23, browser/API 38/38 and outage 10/10 passed, with evidence in the [handoff](rentra-client-admin-part22.md). No CP22 migration or disbursement engine. The user approved the documented display definitions on 27 September 2026; CP22 is COMPLETE. Earlier parts were not reopened.
+
 ### CP23 — Dispute and deposit adjudication cases
 
 **Deliver:** Add case intake, evidence, assignment, requested response and reasoned resolution linked to visits/payments. Distinguish service disputes from provider disputes. Where an approved deposit policy and actual collection exist, show the supported release/deduction consequences and money workflow links; otherwise show deposit collection as unavailable.
@@ -309,6 +311,6 @@ Update this table and the audit dispositions only when the evidence supports the
 
 ## Prompt for the next implementation session
 
-> Start CP22 from docs/rentra-client-admin-sessions.md. Read the requirements plan, UI gap audit and the CP01–CP21 handoffs, inspect current frontend/backend changes and applicable repository instructions, and confirm migration `0033` status. CP22 depends on approved display definitions: record which statement and payout figures the business approves before building them, and do not invent tax, commission or settlement rules. Build statements and payout read models on the CP19 verified ledger (Test and live separate; Test never funds payouts) and show each payout's pinned CP21 destination version. Review the configured-database migration hash drift (0009, 0024, 0026, 0029) read-only, with permission. Preserve existing customer behavior. Verify the permission/session cases and appropriate repository checks, write the part handoff, and update status only for work actually completed.
+> Start CP23 — Dispute and deposit cases — from this roadmap and the requirements plan. CP22 is complete; its approved display definitions and verification evidence are recorded in docs/rentra-client-admin-part22.md. Implement the CP23 deliverables and gates, preserving existing financial evidence and avoiding invented deposit or liability rules. Do not reopen earlier completed parts or inspect/migrate the configured database unless separately requested.
 
-Replace CP22 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.
+Replace CP23 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.
