@@ -1,3 +1,5 @@
+import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
+
 export default function Loading() {
-  return <p role="status">Loading case evidence…</p>;
+  return <ScreenSkeleton screen="case-detail" label="Loading admin disputes details" />;
 }

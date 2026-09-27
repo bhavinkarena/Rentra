@@ -1,5 +1,5 @@
-import RouteSkeleton from '@/components/navigation/RouteSkeleton';
+import { SettingsSkeleton } from '@/components/partner/PartnerLoading';
 
 export default function Loading() {
-  return <RouteSkeleton kind="form" />;
+  return <SettingsSkeleton />;
 }

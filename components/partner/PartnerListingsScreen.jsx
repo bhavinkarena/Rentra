@@ -22,7 +22,7 @@ export default function PartnerListingsScreen({ args, submitted, scope }) {
   });
   if (!matches) return <p role="status">Checking your session…</p>;
   return (
-    <PartnerQueryState queries={[listings, summary]}>
+    <PartnerQueryState screen="properties" queries={[listings, summary]}>
       {listings.currentData?.data && summary.currentData?.data && (
         <PartnerListingsView
           args={args}

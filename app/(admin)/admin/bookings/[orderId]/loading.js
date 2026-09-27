@@ -1,5 +1,5 @@
-import RouteSkeleton from '@/components/navigation/RouteSkeleton';
+import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
 
 export default function Loading() {
-  return <RouteSkeleton kind="cards" />;
+  return <ScreenSkeleton screen="booking-detail" label="Loading admin bookings booking" />;
 }

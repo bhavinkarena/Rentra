@@ -3,7 +3,7 @@ import BrandLoader from '@/components/ui/rentra-loader';
 function Skeleton({ className = '' }) {
   return (
     <span
-      className={`rentra-skeleton block rounded-sm bg-ink-100 ${className}`}
+      className={`motion-safe:animate-pulse block max-w-full rounded-sm bg-ink-100 ${className}`}
       aria-hidden="true"
     />
   );
@@ -62,13 +62,13 @@ function TableSkeleton({ rows = 6 }) {
         <Skeleton className="h-8 w-20" />
       </div>
       <div className="border-b border-border bg-ink-25/80 px-5 py-3">
-        <Skeleton className="h-3 w-2/3" />
+        <Skeleton className="hidden h-3 w-2/3 sm:block" />
       </div>
       <div className="divide-y divide-border">
         {Array.from({ length: rows }, (_, index) => (
           <div
             key={index}
-            className="grid grid-cols-[minmax(0,2fr)_1fr_0.8fr] items-center gap-6 px-5 py-4 sm:grid-cols-[minmax(0,2fr)_1fr_0.8fr_0.8fr]"
+            className="grid grid-cols-[minmax(0,1fr)_80px] items-center gap-6 px-5 py-4 sm:grid-cols-[minmax(0,2fr)_1fr_0.8fr_0.8fr]"
           >
             <div className="flex items-center gap-3">
               <Skeleton className="size-10 shrink-0 rounded-md" />
@@ -77,7 +77,7 @@ function TableSkeleton({ rows = 6 }) {
                 <Skeleton className="mt-2 h-2.5 w-1/2" />
               </div>
             </div>
-            <Skeleton className="h-3 w-2/3" />
+            <Skeleton className="hidden h-3 w-2/3 sm:block" />
             <Skeleton className="h-6 w-20 rounded-full" />
             <Skeleton className="hidden h-8 w-20 sm:block" />
           </div>

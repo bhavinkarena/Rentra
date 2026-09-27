@@ -1,5 +1,5 @@
-import RouteSkeleton from '@/components/navigation/RouteSkeleton';
+import { WizardSkeleton } from '@/components/partner/PartnerLoading';
 
 export default function Loading() {
-  return <RouteSkeleton kind="form" />;
+  return <WizardSkeleton />;
 }

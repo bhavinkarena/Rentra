@@ -1,5 +1,4 @@
-import RouteSkeleton from '@/components/navigation/RouteSkeleton';
-
+import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
 export default function Loading() {
-  return <RouteSkeleton kind="form" />;
+  return <ScreenSkeleton screen="checkout" label="Loading checkout" inset />;
 }
