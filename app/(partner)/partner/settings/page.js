@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Mail, Phone, ShieldCheck, WalletCards } from 'lucide-react';
 import { requireClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
-import { AccountForm, PayoutDestinationForm } from '@/components/partner/SettingsForms';
+import { AccountForm } from '@/components/partner/SettingsForms';
 import { PartnerPageHeader } from '@/components/partner/PortalPrimitives';
 
 export const metadata = {
@@ -49,13 +49,26 @@ export default async function SettingsPage() {
               <div>
                 <h2 className="text-h4 font-bold text-ink-900">Where we send your money</h2>
                 <p className="mt-0.5 text-tiny leading-5 text-ink-500">
-                  Changing this re-runs the name check against your ID. Confirmed bookings pay to
-                  the destination saved when they settle.
+                  Every change is kept as a version. Payouts already scheduled keep the version they
+                  were created with, and payouts stay disabled until a provider verifies the
+                  destination.
                 </p>
               </div>
             </div>
-            <div className="mt-5 max-w-2xl">
-              <PayoutDestinationForm user={user} application={application} />
+            <div className="mt-5 max-w-2xl space-y-3 text-meta">
+              <p>
+                {application?.payoutUpiId
+                  ? `UPI ${application.payoutUpiId.slice(0, 2)}•••@${application.payoutUpiId.split('@')[1] ?? ''}`
+                  : application?.payoutAccountRef
+                    ? `Bank ${application.payoutAccountRef}${application.payoutIfsc ? ` · ${application.payoutIfsc}` : ''}`
+                    : 'No payout destination yet.'}
+              </p>
+              <Link
+                href="/partner/settings/payout"
+                className="inline-flex min-h-11 items-center rounded-md border border-border px-4 font-semibold text-brand-700 hover:bg-brand-50"
+              >
+                Manage payout destination
+              </Link>
             </div>
           </section>
         </div>

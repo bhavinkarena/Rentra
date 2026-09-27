@@ -287,6 +287,18 @@ DELIVERED = {
       <li>No CSV export (CP28) and no live adapter (the Live tab shows an honest empty state).</li>
       <li>No admin event-reprocess control; failed events retry through the existing job.</li>
       <li>Configured-database migration hash drift not reviewed; no hosted Razorpay Test run or screen-reader pass.</li></ul></div>''',
+    "CP21": '''<div class="card"><span class="num">CP21 · complete</span><h3>Versioned payout destinations</h3><p>Honest payout readiness, with history and pinning:</p>
+      <ul><li><code>/partner/settings/payout</code>: append-only versions (draft, submitted, verified, failed, superseded), previewed changes, and history. Only the last four bank digits or the UPI ID are stored; the full account number is discarded.</li>
+      <li>Verified needs provider evidence enforced by the database. No adapter exists, so the page says verification is unavailable and payouts stay disabled; comparisons are never called verification.</li>
+      <li>Approved owners need a sign-in within 15 minutes; otherwise the change becomes a draft with a sign-in-again path. Stale forms and repeats are refused or replayed.</li>
+      <li>Admin client detail lists every version with pinned payouts. <strong>Mark failed</strong> takes a reason, shows an impact preview, needs a recent sign-in and sends the owner a required inbox action.</li>
+      <li>Pinned payouts can never be redirected, and disbursement needs a verified pinned version (database guard).</li></ul>
+      <p class="small"><strong>Gate passed — 27 September 2026:</strong> backend <strong>123/123</strong>; <strong>28/28</strong> browser/API checks (<code>completed: true</code>) plus <strong>10/10</strong> failure-path checks, including a lost response after commit that replays. Frontend 23/23, lint, format and webpack build passed. <strong>Migration 0033 not yet applied to the configured database.</strong> <a href="rentra-client-admin-part21.md">Handoff, contract and runbook ↗</a></p></div>
+    <div class="card"><span class="num">CP21 · explicitly not delivered</span><h3>Limits recorded at the gate</h3>
+      <ul><li>No provider verification adapter; verified is unreachable until live activation (CP32).</li>
+      <li>No payout creation or execution (CP22 read models, CP32 live); pinning and guards are proven in tests.</li>
+      <li>Onboarding applicants are not held to the sign-in window; the CP03 and CP05 Python gates were not run here.</li>
+      <li>Configured-database migration hash drift is still unreviewed.</li></ul></div>''',
     "CP18": '''<div class="card"><span class="num">CP18 · complete</span><h3>Review detail and moderation history</h3><ul><li>Owner/admin detail with property and booking links, scoped reports, resolutions and retained reply/moderation history.</li><li>Signed publication/reply previews, version checks and reasoned policy decisions; guest text and ratings remain immutable.</li><li>Score-neutral publication, independent report closure and consistent public listing/search aggregates.</li></ul><p>Gate: backend 111/111, frontend 23/23, browser/API 34/34 and outage 4/4. No CP18 migration. CP17 remains in progress independently. <a href="rentra-client-admin-part18.md">CP18 handoff and limits ↗</a></p></div>''',
     "CP20": '''<div class="card"><span class="num">CP20 · complete</span><h3>Refund operations queue and detail</h3><p>Refund obligations become an operable queue, never a manual toggle:</p>
       <ul><li><code>/admin/finance/refunds</code>: environment tabs, status chips (needs attention, queued, processing, uncertain, failed at provider, refunded), source filter, search and one totals card per environment.</li>

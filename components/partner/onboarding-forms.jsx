@@ -244,7 +244,7 @@ export function PayoutForm({ application }) {
       <Field
         id="holderName"
         label="Account holder name"
-        hint="Must match the name on your ID. We cannot pay a third party."
+        hint="Use the name the bank holds for this account. Rentra compares it with your ID name at review — a comparison, not bank verification."
         error={e.holderName}
       >
         <Input
@@ -257,8 +257,8 @@ export function PayoutForm({ application }) {
 
       {application?.payoutNameMatch === false ? (
         <p className="rounded-md border-l-4 border-danger bg-danger-bg p-3 text-tiny text-danger">
-          The holder name does not match the name on your ID. We cannot approve a payout destination
-          in someone else&rsquo;s name — please correct it, or tell us at review.
+          The holder name differs from the name on your ID. Rentra reviews this; payouts need a
+          destination in your name — correct it, or explain at review.
         </p>
       ) : null}
 

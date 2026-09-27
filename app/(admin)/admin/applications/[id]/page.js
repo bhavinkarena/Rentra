@@ -213,7 +213,7 @@ export default async function ApplicationReviewPage({ params, searchParams }) {
                 {app.payoutIfsc ? <Row label="IFSC" value={app.payoutIfsc} mono /> : null}
                 <Row label="Holder name" value={app.payoutHolderName ?? '—'} />
                 <Row
-                  label="Name comparison"
+                  label="Name comparison (not verification)"
                   value={
                     app.payoutNameMatch === true
                       ? 'Yes'
@@ -227,7 +227,7 @@ export default async function ApplicationReviewPage({ params, searchParams }) {
                 {app.payoutNameMatch === false ? (
                   <p className="mt-2 text-tiny text-danger">
                     Blocks approval. Paying out to a third-party account is how a marketplace
-                    becomes a laundering route — get a destination in their own verified name.
+                    becomes a laundering route — ask for a destination in their own name.
                   </p>
                 ) : null}
               </Panel>

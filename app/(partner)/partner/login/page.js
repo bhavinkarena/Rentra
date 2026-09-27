@@ -43,6 +43,13 @@ export default async function PartnerLoginPage({ searchParams }) {
         </p>
       ) : null}
 
+      {params?.session === 'reauth' ? (
+        <p role="status" className="mt-5 rounded-md border border-border bg-card p-3 text-meta">
+          Sign in again to confirm your payout change. Your draft is saved — open Settings, then
+          Payout destination.
+        </p>
+      ) : null}
+
       {params?.session === 'ended' ? (
         <p role="status" className="mt-5 rounded-md border border-border bg-card p-3 text-meta">
           Sign in again to continue. Your previous session may have expired or been revoked.

@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { CalendarDays, Clock, Mail, Phone, Users } from 'lucide-react';
+import { randomUUID } from 'node:crypto';
 import AccountLifecyclePanel from './AccountLifecyclePanel';
+import { FailDestinationForm } from './PayoutDestinationAdmin';
 import { changeClientLifecycle } from '@/lib/actions/admin';
 import { AdminEmpty, AdminPage, AdminPageHeader, Pager, StatusBadge } from './AdminPrimitives';
 import {
@@ -186,6 +188,11 @@ const CLIENT_TABS = (data) => [
   { key: 'visits', label: 'Upcoming visits', count: data.upcoming.total },
   { key: 'application', label: 'Application' },
   { key: 'account', label: 'Account details' },
+  {
+    key: 'payout',
+    label: 'Payout destinations',
+    count: data.payoutDestinations?.history?.length ?? 0,
+  },
   { key: 'history', label: 'Activity log', count: data.history.length },
 ];
 
@@ -519,6 +526,69 @@ export function AdminClientDetail({ data, listHref: backHref = '/admin/clients',
             </SectionCard>
             <div className="space-y-5 lg:sticky lg:top-24">{lifecycle}</div>
           </div>
+        ) : null}
+
+        {active === 'payout' && data.payoutDestinations ? (
+          <SectionCard
+            id="payout"
+            title="Payout destinations"
+            description="Versions are append-only; payouts keep the version they were created with. Provider verification is not available, so no version can be marked verified here."
+          >
+            <div className="space-y-4 text-meta">
+              <p
+                role="status"
+                className="rounded-md border-l-4 border-amber-500 bg-amber-100 p-3 text-amber-900"
+              >
+                <strong>
+                  {data.payoutDestinations.readiness.ready ? 'Ready.' : 'Payouts disabled.'}
+                </strong>{' '}
+                {data.payoutDestinations.readiness.reason}
+              </p>
+              {data.payoutDestinations.history.length ? (
+                <ol className="space-y-3">
+                  {data.payoutDestinations.history.map((d) => (
+                    <li key={d.id} className="space-y-1 rounded-md border border-border p-3">
+                      <p className="flex flex-wrap items-center gap-2 font-semibold">
+                        Version {d.version} · {d.masked}{' '}
+                        <StatusBadge
+                          tone={
+                            d.state === 'failed'
+                              ? 'danger'
+                              : d.state === 'verified'
+                                ? 'success'
+                                : d.state === 'submitted'
+                                  ? 'warning'
+                                  : 'neutral'
+                          }
+                        >
+                          {d.stateLabel}
+                        </StatusBadge>
+                      </p>
+                      <p className="text-ink-600">
+                        {d.holderName} · name comparison: {d.nameCheck} (not verification) · source{' '}
+                        {d.source} · open payouts pinned: {d.pinnedPayouts}
+                      </p>
+                      {d.state === 'failed' ? (
+                        <p className="text-danger">
+                          Failed by {d.decidedBy ?? 'admin'}: {d.failureReason}
+                        </p>
+                      ) : null}
+                      {['submitted', 'verified'].includes(d.state) ? (
+                        <FailDestinationForm
+                          key={`${d.id}-${d.state}`}
+                          clientId={client.id}
+                          destination={d}
+                          requestKey={randomUUID()}
+                        />
+                      ) : null}
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p>No payout destination submitted.</p>
+              )}
+            </div>
+          </SectionCard>
         ) : null}
 
         {active === 'history' ? (

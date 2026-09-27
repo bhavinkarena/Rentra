@@ -1,0 +1,141 @@
+import { randomUUID } from 'node:crypto';
+import Link from 'next/link';
+import { History, ShieldAlert, ShieldCheck, WalletCards } from 'lucide-react';
+import { PartnerPageHeader } from './PortalPrimitives';
+import { ChangeDestinationForm, SignInAgain, SubmitDraftForm } from './PayoutDestinationForms';
+
+const ist = (value) =>
+  value
+    ? new Date(value).toLocaleString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      })
+    : '—';
+const chip = 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold';
+const TONE = {
+  submitted: 'bg-amber-100 text-amber-800',
+  verified: 'bg-success-bg text-success',
+  failed: 'bg-danger-bg text-danger',
+  draft: 'bg-info-bg text-ink-800',
+  superseded: 'bg-ink-50 text-ink-700',
+};
+const NAME = {
+  same: 'Name matches your ID name',
+  different: 'Name differs from your ID name',
+  unknown: 'Name not compared',
+};
+
+function Card({ title, icon: Icon, children }) {
+  return (
+    <section className="rounded-lg border border-border bg-card p-5 shadow-xs sm:p-6">
+      <h2 className="flex items-center gap-2 text-h4 font-bold text-ink-900">
+        <Icon className="size-[18px] text-brand-700" aria-hidden="true" /> {title}
+      </h2>
+      <div className="mt-4 space-y-3 text-meta">{children}</div>
+    </section>
+  );
+}
+
+function Version({ d }) {
+  return (
+    <div className="space-y-1">
+      <p className="flex flex-wrap items-center gap-2 font-semibold">
+        Version {d.version} · {d.masked}{' '}
+        <span className={`${chip} ${TONE[d.state]}`}>{d.stateLabel}</span>
+      </p>
+      <p className="text-ink-600">
+        {d.holderName} · {NAME[d.nameCheck]} (a comparison, not verification)
+        {d.submittedAt ? ` · submitted ${ist(d.submittedAt)}` : ''}
+      </p>
+      {d.state === 'failed' ? <p className="text-danger">Reason: {d.failureReason}</p> : null}
+    </div>
+  );
+}
+
+export default function PayoutDestinations({ data }) {
+  const auth = data.recentAuth;
+  return (
+    <div className="mx-auto w-full max-w-[980px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <Link
+        href="/partner/settings"
+        className="mb-3 inline-flex min-h-9 items-center text-tiny font-semibold text-brand-700 hover:underline"
+      >
+        ← Settings
+      </Link>
+      <PartnerPageHeader
+        eyebrow="Account"
+        title="Payout destination"
+        description="Where Rentra will send your money once payouts are enabled. Every change is kept as a version."
+      />
+      <div className="mt-6 space-y-5">
+        <p
+          role="status"
+          className={`flex items-start gap-2 rounded-md border-l-4 p-3 text-meta ${data.readiness.ready ? 'border-success bg-success-bg' : 'border-amber-500 bg-amber-100 text-amber-900'}`}
+        >
+          {data.readiness.ready ? (
+            <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          ) : (
+            <ShieldAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          )}
+          <span>
+            <strong>{data.readiness.ready ? 'Ready for payouts.' : 'Payouts disabled.'}</strong>{' '}
+            {data.readiness.reason}
+          </span>
+        </p>
+        <Card title="Current destination" icon={WalletCards}>
+          {data.current ? <Version d={data.current} /> : <p>No current destination.</p>}
+        </Card>
+        {data.draft ? (
+          <Card title="Draft waiting for confirmation" icon={History}>
+            <Version d={data.draft} />
+            {auth.required && !auth.fresh ? (
+              <>
+                <p>
+                  Changes to where money goes need a sign-in within the last {auth.minutes} minutes.
+                  Your draft is kept.
+                </p>
+                <SignInAgain />
+              </>
+            ) : (
+              <SubmitDraftForm
+                key={`draft-${data.latestVersion}`}
+                draft={data.draft}
+                latestVersion={data.latestVersion}
+              />
+            )}
+          </Card>
+        ) : null}
+        <Card title="Change destination" icon={WalletCards}>
+          <p className="text-ink-600">
+            {auth.required
+              ? auth.fresh
+                ? `Signed in at ${ist(auth.authenticatedAt)} — changes can be submitted until ${ist(auth.freshUntil)}.`
+                : `You signed in at ${ist(auth.authenticatedAt)}. A change will be saved as a draft until you sign in again.`
+              : 'Your application is still under review; Rentra checks these details at review.'}{' '}
+            Payouts already scheduled keep the version they were created with.
+          </p>
+          <ChangeDestinationForm
+            key={`change-${data.latestVersion}`}
+            latestVersion={data.latestVersion}
+            requestKey={randomUUID()}
+            current={data.current}
+          />
+        </Card>
+        <Card title="History" icon={History}>
+          {data.history.length ? (
+            <ol className="space-y-3">
+              {data.history.map((d) => (
+                <li key={d.id} className="border-l-2 border-border pl-3">
+                  <Version d={d} />
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p>No destination versions yet.</p>
+          )}
+        </Card>
+      </div>
+    </div>
+  );
+}
