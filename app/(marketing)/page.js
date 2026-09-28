@@ -1,12 +1,13 @@
 import { publicMetadata } from '@/lib/seo/metadata';
 import Link from '@/components/navigation/NavigationLink';
-import Image from 'next/image';
+import Image from '@/components/rentra/PropertyImage';
 import SearchBar from '@/components/rentra/SearchBar';
 import ListingCard from '@/components/rentra/ListingCard';
 import TrustStrip from '@/components/rentra/TrustStrip';
 import { DISCOVERY_INTENTS } from '@/lib/domain/discovery';
 import { discoveryApi } from '@/lib/api/endpoints';
 import { degradeOnFailure, EMPTY_REGISTRY } from '@/lib/api/resilient';
+import { ArrowRight, Compass, Sun, Waves, Flame, Camera, Users } from 'lucide-react';
 
 export const metadata = publicMetadata({
   title: 'Explore farmhouses and day visits',
@@ -33,71 +34,124 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="relative border-b border-border">
-        {heroPhoto ? (
-          <>
-            <Image
-              src={heroPhoto.url}
-              alt=""
-              fill
-              /* `priority` is deprecated in Next 16. The hero is the one
-                 unambiguous LCP element on every viewport, so it is the only
-                 image on the page that earns a preload. */
-              preload
-              quality={60}
-              sizes="100vw"
-              className="object-cover"
-            />
-            {/* Scrim, not a tint: keeps AA contrast on the headline over any
-                photo while letting the photograph still read as the subject. */}
-            <div className="absolute inset-0 bg-gradient-to-r from-brand-950/92 via-brand-950/75 to-brand-900/45" />
-          </>
-        ) : (
-          <div className="absolute inset-0 bg-brand-900" />
-        )}
-        <div className="relative mx-auto max-w-(--container-page) px-6 py-20 md:py-28">
-          <h1 className="max-w-2xl text-display text-white">
-            Find a place for your next day out or overnight stay.
-          </h1>
-          <p className="mt-4 max-w-prose text-body-lg text-brand-100">
-            Explore places, compare facilities and choose your visit dates. See current rent and
-            platform fees before continuing.
-          </p>
-          <SearchBar />
-
-          <ul className="mt-6 flex flex-wrap gap-2">
-            {DISCOVERY_INTENTS.map((intent) => (
-              <li key={intent.slug}>
-                <Link
-                  href={
-                    primaryCity && farmhouse
-                      ? `/${primaryCity.slug}/farmhouse/intent/${intent.slug}`
-                      : '/search'
-                  }
-                  className="inline-block rounded-full border border-white/25 bg-white/10 px-4 py-2 text-meta font-medium text-white backdrop-blur transition-colors hover:border-white/50 hover:bg-white/20"
-                >
-                  {intent.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-(--container-page) px-6 py-12">
-        <TrustStrip />
-      </section>
-
-      <section className="mx-auto max-w-(--container-page) px-6 pb-12">
-        <div className="flex items-baseline justify-between gap-4">
-          <h2 className="text-h2">Explore places</h2>
-          <p className="text-meta text-ink-500">
-            <Link href="/search" className="underline">
-              View all places
+      <section className="mx-auto max-w-(--container-page) px-4 pt-6 pb-8 sm:px-6 sm:pt-8 lg:pt-10">
+        <div className="grid items-center gap-7 md:grid-cols-[0.9fr_1.1fr] md:gap-10">
+          <div className="py-2 md:py-8">
+            <h1 className="max-w-lg text-display text-brand-950">
+              A little closer to a great escape.
+            </h1>
+            <p className="mt-5 max-w-md text-body-lg text-ink-600">
+              Farmhouses, pool days and overnight stays. Find your place, choose your dates and see
+              the price before booking.
+            </p>
+            <Link
+              href="#find-a-place"
+              className="mt-6 hidden min-h-11 items-center gap-2 text-meta font-semibold text-brand-700 hover:underline md:inline-flex"
+            >
+              Find your next visit <ArrowRight className="size-4" aria-hidden="true" />
             </Link>
-          </p>
+          </div>
+          <div className="relative aspect-[16/8] overflow-hidden rounded-xl bg-brand-100 md:aspect-[4/3] lg:max-h-[420px]">
+            {heroPhoto ? (
+              <>
+                <Image
+                  src={heroPhoto.url}
+                  alt={heroPhoto.alt || listings[0].title}
+                  fill
+                  preload
+                  quality={60}
+                  sizes="(min-width: 1280px) 680px, (min-width: 768px) 55vw, 100vw"
+                  className="object-cover"
+                />
+                <Link
+                  href={listings[0].href}
+                  className="absolute right-4 bottom-4 left-4 flex min-h-14 items-center justify-between gap-3 rounded-md bg-white px-4 py-3 text-ink-900 shadow-sm sm:right-5 sm:bottom-5 sm:left-auto sm:min-w-64"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate text-meta font-semibold">
+                      {listings[0].title}
+                    </span>
+                    <span className="block text-tiny text-ink-600">{listings[0].area}</span>
+                  </span>
+                  <ArrowRight className="size-4 shrink-0" aria-hidden="true" />
+                </Link>
+              </>
+            ) : (
+              <div className="flex h-full items-center justify-center gap-3 text-brand-800">
+                <Compass className="size-8" aria-hidden="true" />
+                <span className="text-meta">Your next visit starts here</span>
+              </div>
+            )}
+          </div>
         </div>
-        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div id="find-a-place" className="mt-7 md:mt-8">
+          <SearchBar />
+        </div>
+        <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-1 sm:gap-x-7" aria-label="Ways to explore">
+          {DISCOVERY_INTENTS.map((intent) => (
+            <li key={intent.slug}>
+              <Link
+                href={
+                  primaryCity && farmhouse
+                    ? `/${primaryCity.slug}/farmhouse/intent/${intent.slug}`
+                    : '/search'
+                }
+                className="inline-flex min-h-11 items-center gap-2 border-b border-transparent text-meta font-medium text-ink-600 transition-colors hover:border-brand-600 hover:text-brand-700"
+              >
+                {(() => {
+                  const Icon =
+                    {
+                      'day-picnic': Sun,
+                      'with-pool': Waves,
+                      'bonfire-allowed': Flame,
+                      'pre-wedding-shoot': Camera,
+                      'corporate-offsite': Users,
+                    }[intent.slug] || Compass;
+                  return <Icon className="size-4" aria-hidden="true" />;
+                })()}
+                {intent.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="border-y border-border bg-brand-50/60">
+        <div className="mx-auto max-w-(--container-page) px-4 py-7 sm:px-6 sm:py-8">
+          <TrustStrip />
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-(--container-page) px-4 py-10 sm:px-6 sm:py-14">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 className="text-h2">Find your kind of getaway</h2>
+            <p className="mt-2 text-meta text-ink-600">
+              Room to unwind, places to gather. Explore what’s available.
+            </p>
+          </div>
+          <Link
+            href="/search"
+            className="inline-flex min-h-11 items-center gap-2 text-meta font-semibold text-brand-700 hover:underline"
+          >
+            View all places <ArrowRight className="size-4" aria-hidden="true" />
+          </Link>
+        </div>
+        {!listings.length && (
+          <div className="mt-8 rounded-lg border border-border bg-card p-8">
+            <h3 className="text-h3">Let’s find your next visit</h3>
+            <p className="mt-2 text-meta text-ink-600">
+              Places could not load right now. Search to check current availability.
+            </p>
+            <Link
+              href="/search"
+              className="mt-4 inline-flex min-h-11 items-center gap-2 font-semibold text-brand-700 hover:underline"
+            >
+              Search places <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+          </div>
+        )}
+        <div className="mt-7 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {listings.map((listing) => (
             <ListingCard key={listing.id} listing={listing} />
           ))}

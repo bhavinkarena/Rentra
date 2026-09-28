@@ -1,6 +1,6 @@
 // No data reads or client effects: loading boundaries must render immediately.
 function Block({ className = '' }) {
-  return <span className={`block max-w-full rounded-md bg-ink-100 ${className}`} />;
+  return <span className={`rentra-skeleton block max-w-full rounded-md bg-ink-100 ${className}`} />;
 }
 function Lines({ count = 3 }) {
   return (
@@ -222,11 +222,15 @@ function Content({ screen }) {
     case 'home':
       return (
         <>
-          <div className="space-y-6 rounded-2xl bg-brand-50 px-6 py-16 sm:py-24">
-            <Block className="h-12 w-3/4 bg-brand-100" />
-            <Block className="h-5 w-1/2" />
-            <Block className="h-16 w-full max-w-3xl rounded-full bg-white" />
+          <div className="grid items-center gap-7 py-6 md:grid-cols-[0.9fr_1.1fr]">
+            <div className="space-y-5">
+              <Block className="h-12 w-full" />
+              <Block className="h-12 w-3/4" />
+              <Lines count={2} />
+            </div>
+            <Block className="aspect-[16/8] w-full rounded-xl md:aspect-4/3" />
           </div>
+          <Block className="h-56 w-full rounded-lg md:h-24" />
           <Header />
           <Cards count={3} />
         </>

@@ -53,7 +53,7 @@ export default async function AdminLayout({ children }) {
           <Link href="/admin" className="flex shrink-0 items-center gap-2.5">
             <RentraLogo tone="inverse" className="h-7 w-auto" />
             <span className="h-5 w-px bg-ink-700" aria-hidden="true" />
-            <span className="text-meta font-semibold text-ink-400">admin</span>
+            <span className="text-meta font-semibold text-brand-100">admin</span>
           </Link>
         </div>
       </header>

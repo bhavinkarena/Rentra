@@ -52,7 +52,7 @@ export default function DiscoveryFilters({ filters, registry, route, path }) {
       id="discovery-filters"
       action={path}
       onSubmit={() => measureBrowser('search_submitted')}
-      className="mt-6 rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5"
+      className="mt-7 rounded-lg border border-border bg-card p-4 text-meta sm:p-6"
     >
       {!route?.city && <input type="hidden" name="city" value={kind ? city : ''} />}
       {!route?.area && <input type="hidden" name="area" value={kind === 'area' ? area : ''} />}
@@ -60,7 +60,7 @@ export default function DiscoveryFilters({ filters, registry, route, path }) {
         <input type="hidden" name="dates" value={dates.filter(Boolean).join(',')} />
       )}
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <label className="font-medium">
           Where
           {route?.city ? (
@@ -312,10 +312,10 @@ export default function DiscoveryFilters({ filters, registry, route, path }) {
 
       <div className="mt-5 flex flex-wrap items-center gap-4">
         <button
-          className="inline-flex min-h-12 items-center gap-2 rounded-full bg-brand-600 px-6 font-semibold text-white hover:bg-brand-700"
+          className="inline-flex min-h-12 items-center gap-2 rounded-md bg-brand-600 px-6 font-semibold text-white transition-colors hover:bg-brand-700"
           type="submit"
         >
-          <Search className="size-4" />
+          <Search className="size-4" aria-hidden="true" />
           Show places
         </button>
         <Link href={path} className="inline-flex min-h-11 items-center text-brand-700 underline">

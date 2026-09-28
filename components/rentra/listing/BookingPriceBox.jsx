@@ -39,9 +39,9 @@ export default function BookingPriceBox({
   return (
     <div
       id="booking-summary"
-      className="scroll-mt-24 rounded-2xl border border-border bg-card p-5 shadow-[0_12px_32px_-16px_rgba(0,0,0,0.25)]"
+      className="scroll-mt-24 rounded-lg border border-ink-200 bg-card p-5 shadow-md sm:p-6"
     >
-      <h2 className="sr-only">Price for your visit</h2>
+      <h2 className="mb-5 border-b border-border pb-4 text-h4">Plan your visit</h2>
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -81,7 +81,7 @@ export default function BookingPriceBox({
               disabled={!selectionReady || !prices?.[item.id]}
               aria-pressed={slot === item.id}
               onClick={() => setSlot(item.id)}
-              className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-md px-1.5 text-xs font-semibold text-ink-600 transition aria-pressed:bg-white aria-pressed:text-brand-800 aria-pressed:shadow-sm disabled:opacity-40"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-md px-1.5 text-xs font-semibold text-ink-600 transition-colors aria-pressed:bg-white aria-pressed:text-brand-800 aria-pressed:shadow-sm disabled:opacity-40"
             >
               <Icon className="size-3.5 shrink-0" aria-hidden="true" />
               {item.label}

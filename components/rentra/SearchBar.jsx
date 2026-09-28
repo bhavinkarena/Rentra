@@ -39,32 +39,37 @@ export default function SearchBar() {
   return (
     <form
       onSubmit={onSubmit}
-      className="flex max-w-3xl flex-col overflow-hidden rounded-lg border border-border bg-card shadow-lg md:flex-row md:items-stretch md:rounded-full"
+      aria-label="Find your next visit"
+      className="grid grid-cols-2 rounded-lg border border-ink-200 bg-card p-2 text-ink-900 shadow-md md:grid-cols-[1.4fr_1.2fr_1.1fr_0.7fr_auto] md:items-center md:p-3"
     >
       <NavigationProgress active={pending} />
       <Cell label="Where">
         <input
+          name="q"
+          autoComplete="off"
           value={area}
           onChange={(e) => setField('area', e.target.value)}
-          placeholder="Kamrej, Surat"
-          className="w-full bg-transparent text-meta text-ink-900 placeholder:text-ink-400 focus:outline-none"
+          placeholder="Kamrej, Surat…"
+          className="min-h-9 w-full bg-transparent text-base text-ink-900 placeholder:text-ink-500 md:text-meta"
         />
       </Cell>
 
       <Cell label="When">
         <input
+          name="date"
           type="date"
           value={date}
           onChange={(e) => setField('date', e.target.value)}
-          className="w-full bg-transparent text-meta text-ink-900 tabular focus:outline-none"
+          className="min-h-9 w-full min-w-0 bg-transparent text-base text-ink-900 tabular md:text-meta"
         />
       </Cell>
 
       <Cell label="Slot">
         <select
+          name="slot"
           value={slot}
           onChange={(e) => setField('slot', e.target.value)}
-          className="w-full bg-transparent text-meta text-ink-900 focus:outline-none"
+          className="min-h-9 w-full bg-transparent text-base text-ink-900 md:text-meta"
         >
           {Object.values(SLOTS).map((s) => (
             <option key={s.id} value={s.id}>
@@ -76,23 +81,24 @@ export default function SearchBar() {
 
       <Cell label="Guests" last>
         <input
+          name="guests"
           type="number"
           min={1}
           max={500}
           value={guests}
           onChange={(e) => setField('guests', Number(e.target.value))}
-          className="w-full bg-transparent text-meta text-ink-900 tabular focus:outline-none"
+          className="min-h-9 w-full bg-transparent text-base text-ink-900 tabular md:text-meta"
         />
       </Cell>
 
-      <div className="flex items-center p-2">
+      <div className="col-span-2 flex items-center p-2 md:col-span-1">
         <button
           onPointerEnter={() => router.prefetch(destination())}
           onFocus={() => router.prefetch(destination())}
           type="submit"
           disabled={pending}
           aria-busy={pending}
-          className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-600 px-6 py-3.5 text-meta font-semibold text-white transition-colors hover:bg-brand-700"
+          className="flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-brand-600 px-6 py-3 text-meta font-semibold text-white transition-[background-color,transform] duration-150 hover:bg-brand-700 active:scale-[0.98] disabled:cursor-wait disabled:opacity-70"
         >
           <Search className="size-4" aria-hidden="true" />
           {pending ? 'Searching…' : 'Search'}
@@ -105,13 +111,11 @@ export default function SearchBar() {
 function Cell({ label, children, last }) {
   return (
     <label
-      className={`min-w-0 flex-1 cursor-text px-5 py-3 transition-colors hover:bg-ink-50 ${
-        last ? '' : 'border-b border-border md:border-b-0 md:border-r'
+      className={`min-w-0 cursor-text rounded-sm px-3 py-2 transition-colors hover:bg-ink-50 focus-within:bg-brand-50 sm:px-4 ${
+        last ? '' : 'md:border-r md:border-border'
       }`}
     >
-      <span className="block text-tiny font-bold tracking-wider text-ink-700 uppercase">
-        {label}
-      </span>
+      <span className="block text-tiny font-semibold text-ink-600">{label}</span>
       <span className="mt-0.5 block">{children}</span>
     </label>
   );

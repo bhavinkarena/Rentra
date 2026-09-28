@@ -1,0 +1,84 @@
+{
+  "part": "Rentra UI polish",
+  "acceptance": "Customer journey regression",
+  "environment": "Next.js dev frontend :3118 / disposable local API :4118 / owned PostgreSQL :55437",
+  "provider": "not exercised",
+  "checks": [
+    {
+      "name": "Anonymous listing shows approximate area and address privacy",
+      "passed": true
+    },
+    {
+      "name": "Anonymous selection displays price and guest count",
+      "passed": true
+    },
+    {
+      "name": "Booking starts fresh login",
+      "passed": true
+    },
+    {
+      "name": "Disposable login explicitly identifies development OTP",
+      "passed": true
+    },
+    {
+      "name": "Login restores saved listing selection",
+      "passed": true
+    },
+    {
+      "name": "Checkout review retains quoted amount",
+      "passed": true
+    },
+    {
+      "name": "Checkout creates a persisted unpaid hold",
+      "passed": true
+    },
+    {
+      "name": "Checkout hold survives refresh",
+      "passed": true
+    },
+    {
+      "name": "Privacy access form acknowledges request",
+      "passed": true
+    },
+    {
+      "name": "Privacy request persists on refresh",
+      "passed": true
+    },
+    {
+      "name": "Customer support form opens scoped conversation",
+      "passed": true
+    },
+    {
+      "name": "Support reply persists after refresh",
+      "passed": true
+    },
+    {
+      "name": "Completed visit review is accepted into moderation",
+      "passed": true
+    },
+    {
+      "name": "Review persists and cannot be submitted twice",
+      "passed": true
+    },
+    {
+      "name": "Unmoderated customer review remains absent publicly",
+      "passed": true
+    },
+    {
+      "name": "Customer route has no mobile horizontal overflow: listing",
+      "passed": true
+    },
+    {
+      "name": "Customer route has no mobile horizontal overflow: account",
+      "passed": true
+    },
+    {
+      "name": "Customer route has no mobile horizontal overflow: support",
+      "passed": true
+    },
+    {
+      "name": "Customer route has no mobile horizontal overflow: bookings",
+      "passed": true
+    }
+  ]
+}

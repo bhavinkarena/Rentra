@@ -77,9 +77,9 @@ export function KeyFacts({ listing }) {
   return (
     <ul className="grid grid-cols-2 gap-4 sm:grid-cols-4">
       {facts.map(({ Icon, label, value }) => (
-        <li key={label} className="rounded-md border border-border bg-card p-3.5">
+        <li key={label} className="border-l border-border pl-4 first:border-l-0 first:pl-0">
           <Icon className="size-5 text-brand-600" aria-hidden="true" />
-          <p className="mt-2 text-tiny font-bold tracking-wider text-ink-500 uppercase">{label}</p>
+          <p className="mt-2 text-meta text-ink-600">{label}</p>
           <p className="mt-0.5 text-h4 font-bold tabular">{value}</p>
         </li>
       ))}
@@ -242,15 +242,13 @@ export function HouseRules({ listing }) {
           ]
             .filter(([, v]) => v)
             .map(([label, value]) => (
-              <div key={label} className="flex items-center gap-2.5 rounded-md bg-brand-50 p-3.5">
-                <Clock className="size-4.5 shrink-0 text-brand-700" aria-hidden="true" />
-                <div>
-                  <dt className="text-tiny font-bold tracking-wider text-brand-700 uppercase">
-                    {label}
-                  </dt>
-                  {/* A window, not a fixed time — that is the local convention. */}
-                  <dd className="text-meta font-semibold">{value}</dd>
-                </div>
+              <div key={label} className="rounded-md bg-brand-50 p-4">
+                <dt className="flex items-center gap-2 text-meta font-medium text-brand-700">
+                  <Clock className="size-4 shrink-0" aria-hidden="true" />
+                  {label}
+                </dt>
+                {/* A window, not a fixed time — that is the local convention. */}
+                <dd className="mt-1 pl-6 text-meta font-semibold">{value}</dd>
               </div>
             ))}
         </dl>

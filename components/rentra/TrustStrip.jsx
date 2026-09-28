@@ -23,15 +23,15 @@ const ITEMS = [
 
 export default function TrustStrip() {
   return (
-    <ul className="grid gap-5 sm:grid-cols-3">
+    <ul className="grid gap-6 sm:grid-cols-3 sm:gap-8">
       {ITEMS.map(({ Icon, title, body }) => (
         <li key={title} className="flex items-start gap-3">
-          <span className="grid size-10 shrink-0 place-items-center rounded-md bg-brand-50">
+          <span className="mt-0.5 grid size-7 shrink-0 place-items-center">
             <Icon className="size-5 text-brand-600" aria-hidden="true" />
           </span>
           <div>
             <h3 className="text-meta font-bold">{title}</h3>
-            <p className="mt-0.5 text-tiny leading-relaxed text-ink-600">{body}</p>
+            <p className="mt-1 text-meta leading-relaxed text-ink-600">{body}</p>
           </div>
         </li>
       ))}

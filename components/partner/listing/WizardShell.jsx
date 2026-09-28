@@ -66,12 +66,12 @@ export default function WizardShell({
             <RentraLogo className="h-6 w-auto shrink-0" />
             <span className="hidden h-4 w-px shrink-0 bg-ink-200 sm:block" aria-hidden="true" />
 
-            <p className="min-w-0 flex-1 truncate text-tiny font-bold tracking-wider text-brand-700 uppercase">
+            <p className="min-w-0 flex-1 truncate text-meta font-semibold text-brand-800">
               {progress.chapterLabel}
-              <span className="ml-2 hidden font-medium tracking-normal text-ink-400 normal-case sm:inline">
+              <span className="ml-2 hidden font-medium text-ink-600 sm:inline">
                 Chapter {progress.chapterNumber} of {progress.chapterTotal}
               </span>
-              <span className="ml-2 font-medium tracking-normal text-ink-400 normal-case sm:hidden">
+              <span className="ml-2 font-medium text-ink-600 sm:hidden">
                 Step {progress.stepNumber} of {progress.stepTotal}
               </span>
             </p>
@@ -83,7 +83,8 @@ export default function WizardShell({
 
             <Link
               href={`/partner/listings/${listingId}`}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1.5 text-tiny font-semibold text-ink-600 transition-colors hover:bg-ink-100 hover:text-ink-900"
+              aria-label="Exit setup"
+              className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 rounded-full px-2.5 py-1.5 text-tiny font-semibold text-ink-600 transition-colors hover:bg-ink-100 hover:text-ink-900"
             >
               <X className="size-3.5" aria-hidden="true" />
               <span className="hidden sm:inline">Exit setup</span>
@@ -101,7 +102,7 @@ export default function WizardShell({
         >
           <div
             key={step.id}
-            className="mx-auto grid w-full max-w-[1180px] animate-in gap-6 px-4 pt-5 pb-16 duration-500 ease-out fade-in slide-in-from-bottom-4 sm:px-6 sm:pt-8 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-8 lg:px-8"
+            className="mx-auto grid w-full max-w-[1180px] gap-6 px-4 pt-5 pb-16 sm:px-6 sm:pt-8 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-8 lg:px-8"
           >
             <StepRail progress={progress} stepHrefs={stepHrefs} />
             <div className="min-w-0">
@@ -115,14 +116,14 @@ export default function WizardShell({
 
         <footer
           data-wizard-actions
-          className="z-30 shrink-0 border-t border-border bg-card/95 backdrop-blur"
+          className="z-30 shrink-0 border-t border-border bg-card"
           style={{ paddingBottom: 'max(0px, env(safe-area-inset-bottom))' }}
         >
           <div className="mx-auto flex w-full max-w-[1180px] items-center gap-3 px-4 py-3 sm:px-6 lg:pl-[300px] lg:pr-8">
             {prevHref ? (
               <Link
                 href={prevHref}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-md px-3 py-2.5 text-meta font-semibold text-ink-700 transition-colors hover:bg-ink-100 hover:text-ink-900"
+                className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 rounded-md px-3 py-2.5 text-meta font-semibold text-ink-700 transition-colors hover:bg-ink-100 hover:text-ink-900"
               >
                 <ArrowLeft className="size-4" aria-hidden="true" />
                 <span className="hidden sm:inline">Back</span>
@@ -134,14 +135,14 @@ export default function WizardShell({
             {nextHref ? (
               <Link
                 href={nextHref}
-                className="shrink-0 text-tiny font-medium text-ink-500 underline decoration-ink-300 underline-offset-4 transition-colors hover:text-ink-900"
+                className="inline-flex min-h-11 shrink-0 items-center text-tiny font-medium text-ink-600 underline decoration-ink-300 underline-offset-4 transition-colors hover:text-ink-900"
               >
                 Skip for now
               </Link>
             ) : null}
 
             {isSubmitStep && !busy ? (
-              <p className="hidden text-tiny text-ink-400 md:block">
+              <p className="hidden text-tiny text-ink-600 md:block">
                 Changes save when you continue
               </p>
             ) : null}

@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from '@/components/rentra/PropertyImage';
 import {
   Baby,
   CalendarDays,
@@ -289,7 +289,7 @@ export function SummaryCard({ data, paid = false, timer = null }) {
   return (
     <section
       aria-label="Booking summary"
-      className="overflow-hidden rounded-2xl border border-border bg-card shadow-[0_12px_32px_-18px_rgba(23,26,24,0.28)]"
+      className="overflow-hidden rounded-lg border border-border bg-card shadow-md"
     >
       {timer ? (
         <div className="flex justify-center border-b border-border px-4 py-2.5">{timer}</div>
@@ -310,9 +310,9 @@ export function SummaryCard({ data, paid = false, timer = null }) {
 
 export function Section({ icon: Icon, title, action, children, className = '' }) {
   return (
-    <section className={`rounded-2xl border border-border bg-card p-5 sm:p-6 ${className}`}>
+    <section className={`border-b border-border py-6 sm:py-7 ${className}`}>
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="flex items-center gap-2.5 text-h4 text-ink-900">
+        <h2 className="flex min-w-0 items-center gap-2.5 text-h3 text-ink-900">
           {Icon ? <Icon className="size-5 text-brand-700" aria-hidden="true" /> : null}
           {title}
         </h2>

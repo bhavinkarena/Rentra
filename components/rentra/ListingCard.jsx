@@ -1,10 +1,11 @@
 import Link from '@/components/navigation/NavigationLink';
-import Image from 'next/image';
+import Image from './PropertyImage';
 import Rating from './Rating';
 import TrustBadge from './TrustBadge';
 import SaveButton from './SaveButton';
 import { formatINR } from '@/lib/domain/pricing';
 import { formatINRMinor } from '@/lib/domain/booking-money';
+import { ImageOff } from 'lucide-react';
 
 /**
  * A flat ink-100 placeholder. Cheap perceived-performance win on the
@@ -19,12 +20,9 @@ const BLUR =
   ).toString('base64');
 
 /**
- * The most repeated object in the product. Anatomy is deliberately identical
- * to Airbnb / SaffronStays / BookMyFarm — that order is learned behaviour and
- * getting creative with it costs conversion without buying distinctiveness.
+ * The shared discovery card: photograph, property identity, location and price.
  *
- * A Server Component. The only interactive part is the save heart, which is
- * its own tiny client island.
+ * A Server Component with small client islands for photo recovery and saving.
  *
  * Card photos are lazy by default and deliberately NOT preloaded. Next 16's
  * docs are explicit: do not preload when several images could be the LCP
@@ -60,22 +58,23 @@ export default function ListingCard({ listing, eager = false }) {
     .join(' · ');
 
   return (
-    <Link href={href} className="group block">
+    <article className="group relative min-w-0">
       {/* The photo IS the card — no border, no shadow at rest. */}
-      <div className="relative aspect-4/3 overflow-hidden rounded-md bg-ink-100 transition-shadow group-hover:shadow-md">
+      <div className="relative aspect-4/3 overflow-hidden rounded-lg bg-ink-100">
         {photo ? (
           <Image
             src={photo.url}
             alt={photo.alt}
             fill
             loading={eager ? 'eager' : 'lazy'}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, (max-width: 1279px) 33vw, 25vw"
             placeholder={BLUR}
-            className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            className="object-cover transition-transform duration-200 ease-out motion-safe:group-hover:scale-[1.025]"
           />
         ) : (
-          <span className="absolute inset-0 grid place-items-center text-tiny font-semibold tracking-widest text-ink-600 uppercase">
-            photo pending
+          <span className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-meta text-ink-600">
+            <ImageOff className="size-6" aria-hidden="true" />
+            Photos coming soon
           </span>
         )}
 
@@ -91,25 +90,23 @@ export default function ListingCard({ listing, eager = false }) {
         <SaveButton rentableId={listing.id} listingTitle={title} selection={listing.selection} />
 
         {photoCount > 1 ? (
-          <div className="absolute bottom-2.5 left-1/2 flex -translate-x-1/2 gap-1.5">
-            {Array.from({ length: Math.min(photoCount, 5) }).map((_, i) => (
-              <span
-                key={i}
-                className={`size-1.5 rounded-full ${i === 0 ? 'bg-white' : 'bg-white/55'}`}
-              />
-            ))}
-          </div>
+          <span className="pointer-events-none absolute bottom-3 right-3 rounded-sm bg-ink-900/75 px-2 py-1 text-tiny text-white">
+            {photoCount} photos
+          </span>
         ) : null}
       </div>
 
-      <div className="pt-3">
-        {/* Area first, not the property name — people search by place. */}
+      <div className="pt-4">
         <div className="flex items-baseline justify-between gap-2.5">
-          <h3 className="text-h4 font-bold tracking-tight">{area}</h3>
+          <h3 className="min-w-0 text-h4 font-semibold tracking-tight">
+            <Link href={href} className="after:absolute after:inset-0 after:rounded-lg">
+              {title}
+            </Link>
+          </h3>
           {rating !== null && <Rating value={rating} count={reviewCount} />}
         </div>
 
-        <p className="mt-0.5 truncate text-meta text-ink-600">{title}</p>
+        <p className="mt-1 text-meta text-ink-600">{area}</p>
         <p className="mt-1 text-tiny text-ink-500">{capacityLine}</p>
 
         <p className="mt-2 flex flex-wrap items-baseline gap-2">
@@ -130,6 +127,6 @@ export default function ListingCard({ listing, eager = false }) {
         </p>
         {listing.priceNote && <p className="mt-1 text-tiny text-ink-500">{listing.priceNote}</p>}
       </div>
-    </Link>
+    </article>
   );
 }

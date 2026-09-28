@@ -169,7 +169,7 @@ export default async function ListingPage({ params, searchParams }) {
         }}
       />
 
-      <div className="mx-auto max-w-(--container-page) px-6 py-6">
+      <div className="mx-auto max-w-(--container-page) px-4 py-6 sm:px-6">
         <Breadcrumbs crumbs={crumbs} />
 
         <div className="mt-4">
@@ -179,7 +179,7 @@ export default async function ListingPage({ params, searchParams }) {
             have gone by, not before. */}
         <span id="gallery-end" aria-hidden="true" className="block" />
 
-        <div className="mt-8 grid items-start gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="mt-8 grid items-start gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,1fr)_380px]">
           <div className="min-w-0">
             <header>
               <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">

@@ -1,9 +1,9 @@
-import { Plus_Jakarta_Sans } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 
 /**
- * next/font self-hosts the file at build time, so there is no render-blocking
- * request to fonts.googleapis.com and no layout shift.
+ * The existing Google Fonts latin variable file is now checked in. next/font
+ * serves it locally, so builds and page loads need no Google Fonts request.
  *
  * Indic faces are deliberately NOT loaded here. The public site is English in
  * Phase 1; when the Gujarati Client UI lands, load Noto_Sans_Gujarati in the
@@ -11,14 +11,16 @@ import './globals.css';
  * names are already in the --font-sans stack in globals.css, so they activate
  * the moment they are loaded.
  */
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
+const jakarta = localFont({
+  src: '../assets/fonts/PlusJakartaSans-latin-variable.woff2',
+  weight: '400 800',
   variable: '--font-jakarta',
   display: 'swap',
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+
+export const viewport = { themeColor: '#fafbfa' };
 
 export const metadata = {
   metadataBase: new URL(siteUrl),

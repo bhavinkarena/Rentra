@@ -30,7 +30,7 @@ export default function CustomerNavigation({ authenticated = false, compact = fa
               : undefined
           }
           title={label}
-          className="inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full hover:bg-brand-50 aria-[current=page]:bg-brand-50 aria-[current=page]:text-brand-800 sm:px-3"
+          className="inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-md text-ink-600 transition-colors hover:bg-brand-50 hover:text-brand-800 aria-[current=page]:bg-brand-50 aria-[current=page]:text-brand-800 sm:px-3"
         >
           <Icon className="size-4.5" aria-hidden="true" />
           {/* Phones get the icon row; the words return once they fit beside the logo. */}
@@ -50,7 +50,7 @@ export default function CustomerNavigation({ authenticated = false, compact = fa
       ) : (
         <Link
           href="/login"
-          className="inline-flex min-h-11 items-center rounded-full px-3 hover:bg-brand-50"
+          className="ml-1 inline-flex min-h-11 items-center rounded-md bg-brand-600 px-4 text-white transition-colors hover:bg-brand-700"
         >
           Log in
         </Link>

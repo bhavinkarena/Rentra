@@ -32,12 +32,10 @@ export function AdminPageHeader({
       ) : null}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          {eyebrow ? (
-            <p className="text-[0.68rem] font-bold tracking-[0.12em] text-brand-700 uppercase">
-              {eyebrow}
-            </p>
-          ) : null}
-          <h1 className="mt-1 text-h1 text-ink-900">{title}</h1>
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h1 className="text-h1 text-ink-900">{title}</h1>
+            {eyebrow ? <p className="text-meta font-medium text-ink-600">{eyebrow}</p> : null}
+          </div>
           {description ? (
             <p className="mt-2 max-w-3xl text-meta leading-6 text-ink-600">{description}</p>
           ) : null}
@@ -56,23 +54,21 @@ export function AdminKpiCard({ label, value, hint, icon: Icon, tone = 'neutral' 
     danger: 'border-danger/25 bg-danger-bg text-danger',
   };
   return (
-    <article className={`rounded-lg border p-4 shadow-xs sm:p-5 ${styles[tone]}`}>
+    <article className={`rounded-lg border p-4 sm:p-5 ${styles[tone]}`}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-tiny font-semibold text-ink-500">{label}</p>
-          <p className="mt-1 text-[1.75rem] leading-none font-extrabold text-ink-900 tabular">
+          <p className="text-meta font-medium text-ink-600">{label}</p>
+          <p className="mt-2 text-[1.75rem] leading-none font-semibold tracking-[-0.03em] text-ink-900 tabular">
             {value}
           </p>
         </div>
         {Icon ? (
-          <span className="grid size-9 place-items-center rounded-md bg-white/70 ring-1 ring-current/10">
+          <span className="grid size-8 place-items-center rounded-md bg-white/70">
             <Icon className="size-[18px]" aria-hidden="true" />
           </span>
         ) : null}
       </div>
-      {hint ? (
-        <p className="mt-3 hidden text-[0.68rem] leading-4 text-ink-500 sm:block">{hint}</p>
-      ) : null}
+      {hint ? <p className="mt-3 text-tiny leading-5 text-ink-600">{hint}</p> : null}
     </article>
   );
 }
@@ -101,7 +97,7 @@ export function StatusBadge({ children, tone = 'neutral' }) {
   };
   return (
     <span
-      className={`inline-flex rounded-full px-2.5 py-1 text-[0.68rem] font-bold capitalize ring-1 ${tones[tone]}`}
+      className={`inline-flex rounded-full px-2.5 py-1 text-tiny font-semibold capitalize ring-1 ${tones[tone]}`}
     >
       {children}
     </span>

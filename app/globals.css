@@ -76,7 +76,7 @@
   --color-ink-100: #ebeeeb;
   --color-ink-200: #dce1dd; /* dividers, card outlines */
   --color-ink-300: #c0c7c2; /* input borders */
-  --color-ink-400: #9aa39d; /* non-text · 2.59:1 */
+  --color-ink-400: #66736a; /* muted text, including placeholders */
   --color-ink-500: #59655d; /* secondary text: AA on paper and pale surfaces */
   --color-ink-600: #5a635d; /* secondary text · 6.22:1 AA */
   --color-ink-700: #414843;
@@ -95,17 +95,17 @@
   --color-whatsapp: #1fa855; /* the ONE permitted second accent */
 
   /* --- Type scale --- */
-  --text-display: 2.75rem;
-  --text-display--line-height: 1.06;
+  --text-display: clamp(2.5rem, 4.2vw, 3.75rem);
+  --text-display--line-height: 1.12;
   --text-display--letter-spacing: -0.035em;
-  --text-display--font-weight: 800;
+  --text-display--font-weight: 600;
 
-  --text-h1: 2.125rem;
+  --text-h1: clamp(1.875rem, 3vw, 2.5rem);
   --text-h1--line-height: 1.15;
   --text-h1--letter-spacing: -0.03em;
   --text-h1--font-weight: 700;
 
-  --text-h2: 1.625rem;
+  --text-h2: clamp(1.5rem, 2.4vw, 2rem);
   --text-h2--line-height: 1.22;
   --text-h2--letter-spacing: -0.025em;
   --text-h2--font-weight: 700;
@@ -133,10 +133,10 @@
   --text-tiny--font-weight: 500;
 
   /* --- Radius: exact Rentra values, overriding shadcn's ratio scale --- */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
 
   /* --- Elevation: soft and low. Depth comes from photography. --- */
   --shadow-xs: 0 1px 2px rgba(23, 26, 24, 0.05);
@@ -146,7 +146,7 @@
   --shadow-focus: 0 0 0 3px rgba(46, 100, 73, 0.32);
 
   /* --- Layout --- */
-  --container-page: 1160px;
+  --container-page: 1280px;
 }
 
 /* ==========================================================================
@@ -271,6 +271,40 @@
   html {
     @apply font-sans;
     -webkit-font-smoothing: antialiased;
+    scroll-padding-top: 6rem;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--color-brand-200);
+    color: var(--color-brand-950);
+  }
+
+  :is(input, textarea) {
+    caret-color: var(--primary);
+  }
+
+  :is(button, a, summary, select, input[type='checkbox'], input[type='radio']) {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :is(section, [id]) {
+    scroll-margin-top: 6rem;
+  }
+
+  [role='dialog'] {
+    overscroll-behavior: contain;
   }
 
   /* Devanagari and Gujarati need ~15-20% more leading or the matras clip. */
@@ -473,18 +507,18 @@
 
 /*
  * Client and Super Admin workspaces: a denser, data-first type scale (about
- * 1-2px smaller) and Inter, which has clear tabular figures. Scoped to the
+ * 1-2px smaller) and the same brand face with tabular figures. Scoped to the
  * portal shell, so the customer site keeps its own scale and typeface.
  */
 .portal-ui {
-  --text-h1: 1.625rem;
-  --text-h2: 1.375rem;
+  --text-h1: 1.875rem;
+  --text-h2: 1.5rem;
   --text-h3: 1.0625rem;
   --text-h4: 0.9375rem;
   --text-body-lg: 0.9375rem;
   --text-body: 0.875rem;
-  --text-meta: 0.8125rem;
-  --text-tiny: 0.6875rem;
+  --text-meta: 0.875rem;
+  --text-tiny: 0.75rem;
   font-family: var(--font-portal), var(--font-sans);
   font-size: 0.875rem;
   font-feature-settings: 'cv11', 'ss01';

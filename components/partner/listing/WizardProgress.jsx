@@ -20,7 +20,7 @@ export function ChapterBar({ chapters, hrefs = {} }) {
                 }`}
               >
                 <span
-                  className={`block h-full rounded-full transition-[width] duration-700 ease-out ${
+                  className={`block h-full rounded-full transition-[width] duration-700 ease-out motion-reduce:transition-none ${
                     chapter.failed ? 'bg-danger' : 'bg-brand-600'
                   }`}
                   style={{ width: `${fill}%` }}
@@ -51,7 +51,7 @@ export function ChapterBar({ chapters, hrefs = {} }) {
                 <Link
                   href={href}
                   aria-current={chapter.isCurrent ? 'step' : undefined}
-                  className="block rounded focus-visible:outline-none"
+                  className="block min-h-6 rounded sm:min-h-11"
                   title={`${chapter.label} — ${chapter.done} of ${chapter.total} done`}
                 >
                   {track}
@@ -112,13 +112,13 @@ function ProgressList({ progress, stepHrefs = {} }) {
         <li key={chapter.id}>
           <div className="flex items-center justify-between gap-3 px-1">
             <p
-              className={`text-[0.65rem] font-bold tracking-[0.11em] uppercase ${
-                chapter.isCurrent ? 'text-brand-700' : 'text-ink-400'
+              className={`text-tiny font-semibold ${
+                chapter.isCurrent ? 'text-brand-700' : 'text-ink-600'
               }`}
             >
               {chapter.label}
             </p>
-            <span className="text-[0.65rem] font-semibold text-ink-400 tabular">
+            <span className="text-tiny font-semibold text-ink-600 tabular">
               {chapter.done}/{chapter.total}
             </span>
           </div>
@@ -131,13 +131,11 @@ function ProgressList({ progress, stepHrefs = {} }) {
                   <StatusIcon step={step} />
                   <span className="min-w-0 flex-1 truncate">{step.label}</span>
                   {step.isCurrent ? (
-                    <span className="text-[0.62rem] font-bold tracking-wide text-brand-700 uppercase">
-                      Current
-                    </span>
+                    <span className="text-tiny font-semibold text-brand-700">Current</span>
                   ) : null}
                 </>
               );
-              const classes = `flex min-h-9 items-center gap-2.5 rounded-md border-l-2 px-2.5 py-1.5 text-tiny transition-colors ${
+              const classes = `flex min-h-11 items-center gap-2.5 rounded-md border-l px-2.5 py-1.5 text-tiny transition-colors lg:min-h-10 ${
                 step.isCurrent
                   ? 'border-brand-600 bg-brand-50 font-semibold text-ink-900'
                   : step.failed
@@ -191,7 +189,7 @@ function OverallProgress({ progress }) {
         aria-valuenow={progress.doneCount}
       >
         <span
-          className="block h-full rounded-full bg-brand-600 transition-[width] duration-700 ease-out"
+          className="block h-full rounded-full bg-brand-600 transition-[width] duration-700 ease-out motion-reduce:transition-none"
           style={{ width: `${progress.percent}%` }}
         />
       </div>

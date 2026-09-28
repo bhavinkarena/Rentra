@@ -76,12 +76,12 @@ function NavItem({ item, pathname, rail, onNavigate }) {
   const Icon = item.icon;
   const active = isActive(pathname, item);
   const base = `group relative flex items-center gap-2.5 rounded-md text-meta font-semibold transition-colors ${
-    rail ? 'size-10 justify-center' : 'min-h-9 px-2.5'
+    rail ? 'size-10 justify-center' : 'min-h-11 px-2.5 lg:min-h-10'
   }`;
 
   if (item.locked) {
     return (
-      <div className={`${base} cursor-not-allowed text-white/55`} tabIndex={rail ? 0 : undefined}>
+      <div className={`${base} cursor-not-allowed text-white/75`} tabIndex={rail ? 0 : undefined}>
         <Icon className="size-4 shrink-0" aria-hidden="true" />
         {rail ? (
           <RailTip>
@@ -91,7 +91,7 @@ function NavItem({ item, pathname, rail, onNavigate }) {
           <>
             <span className="min-w-0">
               {item.label}
-              <span className="block text-[0.65rem] leading-3 font-normal text-white/55">
+              <span className="block text-tiny leading-4 font-normal text-white/75">
                 {item.lockedNote}
               </span>
             </span>
@@ -108,7 +108,7 @@ function NavItem({ item, pathname, rail, onNavigate }) {
       aria-current={active ? 'page' : undefined}
       onClick={onNavigate}
       className={`${base} ${
-        active ? 'bg-white/12 text-white' : 'text-white/70 hover:bg-white/7 hover:text-white'
+        active ? 'bg-white/12 text-white' : 'text-white/80 hover:bg-white/7 hover:text-white'
       }`}
     >
       {active ? (
@@ -127,7 +127,7 @@ function NavItem({ item, pathname, rail, onNavigate }) {
           className={
             rail
               ? 'absolute -top-0.5 -right-0.5 grid min-w-4 place-items-center rounded-full bg-amber-300 px-1 text-[0.6rem] font-bold text-brand-950 empty:hidden'
-              : 'ml-auto rounded-full bg-amber-300 px-1.5 text-[0.65rem] font-bold text-brand-950 tabular empty:hidden'
+              : 'ml-auto rounded-full bg-amber-300 px-1.5 text-tiny font-semibold text-brand-950 tabular empty:hidden'
           }
         >
           {item.badge}
@@ -146,8 +146,8 @@ function SignOut({ rail }) {
       type="submit"
       disabled={pending}
       title={rail ? 'Sign out' : undefined}
-      className={`flex items-center gap-2 rounded-md text-tiny font-semibold text-white/65 hover:bg-white/7 hover:text-white disabled:cursor-wait ${
-        rail ? 'size-10 justify-center' : 'mt-1 w-full px-2.5 py-2 text-left'
+      className={`flex items-center gap-2 rounded-md text-tiny font-semibold text-white/80 hover:bg-white/7 hover:text-white disabled:cursor-wait ${
+        rail ? 'size-10 justify-center' : 'mt-1 min-h-11 w-full px-2.5 py-2 text-left lg:min-h-10'
       }`}
     >
       {pending ? (
@@ -184,7 +184,7 @@ function Sidebar({ config, pathname, rail, onNavigate, onToggleRail }) {
         <div className="flex items-center gap-2 px-1.5">
           <Link href={config.home} onClick={onNavigate} className="flex items-center gap-2.5">
             <RentraLogo tone="inverse" className="h-6 w-auto" />
-            <span className="rounded bg-white/10 px-1.5 py-0.5 text-[0.65rem] font-bold tracking-wide text-brand-100 uppercase">
+            <span className="rounded bg-white/10 px-1.5 py-0.5 text-tiny font-semibold text-brand-100">
               {config.product}
             </span>
           </Link>
@@ -210,9 +210,7 @@ function Sidebar({ config, pathname, rail, onNavigate, onToggleRail }) {
             {rail ? (
               <span className="my-1 h-px w-6 bg-white/15" aria-hidden="true" />
             ) : (
-              <p className="mb-1.5 px-2.5 text-[0.62rem] font-bold tracking-[0.14em] text-brand-300 uppercase">
-                {group.label}
-              </p>
+              <p className="mb-1.5 px-2.5 text-tiny font-semibold text-brand-200">{group.label}</p>
             )}
             <div className={rail ? 'flex flex-col items-center gap-1' : 'space-y-0.5'}>
               {group.items.map((item) => (
@@ -250,7 +248,7 @@ function Sidebar({ config, pathname, rail, onNavigate, onToggleRail }) {
                 {config.user.name}
               </span>
               <span
-                className={`block truncate text-[0.68rem] font-medium ${config.user.noteTone ?? 'text-brand-200'}`}
+                className={`block truncate text-tiny font-medium ${config.user.noteTone ?? 'text-brand-200'}`}
               >
                 {config.user.note}
               </span>
@@ -290,17 +288,17 @@ export default function PortalShell({ config, children }) {
       </aside>
 
       <div className="min-w-0 flex-1">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border/80 bg-white/95 px-4 backdrop-blur-md sm:px-6">
+        <header className="sticky top-0 z-30 flex min-h-16 items-center gap-3 border-b border-border bg-card px-4 py-2 sm:px-6 lg:min-h-14">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
-            className="grid size-9 place-items-center rounded-md border border-border bg-card text-ink-700 lg:hidden"
+            className="grid size-11 shrink-0 place-items-center rounded-md border border-border bg-card text-ink-700 lg:hidden"
             aria-label="Open navigation"
             aria-expanded={mobileOpen}
           >
             <Menu className="size-5" aria-hidden="true" />
           </button>
-          <div className="min-w-0 shrink-0">
+          <div className="min-w-0">
             <p className="truncate text-tiny font-medium text-ink-500">{config.workspace}</p>
             <p className="truncate text-meta font-semibold text-ink-900">
               {config.routeLabel(pathname)}
@@ -313,7 +311,7 @@ export default function PortalShell({ config, children }) {
             {config.headerNote}
             <Link
               href="/"
-              className="hidden items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-tiny font-semibold text-ink-700 hover:bg-ink-50 sm:inline-flex"
+              className="hidden min-h-10 items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-tiny font-semibold text-ink-700 hover:bg-ink-50 sm:inline-flex"
             >
               View Rentra <ArrowUpRight className="size-3.5" aria-hidden="true" />
             </Link>
@@ -321,7 +319,7 @@ export default function PortalShell({ config, children }) {
               <Link
                 href={config.profileHref}
                 aria-label="Open account settings"
-                className="grid size-8 place-items-center rounded-full bg-brand-100 text-tiny font-bold text-brand-800 ring-1 ring-brand-200"
+                className="grid size-11 place-items-center rounded-full bg-brand-100 text-tiny font-bold text-brand-800 ring-1 ring-brand-200 lg:size-9"
               >
                 {config.user.initials}
               </Link>

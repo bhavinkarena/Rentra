@@ -27,14 +27,14 @@ export default async function AccountPage() {
     <div className="space-y-8">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="mb-2 text-xs font-semibold tracking-widest text-brand-700 uppercase">
-            Your space on Rentra
-          </p>
-          <h1 className="text-h1">
-            {account.name
-              ? `Hello, ${account.name.trim().split(/\s+/)[0]}`
-              : 'Make yourself at home'}
-          </h1>
+          <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+            <h1 className="text-h1">
+              {account.name
+                ? `Hello, ${account.name.trim().split(/\s+/)[0]}`
+                : 'Make yourself at home'}
+            </h1>
+            <p className="text-sm text-ink-600">Your space on Rentra</p>
+          </div>
           <p className="mt-2 text-ink-600">A little planning. A lot to look forward to.</p>
         </div>
         <Link
@@ -45,14 +45,14 @@ export default async function AccountPage() {
           <ArrowUpRight className="size-4" />
         </Link>
       </header>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {shortcuts.map(([href, Icon, title, description]) => (
           <Link
             href={href}
             key={href}
             className="group rounded-2xl border border-border bg-card p-5 transition hover:border-brand-300 hover:shadow-sm"
           >
-            <div className="mb-6 flex items-center justify-between">
+            <div className="mb-4 flex items-center justify-between">
               <span className="grid size-11 place-items-center rounded-xl bg-brand-50 text-brand-700">
                 <Icon className="size-5" />
               </span>

@@ -12,19 +12,19 @@ import Providers from '@/components/providers';
 export default function MarketingLayout({ children }) {
   return (
     <Providers>
-      <div className="flex min-h-screen flex-col">
+      <div className="flex min-h-dvh flex-col">
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-background focus:p-4"
         >
           Skip to main content
         </a>
-        <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur">
-          <div className="mx-auto flex max-w-(--container-page) flex-wrap items-center gap-2 px-4 py-3 sm:px-6">
+        <header className="sticky top-0 z-50 border-b border-border bg-card">
+          <div className="mx-auto flex min-h-18 max-w-(--container-page) items-center gap-2 px-4 py-3 sm:gap-5 sm:px-6">
             <Link href="/" className="shrink-0" aria-label="Rentra home">
               {/* The lockup is the home link. On the narrowest phones the mark
                 alone carries it, so the search bar keeps its width. */}
-              <RentraLogo className="hidden h-7 w-auto sm:block" />
+              <RentraLogo className="hidden h-8 w-auto sm:block" />
               <RentraMark className="size-8 sm:hidden" />
             </Link>
             <div className="ml-auto">
@@ -32,7 +32,7 @@ export default function MarketingLayout({ children }) {
             </div>
             <Link
               href="/partner/login"
-              className="hidden min-h-11 items-center rounded-full px-3 text-meta text-ink-500 hover:bg-brand-50 hover:text-brand-700 md:inline-flex"
+              className="hidden min-h-11 items-center rounded-md border border-border px-4 text-meta font-medium text-ink-700 transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700 md:inline-flex"
             >
               List your place
             </Link>
@@ -89,9 +89,34 @@ async function MarketingFooter() {
   );
   const farmhouse = categories.find((c) => c.slug === 'farmhouse');
   return (
-    <footer className="mt-20 border-t border-border bg-ink-50">
-      <div className="mx-auto max-w-(--container-page) px-6 py-12">
-        <p className="text-tiny font-bold tracking-widest text-ink-500 uppercase">Explore places</p>
+    <footer className="mt-12 border-t border-border bg-brand-50/60">
+      <div className="mx-auto max-w-(--container-page) px-4 py-10 sm:px-6 sm:py-14">
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-6 border-b border-brand-200 pb-8">
+          <div>
+            <RentraLogo className="h-8 w-auto" />
+            <p className="mt-3 max-w-sm text-meta text-ink-600">
+              A place for your next day out or overnight stay.
+            </p>
+          </div>
+          <nav
+            aria-label="Help and information"
+            className="flex flex-wrap gap-x-6 gap-y-2 text-meta"
+          >
+            <Link
+              href="/help"
+              className="inline-flex min-h-11 items-center text-ink-700 hover:text-brand-700 hover:underline"
+            >
+              Help and support
+            </Link>
+            <Link
+              href="/partner/login"
+              className="inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline"
+            >
+              List your place
+            </Link>
+          </nav>
+        </div>
+        <h2 className="text-h4">Explore places</h2>
         {/* SEO taxonomy: one indexable page per city × category × intent. */}
         <div className="mt-4 grid gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
           {cities.flatMap((city) =>
@@ -99,7 +124,7 @@ async function MarketingFooter() {
               <Link
                 key={`${city.slug}-${intent.slug}`}
                 href={`/${city.slug}/farmhouse/intent/${intent.slug}`}
-                className="text-meta text-ink-600 hover:text-brand-700 hover:underline"
+                className="inline-flex min-h-11 items-center text-meta text-ink-600 hover:text-brand-700 hover:underline"
               >
                 Farmhouse for {intent.label.toLowerCase()} in {city.name}
               </Link>
@@ -110,34 +135,35 @@ async function MarketingFooter() {
               <Link
                 key={`${city.id}-${category.id}`}
                 href={`/${city.slug}/${category.slug}`}
-                className="text-meta text-ink-600 hover:underline"
+                className="inline-flex min-h-11 items-center text-meta text-ink-600 hover:underline"
               >
                 {category.name} in {city.name}
               </Link>
             )),
           )}
-          <Link href="/search" className="text-meta text-ink-600 hover:underline">
+          <Link
+            href="/search"
+            className="inline-flex min-h-11 items-center text-meta text-ink-600 hover:underline"
+          >
             Search all places
           </Link>
-          <Link href="/help" className="text-meta text-ink-600 hover:underline">
-            Help and support
-          </Link>
+        </div>
+        <nav
+          aria-label="Legal policies"
+          className="mt-8 flex flex-wrap gap-x-6 gap-y-2 border-t border-brand-200 pt-5"
+        >
           {['terms', 'cancellation', 'privacy'].map((kind) => (
             <Link
               key={kind}
               href={`/policies/${kind}`}
-              className="text-meta text-ink-600 hover:underline"
+              className="inline-flex min-h-11 items-center text-meta text-ink-600 hover:text-brand-700 hover:underline"
             >
               {kind[0].toUpperCase() + kind.slice(1)} policy
             </Link>
           ))}
-          <Link href="/partner/login" className="text-meta text-ink-600 hover:underline">
-            List your place
-          </Link>
-        </div>
-        <div className="mt-10 flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-start sm:gap-8">
-          <RentraLogo className="h-6 w-auto shrink-0" />
-          <p className="text-tiny text-ink-500">
+        </nav>
+        <div className="mt-5">
+          <p className="max-w-3xl text-tiny leading-relaxed text-ink-600">
             Rentra is an intermediary facilitating bookings between owners and guests. It is not the
             owner, lessor or operator of any property.
           </p>

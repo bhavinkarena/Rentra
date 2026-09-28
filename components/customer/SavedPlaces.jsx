@@ -1,7 +1,7 @@
 'use client';
 import RentraLoader from '@/components/ui/rentra-loader';
 import Link from '@/components/navigation/NavigationLink';
-import Image from 'next/image';
+import Image from '@/components/rentra/PropertyImage';
 import { startTransition } from 'react';
 import { useSavedPlaces } from './SavedPlacesProvider';
 import { formatLocalDate } from '@/lib/domain/booking-dates';

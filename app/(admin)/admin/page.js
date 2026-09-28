@@ -51,10 +51,7 @@ export default async function AdminQueuePage({ searchParams }) {
 
       <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-[0.68rem] font-bold tracking-[0.12em] text-brand-700 uppercase">
-            Partner verification
-          </p>
-          <h1 className="mt-1 text-h1 text-ink-900">Review queue</h1>
+          <h1 className="text-h1 text-ink-900">Review queue</h1>
           <p className="mt-2 max-w-2xl text-meta leading-6 text-ink-600">
             Review partner applications, keep decisions consistent, and make sure nothing misses the
             service window.

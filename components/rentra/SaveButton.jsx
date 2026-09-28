@@ -63,7 +63,8 @@ export default function SaveButton({
         aria-pressed={saved}
         disabled={disabled}
         title={error ?? undefined}
-        className="inline-flex items-center gap-1.5 rounded-sm px-2 py-1 text-meta font-semibold text-ink-700 underline decoration-ink-300 underline-offset-4 transition-colors hover:bg-ink-50 hover:text-ink-900"
+        aria-label={label}
+        className="relative z-10 inline-flex min-h-11 items-center gap-1.5 rounded-sm px-2 py-1 text-meta font-semibold text-ink-700 underline decoration-ink-300 underline-offset-4 transition-colors hover:bg-ink-50 hover:text-ink-900"
       >
         <Heart className={`size-4 ${saved ? 'fill-danger text-danger' : ''}`} aria-hidden="true" />
         {busy ? <RentraLoader label="Updating saved place" /> : saved ? 'Saved' : 'Save'}
@@ -102,7 +103,7 @@ export default function SaveButton({
       disabled={disabled}
       title={error ?? undefined}
       aria-label={label}
-      className="absolute top-2.5 right-2.5 grid size-11 place-items-center rounded-full bg-white/90 backdrop-blur transition hover:bg-white"
+      className="absolute top-3 right-3 z-10 grid size-11 place-items-center rounded-full bg-white transition-[background-color,transform] duration-150 hover:bg-brand-50 active:scale-95"
     >
       {busy ? (
         <RentraLoader label="Updating saved place" />

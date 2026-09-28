@@ -27,12 +27,12 @@ export default async function CustomerLayout({ children }) {
   }
   return (
     <Providers>
-      <div className="min-h-screen bg-ink-25">
+      <div className="min-h-dvh bg-ink-25">
         <a href="#customer-content" className="sr-only focus:not-sr-only focus:block focus:p-3">
           Skip to account content
         </a>
-        <header className="border-b border-border bg-background">
-          <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3">
+        <header className="sticky top-0 z-40 border-b border-border bg-card">
+          <div className="mx-auto flex min-h-18 max-w-(--container-page) items-center justify-between gap-2 px-4 py-3 sm:px-6">
             <Link href="/" aria-label="Rentra home" className="shrink-0">
               <RentraLogo className="hidden h-7 w-auto sm:block" />
               <RentraMark className="size-8 sm:hidden" />
@@ -40,7 +40,11 @@ export default async function CustomerLayout({ children }) {
             <CustomerNavigation authenticated compact profile={{ name: user.name }} />
           </div>
         </header>
-        <main tabIndex={-1} id="customer-content" className="mx-auto max-w-6xl px-4 py-8 sm:py-12">
+        <main
+          tabIndex={-1}
+          id="customer-content"
+          className="mx-auto max-w-(--container-page) px-4 py-8 sm:px-6 sm:py-12"
+        >
           {children}
         </main>
       </div>

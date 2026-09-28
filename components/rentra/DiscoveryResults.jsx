@@ -11,6 +11,7 @@ import {
   DISCOVERY_INTENTS,
 } from '@/lib/domain/discovery';
 import { discoveryApi } from '@/lib/api/endpoints';
+import { SearchX, RefreshCw } from 'lucide-react';
 
 const slotLabels = { day: 'Day visit', night: 'Overnight', full_day: 'Full day' };
 export default async function DiscoveryResults({ query, registry: registryInput, route = null }) {
@@ -76,7 +77,7 @@ export default async function DiscoveryResults({ query, registry: registryInput,
       !(key === 'slot' && filters.slot === 'night'),
   );
   return (
-    <section className="mx-auto max-w-(--container-page) px-4 py-10 sm:px-6">
+    <section className="mx-auto max-w-(--container-page) px-4 py-8 sm:px-6 sm:py-12">
       <h1 className="text-h1">{route?.title || 'Find a place'}</h1>
       <p className="mt-2 text-ink-600">
         {route?.intent?.description ||
@@ -115,7 +116,8 @@ export default async function DiscoveryResults({ query, registry: registryInput,
         </div>
       )}
       {failed ? (
-        <div role="alert" className="mt-6">
+        <div role="alert" className="mt-8 rounded-lg border border-border bg-card px-6 py-10">
+          <RefreshCw className="mb-4 size-7 text-brand-700" aria-hidden="true" />
           <h2 className="text-h3">Search is temporarily unavailable</h2>
           <p>Your filters are in the address bar. Please try again.</p>
           <a className="underline" href={href({ page: filters.page })}>
@@ -156,19 +158,26 @@ export default async function DiscoveryResults({ query, registry: registryInput,
               </div>
             </div>
             {!result.total && (
-              <p className="mt-3">
-                No places match these filters.{' '}
-                <Link className="underline" href={href({ dates: [] })}>
-                  Try without dates
-                </Link>{' '}
-                or{' '}
-                <Link className="underline" href={path}>
-                  clear filters
-                </Link>
-                .
-              </p>
+              <div className="mt-6 rounded-lg border border-border bg-card px-6 py-10 sm:px-8">
+                <SearchX className="mb-4 size-8 text-brand-700" aria-hidden="true" />
+                <h3 className="text-h3">A different search could open up more places</h3>
+                <p className="mt-2 max-w-lg text-meta text-ink-600">
+                  No places match these filters. Try a different location, fewer amenities or other
+                  dates.
+                </p>
+                <p className="mt-4 text-meta">
+                  <Link className="underline" href={href({ dates: [] })}>
+                    Try without dates
+                  </Link>{' '}
+                  or{' '}
+                  <Link className="underline" href={path}>
+                    clear filters
+                  </Link>
+                  .
+                </p>
+              </div>
             )}
-            <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-7 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {result.items.map((listing) => (
                 <ListingCard key={listing.id} listing={listing} />
               ))}

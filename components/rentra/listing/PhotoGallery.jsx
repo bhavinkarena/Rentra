@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
+import Image from '../PropertyImage';
 import { ChevronLeft, ChevronRight, Grid2x2, X } from 'lucide-react';
 
 /**
@@ -99,12 +99,14 @@ export default function PhotoGallery({ photos = [], title }) {
        *
        * One column on a phone: a five-tile mosaic at 390px is five thumbnails.
        */}
-      <div className="grid gap-2 sm:aspect-8/3 sm:grid-cols-4 sm:grid-rows-2">
+      <div
+        className={`grid gap-2 overflow-hidden rounded-lg ${count >= 5 ? 'sm:aspect-8/3 sm:grid-cols-4 sm:grid-rows-2' : count > 1 ? 'sm:aspect-8/3 sm:grid-cols-[2fr_1fr]' : ''}`}
+      >
         <Tile
           photo={hero}
           onClick={(event) => open(0, event)}
           label={`Open photos of ${title}`}
-          className="aspect-4/3 sm:col-span-2 sm:row-span-2 sm:aspect-auto sm:h-full"
+          className={`aspect-4/3 ${count >= 5 ? 'sm:col-span-2 sm:row-span-2' : count === 4 ? 'sm:row-span-3' : count === 3 ? 'sm:row-span-2' : ''} ${count > 1 ? 'sm:aspect-auto sm:h-full' : 'sm:aspect-video'}`}
           sizes="(max-width: 640px) 100vw, 50vw"
           preload
         />
@@ -152,7 +154,7 @@ export default function PhotoGallery({ photos = [], title }) {
               type="button"
               onClick={close}
               autoFocus
-              className="grid size-10 place-items-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
+              className="grid size-11 place-items-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
               aria-label="Close photos"
             >
               <X className="size-5" aria-hidden="true" />
@@ -203,7 +205,7 @@ function Tile({ photo, onClick, label, className = '', sizes, preload = false })
         quality={60}
         placeholder={BLUR}
         {...(preload ? { preload: true } : { loading: 'lazy' })}
-        className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+        className="object-cover transition-transform duration-200 ease-out motion-safe:group-hover:scale-[1.02]"
       />
     </button>
   );
