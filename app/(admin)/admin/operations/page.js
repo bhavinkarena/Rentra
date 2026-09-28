@@ -21,9 +21,12 @@ const money = (minor) =>
     maximumFractionDigits: 2,
   }).format(Number(minor || 0) / 100);
 export default async function OperationsPage() {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const data = await adminApi.operations();
-  const healthy = data.health.filter((row) => row.healthy && !row.stale).length;
+  const health = ['payments', 'notifications'].map(
+    (service) => data.health.find((row) => row.service === service) ?? { service, missing: true },
+  );
+  const healthy = health.filter((row) => row.healthy && !row.stale).length;
   return (
     <AdminPage>
       <AdminPageHeader
@@ -33,18 +36,21 @@ export default async function OperationsPage() {
         action={
           <div className="flex gap-2">
             {[
-              ['bookings', 'Bookings'],
-              ['notifications', 'Delivery'],
-              ['support', 'Support'],
-            ].map(([path, label]) => (
-              <Link
-                key={path}
-                href={`/admin/${path}`}
-                className="rounded-md border border-border bg-card px-3 py-2 text-tiny font-semibold text-ink-700 hover:bg-ink-50"
-              >
-                {label}
-              </Link>
-            ))}
+              ['bookings', 'Bookings', 'admin.records.read'],
+              ['notifications', 'Delivery', 'admin.notifications.read'],
+              ['support', 'Support', 'admin.support.read'],
+              ['payments', 'Gateway settings', 'admin.payments.read'],
+            ]
+              .filter(([, , capability]) => admin.capabilities?.includes(capability))
+              .map(([path, label]) => (
+                <Link
+                  key={path}
+                  href={`/admin/${path}`}
+                  className="rounded-md border border-border bg-card px-3 py-2 text-tiny font-semibold text-ink-700 hover:bg-ink-50"
+                >
+                  {label}
+                </Link>
+              ))}
           </div>
         }
       />
@@ -58,7 +64,7 @@ export default async function OperationsPage() {
         />
         <AdminKpiCard
           label="Healthy services"
-          value={`${healthy}/${data.health.length}`}
+          value={`${healthy}/${health.length}`}
           icon={HeartPulse}
           hint="Fresh successful heartbeats"
           tone="brand"
@@ -90,9 +96,12 @@ export default async function OperationsPage() {
             <ul className="divide-y divide-border">
               {data.alerts.map((alert) => (
                 <li key={alert.code} className="flex items-center justify-between gap-3 px-5 py-3">
-                  <span className="text-meta font-semibold capitalize text-ink-800">
-                    {alert.code.replaceAll('_', ' ')}
-                  </span>
+                  <Link
+                    href={`/admin/operations/incidents/${alert.code}`}
+                    className="text-meta font-semibold capitalize text-brand-700 hover:underline"
+                  >
+                    {alert.code.replaceAll('_', ' ')} · investigate
+                  </Link>
                   <StatusBadge tone="danger">{alert.count}</StatusBadge>
                 </li>
               ))}
@@ -111,7 +120,7 @@ export default async function OperationsPage() {
             <p className="mt-1 text-tiny text-ink-500">Workers become stale after two minutes</p>
           </div>
           <div className="divide-y divide-border">
-            {data.health.map((row) => (
+            {health.map((row) => (
               <div key={row.service} className="flex items-center justify-between gap-4 px-5 py-4">
                 <div>
                   <p className="font-semibold capitalize text-ink-900">{row.service}</p>
@@ -124,8 +133,16 @@ export default async function OperationsPage() {
                       : 'never recorded'}
                   </p>
                 </div>
-                <StatusBadge tone={row.healthy && !row.stale ? 'success' : 'danger'}>
-                  {row.healthy && !row.stale ? 'Healthy' : 'Needs attention'}
+                <StatusBadge
+                  tone={row.missing ? 'warning' : row.healthy && !row.stale ? 'success' : 'danger'}
+                >
+                  {row.missing
+                    ? 'Unknown · no heartbeat'
+                    : row.stale
+                      ? 'Stale heartbeat'
+                      : row.healthy
+                        ? 'Healthy'
+                        : 'Failed heartbeat'}
                 </StatusBadge>
               </div>
             ))}

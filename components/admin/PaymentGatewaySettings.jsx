@@ -1,7 +1,7 @@
 'use client';
 import RentraLoader from '@/components/ui/rentra-loader';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { setPaymentGatewayConfiguration as savePaymentGatewaySettings } from '@/lib/actions/admin';
 
 const fieldClass =
@@ -9,6 +9,9 @@ const fieldClass =
 
 export default function PaymentGatewaySettings({ configuration, providers }) {
   const [state, action, pending] = useActionState(savePaymentGatewaySettings, {});
+  const [provider, setProvider] = useState(configuration.provider ?? providers[0]?.id ?? '');
+  const [enabled, setEnabled] = useState(String(configuration.enabled));
+  const [collectionPurpose, setCollectionPurpose] = useState(configuration.collectionPurpose);
 
   return (
     <form action={action} className="space-y-5 rounded-lg border border-border bg-card p-5">
@@ -19,7 +22,8 @@ export default function PaymentGatewaySettings({ configuration, providers }) {
         Gateway
         <select
           name="provider"
-          defaultValue={configuration.provider ?? providers[0]?.id}
+          value={provider}
+          onChange={(event) => setProvider(event.target.value)}
           className={fieldClass}
           disabled={pending}
         >
@@ -35,7 +39,8 @@ export default function PaymentGatewaySettings({ configuration, providers }) {
         New payment attempts
         <select
           name="enabled"
-          defaultValue={String(configuration.enabled)}
+          value={enabled}
+          onChange={(event) => setEnabled(event.target.value)}
           className={fieldClass}
           disabled={pending}
         >
@@ -48,7 +53,8 @@ export default function PaymentGatewaySettings({ configuration, providers }) {
         Sandbox collection amount
         <select
           name="collectionPurpose"
-          defaultValue={configuration.collectionPurpose}
+          value={collectionPurpose}
+          onChange={(event) => setCollectionPurpose(event.target.value)}
           className={fieldClass}
           disabled={pending}
         >
@@ -57,6 +63,22 @@ export default function PaymentGatewaySettings({ configuration, providers }) {
         </select>
       </label>
       <p className="text-meta text-ink-600">The security deposit is separate from both options.</p>
+      <div
+        className="rounded-md border border-brand-200 bg-brand-50 p-4 text-meta text-brand-900"
+        aria-live="polite"
+      >
+        <strong>Change impact preview:</strong>{' '}
+        {enabled === 'true'
+          ? 'New Test payment attempts would be allowed only if server credentials are ready.'
+          : 'New Test payment attempts would stop.'}{' '}
+        Existing pinned intents, webhook processing and outstanding refunds continue. New quotes
+        would use{' '}
+        {collectionPurpose === 'advance'
+          ? '25% of rent plus the full platform fee'
+          : 'full rent plus the platform fee'}{' '}
+        with {provider || 'the selected provider'}. This does not deploy infrastructure or prove
+        provider connectivity.
+      </div>
 
       {state.error ? (
         <p role="alert" className="rounded-md bg-danger-bg p-3 text-meta text-danger">

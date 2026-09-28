@@ -31,7 +31,7 @@ const tone = (state) =>
         : 'info';
 
 export default async function Monitor({ searchParams }) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const data = await adminApi.notifications({ page: (await searchParams)?.page || 1 });
   const count = (state) => data.counts.find((row) => row.state === state)?.count || 0;
   const total = data.counts.reduce((sum, row) => sum + row.count, 0);
@@ -109,7 +109,12 @@ export default async function Monitor({ searchParams }) {
                     </span>
                   </div>
                   <p className="mt-2 text-meta font-medium capitalize text-ink-800">
-                    {message.template.replaceAll('_', ' ')}
+                    <Link
+                      href={`/admin/notifications/${message.id}`}
+                      className="text-brand-700 hover:underline"
+                    >
+                      {message.template.replaceAll('_', ' ')} · inspect delivery
+                    </Link>
                   </p>
                   <p className="mt-2 break-all text-tiny text-ink-500">
                     {message.failure_code || 'No delivery error'} ·{' '}
@@ -120,7 +125,8 @@ export default async function Monitor({ searchParams }) {
                     {date(message.next_attempt_at)}
                   </p>
                 </div>
-                {['blocked', 'failed', 'retry', 'unknown'].includes(message.state) ? (
+                {admin.capabilities?.includes('admin.notifications.write') &&
+                ['blocked', 'failed', 'retry', 'unknown'].includes(message.state) ? (
                   <div className="rounded-md border border-border bg-ink-25 p-3">
                     <NotificationControls id={message.id} unknown={message.state === 'unknown'} />
                   </div>

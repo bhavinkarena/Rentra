@@ -14,8 +14,8 @@ export const metadata = {
   robots: { index: false, follow: false, nocache: true },
 };
 export default async function AdminPaymentsPage() {
-  await requireAdmin();
-  const { configuration, providers } = await adminApi.paymentConfiguration();
+  const admin = await requireAdmin();
+  const { configuration, providers, history } = await adminApi.paymentConfiguration();
   const ready = providers.filter((provider) => provider.ready).length;
   return (
     <AdminPage width="max-w-6xl">
@@ -59,7 +59,13 @@ export default async function AdminPaymentsPage() {
             {configuration.enabled ? 'Test gateway enabled' : 'New payment attempts disabled'}.
             Disabling affects only new attempts.
           </div>
-          <PaymentGatewaySettings configuration={configuration} providers={providers} />
+          {admin.capabilities?.includes('admin.payments.write') ? (
+            <PaymentGatewaySettings configuration={configuration} providers={providers} />
+          ) : (
+            <p className="rounded-lg border border-border bg-card p-5 text-meta">
+              Read-only payment access. Settings changes require payments write permission.
+            </p>
+          )}
         </div>
         <aside className="rounded-lg border border-border bg-card p-5 shadow-xs">
           <h2 className="text-h4 font-bold">Provider readiness</h2>
@@ -89,6 +95,27 @@ export default async function AdminPaymentsPage() {
           </p>
         </aside>
       </div>
+      <section className="mt-5 rounded-lg border border-border bg-card p-5">
+        <h2 className="text-h4 font-bold">Settings history</h2>
+        <p className="mt-1 text-tiny text-ink-500">
+          Last 20 immutable Test gateway revisions. A setting change does not deploy infrastructure
+          or verify provider connectivity.
+        </p>
+        {history?.length ? (
+          <ol className="mt-4 divide-y divide-border">
+            {history.map((row) => (
+              <li key={row.version} className="py-3 text-meta">
+                Version {row.version} ·{' '}
+                {row.enabled ? 'New attempts enabled' : 'New attempts disabled'} ·{' '}
+                {row.collection_purpose} collection · {row.changed_by_name} ·{' '}
+                {new Date(row.created_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="mt-3 text-meta">No settings revisions yet.</p>
+        )}
+      </section>
     </AdminPage>
   );
 }

@@ -1,6 +1,6 @@
 # Rentra client and Super Admin implementation plan
 
-Prepared: **26 September 2026**. Status: **27/32 implementation parts complete; next CP25** (updated 28 September 2026; deployment status and evidence are in the session tracker).
+Prepared: **26 September 2026**. Status: **28/32 implementation parts complete; next CP25** (updated 28 September 2026; deployment status and evidence are in the session tracker).
 
 This is the current plan for the property-owner/agent portal (`/partner`, database role `client`) and the Super Admin console (`/admin`). It incorporates the customer delivery work, subsequent UI refresh and the Express backend extraction. It specifies operational workflows as well as screens: a polished table without the permission, detail page, state transition and recovery path is incomplete.
 
