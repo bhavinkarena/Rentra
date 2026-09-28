@@ -1,7 +1,8 @@
-// Gate tooling: a proxy on 4106 -> the fixture on 4206. GET /__fault/set?re=<regex>&mode=fail|drop; drop forwards, then loses the response.
+// Gate tooling: proxy 4106 -> fixture 4206. Modes: fail, drop (lose committed response), delay (read latency).
 import http from 'node:http';
 let pattern = null,
-  mode = 'fail';
+  mode = 'fail',
+  delayMs = 1500;
 const forward = (req, res, onResponse) => {
   const up = http.request(
     { host: '127.0.0.1', port: 4206, path: req.url, method: req.method, headers: req.headers },
@@ -19,6 +20,7 @@ http
       const q = new URL(req.url, 'http://x').searchParams;
       pattern = q.get('re') ? new RegExp(q.get('re')) : null;
       mode = q.get('mode') || 'fail';
+      delayMs = Math.min(5000, Math.max(1, Number(q.get('ms')) || 1500));
       res.end(`${pattern} ${mode}`);
       return;
     }
@@ -34,6 +36,16 @@ http
       );
     };
     if (pattern && pattern.test(req.url)) {
+      if (mode === 'delay') {
+        return setTimeout(
+          () =>
+            forward(req, res, (r) => {
+              res.writeHead(r.statusCode, r.headers);
+              r.pipe(res);
+            }),
+          delayMs,
+        );
+      }
       if (mode === 'fail') {
         req.resume();
         return lose();

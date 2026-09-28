@@ -8,6 +8,7 @@ import {
   ClipboardList,
   CreditCard,
   LayoutDashboard,
+  LifeBuoy,
   MessageSquareText,
   ReceiptText,
   Search,
@@ -24,6 +25,7 @@ import PortalShell from '@/components/portal/PortalShell';
 // Grouped per the CP02 navigation plan. Only delivered destinations appear;
 // later groups (Properties, Audit, Settings) arrive with their parts.
 const NAV_GROUPS = [
+  { label: 'Help', items: [{ href: '/admin/help', label: 'Operator guide', icon: LifeBuoy }] },
   {
     label: 'Publication',
     items: [
@@ -219,7 +221,7 @@ function initials(email) {
 }
 
 export default function AdminShell({ children, admin, logoutAction, counts = {} }) {
-  const can = (capability) => admin.capabilities?.includes(capability);
+  const can = (capability) => !capability || admin.capabilities?.includes(capability);
   const groups = NAV_GROUPS.map((group) => ({
     ...group,
     items: group.items

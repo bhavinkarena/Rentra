@@ -273,6 +273,12 @@ export default function PortalShell({ config, children }) {
 
   return (
     <div className="portal-ui min-h-screen bg-ink-25 lg:flex">
+      <a
+        href="#portal-main"
+        className="sr-only fixed top-2 left-2 z-50 rounded-md bg-white p-3 font-semibold text-brand-800 shadow-lg focus:not-sr-only"
+      >
+        Skip to main content
+      </a>
       {/* Width animates; the full layout is clipped while it grows, and the
           rail stays unclipped so its tooltips can extend past it. */}
       <aside
@@ -331,7 +337,9 @@ export default function PortalShell({ config, children }) {
           </div>
         </header>
 
-        <main className="min-h-[calc(100vh-3.5rem)]">{children}</main>
+        <main id="portal-main" tabIndex={-1} className="min-h-[calc(100vh-3.5rem)] scroll-mt-16">
+          {children}
+        </main>
       </div>
 
       <NavDrawer open={mobileOpen} onClose={() => setMobileOpen(false)} label={config.navLabel}>

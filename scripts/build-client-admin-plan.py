@@ -77,6 +77,13 @@ milestones = "".join(
 # Detailed delivery cards, one "complete" card (plus optional limits card) per COMPLETE part.
 # Add an entry in the same change that marks a part COMPLETE in the session tracker.
 DELIVERED = {
+    "CP31": '''<div class="card"><span class="num">CP31 · complete</span><h3>Accessibility, performance and operator handoff</h3>
+      <ul><li>Production audit of 32 admin/owner routes at 1280 and 360 pixels: meaningful render, overflow, axe contrast/labels and Chromium accessibility-tree landmarks/headings.</li>
+      <li>Keyboard skip links, native mobile drawer focus/Escape/desktop release, reduced motion, named financial table scrolling, expanded decision labels and focused server errors with retained reasons/correction fields.</li>
+      <li>Fixed mobile booking-table label overflow, active-filter count contrast, modal resize trapping and failed decision-form resets.</li>
+      <li>Permission-aware operator/owner guides and a shift/runbook handoff for approvals, booking incidents, refunds, privacy, audit exports and measured operational recovery.</li>
+      <li>Populated pagination lab: 1,002 clients, 1,005 orders, 1,007 visits and 5,008 initial audit events; seven bounded API endpoints measured after warm-up, with documented local budgets.</li></ul>
+      <p class="small"><strong>Local gate passed — 28 September 2026:</strong> production audit 367/367, backend 143/143 and frontend 36/36, Webpack build, lint/format and 41-file migration check. No new migration or configured-database/provider action. Accessibility-tree automation is not a human screen-reader certification; local timing is not hosted field performance. CP30 remains incomplete and R2 remains open until required customer/hosted Test evidence passes. <a href="rentra-client-admin-part31.md">CP31 measurements, fixes and boundaries ↗</a> · <a href="rentra-operator-runbook.md">Operator runbook ↗</a></p></div>''',
     "CP25": '''<div class="card"><span class="num">CP25 · complete</span><h3>Public help, content and policy publication</h3>
       <ul><li>Structured terms, privacy, cancellation, help and contact editors: reasoned draft save, exact-copy review, actor-bound signed publication preview and explicit confirmation. Bounded plain text and allowlisted links exclude executable HTML and scripts.</li>
       <li>Immutable published versions and permanent historical URLs. Restoring an older publication creates a reviewed draft and a new publication version; neither accepted booking terms nor historical copy is rewritten.</li>

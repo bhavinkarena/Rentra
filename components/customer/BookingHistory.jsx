@@ -74,7 +74,7 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
             >
               {tab === 'action_needed' ? 'Action needed' : tab[0].toUpperCase() + tab.slice(1)}
               {data.summary && (
-                <span className="text-xs opacity-75">
+                <span className="text-xs">
                   {tab === 'all' ? data.summary.total : data.summary[tab]}
                 </span>
               )}

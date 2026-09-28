@@ -5,6 +5,7 @@ import {
   Building2,
   CalendarDays,
   LayoutDashboard,
+  LifeBuoy,
   Settings2,
   Star,
   Users,
@@ -12,6 +13,7 @@ import {
 import PortalShell from '@/components/portal/PortalShell';
 
 const NAV_GROUPS = [
+  { label: 'Help', items: [{ href: '/partner/help', label: 'Owner guide', icon: LifeBuoy }] },
   {
     label: 'Workspace',
     items: [
@@ -67,6 +69,7 @@ const NAV_GROUPS = [
 ];
 
 function routeLabel(pathname) {
+  if (pathname === '/partner/help') return 'Owner guide';
   if (
     ['/partner/finance', '/partner/statements', '/partner/allocations', '/partner/payouts'].some(
       (p) => pathname.startsWith(p),

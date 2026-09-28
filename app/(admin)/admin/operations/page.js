@@ -175,7 +175,12 @@ export default async function OperationsPage() {
           </p>
         </div>
         {data.money.length ? (
-          <div className="overflow-x-auto">
+          <div
+            className="relative overflow-x-auto"
+            tabIndex={0}
+            role="region"
+            aria-label="Payment namespaces table"
+          >
             <table className="w-full min-w-[760px] text-left">
               <thead className="bg-ink-25 text-[0.65rem] font-bold uppercase text-ink-500">
                 <tr>
@@ -238,7 +243,12 @@ export default async function OperationsPage() {
           </StatusBadge>
         </div>
         {data.measurements.length ? (
-          <div className="overflow-x-auto">
+          <div
+            className="relative overflow-x-auto"
+            tabIndex={0}
+            role="region"
+            aria-label="Aggregate events table"
+          >
             <table className="w-full min-w-[720px] text-left">
               <thead className="bg-ink-25 text-[0.65rem] font-bold uppercase text-ink-500">
                 <tr>

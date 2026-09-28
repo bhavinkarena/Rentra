@@ -1,0 +1,72 @@
+{
+  "part": "CP31",
+  "status": "COMPLETE",
+  "recordedAt": "2026-09-28T12:28:11.850083+00:00",
+  "scope": "Independent local UI/accessibility/performance/handoff; CP30 and R2 remain open",
+  "frontend": {
+    "baseCommit": "ca693e7a0f89ae6c6f19dd6de7ae7fcebf607da3",
+    "includesUncommittedCP31Changes": true,
+    "sourceSha256": {
+      "components/portal/PortalShell.jsx": "fb76f6663361dbc427fe86464d1077e97a03f621fda542d85d1453d77c8e5a29",
+      "components/portal/NavDrawer.jsx": "058f25eb9ffd7a9aeb8b89955ede250ad99550d9a280ffc5e86b9a239a4a162d",
+      "components/portal/OperatorHelp.jsx": "e0521378d536470f31d4c352d7b247bafea6a21b76e8f4a256bb00047a3516d5",
+      "components/admin/DecisionPanel.jsx": "d54a1dcf216b3621434bfa6a8960cb485051f475d40356dd90c1f4b8088a9254",
+      "components/admin/AdminBookingHistory.jsx": "972f2fe57424a055c74b1a242937522db9e71bd74fb2c6ef1437bc6b3eb2b317",
+      "components/admin/AdminShell.jsx": "dcaae84a8153365e2d12831611b374b98229f9b31b7331905c49981402ae14c7",
+      "components/customer/BookingHistory.jsx": "6bb133f39726a15976b055835585157d617102c58b031c1306a3c23c8a3f332c",
+      "components/partner/PartnerShell.jsx": "2516a27bc3980f09a3e59ef1d64c6d76a67719c29f00ee1f9e2386248df725a9",
+      "app/(admin)/admin/help/page.js": "abe5343bfed71cc2186119038275cba20e8405dedf5f83f4555338f63f988524",
+      "app/(partner)/partner/help/page.js": "5e9e0cd85d745c814aca8b9c6310ba54d6d9b2224f51d4bfdf71e7510a2ed304",
+      "app/(admin)/admin/operations/page.js": "761df11d32c6a4012e3bd598935b4055a63d384c89cb193d6ec042e0513e87f2",
+      "scripts/portal-gate/cp31_gate.mjs": "25103384bfadf399126f036bd867f168fd79f90f1d9ad96067db53d1dff2039a",
+      "scripts/portal-gate/fault-proxy.mjs": "37ee1148520ef4e83877f01982d99b8281659bfba3e568a37d25c5e995024e00"
+    }
+  },
+  "backend": {
+    "baseCommit": "e8258aafc14b1b3f9cb07476ff5d7042078fd2f7",
+    "includesUncommittedCP31Changes": true,
+    "sourceSha256": {
+      "test/helpers/seed-operator-quality-gate.mjs": "959c414552f4b07aadd823d101fda7e5b9f701cbb01c650703a72c60b8120128"
+    }
+  },
+  "frontendSuite": {
+    "tests": 36,
+    "pass": 36,
+    "fail": 0,
+    "skipped": 0
+  },
+  "backendSuite": {
+    "tests": 143,
+    "pass": 143,
+    "fail": 0,
+    "skipped": 0
+  },
+  "productionGate": {
+    "passed": 367,
+    "failed": 0,
+    "distinctRoutes": 32,
+    "routeViewportMeasurements": 64,
+    "configuredAxeFindings": 0,
+    "slowestReadyMs": 1183,
+    "minApiP95Ms": 3.15,
+    "maxApiP95Ms": 12.72
+  },
+  "checks": {
+    "productionWebpackBuild": "passed",
+    "frontendLint": "passed",
+    "backendLint": "passed",
+    "frontendFormat": "passed",
+    "backendFormat": "passed with --end-of-line lf",
+    "migrationJournal": "41 files; no database connection"
+  },
+  "boundaries": {
+    "newMigration": false,
+    "configuredDatabaseInspected": false,
+    "configuredDatabaseMigrated": false,
+    "actualProviderExecuted": false,
+    "humanScreenReaderCertified": false,
+    "hostedPerformanceMeasured": false,
+    "localPostgis": false,
+    "r2ReleaseComplete": false
+  }
+}

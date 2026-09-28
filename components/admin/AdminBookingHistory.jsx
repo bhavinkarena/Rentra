@@ -169,7 +169,12 @@ export default function AdminBookingHistory({ data }) {
         </div>
 
         {data.items.length ? (
-          <div className="overflow-x-auto">
+          <div
+            className="relative overflow-x-auto"
+            tabIndex={0}
+            role="region"
+            aria-label="Booking records table"
+          >
             <table className="w-full min-w-[900px] border-collapse text-left">
               <thead className="bg-ink-25 text-[0.65rem] font-bold tracking-[0.08em] text-ink-500 uppercase">
                 <tr>

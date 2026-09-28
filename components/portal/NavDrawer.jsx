@@ -20,6 +20,17 @@ export default function NavDrawer({ open, onClose, label, children }) {
     if (!open && dialog.open) dialog.close();
   }, [open]);
 
+  useEffect(() => {
+    if (!open) return;
+    const desktop = window.matchMedia('(min-width: 1024px)');
+    const release = () => {
+      if (desktop.matches) onClose();
+    };
+    release();
+    desktop.addEventListener('change', release);
+    return () => desktop.removeEventListener('change', release);
+  }, [open, onClose]);
+
   return (
     <dialog
       ref={ref}
@@ -29,7 +40,7 @@ export default function NavDrawer({ open, onClose, label, children }) {
       onClick={(event) => {
         if (event.target === ref.current) onClose();
       }}
-      className="fixed inset-y-0 right-auto left-0 m-0 h-dvh max-h-dvh w-[min(86vw,320px)] max-w-none -translate-x-full overflow-y-auto bg-brand-950 p-0 shadow-xl transition-all transition-discrete duration-200 ease-out backdrop:bg-ink-900/0 backdrop:transition-all backdrop:transition-discrete backdrop:duration-200 open:translate-x-0 open:backdrop:bg-ink-900/55 starting:open:-translate-x-full starting:open:backdrop:bg-ink-900/0 motion-reduce:transition-none lg:hidden"
+      className="fixed inset-y-0 right-auto left-0 m-0 h-dvh max-h-dvh w-[min(86vw,320px)] max-w-none -translate-x-full overflow-y-auto overscroll-contain bg-brand-950 p-0 shadow-xl transition-[transform,display,overlay] transition-discrete duration-200 ease-out backdrop:bg-ink-900/0 backdrop:transition-[background-color,display,overlay] backdrop:transition-discrete backdrop:duration-200 open:translate-x-0 open:backdrop:bg-ink-900/55 starting:open:-translate-x-full starting:open:backdrop:bg-ink-900/0 motion-reduce:transition-none lg:hidden"
     >
       {/* Always rendered: a closed <dialog> is not displayed, and the close
           animation needs its content. */}

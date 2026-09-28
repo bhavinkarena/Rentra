@@ -1,7 +1,8 @@
 'use client';
 import Loader2 from '@/components/ui/rentra-loader';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useRef, useState } from 'react';
+import ValidationSummary from '@/components/portal/ValidationSummary';
 import { Check, HelpCircle, X } from 'lucide-react';
 import { approveApplication, requestMoreInfo, rejectApplication } from '@/lib/actions/admin';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,9 @@ const FLAGGABLE = [
  */
 export default function DecisionPanel({ applicationId, strikeCount, reviewVersion }) {
   const [mode, setMode] = useState(null);
+  const [reasons, setReasons] = useState({ approve: '', info: '', reject: '' });
+  const [flagged, setFlagged] = useState([]);
+  const formRef = useRef(null);
   const [approveState, approveAction, approving] = useActionState(approveApplication, {});
   const [infoState, infoAction, requestingInfo] = useActionState(requestMoreInfo, {});
   const [rejectState, rejectAction, rejecting] = useActionState(rejectApplication, {});
@@ -76,7 +80,7 @@ export default function DecisionPanel({ applicationId, strikeCount, reviewVersio
       ) : null}
 
       {mode === 'approve' ? (
-        <form action={approveAction} className="mt-4 space-y-3">
+        <form ref={formRef} action={approveAction} className="mt-4 space-y-3">
           <input type="hidden" name="applicationId" value={applicationId} />
           <input type="hidden" name="expectedVersion" value={reviewVersion} />
           <p className="rounded-md border-l-4 border-brand-600 bg-success-bg p-3 text-meta text-brand-900">
@@ -84,8 +88,14 @@ export default function DecisionPanel({ applicationId, strikeCount, reviewVersio
             recorded as reviewed by Rentra (no KYC provider is connected), and they can start adding
             properties. Each property still needs its own approval — that is Gate&nbsp;2.
           </p>
+          <label htmlFor="approval-note" className="block text-meta font-semibold">
+            Approval note (optional)
+          </label>
           <textarea
+            id="approval-note"
             name="reason"
+            value={reasons.approve}
+            onChange={(event) => setReasons({ ...reasons, approve: event.target.value })}
             rows={2}
             placeholder="Internal note, optional — e.g. “PAN and light bill both in her name”"
             className={ta}
@@ -101,7 +111,15 @@ export default function DecisionPanel({ applicationId, strikeCount, reviewVersio
       ) : null}
 
       {mode === 'info' ? (
-        <form action={infoAction} className="mt-4 space-y-3">
+        <form
+          ref={formRef}
+          action={infoAction}
+          // React resets action forms even for a returned validation refusal.
+          // Keep the selected correction fields until the saved outcome replaces this form.
+          onReset={(event) => event.preventDefault()}
+          className="mt-4 space-y-3"
+        >
+          <ValidationSummary errors={infoState.errors} scope={formRef} />
           <input type="hidden" name="applicationId" value={applicationId} />
           <input type="hidden" name="expectedVersion" value={reviewVersion} />
           <fieldset>
@@ -118,6 +136,14 @@ export default function DecisionPanel({ applicationId, strikeCount, reviewVersio
                     type="checkbox"
                     name="flagged"
                     value={f.id}
+                    checked={flagged.includes(f.id)}
+                    onChange={(event) =>
+                      setFlagged(
+                        event.target.checked
+                          ? [...flagged, f.id]
+                          : flagged.filter((id) => id !== f.id),
+                      )
+                    }
                     className="size-3.5 accent-brand-600"
                   />
                   {f.label}
@@ -126,8 +152,16 @@ export default function DecisionPanel({ applicationId, strikeCount, reviewVersio
             </div>
           </fieldset>
           <div>
+            <label htmlFor="correction-reason" className="block text-meta font-semibold">
+              Reason for requesting more information
+            </label>
             <textarea
+              id="correction-reason"
+              aria-invalid={Boolean(infoState.errors?.reason)}
+              aria-describedby={infoState.errors?.reason ? 'correction-error' : undefined}
               name="reason"
+              value={reasons.info}
+              onChange={(event) => setReasons({ ...reasons, info: event.target.value })}
               rows={3}
               required
               placeholder="The Client sees this word for word. Be specific — “the name on your PAN is Ramesh J. Patel but the light bill says Jayanti Patel; send a relationship proof or a no-objection letter.”"
@@ -137,7 +171,9 @@ export default function DecisionPanel({ applicationId, strikeCount, reviewVersio
               <p className="mt-1.5 text-tiny font-medium text-danger">{infoState.errors.flagged}</p>
             ) : null}
             {infoState.errors?.reason ? (
-              <p className="mt-1.5 text-tiny font-medium text-danger">{infoState.errors.reason}</p>
+              <p id="correction-error" className="mt-1.5 text-tiny font-medium text-danger">
+                {infoState.errors.reason}
+              </p>
             ) : null}
           </div>
           <p className="text-tiny text-ink-500">
@@ -154,7 +190,8 @@ export default function DecisionPanel({ applicationId, strikeCount, reviewVersio
       ) : null}
 
       {mode === 'reject' ? (
-        <form action={rejectAction} className="mt-4 space-y-3">
+        <form ref={formRef} action={rejectAction} className="mt-4 space-y-3">
+          <ValidationSummary errors={rejectState.errors} scope={formRef} />
           <input type="hidden" name="applicationId" value={applicationId} />
           <input type="hidden" name="expectedVersion" value={reviewVersion} />
           <p className="rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger">
@@ -165,15 +202,23 @@ export default function DecisionPanel({ applicationId, strikeCount, reviewVersio
             Use “Need more info” instead if this is fixable.
           </p>
           <div>
+            <label htmlFor="rejection-reason" className="block text-meta font-semibold">
+              Reason for rejection
+            </label>
             <textarea
+              id="rejection-reason"
+              aria-invalid={Boolean(rejectState.errors?.reason)}
+              aria-describedby={rejectState.errors?.reason ? 'rejection-error' : undefined}
               name="reason"
+              value={reasons.reject}
+              onChange={(event) => setReasons({ ...reasons, reject: event.target.value })}
               rows={3}
               required
               placeholder="Shown to the Client verbatim. Say exactly what was wrong."
               className={ta}
             />
             {rejectState.errors?.reason ? (
-              <p className="mt-1.5 text-tiny font-medium text-danger">
+              <p id="rejection-error" className="mt-1.5 text-tiny font-medium text-danger">
                 {rejectState.errors.reason}
               </p>
             ) : null}
