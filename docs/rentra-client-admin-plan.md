@@ -1,6 +1,6 @@
 # Rentra client and Super Admin implementation plan
 
-Prepared: **26 September 2026**. Status: **24/32 implementation parts complete; next CP25** (updated 28 September 2026; deployment status and evidence are in the session tracker).
+Prepared: **26 September 2026**. Status: **25/32 implementation parts complete; next CP25** (updated 28 September 2026; deployment status and evidence are in the session tracker).
 
 This is the current plan for the property-owner/agent portal (`/partner`, database role `client`) and the Super Admin console (`/admin`). It incorporates the customer delivery work, subsequent UI refresh and the Express backend extraction. It specifies operational workflows as well as screens: a polished table without the permission, detail page, state transition and recovery path is incomplete.
 
@@ -204,7 +204,7 @@ Create a typed management area rather than a generic database-table editor.
 
 **CP24 delivered — 28 September 2026:** typed catalogue screens, creation and previewed edits, usage counts, protected references and migration-only replacement planning. Migration 0035 remains unapplied to the configured database. See the [CP24 runbook](rentra-client-admin-part24.md) for verified gates and boundaries.
 
-**CP25 in progress — 28 September 2026:** publication implementation and offline checks are present; database/browser acceptance is blocked by the execution approval usage limit. [CP25 runbook](rentra-client-admin-part25.md).
+**CP25 in progress — 28 September 2026:** publication implementation and offline checks are present; disposable-database acceptance now fails on the inventory fixture, and browser acceptance remains pending. [CP25 runbook](rentra-client-admin-part25.md).
 
 | Admin-managed resource | Required controls | Dependency behavior |
 | --- | --- | --- |
@@ -300,3 +300,5 @@ Use the [session roadmap](rentra-client-admin-sessions.md). Every part includes 
 Start with **CP01**, then CP02–CP08: access foundations, directories and the two approval workflows close the highest operational gaps. Do not begin by replacing every shell or adding decorative dashboards. Preserve customer releases and their outstanding payment gates throughout.
 
 For each completed part, update the session status, audit gap disposition and `rentra-client-admin-partNN.md` runbook with changes, actual check results, migration/deployment status, limitations and the next part. Keep historical customer completion counts separate from this new roadmap. This planning change itself does not complete any CP implementation part.
+
+**CP26 complete — 28 September 2026:** operator and security management passed its independent CP01–02-dependent gates. Migration 0037 is applied only to disposable databases. [Security runbook](rentra-client-admin-part26.md).

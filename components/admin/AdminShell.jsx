@@ -147,6 +147,12 @@ const NAV_GROUPS = [
     label: 'Compliance & health',
     items: [
       {
+        href: '/admin/security',
+        label: 'Operators & security',
+        icon: ShieldCheck,
+        capability: 'admin.security.read',
+      },
+      {
         href: '/admin/privacy',
         label: 'Privacy requests',
         icon: ShieldCheck,
@@ -169,6 +175,8 @@ const NAV_GROUPS = [
 ];
 
 const DETAIL_LABELS = [
+  ['/admin/security/', 'Operator security'],
+  ['/admin/security', 'Operators & security'],
   ['/admin/applications/', 'Application review'],
   ['/admin/properties/', 'Property review'],
   ['/admin/bookings/', 'Booking record'],

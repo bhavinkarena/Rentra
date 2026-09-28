@@ -27,7 +27,7 @@ Public API: `GET /api/v1/discovery/content/:kind/:version?`. Missing versions ar
 
 Migration [0036_content_publication.sql](../../rentra-backend/drizzle/0036_content_publication.sql) adds working-copy and publication tables, version/current indexes, type/review constraints and an immutable-publication trigger. The schema, snapshot and journal are included. Booking acceptance uses existing JSON snapshots and lifecycle history; it does not rewrite historical rows.
 
-**0036 has not been applied to any database in this session.** The runtime command was rejected before execution. No configured database was inspected or changed. Prior pending migration status is recorded in the session tracker and was not rechecked. After runtime acceptance and deployment authorization, apply the outstanding migrations through 0036 before deploying backend and frontend together. A configured `SESSION_SECRET` is required for publication signatures. Before initial contact editing, ensure the backend's `RENTRA_SUPPORT_EMAIL`, `NEXT_PUBLIC_WHATSAPP_NUMBER` and `RENTRA_SUPPORT_HOURS` reflect the intended existing channels; the public UI no longer reads a separate frontend contact configuration.
+**0036 remains unapplied to the configured database.** It was applied to disposable databases during CP26 verification; the original CP25 runtime command had been rejected before execution. No configured database was inspected or changed. Prior pending migration status is recorded in the session tracker and was not rechecked. After runtime acceptance and deployment authorization, apply the outstanding migrations through 0036 before deploying backend and frontend together. A configured `SESSION_SECRET` is required for publication signatures. Before initial contact editing, ensure the backend's `RENTRA_SUPPORT_EMAIL`, `NEXT_PUBLIC_WHATSAPP_NUMBER` and `RENTRA_SUPPORT_HOURS` reflect the intended existing channels; the public UI no longer reads a separate frontend contact configuration.
 
 ## Verification actually passed
 
@@ -38,11 +38,11 @@ Migration [0036_content_publication.sql](../../rentra-backend/drizzle/0036_conte
 - Migration-file/journal check: **37 entries**, without database access. Drizzle generation reports no schema drift.
 - Whitespace checks passed. No browser, accessibility, database integration or runtime migration acceptance is claimed.
 
-## Blocker and required completion gates
+## Original blocker and required completion gates
 
 Automatic approval review rejected the disposable local database command because its approval service reported: **"You've hit your usage limit"**. The command did not execute. No alternate database connection, browser launch or indirect execution was used to bypass that rejection.
 
-The following files are prepared but **not executed**:
+At the original CP25 handoff, the following files were prepared but **not executed**. The later CP26 run attempted the integration test and found the fixture failure recorded below; browser/outage gates remain unexecuted:
 
 1. Backend `test/integration/content.integration.test.js`: real migration, scope, duplicate/stale commands, required review, signed preview/actor binding, one-winner publication, immutable history, rollback under a fresh version, contact baseline preservation, quote invalidation and accepted-hold preservation. Run the full backend suite afterward for booking/payment/support regressions.
 2. Frontend `scripts/portal-gate/cp25_gate.mjs`: draft/public isolation, review/publish, historical URLs, rollback, help/contact customer rendering, channel removal, stale-editor recovery, scoped access and desktop/mobile axe/overflow checks.
@@ -78,4 +78,8 @@ Fix any gate failures, rerun affected checks and update this runbook, tracker, a
 
 No future-dated scheduling, automatic legal review, bulk messages, email/WhatsApp verification adapter, media library, arbitrary page builder, search-intent editor or operational pricing/refund-rule editor is included. Contact hours are bounded editorial text in the stated timezone. New copy cannot enable a payment method or change cancellation calculations. No legal or financial promises were invented.
 
-The next session should **continue CP25 runtime gates**, not advance to CP26. Previous completed parts remain untouched.
+The next session should **continue CP25 runtime gates**. CP26 was completed independently because its dependencies are CP01–02; CP25 remains in progress.
+
+## Verification update during CP26 — 28 September 2026
+
+Local execution is available. The broader backend suite reached the CP25 integration test and failed with `INVENTORY_REMEDIATION_REQUIRED`: its seeded confirmed booking has no matching inventory reservations. Correct/reconcile that disposable fixture, then run the integration, browser and outage gates. No CP25 browser acceptance was performed. Migration 0036 was applied only to disposable databases during this run and remains unapplied to the configured database. CP25 stays **IN PROGRESS**; CP26 is complete independently.

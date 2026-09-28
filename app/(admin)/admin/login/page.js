@@ -11,17 +11,21 @@ export const metadata = {
 /**
  * No self-signup, no password reset link, no "forgot password".
  *
- * Admin accounts come into existence only through `npm run seed:admin`, which
- * is also how a password is reset. A self-service reset flow on the account
- * that releases payouts is a phishing surface with no upside.
+ * CP26 operators are provisioned by an authorized administrator. Enrollment
+ * and recovery require an expiring private link; no public reset is offered.
  */
 export default async function AdminLoginPage({ searchParams }) {
   const params = await searchParams;
-  if (await getCurrentAdmin()) redirect('/admin');
+  if (params?.reauthenticate !== '1' && (await getCurrentAdmin())) redirect('/admin');
 
   return (
     <div className="mx-auto flex min-h-[calc(100vh-66px)] w-full max-w-md flex-col justify-center px-4 py-12 sm:px-6">
       <div className="rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8">
+        {params?.reauthenticate === '1' && (
+          <p role="status" className="mb-5">
+            Sign in again to confirm a high-impact access change.
+          </p>
+        )}
         {params?.session === 'ended' ? (
           <p role="status" className="mb-5 rounded-md border border-border bg-ink-25 p-3 text-meta">
             Sign in again to continue. Your session may have expired or been revoked after an access

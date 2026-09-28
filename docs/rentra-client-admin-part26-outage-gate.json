@@ -1,0 +1,33 @@
+{
+  "completed": true,
+  "checks": [
+    {
+      "check": "Retryable outage /admin/security",
+      "pass": true
+    },
+    {
+      "check": "Retryable outage /admin/security/79ddf28c-0848-4de2-b9e7-d1dcd7005108",
+      "pass": true
+    },
+    {
+      "check": "Failed command preserves typed reason",
+      "pass": true
+    },
+    {
+      "check": "Failed command does not revoke sessions",
+      "pass": true
+    },
+    {
+      "check": "Signed-in operator can open reauthentication form",
+      "pass": true
+    },
+    {
+      "check": "Enrollment outage offers retry after fragment removal",
+      "pass": true
+    },
+    {
+      "check": "Enrollment retry succeeds using retained token",
+      "pass": true
+    }
+  ]
+}
