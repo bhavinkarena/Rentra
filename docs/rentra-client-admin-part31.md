@@ -1,6 +1,6 @@
 # CP31 — Accessibility, performance and operator handoff
 
-Status: **COMPLETE — 28 September 2026.** Independent production accessibility/performance/handoff gate **367/367** passed across **32 routes and 64 route/viewport measurements**, with no axe findings in the configured rule sets. Frontend **36/36**, backend **143/143**, production Webpack build, lint/format and the 41-file migration/journal check passed. Progress: **30/32**, next **CP30**. CP30's customer/hosted Test acceptance remains separate and incomplete; R2 remains open, and this part does not certify or enable Live finance.
+Status: **COMPLETE — 28 September 2026.** Independent production accessibility/performance/handoff gate **367/367** passed across **32 routes and 64 route/viewport measurements**, with no axe findings in the configured rule sets. Frontend **36/36**, backend **143/143**, production Webpack build, lint/format and the 41-file migration/journal check passed. Progress: **31/32**, next **CP32**. CP30 customer continuation passed and hosted CA24 was waived by the user; hosted readiness remains unverified, and this part does not certify or enable Live finance.
 
 ## Changes
 
@@ -54,7 +54,7 @@ Review guidance: [Vercel Web Interface Guidelines](https://raw.githubusercontent
 
 Chromium's accessibility tree verifies exposed landmarks/headings, and axe covers the configured rule sets including labels and contrast. Keyboard interactions verify actual focus, error-summary navigation, table scrolling and the native modal's exclusion of background controls. Native browser chrome may receive focus at a tab boundary; it is not a background application control. The application honors reduced motion; global transitions reduce to at most 0.01ms.
 
-**No human VoiceOver/NVDA speech-output or exhaustive WCAG conformance pass is claimed.** No hosted/mobile-device hardware or field Core Web Vitals measurement ran. Only the recorded routes, states, desktop/mobile sizes and data volume are measured; wider customer checkout/approximate-location browser work remains in CP30, and provider acceptance remains CA24. The gate records these boundaries rather than substituting fixture success for release acceptance.
+**No human VoiceOver/NVDA speech-output or exhaustive WCAG conformance pass is claimed.** No hosted/mobile-device hardware or field Core Web Vitals measurement ran. Only the recorded routes, states, desktop/mobile sizes and data volume are measured; CP30 has now measured the named customer continuation; hosted provider acceptance remains waived / unverified CA24. The gate records these boundaries rather than substituting fixture success for release acceptance.
 
 ## Reproduce
 
@@ -72,4 +72,4 @@ The volume seed requires a fresh fixture. The gate submits only a deliberately i
 
 No new migration, API business command or backend production service change. The backend addition is the disposable volume helper. All 41 migrations are applied only to owned test databases; the configured database is neither inspected nor migrated. Existing recorded pending migration/deployment work is unchanged.
 
-CP31 can deliver its independent UI/performance/handoff checks while CP30 waits for external input. **R2 remains incomplete until CP30's required customer and actual hosted Test evidence passes.** CP32 Live activation additionally needs its own business/provider/configuration, destination and reconciliation evidence.
+CP31 can deliver its independent UI/performance/handoff checks while CP30 waits for external input. **R2 implementation is closed with the explicit CP30 hosted-test waiver; actual hosted Test readiness remains unverified.** CP32 Live activation additionally needs its own business/provider/configuration, destination and reconciliation evidence.

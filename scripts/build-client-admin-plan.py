@@ -70,20 +70,27 @@ completed = sum(status == "COMPLETE" for status in statuses.values())
 next_part = next((key for key, status in statuses.items() if status != "COMPLETE"), "All complete")
 releases = [("R1 — Core operations", 1, 18), ("R2 — Complete Test back office", 19, 31), ("R3 — Live finance", 32, 32)]
 milestones = "".join(
-    f'<tr><td>{escape(name)}</td><td>{f"CP{lo:02}–CP{hi:02}" if hi > lo else f"CP{lo:02}"}</td><td>{done} of {hi - lo + 1}</td><td>{"Complete" if done == hi - lo + 1 else "In progress" if done else "Planned"}</td></tr>'
+    f'<tr><td>{escape(name)}</td><td>{f"CP{lo:02}–CP{hi:02}" if hi > lo else f"CP{lo:02}"}</td><td>{done} of {hi - lo + 1}</td><td>{"Complete with CA24 waiver" if lo == 19 and done == hi - lo + 1 else "Complete" if done == hi - lo + 1 else "In progress" if done else "Planned"}</td></tr>'
     for name, lo, hi in releases
     for done in [sum(statuses[f"CP{n:02}"] == "COMPLETE" for n in range(lo, hi + 1))]
 )
 # Detailed delivery cards, one "complete" card (plus optional limits card) per COMPLETE part.
 # Add an entry in the same change that marks a part COMPLETE in the session tracker.
 DELIVERED = {
+    "CP30": '''<div class="card"><span class="num">CP30 · complete with hosted-test waiver</span><h3>Cross-role regression and customer acceptance</h3>
+      <ul><li>Production four-role browser/API 74/74 and outage/recovery 16/16: shared records, scoped permissions, cross-role cookie boundaries, CORS, concurrent transitions, replay and genuine retry.</li>
+      <li>Fixed booking error retry to refetch and cookie issuance/logout to honor COOKIE_DOMAIN while preserving role SameSite policies.</li>
+      <li>Customer continuation 19/19: fresh OTP login and selection recovery, quoted checkout and unpaid hold refresh, privacy request, scoped support/reply, completed-visit review and moderation privacy; mobile overflow checks.</li>
+      <li>Backend 143/143, frontend 36/36, production build, lint/format and 41-migration journal validation recorded.</li></ul>
+      <p class="small"><strong>Closed - 28 September 2026:</strong> the user explicitly waived hosted CA24 testing. Actual Test capture/refund/webhook/reconciliation, distinct-host cookies and deployment/migration/worker readiness remain <strong>unverified</strong>. No configured database, hosted account or actual provider was changed. Completion does not enable or certify CP32 Live finance. <a href="rentra-client-admin-part30.md">CP30 handoff and waiver ↗</a> · <a href="rentra-client-admin-part30-provider-acceptance.json">Unexecuted hosted record ↗</a></p></div>''',
+
     "CP31": '''<div class="card"><span class="num">CP31 · complete</span><h3>Accessibility, performance and operator handoff</h3>
       <ul><li>Production audit of 32 admin/owner routes at 1280 and 360 pixels: meaningful render, overflow, axe contrast/labels and Chromium accessibility-tree landmarks/headings.</li>
       <li>Keyboard skip links, native mobile drawer focus/Escape/desktop release, reduced motion, named financial table scrolling, expanded decision labels and focused server errors with retained reasons/correction fields.</li>
       <li>Fixed mobile booking-table label overflow, active-filter count contrast, modal resize trapping and failed decision-form resets.</li>
       <li>Permission-aware operator/owner guides and a shift/runbook handoff for approvals, booking incidents, refunds, privacy, audit exports and measured operational recovery.</li>
       <li>Populated pagination lab: 1,002 clients, 1,005 orders, 1,007 visits and 5,008 initial audit events; seven bounded API endpoints measured after warm-up, with documented local budgets.</li></ul>
-      <p class="small"><strong>Local gate passed — 28 September 2026:</strong> production audit 367/367, backend 143/143 and frontend 36/36, Webpack build, lint/format and 41-file migration check. No new migration or configured-database/provider action. Accessibility-tree automation is not a human screen-reader certification; local timing is not hosted field performance. CP30 remains incomplete and R2 remains open until required customer/hosted Test evidence passes. <a href="rentra-client-admin-part31.md">CP31 measurements, fixes and boundaries ↗</a> · <a href="rentra-operator-runbook.md">Operator runbook ↗</a></p></div>''',
+      <p class="small"><strong>Local gate passed — 28 September 2026:</strong> production audit 367/367, backend 143/143 and frontend 36/36, Webpack build, lint/format and 41-file migration check. No new migration or configured-database/provider action. Accessibility-tree automation is not a human screen-reader certification; local timing is not hosted field performance. CP30 local/customer checks passed; hosted CA24 was waived by the user and remains unverified. CP32 retains its independent Live gates. <a href="rentra-client-admin-part31.md">CP31 measurements, fixes and boundaries ↗</a> · <a href="rentra-operator-runbook.md">Operator runbook ↗</a></p></div>''',
     "CP25": '''<div class="card"><span class="num">CP25 · complete</span><h3>Public help, content and policy publication</h3>
       <ul><li>Structured terms, privacy, cancellation, help and contact editors: reasoned draft save, exact-copy review, actor-bound signed publication preview and explicit confirmation. Bounded plain text and allowlisted links exclude executable HTML and scripts.</li>
       <li>Immutable published versions and permanent historical URLs. Restoring an older publication creates a reviewed draft and a new publication version; neither accepted booking terms nor historical copy is rewritten.</li>

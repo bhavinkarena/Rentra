@@ -1,14 +1,13 @@
 {
   "part": "CP30",
-  "status": "NOT_EXECUTED",
+  "status": "WAIVED_BY_USER_NOT_EXECUTED",
   "acceptance": "CA24",
   "blockers": [
-    "Hosted frontend/backend URLs and Test account access not supplied",
-    "Hosted frontend/backend revisions and migration/worker evidence not supplied",
-    "Actual Razorpay Test capture/refund/webhook/reconciliation evidence not collected"
+    "Disposable hosted Test accounts and deployment/migration/worker references not supplied",
+    "Actual Razorpay Test evidence not collected; testing waived by user"
   ],
-  "frontendUrl": null,
-  "backendUrl": null,
+  "frontendUrl": "https://rentrafarm.vercel.app",
+  "backendUrl": "https://rentra-backend-ktsv.onrender.com/api/v1",
   "frontendRevision": null,
   "backendRevision": null,
   "migrationReceipt": null,
@@ -77,5 +76,11 @@
     }
   ],
   "credentials": "Keep keys, cookies and webhook secrets in secret storage, never in this record",
-  "localFixtureEvidenceIsHostedAcceptance": false
+  "localFixtureEvidenceIsHostedAcceptance": false,
+  "waiver": {
+    "date": "2026-09-28",
+    "instruction": "if not a major issue then skip this testing and conclude the 30",
+    "scope": "Hosted CA24 Test acceptance only; no hosted or Live readiness certification",
+    "remainingRisk": "Distinct-host authentication, deployed migrations, workers and actual Test capture/refund/webhook/reconciliation remain unverified."
+  }
 }

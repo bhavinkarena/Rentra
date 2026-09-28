@@ -1,0 +1,105 @@
+{
+  "part": "CP30",
+  "acceptance": "CA23",
+  "environment": "production frontend / disposable local API",
+  "provider": "not exercised",
+  "checks": [
+    {
+      "name": "Anonymous listing shows approximate area and address privacy",
+      "passed": true
+    },
+    {
+      "name": "Anonymous selection displays price and guest count",
+      "passed": true
+    },
+    {
+      "name": "Booking starts fresh login",
+      "passed": true
+    },
+    {
+      "name": "Disposable login explicitly identifies development OTP",
+      "passed": true
+    },
+    {
+      "name": "Login restores saved listing selection",
+      "passed": true
+    },
+    {
+      "name": "Checkout review retains quoted amount",
+      "passed": true
+    },
+    {
+      "name": "Checkout creates a persisted unpaid hold",
+      "passed": true
+    },
+    {
+      "name": "Checkout hold survives refresh",
+      "passed": true
+    },
+    {
+      "name": "Privacy access form acknowledges request",
+      "passed": true
+    },
+    {
+      "name": "Privacy request persists on refresh",
+      "passed": true
+    },
+    {
+      "name": "Customer support form opens scoped conversation",
+      "passed": true
+    },
+    {
+      "name": "Support reply persists after refresh",
+      "passed": true
+    },
+    {
+      "name": "Completed visit review is accepted into moderation",
+      "passed": true
+    },
+    {
+      "name": "Review persists and cannot be submitted twice",
+      "passed": true
+    },
+    {
+      "name": "Unmoderated customer review remains absent publicly",
+      "passed": true
+    },
+    {
+      "name": "Customer route has no mobile horizontal overflow: listing",
+      "passed": true
+    },
+    {
+      "name": "Customer route has no mobile horizontal overflow: account",
+      "passed": true
+    },
+    {
+      "name": "Customer route has no mobile horizontal overflow: support",
+      "passed": true
+    },
+    {
+      "name": "Customer route has no mobile horizontal overflow: bookings",
+      "passed": true
+    }
+  ],
+  "status": "PASSED",
+  "passed": 19,
+  "total": 19,
+  "date": "2026-09-28",
+  "frontendOrigin": "http://localhost:3116",
+  "apiOrigin": "http://localhost:4116/api/v1",
+  "database": "owned disposable PostgreSQL 17; all 41 migrations",
+  "viewports": [
+    1280,
+    390
+  ],
+  "limitations": [
+    "No hosted provider transactions",
+    "Unpaid local checkout hold only",
+    "No real PostGIS map or human screen-reader certification"
+  ],
+  "sourceFingerprints": {
+    "scripts\\portal-gate\\cp30_customer_gate.py": "235623ba62f505d5a0b1d86a5e21532c854449687ed5cb9d5d3fc9bbcef36327",
+    "..\\rentra-backend\\test\\helpers\\seed-customer-continuation.mjs": "777cdd903bd02d271ce536f9adcab51ef22c0e1182e3c0ecaa7fa927e99d0c62",
+    "..\\rentra-backend\\test\\helpers\\serve-property-review.mjs": "fafd5da83d9e79355dd2f4e0ed377f0d4f0f9e805c9747f2c612fd9cb4a28e20"
+  }
+}
