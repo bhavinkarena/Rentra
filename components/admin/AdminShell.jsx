@@ -25,6 +25,17 @@ import PortalShell from '@/components/portal/PortalShell';
 // later groups (Properties, Audit, Settings) arrive with their parts.
 const NAV_GROUPS = [
   {
+    label: 'Reference data',
+    items: [
+      {
+        href: '/admin/catalogues',
+        label: 'Catalogues',
+        icon: ClipboardList,
+        capability: 'admin.catalogues.read',
+      },
+    ],
+  },
+  {
     label: 'Work queues',
     items: [
       {

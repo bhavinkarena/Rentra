@@ -328,6 +328,9 @@ DELIVERED = {
       <li>No SMS/email for case updates; participants see updates in their dispute detail.</li>
       <li>No orphan-object sweeper for unreferenced attachments after failed commits.</li>
       <li>No hosted environment or human screen-reader pass.</li></ul></div>''',
+
+    "CP24": '''<div class="card"><span class="num">CP24 · complete</span><h3>Reference-aware catalogue administration</h3><ul><li>Scoped cities, areas, categories and amenities lists/details, search, status filters, ordering, usage counts and typed creation/editing.</li><li>Reasoned impact previews, versioned confirmation, audited writes, duplicate protection and active-reference database guards. Referenced archives are blocked; replacement previews require explicit migrations.</li><li>Slugs, hierarchy, category rental semantics and amenity value types remain protected. Discovery routes, accepted bookings and existing references are preserved.</li><li>Public discovery/owner readers honor active status and ordering; confirmed UI edits expire the discovery registry and invalidate page caches.</li></ul><p class="small"><strong>Gate passed — 28 September 2026:</strong> backend 131/131, frontend 36/36, browser/API 37/37 and outage 12/12; desktop/mobile axe, lint/format and Webpack build passed. Migration 0035 verified on disposable databases only; configured deployment pending. Real PostGIS centre writes and hosted maps were not exercised locally. <a href="rentra-client-admin-part24.md">Handoff, evidence, migration and boundaries ↗</a></p></div>''',
+
 }
 missing = [key for key, status in statuses.items() if status == "COMPLETE" and key not in DELIVERED]
 assert not missing, f"Add DELIVERED cards for {missing}"

@@ -1,0 +1,53 @@
+{
+  "completed": true,
+  "results": [
+    {
+      "check": "Retryable catalogue outage /admin/catalogues/categories",
+      "pass": true
+    },
+    {
+      "check": "Retryable catalogue outage /admin/catalogues/categories/new",
+      "pass": true
+    },
+    {
+      "check": "Retryable catalogue outage /admin/catalogues/categories/054e5f0e-56d6-4092-9ede-6e448f36d1b5",
+      "pass": true
+    },
+    {
+      "check": "Retryable catalogue outage /admin/catalogues/amenities",
+      "pass": true
+    },
+    {
+      "check": "Retryable catalogue outage /admin/catalogues/amenities/new",
+      "pass": true
+    },
+    {
+      "check": "Retryable catalogue outage /admin/catalogues/amenities/054e5f0e-56d6-4092-9ede-6e448f36d1b5",
+      "pass": true
+    },
+    {
+      "check": "Retryable catalogue outage /admin/catalogues/cities",
+      "pass": true
+    },
+    {
+      "check": "Retryable catalogue outage /admin/catalogues/cities/new",
+      "pass": true
+    },
+    {
+      "check": "Retryable catalogue outage /admin/catalogues/cities/054e5f0e-56d6-4092-9ede-6e448f36d1b5",
+      "pass": true
+    },
+    {
+      "check": "Retryable catalogue outage /admin/catalogues/areas",
+      "pass": true
+    },
+    {
+      "check": "Retryable catalogue outage /admin/catalogues/areas/new",
+      "pass": true
+    },
+    {
+      "check": "Retryable catalogue outage /admin/catalogues/areas/054e5f0e-56d6-4092-9ede-6e448f36d1b5",
+      "pass": true
+    }
+  ]
+}

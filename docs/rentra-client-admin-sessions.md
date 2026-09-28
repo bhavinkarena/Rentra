@@ -1,6 +1,6 @@
 # Rentra client and Super Admin session roadmap
 
-Planning date: 26 September 2026. **Implementation: 23/32 parts complete. Next: CP24.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration. CP05–CP08 migrations `0024`–`0027` were applied to the configured database on 26 September 2026 (verified read-only afterwards: 28 of 28 recorded, none pending). CP09–CP12 have no migration. CP13 migration `0028_visit_evidence_records` was applied to the configured database on 27 September 2026 (verified read-only afterwards: 29 of 29 recorded, none pending). CP14 migration `0029_booking_cases` and CP15 migration `0030_client_updates` are applied to the configured database (verified read-only on 27 September 2026: 31 of 32 recorded). CP16 migration `0031_caretaker_access` is applied (read-only verification on 27 September 2026: 32 of 33 recorded). CP17 migration `0032_support_cases` was applied to the configured database on 27 September 2026 (verified read-only afterwards: 33 of 33 recorded, none pending). CP18–CP20 have no migration (configured database verified read-only on 27 September 2026: 33 of 33 recorded, none pending). CP21 migration `0033_payout_destinations` and CP23 migration `0034_dispute_cases` are **not applied** to the configured database; apply them before deploying CP21 and CP23 backend code.
+Planning date: 26 September 2026. **Implementation: 24/32 parts complete. Next: CP25.** CP01 migration `0022` was applied to the configured database on 26 September 2026; apply it to any other target database before deploying CP01 backend code. CP02 has no migration. CP03 migration `0023` is applied to the configured database (verified read-only). CP04 has no migration. CP05–CP08 migrations `0024`–`0027` were applied to the configured database on 26 September 2026 (verified read-only afterwards: 28 of 28 recorded, none pending). CP09–CP12 have no migration. CP13 migration `0028_visit_evidence_records` was applied to the configured database on 27 September 2026 (verified read-only afterwards: 29 of 29 recorded, none pending). CP14 migration `0029_booking_cases` and CP15 migration `0030_client_updates` are applied to the configured database (verified read-only on 27 September 2026: 31 of 32 recorded). CP16 migration `0031_caretaker_access` is applied (read-only verification on 27 September 2026: 32 of 33 recorded). CP17 migration `0032_support_cases` was applied to the configured database on 27 September 2026 (verified read-only afterwards: 33 of 33 recorded, none pending). CP18–CP20 have no migration (configured database verified read-only on 27 September 2026: 33 of 33 recorded, none pending). CP21 migration `0033_payout_destinations` and CP23 migration `0034_dispute_cases` are **not applied** to the configured database; apply them before deploying CP21 and CP23 backend code. CP24 migration `0035_catalogue_operations` is also **not applied** to the configured database; it was verified only on disposable local databases.
 
 Read the [requirements plan](rentra-client-admin-plan.md) and [source-backed gap audit](rentra-client-admin-ui-audit.md) together with this roadmap. These CP numbers are a new workstream; they do not replace customer Parts 01–22 or change their completion claims. Client means the existing owner/authorized-agent portal.
 
@@ -10,7 +10,7 @@ One part is the target for one implementation session, including its meaningful 
 
 Each part owns its end-to-end slice: necessary Express API/service/schema changes, frontend integration, server-side permissions, persisted loading/error/success behavior, and regression evidence. Reuse existing foundations. Routes and models in the requirements plan are proposals until implemented. Never bypass the backend by adding direct frontend database access.
 
-CP01–CP22 are **COMPLETE**. CP22 display definitions were approved by the user on 27 September 2026. CP23 is **COMPLETE** — 27 September 2026. CP24–CP32 remain **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
+CP01–CP22 are **COMPLETE**. CP22 display definitions were approved by the user on 27 September 2026. CP23 is **COMPLETE** — 27 September 2026. CP24 is **COMPLETE** — 28 September 2026. CP25–CP32 remain **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
 
 | Part | Session scope | Dependencies | Status |
 | --- | --- | --- | --- |
@@ -37,7 +37,7 @@ CP01–CP22 are **COMPLETE**. CP22 display definitions were approved by the user
 | CP21 | Versioned payout destinations | CP01, CP03 | COMPLETE |
 | CP22 | Statements and payout read models | CP19–21; approved display definitions | COMPLETE |
 | CP23 | Dispute and deposit cases | CP13–14, CP17, CP19–20 | COMPLETE |
-| CP24 | Reference-aware catalogue administration | CP08–09 | PLANNED |
+| CP24 | Reference-aware catalogue administration | CP08–09 | COMPLETE |
 | CP25 | Content and policy publication | CP11, CP24 | PLANNED |
 | CP26 | Admin operator and security management | CP01–02 | PLANNED |
 | CP27 | Privacy fulfillment | CP04, CP17, CP26 | PLANNED |
@@ -247,6 +247,8 @@ The sequence favors closing the missing property approval workflow early. Indepe
 
 **Gate:** Referenced records cannot be blindly deleted; check replacement effects, duplicate labels/slugs, stale writes and customer discovery regression. Acceptance: CA16, CA19, CA23. Changes requiring data migration are explicit migrations, not unconstrained field edits.
 
+**Gate passed — 28 September 2026:** scoped catalogue creation/editing, usage and replacement/deactivation previews, immutable reference semantics, versioned and audited confirmation, archive reference guards and public cache invalidation. Backend 131/131, frontend 36/36, browser/API 37/37 and outage 12/12; lint/format and Webpack build passed. Migration `0035_catalogue_operations` was applied only to disposable databases and remains unapplied to the configured database. Referenced replacements require an explicit migration. [CP24 handoff and runbook](rentra-client-admin-part24.md).
+
 ### CP25 — Public help, content and policy publication
 
 **Deliver:** Add structured draft/preview/publish/history workflows for the agreed help/contact/policy content. Keep immutable published policy versions and historical URLs where referenced. Link applicable versions to customer acceptance; invalidate appropriate public caches and provide rollback as a new publication.
@@ -313,6 +315,6 @@ Update this table and the audit dispositions only when the evidence supports the
 
 ## Prompt for the next implementation session
 
-> Start CP24 using docs/rentra-client-admin-plan.md and docs/rentra-client-admin-ui-audit.md. CP23 is complete. Read the CP24 specification from the sessions file, review the requirements and catalogue schema/routes in the existing code, then deliver the reference-aware catalogue administration workflow with validation, archive/replacement and public invalidation. Migration 0034 is generated but unapplied to the configured database; do not inspect or migrate it unless separately requested.
+> Start CP25 using docs/rentra-client-admin-plan.md and docs/rentra-client-admin-ui-audit.md. CP24 is complete. Read the CP25 specification and CP24 handoff, then deliver structured public help/content/policy draft, preview, publication and history while preserving accepted versions. Migration 0035 is generated and tested on disposable databases but unapplied to the configured database; do not inspect or migrate that database unless separately requested.
 
-Replace CP24 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.
+Replace CP25 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.

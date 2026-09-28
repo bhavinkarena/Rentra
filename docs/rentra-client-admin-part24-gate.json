@@ -1,0 +1,153 @@
+{
+  "completed": true,
+  "results": [
+    {
+      "check": "anonymous cannot read admin catalogues",
+      "pass": true
+    },
+    {
+      "check": "owner cannot read admin catalogues",
+      "pass": true
+    },
+    {
+      "check": "customer cannot read admin catalogues",
+      "pass": true
+    },
+    {
+      "check": "catalogue capability required",
+      "pass": true
+    },
+    {
+      "check": "catalogue navigation visible",
+      "pass": true
+    },
+    {
+      "check": "catalogue list 1280px no overflow",
+      "pass": true
+    },
+    {
+      "check": "catalogue list 1280px axe",
+      "pass": true
+    },
+    {
+      "check": "catalogue list 390px no overflow",
+      "pass": true
+    },
+    {
+      "check": "catalogue list 390px axe",
+      "pass": true
+    },
+    {
+      "check": "empty filtered state visible",
+      "pass": true
+    },
+    {
+      "check": "cities list loaded",
+      "pass": true
+    },
+    {
+      "check": "areas list loaded",
+      "pass": true
+    },
+    {
+      "check": "categories list loaded",
+      "pass": true
+    },
+    {
+      "check": "amenities list loaded",
+      "pass": true
+    },
+    {
+      "check": "preview leaves data unchanged",
+      "pass": true
+    },
+    {
+      "check": "catalogue preview 1280px no overflow",
+      "pass": true
+    },
+    {
+      "check": "catalogue preview 1280px axe",
+      "pass": true
+    },
+    {
+      "check": "catalogue preview 390px no overflow",
+      "pass": true
+    },
+    {
+      "check": "catalogue preview 390px axe",
+      "pass": true
+    },
+    {
+      "check": "confirmed label saved",
+      "pass": true
+    },
+    {
+      "check": "referenced archive blocked",
+      "pass": true
+    },
+    {
+      "check": "create categories through preview",
+      "pass": true
+    },
+    {
+      "check": "create cities through preview",
+      "pass": true
+    },
+    {
+      "check": "create areas through preview",
+      "pass": true
+    },
+    {
+      "check": "area editor 1280px no overflow",
+      "pass": true
+    },
+    {
+      "check": "area editor 1280px axe",
+      "pass": true
+    },
+    {
+      "check": "area editor 390px no overflow",
+      "pass": true
+    },
+    {
+      "check": "area editor 390px axe",
+      "pass": true
+    },
+    {
+      "check": "create amenities through preview",
+      "pass": true
+    },
+    {
+      "check": "amenity editor 1280px no overflow",
+      "pass": true
+    },
+    {
+      "check": "amenity editor 1280px axe",
+      "pass": true
+    },
+    {
+      "check": "amenity editor 390px no overflow",
+      "pass": true
+    },
+    {
+      "check": "amenity editor 390px axe",
+      "pass": true
+    },
+    {
+      "check": "unused record can be archived",
+      "pass": true
+    },
+    {
+      "check": "replacement preview cannot rewrite references",
+      "pass": true
+    },
+    {
+      "check": "forbidden UI is not an empty catalogue",
+      "pass": true
+    },
+    {
+      "check": "public route still resolves after label edit",
+      "pass": true
+    }
+  ]
+}
