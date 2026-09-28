@@ -1,0 +1,81 @@
+{
+  "part": "CP30",
+  "status": "NOT_EXECUTED",
+  "acceptance": "CA24",
+  "blockers": [
+    "Hosted frontend/backend URLs and Test account access not supplied",
+    "Hosted frontend/backend revisions and migration/worker evidence not supplied",
+    "Actual Razorpay Test capture/refund/webhook/reconciliation evidence not collected"
+  ],
+  "frontendUrl": null,
+  "backendUrl": null,
+  "frontendRevision": null,
+  "backendRevision": null,
+  "migrationReceipt": null,
+  "workerReceipt": null,
+  "webhookPath": "/webhooks/razorpay",
+  "scenarios": [
+    {
+      "scenario": "credentialed four-role HTTPS authentication and logout",
+      "status": "NOT_EXECUTED",
+      "providerEvidence": null,
+      "serverEvidence": null
+    },
+    {
+      "scenario": "full Test capture with provider and persisted server evidence",
+      "status": "NOT_EXECUTED",
+      "providerEvidence": null,
+      "serverEvidence": null
+    },
+    {
+      "scenario": "advance Test capture if configured",
+      "status": "NOT_EXECUTED",
+      "providerEvidence": null,
+      "serverEvidence": null
+    },
+    {
+      "scenario": "checkout dismissal, refresh and lost callback recovery",
+      "status": "NOT_EXECUTED",
+      "providerEvidence": null,
+      "serverEvidence": null
+    },
+    {
+      "scenario": "forged callback/webhook rejection",
+      "status": "NOT_EXECUTED",
+      "providerEvidence": null,
+      "serverEvidence": null
+    },
+    {
+      "scenario": "signed provider webhook processing and replay",
+      "status": "NOT_EXECUTED",
+      "providerEvidence": null,
+      "serverEvidence": null
+    },
+    {
+      "scenario": "gateway disable with outstanding callback and reconciliation",
+      "status": "NOT_EXECUTED",
+      "providerEvidence": null,
+      "serverEvidence": null
+    },
+    {
+      "scenario": "exact-visit partial cancellation and single refund obligation",
+      "status": "NOT_EXECUTED",
+      "providerEvidence": null,
+      "serverEvidence": null
+    },
+    {
+      "scenario": "actual Test refund and uncertain outcome reconciliation",
+      "status": "NOT_EXECUTED",
+      "providerEvidence": null,
+      "serverEvidence": null
+    },
+    {
+      "scenario": "Test totals reconcile; Live statement and payout exclusion",
+      "status": "NOT_EXECUTED",
+      "providerEvidence": null,
+      "serverEvidence": null
+    }
+  ],
+  "credentials": "Keep keys, cookies and webhook secrets in secret storage, never in this record",
+  "localFixtureEvidenceIsHostedAcceptance": false
+}

@@ -10,7 +10,7 @@ One part is the target for one implementation session, including its meaningful 
 
 Each part owns its end-to-end slice: necessary Express API/service/schema changes, frontend integration, server-side permissions, persisted loading/error/success behavior, and regression evidence. Reuse existing foundations. Routes and models in the requirements plan are proposals until implemented. Never bypass the backend by adding direct frontend database access.
 
-CP01–CP22 are **COMPLETE**. CP22 display definitions were approved by the user on 27 September 2026. CP23 is **COMPLETE** — 27 September 2026. CP24 is **COMPLETE** — 28 September 2026. CP25 is **COMPLETE** — 28 September 2026: publication integration, production browser and outage gates passed after repairing the inventory fixture. CP26 is **COMPLETE** — 28 September 2026. CP27 is **COMPLETE** — 28 September 2026: customer fulfillment gates passed; historical/provider/backup disposal remains an explicit follow-up. CP28 is **COMPLETE** — 28 September 2026. CP29 is **COMPLETE** — 28 September 2026. CP30–CP32 remain **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
+CP01–CP22 are **COMPLETE**. CP22 display definitions were approved by the user on 27 September 2026. CP23 is **COMPLETE** — 27 September 2026. CP24 is **COMPLETE** — 28 September 2026. CP25 is **COMPLETE** — 28 September 2026: publication integration, production browser and outage gates passed after repairing the inventory fixture. CP26 is **COMPLETE** — 28 September 2026. CP27 is **COMPLETE** — 28 September 2026: customer fulfillment gates passed; historical/provider/backup disposal remains an explicit follow-up. CP28 is **COMPLETE** — 28 September 2026. CP29 is **COMPLETE** — 28 September 2026. CP30 is **IN PROGRESS**: local regression passed, expanded customer browser coverage remains and hosted Test acceptance is blocked on deployment/account evidence. CP31–CP32 remain **PLANNED**. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
 
 | Part | Session scope | Dependencies | Status |
 | --- | --- | --- | --- |
@@ -43,7 +43,7 @@ CP01–CP22 are **COMPLETE**. CP22 display definitions were approved by the user
 | CP27 | Privacy fulfillment | CP04, CP17, CP26 | COMPLETE |
 | CP28 | Audit browser and governed exports | CP03–27 | COMPLETE |
 | CP29 | Operational incidents and service controls | CP15, CP19–20, CP26, CP28 | COMPLETE |
-| CP30 | Cross-role regression and hosted Test acceptance | CP01–29; hosted Test environment | PLANNED |
+| CP30 | Cross-role regression and hosted Test acceptance | CP01–29; hosted Test environment | IN PROGRESS |
 | CP31 | Accessibility, performance and operator handoff | CP30 for release; UI checks may start earlier | PLANNED |
 | CP32 | Later live-finance activation | CP30–31, customer Parts 20–22 and external gates | PLANNED |
 
@@ -291,6 +291,8 @@ The sequence favors closing the missing property approval workflow early. Indepe
 
 ### CP30 — Cross-role regression and hosted Test acceptance
 
+**Local regression passed — 28 September 2026; hosted gate not executed:** backend 143/143 and frontend 36/36, no skips; production four-role browser/API 74/74 and outage/recovery 16/16. Fixed booking-error retry to refetch with Next.js `retry()` and Express cookie issuance/logout to honor `COOKIE_DOMAIN` without relaxing role SameSite policies. Production Webpack build, lint, format and 41-file migration/journal check passed. CA01–24 matrix, source fingerprints, exact deployment boundary and remaining customer browser coverage are recorded in the [CP30 handoff](rentra-client-admin-part30.md). No configured database or actual provider was used. CA24 requires deployed URLs/accounts, revisions/migration evidence and independently verified Test capture/refund/webhook/reconciliation; **CP30 stays incomplete**.
+
 **Deliver:** Run integrated customer/client/caretaker/admin journeys against the completed code, including direct API abuse and concurrency cases. Validate the split frontend/backend deployment boundary. Exercise actual hosted Razorpay Test capture, cancellation/refund and webhook/reconciliation scenarios with server evidence, pinned revisions and sanitized provider identifiers.
 
 **Gate:** Record CA01–24 results, fixes and unresolved blockers. Fixtures are separate evidence from actual provider execution. Required Test credentials belong in local/deployment secret storage, never documentation. Without a usable hosted environment/provider configuration, keep the provider gate blocked and this part incomplete; independent regression work can still finish.
@@ -325,6 +327,6 @@ Update this table and the audit dispositions only when the evidence supports the
 
 ## Prompt for the next implementation session
 
-> Start CP30 using the requirements plan and this tracker. CP01–CP29 are complete; CP25 publication acceptance passed with backend 141/141, production browser 43/43 and outage 10/10. Run cross-role regression and separately record actual hosted Razorpay Test acceptance; fixtures do not certify hosted capture/refund/webhook behavior. Do not inspect or migrate the configured database unless separately requested.
+> Continue CP30 from rentra-client-admin-part30.md. Local backend 143/143, frontend 36/36, production four-role browser/API 74/74 and outage/recovery 16/16 passed; booking retry and shared-domain cookie fixes are included. Finish the recorded customer browser paths and obtain hosted frontend/API URLs, Test accounts, deployment revisions/migration receipt and actual Razorpay Test evidence. CA24 has not run; CP30 is not complete. CP31 UI measurement can proceed independently. Do not inspect or migrate the configured database unless separately requested.
 
 Replace CP30 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.
