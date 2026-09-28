@@ -1,6 +1,6 @@
 # Rentra client and Super Admin implementation plan
 
-Prepared: **26 September 2026**. Status: **25/32 implementation parts complete; next CP25** (updated 28 September 2026; deployment status and evidence are in the session tracker).
+Prepared: **26 September 2026**. Status: **27/32 implementation parts complete; next CP25** (updated 28 September 2026; deployment status and evidence are in the session tracker).
 
 This is the current plan for the property-owner/agent portal (`/partner`, database role `client`) and the Super Admin console (`/admin`). It incorporates the customer delivery work, subsequent UI refresh and the Express backend extraction. It specifies operational workflows as well as screens: a polished table without the permission, detail page, state transition and recovery path is incomplete.
 
@@ -293,7 +293,7 @@ Planning can proceed with the defaults below; implementation must record the sel
 | Live commission/tax/deposit/settlement policy | Remains unanswered in customer Part 20 until the business records it; no rates or payout promises invented here | CP11/CP22/CP23/CP32 |
 | Language and communications | Keep implemented English and configured channels; translate/add channels only through explicit deliverables | CP15/CP25 |
 | Public content editor | Structured fields and validated media, no arbitrary scripts or executable HTML | CP25 |
-| Retention and privacy fulfillment | [Internal policy v1](rentra-data-retention-policy.md), prepared 28 September 2026: verified account closure with explicit retained-record outcomes, 24-hour export availability, record-specific disposal reviews and holds. Legal entity/GST applicability and runtime enforcement remain unverified; no full-erasure or compliance claim | CP27; public wording through CP25 |
+| Retention and privacy fulfillment | [Internal policy v1](rentra-data-retention-policy.md), prepared 28 September 2026: verified account closure with explicit retained-record outcomes, 24-hour export availability, record-specific disposal reviews and holds. Customer fulfillment gates passed; historical/provider/backup disposal and legal entity/GST applicability remain outstanding; no full-erasure or compliance claim | CP27; public wording through CP25 |
 
 ## 10. Delivery discipline
 
@@ -304,3 +304,7 @@ Start with **CP01**, then CP02–CP08: access foundations, directories and the t
 For each completed part, update the session status, audit gap disposition and `rentra-client-admin-partNN.md` runbook with changes, actual check results, migration/deployment status, limitations and the next part. Keep historical customer completion counts separate from this new roadmap. This planning change itself does not complete any CP implementation part.
 
 **CP26 complete — 28 September 2026:** operator and security management passed its independent CP01–02-dependent gates. Migration 0037 is applied only to disposable databases. [Security runbook](rentra-client-admin-part26.md).
+
+**CP27 complete — 28 September 2026:** policy-versioned review, guarded previews/approvals, scoped encrypted exports, live authorized downloads and checkpointed partial anonymization passed their independent gates. Browser/API 43/43; financial evidence unchanged. Migration 0038 is applied only to disposable databases. [Privacy fulfillment runbook](rentra-client-admin-part27.md).
+
+**CP28 complete — 28 September 2026:** redacted audit search/detail, explicit creator-scoped export datasets and committed calendar receipts passed their independent gates. Browser/API 44/44; frontend 36/36 and production build passed. Migration 0039 is applied only to disposable databases. [Audit/export runbook](rentra-client-admin-part28.md).

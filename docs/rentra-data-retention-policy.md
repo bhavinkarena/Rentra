@@ -2,7 +2,7 @@
 
 **Policy ID:** `rentra-retention-v1`  
 **Version / research date:** 1.0 / 28 September 2026  
-**Status:** Provisional internal project baseline, created at the project owner's request for CP27. This is a development and operations policy, not a published customer notice or a certification of legal compliance. Automated enforcement is not yet delivered.  
+**Status:** Provisional internal project baseline, created at the project owner's request for CP27. This is a development and operations policy, not a published customer notice or a certification of legal compliance. CP27 customer fulfillment is delivered; historical disposal, processor/backup verification and legal applicability remain outstanding.
 **Accountable role:** Rentra business owner; the designated privacy lead operates this policy, finance validates accounting deadlines, and engineering implements and verifies disposal. Named contacts and legal entity details must be recorded before customer publication.  
 **Next review:** 13 November 2026, then before the DPDP substantive commencement milestone in May 2027; quarterly thereafter and on material legal, processor or product changes.
 
@@ -88,21 +88,21 @@ Disposal must cover production rows, object files/versions, cached/exported copi
 
 ## 7. CP27 implementation contract and current gaps
 
-This policy supplies the CP27 business baseline. **It does not mean CP27 or policy enforcement is complete.** Current source provides request submission, a queue and start-review acknowledgment; it does not yet prove the fulfillment path below.
+This policy supplies the CP27 business baseline. **CP27 customer fulfillment passed its gates on 28 September 2026; the broader retention program is not complete.** The [CP27 runbook](rentra-client-admin-part27.md) records scope, evidence, deployment requirements and outstanding disposal actions.
 
 | Required behavior | Current delivery status |
 | --- | --- |
-| Identity/representative review, scope inventory, policy-versioned approval and recent-authentication checks | CP27 implementation and gate pending |
-| Customer-scoped encrypted export, authorized/audited downloads, 24-hour expiry and physical artifact cleanup | CP27 implementation and gate pending |
-| Versioned staged account closure, photo removal, preference cleanup, session revocation, retry/restart and truthful receipt | CP27 implementation and gate pending |
+| Identity/representative review, scope inventory, policy-versioned approval and recent-authentication checks | Delivered and verified in CP27; migration 0038 required before deployment |
+| Customer-scoped encrypted export, authorized/audited downloads, 24-hour expiry and physical artifact cleanup | Delivered and verified in CP27; migration 0038 required before deployment |
+| Versioned staged account closure, photo removal, preference cleanup, session revocation, retry/restart and truthful receipt | Delivered and verified in CP27; migration 0038 required before deployment |
 | Safe treatment of historical contact/free text, review-body PII and shared KYC | Explicit retained/outstanding scope required in CP27; separate disposal work required where not supported |
 | Provider method detachment/token deletion, historical evidence disposal, backup/object-version expiry and replay after restore | Operational/provider verification and engineering follow-up pending; never report these as erased without evidence |
 | Holds, record-specific disposal dates and upcoming DPDP one-year historical retention | Manual controlled register initially; automated enforcement and legal-date validation required before the relevant deployment |
 | Named privacy contact, verified legal entity/GST scope and customer-facing notice | Business facts still unverified; publication is a separate CP25 workflow |
 
-Minimum acceptance evidence: cross-account and cross-role denial; read/write capability separation; stale approval rejection; expiry and revocation denial; partial failure with no false success; restart without duplicate destructive effects; financial evidence unchanged; receipts listing actual removed and retained data; no raw identity documents or export payloads in audit logs.
+Passed CP27 acceptance evidence: cross-account and cross-role denial; read/write capability separation; stale approval rejection; expiry and revocation denial; partial failure with no false success; restart without duplicate destructive effects; financial evidence unchanged; receipts listing actual removed and retained data; no raw identity documents or export payloads in audit logs.
 
-Until those gates pass, customer messaging must say the request is received or under review. Do not display “all data deleted,” “fully anonymous,” “provider records erased,” or “DPDP compliant” based on this document alone.
+Customer messaging follows the actual request/job state: acknowledgment, reviewed approval, failed stage or scoped completion receipt. A closed job means its stated scope completed; outstanding disposal work remains recorded. Do not display “all data deleted,” “fully anonymous,” “provider records erased,” or “DPDP compliant” based on this document alone.
 
 ## 8. Customer wording for later publication
 

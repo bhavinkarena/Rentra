@@ -1,0 +1,177 @@
+{
+  "completed": true,
+  "checks": [
+    {
+      "check": "anonymous cannot read admin privacy API",
+      "pass": true
+    },
+    {
+      "check": "customer cannot read admin privacy API",
+      "pass": true
+    },
+    {
+      "check": "foreign cannot read admin privacy API",
+      "pass": true
+    },
+    {
+      "check": "missing privacy capability denied",
+      "pass": true
+    },
+    {
+      "check": "read-only mutation denied",
+      "pass": true
+    },
+    {
+      "check": "authoritative directory count",
+      "pass": true
+    },
+    {
+      "check": "directory 1280px no overflow",
+      "pass": true
+    },
+    {
+      "check": "directory 1280px axe",
+      "pass": true
+    },
+    {
+      "check": "directory 390px no overflow",
+      "pass": true
+    },
+    {
+      "check": "directory 390px axe",
+      "pass": true
+    },
+    {
+      "check": "detail 1280px no overflow",
+      "pass": true
+    },
+    {
+      "check": "detail 1280px axe",
+      "pass": true
+    },
+    {
+      "check": "detail 390px no overflow",
+      "pass": true
+    },
+    {
+      "check": "detail 390px axe",
+      "pass": true
+    },
+    {
+      "check": "read-only detail has no approval controls",
+      "pass": true
+    },
+    {
+      "check": "detail omits artifact keys and authentication secrets",
+      "pass": true
+    },
+    {
+      "check": "retryable outage /admin/privacy",
+      "pass": true
+    },
+    {
+      "check": "retryable outage /admin/privacy/7329b116-eea9-4d66-8716-f12ab66e4543",
+      "pass": true
+    },
+    {
+      "check": "failed review preserves reason",
+      "pass": true
+    },
+    {
+      "check": "failed review writes nothing",
+      "pass": true
+    },
+    {
+      "check": "identity review committed",
+      "pass": true
+    },
+    {
+      "check": "preview does not create a job",
+      "pass": true
+    },
+    {
+      "check": "admin data copy download",
+      "pass": true
+    },
+    {
+      "check": "admin receipt download",
+      "pass": true
+    },
+    {
+      "check": "read-only authorized export download",
+      "pass": true
+    },
+    {
+      "check": "revoked admin session cannot download",
+      "pass": true
+    },
+    {
+      "check": "foreign customer export denied",
+      "pass": true
+    },
+    {
+      "check": "anonymous export denied",
+      "pass": true
+    },
+    {
+      "check": "customer same-origin authorized download",
+      "pass": true
+    },
+    {
+      "check": "export exclusions are explicit",
+      "pass": true
+    },
+    {
+      "check": "expired admin download denied",
+      "pass": true
+    },
+    {
+      "check": "expired customer download denied",
+      "pass": true
+    },
+    {
+      "check": "partial failure has checkpoint and no receipt",
+      "pass": true
+    },
+    {
+      "check": "closure approval revoked customer session",
+      "pass": true
+    },
+    {
+      "check": "successful retry reports partial anonymization",
+      "pass": true
+    },
+    {
+      "check": "receipt reports retained identity and external work",
+      "pass": true
+    },
+    {
+      "check": "live identifiers removed",
+      "pass": true
+    },
+    {
+      "check": "completed closure cannot be approved again",
+      "pass": true
+    },
+    {
+      "check": "receipt shows actual removed preference count",
+      "pass": true
+    },
+    {
+      "check": "completed detail 1280px no overflow",
+      "pass": true
+    },
+    {
+      "check": "completed detail 1280px axe",
+      "pass": true
+    },
+    {
+      "check": "completed detail 390px no overflow",
+      "pass": true
+    },
+    {
+      "check": "completed detail 390px axe",
+      "pass": true
+    }
+  ]
+}

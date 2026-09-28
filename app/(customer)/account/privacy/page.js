@@ -30,6 +30,41 @@ export default async function PrivacyPage() {
                 <p className="text-meta">
                   {new Date(r.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}
                 </p>
+                {r.jobState && (
+                  <p>
+                    Fulfillment: {r.jobState.replaceAll('_', ' ')} · checkpoint {r.stage}
+                  </p>
+                )}
+                {r.errorCode && (
+                  <p>
+                    Some stages need staff attention. Earlier stages may already have completed.
+                  </p>
+                )}
+                {r.receipt && (
+                  <>
+                    <p>{r.receipt.limitations}</p>
+                    <a
+                      className="inline-flex min-h-11 items-center text-brand-700 underline"
+                      href={`/account/privacy/${r.id}/receipt`}
+                    >
+                      Download outcome receipt
+                    </a>
+                  </>
+                )}
+                {r.exportAvailable && (
+                  <>
+                    <p>Data copy expires: {new Date(r.expiresAt).toLocaleString('en-IN')}</p>
+                    <a
+                      className="inline-flex min-h-11 items-center text-brand-700 underline"
+                      href={`/account/privacy/${r.id}/export`}
+                    >
+                      Download scoped data copy
+                    </a>
+                  </>
+                )}
+                {r.kind === 'access' && r.state === 'closed' && !r.exportAvailable && (
+                  <p>This data copy has expired or was revoked. Request a new copy if needed.</p>
+                )}
                 <Link
                   className="inline-flex min-h-11 items-center text-brand-700 underline"
                   href={`/support/new?privacy=${r.id}&topic=privacy`}

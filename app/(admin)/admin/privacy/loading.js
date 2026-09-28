@@ -1,5 +1,3 @@
-import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
-
 export default function Loading() {
-  return <ScreenSkeleton screen="table" label="Loading admin privacy" />;
+  return <p role="status">Loading privacy requests…</p>;
 }
