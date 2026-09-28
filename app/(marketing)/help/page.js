@@ -1,7 +1,8 @@
 import Form from '@/components/navigation/NavigationForm';
 import { publicMetadata } from '@/lib/seo/metadata';
 import Link from '@/components/navigation/NavigationLink';
-import { faqs, supportContact } from '@/lib/domain/help';
+import { publicContent } from '@/lib/api/content';
+import ContentBody from '@/components/content/ContentBody';
 export async function generateMetadata({ searchParams }) {
   const filtered = Boolean((await searchParams)?.q);
   return publicMetadata({
@@ -14,16 +15,21 @@ export async function generateMetadata({ searchParams }) {
 export default async function Help({ searchParams }) {
   const params = await searchParams,
     q = typeof params.q === 'string' ? params.q.trim().slice(0, 100) : '';
+  const [help, contactPublication] = await Promise.all([
+    publicContent('help'),
+    publicContent('contact'),
+  ]);
+  const faqs = help.body.faqs;
   const words = q.toLowerCase().split(/\s+/).filter(Boolean),
     results = faqs.filter((f) =>
       words.every((w) => `${f.question} ${f.answer}`.toLowerCase().includes(w)),
     );
-  const contact = supportContact();
+
   return (
     <article className="mx-auto max-w-3xl space-y-8 px-4 py-10">
       <header>
-        <h1 className="text-h1">Help and support</h1>
-        <p className="mt-3">Practical answers for planning, booking and visiting.</p>
+        <h1 className="text-h1">{help.body.title}</h1>
+        <p className="mt-3">{help.body.intro}</p>
       </header>
       <Form action="/help" className="flex flex-wrap items-end gap-3">
         <label className="min-w-0 flex-1">
@@ -60,43 +66,9 @@ export default async function Help({ searchParams }) {
           <p className="mt-4">No answer matched. Try another word or send a support request.</p>
         ) : null}
       </section>
-      <section className="space-y-3 rounded-lg bg-brand-50 p-5">
-        <h2 className="text-h3">Contact Rentra</h2>
-        <p>
-          <Link
-            className="inline-flex min-h-11 items-center text-brand-700 underline"
-            href="/support"
-          >
-            Your support requests
-          </Link>{' '}
-          · Sign in to send a private request and read replies.
-        </p>
-        <p>
-          {contact.hours
-            ? `Support hours: ${contact.hours}`
-            : 'Support hours have not been published. No response time is promised.'}
-        </p>
-        {contact.email ? (
-          <p>
-            Email:{' '}
-            <a className="break-all underline" href={`mailto:${contact.email}`}>
-              {contact.email}
-            </a>
-          </p>
-        ) : null}
-        {contact.whatsapp ? (
-          <p>
-            <a className="underline" href={`https://wa.me/${contact.whatsapp}`} rel="noreferrer">
-              Message Rentra on WhatsApp
-            </a>{' '}
-            — opens an external service.
-          </p>
-        ) : null}
-        <p>
-          Requests are not live chat or an emergency service. For urgent arrival issues, use the
-          host contact in your confirmed booking record.
-        </p>
-      </section>
+      <div className="space-y-3 rounded-lg bg-brand-50 p-5">
+        <ContentBody kind="contact" body={contactPublication.body} />
+      </div>
       <nav aria-label="Policies" className="flex flex-wrap gap-5">
         {['terms', 'cancellation', 'privacy'].map((kind) => (
           <Link

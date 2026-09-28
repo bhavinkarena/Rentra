@@ -380,6 +380,15 @@ export function BookingDetail({
             Cancellation: {record.policy.cancellationTier || 'Not recorded'} · Policy{' '}
             {record.policy.version || 'Not recorded'}
           </p>
+          {record.policy.publications && (
+            <nav aria-label="Accepted public policies" className="my-3 flex flex-wrap gap-4">
+              {Object.entries(record.policy.publications).map(([kind, p]) => (
+                <Link key={kind} className={linkClass} href={p.href}>
+                  Accepted {kind} version
+                </Link>
+              ))}
+            </nav>
+          )}
           <ul className="mt-2 list-inside list-disc">
             {record.policy.houseRules.map((rule, index) => (
               <li key={index}>{rule}</li>

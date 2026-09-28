@@ -204,6 +204,8 @@ Create a typed management area rather than a generic database-table editor.
 
 **CP24 delivered — 28 September 2026:** typed catalogue screens, creation and previewed edits, usage counts, protected references and migration-only replacement planning. Migration 0035 remains unapplied to the configured database. See the [CP24 runbook](rentra-client-admin-part24.md) for verified gates and boundaries.
 
+**CP25 in progress — 28 September 2026:** publication implementation and offline checks are present; database/browser acceptance is blocked by the execution approval usage limit. [CP25 runbook](rentra-client-admin-part25.md).
+
 | Admin-managed resource | Required controls | Dependency behavior |
 | --- | --- | --- |
 | Cities and areas | Name, slug, hierarchy, active status, approved approximate map centre | Validate coordinate ranges and city membership; preserve referenced locations; preview affected discovery URLs and redirects |

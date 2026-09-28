@@ -2,7 +2,7 @@ import { discoveryApi } from '@/lib/api/endpoints';
 import { degradeOnFailure, EMPTY_REGISTRY } from '@/lib/api/resilient';
 import { resolveDiscoveryRoute, DISCOVERY_INTENTS } from '@/lib/domain/discovery';
 import { listingUrl } from '@/lib/domain/listing-url';
-import { POLICY_VERSION } from '@/lib/domain/help';
+import { publicContent } from '@/lib/api/content';
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 export default async function sitemap() {
   /**
@@ -39,13 +39,17 @@ export default async function sitemap() {
           routes.push({ url: `${siteUrl}${route.path}`, changeFrequency: 'daily', priority: 0.7 });
       }
     }
+  const policies = await Promise.all(
+    ['terms', 'cancellation', 'privacy'].map((kind) =>
+      degradeOnFailure(() => publicContent(kind), null, `sitemap policy ${kind}`),
+    ),
+  );
   return [
     { url: `${siteUrl}/`, changeFrequency: 'daily', priority: 1 },
     ...routes,
-    ...[
-      '/help',
-      ...['terms', 'cancellation', 'privacy'].map((kind) => `/policies/${kind}/${POLICY_VERSION}`),
-    ].map((path) => ({ url: `${siteUrl}${path}`, changeFrequency: 'monthly', priority: 0.4 })),
+    ...['/help', ...policies.filter(Boolean).map((p) => `/policies/${p.kind}/${p.version}`)].map(
+      (path) => ({ url: `${siteUrl}${path}`, changeFrequency: 'monthly', priority: 0.4 }),
+    ),
     ...listings.map((l) => ({
       url: listingUrl(siteUrl, l.slug, l.publicCode),
       lastModified: l.updatedAt,

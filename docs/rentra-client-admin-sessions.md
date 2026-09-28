@@ -10,7 +10,7 @@ One part is the target for one implementation session, including its meaningful 
 
 Each part owns its end-to-end slice: necessary Express API/service/schema changes, frontend integration, server-side permissions, persisted loading/error/success behavior, and regression evidence. Reuse existing foundations. Routes and models in the requirements plan are proposals until implemented. Never bypass the backend by adding direct frontend database access.
 
-CP01–CP22 are **COMPLETE**. CP22 display definitions were approved by the user on 27 September 2026. CP23 is **COMPLETE** — 27 September 2026. CP24 is **COMPLETE** — 28 September 2026. CP25–CP32 remain **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
+CP01–CP22 are **COMPLETE**. CP22 display definitions were approved by the user on 27 September 2026. CP23 is **COMPLETE** — 27 September 2026. CP24 is **COMPLETE** — 28 September 2026. CP25 is **IN PROGRESS** — implementation present; database/browser acceptance blocked by the execution approval usage limit. CP26–CP32 remain **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
 
 | Part | Session scope | Dependencies | Status |
 | --- | --- | --- | --- |
@@ -38,7 +38,7 @@ CP01–CP22 are **COMPLETE**. CP22 display definitions were approved by the user
 | CP22 | Statements and payout read models | CP19–21; approved display definitions | COMPLETE |
 | CP23 | Dispute and deposit cases | CP13–14, CP17, CP19–20 | COMPLETE |
 | CP24 | Reference-aware catalogue administration | CP08–09 | COMPLETE |
-| CP25 | Content and policy publication | CP11, CP24 | PLANNED |
+| CP25 | Content and policy publication | CP11, CP24 | IN PROGRESS |
 | CP26 | Admin operator and security management | CP01–02 | PLANNED |
 | CP27 | Privacy fulfillment | CP04, CP17, CP26 | PLANNED |
 | CP28 | Audit browser and governed exports | CP03–27 | PLANNED |
@@ -255,6 +255,8 @@ The sequence favors closing the missing property approval workflow early. Indepe
 
 **Gate:** Verify permissions, input sanitization, stale publication, historical references and customer rendering. Acceptance: CA17, CA19, CA23. Do not allow arbitrary scripts, invent legal promises or silently rewrite previously accepted terms.
 
+**Progress — 28 September 2026:** structured help/contact/policy drafts, review, signed publication preview, immutable history and rollback implementation present. Public pages and checkout acceptance are linked to published versions. Backend offline tests 54/54, frontend 36/36, lint/format/build and migration-file checks passed. **Runtime gates have not run:** automatic approval review rejected local execution because its usage limit was reached. Migration `0036_content_publication` is generated but unapplied to all databases. Continue CP25 acceptance before marking complete. [CP25 runbook and pending gates](rentra-client-admin-part25.md).
+
 ### CP26 — Admin operator and security management
 
 **Deliver:** Add Super Admin operator directory/detail, permitted capability assignment, activation/deactivation, session management and supported MFA enrollment/recovery. Use CP01 enforcement. Require recent authentication for high-impact access changes and prevent accidental removal of the last usable Super Admin.
@@ -315,6 +317,6 @@ Update this table and the audit dispositions only when the evidence supports the
 
 ## Prompt for the next implementation session
 
-> Start CP25 using docs/rentra-client-admin-plan.md and docs/rentra-client-admin-ui-audit.md. CP24 is complete. Read the CP25 specification and CP24 handoff, then deliver structured public help/content/policy draft, preview, publication and history while preserving accepted versions. Migration 0035 is generated and tested on disposable databases but unapplied to the configured database; do not inspect or migrate that database unless separately requested.
+> Continue CP25 using docs/rentra-client-admin-part25.md. Implementation and offline checks are present, but automatic approval review blocked local database/browser execution because of its usage limit. Run and fix the prepared integration, browser and outage gates when execution is available and approved; update all evidence before marking CP25 complete. Do not inspect or migrate the configured database unless separately requested.
 
 Replace CP25 with the next ready part on later sessions. If a previous part is incomplete, continue its recorded remainder before claiming the dependent part is ready.

@@ -2,6 +2,7 @@ import Link from '@/components/navigation/NavigationLink';
 import { Suspense } from 'react';
 import { FaWhatsapp } from 'react-icons/fa6';
 import { RentraLogo, RentraMark } from '@/components/rentra/Logo';
+import { publicContact } from '@/lib/api/content';
 import { discoveryApi } from '@/lib/api/endpoints';
 import { degradeOnFailure, EMPTY_REGISTRY } from '@/lib/api/resilient';
 import { INTENTS } from '@/lib/constants';
@@ -9,9 +10,6 @@ import CustomerNavigation from '@/components/customer/CustomerNavigation';
 import Providers from '@/components/providers';
 
 export default function MarketingLayout({ children }) {
-  const whatsapp = /^\d{10,15}$/.test(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '')
-    ? process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
-    : null;
   return (
     <Providers>
       <div className="flex min-h-screen flex-col">
@@ -56,20 +54,28 @@ export default function MarketingLayout({ children }) {
           <MarketingFooter />
         </Suspense>
 
-        {whatsapp ? (
-          <a
-            href={`https://wa.me/${whatsapp}`}
-            aria-label="Message Rentra on WhatsApp"
-            /* --float-bottom lets a listing page's sticky booking bar push this
-           up out of the way, with no JS. See the rule in globals.css. */
-            className="fixed right-5 bottom-(--float-bottom) z-40 grid size-13 place-items-center rounded-full bg-whatsapp text-white shadow-lg transition hover:brightness-95"
-          >
-            <FaWhatsapp className="size-7" aria-hidden="true" />
-          </a>
-        ) : null}
+        <Suspense fallback={null}>
+          <PublishedWhatsApp />
+        </Suspense>
       </div>
     </Providers>
   );
+}
+
+async function PublishedWhatsApp() {
+  const content = await degradeOnFailure(() => publicContact(), null, 'public support contact');
+  const whatsapp = content?.body.whatsapp;
+  return whatsapp ? (
+    <a
+      href={`https://wa.me/${whatsapp}`}
+      aria-label="Message Rentra on WhatsApp"
+      /* --float-bottom lets a listing page's sticky booking bar push this
+           up out of the way, with no JS. See the rule in globals.css. */
+      className="fixed right-5 bottom-(--float-bottom) z-40 grid size-13 place-items-center rounded-full bg-whatsapp text-white shadow-lg transition hover:brightness-95"
+    >
+      <FaWhatsapp className="size-7" aria-hidden="true" />
+    </a>
+  ) : null;
 }
 
 async function MarketingFooter() {

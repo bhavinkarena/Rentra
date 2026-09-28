@@ -706,6 +706,19 @@ export default function Checkout({ data }) {
               <p id="checkout-purpose-count" className="mt-1.5 text-right text-xs text-ink-500">
                 {purpose.length}/160
               </p>
+              <nav aria-label="Applicable public policies" className="mt-4 flex flex-wrap gap-4">
+                {Object.entries(quote.policy.publications || {}).map(([kind, policy]) => (
+                  <Link
+                    key={kind}
+                    className="min-h-11 underline"
+                    href={policy.href}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {kind} policy (opens in a new tab)
+                  </Link>
+                ))}
+              </nav>
               <CheckboxCard
                 className="mt-5"
                 checked={accepted}
@@ -716,7 +729,8 @@ export default function Checkout({ data }) {
                   I agree to these booking terms
                 </span>
                 <span className="mt-0.5 block text-ink-600">
-                  The visit times, price, cancellation policy and house rules above, and a{' '}
+                  The linked terms and cancellation explanations, privacy notice, visit times, price
+                  and house rules above, and a{' '}
                   <span data-money>{money(quote.totals.depositMinor)}</span> refundable deposit paid
                   separately.
                 </span>

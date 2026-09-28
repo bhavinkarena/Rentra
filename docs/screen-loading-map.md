@@ -16,6 +16,9 @@ Skeletons reserve structural space, have a single accessible loading label, hide
 | `admin/catalogues/[type]/[id]` | form |
 | `admin/clients/[id]` | profile |
 | `admin/clients` | people |
+| `admin/content` | table |
+| `admin/content/[kind]` | form |
+| `help/history/[kind]/[version]` | document |
 | `admin/customers/[id]` | profile |
 | `admin/customers` | people |
 | `admin/disputes/[id]` | case-detail |
@@ -114,7 +117,7 @@ Skeletons reserve structural space, have a single accessible loading label, hide
 
 ## Verification
 
-- All 105 page routes have colocated loading boundaries (including the three CP24 catalogue routes added on 28 September 2026).
+- All 108 page routes have colocated loading boundaries (including the CP24 catalogue and CP25 publication routes). CP25 route/browser acceptance is still pending; see its runbook.
 - Final production build, scoped ESLint and whitespace checks passed.
 - 33 new skeleton variants were rendered using the production CSS and checked in headless Chrome at 390 px and 1280 px: no horizontal overflow and one accessible status each. This is a static component check, not 102 authenticated route journeys.
 - Checkout/mobile and listing/desktop screenshots were visually inspected.
