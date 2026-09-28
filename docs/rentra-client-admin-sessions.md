@@ -10,7 +10,7 @@ One part is the target for one implementation session, including its meaningful 
 
 Each part owns its end-to-end slice: necessary Express API/service/schema changes, frontend integration, server-side permissions, persisted loading/error/success behavior, and regression evidence. Reuse existing foundations. Routes and models in the requirements plan are proposals until implemented. Never bypass the backend by adding direct frontend database access.
 
-CP01–CP22 are **COMPLETE**. CP22 display definitions were approved by the user on 27 September 2026. CP23 is **COMPLETE** — 27 September 2026. CP24 is **COMPLETE** — 28 September 2026. CP25 is **IN PROGRESS** — its disposable-database test fails on an inventory fixture; browser acceptance remains pending. CP26 is **COMPLETE** — 28 September 2026. CP27–CP32 remain **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
+CP01–CP22 are **COMPLETE**. CP22 display definitions were approved by the user on 27 September 2026. CP23 is **COMPLETE** — 27 September 2026. CP24 is **COMPLETE** — 28 September 2026. CP25 is **IN PROGRESS** — its disposable-database test fails on an inventory fixture; browser acceptance remains pending. CP26 is **COMPLETE** — 28 September 2026. CP27 is **IN PROGRESS** — its researched internal retention policy is prepared; fulfillment and disposal gates remain pending. CP28–CP32 remain **PLANNED**, including externally gated parts. The dependency column means the relevant behavior must be available and verified, whether delivered here or already present in the current source.
 
 | Part | Session scope | Dependencies | Status |
 | --- | --- | --- | --- |
@@ -40,7 +40,7 @@ CP01–CP22 are **COMPLETE**. CP22 display definitions were approved by the user
 | CP24 | Reference-aware catalogue administration | CP08–09 | COMPLETE |
 | CP25 | Content and policy publication | CP11, CP24 | IN PROGRESS |
 | CP26 | Admin operator and security management | CP01–02 | COMPLETE |
-| CP27 | Privacy fulfillment | CP04, CP17, CP26 | PLANNED |
+| CP27 | Privacy fulfillment | CP04, CP17, CP26 | IN PROGRESS |
 | CP28 | Audit browser and governed exports | CP03–27 | PLANNED |
 | CP29 | Operational incidents and service controls | CP15, CP19–20, CP26, CP28 | PLANNED |
 | CP30 | Cross-role regression and hosted Test acceptance | CP01–29; hosted Test environment | PLANNED |
@@ -266,6 +266,8 @@ The sequence favors closing the missing property approval workflow early. Indepe
 **Gate passed — 28 September 2026:** operator directory/detail, delegated capability assignment, activation/deactivation, session revocation, recent authentication and audited single-use MFA enrollment/recovery. Self changes and removal of the last usable full Super Admin are refused under serialized security writes. Focused access regression 13/13; CP26 integration rerun with additional last-admin/delegation checks; browser/API 32/32 and outage/reauthentication 7/7; frontend 36/36 and Webpack build passed. Desktop/mobile axe and overflow checks passed. Backend lint/format passed with the Windows line-ending override; changed frontend files pass, with pre-existing full-check warnings recorded. Broader backend: 136 pass, one CP25 inventory-fixture failure. Migration `0037_operator_security` is applied only to disposable databases, not the configured database. [CP26 handoff and security runbook](rentra-client-admin-part26.md).
 
 ### CP27 — Privacy fulfillment jobs
+
+**Policy baseline prepared — 28 September 2026:** At the project owner's request, current official Indian sources and UK regulator design guidance were researched for [Rentra retention policy v1](rentra-data-retention-policy.md). It defines record-specific periods, live identifier treatment, financial-evidence preservation, holds, scoped exports, processors/backups and truthful partial-anonymization outcomes. This is an internal provisional baseline; runtime fulfillment, disposal enforcement and legal applicability remain unverified. CP27 remains **IN PROGRESS**, with no completion gate or migration claimed. [CP27 work record](rentra-client-admin-part27.md).
 
 **Deliver:** Extend the existing acknowledgment screen into identity/authority review, scoped export and deletion/anonymization jobs with stage tracking, retries and outcome receipts. Exports expire and require authorized download. Document which financial/audit records remain under the approved retention policy and how identifying fields are handled.
 

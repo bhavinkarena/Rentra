@@ -10,6 +10,7 @@ Read alongside:
 
 - [Source-backed UI and capability audit](rentra-client-admin-ui-audit.md): what exists, what is partial and what is missing.
 - [32 session-sized implementation parts](rentra-client-admin-sessions.md): dependencies, deliverables and acceptance gates.
+- [Rentra retention policy v1](rentra-data-retention-policy.md): researched provisional CP27 baseline, record schedules, field treatment, holds and implementation gaps; internal, not a published notice.
 - [Customer experience refresh](customer-experience-refresh.md) and [architecture alignment](architecture-alignment.md): preserve the newer customer UI and the current frontend/backend boundary.
 - [Customer session history](rentra-customer-sessions.md), [payment flow](rentra-payment-flow.md) and [Part 20 readiness](rentra-customer-part20.md): historical delivery evidence and outstanding payment release decisions.
 - [Earlier client concept](rentra-client-plan.html): historical reference. This roadmap takes precedence for conflicting client/admin workflows; it does not rewrite historical completion records.
@@ -292,6 +293,7 @@ Planning can proceed with the defaults below; implementation must record the sel
 | Live commission/tax/deposit/settlement policy | Remains unanswered in customer Part 20 until the business records it; no rates or payout promises invented here | CP11/CP22/CP23/CP32 |
 | Language and communications | Keep implemented English and configured channels; translate/add channels only through explicit deliverables | CP15/CP25 |
 | Public content editor | Structured fields and validated media, no arbitrary scripts or executable HTML | CP25 |
+| Retention and privacy fulfillment | [Internal policy v1](rentra-data-retention-policy.md), prepared 28 September 2026: verified account closure with explicit retained-record outcomes, 24-hour export availability, record-specific disposal reviews and holds. Legal entity/GST applicability and runtime enforcement remain unverified; no full-erasure or compliance claim | CP27; public wording through CP25 |
 
 ## 10. Delivery discipline
 
