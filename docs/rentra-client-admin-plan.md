@@ -1,6 +1,6 @@
 # Rentra client and Super Admin implementation plan
 
-Prepared: **26 September 2026**. Status: **28/32 implementation parts complete; next CP25** (updated 28 September 2026; deployment status and evidence are in the session tracker).
+Prepared: **26 September 2026**. Status: **29/32 implementation parts complete; next CP30** (updated 28 September 2026; deployment status and evidence are in the session tracker).
 
 This is the current plan for the property-owner/agent portal (`/partner`, database role `client`) and the Super Admin console (`/admin`). It incorporates the customer delivery work, subsequent UI refresh and the Express backend extraction. It specifies operational workflows as well as screens: a polished table without the permission, detail page, state transition and recovery path is incomplete.
 
@@ -205,7 +205,7 @@ Create a typed management area rather than a generic database-table editor.
 
 **CP24 delivered — 28 September 2026:** typed catalogue screens, creation and previewed edits, usage counts, protected references and migration-only replacement planning. Migration 0035 remains unapplied to the configured database. See the [CP24 runbook](rentra-client-admin-part24.md) for verified gates and boundaries.
 
-**CP25 in progress — 28 September 2026:** publication implementation and offline checks are present; disposable-database acceptance now fails on the inventory fixture, and browser acceptance remains pending. [CP25 runbook](rentra-client-admin-part25.md).
+**CP25 complete — 28 September 2026:** structured publication, immutable historical URLs and fresh-version rollback passed real database and customer rendering gates. Backend 141/141, frontend 36/36, production browser/API 43/43 and outage 10/10 passed. Migration 0036 remains unapplied to the configured database. [CP25 runbook](rentra-client-admin-part25.md).
 
 | Admin-managed resource | Required controls | Dependency behavior |
 | --- | --- | --- |

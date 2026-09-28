@@ -1,6 +1,45 @@
 {
-  "completed": false,
-  "status": "not_run",
-  "blocker": "Automatic approval review rejected local runtime execution because its usage limit was reached.",
-  "results": []
+  "completed": true,
+  "results": [
+    {
+      "check": "Retryable publication outage /admin/content",
+      "pass": true
+    },
+    {
+      "check": "Retryable publication outage /admin/content/terms",
+      "pass": true
+    },
+    {
+      "check": "Retryable publication outage /admin/content/privacy",
+      "pass": true
+    },
+    {
+      "check": "Retryable publication outage /admin/content/cancellation",
+      "pass": true
+    },
+    {
+      "check": "Retryable publication outage /admin/content/help",
+      "pass": true
+    },
+    {
+      "check": "Retryable publication outage /admin/content/contact",
+      "pass": true
+    },
+    {
+      "check": "Retryable publication outage /help",
+      "pass": true
+    },
+    {
+      "check": "Retryable publication outage /policies/terms",
+      "pass": true
+    },
+    {
+      "check": "Retryable publication outage /policies/terms/0d271a11ba8e4580a76e1ac9ee1cfc5c",
+      "pass": true
+    },
+    {
+      "check": "Retryable publication outage /help/history/help/2026-09-21",
+      "pass": true
+    }
+  ]
 }

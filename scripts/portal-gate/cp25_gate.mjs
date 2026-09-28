@@ -44,8 +44,13 @@ try {
     'content permission required',
     (await contexts.limited.request.get(api + '/admin/content')).status() === 403,
   );
-  const admin = contexts.admin,
+  const admin = contexts.admin;
+  let p = await admin.newPage();
+  async function freshPage() {
+    const previous = p;
     p = await admin.newPage();
+    await previous.close();
+  }
   const get = async (path) => (await (await admin.request.get(api + path)).json()).data;
   const original = await get('/discovery/content/terms/2026-09-21');
   const axe = await readFile(
@@ -109,6 +114,7 @@ try {
   await audit('policy editor');
   const published = await publish('terms');
   f.contentVersion = published.version;
+  await freshPage();
   await p.goto(web + '/policies/terms', { waitUntil: 'networkidle' });
   await p.getByRole('heading', { name: 'CP25 reviewed Test booking terms', exact: true }).waitFor();
   check('public page shows new publication', true);
@@ -144,7 +150,9 @@ try {
   await p.getByRole('button', { name: 'Save draft', exact: true }).click();
   await revision(1, 'draft');
   await publish('help');
-  await p.goto(web + '/help', { waitUntil: 'networkidle' });
+  await freshPage();
+  await p.goto(web + '/help', { waitUntil: 'domcontentloaded' });
+  await p.waitForLoadState('load');
   check(
     'help shows published title',
     await p.getByRole('heading', { name: 'CP25 help and support', exact: true }).isVisible(),
@@ -164,7 +172,10 @@ try {
   await revision(1, 'draft');
   await audit('contact editor');
   const contact = await publish('contact');
-  await p.goto(web + '/help', { waitUntil: 'networkidle' });
+  await freshPage();
+  await p.goto(web + '/help', { waitUntil: 'domcontentloaded' });
+  await p.waitForLoadState('load');
+  await p.getByRole('link', { name: 'support@fixture.invalid', exact: true }).waitFor();
   check(
     'reviewed email rendered',
     await p.getByRole('link', { name: 'support@fixture.invalid', exact: true }).isVisible(),

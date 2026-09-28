@@ -1,6 +1,177 @@
 {
-  "completed": false,
-  "status": "not_run",
-  "blocker": "Automatic approval review rejected local runtime execution because its usage limit was reached.",
-  "results": []
+  "completed": true,
+  "results": [
+    {
+      "check": "owner cannot read drafts",
+      "pass": true
+    },
+    {
+      "check": "anonymous cannot read drafts",
+      "pass": true
+    },
+    {
+      "check": "content permission required",
+      "pass": true
+    },
+    {
+      "check": "content directory 1280px no overflow",
+      "pass": true
+    },
+    {
+      "check": "content directory 1280px axe",
+      "pass": true
+    },
+    {
+      "check": "content directory 390px no overflow",
+      "pass": true
+    },
+    {
+      "check": "content directory 390px axe",
+      "pass": true
+    },
+    {
+      "check": "draft stays private",
+      "pass": true
+    },
+    {
+      "check": "draft is not a public version",
+      "pass": true
+    },
+    {
+      "check": "policy editor 1280px no overflow",
+      "pass": true
+    },
+    {
+      "check": "policy editor 1280px axe",
+      "pass": true
+    },
+    {
+      "check": "policy editor 390px no overflow",
+      "pass": true
+    },
+    {
+      "check": "policy editor 390px axe",
+      "pass": true
+    },
+    {
+      "check": "terms publication created a new version",
+      "pass": true
+    },
+    {
+      "check": "public page shows new publication",
+      "pass": true
+    },
+    {
+      "check": "public policy 1280px no overflow",
+      "pass": true
+    },
+    {
+      "check": "public policy 1280px axe",
+      "pass": true
+    },
+    {
+      "check": "public policy 390px no overflow",
+      "pass": true
+    },
+    {
+      "check": "public policy 390px axe",
+      "pass": true
+    },
+    {
+      "check": "original policy URL unchanged",
+      "pass": true
+    },
+    {
+      "check": "restore is not publication",
+      "pass": true
+    },
+    {
+      "check": "terms publication created a new version",
+      "pass": true
+    },
+    {
+      "check": "rollback creates a fresh version",
+      "pass": true
+    },
+    {
+      "check": "rollback restores original copy",
+      "pass": true
+    },
+    {
+      "check": "previous publication still addressable",
+      "pass": true
+    },
+    {
+      "check": "help publication created a new version",
+      "pass": true
+    },
+    {
+      "check": "help shows published title",
+      "pass": true
+    },
+    {
+      "check": "help filtered empty state",
+      "pass": true
+    },
+    {
+      "check": "contact editor 1280px no overflow",
+      "pass": true
+    },
+    {
+      "check": "contact editor 1280px axe",
+      "pass": true
+    },
+    {
+      "check": "contact editor 390px no overflow",
+      "pass": true
+    },
+    {
+      "check": "contact editor 390px axe",
+      "pass": true
+    },
+    {
+      "check": "contact publication created a new version",
+      "pass": true
+    },
+    {
+      "check": "reviewed email rendered",
+      "pass": true
+    },
+    {
+      "check": "removed WhatsApp absent",
+      "pass": true
+    },
+    {
+      "check": "hours include timezone",
+      "pass": true
+    },
+    {
+      "check": "public help 1280px no overflow",
+      "pass": true
+    },
+    {
+      "check": "public help 1280px axe",
+      "pass": true
+    },
+    {
+      "check": "public help 390px no overflow",
+      "pass": true
+    },
+    {
+      "check": "public help 390px axe",
+      "pass": true
+    },
+    {
+      "check": "contact history readable",
+      "pass": true
+    },
+    {
+      "check": "stale save preserves input",
+      "pass": true
+    },
+    {
+      "check": "forbidden page visible",
+      "pass": true
+    }
+  ]
 }
