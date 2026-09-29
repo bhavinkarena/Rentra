@@ -130,20 +130,10 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-(--container-page) px-6 pt-14 pb-12">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <h2 className="text-h2">Explore places</h2>
-            <p className="mt-1 text-meta text-ink-600">Farmhouses and villas, city by city</p>
-          </div>
-          <Link
-            href="/search"
-            className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full border border-border px-4 text-meta font-semibold text-ink-800 transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800"
-          >
-            View all
-            <ArrowRight className="size-4" aria-hidden="true" />
-          </Link>
-        </div>
+      <section className="mx-auto max-w-(--container-page) px-6 pt-4 pb-12">
+        {/* Visible heading removed at the owner's request; kept for screen readers
+            so the city rows' h3 headings still sit under an h2. */}
+        <h2 className="sr-only">Explore places</h2>
         {cityRows.length > 0 ? (
           cityRows.map(({ city, places }) => (
             <CityRow
