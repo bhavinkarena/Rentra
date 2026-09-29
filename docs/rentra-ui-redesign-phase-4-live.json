@@ -1,0 +1,206 @@
+{
+  "environment": "Existing frontend/backend, anonymous browser",
+  "checks": [
+    {
+      "name": "Live home keeps all 16 listings at 390",
+      "passed": true
+    },
+    {
+      "name": "Live shared price note appears once at 390",
+      "passed": true
+    },
+    {
+      "name": "Live photos loaded at 390",
+      "passed": true
+    },
+    {
+      "name": "Live mobile search stays in first viewport",
+      "passed": true
+    },
+    {
+      "name": "Live home keeps all 16 listings at 1440",
+      "passed": true
+    },
+    {
+      "name": "Live shared price note appears once at 1440",
+      "passed": true
+    },
+    {
+      "name": "Live photos loaded at 1440",
+      "passed": true
+    },
+    {
+      "name": "Live guest Save does not navigate",
+      "passed": true
+    },
+    {
+      "name": "Live guest saved place recovered",
+      "passed": true
+    },
+    {
+      "name": "No live runtime exceptions",
+      "passed": true
+    }
+  ],
+  "pages": [
+    {
+      "width": 390,
+      "search": {
+        "x": 16,
+        "y": 540.1875,
+        "width": 358,
+        "height": 223.59375
+      },
+      "images": [
+        {
+          "width": 390,
+          "complete": true
+        },
+        {
+          "width": 390,
+          "complete": true
+        },
+        {
+          "width": 390,
+          "complete": true
+        },
+        {
+          "width": 390,
+          "complete": true
+        },
+        {
+          "width": 390,
+          "complete": true
+        },
+        {
+          "width": 390,
+          "complete": true
+        },
+        {
+          "width": 390,
+          "complete": true
+        },
+        {
+          "width": 390,
+          "complete": true
+        },
+        {
+          "width": 390,
+          "complete": true
+        },
+        {
+          "width": 390,
+          "complete": true
+        },
+        {
+          "width": 390,
+          "complete": true
+        },
+        {
+          "width": 390,
+          "complete": true
+        },
+        {
+          "width": 390,
+          "complete": true
+        },
+        {
+          "width": 390,
+          "complete": true
+        },
+        {
+          "width": 390,
+          "complete": true
+        },
+        {
+          "width": 390,
+          "complete": true
+        },
+        {
+          "width": 390,
+          "complete": true
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "search": {
+        "x": 104,
+        "y": 565,
+        "width": 1232,
+        "height": 96.796875
+      },
+      "images": [
+        {
+          "width": 680,
+          "complete": true
+        },
+        {
+          "width": 359,
+          "complete": true
+        },
+        {
+          "width": 359,
+          "complete": true
+        },
+        {
+          "width": 359,
+          "complete": true
+        },
+        {
+          "width": 359,
+          "complete": true
+        },
+        {
+          "width": 359,
+          "complete": true
+        },
+        {
+          "width": 359,
+          "complete": true
+        },
+        {
+          "width": 359,
+          "complete": true
+        },
+        {
+          "width": 359,
+          "complete": true
+        },
+        {
+          "width": 359,
+          "complete": true
+        },
+        {
+          "width": 359,
+          "complete": true
+        },
+        {
+          "width": 359,
+          "complete": true
+        },
+        {
+          "width": 359,
+          "complete": true
+        },
+        {
+          "width": 359,
+          "complete": true
+        },
+        {
+          "width": 359,
+          "complete": true
+        },
+        {
+          "width": 359,
+          "complete": true
+        },
+        {
+          "width": 359,
+          "complete": true
+        }
+      ]
+    }
+  ],
+  "runtimeErrors": []
+}

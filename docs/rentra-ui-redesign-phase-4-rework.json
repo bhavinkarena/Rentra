@@ -1,0 +1,523 @@
+{
+  "phase": "4-rework",
+  "baseline": false,
+  "environment": "Isolated Next dev, read-only in-memory API; no database/provider",
+  "checks": [
+    {
+      "name": "Home no overflow at 320",
+      "passed": true
+    },
+    {
+      "name": "All actual listings retained at 320",
+      "passed": true
+    },
+    {
+      "name": "Exactly one shared price note at 320",
+      "passed": true
+    },
+    {
+      "name": "Card title uses full width at 320",
+      "passed": true
+    },
+    {
+      "name": "Search controls at least 44px at 320",
+      "passed": true
+    },
+    {
+      "name": "Home axe zero at 320",
+      "passed": true
+    },
+    {
+      "name": "Home no overflow at 390",
+      "passed": true
+    },
+    {
+      "name": "All actual listings retained at 390",
+      "passed": true
+    },
+    {
+      "name": "Exactly one shared price note at 390",
+      "passed": true
+    },
+    {
+      "name": "Card title uses full width at 390",
+      "passed": true
+    },
+    {
+      "name": "Search controls at least 44px at 390",
+      "passed": true
+    },
+    {
+      "name": "390px search stays in first viewport",
+      "passed": true
+    },
+    {
+      "name": "Home axe zero at 390",
+      "passed": true
+    },
+    {
+      "name": "Home no overflow at 768",
+      "passed": true
+    },
+    {
+      "name": "All actual listings retained at 768",
+      "passed": true
+    },
+    {
+      "name": "Exactly one shared price note at 768",
+      "passed": true
+    },
+    {
+      "name": "Card title uses full width at 768",
+      "passed": true
+    },
+    {
+      "name": "Search controls at least 44px at 768",
+      "passed": true
+    },
+    {
+      "name": "Home axe zero at 768",
+      "passed": true
+    },
+    {
+      "name": "Home no overflow at 1024",
+      "passed": true
+    },
+    {
+      "name": "All actual listings retained at 1024",
+      "passed": true
+    },
+    {
+      "name": "Exactly one shared price note at 1024",
+      "passed": true
+    },
+    {
+      "name": "Card title uses full width at 1024",
+      "passed": true
+    },
+    {
+      "name": "Search controls at least 44px at 1024",
+      "passed": true
+    },
+    {
+      "name": "Home axe zero at 1024",
+      "passed": true
+    },
+    {
+      "name": "Home no overflow at 1440",
+      "passed": true
+    },
+    {
+      "name": "All actual listings retained at 1440",
+      "passed": true
+    },
+    {
+      "name": "Exactly one shared price note at 1440",
+      "passed": true
+    },
+    {
+      "name": "Card title uses full width at 1440",
+      "passed": true
+    },
+    {
+      "name": "Search controls at least 44px at 1440",
+      "passed": true
+    },
+    {
+      "name": "Home axe zero at 1440",
+      "passed": true
+    },
+    {
+      "name": "Home no overflow at 1920",
+      "passed": true
+    },
+    {
+      "name": "All actual listings retained at 1920",
+      "passed": true
+    },
+    {
+      "name": "Exactly one shared price note at 1920",
+      "passed": true
+    },
+    {
+      "name": "Card title uses full width at 1920",
+      "passed": true
+    },
+    {
+      "name": "Search controls at least 44px at 1920",
+      "passed": true
+    },
+    {
+      "name": "Home axe zero at 1920",
+      "passed": true
+    },
+    {
+      "name": "Successful empty listings distinguished at 390",
+      "passed": true
+    },
+    {
+      "name": "empty no overflow at 390",
+      "passed": true
+    },
+    {
+      "name": "Successful empty listings distinguished at 1440",
+      "passed": true
+    },
+    {
+      "name": "empty no overflow at 1440",
+      "passed": true
+    },
+    {
+      "name": "Failed listings distinguished at 390",
+      "passed": true
+    },
+    {
+      "name": "failed no overflow at 390",
+      "passed": true
+    },
+    {
+      "name": "Failed listings distinguished at 1440",
+      "passed": true
+    },
+    {
+      "name": "failed no overflow at 1440",
+      "passed": true
+    },
+    {
+      "name": "Distinct price conditions stay on cards at 390",
+      "passed": true
+    },
+    {
+      "name": "mixed no overflow at 390",
+      "passed": true
+    },
+    {
+      "name": "Distinct price conditions stay on cards at 1440",
+      "passed": true
+    },
+    {
+      "name": "mixed no overflow at 1440",
+      "passed": true
+    },
+    {
+      "name": "Stress title remains full width at 390",
+      "passed": true
+    },
+    {
+      "name": "Rating stays together at 390",
+      "passed": true
+    },
+    {
+      "name": "Unknown price has no misleading from qualifier at 390",
+      "passed": true
+    },
+    {
+      "name": "Absent photo has honest placeholder at 390",
+      "passed": true
+    },
+    {
+      "name": "stress no overflow at 390",
+      "passed": true
+    },
+    {
+      "name": "Stress title remains full width at 1440",
+      "passed": true
+    },
+    {
+      "name": "Rating stays together at 1440",
+      "passed": true
+    },
+    {
+      "name": "Unknown price has no misleading from qualifier at 1440",
+      "passed": true
+    },
+    {
+      "name": "Absent photo has honest placeholder at 1440",
+      "passed": true
+    },
+    {
+      "name": "stress no overflow at 1440",
+      "passed": true
+    },
+    {
+      "name": "Save is independent of property navigation",
+      "passed": true
+    },
+    {
+      "name": "Guest save persisted in browser",
+      "passed": true
+    },
+    {
+      "name": "Saved destination recovers local selection",
+      "passed": true
+    },
+    {
+      "name": "Search retains location date slot and guests",
+      "passed": true
+    },
+    {
+      "name": "Search cards retain their individual price notes",
+      "passed": true
+    },
+    {
+      "name": "Failed hero photograph has honest fallback",
+      "passed": true
+    },
+    {
+      "name": "Reduced motion disables image transitions",
+      "passed": true
+    },
+    {
+      "name": "Search keyboard focus visible",
+      "passed": true
+    },
+    {
+      "name": "No unexpected API writes",
+      "passed": true
+    },
+    {
+      "name": "No uncaught browser exceptions",
+      "passed": true
+    }
+  ],
+  "captures": [
+    {
+      "name": "empty",
+      "width": 390,
+      "file": ".impeccable\\redesign\\phase-4-rework-fixture\\empty-390.png"
+    },
+    {
+      "name": "empty",
+      "width": 1440,
+      "file": ".impeccable\\redesign\\phase-4-rework-fixture\\empty-1440.png"
+    },
+    {
+      "name": "failed",
+      "width": 390,
+      "file": ".impeccable\\redesign\\phase-4-rework-fixture\\failed-390.png"
+    },
+    {
+      "name": "failed",
+      "width": 1440,
+      "file": ".impeccable\\redesign\\phase-4-rework-fixture\\failed-1440.png"
+    },
+    {
+      "name": "mixed",
+      "width": 390,
+      "file": ".impeccable\\redesign\\phase-4-rework-fixture\\mixed-390.png"
+    },
+    {
+      "name": "mixed",
+      "width": 1440,
+      "file": ".impeccable\\redesign\\phase-4-rework-fixture\\mixed-1440.png"
+    },
+    {
+      "name": "stress",
+      "width": 390,
+      "file": ".impeccable\\redesign\\phase-4-rework-fixture\\stress-390.png"
+    },
+    {
+      "name": "stress",
+      "width": 1440,
+      "file": ".impeccable\\redesign\\phase-4-rework-fixture\\stress-1440.png"
+    },
+    {
+      "name": "photo-failed",
+      "width": 390,
+      "file": ".impeccable\\redesign\\phase-4-rework-fixture\\photo-failed-390.png"
+    }
+  ],
+  "runtimeErrors": [],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  ],
+  "apiWrites": [],
+  "completed": true
+}

@@ -1,0 +1,578 @@
+{
+  "phase": 3,
+  "baseline": true,
+  "pages": [
+    {
+      "width": 390,
+      "height": 2618.296875,
+      "links": [
+        {
+          "href": "/help",
+          "text": "Help and support"
+        },
+        {
+          "href": "/partner/login",
+          "text": "List your place"
+        },
+        {
+          "href": "/ahmedabad/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Ahmedabad"
+        },
+        {
+          "href": "/ahmedabad/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Ahmedabad"
+        },
+        {
+          "href": "/ahmedabad/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Ahmedabad"
+        },
+        {
+          "href": "/anand/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Anand"
+        },
+        {
+          "href": "/anand/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Anand"
+        },
+        {
+          "href": "/anand/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Anand"
+        },
+        {
+          "href": "/bhavnagar/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Bhavnagar"
+        },
+        {
+          "href": "/bhavnagar/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Bhavnagar"
+        },
+        {
+          "href": "/bhavnagar/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Bhavnagar"
+        },
+        {
+          "href": "/gandhinagar/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Gandhinagar"
+        },
+        {
+          "href": "/gandhinagar/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Gandhinagar"
+        },
+        {
+          "href": "/gandhinagar/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Gandhinagar"
+        },
+        {
+          "href": "/junagadh/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Junagadh"
+        },
+        {
+          "href": "/junagadh/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Junagadh"
+        },
+        {
+          "href": "/junagadh/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Junagadh"
+        },
+        {
+          "href": "/mehsana/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Mehsana"
+        },
+        {
+          "href": "/mehsana/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Mehsana"
+        },
+        {
+          "href": "/mehsana/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Mehsana"
+        },
+        {
+          "href": "/navsari/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Navsari"
+        },
+        {
+          "href": "/navsari/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Navsari"
+        },
+        {
+          "href": "/navsari/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Navsari"
+        },
+        {
+          "href": "/rajkot/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Rajkot"
+        },
+        {
+          "href": "/rajkot/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Rajkot"
+        },
+        {
+          "href": "/rajkot/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Rajkot"
+        },
+        {
+          "href": "/surat/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Surat"
+        },
+        {
+          "href": "/surat/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Surat"
+        },
+        {
+          "href": "/surat/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Surat"
+        },
+        {
+          "href": "/vadodara/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Vadodara"
+        },
+        {
+          "href": "/vadodara/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Vadodara"
+        },
+        {
+          "href": "/vadodara/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Vadodara"
+        },
+        {
+          "href": "/ahmedabad/farmhouse",
+          "text": "Farmhouse in Ahmedabad"
+        },
+        {
+          "href": "/anand/farmhouse",
+          "text": "Farmhouse in Anand"
+        },
+        {
+          "href": "/bhavnagar/farmhouse",
+          "text": "Farmhouse in Bhavnagar"
+        },
+        {
+          "href": "/gandhinagar/farmhouse",
+          "text": "Farmhouse in Gandhinagar"
+        },
+        {
+          "href": "/junagadh/farmhouse",
+          "text": "Farmhouse in Junagadh"
+        },
+        {
+          "href": "/mehsana/farmhouse",
+          "text": "Farmhouse in Mehsana"
+        },
+        {
+          "href": "/navsari/farmhouse",
+          "text": "Farmhouse in Navsari"
+        },
+        {
+          "href": "/rajkot/farmhouse",
+          "text": "Farmhouse in Rajkot"
+        },
+        {
+          "href": "/surat/farmhouse",
+          "text": "Farmhouse in Surat"
+        },
+        {
+          "href": "/vadodara/farmhouse",
+          "text": "Farmhouse in Vadodara"
+        },
+        {
+          "href": "/search",
+          "text": "Search all places"
+        },
+        {
+          "href": "/policies/terms",
+          "text": "Terms policy"
+        },
+        {
+          "href": "/policies/cancellation",
+          "text": "Cancellation policy"
+        },
+        {
+          "href": "/policies/privacy",
+          "text": "Privacy policy"
+        }
+      ]
+    },
+    {
+      "width": 768,
+      "height": 1522.796875,
+      "links": [
+        {
+          "href": "/help",
+          "text": "Help and support"
+        },
+        {
+          "href": "/partner/login",
+          "text": "List your place"
+        },
+        {
+          "href": "/ahmedabad/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Ahmedabad"
+        },
+        {
+          "href": "/ahmedabad/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Ahmedabad"
+        },
+        {
+          "href": "/ahmedabad/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Ahmedabad"
+        },
+        {
+          "href": "/anand/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Anand"
+        },
+        {
+          "href": "/anand/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Anand"
+        },
+        {
+          "href": "/anand/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Anand"
+        },
+        {
+          "href": "/bhavnagar/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Bhavnagar"
+        },
+        {
+          "href": "/bhavnagar/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Bhavnagar"
+        },
+        {
+          "href": "/bhavnagar/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Bhavnagar"
+        },
+        {
+          "href": "/gandhinagar/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Gandhinagar"
+        },
+        {
+          "href": "/gandhinagar/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Gandhinagar"
+        },
+        {
+          "href": "/gandhinagar/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Gandhinagar"
+        },
+        {
+          "href": "/junagadh/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Junagadh"
+        },
+        {
+          "href": "/junagadh/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Junagadh"
+        },
+        {
+          "href": "/junagadh/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Junagadh"
+        },
+        {
+          "href": "/mehsana/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Mehsana"
+        },
+        {
+          "href": "/mehsana/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Mehsana"
+        },
+        {
+          "href": "/mehsana/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Mehsana"
+        },
+        {
+          "href": "/navsari/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Navsari"
+        },
+        {
+          "href": "/navsari/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Navsari"
+        },
+        {
+          "href": "/navsari/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Navsari"
+        },
+        {
+          "href": "/rajkot/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Rajkot"
+        },
+        {
+          "href": "/rajkot/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Rajkot"
+        },
+        {
+          "href": "/rajkot/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Rajkot"
+        },
+        {
+          "href": "/surat/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Surat"
+        },
+        {
+          "href": "/surat/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Surat"
+        },
+        {
+          "href": "/surat/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Surat"
+        },
+        {
+          "href": "/vadodara/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Vadodara"
+        },
+        {
+          "href": "/vadodara/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Vadodara"
+        },
+        {
+          "href": "/vadodara/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Vadodara"
+        },
+        {
+          "href": "/ahmedabad/farmhouse",
+          "text": "Farmhouse in Ahmedabad"
+        },
+        {
+          "href": "/anand/farmhouse",
+          "text": "Farmhouse in Anand"
+        },
+        {
+          "href": "/bhavnagar/farmhouse",
+          "text": "Farmhouse in Bhavnagar"
+        },
+        {
+          "href": "/gandhinagar/farmhouse",
+          "text": "Farmhouse in Gandhinagar"
+        },
+        {
+          "href": "/junagadh/farmhouse",
+          "text": "Farmhouse in Junagadh"
+        },
+        {
+          "href": "/mehsana/farmhouse",
+          "text": "Farmhouse in Mehsana"
+        },
+        {
+          "href": "/navsari/farmhouse",
+          "text": "Farmhouse in Navsari"
+        },
+        {
+          "href": "/rajkot/farmhouse",
+          "text": "Farmhouse in Rajkot"
+        },
+        {
+          "href": "/surat/farmhouse",
+          "text": "Farmhouse in Surat"
+        },
+        {
+          "href": "/vadodara/farmhouse",
+          "text": "Farmhouse in Vadodara"
+        },
+        {
+          "href": "/search",
+          "text": "Search all places"
+        },
+        {
+          "href": "/policies/terms",
+          "text": "Terms policy"
+        },
+        {
+          "href": "/policies/cancellation",
+          "text": "Cancellation policy"
+        },
+        {
+          "href": "/policies/privacy",
+          "text": "Privacy policy"
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 983.296875,
+      "links": [
+        {
+          "href": "/help",
+          "text": "Help and support"
+        },
+        {
+          "href": "/partner/login",
+          "text": "List your place"
+        },
+        {
+          "href": "/ahmedabad/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Ahmedabad"
+        },
+        {
+          "href": "/ahmedabad/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Ahmedabad"
+        },
+        {
+          "href": "/ahmedabad/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Ahmedabad"
+        },
+        {
+          "href": "/anand/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Anand"
+        },
+        {
+          "href": "/anand/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Anand"
+        },
+        {
+          "href": "/anand/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Anand"
+        },
+        {
+          "href": "/bhavnagar/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Bhavnagar"
+        },
+        {
+          "href": "/bhavnagar/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Bhavnagar"
+        },
+        {
+          "href": "/bhavnagar/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Bhavnagar"
+        },
+        {
+          "href": "/gandhinagar/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Gandhinagar"
+        },
+        {
+          "href": "/gandhinagar/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Gandhinagar"
+        },
+        {
+          "href": "/gandhinagar/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Gandhinagar"
+        },
+        {
+          "href": "/junagadh/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Junagadh"
+        },
+        {
+          "href": "/junagadh/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Junagadh"
+        },
+        {
+          "href": "/junagadh/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Junagadh"
+        },
+        {
+          "href": "/mehsana/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Mehsana"
+        },
+        {
+          "href": "/mehsana/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Mehsana"
+        },
+        {
+          "href": "/mehsana/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Mehsana"
+        },
+        {
+          "href": "/navsari/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Navsari"
+        },
+        {
+          "href": "/navsari/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Navsari"
+        },
+        {
+          "href": "/navsari/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Navsari"
+        },
+        {
+          "href": "/rajkot/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Rajkot"
+        },
+        {
+          "href": "/rajkot/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Rajkot"
+        },
+        {
+          "href": "/rajkot/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Rajkot"
+        },
+        {
+          "href": "/surat/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Surat"
+        },
+        {
+          "href": "/surat/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Surat"
+        },
+        {
+          "href": "/surat/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Surat"
+        },
+        {
+          "href": "/vadodara/farmhouse/intent/day-picnic",
+          "text": "Farmhouse for day picnic in Vadodara"
+        },
+        {
+          "href": "/vadodara/farmhouse/intent/with-pool",
+          "text": "Farmhouse for with pool in Vadodara"
+        },
+        {
+          "href": "/vadodara/farmhouse/intent/bonfire-allowed",
+          "text": "Farmhouse for bonfire allowed in Vadodara"
+        },
+        {
+          "href": "/ahmedabad/farmhouse",
+          "text": "Farmhouse in Ahmedabad"
+        },
+        {
+          "href": "/anand/farmhouse",
+          "text": "Farmhouse in Anand"
+        },
+        {
+          "href": "/bhavnagar/farmhouse",
+          "text": "Farmhouse in Bhavnagar"
+        },
+        {
+          "href": "/gandhinagar/farmhouse",
+          "text": "Farmhouse in Gandhinagar"
+        },
+        {
+          "href": "/junagadh/farmhouse",
+          "text": "Farmhouse in Junagadh"
+        },
+        {
+          "href": "/mehsana/farmhouse",
+          "text": "Farmhouse in Mehsana"
+        },
+        {
+          "href": "/navsari/farmhouse",
+          "text": "Farmhouse in Navsari"
+        },
+        {
+          "href": "/rajkot/farmhouse",
+          "text": "Farmhouse in Rajkot"
+        },
+        {
+          "href": "/surat/farmhouse",
+          "text": "Farmhouse in Surat"
+        },
+        {
+          "href": "/vadodara/farmhouse",
+          "text": "Farmhouse in Vadodara"
+        },
+        {
+          "href": "/search",
+          "text": "Search all places"
+        },
+        {
+          "href": "/policies/terms",
+          "text": "Terms policy"
+        },
+        {
+          "href": "/policies/cancellation",
+          "text": "Cancellation policy"
+        },
+        {
+          "href": "/policies/privacy",
+          "text": "Privacy policy"
+        }
+      ]
+    }
+  ],
+  "checks": [],
+  "runtimeErrors": []
+}

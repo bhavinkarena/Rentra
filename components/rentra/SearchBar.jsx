@@ -50,7 +50,7 @@ export default function SearchBar() {
           value={area}
           onChange={(e) => setField('area', e.target.value)}
           placeholder="Kamrej, Surat…"
-          className="min-h-9 w-full bg-transparent text-base text-ink-900 placeholder:text-ink-500 md:text-meta"
+          className="min-h-11 w-full bg-transparent text-base text-ink-900 placeholder:text-ink-500 md:text-meta"
         />
       </Cell>
 
@@ -60,7 +60,7 @@ export default function SearchBar() {
           type="date"
           value={date}
           onChange={(e) => setField('date', e.target.value)}
-          className="min-h-9 w-full min-w-0 bg-transparent text-base text-ink-900 tabular md:text-meta"
+          className="min-h-11 w-full min-w-0 bg-transparent text-base text-ink-900 tabular md:text-meta"
         />
       </Cell>
 
@@ -69,7 +69,7 @@ export default function SearchBar() {
           name="slot"
           value={slot}
           onChange={(e) => setField('slot', e.target.value)}
-          className="min-h-9 w-full bg-transparent text-base text-ink-900 md:text-meta"
+          className="min-h-11 w-full bg-transparent text-base text-ink-900 md:text-meta"
         >
           {Object.values(SLOTS).map((s) => (
             <option key={s.id} value={s.id}>
@@ -87,7 +87,7 @@ export default function SearchBar() {
           max={500}
           value={guests}
           onChange={(e) => setField('guests', Number(e.target.value))}
-          className="min-h-9 w-full bg-transparent text-base text-ink-900 tabular md:text-meta"
+          className="min-h-11 w-full bg-transparent text-base text-ink-900 tabular md:text-meta"
         />
       </Cell>
 
@@ -111,7 +111,7 @@ export default function SearchBar() {
 function Cell({ label, children, last }) {
   return (
     <label
-      className={`min-w-0 cursor-text rounded-sm px-3 py-2 transition-colors hover:bg-ink-50 focus-within:bg-brand-50 sm:px-4 ${
+      className={`min-w-0 cursor-text rounded-sm px-3 py-1 transition-colors hover:bg-ink-50 focus-within:bg-brand-50 sm:px-4 ${
         last ? '' : 'md:border-r md:border-border'
       }`}
     >

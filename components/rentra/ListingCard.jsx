@@ -34,7 +34,7 @@ const BLUR =
  * @param {boolean} [props.eager] Opt out of lazy loading for a card that is
  *   genuinely above the fold on every viewport. Rare — leave it off.
  */
-export default function ListingCard({ listing, eager = false }) {
+export default function ListingCard({ listing, eager = false, showPriceNote = true, priceNoteId }) {
   const {
     href,
     area,
@@ -97,20 +97,27 @@ export default function ListingCard({ listing, eager = false }) {
       </div>
 
       <div className="pt-4">
-        <div className="flex items-baseline justify-between gap-2.5">
-          <h3 className="min-w-0 text-h4 font-semibold tracking-tight">
-            <Link href={href} className="after:absolute after:inset-0 after:rounded-lg">
-              {title}
-            </Link>
-          </h3>
-          {rating !== null && <Rating value={rating} count={reviewCount} />}
+        <h3 className="min-w-0 text-h4 font-semibold tracking-tight">
+          <Link
+            href={href}
+            aria-describedby={priceNoteId}
+            className="after:absolute after:inset-0 after:rounded-lg"
+          >
+            {title}
+          </Link>
+        </h3>
+        <div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <p className="min-w-0 text-meta text-ink-600 [overflow-wrap:anywhere]">{area}</p>
+          {rating !== null && (
+            <Rating value={rating} count={reviewCount} className="shrink-0 whitespace-nowrap" />
+          )}
         </div>
-
-        <p className="mt-1 text-meta text-ink-600">{area}</p>
         <p className="mt-1 text-tiny text-ink-500">{capacityLine}</p>
 
         <p className="mt-2 flex flex-wrap items-baseline gap-2">
-          {isFromPrice ? <span className="text-tiny text-ink-500">from</span> : null}
+          {isFromPrice && price != null ? (
+            <span className="text-tiny text-ink-500">from</span>
+          ) : null}
           <span className="text-h4 font-extrabold tabular tracking-tight" data-money>
             {price == null
               ? 'Price on date selection'
@@ -125,7 +132,9 @@ export default function ListingCard({ listing, eager = false }) {
             </s>
           ) : null}
         </p>
-        {listing.priceNote && <p className="mt-1 text-tiny text-ink-500">{listing.priceNote}</p>}
+        {showPriceNote && listing.priceNote && (
+          <p className="mt-1 text-tiny text-ink-500">{listing.priceNote}</p>
+        )}
       </div>
     </article>
   );

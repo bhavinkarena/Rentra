@@ -1,0 +1,345 @@
+{
+  "phase": 2,
+  "origin": "http://localhost:3000",
+  "checks": [
+    {
+      "name": "All 36 documented palette values match runtime CSS source",
+      "passed": true
+    },
+    {
+      "name": "Structured design references use schema 2",
+      "passed": true
+    },
+    {
+      "name": "Home and loading skeleton retain narrow 16:8 media",
+      "passed": true
+    },
+    {
+      "name": "brand-600 on ink-0: normal-text contrast >= 4.5",
+      "passed": true
+    },
+    {
+      "name": "brand-700 on ink-0: normal-text contrast >= 4.5",
+      "passed": true
+    },
+    {
+      "name": "ink-400 on ink-0: normal-text contrast >= 4.5",
+      "passed": true
+    },
+    {
+      "name": "ink-400 on ink-25: normal-text contrast >= 4.5",
+      "passed": true
+    },
+    {
+      "name": "ink-500 on brand-50: normal-text contrast >= 4.5",
+      "passed": true
+    },
+    {
+      "name": "danger on danger-bg: normal-text contrast >= 4.5",
+      "passed": true
+    },
+    {
+      "name": "warning on warning-bg: normal-text contrast >= 4.5",
+      "passed": true
+    },
+    {
+      "name": "info on info-bg: normal-text contrast >= 4.5",
+      "passed": true
+    },
+    {
+      "name": "Login input at 390: responsive 16/14 px type",
+      "passed": true
+    },
+    {
+      "name": "Login controls at 390: at least 44 px",
+      "passed": true
+    },
+    {
+      "name": "Input at 390: visible keyboard outline",
+      "passed": false
+    },
+    {
+      "name": "Button at 390: visible keyboard outline",
+      "passed": false
+    },
+    {
+      "name": "Login at 390: no axe violations",
+      "passed": true
+    },
+    {
+      "name": "Login at 390: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "Runtime radii at 390: 6/10/14/20 px",
+      "passed": true
+    },
+    {
+      "name": "Runtime page width at 390: 1280 px",
+      "passed": true
+    },
+    {
+      "name": "Home media at 390: documented ratio",
+      "passed": true
+    },
+    {
+      "name": "Mobile search remains inside 844 px viewport",
+      "passed": true
+    },
+    {
+      "name": "Login input at 768: responsive 16/14 px type",
+      "passed": true
+    },
+    {
+      "name": "Login controls at 768: at least 44 px",
+      "passed": true
+    },
+    {
+      "name": "Input at 768: visible keyboard outline",
+      "passed": false
+    },
+    {
+      "name": "Button at 768: visible keyboard outline",
+      "passed": false
+    },
+    {
+      "name": "Login at 768: no axe violations",
+      "passed": true
+    },
+    {
+      "name": "Login at 768: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "Runtime radii at 768: 6/10/14/20 px",
+      "passed": true
+    },
+    {
+      "name": "Runtime page width at 768: 1280 px",
+      "passed": true
+    },
+    {
+      "name": "Home media at 768: documented ratio",
+      "passed": true
+    },
+    {
+      "name": "Login input at 1440: responsive 16/14 px type",
+      "passed": true
+    },
+    {
+      "name": "Login controls at 1440: at least 44 px",
+      "passed": true
+    },
+    {
+      "name": "Input at 1440: visible keyboard outline",
+      "passed": false
+    },
+    {
+      "name": "Button at 1440: visible keyboard outline",
+      "passed": false
+    },
+    {
+      "name": "Login at 1440: no axe violations",
+      "passed": true
+    },
+    {
+      "name": "Login at 1440: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "Runtime radii at 1440: 6/10/14/20 px",
+      "passed": true
+    },
+    {
+      "name": "Runtime page width at 1440: 1280 px",
+      "passed": true
+    },
+    {
+      "name": "Home media at 1440: documented ratio",
+      "passed": true
+    },
+    {
+      "name": "Reduced motion constrains button transitions",
+      "passed": true
+    },
+    {
+      "name": "No uncaught browser exceptions",
+      "passed": true
+    }
+  ],
+  "pages": [
+    {
+      "route": "/login",
+      "width": 390,
+      "input": {
+        "outlineWidth": "0px",
+        "outlineStyle": "none",
+        "outlineColor": "oklab(0.458041 -0.0687321 0.0254005 / 0.587575)",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.458041 -0.0687321 0.0254005 / 0.5) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+        "fontSize": "16px",
+        "height": 48,
+        "radius": "10px"
+      },
+      "button": {
+        "outlineWidth": "0px",
+        "outlineStyle": "none",
+        "outlineColor": "rgb(46, 100, 73)",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.458041 -0.0687321 0.0254005 / 0.5) 0px 0px 0px 3px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+        "height": 48,
+        "radius": "20px",
+        "transitionDuration": "0.15s"
+      },
+      "axe": []
+    },
+    {
+      "route": "/",
+      "width": 390,
+      "tokens": {
+        "values": {
+          "--radius-sm": "6px",
+          "--radius-md": "10px",
+          "--radius-lg": "14px",
+          "--radius-xl": "20px",
+          "--container-page": "1280px",
+          "--primary": "#2e6449",
+          "--background": "#fafbfa",
+          "--ring": "#2e6449",
+          "--font-sans": "\"jakarta\", \"jakarta Fallback\", \"Noto Sans Devanagari\", \"Noto Sans Gujarati\", system-ui, -apple-system,\n    sans-serif"
+        },
+        "bodyFont": "jakarta, \"jakarta Fallback\", \"Noto Sans Devanagari\", \"Noto Sans Gujarati\", system-ui, -apple-system, sans-serif",
+        "heroRatio": "16 / 8",
+        "searchBottom": 763.78125
+      }
+    },
+    {
+      "route": "/login",
+      "width": 768,
+      "input": {
+        "outlineWidth": "0px",
+        "outlineStyle": "none",
+        "outlineColor": "oklab(0.458041 -0.0687321 0.0254005 / 0.516399)",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.458041 -0.0687321 0.0254005 / 0.5) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+        "fontSize": "14px",
+        "height": 48,
+        "radius": "10px"
+      },
+      "button": {
+        "outlineWidth": "0px",
+        "outlineStyle": "none",
+        "outlineColor": "rgb(46, 100, 73)",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.458041 -0.0687321 0.0254005 / 0.5) 0px 0px 0px 3px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+        "height": 48,
+        "radius": "20px",
+        "transitionDuration": "0.15s"
+      },
+      "axe": []
+    },
+    {
+      "route": "/",
+      "width": 768,
+      "tokens": {
+        "values": {
+          "--radius-sm": "6px",
+          "--radius-md": "10px",
+          "--radius-lg": "14px",
+          "--radius-xl": "20px",
+          "--container-page": "1280px",
+          "--primary": "#2e6449",
+          "--background": "#fafbfa",
+          "--ring": "#2e6449",
+          "--font-sans": "\"jakarta\", \"jakarta Fallback\", \"Noto Sans Devanagari\", \"Noto Sans Gujarati\", system-ui, -apple-system,\n    sans-serif"
+        },
+        "bodyFont": "jakarta, \"jakarta Fallback\", \"Noto Sans Devanagari\", \"Noto Sans Gujarati\", system-ui, -apple-system, sans-serif",
+        "heroRatio": "4 / 3",
+        "searchBottom": 585.515625
+      }
+    },
+    {
+      "route": "/login",
+      "width": 1440,
+      "input": {
+        "outlineWidth": "0px",
+        "outlineStyle": "none",
+        "outlineColor": "oklab(0.458041 -0.0687321 0.0254005 / 0.5)",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.458041 -0.0687321 0.0254005 / 0.5) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+        "fontSize": "14px",
+        "height": 48,
+        "radius": "10px"
+      },
+      "button": {
+        "outlineWidth": "0px",
+        "outlineStyle": "none",
+        "outlineColor": "rgb(46, 100, 73)",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.458041 -0.0687321 0.0254005 / 0.5) 0px 0px 0px 3px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+        "height": 48,
+        "radius": "20px",
+        "transitionDuration": "0.15s"
+      },
+      "axe": []
+    },
+    {
+      "route": "/",
+      "width": 1440,
+      "tokens": {
+        "values": {
+          "--radius-sm": "6px",
+          "--radius-md": "10px",
+          "--radius-lg": "14px",
+          "--radius-xl": "20px",
+          "--container-page": "1280px",
+          "--primary": "#2e6449",
+          "--background": "#fafbfa",
+          "--ring": "#2e6449",
+          "--font-sans": "\"jakarta\", \"jakarta Fallback\", \"Noto Sans Devanagari\", \"Noto Sans Gujarati\", system-ui, -apple-system,\n    sans-serif"
+        },
+        "bodyFont": "jakarta, \"jakarta Fallback\", \"Noto Sans Devanagari\", \"Noto Sans Gujarati\", system-ui, -apple-system, sans-serif",
+        "heroRatio": "4 / 3",
+        "searchBottom": 661.796875
+      }
+    }
+  ],
+  "contrast": [
+    {
+      "foreground": "brand-600",
+      "background": "ink-0",
+      "ratio": 6.919
+    },
+    {
+      "foreground": "brand-700",
+      "background": "ink-0",
+      "ratio": 9.15
+    },
+    {
+      "foreground": "ink-400",
+      "background": "ink-0",
+      "ratio": 4.97
+    },
+    {
+      "foreground": "ink-400",
+      "background": "ink-25",
+      "ratio": 4.791
+    },
+    {
+      "foreground": "ink-500",
+      "background": "brand-50",
+      "ratio": 5.615
+    },
+    {
+      "foreground": "danger",
+      "background": "danger-bg",
+      "ratio": 4.842
+    },
+    {
+      "foreground": "warning",
+      "background": "warning-bg",
+      "ratio": 4.579
+    },
+    {
+      "foreground": "info",
+      "background": "info-bg",
+      "ratio": 5.412
+    }
+  ],
+  "reducedMotionButtonDuration": "1e-05s",
+  "runtimeErrors": []
+}

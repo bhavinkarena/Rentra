@@ -239,7 +239,7 @@ Headings balance and allow long content to wrap. Paragraphs use pretty wrapping.
 
 The public page container is capped at the observed 1280px token, with 16px side gutters increasing to 24px at the small threshold. Tailwind spacing uses the existing 4px base. Compact controls use small steps; section padding grows from 40px to 56px where the current public pages do so.
 
-The home page places copy beside a real listing photo from the medium threshold, with the search form below. On narrower screens, the composition stacks. The photo is 16:10 on narrow screens and 4:3 on wider screens, with an observed large-screen height cap. This is a home-surface composition, not a required layout for every page.
+The home page places copy beside a real listing photo from the medium threshold, with the search form below. On narrower screens, the composition stacks. The photo and matching home skeleton are 16:8 below 768px and 4:3 from 768px, with a 420px height cap from the large threshold. The shallow mobile photo keeps the search form inside the tested 390 × 844 first viewport. This is a home-surface composition, not a required layout for every page.
 
 Listing grids use one column, then two at small, three at large, and four at extra-large widths. The four-cell search form starts as a two-column grid with a full-width search action, becoming a single horizontal row at medium width. Listing pages separate descriptive content, availability, and the booking summary; the narrow-screen booking bar yields the bottom action position, including clearance for the WhatsApp contact.
 
@@ -259,7 +259,7 @@ The product is flat by default, with photographs and pale surface shifts supplyi
 - **Overlay:** `shadow-lg` supports floating controls and overlay details.
 - **Focus:** `shadow-focus` supplements the visible outline. Preserve the shared two-pixel outline and offset rather than relying on the shadow alone.
 
-Exact shadow values are in the sidecar and runtime CSS.
+Exact shadow values are in the sidecar and runtime CSS. Shared Button and Input retain the global two-pixel `:focus-visible` outline with a three-pixel offset. Their component rings supplement this outline; removing a ring for an embedded field must not remove its keyboard outline.
 
 **The Flat Discovery Rule.** Keep the photograph and text as a single flat listing; reserve bordered, padded financial surfaces for quote and transaction decisions.
 
@@ -283,17 +283,19 @@ Slot-selection buttons keep `aria-pressed`, the selected white surface, dark for
 
 ### Cards / Containers
 
-Listing cards reserve 4:3 photography, then title/rating, location, capacity/facility detail, and price/unit. Preserve source-backed ratings, badges, counts, and the distinction between from-price and date-specific price. Photo hover scales gently only when motion is allowed; the save control remains a separate interaction.
+Listing cards reserve 4:3 photography, then title/rating, location, capacity/facility detail, and price/unit. Preserve source-backed ratings, badges, counts, and the distinction between from-price and date-specific price. Property names use the full card width; location and review information wrap on the following row, with each rating kept together. Only priced rows receive a from qualifier. Home may show an identical API price qualification once above the grid when all cards share it, associating it with each property link; retain individual notes elsewhere and when conditions differ. Photo hover scales gently only when motion is allowed; the save control remains a separate interaction.
 
 Booking/financial summaries use a white surface, border, observed padding, and restrained depth to group date, guest, quote, fee, and transaction detail. Preserve the existing quote provider and minor-unit money formatting. Do not give every descriptive section this treatment.
 
 ### Inputs / Fields
 
-The shared input is 44px high, uses the input border token, a white content surface, and the control radius. Input text starts at 16px on narrow screens and becomes compact at medium width. Keep visible labels, field associations, focus, invalid, disabled, and pending feedback. Server action and API field errors remain part of the form contract.
+The shared input is 44px high, uses the input border token, a white content surface, and the control radius. Input text is 16px below 768px and 14px from 768px. Keep visible labels, field associations, focus, invalid, disabled, and pending feedback. Server action and API field errors remain part of the form contract. Page-specific customer forms still have independent recipes; their integration is tracked in the redesign plan and is not certified by these shared primitive rules.
 
 ### Navigation
 
-Public navigation is a solid, sticky light header with the delivered logo and customer account navigation. The narrowest header uses the mark alone. Portal navigation uses the existing capability-filtered groups and forest sidebar, with a distinct active row and indicator, rail labels, and mobile drawer. Preserve route-aware active states, role gates, skip links, and sign-out forms.
+Public and customer navigation share `CustomerHeader`: a sticky warm-white surround with a framed white navigation surface, pill-shaped active and login controls, the delivered wordmark and a separated host link on wider screens. Keep the wordmark visible on phones; use the existing accessible icon navigation to preserve room. Customer role detection, account avatar, nested account state, saved/bookings links and skip-link targets remain unchanged. Preserve 44px targets, keyboard focus, wrap at enlarged text, and the existing portal/sidebar system outside these layouts.
+
+The public footer is a deep-forest closing section with a large invitation, pale-lime discovery action, inverse brand lockup and grouped discovery/support/hosting links. A labelled native city selector is used at all widths; the associated category and five occasion links switch together. All destination links remain prerendered. Do not reintroduce a large repeated SEO list or expanding columns. Legal policies and the published intermediary statement remain visible. Use light focus outlines and readable pale text on the forest surface.
 
 ### Dialogs, Popovers, and States
 
@@ -322,3 +324,15 @@ Controls use brief, state-driven transitions; card imagery uses a 200ms ease-out
 - **Don't** introduce backend/API changes as part of this visual system.
 - **Don't** change public pages to dark mode or replace real property assets with invented imagery.
 - **Don't** claim that documentation establishes successful QA or production readiness.
+
+Home treats a successful empty listing result separately from an API read failure. Keep honest recovery and photo placeholders. Its four search fields have at least 44px targets; compact cell padding preserves the existing first-viewport mobile search composition.
+
+### Expressive home discovery
+
+All design decisions remain open for reassessment under the user's full-scope reopening. Occasion discovery uses dedicated, credited editorial inspiration photos for picnic, pool, bonfire, couple photography and team gathering. A tab change synchronizes photo, caption, copy, panel tone and action; the selected city persists. Do not label inspiration imagery as a real Rentra property. Preserve blur placeholders, keyboard tab navigation and reduced-motion support.
+
+The home rebuild uses an immersive, attributed property photograph with display typography up to 86px, a manual three-property hero, a native horizontally scrolling property rail and occasion/city discovery. Keep all content visible without entrance-animation dependencies. Rail cards use larger portrait crops only on home; search cards retain their existing geometry. Native scrolling, directional controls and keyboard access must agree at both rail boundaries.
+
+Home adds scoped warm white `#fafbf8`, pale olive `#e9efdf` and light lime `#dbebbc` to the established forest identity. These are editorial discovery surfaces, not replacements for financial/status tokens. Light 3px focus outlines belong on the dark hero and photo-credit surfaces; controls on pale surfaces retain forest focus. Real photo attribution and truthful price qualifications stay visible.
+
+Hero changes use a 450ms photo transition, property photos use a 400ms hover/focus transform, and action arrows move briefly on hover. Motion is manually triggered, never autoplay, and disabled by reduced-motion preferences. Occasion tabs use arrow keys/Home/End and retain owner-permission caveats. See the [home rebuild record](docs/rentra-ui-redesign-phase-4-rework.md).

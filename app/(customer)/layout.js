@@ -1,6 +1,4 @@
-import Link from '@/components/navigation/NavigationLink';
-import { RentraLogo, RentraMark } from '@/components/rentra/Logo';
-import CustomerNavigation from '@/components/customer/CustomerNavigation';
+import CustomerHeader from '@/components/customer/CustomerHeader';
 import { redirect } from 'next/navigation';
 import { ApiError } from '@/lib/api/client';
 import { failureKind } from '@/lib/domain/portal-state';
@@ -31,15 +29,7 @@ export default async function CustomerLayout({ children }) {
         <a href="#customer-content" className="sr-only focus:not-sr-only focus:block focus:p-3">
           Skip to account content
         </a>
-        <header className="sticky top-0 z-40 border-b border-border bg-card">
-          <div className="mx-auto flex min-h-18 max-w-(--container-page) items-center justify-between gap-2 px-4 py-3 sm:px-6">
-            <Link href="/" aria-label="Rentra home" className="shrink-0">
-              <RentraLogo className="hidden h-7 w-auto sm:block" />
-              <RentraMark className="size-8 sm:hidden" />
-            </Link>
-            <CustomerNavigation authenticated compact profile={{ name: user.name }} />
-          </div>
-        </header>
+        <CustomerHeader authenticated profile={{ name: user.name }} />
         <main
           tabIndex={-1}
           id="customer-content"

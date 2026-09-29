@@ -45,9 +45,9 @@
 }
 
 /* ==========================================================================
-   RENTRA DESIGN SYSTEM v1  ·  see docs/rentra-design-system.html
-   Every value here is WCAG-verified. Do not add a token without checking
-   its contrast and writing down its single job in the design system file.
+   RENTRA DESIGN SYSTEM  ·  see DESIGN.md (the HTML specimen is historical).
+   Check text/control contrast on its actual background and record each
+   token's purpose; decorative palette values are not all text colors.
    ========================================================================== */
 @theme {
   /* --- Brand: deep field green. The ONLY colour that means "act". --- */

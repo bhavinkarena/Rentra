@@ -1,0 +1,115 @@
+{
+  "checks": [
+    {
+      "name": "Hero next changes pictured property link",
+      "passed": true
+    },
+    {
+      "name": "Hero previous restores property",
+      "passed": true
+    },
+    {
+      "name": "Hero wraps backwards",
+      "passed": true
+    },
+    {
+      "name": "Hero wraps forwards",
+      "passed": true
+    },
+    {
+      "name": "Hero light focus ring",
+      "passed": false
+    },
+    {
+      "name": "Rail previous disabled at start",
+      "passed": true
+    },
+    {
+      "name": "Rail next advances one place",
+      "passed": true
+    },
+    {
+      "name": "Rail previous returns to beginning",
+      "passed": true
+    },
+    {
+      "name": "Native keyboard scroll works",
+      "passed": true
+    },
+    {
+      "name": "Rail next disabled at final boundary",
+      "passed": true
+    },
+    {
+      "name": "Occasion plus city resolves correct canonical route",
+      "passed": true
+    },
+    {
+      "name": "Occasion arrow key updates focus and selection",
+      "passed": true
+    },
+    {
+      "name": "Occasion End selects last tab",
+      "passed": true
+    },
+    {
+      "name": "Occasion Home selects first tab",
+      "passed": true
+    },
+    {
+      "name": "No horizontal page overflow 320",
+      "passed": true
+    },
+    {
+      "name": "No horizontal page overflow 390",
+      "passed": true
+    },
+    {
+      "name": "No horizontal page overflow 768",
+      "passed": true
+    },
+    {
+      "name": "No horizontal page overflow 1024",
+      "passed": true
+    },
+    {
+      "name": "No horizontal page overflow 1440",
+      "passed": true
+    },
+    {
+      "name": "No horizontal page overflow 1920",
+      "passed": true
+    },
+    {
+      "name": "200 percent root text no page overflow",
+      "passed": true
+    },
+    {
+      "name": "Reduced motion disables hero animation",
+      "passed": true
+    },
+    {
+      "name": "Reduced motion disables card transition",
+      "passed": false
+    },
+    {
+      "name": "Live mobile axe zero",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "axe": [],
+  "followupChecks": [
+    {
+      "name": "Keyboard modality: hero focus-visible ring",
+      "passed": true,
+      "evidence": "Browser keyboard Tab then focus: rgb(219,235,188) solid 3px, offset4px. Screenshot hero-focus.png."
+    },
+    {
+      "name": "Reduced motion transition is effectively disabled",
+      "passed": true,
+      "evidence": "Computed duration1e-05s (global reduced-motion rule); original exact zero assertion too strict. Fixture threshold below.001s passes."
+    }
+  ],
+  "initialAssertionCorrections": "The two initial failures were test assumptions: pointer modality does not require focus-visible; global reduced motion uses 0.01ms rather than literal0s. Both independently rechecked with computed browser values."
+}

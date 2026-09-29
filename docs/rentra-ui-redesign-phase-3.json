@@ -1,0 +1,1114 @@
+{
+  "phase": 3,
+  "baseline": false,
+  "pages": [
+    {
+      "width": 390,
+      "height": 695.5,
+      "links": [
+        {
+          "href": "/help",
+          "text": "Help and support"
+        },
+        {
+          "href": "/partner/login",
+          "text": "List your place"
+        },
+        {
+          "href": "/search",
+          "text": "Search all places"
+        },
+        {
+          "href": "/ahmedabad/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/ahmedabad/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/ahmedabad/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/ahmedabad/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/anand/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/anand/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/anand/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/anand/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/bhavnagar/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/bhavnagar/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/bhavnagar/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/bhavnagar/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/gandhinagar/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/gandhinagar/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/gandhinagar/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/gandhinagar/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/junagadh/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/junagadh/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/junagadh/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/junagadh/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/mehsana/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/mehsana/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/mehsana/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/mehsana/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/navsari/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/navsari/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/navsari/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/navsari/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/rajkot/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/rajkot/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/rajkot/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/rajkot/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/surat/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/surat/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/surat/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/surat/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/vadodara/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/vadodara/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/vadodara/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/vadodara/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/policies/terms",
+          "text": "Terms policy"
+        },
+        {
+          "href": "/policies/cancellation",
+          "text": "Cancellation policy"
+        },
+        {
+          "href": "/policies/privacy",
+          "text": "Privacy policy"
+        }
+      ],
+      "axe": []
+    },
+    {
+      "width": 768,
+      "height": 608,
+      "links": [
+        {
+          "href": "/help",
+          "text": "Help and support"
+        },
+        {
+          "href": "/partner/login",
+          "text": "List your place"
+        },
+        {
+          "href": "/search",
+          "text": "Search all places"
+        },
+        {
+          "href": "/ahmedabad/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/ahmedabad/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/ahmedabad/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/ahmedabad/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/anand/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/anand/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/anand/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/anand/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/bhavnagar/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/bhavnagar/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/bhavnagar/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/bhavnagar/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/gandhinagar/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/gandhinagar/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/gandhinagar/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/gandhinagar/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/junagadh/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/junagadh/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/junagadh/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/junagadh/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/mehsana/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/mehsana/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/mehsana/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/mehsana/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/navsari/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/navsari/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/navsari/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/navsari/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/rajkot/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/rajkot/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/rajkot/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/rajkot/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/surat/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/surat/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/surat/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/surat/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/vadodara/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/vadodara/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/vadodara/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/vadodara/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/policies/terms",
+          "text": "Terms policy"
+        },
+        {
+          "href": "/policies/cancellation",
+          "text": "Cancellation policy"
+        },
+        {
+          "href": "/policies/privacy",
+          "text": "Privacy policy"
+        }
+      ],
+      "axe": []
+    },
+    {
+      "width": 1440,
+      "height": 544.5,
+      "links": [
+        {
+          "href": "/help",
+          "text": "Help and support"
+        },
+        {
+          "href": "/partner/login",
+          "text": "List your place"
+        },
+        {
+          "href": "/search",
+          "text": "Search all places"
+        },
+        {
+          "href": "/ahmedabad/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/ahmedabad/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/ahmedabad/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/ahmedabad/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/anand/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/anand/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/anand/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/anand/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/bhavnagar/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/bhavnagar/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/bhavnagar/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/bhavnagar/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/gandhinagar/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/gandhinagar/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/gandhinagar/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/gandhinagar/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/junagadh/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/junagadh/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/junagadh/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/junagadh/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/mehsana/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/mehsana/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/mehsana/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/mehsana/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/navsari/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/navsari/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/navsari/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/navsari/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/rajkot/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/rajkot/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/rajkot/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/rajkot/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/surat/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/surat/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/surat/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/surat/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/vadodara/farmhouse",
+          "text": "All farmhouses"
+        },
+        {
+          "href": "/vadodara/farmhouse/intent/day-picnic",
+          "text": "Day picnic"
+        },
+        {
+          "href": "/vadodara/farmhouse/intent/with-pool",
+          "text": "With pool"
+        },
+        {
+          "href": "/vadodara/farmhouse/intent/bonfire-allowed",
+          "text": "Bonfire allowed"
+        },
+        {
+          "href": "/policies/terms",
+          "text": "Terms policy"
+        },
+        {
+          "href": "/policies/cancellation",
+          "text": "Cancellation policy"
+        },
+        {
+          "href": "/policies/privacy",
+          "text": "Privacy policy"
+        }
+      ],
+      "axe": []
+    }
+  ],
+  "checks": [
+    {
+      "name": "All original footer destinations retained at 390",
+      "passed": true
+    },
+    {
+      "name": "Destination browser footer is smaller at 390",
+      "passed": true
+    },
+    {
+      "name": "No horizontal overflow at 390",
+      "passed": true
+    },
+    {
+      "name": "City controls are at least 44 px at 390",
+      "passed": true
+    },
+    {
+      "name": "Exactly one city panel is visible at 390",
+      "passed": true
+    },
+    {
+      "name": "ahmedabad exposes its existing routes at 390",
+      "passed": true
+    },
+    {
+      "name": "anand exposes its existing routes at 390",
+      "passed": true
+    },
+    {
+      "name": "bhavnagar exposes its existing routes at 390",
+      "passed": true
+    },
+    {
+      "name": "gandhinagar exposes its existing routes at 390",
+      "passed": true
+    },
+    {
+      "name": "junagadh exposes its existing routes at 390",
+      "passed": true
+    },
+    {
+      "name": "mehsana exposes its existing routes at 390",
+      "passed": true
+    },
+    {
+      "name": "navsari exposes its existing routes at 390",
+      "passed": true
+    },
+    {
+      "name": "rajkot exposes its existing routes at 390",
+      "passed": true
+    },
+    {
+      "name": "surat exposes its existing routes at 390",
+      "passed": true
+    },
+    {
+      "name": "vadodara exposes its existing routes at 390",
+      "passed": true
+    },
+    {
+      "name": "City switching never changes footer height at 390",
+      "passed": true
+    },
+    {
+      "name": "Concise intent labels at 390",
+      "passed": true
+    },
+    {
+      "name": "Native selector works from keyboard at 390",
+      "passed": true
+    },
+    {
+      "name": "Tab reaches selected city link at 390",
+      "passed": true
+    },
+    {
+      "name": "City link has visible keyboard focus at 390",
+      "passed": true
+    },
+    {
+      "name": "Hidden city links leave tab order at 390",
+      "passed": true
+    },
+    {
+      "name": "Footer has no axe violations at 390",
+      "passed": true
+    },
+    {
+      "name": "Saved navigation remains active at 390",
+      "passed": true
+    },
+    {
+      "name": "All original footer destinations retained at 768",
+      "passed": true
+    },
+    {
+      "name": "Destination browser footer is smaller at 768",
+      "passed": true
+    },
+    {
+      "name": "No horizontal overflow at 768",
+      "passed": true
+    },
+    {
+      "name": "City controls are at least 44 px at 768",
+      "passed": true
+    },
+    {
+      "name": "Exactly one city panel is visible at 768",
+      "passed": true
+    },
+    {
+      "name": "ahmedabad exposes its existing routes at 768",
+      "passed": true
+    },
+    {
+      "name": "anand exposes its existing routes at 768",
+      "passed": true
+    },
+    {
+      "name": "bhavnagar exposes its existing routes at 768",
+      "passed": true
+    },
+    {
+      "name": "gandhinagar exposes its existing routes at 768",
+      "passed": true
+    },
+    {
+      "name": "junagadh exposes its existing routes at 768",
+      "passed": true
+    },
+    {
+      "name": "mehsana exposes its existing routes at 768",
+      "passed": true
+    },
+    {
+      "name": "navsari exposes its existing routes at 768",
+      "passed": true
+    },
+    {
+      "name": "rajkot exposes its existing routes at 768",
+      "passed": true
+    },
+    {
+      "name": "surat exposes its existing routes at 768",
+      "passed": true
+    },
+    {
+      "name": "vadodara exposes its existing routes at 768",
+      "passed": true
+    },
+    {
+      "name": "City switching never changes footer height at 768",
+      "passed": true
+    },
+    {
+      "name": "Concise intent labels at 768",
+      "passed": true
+    },
+    {
+      "name": "Arrow keys wrap to first city at 768",
+      "passed": true
+    },
+    {
+      "name": "End selects last city at 768",
+      "passed": true
+    },
+    {
+      "name": "Home selects first city at 768",
+      "passed": true
+    },
+    {
+      "name": "Tab reaches selected city link at 768",
+      "passed": true
+    },
+    {
+      "name": "City link has visible keyboard focus at 768",
+      "passed": true
+    },
+    {
+      "name": "Hidden city links leave tab order at 768",
+      "passed": true
+    },
+    {
+      "name": "Footer has no axe violations at 768",
+      "passed": true
+    },
+    {
+      "name": "Saved navigation remains active at 768",
+      "passed": true
+    },
+    {
+      "name": "All original footer destinations retained at 1440",
+      "passed": true
+    },
+    {
+      "name": "Destination browser footer is smaller at 1440",
+      "passed": true
+    },
+    {
+      "name": "No horizontal overflow at 1440",
+      "passed": true
+    },
+    {
+      "name": "City controls are at least 44 px at 1440",
+      "passed": true
+    },
+    {
+      "name": "Exactly one city panel is visible at 1440",
+      "passed": true
+    },
+    {
+      "name": "ahmedabad exposes its existing routes at 1440",
+      "passed": true
+    },
+    {
+      "name": "anand exposes its existing routes at 1440",
+      "passed": true
+    },
+    {
+      "name": "bhavnagar exposes its existing routes at 1440",
+      "passed": true
+    },
+    {
+      "name": "gandhinagar exposes its existing routes at 1440",
+      "passed": true
+    },
+    {
+      "name": "junagadh exposes its existing routes at 1440",
+      "passed": true
+    },
+    {
+      "name": "mehsana exposes its existing routes at 1440",
+      "passed": true
+    },
+    {
+      "name": "navsari exposes its existing routes at 1440",
+      "passed": true
+    },
+    {
+      "name": "rajkot exposes its existing routes at 1440",
+      "passed": true
+    },
+    {
+      "name": "surat exposes its existing routes at 1440",
+      "passed": true
+    },
+    {
+      "name": "vadodara exposes its existing routes at 1440",
+      "passed": true
+    },
+    {
+      "name": "City switching never changes footer height at 1440",
+      "passed": true
+    },
+    {
+      "name": "Concise intent labels at 1440",
+      "passed": true
+    },
+    {
+      "name": "Arrow keys wrap to first city at 1440",
+      "passed": true
+    },
+    {
+      "name": "End selects last city at 1440",
+      "passed": true
+    },
+    {
+      "name": "Home selects first city at 1440",
+      "passed": true
+    },
+    {
+      "name": "Tab reaches selected city link at 1440",
+      "passed": true
+    },
+    {
+      "name": "City link has visible keyboard focus at 1440",
+      "passed": true
+    },
+    {
+      "name": "Hidden city links leave tab order at 1440",
+      "passed": true
+    },
+    {
+      "name": "Footer has no axe violations at 1440",
+      "passed": true
+    },
+    {
+      "name": "Saved navigation remains active at 1440",
+      "passed": true
+    },
+    {
+      "name": "Edge width has no overflow: 320",
+      "passed": true
+    },
+    {
+      "name": "Edge width city switch has no reflow: 320",
+      "passed": true
+    },
+    {
+      "name": "Edge width has no overflow: 1024",
+      "passed": true
+    },
+    {
+      "name": "Edge width city switch has no reflow: 1024",
+      "passed": true
+    },
+    {
+      "name": "Edge width has no overflow: 1920",
+      "passed": true
+    },
+    {
+      "name": "Edge width city switch has no reflow: 1920",
+      "passed": true
+    },
+    {
+      "name": "DOM layout stress with 1 cities and long label: no overflow",
+      "passed": true
+    },
+    {
+      "name": "DOM layout stress with 30 cities and long label: no overflow",
+      "passed": true
+    },
+    {
+      "name": "Public skip link is first keyboard destination",
+      "passed": true
+    },
+    {
+      "name": "Skip link moves focus to main content",
+      "passed": true
+    },
+    {
+      "name": "City browse link navigates to its existing discovery route",
+      "passed": true
+    },
+    {
+      "name": "Search all places navigates to existing search",
+      "passed": true
+    },
+    {
+      "name": "Anonymous gate preserved: /account/notifications",
+      "passed": true
+    },
+    {
+      "name": "Anonymous gate preserved: /account",
+      "passed": true
+    },
+    {
+      "name": "Anonymous gate preserved: /account/payment-methods",
+      "passed": true
+    },
+    {
+      "name": "Anonymous gate preserved: /account/phone",
+      "passed": true
+    },
+    {
+      "name": "Anonymous gate preserved: /account/privacy",
+      "passed": true
+    },
+    {
+      "name": "Anonymous gate preserved: /bookings/[orderId]/again",
+      "passed": true
+    },
+    {
+      "name": "Anonymous gate preserved: /bookings/[orderId]/cancel",
+      "passed": true
+    },
+    {
+      "name": "Anonymous gate preserved: /bookings/[orderId]",
+      "passed": true
+    },
+    {
+      "name": "Anonymous gate preserved: /bookings/[orderId]/reviews",
+      "passed": true
+    },
+    {
+      "name": "Anonymous gate preserved: /bookings",
+      "passed": true
+    },
+    {
+      "name": "Anonymous gate preserved: /checkout/[orderId]",
+      "passed": true
+    },
+    {
+      "name": "Anonymous gate preserved: /checkout/review/[quoteId]",
+      "passed": true
+    },
+    {
+      "name": "Anonymous gate preserved: /disputes/[id]",
+      "passed": true
+    },
+    {
+      "name": "Anonymous gate preserved: /disputes/new",
+      "passed": true
+    },
+    {
+      "name": "Anonymous gate preserved: /disputes",
+      "passed": true
+    },
+    {
+      "name": "Anonymous gate preserved: /onboarding",
+      "passed": true
+    },
+    {
+      "name": "Anonymous gate preserved: /reviews/[reviewId]/report",
+      "passed": true
+    },
+    {
+      "name": "Anonymous gate preserved: /support/[id]",
+      "passed": true
+    },
+    {
+      "name": "Anonymous gate preserved: /support/new",
+      "passed": true
+    },
+    {
+      "name": "Anonymous gate preserved: /support",
+      "passed": true
+    },
+    {
+      "name": "No uncaught browser exceptions",
+      "passed": true
+    }
+  ],
+  "runtimeErrors": [],
+  "edgeWidths": [
+    {
+      "width": 320,
+      "height": 768.5
+    },
+    {
+      "width": 1024,
+      "height": 544.5
+    },
+    {
+      "width": 1920,
+      "height": 544.5
+    }
+  ],
+  "layoutStress": [
+    {
+      "count": 1,
+      "overflow": false,
+      "footerHeight": 564
+    },
+    {
+      "count": 30,
+      "overflow": false,
+      "footerHeight": 784
+    }
+  ],
+  "gates": [
+    {
+      "pattern": "/account/notifications",
+      "url": "http://localhost:3000/login"
+    },
+    {
+      "pattern": "/account",
+      "url": "http://localhost:3000/login"
+    },
+    {
+      "pattern": "/account/payment-methods",
+      "url": "http://localhost:3000/login"
+    },
+    {
+      "pattern": "/account/phone",
+      "url": "http://localhost:3000/login"
+    },
+    {
+      "pattern": "/account/privacy",
+      "url": "http://localhost:3000/login"
+    },
+    {
+      "pattern": "/bookings/[orderId]/again",
+      "url": "http://localhost:3000/login"
+    },
+    {
+      "pattern": "/bookings/[orderId]/cancel",
+      "url": "http://localhost:3000/login"
+    },
+    {
+      "pattern": "/bookings/[orderId]",
+      "url": "http://localhost:3000/login"
+    },
+    {
+      "pattern": "/bookings/[orderId]/reviews",
+      "url": "http://localhost:3000/login"
+    },
+    {
+      "pattern": "/bookings",
+      "url": "http://localhost:3000/login"
+    },
+    {
+      "pattern": "/checkout/[orderId]",
+      "url": "http://localhost:3000/login"
+    },
+    {
+      "pattern": "/checkout/review/[quoteId]",
+      "url": "http://localhost:3000/login"
+    },
+    {
+      "pattern": "/disputes/[id]",
+      "url": "http://localhost:3000/login"
+    },
+    {
+      "pattern": "/disputes/new",
+      "url": "http://localhost:3000/login"
+    },
+    {
+      "pattern": "/disputes",
+      "url": "http://localhost:3000/login"
+    },
+    {
+      "pattern": "/onboarding",
+      "url": "http://localhost:3000/login"
+    },
+    {
+      "pattern": "/reviews/[reviewId]/report",
+      "url": "http://localhost:3000/login"
+    },
+    {
+      "pattern": "/support/[id]",
+      "url": "http://localhost:3000/login"
+    },
+    {
+      "pattern": "/support/new",
+      "url": "http://localhost:3000/login"
+    },
+    {
+      "pattern": "/support",
+      "url": "http://localhost:3000/login"
+    }
+  ]
+}

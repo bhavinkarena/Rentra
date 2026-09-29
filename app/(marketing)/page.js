@@ -1,13 +1,14 @@
 import { publicMetadata } from '@/lib/seo/metadata';
 import Link from '@/components/navigation/NavigationLink';
-import Image from '@/components/rentra/PropertyImage';
 import SearchBar from '@/components/rentra/SearchBar';
 import ListingCard from '@/components/rentra/ListingCard';
-import TrustStrip from '@/components/rentra/TrustStrip';
-import { DISCOVERY_INTENTS } from '@/lib/domain/discovery';
+import HomeHero from '@/components/rentra/home/HomeHero';
+import PlaceCarousel from '@/components/rentra/home/PlaceCarousel';
+import TripPicker from '@/components/rentra/home/TripPicker';
+import styles from '@/components/rentra/home/home.module.css';
 import { discoveryApi } from '@/lib/api/endpoints';
 import { degradeOnFailure, EMPTY_REGISTRY } from '@/lib/api/resilient';
-import { ArrowRight, Compass, Sun, Waves, Flame, Camera, Users } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 
 export const metadata = publicMetadata({
   title: 'Explore farmhouses and day visits',
@@ -15,148 +16,126 @@ export const metadata = publicMetadata({
     'Explore places for day visits and overnight stays. Compare facilities and check prices for your dates.',
   path: '/',
 });
-
-// Classic ISR — content changes slowly, so serve from cache and revalidate
-// hourly. On-demand revalidation happens when a Client edits a listing.
 export const revalidate = 3600;
 
 export default async function HomePage() {
-  const [listings, registry] = await Promise.all([
-    degradeOnFailure(() => discoveryApi.listings({ limit: 16 }), [], 'home listings'),
+  const [listingResult, registry] = await Promise.all([
+    degradeOnFailure(() => discoveryApi.listings({ limit: 16 }), null, 'home listings'),
     degradeOnFailure(() => discoveryApi.registry(), EMPTY_REGISTRY, 'home registry'),
   ]);
-  const primaryCity = registry.cities.find((c) => c.slug === 'surat') || registry.cities[0];
-  const farmhouse = registry.categories.find((c) => c.slug === 'farmhouse');
-
-  // The hero is the top-ranked listing's own first frame, not a stock image.
-  // It comes from the card query, so this page is one round trip.
-  const heroPhoto = listings[0]?.photo ?? null;
-
+  const listings = listingResult ?? [];
+  const sharedPriceNote =
+    listings.length > 1 &&
+    listings[0].priceNote &&
+    listings.every((listing) => listing.priceNote === listings[0].priceNote)
+      ? listings[0].priceNote
+      : null;
+  const farmhouse = registry.categories.find((item) => item.slug === 'farmhouse');
   return (
-    <>
-      <section className="mx-auto max-w-(--container-page) px-4 pt-6 pb-8 sm:px-6 sm:pt-8 lg:pt-10">
-        <div className="grid items-center gap-7 md:grid-cols-[0.9fr_1.1fr] md:gap-10">
-          <div className="py-2 md:py-8">
-            <h1 className="max-w-lg text-display text-brand-950">
-              A little closer to a great escape.
-            </h1>
-            <p className="mt-5 max-w-md text-body-lg text-ink-600">
-              Farmhouses, pool days and overnight stays. Find your place, choose your dates and see
-              the price before booking.
-            </p>
-            <Link
-              href="#find-a-place"
-              className="mt-6 hidden min-h-11 items-center gap-2 text-meta font-semibold text-brand-700 hover:underline md:inline-flex"
-            >
-              Find your next visit <ArrowRight className="size-4" aria-hidden="true" />
-            </Link>
-          </div>
-          <div className="relative aspect-[16/8] overflow-hidden rounded-xl bg-brand-100 md:aspect-[4/3] lg:max-h-[420px]">
-            {heroPhoto ? (
-              <>
-                <Image
-                  src={heroPhoto.url}
-                  alt={heroPhoto.alt || listings[0].title}
-                  fill
-                  preload
-                  quality={60}
-                  sizes="(min-width: 1280px) 680px, (min-width: 768px) 55vw, 100vw"
-                  className="object-cover"
-                />
-                <Link
-                  href={listings[0].href}
-                  className="absolute right-4 bottom-4 left-4 flex min-h-14 items-center justify-between gap-3 rounded-md bg-white px-4 py-3 text-ink-900 shadow-sm sm:right-5 sm:bottom-5 sm:left-auto sm:min-w-64"
-                >
-                  <span className="min-w-0">
-                    <span className="block truncate text-meta font-semibold">
-                      {listings[0].title}
-                    </span>
-                    <span className="block text-tiny text-ink-600">{listings[0].area}</span>
-                  </span>
-                  <ArrowRight className="size-4 shrink-0" aria-hidden="true" />
-                </Link>
-              </>
-            ) : (
-              <div className="flex h-full items-center justify-center gap-3 text-brand-800">
-                <Compass className="size-8" aria-hidden="true" />
-                <span className="text-meta">Your next visit starts here</span>
-              </div>
-            )}
-          </div>
+    <div className={styles.page}>
+      <section aria-label="Find your next getaway">
+        <div className={styles.heroWrap}>
+          <HomeHero places={listings.filter((listing) => listing.photo).slice(0, 3)} />
         </div>
-        <div id="find-a-place" className="mt-7 md:mt-8">
+        <div id="find-a-place" className={styles.searchDock}>
           <SearchBar />
-        </div>
-        <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-1 sm:gap-x-7" aria-label="Ways to explore">
-          {DISCOVERY_INTENTS.map((intent) => (
-            <li key={intent.slug}>
-              <Link
-                href={
-                  primaryCity && farmhouse
-                    ? `/${primaryCity.slug}/farmhouse/intent/${intent.slug}`
-                    : '/search'
-                }
-                className="inline-flex min-h-11 items-center gap-2 border-b border-transparent text-meta font-medium text-ink-600 transition-colors hover:border-brand-600 hover:text-brand-700"
-              >
-                {(() => {
-                  const Icon =
-                    {
-                      'day-picnic': Sun,
-                      'with-pool': Waves,
-                      'bonfire-allowed': Flame,
-                      'pre-wedding-shoot': Camera,
-                      'corporate-offsite': Users,
-                    }[intent.slug] || Compass;
-                  return <Icon className="size-4" aria-hidden="true" />;
-                })()}
-                {intent.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="border-y border-border bg-brand-50/60">
-        <div className="mx-auto max-w-(--container-page) px-4 py-7 sm:px-6 sm:py-8">
-          <TrustStrip />
+          {farmhouse && registry.cities.length > 0 && (
+            <div className={styles.destinations}>
+              <span>Somewhere nearby?</span>
+              <nav className={styles.cityLinks} aria-label="Explore destinations">
+                {registry.cities.map((city) => (
+                  <Link key={city.slug} href={`/${city.slug}/${farmhouse.slug}`}>
+                    {city.name}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          )}
         </div>
       </section>
-
-      <section className="mx-auto max-w-(--container-page) px-4 py-10 sm:px-6 sm:py-14">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+      <section className={styles.section} aria-labelledby="places-heading">
+        <div className={styles.sectionHeading}>
           <div>
-            <h2 className="text-h2">Find your kind of getaway</h2>
-            <p className="mt-2 text-meta text-ink-600">
-              Room to unwind, places to gather. Explore what’s available.
-            </p>
+            <h2 id="places-heading">
+              A change of scene
+              <br />
+              starts here.
+            </h2>
+            <p className="mt-4">Explore farmhouses and stays. Save the ones you love.</p>
           </div>
-          <Link
-            href="/search"
-            className="inline-flex min-h-11 items-center gap-2 text-meta font-semibold text-brand-700 hover:underline"
-          >
-            View all places <ArrowRight className="size-4" aria-hidden="true" />
+          <Link href="/search" className={styles.textLink}>
+            Explore all places <ArrowUpRight size={20} aria-hidden="true" />
           </Link>
         </div>
-        {!listings.length && (
-          <div className="mt-8 rounded-lg border border-border bg-card p-8">
-            <h3 className="text-h3">Let’s find your next visit</h3>
-            <p className="mt-2 text-meta text-ink-600">
-              Places could not load right now. Search to check current availability.
+        {listings.length > 0 ? (
+          <>
+            <PlaceCarousel count={listings.length}>
+              {listings.map((listing) => (
+                <ListingCard
+                  key={listing.id}
+                  listing={listing}
+                  showPriceNote={!sharedPriceNote}
+                  priceNoteId={sharedPriceNote ? 'home-price-note' : undefined}
+                />
+              ))}
+            </PlaceCarousel>
+            {sharedPriceNote && (
+              <p id="home-price-note" className={styles.priceNote}>
+                {sharedPriceNote}
+              </p>
+            )}
+          </>
+        ) : (
+          <div className={styles.empty}>
+            <h3>
+              {listingResult === null
+                ? 'Places are temporarily unavailable'
+                : 'No places to show yet'}
+            </h3>
+            <p>
+              {listingResult === null
+                ? 'Places could not load right now. Search to check current availability.'
+                : 'Try a search to explore places for your next visit.'}
             </p>
-            <Link
-              href="/search"
-              className="mt-4 inline-flex min-h-11 items-center gap-2 font-semibold text-brand-700 hover:underline"
-            >
-              Search places <ArrowRight className="size-4" aria-hidden="true" />
+            <Link href="/search" className={styles.textLink}>
+              Search places <ArrowUpRight size={20} aria-hidden="true" />
             </Link>
           </div>
         )}
-        <div className="mt-7 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {listings.map((listing) => (
-            <ListingCard key={listing.id} listing={listing} />
-          ))}
+      </section>
+      <TripPicker cities={registry.cities} category={farmhouse?.slug} />
+      <section className={styles.section} aria-labelledby="booking-heading">
+        <div className={styles.closing}>
+          <h2 id="booking-heading">
+            Less guesswork.
+            <br />
+            More looking forward.
+          </h2>
+          <ol>
+            <li>
+              <span>01</span>
+              <div>
+                <strong>Find a place that fits</strong>
+                <p>Explore photos, amenities and house rules before you choose.</p>
+              </div>
+            </li>
+            <li>
+              <span>02</span>
+              <div>
+                <strong>Make it your kind of visit</strong>
+                <p>Select dates, a day or overnight slot, and the people coming along.</p>
+              </div>
+            </li>
+            <li>
+              <span>03</span>
+              <div>
+                <strong>Know the total before you book</strong>
+                <p>Review rent, guest charges, platform fees and separate deposit terms.</p>
+              </div>
+            </li>
+          </ol>
         </div>
       </section>
-    </>
+    </div>
   );
 }

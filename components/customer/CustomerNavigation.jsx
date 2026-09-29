@@ -18,7 +18,7 @@ export default function CustomerNavigation({ authenticated = false, compact = fa
   return (
     <nav
       aria-label="Customer navigation"
-      className={`flex items-center gap-1 text-sm font-medium ${compact ? 'max-sm:text-xs' : ''}`}
+      className={`flex min-w-0 flex-wrap items-center justify-end gap-1 text-sm font-medium ${compact ? 'max-sm:text-xs' : ''}`}
     >
       {items.map(([href, label, Icon]) => (
         <Link
@@ -30,9 +30,9 @@ export default function CustomerNavigation({ authenticated = false, compact = fa
               : undefined
           }
           title={label}
-          className="inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-md text-ink-600 transition-colors hover:bg-brand-50 hover:text-brand-800 aria-[current=page]:bg-brand-50 aria-[current=page]:text-brand-800 sm:px-3"
+          className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-md text-ink-600 transition-colors hover:bg-brand-50 hover:text-brand-800 aria-[current=page]:bg-brand-50 aria-[current=page]:text-brand-800 sm:px-[12px]"
         >
-          <Icon className="size-4.5" aria-hidden="true" />
+          <Icon className="size-[18px]" aria-hidden="true" />
           {/* Phones get the icon row; the words return once they fit beside the logo. */}
           <span className="max-sm:sr-only">{label}</span>
         </Link>
@@ -42,15 +42,21 @@ export default function CustomerNavigation({ authenticated = false, compact = fa
           href="/account"
           aria-label="Your account"
           title="Your account"
-          aria-current={pathname.startsWith('/account') ? 'page' : undefined}
-          className="ml-1 inline-flex size-11 items-center justify-center rounded-full outline-offset-4 hover:ring-2 hover:ring-brand-200"
+          aria-current={
+            pathname === '/account' || pathname.startsWith('/account/') ? 'page' : undefined
+          }
+          className="ml-1 inline-flex size-[44px] shrink-0 items-center justify-center rounded-full outline-offset-4 hover:ring-2 hover:ring-brand-200 aria-[current=page]:ring-2 aria-[current=page]:ring-brand-700"
         >
-          <ProfileAvatar name={identity?.name} photoUrl={identity?.photoUrl} />
+          <ProfileAvatar
+            name={identity?.name}
+            photoUrl={identity?.photoUrl}
+            className="size-[40px]"
+          />
         </Link>
       ) : (
         <Link
           href="/login"
-          className="ml-1 inline-flex min-h-11 items-center rounded-md bg-brand-600 px-4 text-white transition-colors hover:bg-brand-700"
+          className="ml-1 inline-flex min-h-[44px] items-center rounded-md bg-brand-600 px-4 text-white transition-colors hover:bg-brand-700"
         >
           Log in
         </Link>
