@@ -22,9 +22,10 @@ import {
   Waves,
   Wifi,
 } from 'lucide-react';
+import { SLOT_ICONS } from '@/components/rentra/slot-icons';
 import Rating from '@/components/rentra/Rating';
 import TrustBadge from '@/components/rentra/TrustBadge';
-import { CANCELLATION_TIERS, calculateRefund, formatINR } from '@/lib/domain/pricing';
+import { CANCELLATION_TIERS, calculateRefund, formatINR, SLOTS } from '@/lib/domain/pricing';
 
 /**
  * The read-only half of the listing page. Server Components, every one —
@@ -87,29 +88,35 @@ export function KeyFacts({ listing }) {
   );
 }
 
-const SLOT_LABELS = { day: 'Day visit', night: 'Overnight', full_day: 'Full day' };
-
 export function VisitHours({ schedules = [] }) {
   if (!schedules.length) {
     return <p className="text-meta text-ink-500">Visit hours have not been published yet.</p>;
   }
   return (
-    <dl className="grid gap-3 sm:grid-cols-2">
-      {schedules.map((schedule) => (
-        <div key={schedule.slot} className="rounded-md border border-border bg-card p-4">
-          <dt className="font-bold">{SLOT_LABELS[schedule.slot] ?? schedule.slot}</dt>
-          <dd className="mt-1 text-meta text-ink-700">
-            {formatClock(schedule.startTime)} to {formatClock(schedule.endTime)}
-            {schedule.endDayOffset ? ' next day' : ''}
-          </dd>
-          <dd className="mt-1 text-tiny text-ink-500">
-            Up to {schedule.capacity} guests
-            {schedule.includedGuests < schedule.capacity
-              ? ` · base rent includes ${schedule.includedGuests}`
-              : ''}
-          </dd>
-        </div>
-      ))}
+    <dl className="grid divide-y divide-border rounded-lg border border-border bg-card sm:auto-cols-fr sm:grid-flow-col sm:divide-x sm:divide-y-0">
+      {schedules.map((schedule) => {
+        const Icon = SLOT_ICONS[schedule.slot] ?? Clock;
+        return (
+          <div key={schedule.slot} className="p-4">
+            <dt className="flex items-center gap-3 font-bold">
+              <span className="grid size-10 shrink-0 place-items-center rounded-md bg-brand-50 text-brand-700">
+                <Icon className="size-5" aria-hidden="true" />
+              </span>
+              {SLOTS[schedule.slot]?.label ?? schedule.slot}
+            </dt>
+            <dd className="-mt-2.5 pl-13 text-meta text-ink-700 tabular">
+              {formatClock(schedule.startTime)} – {formatClock(schedule.endTime)}
+              {schedule.endDayOffset ? ' next day' : ''}
+            </dd>
+            <dd className="mt-0.5 pl-13 text-tiny text-ink-600">
+              Up to {schedule.capacity} guests
+              {schedule.includedGuests < schedule.capacity
+                ? ` · base rent includes ${schedule.includedGuests}`
+                : ''}
+            </dd>
+          </div>
+        );
+      })}
     </dl>
   );
 }

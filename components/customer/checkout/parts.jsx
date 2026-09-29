@@ -336,9 +336,9 @@ export function VisitList({ quote }) {
               className="flex items-center gap-3 rounded-xl border border-border p-3"
             >
               <span className="grid w-14 shrink-0 rounded-lg bg-brand-50 py-1.5 text-center text-brand-800">
-                <span className="text-[11px] font-semibold uppercase">{tile.weekday}</span>
+                <span className="text-tiny font-semibold uppercase">{tile.weekday}</span>
                 <span className="text-lg leading-tight font-bold">{tile.day}</span>
-                <span className="text-[11px] font-semibold uppercase">{tile.month}</span>
+                <span className="text-tiny font-semibold uppercase">{tile.month}</span>
               </span>
               <span className="min-w-0 text-sm">
                 <span className="block font-semibold text-ink-900">

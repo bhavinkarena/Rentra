@@ -1,6 +1,6 @@
 'use client';
 import OtpDialog, { OtpInput } from '@/components/auth/OtpDialog';
-import { ArrowRight, Check, Smartphone } from 'lucide-react';
+import { ArrowRight, Check, Smartphone, ChevronDown } from 'lucide-react';
 import RentraLoader from '@/components/ui/rentra-loader';
 
 import { signalSavedChange } from './SavedPlacesProvider';
@@ -103,11 +103,15 @@ export function ProfileForm({ account, onboarding = false }) {
         defaultValue={account.name}
       />
       {onboarding ? (
-        <details className="rounded-lg border border-border p-4">
-          <summary className="min-h-11 cursor-pointer font-semibold text-brand-800">
+        <details className="group rounded-lg border border-border px-4">
+          <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 font-semibold text-brand-800 [&::-webkit-details-marker]:hidden">
             Optional contact preferences
+            <ChevronDown
+              className="size-4 transition-transform duration-150 group-open:rotate-180"
+              aria-hidden="true"
+            />
           </summary>
-          <div className="mt-4">{preferences}</div>
+          <div className="pb-4">{preferences}</div>
         </details>
       ) : (
         preferences

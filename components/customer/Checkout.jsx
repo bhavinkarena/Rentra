@@ -29,6 +29,7 @@ import {
   Undo2,
   UserRound,
   Wallet,
+  ExternalLink,
 } from 'lucide-react';
 import {
   releaseCustomerCheckout,
@@ -706,16 +707,18 @@ export default function Checkout({ data }) {
               <p id="checkout-purpose-count" className="mt-1.5 text-right text-xs text-ink-500">
                 {purpose.length}/160
               </p>
-              <nav aria-label="Applicable public policies" className="mt-4 flex flex-wrap gap-4">
+              <nav aria-label="Applicable public policies" className="mt-4 flex flex-wrap gap-2">
                 {Object.entries(quote.policy.publications || {}).map(([kind, policy]) => (
                   <Link
                     key={kind}
-                    className="min-h-11 underline"
+                    className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-border px-3.5 text-sm font-medium text-ink-800 transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800"
                     href={policy.href}
                     target="_blank"
                     rel="noreferrer"
                   >
-                    {kind} policy (opens in a new tab)
+                    {kind[0].toUpperCase() + kind.slice(1)} policy
+                    <ExternalLink className="size-3.5" aria-hidden="true" />
+                    <span className="sr-only">(opens in a new tab)</span>
                   </Link>
                 ))}
               </nav>

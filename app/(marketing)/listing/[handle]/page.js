@@ -4,7 +4,7 @@ import Link from '@/components/navigation/NavigationLink';
 import { cache, Suspense } from 'react';
 import { connection } from 'next/server';
 import { notFound, permanentRedirect } from 'next/navigation';
-import { ChevronRight, MapPin } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 import ListingCard from '@/components/rentra/ListingCard';
 import Rating from '@/components/rentra/Rating';
 import TrustBadge from '@/components/rentra/TrustBadge';
@@ -354,9 +354,18 @@ async function SimilarListings({ listing }) {
 }
 
 function Breadcrumbs({ crumbs }) {
+  // Phones get one back link to the area instead of a trail that wraps twice.
+  const parent = crumbs.at(-2);
   return (
     <nav aria-label="Breadcrumb">
-      <ol className="flex flex-wrap items-center gap-1 text-meta text-ink-500">
+      <Link
+        href={parent.href}
+        className="inline-flex min-h-10 items-center gap-1 text-meta font-medium text-ink-700 hover:text-brand-700 sm:hidden"
+      >
+        <ChevronLeft className="size-4" aria-hidden="true" />
+        {parent.name}
+      </Link>
+      <ol className="hidden flex-wrap items-center gap-1 text-meta text-ink-500 sm:flex">
         {crumbs.map((c, i) => (
           <li key={c.name} className="flex items-center gap-1">
             {i > 0 ? <ChevronRight className="size-3.5 text-ink-300" aria-hidden="true" /> : null}

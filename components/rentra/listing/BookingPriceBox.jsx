@@ -99,7 +99,7 @@ export default function BookingPriceBox({
           className="grid w-full grid-cols-2 rounded-t-xl text-left transition hover:bg-brand-50 disabled:opacity-50"
         >
           <span className="min-w-0 border-r border-ink-300 px-4 py-2.5">
-            <span className="block text-[11px] font-bold uppercase">
+            <span className="block text-tiny font-bold uppercase">
               {multiple ? 'Visit dates' : 'Arrival'}
             </span>
             <span className="mt-0.5 block truncate text-sm">
@@ -118,7 +118,7 @@ export default function BookingPriceBox({
             ) : null}
           </span>
           <span className="min-w-0 px-4 py-2.5">
-            <span className="block text-[11px] font-bold uppercase">
+            <span className="block text-tiny font-bold uppercase">
               {multiple ? 'Visit schedule' : 'Departure'}
             </span>
             <span className="mt-0.5 block truncate text-sm">
@@ -144,7 +144,7 @@ export default function BookingPriceBox({
             aria-label={`Guests per visit: ${guests}`}
           >
             <span>
-              <span className="block text-[11px] font-bold uppercase">Guests per visit</span>
+              <span className="block text-tiny font-bold uppercase">Guests per visit</span>
               <span className="mt-0.5 block text-sm">
                 {guests} guest{guests === 1 ? '' : 's'}
               </span>

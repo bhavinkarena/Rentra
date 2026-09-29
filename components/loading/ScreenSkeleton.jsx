@@ -261,7 +261,8 @@ function Content({ screen }) {
       return (
         <>
           <Block className="h-4 w-48" />
-          <div className="grid h-64 gap-2 overflow-hidden rounded-2xl sm:h-96 sm:grid-cols-2">
+          {/* Full-width 4:3 strip on phones, mosaic from sm (matches PhotoGallery). */}
+          <div className="-mx-4 grid aspect-4/3 gap-2 overflow-hidden sm:mx-0 sm:aspect-auto sm:h-96 sm:grid-cols-2 sm:rounded-lg">
             <Block className="h-full rounded-none" />
             <div className="hidden grid-cols-2 gap-2 sm:grid">
               {[0, 1, 2, 3].map((i) => (

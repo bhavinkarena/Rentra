@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { formatINRMinor } from '@/lib/domain/booking-money';
+import { SLOTS } from '@/lib/domain/pricing';
 import { useBookingQuote } from './BookingQuoteProvider';
 import QuoteSummary from './QuoteSummary';
 
@@ -15,8 +16,12 @@ import QuoteSummary from './QuoteSummary';
  * `data-booking-bar` attribute below (see the rule in globals.css) rather
  * than by measuring anything at runtime.
  */
-export default function MobileBookingBar({ sentinelId = 'gallery-end' }) {
-  const { dates, quote, loading, setCalendarOpen } = useBookingQuote();
+export default function MobileBookingBar({ sentinelId = 'gallery-end', prices }) {
+  const { dates, quote, loading, setCalendarOpen, slot } = useBookingQuote();
+  // Same starting price the booking box shows before dates are chosen.
+  const basePrice = prices?.[slot]
+    ? Math.min(prices[slot].weekday, prices[slot].weekend) * 100
+    : null;
   const [shown, setShown] = useState(false);
   const dialog = useRef(null);
   const opener = useRef(null);
@@ -95,6 +100,9 @@ export default function MobileBookingBar({ sentinelId = 'gallery-end' }) {
         <div className="flex items-center gap-3 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
           <div className="min-w-0">
             <p className="flex items-baseline gap-1.5">
+              {!quote && !loading && basePrice !== null ? (
+                <span className="text-tiny text-ink-600">from</span>
+              ) : null}
               <span className="text-h4 font-extrabold tracking-tight tabular" data-money>
                 {quote ? (
                   formatINRMinor(quote.totals.totalMinor)
@@ -102,17 +110,22 @@ export default function MobileBookingBar({ sentinelId = 'gallery-end' }) {
                   <span role="status" className="text-sm font-medium text-ink-600">
                     Updating total…
                   </span>
+                ) : basePrice !== null ? (
+                  formatINRMinor(basePrice)
                 ) : (
                   'Choose dates'
                 )}
               </span>
               <span className="truncate text-tiny text-ink-600">
-                {quote ? 'booking total' : ''}
+                {quote
+                  ? 'booking total'
+                  : !loading && basePrice !== null
+                    ? `/ ${SLOTS[slot]?.label.toLowerCase() ?? 'visit'}`
+                    : ''}
               </span>
             </p>
             <p className="truncate text-tiny text-ink-500">
-              {dates.length ? `${dates.length} visits selected` : 'Pick dates'}
-              {' · '}
+              {dates.length ? `${dates.length} visits selected · ` : ''}
               Razorpay Test · no real charge
             </p>
           </div>
@@ -132,7 +145,7 @@ export default function MobileBookingBar({ sentinelId = 'gallery-end' }) {
               dialog.current.showModal();
             }}
             tabIndex={shown ? 0 : -1}
-            className="ml-auto min-h-12 shrink-0 rounded-md bg-brand-600 px-4 text-white"
+            className="ml-auto min-h-12 shrink-0 rounded-full bg-brand-600 px-5 font-semibold text-white transition-colors hover:bg-brand-700"
           >
             {dates.length ? 'Review booking' : 'Choose dates'}
           </button>

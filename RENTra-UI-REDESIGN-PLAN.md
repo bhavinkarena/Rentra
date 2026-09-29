@@ -282,9 +282,9 @@ QA tooling (scratch, not committed until Phase 2.3 decides): `shoot.mjs` (390/14
 - [x] Phase 3 — Global shell (header, footer, 404, error boundaries) — awaiting owner review (D4)
 - [x] Phase 4 — Home QA (locked) — no code change needed
 - [x] Phase 5 — Discovery (5.1 · 5.2 · 5.3 · 5.4) — awaiting owner review (D4)
-- [ ] Phase 6 — Listing details (6.1 · 6.2 · 6.3 · 6.4 · 6.5)
-- [ ] Phase 7 — Checkout (7.1 · 7.2)
-- [ ] Phase 8 — Auth & account (8.1 · 8.2 · 8.3)
+- [x] Phase 6 — Listing details (6.1 · 6.2 · 6.3 · 6.4 reviewed · 6.5) — awaiting owner review (D4)
+- [x] Phase 7 — Checkout (7.1 · 7.2)
+- [x] Phase 8 — Auth & account (8.1 · 8.2 · 8.3) — awaiting owner review (D4)
 - [ ] Phase 9 — Records (9.1 · 9.2 · 9.3 · 9.4)
 - [ ] Phase 10 — Content pages
 - [ ] Phase 11 — Motion & micro-interactions
@@ -318,6 +318,7 @@ QA tooling (scratch, not committed until Phase 2.3 decides): `shoot.mjs` (390/14
 | B7  | Environment | The Mac's disk filled up during Phase 2 (228 GB disk, ~140 MB free). `.next/dev` alone is 4.2 GB and `.next/cache` 958 MB. Run only one QA dev server at a time and delete its distDir when done.                                                         | Owner to free space; keep an eye on `df -h /`.                                                                              |
 | B8  | UX          | During an API outage `SavedPlacesProvider` shows a floating red-bordered "Could not reach the server… Retry saved places" box over the footer on every public/customer page (pre-existing; off-system styling and position).                              | Phase 10 (saved).                                                                                                           |
 | B9  | UX          | Customer-layout outage fallback (`PortalState`) now sits inside the site chrome, so the header shows "Log in" because the session could not be read. Acceptable; revisit if the owner objects.                                                            | Open                                                                                                                        |
+| B10 | Copy        | "Day visit" (search filters/chips) vs "Day picnic" (home chips, booking box, visit hours) name the same slot.                                                                                                                                             | Ask owner which label to use everywhere.                                                                                    |
 | B6  | Product     | Customer-facing copy that exposes Test/provider/staff wording (payment-methods "Razorpay Test", cancel "Actual bank refund: ₹0", disputes intro, notifications "accepted by provider") is factual legal/operational text. Rewording needs owner approval. | Ask owner in Phase 8/9.                                                                                                     |
 
 ---
@@ -543,3 +544,103 @@ Competitor pattern: Airbnb, Booking.com and StayVista all put results first on p
 - On phones "Explore by location" is a long vertical stack of chips when labels are long; acceptable, revisit in Phase 12.
 
 **Next Phase** — Owner review of Phase 5. Then Phase 6 Listing details (6.1 mobile swipe gallery · 6.2 header/facts/visit hours · 6.3 booking box + mobile bar with price · 6.4 host/rules/cancellation/reviews/map · 6.5 skeleton).
+
+### Phase 6 — Listing details (complete, 29 Sep 2026 — awaiting owner review)
+
+Competitor pattern: Airbnb, Booking.com and StayVista show a full-width swipeable photo strip with an "n / N" counter on phones. They keep a sticky bottom bar with the starting price and one action, and a mosaic plus lightbox on desktop.
+
+**Completed**
+
+- 6.1 `components/rentra/listing/PhotoGallery.jsx`:
+  - Phones (<640 px): full-bleed 4:3 swipe strip (native `scroll-snap`, no library) with an "n / N" counter pill that opens the lightbox at the current photo.
+  - Desktop: mosaic and lightbox unchanged; "View all photos" is now a pill.
+  - The first strip photo shares the desktop hero's `sizes`, so both preload the same file. Desktop loads 5 gallery images, same as before.
+- 6.2 `app/(marketing)/listing/[handle]/page.js`: on phones the breadcrumb trail becomes one "‹ {Area}" back link (full trail from `sm`; JSON-LD unchanged).
+- 6.2 `ListingSections.jsx` → `VisitHours`: three tall cards become one bordered group. Rows on phones, three columns from `sm`, each with the slot icon (`slot-icons.js`). Labels now come from `SLOTS` ("Day picnic"), matching the booking box on the same page (was "Day visit").
+- 6.3 `MobileBookingBar.jsx`: before dates, shows "from ₹X / {slot}" (same base price as `BookingPriceBox`) instead of a second "Choose dates". The helper line is just "Razorpay Test · no real charge" (plus "n visits selected ·" once dates exist), so it no longer truncates mid-word. Button is a pill. The page now passes `prices` to it (it was passed before but unused).
+- 6.4 Host, rules, cancellation, reviews and map reviewed at 390/1440: already flat sections, consistent with D6. No change needed.
+- 6.5 `ScreenSkeleton` listing case: full-width 4:3 block on phones, rounded mosaic from `sm`.
+
+**Files Changed** — `components/rentra/listing/PhotoGallery.jsx`, `components/rentra/listing/ListingSections.jsx`, `components/rentra/listing/MobileBookingBar.jsx`, `app/(marketing)/listing/[handle]/page.js`, `components/loading/ScreenSkeleton.jsx` (listing case).
+
+**Verification**
+
+- lint clean; tests 36/36; Prettier clean; `next build` exit 0.
+- Playwright (live API) 9/9:
+  - No overflow at 390 or 1440.
+  - Swiping to photo 3 updates the counter to "3 / 6"; the counter opens the lightbox at photo 3; Esc closes it.
+  - The back link points to the area.
+  - The booking bar appears after the gallery, shows `from ₹…`, and has exactly one "Choose dates".
+- axe WCAG 2.1 AA: 0 violations on two listings at 390 and 1440 (a `definition-list` violation from the first visit-hours draft was caught and fixed).
+- Screenshots: `.impeccable/redesign/phase-6/`.
+
+**Remaining Issues**
+
+- Quote flow (dates → total in bar/box, "Review booking" sheet) not browser-exercised: the live API blocks browser CORS from local origins (B1). Exercise it with the QA harness in Phase 7.
+- Listings with 0/1/2 photos not seen live (all live listings have 5+). The code paths are unchanged from before except the phone strip, which handles any count; verify with QA seed data in Phase 7.
+- Slot naming across the site: search filters and chips say "Day visit", home chips and the booking box say "Day picnic". Product copy — ask the owner which one wins (B10).
+
+**Next Phase** — Owner review of Phase 6. Then Phase 7 Checkout (7.1 quote review, 7.2 payment/result) on the QA harness with the fake Razorpay helper, which also creates populated booking records for Phase 9.
+
+### Phase 7 — Checkout (complete, 29 Sep 2026)
+
+**Finding** — Checkout (review, payment, confirmation) was already polished by the earlier refresh: stepper, held-price timer, sticky summary with photo, "Pay ₹X" CTA, phone pay bar, confirmation hero with next steps. It follows D6 apart from shape details, so this phase was mostly end-to-end verification plus small fixes. No layout change → no owner-review stop needed.
+
+**Completed**
+
+- `components/customer/Checkout.jsx`: the applicable-policy links ("terms policy (opens in a new tab)", underlined, lowercase, wrapping unevenly) become pill chips: "Terms policy ↗" with an external-link icon and a screen-reader-only "(opens in a new tab)".
+- `text-[11px]` micro-labels → `text-tiny` token in `checkout/CopyReference.jsx`, `checkout/parts.jsx` (date tile) and `rentra/listing/BookingPriceBox.jsx` (Arrival/Departure/Guests labels), matching the home `SearchBar` labels.
+- QA harness extended for payments (all local, disposable):
+  - `rentra-backend/.qa-serve.mjs` (untracked, QA-only) starts the API with `fetch` for `api.razorpay.com` routed to `test/helpers/fake-razorpay.mjs` (file-backed). It refuses any DB but `127.0.0.1:55432/rentra_cp02`.
+  - `rentra-backend/.qa-payments.mjs` (untracked) enables the Razorpay Test gateway via `setPaymentGatewayConfiguration`.
+  - QA env adds `RAZORPAY_TEST_KEY_ID/KEY_SECRET/WEBHOOK_SECRET` (fixture values), `FAKE_RAZORPAY_STATE`, and **`CORS_ALLOWED_ORIGINS`** (the backend reads this name; `CORS_ORIGINS` in the old gate doc is ignored — that was why browser availability reads failed).
+  - Playwright replaces `checkout.razorpay.com/v1/checkout.js` with a stub whose `open()` asks Node to record a captured payment in the fake provider and sign `order|payment` with the fixture key. The real verify endpoint then confirms the booking.
+  - Journey script `p7journey.mjs` (scratchpad): listing → calendar → quote → deposit tick → review → purpose + terms tick → hold → pay → confirmed.
+
+**Verification**
+
+- Journeys passed at 1440 (twice) and 390 (twice), each creating a confirmed booking in the disposable DB. Quote in box/sheet (₹6,500 rent + ₹520 fee = ₹7,020; ₹5,000 deposit separate), review, payment page ("Pay ₹7,020"), and confirmation "You’re all set!". No page errors.
+- Phone booking bar → "Review booking" sheet → review works (Phase 6 open item closed).
+- Unknown `/checkout/<uuid>` and `/checkout/review/<uuid>` render the customer `not-found.js` inside the signed-in chrome, one header/footer (Phase 5 open item closed).
+- axe WCAG 2.1 AA: 0 violations on review, payment (held), confirmed and unknown checkout at 390 and 1440.
+- lint clean; tests 36/36.
+- Screenshots: `.impeccable/redesign/phase-7/` (`before-*` = baseline run, `after-*` = after changes, `form-1440` = policy chips).
+
+**Remaining Issues**
+
+- Expired-quote and failed/processing payment visuals not captured: a DB check constraint (`booking_quote_valid_chk`) prevents back-dating a quote, and quotes outlive the 10-minute price-hold timer shown. The UI copy paths exist in `Checkout.jsx`; capture them in Phase 14 by waiting out a hold or using the fake provider's failed status.
+- Confirmation shows the raw booking reference `TEST_<uuid>`. It is the API's reference and the bookings search uses it, so it was not shortened (B6-type decision).
+- Seeded local listings' photos may be missing in some cards (Cloudinary not configured locally) — environment only.
+
+**Next Phase** — Phase 8 Auth & account (8.1 login + onboarding · 8.2 account hub · 8.3 phone, notifications, payment methods, privacy). The disposable DB now has confirmed bookings for Phase 9.
+
+### Phase 8 — Auth & account (complete, 29 Sep 2026 — awaiting owner review)
+
+**Completed**
+
+- New `components/ui/page-header.jsx`: `BackLink` (one back-link style: arrow + "Account") and `PageHeader` (back link, h1, one-line description, optional actions). D7 applied: created because four pages use it now.
+- `/account/notifications`: tall cards with stacked underlined links → one bordered list.
+  - Each row has a bell icon (filled tint when unread, plus screen-reader "(unread)"), a bold title when unread, and a "Test / simulation" badge.
+  - It now shows the notification time (the API's `at` field, formatted en-IN, Asia/Kolkata) followed by the unchanged "SMS: …" text, then the booking reference in small monospace, truncated with the full value in `title`.
+  - Actions are "Open booking ↗" (outline pill) and "Mark as read" (ghost pill; the same server action form).
+  - Empty state uses `EmptyState` with a link to bookings.
+- `/account/payment-methods`: bare paragraphs → page header + `EmptyState` card (credit-card icon, "No saved payment methods"). Both original sentences kept word-for-word (B6).
+- `/account/privacy`: page header; "New request" card first (form + policy link), then "Your requests" as a divided list with a state badge. Fixed `r.state.replace('_',' ')` → `replaceAll` (multi-underscore states were half-formatted). Empty state uses `EmptyState`. The reference UUID is kept (it is what support uses) but shown small and muted.
+- `/account/phone`: shared `BackLink`; `rounded-3xl`/`rounded-2xl` → `rounded-xl`/`rounded-lg` (D6); h1 `text-2xl font-semibold` → `text-h2` token; the post-change note moved from `text-xs` to `text-meta`.
+- `/onboarding`: bare h1 in the wide account column → a centred card (max-w-lg) with a person icon, `text-h2` title, the same copy, the form, and "Sign out" below.
+- `AccountForms.jsx` "Optional contact preferences" disclosure: native triangle and dead space → full-height summary with a rotating chevron (no JS; still `<details>`).
+- `/account`: Disputes shortcut gets its own `Scale` icon (it shared `CircleHelp` with Help & support).
+- `/login`: reviewed — no change (pill input + pill button is correct under D6).
+
+**Files Changed** — `components/ui/page-header.jsx` (new), `app/(customer)/account/notifications/page.js`, `app/(customer)/account/payment-methods/page.js`, `app/(customer)/account/privacy/page.js`, `app/(customer)/account/phone/page.js`, `app/(customer)/account/page.js`, `app/(customer)/onboarding/page.js`, `components/customer/AccountForms.jsx`.
+
+**Verification**
+
+- Playwright (QA harness): "Mark as read" reduces the unread count after reload; times render; "Open booking" navigates to the booking record; privacy form present. Onboarding was captured by temporarily removing, then restoring, the fixture `customer_profile` row.
+- axe WCAG 2.1 AA: 0 violations on `/account`, `/account/phone`, `/account/notifications`, `/account/payment-methods`, `/account/privacy`, `/onboarding`, `/login` at 390 and 1440. No horizontal overflow.
+- lint clean; tests 36/36.
+- Screenshots: `.impeccable/redesign/phase-8/` (`before-*` = baseline).
+
+**Remaining Issues** — Customer-facing Test/provider wording is unchanged pending owner decision (B6). The login OTP dialog was not exercised (would need the dev OTP bypass on the QA stack) — do it in Phase 14.
+
+**Next Phase** — Owner review of Phase 8. Then Phase 9 Records (9.1 bookings list + detail · 9.2 again/cancel/reviews/report · 9.3 support · 9.4 disputes). Many of these components are shared with partner/admin — use customer-scoped props and screenshot partner/admin before and after.

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from '../PropertyImage';
-import { ChevronLeft, ChevronRight, Grid2x2, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Grid2x2, Images, X } from 'lucide-react';
 
 /**
  * 1 large + 4 small, every photo in a lightbox.
@@ -19,8 +19,11 @@ const BLUR =
       '<rect width="4" height="3" fill="#EBEEEB"/></svg>',
   );
 
+const HERO_SIZES = '(max-width: 640px) 100vw, 50vw';
+
 export default function PhotoGallery({ photos = [], title }) {
   const [openAt, setOpenAt] = useState(null);
+  const [slide, setSlide] = useState(0);
   const isOpen = openAt !== null;
   const count = photos.length;
   const dialogRef = useRef(null);
@@ -91,6 +94,42 @@ export default function PhotoGallery({ photos = [], title }) {
 
   return (
     <>
+      {/* Phones: a full-width swipe strip (native scroll-snap), tap to open. */}
+      <div className="relative -mx-4 sm:hidden">
+        <div
+          className="flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          onScroll={(event) => {
+            const { scrollLeft, clientWidth } = event.currentTarget;
+            setSlide(Math.round(scrollLeft / clientWidth));
+          }}
+        >
+          {photos.map((photo, i) => (
+            <Tile
+              key={`${photo.url}-strip-${i}`}
+              photo={photo}
+              onClick={(event) => open(i, event)}
+              label={i ? `Open photo ${i + 1} of ${title}` : `Open photos of ${title}`}
+              // The first photo shares the desktop hero's sizes, so both
+              // preload the same file instead of two different widths.
+              sizes={i ? '100vw' : HERO_SIZES}
+              className="aspect-4/3 w-full shrink-0 snap-center rounded-none"
+              preload={i === 0}
+            />
+          ))}
+        </div>
+        {count > 1 ? (
+          <button
+            type="button"
+            onClick={(event) => open(slide, event)}
+            className="absolute right-3 bottom-3 inline-flex min-h-9 items-center gap-1.5 rounded-full bg-ink-900/70 px-3 text-tiny font-semibold text-white tabular backdrop-blur"
+            aria-label={`View all ${count} photos`}
+          >
+            <Images className="size-3.5" aria-hidden="true" />
+            {slide + 1} / {count}
+          </button>
+        ) : null}
+      </div>
+
       {/**
        * 4 columns x 2 rows: the hero takes 2x2, the four small tiles fill the
        * rest. The 8/3 container ratio is what makes every tile land on 4:3 —
@@ -100,14 +139,14 @@ export default function PhotoGallery({ photos = [], title }) {
        * One column on a phone: a five-tile mosaic at 390px is five thumbnails.
        */}
       <div
-        className={`grid gap-2 overflow-hidden rounded-lg ${count >= 5 ? 'sm:aspect-8/3 sm:grid-cols-4 sm:grid-rows-2' : count > 1 ? 'sm:aspect-8/3 sm:grid-cols-[2fr_1fr]' : ''}`}
+        className={`hidden gap-2 overflow-hidden rounded-lg sm:grid ${count >= 5 ? 'sm:aspect-8/3 sm:grid-cols-4 sm:grid-rows-2' : count > 1 ? 'sm:aspect-8/3 sm:grid-cols-[2fr_1fr]' : ''}`}
       >
         <Tile
           photo={hero}
           onClick={(event) => open(0, event)}
           label={`Open photos of ${title}`}
           className={`aspect-4/3 ${count >= 5 ? 'sm:col-span-2 sm:row-span-2' : count === 4 ? 'sm:row-span-3' : count === 3 ? 'sm:row-span-2' : ''} ${count > 1 ? 'sm:aspect-auto sm:h-full' : 'sm:aspect-video'}`}
-          sizes="(max-width: 640px) 100vw, 50vw"
+          sizes={HERO_SIZES}
           preload
         />
         {tiles.map((photo, i) => (
@@ -122,20 +161,18 @@ export default function PhotoGallery({ photos = [], title }) {
         ))}
       </div>
 
-      <div className="mt-3 flex items-center justify-between gap-3">
+      <div className="mt-3 hidden items-center justify-between gap-3 sm:flex">
         <button
           type="button"
           onClick={(event) => open(0, event)}
-          className="inline-flex items-center gap-2 rounded-md border border-ink-300 bg-card px-4 py-2.5 text-meta font-semibold text-ink-900 transition-colors hover:bg-ink-50"
+          className="inline-flex min-h-10 items-center gap-2 rounded-full border border-border bg-card px-4 text-meta font-semibold text-ink-900 transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800"
         >
           <Grid2x2 className="size-4" aria-hidden="true" />
           View all {count} photos
         </button>
         {/* Hidden on a phone: next to the button at 390px it turns into three
             cramped lines and pushes the button into a wrap. */}
-        <p className="hidden text-tiny text-ink-500 sm:block">
-          Listing photos provided for this property.
-        </p>
+        <p className="text-tiny text-ink-500">Listing photos provided for this property.</p>
       </div>
 
       {isOpen ? (

@@ -1,32 +1,46 @@
 import Link from '@/components/navigation/NavigationLink';
 import { customerApi } from '@/lib/api/endpoints';
 import { PrivacyForm } from '@/components/customer/AccountForms';
+import { PageHeader } from '@/components/ui/page-header';
+import { EmptyState } from '@/components/ui/empty-state';
+import { ShieldCheck } from 'lucide-react';
 export const metadata = { title: 'Privacy requests' };
 export default async function PrivacyPage() {
   const account = await customerApi.account();
   return (
-    <div className="space-y-6">
-      <Link href="/account" className="text-brand-700 underline">
-        Back to account
-      </Link>
-      <h1 className="text-h1">Privacy and account requests</h1>
-      <PrivacyForm />
-      <p>
-        <Link className="text-brand-700 underline" href="/policies/privacy">
+    <div className="mx-auto max-w-3xl">
+      <PageHeader
+        back={{ href: '/account', label: 'Account' }}
+        title="Privacy and account requests"
+      />
+      <section
+        aria-labelledby="new-privacy-request"
+        className="rounded-lg border border-border bg-card p-5 sm:p-6"
+      >
+        <h2 id="new-privacy-request" className="mb-4 text-h4">
+          New request
+        </h2>
+        <PrivacyForm />
+        <Link
+          className="mt-4 inline-flex min-h-11 items-center text-meta font-semibold text-brand-700 hover:underline"
+          href="/policies/privacy"
+        >
           Privacy and retained-record policy
         </Link>
-      </p>
-      <section>
+      </section>
+      <section className="mt-10">
         <h2 className="text-h3">Your requests</h2>
         {account.requests.length ? (
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-4 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
             {account.requests.map((r) => (
-              <li key={r.id} className="rounded-md border border-border p-4">
-                <p className="font-semibold">
-                  {r.kind === 'access' ? 'Account data copy' : 'Account deletion'} ·{' '}
-                  {r.state.replace('_', ' ')}
+              <li key={r.id} className="space-y-1 p-4 text-meta">
+                <p className="flex flex-wrap items-center gap-2 text-body font-semibold">
+                  {r.kind === 'access' ? 'Account data copy' : 'Account deletion'}
+                  <span className="rounded-full bg-ink-100 px-2 py-0.5 text-tiny font-semibold text-ink-700 capitalize">
+                    {r.state.replaceAll('_', ' ')}
+                  </span>
                 </p>
-                <p className="mt-1 break-all text-meta">Reference: {r.id}</p>
+                <p className="font-mono text-tiny break-all text-ink-500">Reference: {r.id}</p>
                 <p className="text-meta">
                   {new Date(r.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}
                 </p>
@@ -75,7 +89,7 @@ export default async function PrivacyPage() {
             ))}
           </ul>
         ) : (
-          <p className="mt-3 text-ink-600">You have no recorded privacy requests.</p>
+          <EmptyState as="h3" icon={ShieldCheck} title="You have no recorded privacy requests." />
         )}
       </section>
     </div>

@@ -21,7 +21,7 @@ export default function CopyReference({ reference, label = 'Booking reference' }
   return (
     <div className="inline-flex max-w-full items-center gap-2 rounded-xl border border-border bg-card py-1.5 pr-1.5 pl-4 text-left">
       <span className="min-w-0">
-        <span className="block text-[11px] font-semibold tracking-wide text-ink-500 uppercase">
+        <span className="block text-tiny font-semibold tracking-wide text-ink-500 uppercase">
           {label}
         </span>
         <span className="block font-mono text-sm break-all text-ink-900 select-all">
