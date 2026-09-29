@@ -398,6 +398,30 @@
    applies to these too — it is a blanket rule on every animation.
    ========================================================================== */
 @layer utilities {
+  /* Hero photo timer. The fill IS the clock: HeroPhotos advances on its
+       animationend, so pausing the fill pauses the slideshow. It pauses while
+       the guest types a search or points at the dots. */
+  @keyframes rentra-hero-progress {
+    from {
+      transform: scaleX(0);
+    }
+  }
+  .animate-hero-progress {
+    transform-origin: left;
+    animation: rentra-hero-progress var(--hero-interval, 3s) linear forwards;
+  }
+  [data-hero]:has(:focus-visible) .animate-hero-progress,
+  [data-hero-dots]:hover .animate-hero-progress {
+    animation-play-state: paused;
+  }
+  /* The blanket rule shrinks animations to 0.01ms, which would race through
+       every photo. No autoplay at all is the reduced-motion answer. */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-hero-progress {
+      animation: none;
+    }
+  }
+
   /* A tick that draws itself. The only moment in the product that earns a
        flourish: an owner has just handed over a property and is waiting to be
        told it landed. */
