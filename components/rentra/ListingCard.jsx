@@ -34,7 +34,7 @@ const BLUR =
  * @param {boolean} [props.eager] Opt out of lazy loading for a card that is
  *   genuinely above the fold on every viewport. Rare — leave it off.
  */
-export default function ListingCard({ listing, eager = false, showPriceNote = true, priceNoteId }) {
+export default function ListingCard({ listing, eager = false, showPriceNote = true }) {
   const {
     href,
     area,
@@ -60,16 +60,16 @@ export default function ListingCard({ listing, eager = false, showPriceNote = tr
   return (
     <article className="group relative min-w-0">
       {/* The photo IS the card — no border, no shadow at rest. */}
-      <div className="relative aspect-4/3 overflow-hidden rounded-lg bg-ink-100">
+      <div className="relative aspect-4/3 overflow-hidden rounded-md bg-ink-100 transition-shadow group-hover:shadow-md">
         {photo ? (
           <Image
             src={photo.url}
             alt={photo.alt}
             fill
             loading={eager ? 'eager' : 'lazy'}
-            sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, (max-width: 1279px) 33vw, 25vw"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             placeholder={BLUR}
-            className="object-cover transition-transform duration-200 ease-out motion-safe:group-hover:scale-[1.025]"
+            className="object-cover transition-transform duration-300 motion-safe:group-hover:scale-[1.03]"
           />
         ) : (
           <span className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-meta text-ink-600">
@@ -90,28 +90,37 @@ export default function ListingCard({ listing, eager = false, showPriceNote = tr
         <SaveButton rentableId={listing.id} listingTitle={title} selection={listing.selection} />
 
         {photoCount > 1 ? (
-          <span className="pointer-events-none absolute bottom-3 right-3 rounded-sm bg-ink-900/75 px-2 py-1 text-tiny text-white">
-            {photoCount} photos
-          </span>
+          <div className="pointer-events-none absolute bottom-2.5 left-1/2 flex -translate-x-1/2 gap-1.5">
+            {Array.from({ length: Math.min(photoCount, 5) }).map((_, i) => (
+              <span
+                key={i}
+                className={`size-1.5 rounded-full ${i === 0 ? 'bg-white' : 'bg-white/55'}`}
+              />
+            ))}
+          </div>
         ) : null}
       </div>
 
-      <div className="pt-4">
-        <h3 className="min-w-0 text-h4 font-semibold tracking-tight">
-          <Link
-            href={href}
-            aria-describedby={priceNoteId}
-            className="after:absolute after:inset-0 after:rounded-lg"
-          >
-            {title}
-          </Link>
-        </h3>
-        <div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-          <p className="min-w-0 text-meta text-ink-600 [overflow-wrap:anywhere]">{area}</p>
-          {rating !== null && (
-            <Rating value={rating} count={reviewCount} className="shrink-0 whitespace-nowrap" />
+      <div className="pt-3">
+        {/* Area first, not the property name — people search by place. */}
+        <div className="flex items-baseline justify-between gap-2.5">
+          <h3 className="text-h4 font-bold tracking-tight text-wrap">{area}</h3>
+          {reviewCount > 0 && rating != null ? (
+            <Rating value={rating} count={reviewCount} className="shrink-0" />
+          ) : (
+            <span className="shrink-0 rounded-sm bg-brand-50 px-1.5 py-0.5 text-tiny font-semibold text-brand-700">
+              New
+            </span>
           )}
         </div>
+
+        {/* Stretched link: the whole card opens the place, while the save
+            heart stays a separate button instead of nesting inside a link. */}
+        <p className="mt-0.5 truncate text-meta text-ink-600">
+          <Link href={href} className="after:absolute after:inset-0 after:rounded-md">
+            {title}
+          </Link>
+        </p>
         <p className="mt-1 text-tiny text-ink-500">{capacityLine}</p>
 
         <p className="mt-2 flex flex-wrap items-baseline gap-2">

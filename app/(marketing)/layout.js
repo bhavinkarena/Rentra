@@ -1,34 +1,50 @@
 import Link from '@/components/navigation/NavigationLink';
 import { Suspense } from 'react';
 import { FaWhatsapp } from 'react-icons/fa6';
-import { ArrowUpRight } from 'lucide-react';
-import { RentraLogo } from '@/components/rentra/Logo';
+import { RentraLogo, RentraMark } from '@/components/rentra/Logo';
 import { publicContact } from '@/lib/api/content';
 import { discoveryApi } from '@/lib/api/endpoints';
 import { degradeOnFailure, EMPTY_REGISTRY } from '@/lib/api/resilient';
-import FooterDiscovery from '@/components/customer/FooterDiscovery';
-import CustomerHeader from '@/components/customer/CustomerHeader';
-import styles from '@/components/customer/CustomerShell.module.css';
+import { ArrowUpRight } from 'lucide-react';
+import CustomerNavigation from '@/components/customer/CustomerNavigation';
 import Providers from '@/components/providers';
 
 export default function MarketingLayout({ children }) {
   return (
     <Providers>
-      <div className="flex min-h-dvh flex-col">
+      <div className="flex min-h-screen flex-col">
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-background focus:p-4"
         >
           Skip to main content
         </a>
-        <CustomerHeader />
+        <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur">
+          <div className="mx-auto flex max-w-(--container-page) flex-wrap items-center gap-2 px-4 py-3 sm:px-6">
+            <Link href="/" className="shrink-0" aria-label="Rentra home">
+              {/* The lockup is the home link. On the narrowest phones the mark
+                alone carries it, so the search bar keeps its width. */}
+              <RentraLogo className="hidden h-7 w-auto sm:block" />
+              <RentraMark className="size-8 sm:hidden" />
+            </Link>
+            <div className="ml-auto">
+              <CustomerNavigation compact />
+            </div>
+            <Link
+              href="/partner/login"
+              className="hidden min-h-11 items-center rounded-full px-3 text-meta text-ink-500 hover:bg-brand-50 hover:text-brand-700 md:inline-flex"
+            >
+              List your place
+            </Link>
+          </div>
+        </header>
 
         <main id="main-content" tabIndex={-1} className="min-w-0 flex-1">
           {children}
         </main>
 
         <Suspense
-          fallback={<footer className={`${styles.footer} min-h-80`} aria-label="Explore places" />}
+          fallback={<footer className="mt-20 min-h-80 bg-[#142e23]" aria-label="Explore places" />}
         >
           <MarketingFooter />
         </Suspense>
@@ -66,63 +82,89 @@ async function MarketingFooter() {
     EMPTY_REGISTRY,
     'marketing footer registry',
   );
+  const farmhouse = categories.find((c) => c.slug === 'farmhouse');
+  const heading = 'text-tiny font-semibold tracking-wider text-[#dbeaaf] uppercase';
+  const link = 'text-meta text-[#f5f6ed]/75 transition-colors hover:text-white';
   return (
-    <footer className={styles.footer}>
-      <div className={styles.footerInner}>
-        <div className={styles.invitation}>
-          <h2>
-            Make room for
-            <br />
-            <span>a little getaway.</span>
-          </h2>
-          <Link href="/search" className={styles.exploreButton}>
-            Find your next place <ArrowUpRight size={22} aria-hidden="true" />
-          </Link>
-        </div>
-        <div className={styles.footerColumns}>
-          <div className={styles.footerBrand}>
-            <Link href="/" aria-label="Rentra home">
-              <RentraLogo tone="inverse" />
+    <footer className="mt-20 bg-[#142e23] text-[#f5f6ed]">
+      <div className="mx-auto max-w-(--container-page) px-6 pt-12 pb-6">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-[1.5fr_1fr_1fr_1.3fr] lg:gap-10">
+          <div className="col-span-2 lg:col-span-1">
+            <Link href="/" aria-label="Rentra home" className="inline-block">
+              <RentraLogo tone="inverse" className="h-7 w-auto" />
             </Link>
-            <p>Pool days, slow weekends and good company. Find a place to make them happen.</p>
+            <p className="mt-4 text-h3 font-medium tracking-tight lg:mt-5">
+              Make room for <span className="text-[#dbeaaf]">a little getaway.</span>
+            </p>
+            <p className="mt-2 max-w-xs text-meta text-[#f5f6ed]/65 max-sm:hidden">
+              Pool days, slow weekends and good company. Find a place to make them happen.
+            </p>
           </div>
+
+          <nav aria-label="Explore Rentra">
+            <h2 className={heading}>Your next getaway</h2>
+            <ul className="mt-4 space-y-2">
+              <li>
+                <Link href="/search" className={link}>
+                  Explore all places
+                </Link>
+              </li>
+              <li>
+                <Link href="/saved" className={link}>
+                  Your saved places
+                </Link>
+              </li>
+              <li>
+                <Link href="/help" className={link}>
+                  Help and support
+                </Link>
+              </li>
+            </ul>
+          </nav>
+
           <div>
-            <h3>Your next getaway</h3>
-            <nav aria-label="Explore Rentra">
-              <Link href="/search">Explore all places</Link>
-              <Link href="/saved">Your saved places</Link>
-              <Link href="/help">
-                Help and support <ArrowUpRight size={15} aria-hidden="true" />
-              </Link>
-            </nav>
+            <h2 className={heading}>Have a place to share?</h2>
+            <p className="mt-4 max-w-56 text-meta text-[#f5f6ed]/65 max-sm:hidden">
+              Bring your property to Rentra and welcome your next guests.
+            </p>
+            <Link
+              href="/partner/login"
+              className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-full bg-[#e5efc8] px-4 text-meta font-semibold text-[#142e23] transition-colors hover:bg-white"
+            >
+              List your place
+              <ArrowUpRight className="size-4" aria-hidden="true" />
+            </Link>
           </div>
-          <div>
-            <h3>Have a place to share?</h3>
-            <p>Bring your property to Rentra and welcome your next guests.</p>
-            <nav aria-label="Hosting">
-              <Link href="/partner/login">
-                List your place <ArrowUpRight size={17} aria-hidden="true" />
-              </Link>
+
+          {farmhouse && cities.length > 0 ? (
+            <nav aria-label="Farmhouses by city" className="col-span-2 lg:col-span-1">
+              <h2 className={heading}>Farmhouses near you</h2>
+              <ul className="mt-4 grid grid-cols-3 gap-x-4 gap-y-2.5 sm:grid-cols-5 lg:grid-cols-2 lg:gap-x-6">
+                {cities.map((city) => (
+                  <li key={city.slug}>
+                    <Link href={`/${city.slug}/${farmhouse.slug}`} className={link}>
+                      {city.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </nav>
-          </div>
+          ) : null}
         </div>
-        {categories.length > 0 && cities.length > 0 && (
-          <FooterDiscovery cities={cities} categories={categories} />
-        )}
-        <div className={styles.legal}>
-          <nav aria-label="Legal policies">
+
+        <div className="mt-8 flex flex-col gap-3 border-t border-[#3c5546] pt-5 text-tiny text-[#f5f6ed]/60 md:flex-row md:items-center md:justify-between">
+          <nav aria-label="Legal policies" className="flex flex-wrap gap-x-5 gap-y-2">
             {['terms', 'cancellation', 'privacy'].map((kind) => (
-              <Link key={kind} href={`/policies/${kind}`}>
+              <Link key={kind} href={`/policies/${kind}`} className="hover:text-white">
                 {kind[0].toUpperCase() + kind.slice(1)} policy
               </Link>
             ))}
           </nav>
-          <span>Rentra. A place for good times.</span>
+          <p className="max-w-2xl md:text-right">
+            Rentra is an intermediary facilitating bookings between owners and guests. It is not the
+            owner, lessor or operator of any property.
+          </p>
         </div>
-        <p className={styles.disclaimer}>
-          Rentra is an intermediary facilitating bookings between owners and guests. It is not the
-          owner, lessor or operator of any property.
-        </p>
       </div>
     </footer>
   );

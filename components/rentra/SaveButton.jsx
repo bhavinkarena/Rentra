@@ -103,7 +103,7 @@ export default function SaveButton({
       disabled={disabled}
       title={error ?? undefined}
       aria-label={label}
-      className="absolute top-3 right-3 z-10 grid size-11 place-items-center rounded-full bg-white transition-[background-color,transform] duration-150 hover:bg-brand-50 active:scale-95"
+      className="absolute top-2.5 right-2.5 z-10 grid size-11 place-items-center rounded-full bg-white/90 backdrop-blur transition hover:bg-white"
     >
       {busy ? (
         <RentraLoader label="Updating saved place" />

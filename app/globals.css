@@ -76,7 +76,7 @@
   --color-ink-100: #ebeeeb;
   --color-ink-200: #dce1dd; /* dividers, card outlines */
   --color-ink-300: #c0c7c2; /* input borders */
-  --color-ink-400: #66736a; /* muted text, including placeholders */
+  --color-ink-400: #9aa39d; /* non-text · 2.59:1 */
   --color-ink-500: #59655d; /* secondary text: AA on paper and pale surfaces */
   --color-ink-600: #5a635d; /* secondary text · 6.22:1 AA */
   --color-ink-700: #414843;
@@ -95,17 +95,17 @@
   --color-whatsapp: #1fa855; /* the ONE permitted second accent */
 
   /* --- Type scale --- */
-  --text-display: clamp(2.5rem, 4.2vw, 3.75rem);
-  --text-display--line-height: 1.12;
+  --text-display: 2.75rem;
+  --text-display--line-height: 1.06;
   --text-display--letter-spacing: -0.035em;
-  --text-display--font-weight: 600;
+  --text-display--font-weight: 800;
 
-  --text-h1: clamp(1.875rem, 3vw, 2.5rem);
+  --text-h1: 2.125rem;
   --text-h1--line-height: 1.15;
   --text-h1--letter-spacing: -0.03em;
   --text-h1--font-weight: 700;
 
-  --text-h2: clamp(1.5rem, 2.4vw, 2rem);
+  --text-h2: 1.625rem;
   --text-h2--line-height: 1.22;
   --text-h2--letter-spacing: -0.025em;
   --text-h2--font-weight: 700;
@@ -133,10 +133,10 @@
   --text-tiny--font-weight: 500;
 
   /* --- Radius: exact Rentra values, overriding shadcn's ratio scale --- */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
 
   /* --- Elevation: soft and low. Depth comes from photography. --- */
   --shadow-xs: 0 1px 2px rgba(23, 26, 24, 0.05);

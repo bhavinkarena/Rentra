@@ -2,13 +2,35 @@ import { publicMetadata } from '@/lib/seo/metadata';
 import Link from '@/components/navigation/NavigationLink';
 import SearchBar from '@/components/rentra/SearchBar';
 import ListingCard from '@/components/rentra/ListingCard';
-import HomeHero from '@/components/rentra/home/HomeHero';
-import PlaceCarousel from '@/components/rentra/home/PlaceCarousel';
-import TripPicker from '@/components/rentra/home/TripPicker';
-import styles from '@/components/rentra/home/home.module.css';
+import TrustStrip from '@/components/rentra/TrustStrip';
+import HeroPhotos from '@/components/rentra/HeroPhotos';
+import CityRow from '@/components/rentra/CityRow';
+import OccasionPicker from '@/components/rentra/OccasionPicker';
+import { DISCOVERY_INTENTS } from '@/lib/domain/discovery';
 import { discoveryApi } from '@/lib/api/endpoints';
 import { degradeOnFailure, EMPTY_REGISTRY } from '@/lib/api/resilient';
-import { ArrowUpRight } from 'lucide-react';
+import {
+  ArrowRight,
+  BriefcaseBusiness,
+  Camera,
+  Flame,
+  House,
+  MapPin,
+  Sun,
+  Waves,
+} from 'lucide-react';
+
+const INTENT_ICONS = {
+  'day-picnic': Sun,
+  'with-pool': Waves,
+  'bonfire-allowed': Flame,
+  'pre-wedding-shoot': Camera,
+  'corporate-offsite': BriefcaseBusiness,
+};
+
+// Biggest demand first; the "Explore by city" links cover every other city.
+const ROW_CITY_ORDER = ['surat', 'ahmedabad', 'vadodara', 'rajkot'];
+const CITY_ROWS = 4;
 
 export const metadata = publicMetadata({
   title: 'Explore farmhouses and day visits',
@@ -16,126 +38,179 @@ export const metadata = publicMetadata({
     'Explore places for day visits and overnight stays. Compare facilities and check prices for your dates.',
   path: '/',
 });
+
+// Classic ISR — content changes slowly, so serve from cache and revalidate
+// hourly. On-demand revalidation happens when a Client edits a listing.
 export const revalidate = 3600;
 
 export default async function HomePage() {
-  const [listingResult, registry] = await Promise.all([
-    degradeOnFailure(() => discoveryApi.listings({ limit: 16 }), null, 'home listings'),
+  const [listings, registry] = await Promise.all([
+    degradeOnFailure(() => discoveryApi.listings({ limit: 5 }), [], 'home listings'),
     degradeOnFailure(() => discoveryApi.registry(), EMPTY_REGISTRY, 'home registry'),
   ]);
-  const listings = listingResult ?? [];
+  const primaryCity = registry.cities.find((c) => c.slug === 'surat') || registry.cities[0];
+  const farmhouse = registry.categories.find((c) => c.slug === 'farmhouse');
+
+  const rank = (slug) => {
+    const i = ROW_CITY_ORDER.indexOf(slug);
+    return i === -1 ? ROW_CITY_ORDER.length : i;
+  };
+  const rowCities = [...registry.cities]
+    .sort((a, b) => rank(a.slug) - rank(b.slug))
+    .slice(0, CITY_ROWS);
+  // One cached request per city, in parallel; a failed city just drops its row.
+  const cityRows = (
+    await Promise.all(
+      rowCities.map(async (city) => ({
+        city,
+        places: await degradeOnFailure(
+          () => discoveryApi.listings({ citySlug: city.slug, limit: 10 }),
+          [],
+          `home listings ${city.slug}`,
+        ),
+      })),
+    )
+  ).filter((row) => row.places.length > 0);
+  const rowPlaces = cityRows.flatMap((row) => row.places);
+
+  // The hero shows top-ranked listings' own first frames, not stock images.
+  // They come from the card query, so this page is still one round trip.
+  const heroPlaces = listings.filter((l) => l.photo).slice(0, 5);
+  // Every card repeating the same fee sentence is noise; say it once instead.
   const sharedPriceNote =
-    listings.length > 1 &&
-    listings[0].priceNote &&
-    listings.every((listing) => listing.priceNote === listings[0].priceNote)
-      ? listings[0].priceNote
+    rowPlaces.length > 1 && rowPlaces.every((l) => l.priceNote === rowPlaces[0].priceNote)
+      ? rowPlaces[0].priceNote
       : null;
-  const farmhouse = registry.categories.find((item) => item.slug === 'farmhouse');
+
   return (
-    <div className={styles.page}>
-      <section aria-label="Find your next getaway">
-        <div className={styles.heroWrap}>
-          <HomeHero places={listings.filter((listing) => listing.photo).slice(0, 3)} />
-        </div>
-        <div id="find-a-place" className={styles.searchDock}>
+    <>
+      <HeroPhotos places={heroPlaces}>
+        <p className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-tiny font-semibold text-brand-100 ring-1 ring-white/20 backdrop-blur">
+          <House className="size-3.5" aria-hidden="true" />
+          Farmhouses and day stays across Gujarat
+        </p>
+        <h1 className="max-w-2xl text-display text-wrap text-white">
+          Find a place for your next day out or overnight stay.
+        </h1>
+        <p className="mt-4 max-w-prose text-body-lg text-brand-100">
+          Explore places, compare facilities and choose your visit dates. See current rent and
+          platform fees before continuing.
+        </p>
+        <div className="mt-8">
           <SearchBar />
-          {farmhouse && registry.cities.length > 0 && (
-            <div className={styles.destinations}>
-              <span>Somewhere nearby?</span>
-              <nav className={styles.cityLinks} aria-label="Explore destinations">
-                {registry.cities.map((city) => (
-                  <Link key={city.slug} href={`/${city.slug}/${farmhouse.slug}`}>
-                    {city.name}
-                  </Link>
-                ))}
-              </nav>
-            </div>
-          )}
+        </div>
+
+        <ul className="-mx-6 mt-6 flex gap-2 overflow-x-auto px-6 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+          {DISCOVERY_INTENTS.map((intent) => {
+            const Icon = INTENT_ICONS[intent.slug];
+            return (
+              <li key={intent.slug} className="shrink-0">
+                <Link
+                  href={
+                    primaryCity && farmhouse
+                      ? `/${primaryCity.slug}/farmhouse/intent/${intent.slug}`
+                      : '/search'
+                  }
+                  className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 text-meta font-medium text-white backdrop-blur transition-colors hover:border-white/50 hover:bg-white/20"
+                >
+                  {Icon ? <Icon className="size-4" aria-hidden="true" /> : null}
+                  {intent.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </HeroPhotos>
+
+      {/* Lifted onto the hero edge so the trust points read as part of the
+          search, not a separate block floating between hero and grid. */}
+      <section className="relative mx-auto -mt-12 max-w-(--container-page) px-6">
+        <div className="rounded-lg border border-border bg-card p-5 shadow-md sm:p-6">
+          <TrustStrip />
         </div>
       </section>
-      <section className={styles.section} aria-labelledby="places-heading">
-        <div className={styles.sectionHeading}>
+
+      <section className="mx-auto max-w-(--container-page) px-6 pt-14 pb-12">
+        <div className="flex items-end justify-between gap-4">
           <div>
-            <h2 id="places-heading">
-              A change of scene
-              <br />
-              starts here.
-            </h2>
-            <p className="mt-4">Explore farmhouses and stays. Save the ones you love.</p>
+            <h2 className="text-h2">Explore places</h2>
+            <p className="mt-1 text-meta text-ink-600">Farmhouses and villas, city by city</p>
           </div>
-          <Link href="/search" className={styles.textLink}>
-            Explore all places <ArrowUpRight size={20} aria-hidden="true" />
+          <Link
+            href="/search"
+            className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full border border-border px-4 text-meta font-semibold text-ink-800 transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800"
+          >
+            View all
+            <ArrowRight className="size-4" aria-hidden="true" />
           </Link>
         </div>
-        {listings.length > 0 ? (
-          <>
-            <PlaceCarousel count={listings.length}>
-              {listings.map((listing) => (
-                <ListingCard
-                  key={listing.id}
-                  listing={listing}
-                  showPriceNote={!sharedPriceNote}
-                  priceNoteId={sharedPriceNote ? 'home-price-note' : undefined}
-                />
+        {cityRows.length > 0 ? (
+          cityRows.map(({ city, places }) => (
+            <CityRow
+              key={city.slug}
+              id={`near-${city.slug}`}
+              city={city.name}
+              href={farmhouse ? `/${city.slug}/${farmhouse.slug}` : '/search'}
+            >
+              {places.map((listing) => (
+                <ListingCard key={listing.id} listing={listing} showPriceNote={!sharedPriceNote} />
               ))}
-            </PlaceCarousel>
-            {sharedPriceNote && (
-              <p id="home-price-note" className={styles.priceNote}>
-                {sharedPriceNote}
-              </p>
-            )}
-          </>
+            </CityRow>
+          ))
         ) : (
-          <div className={styles.empty}>
-            <h3>
-              {listingResult === null
-                ? 'Places are temporarily unavailable'
-                : 'No places to show yet'}
-            </h3>
-            <p>
-              {listingResult === null
-                ? 'Places could not load right now. Search to check current availability.'
-                : 'Try a search to explore places for your next visit.'}
-            </p>
-            <Link href="/search" className={styles.textLink}>
-              Search places <ArrowUpRight size={20} aria-hidden="true" />
-            </Link>
-          </div>
+          <p className="mt-6 text-body text-ink-600">
+            Places could not load right now.{' '}
+            <Link href="/search" className="underline">
+              Search places
+            </Link>{' '}
+            to check current availability.
+          </p>
         )}
+        {sharedPriceNote ? (
+          <p className="mt-8 border-t border-border pt-4 text-tiny text-ink-500">
+            {sharedPriceNote}
+          </p>
+        ) : null}
       </section>
-      <TripPicker cities={registry.cities} category={farmhouse?.slug} />
-      <section className={styles.section} aria-labelledby="booking-heading">
-        <div className={styles.closing}>
-          <h2 id="booking-heading">
-            Less guesswork.
-            <br />
-            More looking forward.
-          </h2>
-          <ol>
-            <li>
-              <span>01</span>
-              <div>
-                <strong>Find a place that fits</strong>
-                <p>Explore photos, amenities and house rules before you choose.</p>
-              </div>
-            </li>
-            <li>
-              <span>02</span>
-              <div>
-                <strong>Make it your kind of visit</strong>
-                <p>Select dates, a day or overnight slot, and the people coming along.</p>
-              </div>
-            </li>
-            <li>
-              <span>03</span>
-              <div>
-                <strong>Know the total before you book</strong>
-                <p>Review rent, guest charges, platform fees and separate deposit terms.</p>
-              </div>
-            </li>
-          </ol>
+
+      <OccasionPicker cities={registry.cities} category={farmhouse?.slug} />
+
+      {farmhouse && registry.cities.length > 0 ? (
+        <section className="mx-auto max-w-(--container-page) px-6 pb-12">
+          <h2 className="text-h3">Explore by city</h2>
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {registry.cities.map((city) => (
+              <li key={city.slug}>
+                <Link
+                  href={`/${city.slug}/${farmhouse.slug}`}
+                  className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-border bg-card px-4 text-meta font-medium text-ink-700 transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800"
+                >
+                  <MapPin className="size-4 text-brand-600" aria-hidden="true" />
+                  {city.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      <section className="mx-auto max-w-(--container-page) px-6 pb-4">
+        <div className="flex flex-col items-start justify-between gap-4 rounded-lg bg-brand-50 px-6 py-6 sm:flex-row sm:items-center sm:px-8">
+          <div>
+            <h2 className="text-h3 text-brand-900">Own a farmhouse or villa?</h2>
+            <p className="mt-1 text-meta text-ink-600">
+              List it on Rentra and manage bookings, prices and payouts in one place.
+            </p>
+          </div>
+          <Link
+            href="/partner/login"
+            className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-brand-600 px-5 text-meta font-semibold text-white transition-colors hover:bg-brand-700"
+          >
+            List your place
+            <ArrowRight className="size-4" aria-hidden="true" />
+          </Link>
         </div>
       </section>
-    </div>
+    </>
   );
 }
