@@ -5,7 +5,7 @@ import CheckboxCard from '@/components/ui/checkbox-card';
 
 import Link from '@/components/navigation/NavigationLink';
 import { useRef, useState } from 'react';
-import { Info, Lock } from 'lucide-react';
+import { Info, Lock, ChevronDown } from 'lucide-react';
 import { useBookingQuote } from './BookingQuoteProvider';
 import { formatINRMinor } from '@/lib/domain/booking-money';
 import { formatLocalDate } from '@/lib/domain/booking-dates';
@@ -87,10 +87,17 @@ export default function QuoteSummary({ compact = false, onChooseDates }) {
       {quote ? (
         <>
           {showVisits ? (
-            <details className="mb-3 border-b border-border pb-2" open={compact ? undefined : true}>
-              <summary className="min-h-10 cursor-pointer py-2 text-sm font-semibold text-ink-700">
+            <details
+              className="group mb-3 border-b border-border pb-2"
+              open={compact ? undefined : true}
+            >
+              <summary className="flex min-h-10 cursor-pointer list-none items-center justify-between gap-2 py-2 text-sm font-semibold text-ink-700 [&::-webkit-details-marker]:hidden">
                 {quote.visits.length} visit{quote.visits.length === 1 ? '' : 's'} · View dates &
                 hours
+                <ChevronDown
+                  className="size-4 transition-transform duration-150 group-open:rotate-180"
+                  aria-hidden="true"
+                />
               </summary>
               <ul className="mt-1 space-y-2.5 text-meta">
                 {quote.visits.map((visit) => (

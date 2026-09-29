@@ -166,9 +166,13 @@ async function MarketingFooter() {
         </div>
 
         <div className="mt-8 flex flex-col gap-3 border-t border-forest-line pt-5 text-tiny text-paper/60 md:flex-row md:items-center md:justify-between">
-          <nav aria-label="Legal policies" className="flex flex-wrap gap-x-5 gap-y-2">
+          <nav aria-label="Legal policies" className="flex flex-wrap gap-x-5">
             {['terms', 'cancellation', 'privacy'].map((kind) => (
-              <Link key={kind} href={`/policies/${kind}`} className="hover:text-white">
+              <Link
+                key={kind}
+                href={`/policies/${kind}`}
+                className="inline-flex min-h-6 items-center hover:text-white"
+              >
                 {kind[0].toUpperCase() + kind.slice(1)} policy
               </Link>
             ))}

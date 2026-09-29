@@ -6,21 +6,19 @@ import Link from '@/components/navigation/NavigationLink';
 import { ChevronDown, MapPin, Plus, Search, SlidersHorizontal, X } from 'lucide-react';
 import { addLocalDays, formatLocalDate, propertyToday } from '@/lib/domain/booking-dates';
 import { measureBrowser } from '@/lib/domain/browser-measurement';
+import { SLOTS } from '@/lib/domain/pricing';
 
 /* 16px text below lg so iOS does not zoom into a focused field. */
 const control =
   'mt-1 min-h-11 w-full rounded-md border border-border bg-white px-3 py-2 text-base text-ink-900 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100 lg:text-meta';
 /* Inside the search bar on desktop, cells match the home SearchBar. */
 const cell =
-  'font-medium lg:min-w-0 lg:flex-1 lg:border-r lg:border-border lg:px-5 lg:py-2.5 lg:text-tiny lg:font-bold lg:tracking-wider lg:text-ink-700 lg:uppercase lg:transition-colors lg:hover:bg-ink-50';
-const barControl = `${control} lg:mt-0.5 lg:min-h-8 lg:border-0 lg:bg-transparent lg:p-0 lg:font-normal lg:tracking-normal lg:normal-case lg:focus:ring-0`;
+  'font-medium xl:min-w-0 xl:flex-1 xl:border-r xl:border-border xl:px-5 xl:py-2.5 xl:text-tiny xl:font-bold xl:tracking-wider xl:text-ink-700 xl:uppercase xl:transition-colors xl:hover:bg-ink-50';
+const barControl = `${control} xl:mt-0.5 xl:min-h-8 xl:border-0 xl:bg-transparent xl:p-0 xl:font-normal xl:tracking-normal xl:normal-case xl:focus:ring-0`;
 const chip =
   'inline-flex min-h-10 items-center gap-2 rounded-full border border-border bg-card px-4 font-semibold text-ink-800 transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800 aria-expanded:border-brand-300 aria-expanded:bg-brand-50 aria-expanded:text-brand-800';
-const slots = [
-  ['day', 'Day visit'],
-  ['night', 'Overnight'],
-  ['full_day', 'Full day'],
-];
+// One source for slot names (B10): the same labels as the booking box.
+const slots = Object.values(SLOTS).map((slot) => [slot.id, slot.label]);
 
 export default function DiscoveryFilters({ filters, registry, route, path }) {
   const today = propertyToday();
@@ -120,12 +118,12 @@ export default function DiscoveryFilters({ filters, registry, route, path }) {
 
       <div id="discovery-search-fields" className={editing ? 'mt-3 lg:mt-0' : 'max-lg:hidden'}>
         <div
-          className={`grid grid-cols-2 gap-3 rounded-xl border border-border bg-card p-3 shadow-sm lg:flex lg:items-stretch lg:gap-0 lg:overflow-hidden lg:p-0 lg:pl-1 ${
+          className={`grid grid-cols-2 gap-3 rounded-xl border border-border bg-card p-3 shadow-sm lg:grid-cols-3 lg:items-end xl:flex xl:items-stretch xl:gap-0 xl:overflow-hidden xl:p-0 xl:pl-1 ${
             // Several date rows make the bar tall; a pill would clip its corners.
-            mode === 'separate' ? '' : 'lg:rounded-full'
+            mode === 'separate' ? '' : 'xl:rounded-full'
           }`}
         >
-          <label className={`col-span-2 ${cell}`}>
+          <label className={`col-span-2 ${cell} lg:col-span-1`}>
             Where
             {route?.city ? (
               <span className={`${barControl} flex items-center gap-2 bg-ink-50`}>
@@ -190,7 +188,7 @@ export default function DiscoveryFilters({ filters, registry, route, path }) {
             </select>
           </label>
 
-          <div className={`col-span-2 ${cell} lg:flex-[1.4]`}>
+          <div className={`col-span-2 ${cell} lg:col-span-1 xl:flex-[1.4]`}>
             {mode === 'single' && (
               <label className="block">
                 Visit date
@@ -283,7 +281,7 @@ export default function DiscoveryFilters({ filters, registry, route, path }) {
             )}
           </div>
 
-          <label className={`col-span-2 ${cell} lg:max-w-32 lg:border-r-0`}>
+          <label className={`col-span-2 ${cell} lg:col-span-1 xl:max-w-32 xl:border-r-0`}>
             Guests
             <input
               type="number"
@@ -295,7 +293,7 @@ export default function DiscoveryFilters({ filters, registry, route, path }) {
             />
           </label>
 
-          <div className="col-span-2 lg:flex lg:items-center lg:p-2">
+          <div className="col-span-2 lg:col-span-1 xl:flex xl:items-center xl:p-2">
             <button
               className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-brand-600 px-6 font-semibold whitespace-nowrap text-white transition-colors hover:bg-brand-700"
               type="submit"

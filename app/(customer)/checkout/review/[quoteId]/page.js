@@ -47,7 +47,7 @@ export default async function CheckoutReviewPage({ params }) {
           </aside>
           <div className="min-w-0 space-y-5 lg:col-start-1 lg:row-start-1">
             <PropertyHeader data={data} className="lg:hidden" />
-            <section className="rounded-2xl border border-border bg-card p-5 sm:p-8">
+            <section className="rounded-lg border border-border bg-card p-5 sm:p-8">
               <span className="grid size-12 place-items-center rounded-full bg-brand-50 text-brand-700">
                 <UserRound className="size-6" aria-hidden="true" />
               </span>

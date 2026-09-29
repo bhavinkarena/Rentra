@@ -285,13 +285,13 @@ QA tooling (scratch, not committed until Phase 2.3 decides): `shoot.mjs` (390/14
 - [x] Phase 6 — Listing details (6.1 · 6.2 · 6.3 · 6.4 reviewed · 6.5) — awaiting owner review (D4)
 - [x] Phase 7 — Checkout (7.1 · 7.2)
 - [x] Phase 8 — Auth & account (8.1 · 8.2 · 8.3) — awaiting owner review (D4)
-- [ ] Phase 9 — Records (9.1 · 9.2 · 9.3 · 9.4)
-- [ ] Phase 10 — Content pages
-- [ ] Phase 11 — Motion & micro-interactions
-- [ ] Phase 12 — Responsive refinement
-- [ ] Phase 13 — Accessibility & web guidelines
-- [ ] Phase 14 — Playwright journey QA
-- [ ] Phase 15 — Final polish
+- [x] Phase 9 — Records (9.1 · 9.2 · 9.3 · 9.4) — awaiting owner review (D4)
+- [x] Phase 10 — Content pages (saved · help · help history · policies) — awaiting owner review (D4)
+- [x] Phase 11 — Motion & micro-interactions
+- [x] Phase 12 — Responsive refinement
+- [x] Phase 13 — Accessibility & web guidelines
+- [x] Phase 14 — Playwright journey QA
+- [x] Phase 15 — Final polish
 
 ## Decisions
 
@@ -309,18 +309,18 @@ QA tooling (scratch, not committed until Phase 2.3 decides): `shoot.mjs` (390/14
 
 ## Issues / Blockers
 
-| #   | Type        | Issue                                                                                                                                                                                                                                                     | Status                                                                                                                      |
-| --- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| B1  | Environment | Production API (`rentra-backend-ktsv.onrender.com`) rejects browser CORS from local origins, so client-side reads (listing availability, saved sync) fail in local QA.                                                                                    | Resolved by D8: local API on :4100 with `CORS_ORIGINS` for the QA web origin.                                               |
-| B2  | Environment | Customer pages need an authenticated customer session; real login needs OTP.                                                                                                                                                                              | Resolved by D8 (see Phase 2 log → QA harness).                                                                              |
-| B3  | Data        | Tramba Countryside Estate looked photo-less in Phase 1.                                                                                                                                                                                                   | **Resolved (Phase 4):** capture artefact — photo and occasion image load after scrolling; no missing/broken images on home. |
-| B4  | Product     | Dispute "new" without booking context asks for a raw order ID. A booking picker is frontend-only if the bookings list read suffices — confirm in Phase 9.4.                                                                                               | Open                                                                                                                        |
-| B5  | Content     | Policy content is titled "Test booking terms" (content from API).                                                                                                                                                                                         | Not a UI issue; note for owner.                                                                                             |
-| B7  | Environment | The Mac's disk filled up during Phase 2 (228 GB disk, ~140 MB free). `.next/dev` alone is 4.2 GB and `.next/cache` 958 MB. Run only one QA dev server at a time and delete its distDir when done.                                                         | Owner to free space; keep an eye on `df -h /`.                                                                              |
-| B8  | UX          | During an API outage `SavedPlacesProvider` shows a floating red-bordered "Could not reach the server… Retry saved places" box over the footer on every public/customer page (pre-existing; off-system styling and position).                              | Phase 10 (saved).                                                                                                           |
-| B9  | UX          | Customer-layout outage fallback (`PortalState`) now sits inside the site chrome, so the header shows "Log in" because the session could not be read. Acceptable; revisit if the owner objects.                                                            | Open                                                                                                                        |
-| B10 | Copy        | "Day visit" (search filters/chips) vs "Day picnic" (home chips, booking box, visit hours) name the same slot.                                                                                                                                             | Ask owner which label to use everywhere.                                                                                    |
-| B6  | Product     | Customer-facing copy that exposes Test/provider/staff wording (payment-methods "Razorpay Test", cancel "Actual bank refund: ₹0", disputes intro, notifications "accepted by provider") is factual legal/operational text. Rewording needs owner approval. | Ask owner in Phase 8/9.                                                                                                     |
+| #   | Type        | Issue                                                                                                                                                                                                                                                     | Status                                                                                                                                                                                                                           |
+| --- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| B1  | Environment | Production API (`rentra-backend-ktsv.onrender.com`) rejects browser CORS from local origins, so client-side reads (listing availability, saved sync) fail in local QA.                                                                                    | Resolved by D8: local API on :4100 with `CORS_ORIGINS` for the QA web origin.                                                                                                                                                    |
+| B2  | Environment | Customer pages need an authenticated customer session; real login needs OTP.                                                                                                                                                                              | Resolved by D8 (see Phase 2 log → QA harness).                                                                                                                                                                                   |
+| B3  | Data        | Tramba Countryside Estate looked photo-less in Phase 1.                                                                                                                                                                                                   | **Resolved (Phase 4):** capture artefact — photo and occasion image load after scrolling; no missing/broken images on home.                                                                                                      |
+| B4  | Product     | Dispute "new" without booking context asked for a raw order ID.                                                                                                                                                                                           | **Resolved (Phase 15):** customer `/disputes/new` lists the guest's paid bookings to pick from (frontend only, `customerApi.records`); the order-ID form remains only as the fallback if that read fails.                        |
+| B5  | Content     | Policy content is titled "Test booking terms" (content from API).                                                                                                                                                                                         | Not a UI issue; note for owner.                                                                                                                                                                                                  |
+| B7  | Environment | The Mac's disk filled up during Phase 2 (228 GB disk, ~140 MB free). `.next/dev` alone is 4.2 GB and `.next/cache` 958 MB. Run only one QA dev server at a time and delete its distDir when done.                                                         | Owner to free space; keep an eye on `df -h /`.                                                                                                                                                                                   |
+| B8  | UX          | Saved-places outage box was off-system red-bordered white.                                                                                                                                                                                                | **Resolved (Phase 10):** now a dark toast matching the "Removed from saved" undo toast, with a pill "Retry saved places".                                                                                                        |
+| B9  | UX          | Customer-layout outage fallback (`PortalState`) now sits inside the site chrome, so the header shows "Log in" because the session could not be read. Acceptable; revisit if the owner objects.                                                            | Open                                                                                                                                                                                                                             |
+| B10 | Copy        | "Day visit" (search filters/chips) vs "Day picnic" (home chips, booking box, visit hours) named the same slot.                                                                                                                                            | **Resolved (final check):** every customer slot label now comes from `SLOTS` in `lib/domain/pricing.js` ("Day picnic / Overnight / Full day"), including the search filters and chips. To rename the slot, change it once there. |
+| B6  | Product     | Customer-facing copy that exposes Test/provider/staff wording (payment-methods "Razorpay Test", cancel "Actual bank refund: ₹0", disputes intro, notifications "accepted by provider") is factual legal/operational text. Rewording needs owner approval. | Ask owner in Phase 8/9.                                                                                                                                                                                                          |
 
 ---
 
@@ -645,3 +645,295 @@ Competitor pattern: Airbnb, Booking.com and StayVista show a full-width swipeabl
 **Remaining Issues** — Customer-facing Test/provider wording is unchanged pending owner decision (B6). The login OTP dialog was not exercised (would need the dev OTP bypass on the QA stack) — do it in Phase 14.
 
 **Next Phase** — Owner review of Phase 8. Then Phase 9 Records (9.1 bookings list + detail · 9.2 again/cancel/reviews/report · 9.3 support · 9.4 disputes). Many of these components are shared with partner/admin — use customer-scoped props and screenshot partner/admin before and after.
+
+### Phase 9 — Records: bookings, cancel/again/reviews, support, disputes (complete, 29 Sep 2026 — awaiting owner review)
+
+**Completed**
+
+- `BookingDisplay.jsx` gets three shared pieces:
+  - `displayMoney`: whole rupees without ".00" and paise only when present. Bigint strings are coerced; anything non-integer shows "Not recorded".
+  - `StateBadge`: a state pill whose colour follows the state; underscores become spaces and the first letter is capitalised.
+  - Action pills: `linkClass` is now pill-shaped. Admin keeps its own `bookingMoney` (unchanged).
+- 9.1 `BookingHistory.jsx` (customer + owner lists):
+  - Cards: `rounded-xl`; on phones a 112 px thumbnail instead of a full-width photo (list height at 390 went from 3,721 to about 2,600 px).
+  - State shown with `StateBadge`; title `text-h4`; arrow stays beside the title; the reference is monospace and truncated.
+  - Removed the duplicate "View booking →" (the whole card is the link); pagination is hidden when there is one page; the search box and button are pills.
+- 9.1 `BookingRecords.jsx` → `BookingDetail` (customer + owner):
+  - Actions: the dispute link moved from above the status badge into one "Manage booking" row of 9 icon pills (calendar, summary, help, change, again, reviews, recovery, cancel, dispute). It is one swipeable row on phones.
+  - Header: guest count added to the header meta; the reference is monospace.
+  - Test notice is an info banner with an icon.
+  - Customer and purpose shown as icon rows.
+  - Price breakdown and payments are label/value rows with right-aligned amounts; "Total" and "Actual bank collection" are bold.
+  - Visits: "2026-09-30 · day · 1 guests" becomes "Wed, 30 Sept, 2026 · Day picnic · 1 guest". Visit state moved to the right. Arrival/departure/rent/deposit are shown as rows, and the timeline as ticked chips ("Created …", "Confirmed …").
+  - House rules as a ticked list; order timeline `<details>` with a chevron; `rounded-2xl/3xl` → `rounded-lg/xl`.
+  - The owner-only nav, notes, `VisitEvidence`/`VisitLifecycle` and `OwnerCases` are unchanged (verified in screenshots).
+- 9.2 Customer booking actions:
+  - `CancelVisits.jsx`: back link and the Test notice as an info banner. Visit rows show a formatted date, slot label and `StateBadge`, and highlight when checked. The preview is a card with right-aligned refunds. "Confirm cancellation" uses the danger colour. Help links are pills.
+  - Book again: the page gets a page header; `BookAgainForm` sits in a card. The slot options come from `SLOTS` ("Day picnic / Overnight / Full day"; was "Day / Night / Full day"). Slot and guests sit side by side; buttons are pills.
+  - Reviews: page header, `EmptyState` when nothing is eligible, and reviewed visits as cards with a star rating and a status badge.
+- 9.3 Support:
+  - `SupportRecords.jsx` (customer + owner): page header with "New support request" (primary) and "Help and contact details" (outline). The list is a divided list with an icon, subject, state badge, category and updated time; `EmptyState` when empty. The status filter wraps on phones (it overflowed at 390).
+  - Detail: back link, title + state badge, context card, conversation cards with the time on the right, and the reply form in a card.
+  - `SupportForms.jsx`: `rounded-lg` fields at 16 px on phones; pill buttons.
+  - `/support/new`: page header with back link, the booking or privacy context in a tinted banner, and the form in a card.
+- 9.4 Disputes (`components/disputes/Disputes.jsx`, used by customer, owner and admin):
+  - List: page header with an "Open a dispute" primary pill (was a bare link), pill filters, a divided list with icon, subject, state badge and type, and `EmptyState`.
+  - Detail: back link, title + badge, claim in bold, booking link as a pill, finance card with allocation rows, message cards with an audience badge, and the reply form in a card. The admin-only assignment and response-request `<details>` get chevrons.
+  - Times: customer and owner see India time; admin keeps UTC.
+  - `DisputeForms.jsx`: the form's own border was removed (it now sits in a card; it was a double box); fields and buttons are rounded.
+- **Bug fix:** the dispute form asked guests to type the claim "in paise" (typing 1000 recorded ₹10). The field is now "Claimed amount in ₹" (whole rupees, max ₹10,00,000). `lib/actions/disputes.js` converts rupees to `claimedMinor` paise before calling the unchanged API. Verified: 1500 → "₹1,500".
+
+**QA environment notes** (disposable DB only)
+
+- The local Postgres has no PostGIS, so booking detail failed with `function st_x(text) does not exist`. Added QA-only `st_x(text)`/`st_y(text)` SQL stand-ins to `rentra_cp02`. Production uses real PostGIS.
+- New untracked QA scripts `rentra-backend/.qa-token.mjs` and `.qa-admin-token.mjs` mint 1-day owner and admin sessions; both refuse any DB but the disposable one.
+
+**Verification**
+
+- Playwright functional (8/8), all against the QA backend:
+  - Booking detail shows 9 actions and the `.ics` download works.
+  - A support reply was saved.
+  - A new dispute with ₹1,500 was saved and shown correctly.
+  - Cancel: preview, then confirm, then "Visits cancelled".
+  - Book again reaches the quote review.
+  - No page errors.
+  - One support request and two disputes were created through the real customer forms.
+- axe WCAG 2.1 AA: 0 violations on 11 customer pages (bookings list/detail, support list/detail/new, disputes list/detail/new, cancel, again, reviews) at 390 and 1440. Owner booking detail, disputes list/detail and support, and admin disputes list/detail: 0 violations.
+- No horizontal overflow on any of the 20 customer captures.
+- lint clean; tests 36/36; Prettier clean; `next build` exit 0.
+- Screenshots: `.impeccable/redesign/phase-9/` (`before-*` = baseline, including owner `partner_*` and admin `admin_*`).
+
+**Remaining Issues**
+
+- Customer-facing Test/provider wording (for example "Actual bank refund: ₹0", "Provider order", "Payment (test): succeeded") is unchanged pending owner decision B6.
+- B10 (Day visit vs Day picnic): the Book again form now uses `SLOTS` labels ("Day picnic"), matching the booking box.
+- Admin support (`components/admin/AdminSupport.jsx`) is untouched; only its disputes screens changed (shared component).
+
+**Next Phase** — Owner review of Phase 9. Then Phase 10 Content pages.
+
+### Phase 10 — Content pages (complete, 29 Sep 2026 — awaiting owner review)
+
+**Completed**
+
+- `components/content/ContentBody.jsx` (public pages + admin content preview):
+  - New exported `FaqList`: one divider-separated bordered accordion. Native `<details>` (no JS), full-height summary, chevron that rotates in 150 ms, answer link with an arrow. Used by the help page and the help-history renderer.
+  - The contact block becomes an icon list (support requests, hours, email, WhatsApp, and a warning icon on the "not live chat" note).
+  - Policy sections get stable ids (`sectionId(i)` → `section-1…`), `text-h3` headings and softer body text.
+- `/help`:
+  - Search is one pill (icon, input, button) with a placeholder hint, 16 px text on phones and `role="search"`; the visible label became sr-only.
+  - The FAQ uses `FaqList`; no match shows an `EmptyState`.
+  - Policy links are icon pills.
+- `/policies/[kind]`:
+  - Back link; "Effective 21 Sept 2026" (formatted, `<time dateTime>`) instead of `2026-09-21T00:00:00.000Z`; version and permanent link on one line.
+  - A sticky "On this page" contents list on desktop (lg) links to each section; hidden on phones.
+  - "Ask Rentra about these policies" is a pill.
+- `/help/history/[kind]/[version]`: back link and formatted effective date.
+- `/saved` (`SavedPlaces.jsx`):
+  - Header with an "Explore places" pill when there are items; empty state uses `EmptyState` (heart icon, "No saved places yet", primary "Explore places").
+  - Cards follow the `ListingCard` rhythm: rounded 4:3 photo with hover zoom, area with pin, `text-h4` title. Grid is 1/2/3 columns (page widened to max-w-5xl).
+  - The saved selection shows with a calendar icon and `SLOTS` labels ("Day picnic"; was "Day visit").
+  - "Remove" is an icon button with a danger hover. The error box has danger tint and a retry pill.
+- B8 (`SavedPlacesProvider.jsx`): the outage box now matches the undo toast (dark, `rounded-lg`, shadow, pill retry).
+
+**Verification**
+
+- Playwright functional 11/11:
+  - Guest: empty state; saving 2 via the listing heart shows 2 on `/saved`; Remove leaves 1 and shows the undo toast.
+  - Signed-in: saving 3 shows 3.
+  - Help: search "refund" shows "N matching answers"; an FAQ opens; no match shows the empty state.
+  - Policy: date formatted; the contents link jumps to `#section-3`.
+  - No page errors.
+- axe WCAG 2.1 AA: 0 violations on `/help`, `/help?q=zzzqqq`, `/policies/terms`, `/policies/privacy`, `/help/history/help/2026-09-21`, and `/saved` (guest and signed-in) at 390 and 1440. No overflow on 16 captures.
+- lint clean; tests 36/36; Prettier clean; `next build` exit 0.
+- Screenshots: `.impeccable/redesign/phase-10/` (`before-*` = baseline).
+
+**Remaining Issues** — The admin content editor preview (`ContentEditor.jsx`) now shows the new `ContentBody` styling; it was not screenshotted (admin is out of scope; the preview should match the public page).
+
+**Next Phase** — Owner review of Phase 10. Then Phase 11 Motion & micro-interactions.
+
+### Phase 11 — Motion & micro-interactions (complete, 29 Sep 2026)
+
+**Audit** — Already right:
+
+- the global `prefers-reduced-motion` rule in `globals.css`;
+- 150–200 ms colour and chevron transitions from Phases 4–10;
+- photo hover zoom;
+- the one-shot confirmation tick and ripple (`animate-draw`/`animate-ripple`);
+- the navigation progress bar;
+- no scroll-triggered reveals and no autoplay.
+
+Gaps: the calendar dialog, map dialog, photo lightbox, booking review sheet and toasts appeared with no transition; accordions jumped open; three disclosures still showed the browser's native triangle. The locked home pieces (`HeroPhotos` 700 ms crossfade, `OccasionPicker`, `ListingCard` 300 ms zoom) were left unchanged (D2).
+
+**Completed**
+
+- Radix dialogs (`AvailabilityPicker` calendar, `LocationMap` expanded map): the overlay fades; the content fades and scales in from 95% in 200 ms ease-out and back out in 150 ms (`tw-animate-css` `data-[state]` utilities).
+- `PhotoGallery` lightbox fades in over 200 ms.
+- `MobileBookingBar` "Your visits" sheet (`<dialog>`): new `.sheet-dialog` class slides up 1.5 rem and fades in over 200 ms, with a backdrop fade, using `@starting-style` (no JS, progressive).
+- Accordions (`details.group` — FAQ, order timeline, profile preferences, dispute admin panels, quote visits, "Not offered", optional ratings): the answer grows open over 200 ms using `::details-content` + `interpolate-size: allow-keywords` (Chromium; other browsers open instantly).
+- Saved-places toasts (undo and outage) slide up 0.5 rem and fade in over 200 ms.
+- Native markers replaced with rotating chevrons: `QuoteSummary` "n visits · View dates & hours", listing amenities "Not offered (n)", review form "Optional ratings".
+- The new motion sits in `@media (prefers-reduced-motion: no-preference)`: the blanket reduced-motion rule does not reach `::details-content` or `::backdrop` (found by test).
+
+**Files Changed** — `app/globals.css`, `components/rentra/listing/{AvailabilityPicker,LocationMap,PhotoGallery,MobileBookingBar,QuoteSummary,ListingSections}.jsx`, `components/customer/{SavedPlacesProvider,ReviewForms}.jsx`.
+
+**Verification**
+
+- Playwright, 10/10 in each mode:
+  - Normal motion: calendar dialog animation 0.2 s; lightbox 0.2 s; accordion height still growing at 80 ms (168 → 245 px); the booking sheet's opacity is 0.49 at 60 ms and 1 at 460 ms.
+  - `reducedMotion: 'reduce'`: calendar and lightbox durations are 0.01 ms; the accordion is at full height immediately.
+  - Dialogs still close; no page errors.
+- The phone journey through the review sheet still reaches the quote review.
+- axe WCAG 2.1 AA: 0 violations on `/help` and a listing at 390/1440.
+- lint clean; tests 36/36; Prettier clean; `next build` exit 0; the built CSS contains the `details-content` and `.sheet-dialog` rules.
+
+**Remaining Issues** — Custom pill links (not the shadcn `Button`) have no press-scale feedback; the colour change on hover and focus is there. Add `active:scale-[0.98]` in Phase 15 if the owner wants a tactile press.
+
+**Next Phase** — Phase 12 Responsive refinement.
+
+### Phase 12 — Responsive refinement (complete, 29 Sep 2026)
+
+**Sweep** — 21 customer pages × 5 widths (320, 375, 768, 1024, 1920) on the QA stack, signed in. The pages: home, search, location, listing, bookings list/detail/cancel/again, support list/detail/new, disputes list/detail, account, notifications, privacy, phone, saved, help, terms, 404. Script `p12sweep.mjs` checks, per page and width, for page-level horizontal overflow and for any element poking past the viewport (excluding intended horizontal scrollers). **Result: 0 issues in 105 combinations.** Full-page captures at 320/768/1920, plus viewport captures at 320/768/1024/1280/1920 for key pages, were reviewed by eye.
+
+**Found and fixed**
+
+- `/search` at 1024–1279 px: the one-line desktop bar (from `lg`) squeezed six cells into 976 px. "Consecutive visits" clipped to "Consecutive vi" and the two date inputs showed "dd/mm/".
+- Fix in `components/rentra/DiscoveryFilters.jsx`:
+  - The pill bar now starts at `xl` (1280). The cell and bar-control classes and the container's `flex`/`rounded-full` moved from `lg:` to `xl:`.
+  - From `lg` to `xl` the fields form a 3-column card: Where · Visit type · Date choice, then Dates · Guests · Show places.
+  - Phones and tablets (< `lg`) keep the collapsed summary pill (unchanged). Field names, form behaviour and the Filters panel are unchanged.
+
+**Checked, no change needed**
+
+- 320: header icon nav, home hero + search, search summary pill + sort, listing swipe gallery + facts, booking detail header.
+- 768: listing mosaic + facts + bottom booking bar; search 2-column grid.
+- 1920: content capped at `--container-page`, centred.
+
+**Verification**
+
+- Search functional suite (Phase 5) against the live API: 15/15, including the mobile collapsed-field checks.
+- Laptop-width sweep of `/search` (plain, consecutive and separate-date modes) and `/mehsana/farmhouse` at 1024/1100/1279/1280: 0 issues.
+- axe WCAG 2.1 AA: 0 violations on `/search` and `/search?mode=consecutive` at 1024 and 1280.
+- lint clean; tests 36/36; Prettier clean; `next build` exit 0.
+- Screenshots: `.impeccable/redesign/phase-12/` (`vp-search-1024.png` before, `vp-search-1024-after.png`/`vp-search-1280-after.png` after; `*-768.png` tablet full pages).
+
+**Next Phase** — Phase 13 Accessibility & web guidelines.
+
+### Phase 13 — Accessibility & web guidelines (complete, 29 Sep 2026)
+
+**Audit beyond axe AA** (`p13audit.mjs`, 390 px; 23 signed-in pages + 5 guest pages) checks:
+
+- axe with WCAG 2.0/2.1/2.2 AA + best-practice;
+- exactly one h1 and no skipped heading levels in `main`;
+- tap targets under 24×24 px (WCAG 2.5.8, inline-sentence links excepted);
+- images without `alt`; `lang`; duplicate page titles;
+- a visible focus indicator on the first 12 Tab stops.
+
+Keyboard flows are covered separately in `p13kbd.mjs`. Baseline output: `.impeccable/redesign/phase-13-audit-before.txt`.
+
+**Found and fixed**
+
+- **Focus lost on date inputs** (home search "When", Book again dates, and any `type=date`): Chrome drops `:focus-visible`/`:focus` while the calendar icon inside the input has focus, so no ring showed. Fixed in `globals.css`: the global focus rule also matches `input:is([type=date],[type=time],[type=datetime-local]):focus-within`.
+- **Calendar dialog dropped focus to `<body>` on close** (no `Dialog.Trigger`; the opener re-renders while dates load). Fixed in `AvailabilityPicker.jsx`: `onOpenAutoFocus` remembers the opener and `onCloseAutoFocus` returns focus to it if it is still connected and enabled.
+- **Footer policy links 17 px tall** (under the 24 px target on every page): `SiteChrome.jsx` legal links are `min-h-6` (row gap removed to keep the same look).
+- Booking detail "Arrival details below" link was 21 px tall; now `min-h-6`.
+- **Home heading skip** (h1 → h3 in `TrustStrip`): the item titles were not section headings, so they are now `<p>` with the same classes. No visual change; home composition untouched (D2).
+- **Page titles:** the customer layout used "%s | Rentra" while public pages used "%s · Rentra"; now both use "·". The dispute detail had the same title as the list ("Disputes"); now "Dispute case".
+
+**Checked, not issues:** the skip link (1×1 until focused, then visible); the hidden file input (the label is the target); checkboxes 20 px inside full-width clickable labels; home search inputs inside full-height clickable cells; the Next dev overlay (`nextjs-portal`, dev only).
+
+**Verification**
+
+- Re-audit: 0 axe violations (2.2 AA + best-practice), one h1 on every page, no heading skips, no real sub-24 px targets, no missing alt, `lang="en"`, unique titles, focus ring on every checked Tab stop — signed in and as a guest.
+- Keyboard flows 10/10:
+  - The first Tab is the skip link; Enter then Tab lands inside `main`.
+  - An FAQ opens with Enter.
+  - The calendar dialog takes focus, traps it through 60 Tabs, and Esc closes it and returns focus to "Choose dates".
+  - The lightbox takes focus, Arrow keys move photos, and Esc returns focus.
+  - "Filters" toggles `aria-expanded` and the panel.
+- Checkout journey (1440) passes 4/4 after the calendar change.
+- lint clean; tests 36/36; Prettier clean; `next build` exit 0.
+
+**Files Changed** — `app/globals.css`, `components/rentra/listing/AvailabilityPicker.jsx`, `components/rentra/SiteChrome.jsx`, `components/rentra/TrustStrip.jsx`, `components/customer/BookingRecords.jsx`, `app/(customer)/layout.js`, `app/(customer)/disputes/[id]/page.js`.
+
+**Next Phase** — Phase 14 Playwright journey QA.
+
+### Phase 14 — Playwright journey QA (complete, 29 Sep 2026)
+
+**Journeys** (QA stack: disposable DB, fake Razorpay, dev OTP `123456`). Every step checks for page errors, console errors and 5xx responses.
+
+- **Guest → booking** (`p14guest.mjs`, 390 and 1440, a new phone number each run): home search "Kamrej" → results → listing → calendar → date → "Log in to book" → `/login` → phone → OTP dialog → 123456 → `/onboarding` (name) → back on the same listing with the selection kept → deposit tick → review → purpose + terms → hold → Pay → "You're all set!" → `/bookings` shows the booking. **10/10 at both widths**, no console, page or 5xx errors.
+- **Error states** (`p14states.mjs`), closing Phase 7/8 open items:
+  - A wrong OTP shows "The code is invalid or expired…".
+  - Price hold expiry (client clock +11 min) shows the expired state with Continue disabled.
+  - Razorpay `payment.failed` then window closed shows "Payment window closed. Check status before retrying…" and Pay can be used again.
+  - 7/7 pass.
+- **Photo counts** (Phase 6 open item): three listings temporarily set to 0/1/2 photos in the disposable DB (restored afterwards). 1 photo: single image, no counter; 2 photos: 2fr/1fr mosaic; 0 photos: placeholder. axe clean.
+- **Regression suite:** account (4), records (7), content (11), motion (10), keyboard (10). On the live API: search (15) and listing (9). **All pass (93 checks in total incl. journeys).**
+
+**Found and fixed**
+
+- **Expired price was easy to miss:** only grey text under a disabled button at the bottom of the review page, with no way forward. `Checkout.jsx`:
+  - When a review quote's hold runs out, a warning `StatusBanner` appears at the top: "This price expired", the existing `QUOTE_EXPIRED` copy, and a "Choose dates again" button back to the listing.
+  - The phone bottom bar swaps the disabled "Continue" for the same button.
+  - The button icon keeps its white colour (`text-current!`) inside the tinted banner.
+- **Phone calendar opened on a fully-booked month:** on 29 Sep every listing's September was taken, and phones show one month, so no open day was visible and the guest had to find "Next month". `AvailabilityPicker.jsx`: when no date is chosen and the current month has no open day for the slot, it opens once on the next month. Manual Previous/Next stops the auto-advance.
+- **No-photo placeholder** read "PHOTOS PENDING" (tracked caps): `PhotoGallery.jsx` now shows an image-off icon and "Photos coming soon" (the `ListingCard` wording), at the mosaic's 8:3 height on desktop.
+
+**QA scripts** are kept outside the repo in `../qa-redesign-scripts/` (so lint ignores them), to be run from the scratch folder that has `tokens.json`/`qa.env` against the QA stack described in Phase 7.
+
+**Verification** — lint clean; tests 36/36; Prettier clean; `next build` exit 0. Screenshots: `.impeccable/redesign/phase-14/` (journey steps `390-*`, `1440-*`; `state-*`; `photos-*`).
+
+**Remaining Issues** — Seed listings "Riverside Farm with private pool" and "Palm Court Lawn & Villa" have no owner-confirmed calendar locally ("The owner needs to confirm the booking calendar."); data, not UI.
+
+**Next Phase** — Phase 15 Final polish.
+
+### Phase 15 — Final polish (complete, 29 Sep 2026)
+
+**Completed**
+
+- **Shape sweep (D6/DESIGN.md Shapes):** every `rounded-2xl`/`rounded-t-2xl` in customer scope became `rounded-lg`/`rounded-t-lg`. Tailwind `2xl` = 16 px = runtime `lg`, so there is **no visual change**; only the inverted-scale class is removed. Files: checkout (`Checkout.jsx`, `checkout/{parts,ConfirmedView,PaymentVerification}.jsx`, review page), account hub, calendar and map dialogs.
+- Bare `rounded` in customer scope: quote-loading skeleton bars → `rounded-full`; `ReviewForms.jsx` field → `rounded-md` (16 px text on phones), buttons → pills, report box → `rounded-lg`. `NotificationControls.jsx` (admin-only) left alone.
+- **B4 resolved:** `app/(customer)/disputes/new/page.js` without `?order=` shows "Choose the booking this is about" — a divided list of the guest's bookings (icon, title, `StateBadge`, date, reference, chevron). Unpaid `expired`/`held` orders are filtered out and an `EmptyState` shows when none are left. Picking one opens the existing dispute form. Owner and admin `NewDispute` are unchanged.
+- `DESIGN.md` documents the patterns this redesign introduced:
+  - `StateBadge` tones; `PageHeader`/`BackLink`; the record-list anatomy; label/value money rows with `displayMoney`; swipeable action rows; customer date/slot formatting.
+  - `<details class="group">` disclosures and `FaqList`; the three-stage `DiscoveryFilters` layout; `EmptyState` and expired-flow banners.
+  - The motion inventory with its reduced-motion rule; the 24 px target and date-input focus rule.
+- QA scripts moved to `../qa-redesign-scripts/` (outside the repo) because ESLint does not honour `.gitignore` and was linting them.
+
+**Verification**
+
+- Dispute picker (`p15pick.mjs`): lists 5 paid bookings (11 before filtering) and picking one opens the dispute form. axe clean at 390/1440; no overflow.
+- Full regression, all pass: guest journey 390/1440 (10+10), error states (7), account (4), records (7), content (11), motion (10), keyboard (10).
+- lint clean; tests 36/36; Prettier clean (app, components, DESIGN.md); `next build` exit 0.
+- Working tree: 43 files changed (+1,671 / −800), uncommitted.
+
+## Final status (29 Sep 2026)
+
+All 15 phases are complete. Every customer-facing route was redesigned or reviewed against the owner-approved home look (D1). The home composition stayed locked (D2), apart from the owner-requested removal of the "Explore places" header (D11).
+
+**Owner review still pending** for Phases 5, 6, 8, 9 and 10 (composition changes, D4). **Open decisions for the owner:**
+
+- **B6** — customer-facing Test/provider wording ("Actual bank refund: ₹0", "Provider order", "Payment (test): succeeded", "SMS: pending").
+- **Press feedback** — optional `active:scale-[0.98]` on custom pill links (Phase 11 note).
+
+**Not changed by design:** admin and owner portals, except the shared components (booking records, support, disputes — screenshotted before/after in Phase 9); APIs (the only data change is the rupee-to-paise conversion in the dispute _form action_, sending the same `claimedMinor` field).
+
+## Final verification (29 Sep 2026)
+
+Run after "check everything and make final complete".
+
+- **Code review** (independent reviewer over the full uncommitted diff, looking only for correctness): no issues. It checked that form fields still submit, owner/admin paths through the shared components are unchanged, there are no runtime or formatting errors, and server/client boundaries are correct.
+- **B10 closed:** `DiscoveryFilters.jsx` and `DiscoveryResults.jsx` now derive slot labels from `SLOTS`; no "Day visit" string remains in `app`, `components` or `lib`.
+- **Responsive sweep:** 29 pages × 5 widths (320/375/768/1024/1920), signed in — 0 overflow or off-screen issues in 145 combinations.
+- **Deep accessibility audit** (axe WCAG 2.0–2.2 AA + best-practice; one h1; heading order; ≥24 px targets; alt; lang; focus ring on Tab) on the same 29 pages signed in plus 7 guest pages: clean. The only duplicate titles are the same page with different query parameters.
+- **Functional suites, QA stack** (disposable DB, fake Razorpay, OTP 123456), 75/75:
+  - Guest journey 390/1440 (10+10).
+  - Error states (7), account (4), records incl. cancel and rupee dispute (7), content (11), motion + reduced motion (10), keyboard (10), dispute picker (2).
+  - Checkout journey (4).
+- **Live API suites:**
+  - Search: 15/15.
+  - Listing: 9/9 (three runs). The one intermittent failure seen first was test timing: closing the photo viewer correctly returns focus to its opener, which scrolls it into view, while the test was scrolling away. The test now waits 400 ms.
+  - Home: 0 broken images; axe clean on home, search and listing.
+- **Static:** lint clean; tests 36/36; Prettier clean; `next build` exit 0.
+
+**Left for the owner:** review of the composition phases (5, 6, 8, 9, 10); B6 Test/provider wording; optional press-scale feedback. Nothing is committed. Two untracked QA-only files remain in `rentra-backend` (`.qa-token.mjs`, `.qa-admin-token.mjs`); both refuse any database except the disposable one.

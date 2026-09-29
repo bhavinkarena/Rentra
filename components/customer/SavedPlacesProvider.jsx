@@ -282,10 +282,13 @@ export default function SavedPlacesProvider({ children }) {
       {error && pathname !== '/saved' ? (
         <div
           role="alert"
-          className="fixed inset-x-4 bottom-20 z-[70] mx-auto max-w-md rounded-md border border-danger bg-card p-4 text-ink-900"
+          className="fixed inset-x-4 bottom-20 z-[70] mx-auto flex max-w-md items-center justify-between gap-4 rounded-lg bg-ink-900 p-4 text-meta text-white shadow-lg animate-in duration-200 ease-out fade-in slide-in-from-bottom-2"
         >
-          {error}
-          <button onClick={refresh} className="ml-3 min-h-11 underline">
+          <span>{error}</span>
+          <button
+            onClick={refresh}
+            className="min-h-10 shrink-0 rounded-full bg-white/10 px-4 font-semibold transition-colors hover:bg-white/20"
+          >
             Retry saved places
           </button>
         </div>
@@ -293,7 +296,7 @@ export default function SavedPlacesProvider({ children }) {
       {undo && current ? (
         <div
           role="status"
-          className="fixed inset-x-4 bottom-5 z-[70] mx-auto flex max-w-md items-center justify-between gap-4 rounded-md bg-ink-900 p-4 text-white shadow-lg"
+          className="fixed inset-x-4 bottom-5 z-[70] mx-auto flex max-w-md items-center justify-between gap-4 rounded-lg bg-ink-900 p-4 text-white shadow-lg animate-in duration-200 ease-out fade-in slide-in-from-bottom-2"
         >
           <span>Removed from saved</span>
           <button

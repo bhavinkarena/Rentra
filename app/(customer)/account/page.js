@@ -51,7 +51,7 @@ export default async function AccountPage() {
           <Link
             href={href}
             key={href}
-            className="group rounded-2xl border border-border bg-card p-5 transition hover:border-brand-300 hover:shadow-sm"
+            className="group rounded-lg border border-border bg-card p-5 transition hover:border-brand-300 hover:shadow-sm"
           >
             <div className="mb-4 flex items-center justify-between">
               <span className="grid size-11 place-items-center rounded-xl bg-brand-50 text-brand-700">
@@ -65,7 +65,7 @@ export default async function AccountPage() {
         ))}
       </div>
       <div className="grid items-start gap-6 lg:grid-cols-[1.5fr_1fr]">
-        <section className="rounded-2xl border border-border bg-card p-5 sm:p-7">
+        <section className="rounded-lg border border-border bg-card p-5 sm:p-7">
           <div className="mb-6 flex items-center gap-3">
             <UserRound className="size-5 text-brand-700" />
             <h2 className="text-xl font-semibold">Personal details</h2>
@@ -75,7 +75,7 @@ export default async function AccountPage() {
           <ProfileForm account={account} />
         </section>
         <aside className="space-y-5">
-          <section className="rounded-2xl border border-border bg-card p-6">
+          <section className="rounded-lg border border-border bg-card p-6">
             <div className="flex items-center gap-3">
               <Smartphone className="size-5 text-brand-700" />
               <h2 className="font-semibold">Mobile number</h2>
@@ -92,7 +92,7 @@ export default async function AccountPage() {
               Change number
             </Link>
           </section>
-          <section className="overflow-hidden rounded-2xl border border-border bg-card">
+          <section className="overflow-hidden rounded-lg border border-border bg-card">
             <h2 className="px-6 pt-6 pb-3 font-semibold">Account settings</h2>
             {[
               ['/account/notifications', Bell, 'Notifications'],

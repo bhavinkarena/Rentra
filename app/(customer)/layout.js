@@ -7,7 +7,7 @@ import PortalState from '@/components/portal/PortalState';
 import { requireCustomer } from '@/lib/api/session';
 
 export const metadata = {
-  title: { default: 'Your account', template: '%s | Rentra' },
+  title: { default: 'Your account', template: '%s · Rentra' },
   robots: { index: false, follow: false, nocache: true },
 };
 

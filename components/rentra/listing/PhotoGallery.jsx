@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from '../PropertyImage';
-import { ChevronLeft, ChevronRight, Grid2x2, Images, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Grid2x2, ImageOff, Images, X } from 'lucide-react';
 
 /**
  * 1 large + 4 small, every photo in a lightbox.
@@ -83,8 +83,9 @@ export default function PhotoGallery({ photos = [], title }) {
 
   if (!count) {
     return (
-      <div className="grid aspect-video place-items-center rounded-lg bg-ink-100 text-tiny font-semibold tracking-widest text-ink-600 uppercase">
-        photos pending
+      <div className="flex aspect-video flex-col items-center justify-center gap-2 rounded-lg bg-ink-100 text-meta font-medium text-ink-600 sm:aspect-8/3">
+        <ImageOff className="size-6 text-ink-500" aria-hidden="true" />
+        Photos coming soon
       </div>
     );
   }
@@ -181,7 +182,7 @@ export default function PhotoGallery({ photos = [], title }) {
           ref={dialogRef}
           aria-modal="true"
           aria-label={`Photos of ${title}`}
-          className="fixed inset-0 z-100 flex flex-col bg-ink-900/95 backdrop-blur-sm"
+          className="fixed inset-0 z-100 flex flex-col bg-ink-900/95 backdrop-blur-sm animate-in duration-200 fade-in"
         >
           <div className="flex items-center justify-between gap-4 px-5 py-4 text-white">
             <p className="text-meta tabular">

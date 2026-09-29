@@ -3,6 +3,8 @@ import RentraLoader from '@/components/ui/rentra-loader';
 
 import { useActionState, useState } from 'react';
 import { bookAgain } from '@/lib/actions/customer';
+import { Plus } from 'lucide-react';
+import { SLOTS } from '@/lib/domain/pricing';
 import { recordOwnerVisit } from '@/lib/actions/partner';
 import { recordAdminVisit } from '@/lib/actions/admin';
 import { Outcome, PhotoField, useKeptInputAction } from '@/components/booking/EvidenceForms';
@@ -64,22 +66,25 @@ export function VisitLifecycle({ visit, requestKey, admin = false, action = null
   );
 }
 
+// Customer-only form (book the same place again).
+const field =
+  'mt-1 block min-h-11 w-full rounded-lg border border-border bg-card p-3 text-base font-normal sm:text-sm';
 export function BookAgainForm({ record }) {
   const [state, action, pending] = useActionState(bookAgain, {});
   const [dates, setDates] = useState(['']);
   return (
-    <form action={action} className="space-y-4">
+    <form action={action} className="space-y-5 rounded-lg border border-border bg-card p-4 sm:p-6">
       <input type="hidden" name="orderId" value={record.id} />
-      <p>
+      <p className="text-meta text-ink-600">
         Choose new dates. We will check current availability, hours, capacity, prices and terms
         before you review another booking.
       </p>
       {dates.map((date, i) => (
         <div key={i} className="flex items-end gap-2">
-          <label className="min-w-0 flex-1">
+          <label className="min-w-0 flex-1 text-meta font-medium">
             Visit date {i + 1}
             <input
-              className="block min-h-11 w-full rounded border border-border p-2"
+              className={field}
               required
               type="date"
               name="date"
@@ -90,7 +95,7 @@ export function BookAgainForm({ record }) {
           {dates.length > 1 ? (
             <button
               type="button"
-              className="min-h-11 underline"
+              className="min-h-11 rounded-full px-3 text-meta font-semibold text-ink-600 hover:bg-ink-50"
               onClick={() => setDates(dates.filter((_, n) => i !== n))}
             >
               Remove date {i + 1}
@@ -100,41 +105,49 @@ export function BookAgainForm({ record }) {
       ))}
       {dates.length < 10 ? (
         <button
-          className="min-h-11 underline"
+          className="inline-flex min-h-10 items-center gap-2 rounded-full border border-border px-4 text-meta font-semibold text-brand-700 hover:bg-brand-50"
           type="button"
           onClick={() => setDates([...dates, ''])}
         >
+          <Plus className="size-4" aria-hidden="true" />
           Add another date
         </button>
       ) : null}
-      <label className="block">
-        Visit type
-        <select
-          className="block min-h-11 rounded border border-border p-2"
-          name="slot"
-          defaultValue={record.visits[0]?.slot || 'day'}
-        >
-          <option value="day">Day</option>
-          <option value="night">Night</option>
-          <option value="full_day">Full day</option>
-        </select>
-      </label>
-      <label className="block">
-        Guests
-        <input
-          className="block min-h-11 rounded border border-border p-2"
-          name="guests"
-          type="number"
-          min={1}
-          max={500}
-          defaultValue={record.visits[0]?.guests || 1}
-          required
-        />
-      </label>
-      <button disabled={pending} className="min-h-11 rounded bg-brand-700 px-4 text-white">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="block text-meta font-medium">
+          Visit type
+          <select className={field} name="slot" defaultValue={record.visits[0]?.slot || 'day'}>
+            {Object.values(SLOTS).map((slot) => (
+              <option key={slot.id} value={slot.id}>
+                {slot.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block text-meta font-medium">
+          Guests
+          <input
+            className={field}
+            name="guests"
+            type="number"
+            min={1}
+            max={500}
+            defaultValue={record.visits[0]?.guests || 1}
+            required
+          />
+        </label>
+      </div>
+      <button
+        disabled={pending}
+        className="min-h-12 rounded-full bg-brand-700 px-6 font-semibold text-white transition-colors hover:bg-brand-800 disabled:opacity-50"
+      >
         {pending ? <RentraLoader label="Checking…" /> : 'Check new dates and prices'}
       </button>
-      {state.error ? <p role="alert">{state.error}</p> : null}
+      {state.error ? (
+        <p role="alert" className="rounded-lg bg-danger-bg p-3 text-meta">
+          {state.error}
+        </p>
+      ) : null}
     </form>
   );
 }

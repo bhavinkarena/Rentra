@@ -5,7 +5,7 @@ export default function PaymentVerification({ checking = false }) {
     <div
       role="status"
       aria-live="polite"
-      className="mt-5 rounded-2xl border border-brand-200 bg-brand-50/60 px-5 py-6 text-center sm:px-8"
+      className="mt-5 rounded-lg border border-brand-200 bg-brand-50/60 px-5 py-6 text-center sm:px-8"
     >
       <div
         aria-hidden="true"

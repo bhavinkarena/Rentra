@@ -115,7 +115,7 @@ export default function ConfirmedView({ data, checkout }) {
         </div>
       </header>
 
-      <article className="overflow-hidden rounded-2xl border border-border bg-card sm:grid sm:grid-cols-[220px_1fr]">
+      <article className="overflow-hidden rounded-lg border border-border bg-card sm:grid sm:grid-cols-[220px_1fr]">
         <StayPhoto
           photo={data.photo}
           title={data.title}
@@ -146,7 +146,7 @@ export default function ConfirmedView({ data, checkout }) {
             </>
           );
           const className =
-            'group flex flex-col items-center rounded-2xl border border-border bg-card px-3 py-4 text-center transition hover:border-brand-300 hover:shadow-md';
+            'group flex flex-col items-center rounded-lg border border-border bg-card px-3 py-4 text-center transition hover:border-brand-300 hover:shadow-md';
           return file ? (
             <a key={label} href={href} className={className}>
               {tile}
@@ -159,7 +159,7 @@ export default function ConfirmedView({ data, checkout }) {
         })}
       </nav>
 
-      <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
+      <section className="rounded-lg border border-border bg-card p-5 sm:p-6">
         <h2 className="text-h4">What happens next</h2>
         <ol className="mt-5">
           {steps.map(({ icon: Icon, title, text }, index) => (
@@ -183,13 +183,13 @@ export default function ConfirmedView({ data, checkout }) {
       </section>
 
       <div className="grid items-start gap-6 sm:grid-cols-2">
-        <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
+        <section className="rounded-lg border border-border bg-card p-5 sm:p-6">
           <PriceDetails quote={quote} paid />
           <div className="mt-4 border-t border-border pt-4">
             <SecureNote />
           </div>
         </section>
-        <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
+        <section className="rounded-lg border border-border bg-card p-5 sm:p-6">
           <h2 className="flex items-center gap-2 text-sm font-semibold text-ink-900">
             <ShieldCheck className="size-4 text-brand-700" aria-hidden="true" />
             Cancellation

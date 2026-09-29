@@ -2,7 +2,9 @@ import Form from '@/components/navigation/NavigationForm';
 import { publicMetadata } from '@/lib/seo/metadata';
 import Link from '@/components/navigation/NavigationLink';
 import { publicContent } from '@/lib/api/content';
-import ContentBody from '@/components/content/ContentBody';
+import ContentBody, { FaqList } from '@/components/content/ContentBody';
+import { EmptyState } from '@/components/ui/empty-state';
+import { FileText, Search, SearchX } from 'lucide-react';
 export async function generateMetadata({ searchParams }) {
   const filtered = Boolean((await searchParams)?.q);
   return publicMetadata({
@@ -29,53 +31,54 @@ export default async function Help({ searchParams }) {
     <article className="mx-auto max-w-3xl space-y-8 px-4 py-10">
       <header>
         <h1 className="text-h1">{help.body.title}</h1>
-        <p className="mt-3">{help.body.intro}</p>
+        <p className="mt-2 text-ink-600">{help.body.intro}</p>
       </header>
-      <Form action="/help" className="flex flex-wrap items-end gap-3">
-        <label className="min-w-0 flex-1">
+      <Form action="/help" role="search">
+        <label htmlFor="help-search" className="sr-only">
           Search help
+        </label>
+        <div className="flex items-center gap-2 rounded-full border border-border bg-card py-1.5 pr-1.5 pl-4 shadow-sm focus-within:border-brand-600">
+          <Search className="size-5 shrink-0 text-ink-400" aria-hidden="true" />
           <input
-            className="mt-1 block min-h-11 w-full rounded border border-border p-3"
+            id="help-search"
+            className="min-h-10 w-full min-w-0 bg-transparent text-base outline-none sm:text-sm"
             type="search"
             name="q"
             defaultValue={q}
             maxLength={100}
+            placeholder="Search help, for example refund"
           />
-        </label>
-        <button className="min-h-11 rounded bg-brand-700 px-5 text-white">Search help</button>
+          <button className="min-h-10 shrink-0 rounded-full bg-brand-700 px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-800">
+            Search help
+          </button>
+        </div>
       </Form>
       <section>
-        <h2 className="text-h3">{q ? `${results.length} matching answers` : 'Common questions'}</h2>
-        <div className="mt-4 space-y-3">
-          {results.map((f) => (
-            <details key={f.question} className="rounded-lg border border-border p-4">
-              <summary className="min-h-11 cursor-pointer font-semibold">{f.question}</summary>
-              <p className="mt-3">{f.answer}</p>
-              {f.href ? (
-                <Link
-                  className="mt-2 inline-flex min-h-11 items-center text-brand-700 underline"
-                  href={f.href}
-                >
-                  {f.link}
-                </Link>
-              ) : null}
-            </details>
-          ))}
-        </div>
-        {!results.length ? (
-          <p className="mt-4">No answer matched. Try another word or send a support request.</p>
-        ) : null}
+        <h2 className="mb-4 text-h3">
+          {q ? `${results.length} matching answers` : 'Common questions'}
+        </h2>
+        {results.length ? (
+          <FaqList faqs={results} />
+        ) : (
+          <EmptyState
+            as="h3"
+            icon={SearchX}
+            title="No answer matched."
+            description="Try another word or send a support request."
+          />
+        )}
       </section>
-      <div className="space-y-3 rounded-lg bg-brand-50 p-5">
+      <div className="rounded-lg bg-brand-50 p-5 sm:p-6">
         <ContentBody kind="contact" body={contactPublication.body} />
       </div>
-      <nav aria-label="Policies" className="flex flex-wrap gap-5">
+      <nav aria-label="Policies" className="flex flex-wrap gap-2">
         {['terms', 'cancellation', 'privacy'].map((kind) => (
           <Link
-            className="inline-flex min-h-11 items-center text-brand-700 underline"
+            className="inline-flex min-h-10 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-semibold text-ink-800 transition-colors hover:border-brand-300 hover:bg-brand-50"
             key={kind}
             href={`/policies/${kind}`}
           >
+            <FileText className="size-4 text-brand-700" aria-hidden="true" />
             {kind[0].toUpperCase() + kind.slice(1)} policy
           </Link>
         ))}

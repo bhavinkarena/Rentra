@@ -2,7 +2,8 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { disputeCommand } from '@/lib/actions/disputes';
-const field = 'block min-h-11 w-full rounded border border-border p-2';
+const field =
+  'mt-1 block min-h-11 w-full rounded-lg border border-border bg-card p-3 text-base focus:border-brand-600 focus:outline-none sm:text-sm';
 export const disputeBase = (kind) =>
   kind === 'admin' ? '/admin/disputes' : kind === 'owner' ? '/partner/disputes' : '/disputes';
 export function DisputeForm({ kind, command, record, context }) {
@@ -12,7 +13,7 @@ export function DisputeForm({ kind, command, record, context }) {
   const [requestKey, setRequestKey] = useState(() => crypto.randomUUID());
   return (
     <form
-      className="space-y-4 rounded border border-border p-4"
+      className="space-y-4 text-meta"
       onChange={() => {
         if (state.preview) setState({});
       }}
@@ -77,13 +78,15 @@ export function DisputeForm({ kind, command, record, context }) {
             />
           </label>
           <label className="block">
-            Claimed amount in paise (not a charge)
+            Claimed amount in ₹ (not a charge)
             <input
-              aria-label="Claimed amount in paise"
+              aria-label="Claimed amount in rupees"
               type="number"
-              name="claimedMinor"
+              name="claimedRupees"
               min="0"
-              max="100000000"
+              max="1000000"
+              step="1"
+              inputMode="numeric"
               defaultValue="0"
               className={field}
             />
@@ -208,7 +211,10 @@ export function DisputeForm({ kind, command, record, context }) {
           </button>
         </section>
       )}
-      <button disabled={pending} className="min-h-11 rounded bg-primary px-4 text-white">
+      <button
+        disabled={pending}
+        className="min-h-11 rounded-full bg-primary px-5 font-semibold text-white"
+      >
         {pending
           ? 'Saving…'
           : command === 'create'

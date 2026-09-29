@@ -11,17 +11,17 @@ export default function QuoteLoading() {
       <div aria-hidden="true" className="space-y-3 motion-safe:animate-pulse">
         {[0, 1].map((row) => (
           <div key={row} className="flex items-center justify-between">
-            <span className="h-3 w-32 rounded bg-ink-100" />
-            <span className="h-3 w-14 rounded bg-ink-100" />
+            <span className="h-3 w-32 rounded-full bg-ink-100" />
+            <span className="h-3 w-14 rounded-full bg-ink-100" />
           </div>
         ))}
         <div className="flex items-center justify-between border-t border-border pt-4">
-          <span className="h-4 w-16 rounded bg-ink-100" />
-          <span className="h-5 w-24 rounded bg-ink-100" />
+          <span className="h-4 w-16 rounded-full bg-ink-100" />
+          <span className="h-5 w-24 rounded-full bg-ink-100" />
         </div>
         <div className="h-20 rounded-xl bg-ink-50" />
         <div className="h-12 rounded-xl bg-brand-100" />
-        <div className="mx-auto h-3 w-36 rounded bg-ink-100" />
+        <div className="mx-auto h-3 w-36 rounded-full bg-ink-100" />
       </div>
     </div>
   );

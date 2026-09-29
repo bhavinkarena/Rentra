@@ -24,6 +24,7 @@ import { toISODate, parseISODate, formatDayLabel } from './booking-state';
  * in the HTML for crawlers. Failed live reads do not enable cached dates.
  */
 export default function AvailabilityPicker({ code, prices, nextDates }) {
+  const opener = useRef(null);
   const {
     calendarOpen,
     setCalendarOpen,
@@ -118,6 +119,19 @@ export default function AvailabilityPicker({ code, prices, nextDates }) {
     if (!entry) return false;
     return slot === 'full_day' ? entry.full === true : entry[slot] === true;
   };
+  // Late in a month the first screen can be fully booked (phones show one
+  // month). Open on the next month once, until the guest navigates or picks.
+  const autoAdvanced = useRef(false);
+  const month = monthStart.slice(0, 7);
+  const monthHasOpenDay =
+    availability && Object.keys(availability).some((iso) => iso.startsWith(month) && openOn(iso));
+  useEffect(() => {
+    if (state !== 'ready' || date || dates.length || autoAdvanced.current || monthHasOpenDay)
+      return;
+    autoAdvanced.current = true;
+    const frame = requestAnimationFrame(() => setMonthCursor((m) => addMonths(m, 1)));
+    return () => cancelAnimationFrame(frame);
+  }, [state, date, dates.length, monthHasOpenDay]);
 
   const months = useMemo(() => [monthCursor, addMonths(monthCursor, 1)], [monthCursor]);
   const today = propertyToday();
@@ -148,8 +162,22 @@ export default function AvailabilityPicker({ code, prices, nextDates }) {
       </button>
       <Dialog.Root open={calendarOpen} onOpenChange={setCalendarOpen}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-[80] bg-ink-900/30 backdrop-blur-[2px]" />
-          <Dialog.Content className="fixed top-1/2 left-1/2 z-[90] max-h-[92dvh] w-[calc(100%-1rem)] max-w-4xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl bg-card p-4 shadow-2xl sm:p-8">
+          <Dialog.Overlay className="fixed inset-0 z-[80] bg-ink-900/30 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=open]:fade-in data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:duration-150 duration-200" />
+          <Dialog.Content
+            // No Dialog.Trigger: several buttons open this. Remember the opener
+            // and give focus back to it (Radix would otherwise drop it to <body>
+            // when the opener re-renders while dates load).
+            onOpenAutoFocus={() => {
+              opener.current = document.activeElement;
+            }}
+            onCloseAutoFocus={(event) => {
+              if (opener.current?.isConnected && !opener.current.disabled) {
+                event.preventDefault();
+                opener.current.focus();
+              }
+            }}
+            className="fixed top-1/2 left-1/2 z-[90] max-h-[92dvh] w-[calc(100%-1rem)] max-w-4xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg bg-card p-4 shadow-2xl sm:p-8 data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-95 data-[state=closed]:duration-150 duration-200 ease-out"
+          >
             <Dialog.Title className="pr-10 text-2xl font-semibold">
               {dates.length
                 ? `${dates.length} visit${dates.length === 1 ? '' : 's'} selected`
@@ -209,7 +237,10 @@ export default function AvailabilityPicker({ code, prices, nextDates }) {
               <div className="mb-4 flex items-center justify-between">
                 <button
                   type="button"
-                  onClick={() => setMonthCursor(addMonths(monthCursor, -1))}
+                  onClick={() => {
+                    autoAdvanced.current = true;
+                    setMonthCursor(addMonths(monthCursor, -1));
+                  }}
                   disabled={!canGoBack}
                   aria-label="Previous month"
                   className="grid size-11 place-items-center rounded-full hover:bg-brand-50 disabled:opacity-30"
@@ -219,7 +250,10 @@ export default function AvailabilityPicker({ code, prices, nextDates }) {
                 <p className="text-xs text-ink-500">Select the dates you’ll visit</p>
                 <button
                   type="button"
-                  onClick={() => setMonthCursor(addMonths(monthCursor, 1))}
+                  onClick={() => {
+                    autoAdvanced.current = true;
+                    setMonthCursor(addMonths(monthCursor, 1));
+                  }}
                   disabled={monthCursor >= addMonths(startOfMonth(parseISODate(today)), 12)}
                   aria-label="Next month"
                   className="grid size-11 place-items-center rounded-full hover:bg-brand-50 disabled:opacity-30"

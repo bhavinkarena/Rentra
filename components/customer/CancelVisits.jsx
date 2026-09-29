@@ -4,7 +4,17 @@ import RentraLoader from '@/components/ui/rentra-loader';
 import Link from '@/components/navigation/NavigationLink';
 import { useRef, useState } from 'react';
 import { previewCustomerCancellation, cancelCustomerVisits } from '@/lib/actions/customer';
-import { bookingMoney as money, bookingTime as time } from '@/lib/domain/booking-record';
+import { bookingTime as time } from '@/lib/domain/booking-record';
+import { formatLocalDate } from '@/lib/domain/booking-dates';
+import { SLOTS } from '@/lib/domain/pricing';
+import { BackLink } from '@/components/ui/page-header';
+import { Info } from 'lucide-react';
+import { displayMoney as money, StateBadge } from './BookingDisplay';
+
+const pill =
+  'inline-flex min-h-10 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-semibold text-ink-800 transition-colors hover:border-brand-300 hover:bg-brand-50 disabled:opacity-50';
+const visitLabel = (v) =>
+  `${v.date ? formatLocalDate(v.date, { year: 'numeric' }) : 'Date not recorded'} · ${SLOTS[v.slot]?.label ?? v.slot.replaceAll('_', ' ')}`;
 
 export default function CancelVisits({ record }) {
   const [selected, setSelected] = useState([]),
@@ -62,27 +72,27 @@ export default function CancelVisits({ record }) {
     }
   }
   return (
-    <div className="space-y-6">
-      <Link
-        className="inline-flex min-h-11 items-center text-brand-700 underline"
-        href={`/bookings/${record.id}`}
-      >
-        Back to booking record
-      </Link>
-      <h1 className="text-h1">{receipt ? 'Visits cancelled' : 'Cancel selected visits'}</h1>
-      <h2 className="text-h3">{record.title}</h2>
-      <p>
-        Only the selected visits are cancelled. Refund estimates use the accepted policy and
-        verified Test amounts already collected. Actual bank refund: ₹0.
+    <div className="mx-auto max-w-2xl space-y-6">
+      <header>
+        <BackLink href={`/bookings/${record.id}`}>Back to booking record</BackLink>
+        <h1 className="mt-1 text-h1">{receipt ? 'Visits cancelled' : 'Cancel selected visits'}</h1>
+        <h2 className="mt-1 text-ink-600">{record.title}</h2>
+      </header>
+      <p className="flex items-start gap-3 rounded-lg bg-info-bg p-4 text-meta text-ink-800">
+        <Info className="mt-0.5 size-4 shrink-0 text-info" aria-hidden="true" />
+        <span>
+          Only the selected visits are cancelled. Refund estimates use the accepted policy and
+          verified Test amounts already collected. Actual bank refund: ₹0.
+        </span>
       </p>
       {receipt ? (
-        <section role="status" className="space-y-3 rounded-md bg-brand-50 p-4">
+        <section role="status" className="space-y-3 rounded-lg bg-brand-50 p-4 text-meta sm:p-5">
           <p>{receipt.visits.length} visit(s) cancelled. Unselected visits are unchanged.</p>
           <p>
             Test refund requested: {money(receipt.refundMinor)}. This is an obligation, not proof of
             a completed refund.
           </p>
-          <p className="break-all">Cancellation reference: {receipt.id}</p>
+          <p className="font-mono text-tiny break-all">Cancellation reference: {receipt.id}</p>
           <p>
             Track refund status in your booking record. Processing continues even if new payments
             are disabled.
@@ -90,16 +100,16 @@ export default function CancelVisits({ record }) {
         </section>
       ) : (
         <>
-          <fieldset disabled={busy} className="space-y-3">
-            <legend className="mb-3 font-semibold">Choose visits</legend>
+          <fieldset disabled={busy} className="space-y-2">
+            <legend className="mb-3 text-h4">Choose visits</legend>
             {record.visits.map((visit) => (
               <label
                 key={visit.id}
-                className="flex items-start gap-3 rounded-md border border-border p-4"
+                className="flex cursor-pointer items-start gap-3 rounded-lg border border-border bg-card p-4 transition-colors has-checked:border-brand-600 has-checked:bg-brand-50 has-disabled:cursor-not-allowed has-disabled:opacity-60"
               >
                 <input
                   type="checkbox"
-                  className="mt-1 size-5"
+                  className="mt-0.5 size-5 accent-brand-600"
                   disabled={visit.state !== 'confirmed'}
                   checked={selected.includes(visit.id)}
                   onChange={(event) => {
@@ -113,39 +123,41 @@ export default function CancelVisits({ record }) {
                     request.current = null;
                   }}
                 />
-                <span>
-                  {visit.date} · {visit.slot.replaceAll('_', ' ')}
-                  <span className="block">
-                    {time(visit.startsAt, record.timeZone)} · {visit.state}
+                <span className="min-w-0 flex-1">
+                  <span className="block font-semibold">{visitLabel(visit)}</span>
+                  <span className="mt-0.5 block text-meta text-ink-600">
+                    {time(visit.startsAt, record.timeZone)}
                   </span>
                 </span>
+                <StateBadge state={visit.state} />
               </label>
             ))}
           </fieldset>
-          <p className="text-meta">
+          <p className="text-meta text-ink-600">
             Started visits need operational help. Open your booking record and contact the host;
             online cancellation will reject a started visit.
           </p>
-          <button
-            disabled={busy || !selected.length}
-            onClick={() => run()}
-            className="min-h-11 rounded-md border border-border px-4"
-          >
+          <button disabled={busy || !selected.length} onClick={() => run()} className={pill}>
             {busy ? <RentraLoader label="Checking…" /> : 'Preview cancellation'}
           </button>
           {preview ? (
-            <section className="space-y-4 rounded-md bg-ink-50 p-4">
-              <h2 className="text-h3">Review your cancellation</h2>
+            <section className="space-y-4 rounded-lg border border-border bg-card p-4 text-meta sm:p-5">
+              <h2 className="text-h4">Review your cancellation</h2>
               <ul className="space-y-3">
                 {preview.visits.map((v) => (
-                  <li key={v.id}>
-                    {v.date} · {v.tier} policy · {Math.round(v.rate * 100)}% rent entitlement
-                    <br />
-                    Test refund for this visit: {money(v.refundMinor)}
+                  <li key={v.id} className="flex flex-wrap justify-between gap-x-4 gap-y-1">
+                    <span>
+                      {v.date ? formatLocalDate(v.date) : 'Date not recorded'} ·{' '}
+                      <span className="capitalize">{v.tier}</span> policy ·{' '}
+                      {Math.round(v.rate * 100)}% rent entitlement
+                    </span>
+                    <span className="tabular">
+                      Test refund for this visit: {money(v.refundMinor)}
+                    </span>
                   </li>
                 ))}
               </ul>
-              <p className="font-semibold">
+              <p className="border-t border-border pt-3 font-semibold">
                 Total Test refund requested: {money(preview.refundMinor)}
               </p>
               <p>
@@ -162,7 +174,7 @@ export default function CancelVisits({ record }) {
                     request.current = null;
                   }}
                   maxLength={160}
-                  className="mt-1 block min-h-11 w-full rounded-md border border-border p-2"
+                  className="mt-1 block min-h-11 w-full rounded-lg border border-border bg-card p-3 text-base sm:text-sm"
                 />
               </label>
               <label className="flex gap-3">
@@ -170,14 +182,14 @@ export default function CancelVisits({ record }) {
                   type="checkbox"
                   checked={accepted}
                   onChange={(event) => setAccepted(event.target.checked)}
-                  className="size-5"
+                  className="mt-0.5 size-5 accent-brand-600"
                 />
                 <span>I accept this refund estimate and cancellation of only these visits.</span>
               </label>
               <button
                 disabled={busy || !accepted}
                 onClick={() => run(true)}
-                className="min-h-11 rounded-md bg-brand-700 px-4 text-white"
+                className="min-h-11 rounded-full bg-danger px-5 font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
               >
                 {busy ? <RentraLoader label="Confirming cancellation" /> : 'Confirm cancellation'}
               </button>
@@ -186,34 +198,25 @@ export default function CancelVisits({ record }) {
         </>
       )}
       {error ? (
-        <p role="alert" className="rounded-md border border-border p-4">
+        <p role="alert" className="rounded-lg border border-danger/30 bg-danger-bg p-4 text-meta">
           {error}
         </p>
       ) : null}
-      <section className="border-t border-border pt-4">
-        <h2 className="text-h3">Need different dates or guests?</h2>
-        <p className="mt-2">
+      <section className="border-t border-border pt-6">
+        <h2 className="text-h4">Need different dates or guests?</h2>
+        <p className="mt-2 text-meta text-ink-600">
           Visits cannot be edited in place. Review cancellation costs first, then make a new booking
           at current availability and prices. A replacement is not reserved or guaranteed. For an
           urgent arrival issue, contact the host from your booking record.
         </p>
-        <nav className="flex flex-wrap gap-5">
-          <Link
-            className="inline-flex min-h-11 items-center text-brand-700 underline"
-            href={`/support/new?order=${record.id}&topic=change`}
-          >
+        <nav className="mt-4 flex flex-wrap gap-2">
+          <Link className={pill} href={`/support/new?order=${record.id}&topic=change`}>
             Ask about a change
           </Link>
-          <Link
-            className="inline-flex min-h-11 items-center text-brand-700 underline"
-            href={`/support/new?order=${record.id}&topic=cancellation`}
-          >
+          <Link className={pill} href={`/support/new?order=${record.id}&topic=cancellation`}>
             Get cancellation help
           </Link>
-          <Link
-            className="inline-flex min-h-11 items-center text-brand-700 underline"
-            href="/policies/cancellation"
-          >
+          <Link className={pill} href="/policies/cancellation">
             Cancellation policy
           </Link>
         </nav>

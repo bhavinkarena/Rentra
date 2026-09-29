@@ -144,8 +144,8 @@ export default function LocationMap({ areaName, cityName, center }) {
         {label} · Approximate location
       </p>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[90] bg-black/50 backdrop-blur-sm" />
-        <Dialog.Content className="fixed inset-3 z-[100] flex flex-col overflow-hidden rounded-2xl bg-white shadow-2xl sm:inset-8">
+        <Dialog.Overlay className="fixed inset-0 z-[90] bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=open]:fade-in data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:duration-150 duration-200" />
+        <Dialog.Content className="fixed inset-3 z-[100] flex flex-col overflow-hidden rounded-lg bg-white shadow-2xl sm:inset-8 data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-95 data-[state=closed]:duration-150 duration-200 ease-out">
           <div className="flex items-center justify-between gap-4 px-5 py-4">
             <div>
               <Dialog.Title className="text-lg font-bold">{label}</Dialog.Title>

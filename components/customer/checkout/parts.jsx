@@ -261,7 +261,7 @@ function PropertyName({ data }) {
 export function PropertyHeader({ data, className = '' }) {
   return (
     <div
-      className={`flex items-center gap-4 rounded-2xl border border-border bg-card p-3 ${className}`}
+      className={`flex items-center gap-4 rounded-lg border border-border bg-card p-3 ${className}`}
     >
       <StayPhoto
         photo={data.photo}
@@ -488,7 +488,7 @@ export function StatusBanner({ tone = 'neutral', icon: Icon, title, children, ac
   return (
     <div
       role="status"
-      className={`flex flex-wrap items-start gap-3 rounded-2xl border p-4 sm:p-5 ${BANNER_TONES[tone]}`}
+      className={`flex flex-wrap items-start gap-3 rounded-lg border p-4 sm:p-5 ${BANNER_TONES[tone]}`}
     >
       {Icon ? <Icon className="mt-0.5 size-5 shrink-0" aria-hidden="true" /> : null}
       <div className="min-w-0 flex-1 basis-56">

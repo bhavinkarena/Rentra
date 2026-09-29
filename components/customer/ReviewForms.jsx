@@ -6,7 +6,9 @@ import { useActionState, useState, useTransition } from 'react';
 import { submitCustomerReview, customerReviewReport } from '@/lib/actions/customer';
 import { ownerReviewReply, ownerReviewReport } from '@/lib/actions/partner';
 import { moderateCustomerReview, resolveReviewReport } from '@/lib/actions/admin';
-const field = 'mt-1 block min-h-11 w-full rounded border border-border p-2';
+import { ChevronDown } from 'lucide-react';
+const field =
+  'mt-1 block min-h-11 w-full rounded-md border border-border bg-card p-3 text-base sm:text-sm';
 function Result({ state }) {
   return (
     <>
@@ -49,8 +51,14 @@ export function CustomerReviewForm({ visits }) {
         Your experience
         <textarea className={field} name="body" required minLength={20} maxLength={3000} />
       </label>
-      <details>
-        <summary className="min-h-11 cursor-pointer">Optional ratings</summary>
+      <details className="group">
+        <summary className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 font-semibold">
+          Optional ratings
+          <ChevronDown
+            className="size-4 transition-transform duration-150 group-open:rotate-180"
+            aria-hidden="true"
+          />
+        </summary>
         <div className="space-y-3">
           <Score name="cleanliness" label="Cleanliness" />
           <Score name="accuracy" label="Listing accuracy" />
@@ -62,7 +70,10 @@ export function CustomerReviewForm({ visits }) {
         details. Reviews are checked under the same rules for every score; they are not published
         immediately. You can submit one review per visit.
       </p>
-      <button disabled={pending} className="min-h-11 rounded bg-brand-700 px-4 text-white">
+      <button
+        disabled={pending}
+        className="min-h-11 rounded-full bg-brand-700 px-5 font-semibold text-white transition-colors hover:bg-brand-800 disabled:opacity-50"
+      >
         {pending ? <RentraLoader label="Submitting…" /> : 'Submit review'}
       </button>
       <Result state={state} />
@@ -149,7 +160,10 @@ export function ReviewControl({ kind, id, version, body = '' }) {
           maxLength={kind === 'reply' ? 2000 : 1000}
         />
       </label>
-      <button disabled={pending} className="min-h-11 rounded border border-border px-4">
+      <button
+        disabled={pending}
+        className="min-h-11 rounded-full border border-border px-5 font-semibold transition-colors hover:bg-ink-50 disabled:opacity-50"
+      >
         {pending ? (
           <RentraLoader label="Saving…" />
         ) : guarded ? (
@@ -172,7 +186,7 @@ export function ReviewControl({ kind, id, version, body = '' }) {
         <section
           role="status"
           aria-label="Publication preview"
-          className="space-y-3 rounded border border-border p-4"
+          className="space-y-3 rounded-lg border border-border p-4"
         >
           <h3 className="font-semibold">Review before confirming</h3>
           <p>{preview.effect}</p>

@@ -189,9 +189,13 @@ export function AmenityGrid({ amenities = {} }) {
         empty="No paid extras are listed."
       />
       {unavailable.length ? (
-        <details>
-          <summary className="cursor-pointer text-meta font-semibold text-ink-700 underline underline-offset-4">
+        <details className="group">
+          <summary className="inline-flex min-h-10 cursor-pointer items-center gap-1.5 text-meta font-semibold text-ink-700">
             Not offered ({unavailable.length})
+            <ChevronDown
+              className="size-4 transition-transform duration-150 group-open:rotate-180"
+              aria-hidden="true"
+            />
           </summary>
           <AmenityList items={withIcons(unavailable)} className="mt-3 text-ink-500" />
         </details>

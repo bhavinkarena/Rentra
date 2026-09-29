@@ -25,6 +25,7 @@ import {
   ShieldCheck,
   Smartphone,
   Timer,
+  TimerOff,
   TriangleAlert,
   Undo2,
   UserRound,
@@ -442,7 +443,8 @@ export default function Checkout({ data }) {
   ) : null;
   const datesLink = (
     <Link href={data.listingHref} className={`${primary} text-sm`}>
-      <CalendarDays className="size-4" aria-hidden="true" />
+      {/* text-current!: banners tint every svg inside them. */}
+      <CalendarDays className="size-4 text-current!" aria-hidden="true" />
       Choose dates again
     </Link>
   );
@@ -499,13 +501,23 @@ export default function Checkout({ data }) {
             <StatusBanner tone={banner.tone} icon={banner.icon} title={banner.title}>
               {banner.text}
             </StatusBanner>
+          ) : review && holdTimer && remaining <= 0 ? (
+            // Say it where it is seen, with the way out, not only under the disabled button.
+            <StatusBanner
+              tone="warning"
+              icon={TimerOff}
+              title="This price expired"
+              action={datesLink}
+            >
+              {errors.QUOTE_EXPIRED}
+            </StatusBanner>
           ) : null}
 
           {PAYING.includes(stage) ? (
             <section
               ref={actionCard}
               aria-labelledby="pay-heading"
-              className="rounded-2xl border border-border bg-card p-5 sm:p-6"
+              className="rounded-lg border border-border bg-card p-5 sm:p-6"
             >
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 id="pay-heading" className="text-h4">
@@ -672,7 +684,7 @@ export default function Checkout({ data }) {
               ref={actionCard}
               onSubmit={submit}
               aria-labelledby="confirm-heading"
-              className="rounded-2xl border border-border bg-card p-5 sm:p-6"
+              className="rounded-lg border border-border bg-card p-5 sm:p-6"
             >
               <h2 id="confirm-heading" className="text-h4">
                 Confirm and book
@@ -798,7 +810,9 @@ export default function Checkout({ data }) {
                 {remaining > 0 ? ` · ${clock} left` : ''}
               </p>
             </div>
-            {review ? (
+            {review && remaining <= 0 ? (
+              <span className="ml-auto shrink-0">{datesLink}</span>
+            ) : review ? (
               <button
                 type="submit"
                 form="checkout-form"

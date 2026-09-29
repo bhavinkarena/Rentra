@@ -162,6 +162,7 @@
    shadcn component is on-brand with no per-component overrides.
    ========================================================================== */
 :root {
+  interpolate-size: allow-keywords;
   --font-sans:
     var(--font-jakarta), 'Noto Sans Devanagari', 'Noto Sans Gujarati', system-ui, -apple-system,
     sans-serif;
@@ -330,7 +331,10 @@
   }
 
   /* One brand-tinted focus style, everywhere. */
-  :is(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  /* Date/time inputs lose :focus-visible while moving between their day,
+     month and year parts, so they keep the ring while anything inside them has focus. */
+  :is(a, button, input, select, textarea, summary, [tabindex]):focus-visible,
+  input:is([type='date'], [type='time'], [type='datetime-local']):focus-within {
     outline: 2px solid var(--ring);
     outline-offset: 3px;
     box-shadow: var(--shadow-focus);
@@ -394,6 +398,42 @@
   }
   .rentra-loader-orbit {
     animation: rentra-orbit 0.9s linear infinite;
+  }
+
+  /* Only when motion is welcome: the blanket reduced-motion rule does not
+     reach ::details-content or ::backdrop. */
+  @media (prefers-reduced-motion: no-preference) {
+    /* Bottom sheet built on <dialog>: slides up when opened. @starting-style is
+         progressive; older browsers just show it. */
+    .sheet-dialog[open] {
+      transition:
+        translate 200ms ease-out,
+        opacity 200ms ease-out;
+      @starting-style {
+        translate: 0 1.5rem;
+        opacity: 0;
+      }
+    }
+    .sheet-dialog[open]::backdrop {
+      transition: opacity 200ms ease-out;
+      @starting-style {
+        opacity: 0;
+      }
+    }
+
+    /* Accordions (details.group): the answer grows open instead of jumping.
+         Needs ::details-content + interpolate-size (Chromium today); elsewhere
+         it opens instantly, which is fine. */
+    details.group::details-content {
+      block-size: 0;
+      overflow: clip;
+      transition:
+        block-size 200ms ease-out,
+        content-visibility 200ms allow-discrete;
+    }
+    details.group[open]::details-content {
+      block-size: auto;
+    }
   }
 
   @keyframes rentra-skeleton-shimmer {

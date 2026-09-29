@@ -30,7 +30,7 @@ export default function TrustStrip() {
             <Icon className="size-5 text-brand-600" aria-hidden="true" />
           </span>
           <div>
-            <h3 className="text-meta font-bold">{title}</h3>
+            <p className="text-meta font-bold">{title}</p>
             <p className="mt-0.5 text-tiny leading-relaxed text-ink-600">{body}</p>
           </div>
         </li>

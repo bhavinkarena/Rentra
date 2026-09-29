@@ -294,15 +294,31 @@ Do not use bare `rounded`, `rounded-2xl` or `rounded-3xl` in customer code: `--r
 
 ### Badges and status
 
-`components/ui/badge.jsx` for status; `TrustBadge` for API-supplied verification; `Rating` with amber stars. Status always has a text label.
+`StateBadge` (`components/customer/BookingDisplay.jsx`) for booking, visit, payment, support and dispute states: underscores become spaces, first letter capitalised, and the colour follows the state (brand for confirmed/completed/succeeded, ink for cancelled/expired, warning for disputed, danger for failed, info otherwise). `TrustBadge` for API-supplied verification; `Rating` with amber stars. Status always has a text label.
+
+### Page structure and records
+
+- `PageHeader` / `BackLink` (`components/ui/page-header.jsx`): back link ("← Account"), `h1`, one-line description, actions on the right. Every customer sub-page uses it.
+- Record lists (bookings, notifications, support, disputes, privacy requests): one `rounded-lg` bordered list with `divide-y` rows, an icon well on the left, title + `StateBadge`, meta line, reference in `font-mono text-tiny`, chevron on the right. Not a stack of separate cards.
+- Label/value money rows: label left, amount right (`tabular`), totals bold behind a top border. Amounts use `displayMoney` (whole rupees without ".00", paise only when present).
+- Actions on a record: one row of icon pills; on phones one swipeable row (`overflow-x-auto`, `shrink-0` children).
+- Dates shown to customers use `formatLocalDate` / `en-IN` short dates ("Wed, 30 Sept, 2026"); slot names come from `SLOTS`.
+
+### Disclosures
+
+Accordions and "show more" use native `<details class="group">` with `list-none` + a rotating `ChevronDown` (150ms), never the browser triangle. FAQs use `FaqList` (`components/content/ContentBody.jsx`): one bordered list, 56px summaries.
+
+### Discovery search
+
+`DiscoveryFilters`: below `lg` a one-line summary pill that expands; `lg`–`xl` a 3-column field card; from `xl` the pill bar that mirrors the home `SearchBar`. Secondary filters sit behind a "Filters" chip with an active-count badge.
 
 ### States
 
-Empty states: icon in a brand tint, one-line title, one-line explanation, one action (reference: `BookingHistory` empty state). Errors: say what failed and offer a real next step; do not reuse search advice on unrelated pages. Loading: `ScreenSkeleton`/route skeletons that match the final layout; labels in plain words.
+Empty states: `EmptyState` (`components/ui/empty-state.jsx`) — icon in a brand tint, one-line title, one-line explanation, one action. Expired or blocked flows show a top `StatusBanner` with the way forward (reference: checkout "This price expired" → "Choose dates again"). Errors: say what failed and offer a real next step; do not reuse search advice on unrelated pages. Loading: `ScreenSkeleton`/route skeletons that match the final layout; labels in plain words.
 
 ### Motion
 
-150–200ms colour/opacity/transform feedback; listing photo hover scale (300ms, `motion-safe`); hero photo switch and occasion tabs are user-triggered, never autoplay. No scroll-triggered reveals. Everything respects `prefers-reduced-motion`.
+150–200ms colour/opacity/transform feedback; listing photo hover scale (300ms, `motion-safe`); hero photo switch and occasion tabs are user-triggered, never autoplay. Dialogs fade/scale in 200ms (`data-[state]` utilities); the `<dialog>` bottom sheet uses `.sheet-dialog` (slide up via `@starting-style`); `details.group` answers grow open via `::details-content`; toasts slide up 8px. No scroll-triggered reveals. Everything respects `prefers-reduced-motion`; motion that the blanket rule cannot reach (pseudo-elements) lives inside `@media (prefers-reduced-motion: no-preference)`.
 
 ## Do's and Don'ts
 
@@ -311,7 +327,7 @@ Empty states: icon in a brand tint, one-line title, one-line explanation, one ac
 - Reuse the home page's pieces (chips, pill CTAs, `ListingCard`, `SearchBar`, forest footer) before inventing new ones.
 - Use real photos and real data; show honest empty/unavailable states.
 - Keep from-prices distinct from date-specific quotes, fees and deposits.
-- Keep focus outlines, labels, tabular figures and reduced-motion support.
+- Keep focus outlines, labels, tabular figures and reduced-motion support. Tap targets are at least 24px (44px for primary controls); date inputs keep the focus ring via `:focus-within`.
 
 **Don't**
 

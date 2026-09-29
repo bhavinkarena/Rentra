@@ -1,8 +1,13 @@
 import Form from '@/components/navigation/NavigationForm';
 import Link from '@/components/navigation/NavigationLink';
 import { ArrowUpRight, CalendarDays, Search } from 'lucide-react';
-import { bookingMoney as money } from '@/lib/domain/booking-record';
-import { linkClass, badge, PropertyPhoto, totalPrice } from './BookingDisplay';
+import {
+  linkClass,
+  PropertyPhoto,
+  totalPrice,
+  displayMoney as money,
+  StateBadge,
+} from './BookingDisplay';
 function href(base, data, changes) {
   return `${base}?${new URLSearchParams({ tab: data.tab, q: data.q, page: String(data.page), ...(data.property ? { property: data.property } : {}), ...changes })}`;
 }
@@ -40,16 +45,16 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
           </Link>
         )}
       </header>
-      <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+      <div className="rounded-xl border border-border bg-card p-4 sm:p-5">
         <Form action={base} className="flex items-end gap-3">
           <input type="hidden" name="tab" value={data.tab} />
           {data.property && <input type="hidden" name="property" value={data.property} />}
           <label className="min-w-0 flex-1">
             <span className="sr-only">Search property or booking reference</span>
-            <span className="flex h-12 items-center gap-3 rounded-xl border border-border px-4">
+            <span className="flex h-12 items-center gap-3 rounded-full border border-border px-4 focus-within:border-brand-600">
               <Search className="size-4 shrink-0 text-ink-400" />
               <input
-                className="w-full min-w-0 bg-transparent text-sm outline-none"
+                className="w-full min-w-0 bg-transparent text-base outline-none sm:text-sm"
                 name="q"
                 maxLength={100}
                 defaultValue={data.q}
@@ -57,7 +62,7 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
               />
             </span>
           </label>
-          <button className="min-h-12 rounded-xl bg-brand-700 px-5 text-sm font-semibold text-white hover:bg-brand-800">
+          <button className="min-h-12 rounded-full bg-brand-700 px-5 text-sm font-semibold text-white hover:bg-brand-800">
             Search
           </button>
         </Form>
@@ -85,42 +90,44 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
       <p className="text-sm text-ink-500">
         {data.total} booking{data.total === 1 ? '' : 's'} found
       </p>
-      <ul className="space-y-5">
+      <ul className="space-y-4">
         {data.items.map((item) => (
           <li key={item.id}>
             <Link
               href={`${base}/${item.id}${operational ? `?from=${encodeURIComponent(href(base, data, {}))}` : ''}`}
-              className="group grid overflow-hidden rounded-2xl border border-border bg-card transition hover:border-brand-300 hover:shadow-md sm:grid-cols-[240px_1fr]"
+              className="group grid overflow-hidden rounded-xl border border-border bg-card transition hover:border-brand-300 hover:shadow-md grid-cols-[112px_1fr] sm:grid-cols-[200px_1fr]"
             >
               <PropertyPhoto photo={item.photo} title={item.title} />
-              <div className="flex flex-col gap-4 p-5 sm:p-6">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <span className={badge}>{item.state.replaceAll('_', ' ')}</span>
-                    <h2 className="mt-3 text-xl font-semibold group-hover:text-brand-700">
-                      {item.title}
-                    </h2>
+              <div className="flex flex-col gap-3 p-4 sm:p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <StateBadge state={item.state} />
+                    <h2 className="mt-2 text-h4 group-hover:text-brand-700">{item.title}</h2>
                   </div>
-                  <ArrowUpRight className="size-5 text-ink-400 group-hover:text-brand-700" />
+                  <ArrowUpRight
+                    className="size-5 shrink-0 text-ink-400 group-hover:text-brand-700"
+                    aria-hidden="true"
+                  />
                 </div>
                 <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-600">
                   <span className="inline-flex items-center gap-2">
-                    <CalendarDays className="size-4" />
+                    <CalendarDays className="size-4 text-brand-700" aria-hidden="true" />
                     {shortDate(item.firstVisit)}
                   </span>
                   <span>
                     {item.visitCount} visit{item.visitCount === 1 ? '' : 's'}
                   </span>
                 </div>
-                <div className="mt-auto flex flex-wrap items-end justify-between gap-3 border-t border-border pt-4">
+                <div className="mt-auto flex flex-wrap items-end justify-between gap-3 border-t border-border pt-3">
                   <div>
                     <p className="text-xs text-ink-500">Accepted total · separate deposit</p>
-                    <p className="mt-1 text-xl font-semibold">{money(totalPrice(item))}</p>
+                    <p className="mt-0.5 text-h4 font-bold tabular">{money(totalPrice(item))}</p>
                   </div>
-                  <span className="text-sm font-semibold text-brand-700">View booking →</span>
                 </div>
                 <div className="flex flex-wrap gap-2 text-xs text-ink-500">
-                  <span>{item.reference}</span>
+                  <span className="max-w-full truncate font-mono" title={item.reference}>
+                    {item.reference}
+                  </span>
                   {operational && (
                     <span>
                       Visit states: {item.visitStates.join(', ').replaceAll('_', ' ')}. Payment
@@ -141,7 +148,7 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
         ))}
       </ul>
       {!data.items.length && (
-        <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-14 text-center">
+        <div className="rounded-xl border border-dashed border-border bg-card px-6 py-14 text-center">
           <CalendarDays className="mx-auto mb-5 size-10 text-brand-600" />
           <h2 className="text-xl font-semibold">
             {operational
@@ -168,7 +175,7 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
           </Link>
         </div>
       )}
-      {data.total > 0 && (
+      {data.pages > 1 && (
         <nav
           aria-label="Booking pages"
           className="flex flex-wrap items-center justify-center gap-5"

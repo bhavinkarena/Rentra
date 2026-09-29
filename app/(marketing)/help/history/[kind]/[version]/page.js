@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import Link from '@/components/navigation/NavigationLink';
+import { BackLink } from '@/components/ui/page-header';
 import { publicContent } from '@/lib/api/content';
 import { ApiError } from '@/lib/api/client';
 import ContentBody from '@/components/content/ContentBody';
@@ -19,14 +19,22 @@ export default async function Page({ params }) {
   }
   return (
     <article className="mx-auto max-w-3xl space-y-6 px-4 py-10">
-      <Link className="underline" href="/help">
-        Current help and support
-      </Link>
-      <h1 className="text-h1">{p.body.title}</h1>
-      <p className="break-all">
-        Historical version {p.version} · Effective {p.effectiveAt}
-      </p>
-      {kind === 'help' && <p>{p.body.intro}</p>}
+      <header>
+        <BackLink href="/help">Current help and support</BackLink>
+        <h1 className="mt-1 text-h1">{p.body.title}</h1>
+        <p className="mt-2 text-meta text-ink-600">
+          Historical version {p.version} · Effective{' '}
+          <time dateTime={p.effectiveAt}>
+            {new Intl.DateTimeFormat('en-IN', {
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric',
+              timeZone: 'Asia/Kolkata',
+            }).format(new Date(p.effectiveAt))}
+          </time>
+        </p>
+      </header>
+      {kind === 'help' && <p className="text-ink-700">{p.body.intro}</p>}
       <ContentBody kind={kind} body={p.body} />
     </article>
   );

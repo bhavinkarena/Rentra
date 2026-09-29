@@ -3,7 +3,15 @@ import Link from '@/components/navigation/NavigationLink';
 import { randomUUID } from 'node:crypto';
 import { supportCategories, supportStates } from '@/lib/domain/help';
 import { SupportReplyForm } from './SupportForms';
-const link = 'inline-flex min-h-11 items-center text-brand-700 underline';
+import { ChevronRight, MessageSquare, Plus } from 'lucide-react';
+import { BackLink, PageHeader } from '@/components/ui/page-header';
+import { EmptyState } from '@/components/ui/empty-state';
+import { StateBadge } from './BookingDisplay';
+const link = 'inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline';
+const primary =
+  'inline-flex min-h-10 items-center gap-2 rounded-full bg-brand-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-700';
+const secondary =
+  'inline-flex min-h-10 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-semibold text-ink-800 transition-colors hover:border-brand-300 hover:bg-brand-50';
 const time = (value) =>
   new Date(value).toLocaleString('en-IN', {
     timeZone: 'Asia/Kolkata',
@@ -13,86 +21,111 @@ const time = (value) =>
 export function SupportList({ data, admin = false, owner = false }) {
   const base = admin ? '/admin/support' : owner ? '/partner/support' : '/support';
   return (
-    <section className="mx-auto max-w-4xl space-y-5 p-4">
-      <h1 className="text-h1">{admin ? 'Support inbox' : 'Your support requests'}</h1>
-      <p>
-        Requests and replies are saved here. This is not live chat. Return here to check for a
-        reply.
-      </p>
-      {!admin ? (
-        <nav className="flex flex-wrap gap-5">
-          <Link className={link} href={`${base}/new`}>
-            New support request
-          </Link>
-          <Link className={link} href="/help">
-            Help and contact details
-          </Link>
+    <section className="mx-auto max-w-3xl">
+      <PageHeader
+        title={admin ? 'Support inbox' : 'Your support requests'}
+        description="Requests and replies are saved here. This is not live chat. Return here to check for a reply."
+        actions={
+          !admin ? (
+            <>
+              <Link className={secondary} href="/help">
+                Help and contact details
+              </Link>
+              <Link className={primary} href={`${base}/new`}>
+                <Plus className="size-4" aria-hidden="true" />
+                New support request
+              </Link>
+            </>
+          ) : null
+        }
+      />
+      <Form className="flex flex-wrap items-center justify-between gap-3" action={base}>
+        <p className="text-meta text-ink-600">{data.total} request(s)</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="flex items-center gap-2 text-meta font-medium">
+            Status
+            <select
+              className="min-h-10 max-w-48 rounded-full border border-border bg-card px-3 text-base sm:text-meta"
+              name="state"
+              defaultValue={data.state}
+            >
+              <option value="all">All</option>
+              {Object.entries(supportStates).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button className={secondary}>Filter requests</button>
+        </div>
+      </Form>
+      {data.items.length ? (
+        <ul className="mt-4 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
+          {data.items.map((r) => (
+            <li key={r.id}>
+              <Link
+                href={`${base}/${r.id}`}
+                className="flex items-start gap-3 p-4 transition-colors hover:bg-ink-25"
+              >
+                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-700">
+                  <MessageSquare className="size-5" aria-hidden="true" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex flex-wrap items-center gap-2">
+                    <span className="font-semibold text-ink-900">{r.subject}</span>
+                    <StateBadge state={r.state}>{supportStates[r.state]}</StateBadge>
+                  </span>
+                  <span className="mt-1 block text-meta text-ink-600">
+                    {supportCategories[r.category]} · Updated {time(r.updatedAt)} India time
+                  </span>
+                  <span className="mt-0.5 block truncate font-mono text-tiny text-ink-500">
+                    {r.reference}
+                  </span>
+                </span>
+                <ChevronRight className="mt-2 size-4 shrink-0 text-ink-400" aria-hidden="true" />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <EmptyState icon={MessageSquare} title="No requests match this view." />
+      )}
+      {data.page > 1 || data.hasNext ? (
+        <nav
+          aria-label="Support request pages"
+          className="mt-6 flex items-center justify-center gap-3"
+        >
+          {data.page > 1 ? (
+            <Link className={secondary} href={`?state=${data.state}&page=${data.page - 1}`}>
+              Previous
+            </Link>
+          ) : null}
+          <span className="text-meta text-ink-600">Page {data.page}</span>
+          {data.hasNext ? (
+            <Link className={secondary} href={`?state=${data.state}&page=${data.page + 1}`}>
+              Next
+            </Link>
+          ) : null}
         </nav>
       ) : null}
-      <Form className="flex flex-wrap items-end gap-3" action={base}>
-        <label>
-          Status
-          <select
-            className="ml-3 min-h-11 rounded border border-border p-2"
-            name="state"
-            defaultValue={data.state}
-          >
-            <option value="all">All</option>
-            {Object.entries(supportStates).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <button className="min-h-11 rounded border border-border px-4">Filter requests</button>
-      </Form>
-      <p>{data.total} request(s)</p>
-      <ul className="space-y-3">
-        {data.items.map((r) => (
-          <li key={r.id} className="rounded-lg border border-border p-4">
-            <Link className={link} href={`${base}/${r.id}`}>
-              {r.subject}
-            </Link>
-            <p className="break-all text-meta">
-              {r.reference} · {supportCategories[r.category]} · {supportStates[r.state]}
-            </p>
-            <p className="text-meta">Updated {time(r.updatedAt)} India time</p>
-          </li>
-        ))}
-      </ul>
-      {!data.items.length ? <p>No requests match this view.</p> : null}
-      <nav aria-label="Support request pages" className="flex gap-5">
-        {data.page > 1 ? (
-          <Link className={link} href={`?state=${data.state}&page=${data.page - 1}`}>
-            Previous
-          </Link>
-        ) : null}
-        <span className="py-3">Page {data.page}</span>
-        {data.hasNext ? (
-          <Link className={link} href={`?state=${data.state}&page=${data.page + 1}`}>
-            Next
-          </Link>
-        ) : null}
-      </nav>
     </section>
   );
 }
 export function SupportDetail({ record, admin = false, owner = false }) {
   const base = admin ? '/admin/support' : owner ? '/partner/support' : '/support';
   return (
-    <article className="mx-auto max-w-3xl space-y-6 break-words p-4">
-      <Link className={link} href={base}>
-        Back to support requests
-      </Link>
+    <article className="mx-auto max-w-3xl space-y-6 wrap-break-word">
       <header>
-        <h1 className="text-h1">{record.subject}</h1>
-        <p className="mt-3 break-all">
-          {record.reference} · {supportStates[record.state]}
-        </p>
+        <BackLink href={base}>Back to support requests</BackLink>
+        <div className="mt-1 flex flex-wrap items-center gap-3">
+          <h1 className="text-h2">{record.subject}</h1>
+          <StateBadge state={record.state}>{supportStates[record.state]}</StateBadge>
+        </div>
+        <p className="mt-2 font-mono text-tiny break-all text-ink-500">{record.reference}</p>
       </header>
-      <section className="rounded-lg bg-brand-50 p-4">
-        <h2 className="font-semibold">Request context</h2>
+      <section className="space-y-1 rounded-lg border border-border bg-card p-4 text-meta text-ink-700 sm:p-5">
+        <h2 className="mb-2 font-semibold text-ink-900">Request context</h2>
         <p>
           {supportCategories[record.category]} · Created {time(record.createdAt)} India time
         </p>
@@ -132,7 +165,7 @@ export function SupportDetail({ record, admin = false, owner = false }) {
           </Link>
         </p>
       </section>
-      <p>
+      <p className="text-meta text-ink-600">
         Participants: {record.participant === 'client' ? 'You (client)' : 'You (customer)'} and
         Rentra support. Other cases linked by admins keep their own private conversations.
       </p>
@@ -143,14 +176,16 @@ export function SupportDetail({ record, admin = false, owner = false }) {
       )}
       <section>
         <h2 className="text-h3">Conversation</h2>
-        <ol className="mt-4 space-y-4">
+        <ol className="mt-4 space-y-3">
           {record.messages.map((m) => (
-            <li key={m.id} className="rounded-lg border border-border p-4">
-              <p className="font-semibold">{m.author}</p>
-              <p className="text-meta">
-                {time(m.at)} India time · {supportStates[m.state]}
-              </p>
-              <p className="mt-3 whitespace-pre-wrap break-words">{m.body}</p>
+            <li key={m.id} className="rounded-lg border border-border bg-card p-4">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                <p className="font-semibold">{m.author}</p>
+                <p className="text-tiny text-ink-500">
+                  {time(m.at)} India time · {supportStates[m.state]}
+                </p>
+              </div>
+              <p className="mt-2 whitespace-pre-wrap wrap-break-word text-ink-800">{m.body}</p>
               {(m.attachments || []).map((photo, i) => (
                 // A plain link, never a prefetching <Link>: every photo view is an audited read.
                 <a
@@ -167,8 +202,8 @@ export function SupportDetail({ record, admin = false, owner = false }) {
           ))}
         </ol>
       </section>
-      <section>
-        <h2 className="mb-4 text-h3">
+      <section className="rounded-lg border border-border bg-card p-4 sm:p-5">
+        <h2 className="mb-4 text-h4">
           {record.state === 'resolved' ? 'Reply or reopen this request' : 'Add a reply'}
         </h2>
         <SupportReplyForm

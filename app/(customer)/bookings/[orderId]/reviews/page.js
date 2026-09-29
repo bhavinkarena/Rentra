@@ -1,8 +1,12 @@
-import Link from '@/components/navigation/NavigationLink';
 import { notFound } from 'next/navigation';
 import { customerApi } from '@/lib/api/endpoints';
 import { ApiError } from '@/lib/api/client';
 import { CustomerReviewForm } from '@/components/customer/ReviewForms';
+import { PageHeader } from '@/components/ui/page-header';
+import { EmptyState } from '@/components/ui/empty-state';
+import { StateBadge } from '@/components/customer/BookingDisplay';
+import { formatLocalDate } from '@/lib/domain/booking-dates';
+import { Star } from 'lucide-react';
 export const metadata = { title: 'Review your visit', robots: { index: false, follow: false } };
 export default async function Reviews({ params }) {
   let data;
@@ -14,31 +18,37 @@ export default async function Reviews({ params }) {
   }
   const eligible = data.visits.filter((v) => v.eligible && !v.review_id);
   return (
-    <section className="mx-auto max-w-2xl space-y-5 p-4">
-      <Link className="underline" href={`/bookings/${data.id}`}>
-        Back to booking
-      </Link>
-      <h1 className="text-h1">Review your visit</h1>
-      <p>
-        Reviews require a real completed visit with recorded handover, return and completion.
-        Cancelled, incomplete and simulation visits cannot be reviewed.
-      </p>
+    <section className="mx-auto max-w-2xl space-y-5">
+      <PageHeader
+        className="mb-2"
+        back={{ href: `/bookings/${data.id}`, label: 'Back to booking' }}
+        title="Review your visit"
+        description="Reviews require a real completed visit with recorded handover, return and completion. Cancelled, incomplete and simulation visits cannot be reviewed."
+      />
       {eligible.length ? (
-        <CustomerReviewForm visits={eligible} />
+        <div className="rounded-lg border border-border bg-card p-4 sm:p-6">
+          <CustomerReviewForm visits={eligible} />
+        </div>
       ) : (
-        <p>No unreviewed eligible visits in this booking.</p>
+        <EmptyState icon={Star} title="No unreviewed eligible visits in this booking." />
       )}
-      <ul className="space-y-4">
+      <ul className="space-y-3">
         {data.visits
           .filter((v) => v.review_id)
           .map((v) => (
-            <li key={v.id} className="rounded border border-border p-4">
-              <h2 className="font-semibold">
-                {v.date} · {v.rating} out of 5
-              </h2>
-              <p>Status: {v.moderation_state}</p>
-              <p className="whitespace-pre-wrap break-words">{v.body}</p>
-              {v.moderation_reason ? <p>Moderation reason: {v.moderation_reason}</p> : null}
+            <li key={v.id} className="space-y-2 rounded-lg border border-border bg-card p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h2 className="flex items-center gap-2 font-semibold">
+                  {v.date ? formatLocalDate(v.date, { year: 'numeric' }) : 'Visit'} ·{' '}
+                  <Star className="size-4 fill-current text-warning" aria-hidden="true" />
+                  {v.rating} out of 5
+                </h2>
+                <StateBadge state={v.moderation_state}>Status: {v.moderation_state}</StateBadge>
+              </div>
+              <p className="whitespace-pre-wrap wrap-break-word text-ink-800">{v.body}</p>
+              {v.moderation_reason ? (
+                <p className="text-meta text-ink-600">Moderation reason: {v.moderation_reason}</p>
+              ) : null}
             </li>
           ))}
       </ul>

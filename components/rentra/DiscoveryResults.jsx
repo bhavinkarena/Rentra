@@ -16,8 +16,9 @@ import SortSelect from './SortSelect';
 import { EmptyState } from '@/components/ui/empty-state';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from 'cn';
+import { SLOTS } from '@/lib/domain/pricing';
 
-const slotLabels = { day: 'Day visit', night: 'Overnight', full_day: 'Full day' };
+const slotLabels = Object.fromEntries(Object.values(SLOTS).map((slot) => [slot.id, slot.label]));
 export default async function DiscoveryResults({ query, registry: registryInput, route = null }) {
   const { filters, errors } = parseDiscoveryQuery({
     ...query,

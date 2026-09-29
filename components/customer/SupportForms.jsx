@@ -7,9 +7,10 @@ import { useRouter } from 'next/navigation';
 import { openSupport, replyCustomerSupport } from '@/lib/actions/customer';
 import { replyAdminSupport } from '@/lib/actions/admin';
 import { supportCategories, supportStates } from '@/lib/domain/help';
-const field = 'mt-1 block min-h-11 w-full rounded-md border border-border bg-background p-3';
+const field =
+  'mt-1 block min-h-11 w-full rounded-lg border border-border bg-card p-3 text-base focus:border-brand-600 focus:outline-none sm:text-sm';
 const button =
-  'min-h-11 rounded-md bg-brand-700 px-5 py-3 font-semibold text-white disabled:opacity-50';
+  'min-h-11 rounded-full bg-brand-700 px-5 py-3 font-semibold text-white transition-colors hover:bg-brand-800 disabled:opacity-50';
 function Result({ state }) {
   return (
     <>
