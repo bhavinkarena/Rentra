@@ -11,7 +11,11 @@ import {
   DISCOVERY_INTENTS,
 } from '@/lib/domain/discovery';
 import { discoveryApi } from '@/lib/api/endpoints';
-import { SearchX, RefreshCw } from 'lucide-react';
+import { ArrowLeft, ArrowRight, MapPin, RefreshCw, SearchX, X } from 'lucide-react';
+import SortSelect from './SortSelect';
+import { EmptyState } from '@/components/ui/empty-state';
+import { buttonVariants } from '@/components/ui/button';
+import { cn } from 'cn';
 
 const slotLabels = { day: 'Day visit', night: 'Overnight', full_day: 'Full day' };
 export default async function DiscoveryResults({ query, registry: registryInput, route = null }) {
@@ -76,6 +80,14 @@ export default async function DiscoveryResults({ query, registry: registryInput,
       !(key === 'guests' && filters.guests === 1) &&
       !(key === 'slot' && filters.slot === 'night'),
   );
+  // Same rule as home: one shared price note below the grid instead of per card.
+  const sharedPriceNote =
+    result.items.length > 1 && result.items.every((l) => l.priceNote === result.items[0].priceNote)
+      ? result.items[0].priceNote
+      : null;
+  const pill = cn(buttonVariants({ variant: 'outline' }), 'rounded-full px-5');
+  const locationChip =
+    'inline-flex min-h-10 items-center gap-1.5 rounded-full border border-border bg-card px-4 text-meta font-medium text-ink-700 transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800';
   return (
     <section className="mx-auto max-w-(--container-page) px-4 py-8 sm:px-6 sm:py-12">
       <h1 className="text-h1">{route?.title || 'Find a place'}</h1>
@@ -94,141 +106,171 @@ export default async function DiscoveryResults({ query, registry: registryInput,
         {chips.map(([key, label]) => (
           <Link
             key={key}
-            className="inline-flex min-h-10 items-center rounded-full bg-brand-50 px-3 text-meta text-brand-900"
+            className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-brand-50 pr-3 pl-4 text-meta font-medium text-brand-900 transition-colors hover:bg-brand-100"
             href={href(clearChip(key))}
             aria-label={`Remove ${label}`}
           >
-            {label} ×
+            {label}
+            <X className="size-4" aria-hidden="true" />
           </Link>
         ))}
       </div>
       {messages.length > 0 && (
-        <div role="alert" className="mt-6 rounded-md border border-border p-4">
-          <h2 className="text-h3">Check your filters</h2>
-          <ul>
+        <div
+          role="alert"
+          className="mt-6 rounded-lg border border-warning/30 bg-warning-bg p-4 sm:p-5"
+        >
+          <h2 className="text-h4">Check your filters</h2>
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-meta">
             {messages.map((m, i) => (
               <li key={i}>{m}</li>
             ))}
           </ul>
-          <Link className="underline" href={path}>
+          <Link className="mt-3 inline-flex font-semibold text-brand-700 underline" href={path}>
             Reset filters and try again
           </Link>
         </div>
       )}
       {failed ? (
-        <div role="alert" className="mt-8 rounded-lg border border-border bg-card px-6 py-10">
-          <RefreshCw className="mb-4 size-7 text-brand-700" aria-hidden="true" />
-          <h2 className="text-h3">Search is temporarily unavailable</h2>
-          <p>Your filters are in the address bar. Please try again.</p>
-          <a className="underline" href={href({ page: filters.page })}>
-            Retry search
-          </a>
+        <div role="alert">
+          <EmptyState
+            tone="warning"
+            icon={RefreshCw}
+            title="Search is temporarily unavailable"
+            description="Your filters are in the address bar. Please try again."
+          >
+            <a
+              className={cn(buttonVariants(), 'rounded-full px-5')}
+              href={href({ page: filters.page })}
+            >
+              Retry search
+            </a>
+          </EmptyState>
         </div>
       ) : (
         !messages.length && (
           <>
             <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-h3">
-                {result.total} {result.total === 1 ? 'place' : 'places'}
-                {filters.dates.length ? ' matching every selected date' : ''}
-              </h2>
-              {/* Associated with the filters form by id rather than duplicating every
-            filter as a hidden input here — one submit carries sort and filters
-            together, so changing either cannot silently discard the other. */}
               <div>
-                <label className="text-meta font-medium">
-                  Sort{' '}
-                  <select
-                    form="discovery-filters"
-                    aria-label="Sort"
-                    name="sort"
-                    defaultValue={filters.sort}
-                    className="ml-2 min-h-11 rounded-md border border-border bg-white px-3"
-                  >
-                    {Object.entries(SEARCH_SORTS).map(([value, label]) => (
-                      <option key={value} value={value}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <button form="discovery-filters" className="ml-2 min-h-11 text-brand-700 underline">
-                  Apply
-                </button>
+                <h2 className="text-h3">
+                  {result.total} {result.total === 1 ? 'place' : 'places'}
+                  {filters.dates.length ? ' matching every selected date' : ''}
+                </h2>
+                {filters.dates.length ? (
+                  <p className="mt-1 text-tiny text-ink-600">
+                    Prices include rent and the platform fee for every visit and guest. Refundable
+                    deposits are shown separately.
+                  </p>
+                ) : null}
+              </div>
+              <div className="flex items-center gap-2">
+                <SortSelect value={filters.sort} options={SEARCH_SORTS} />
+                <noscript>
+                  <button form="discovery-filters" className="min-h-10 text-brand-700 underline">
+                    Apply
+                  </button>
+                </noscript>
               </div>
             </div>
             {!result.total && (
-              <div className="mt-6 rounded-lg border border-border bg-card px-6 py-10 sm:px-8">
-                <SearchX className="mb-4 size-8 text-brand-700" aria-hidden="true" />
-                <h3 className="text-h3">A different search could open up more places</h3>
-                <p className="mt-2 max-w-lg text-meta text-ink-600">
-                  No places match these filters. Try a different location, fewer amenities or other
-                  dates.
-                </p>
-                <p className="mt-4 text-meta">
-                  <Link className="underline" href={href({ dates: [] })}>
+              <EmptyState
+                as="h3"
+                icon={SearchX}
+                title="A different search could open up more places"
+                description="No places match these filters. Try a different location, fewer amenities or other dates."
+              >
+                {filters.dates.length ? (
+                  <Link
+                    className={cn(buttonVariants(), 'rounded-full px-5')}
+                    href={href({ dates: [] })}
+                  >
                     Try without dates
-                  </Link>{' '}
-                  or{' '}
-                  <Link className="underline" href={path}>
-                    clear filters
                   </Link>
-                  .
-                </p>
-              </div>
+                ) : null}
+                <Link className={pill} href={path}>
+                  Clear filters
+                </Link>
+              </EmptyState>
             )}
             <div className="mt-7 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {result.items.map((listing) => (
-                <ListingCard key={listing.id} listing={listing} />
+                <ListingCard key={listing.id} listing={listing} showPriceNote={!sharedPriceNote} />
               ))}
             </div>
+            {sharedPriceNote ? (
+              <p className="mt-8 border-t border-border pt-4 text-tiny text-ink-600">
+                {sharedPriceNote}
+              </p>
+            ) : null}
             {result.totalPages > 1 && (
-              <nav aria-label="Search pagination" className="mt-8 flex flex-wrap gap-5">
-                {result.page > 1 && <Link href={href({ page: result.page - 1 })}>Previous</Link>}
-                <span>
+              <nav
+                aria-label="Search pagination"
+                className="mt-8 flex flex-wrap items-center justify-center gap-3"
+              >
+                {result.page > 1 && (
+                  <Link className={pill} href={href({ page: result.page - 1 })}>
+                    <ArrowLeft aria-hidden="true" />
+                    Previous
+                  </Link>
+                )}
+                <span className="px-2 text-meta text-ink-600 tabular">
                   Page {result.page} of {result.totalPages}
                 </span>
                 {result.page < result.totalPages && (
-                  <Link href={href({ page: result.page + 1 })}>Next</Link>
+                  <Link className={pill} href={href({ page: result.page + 1 })}>
+                    Next
+                    <ArrowRight aria-hidden="true" />
+                  </Link>
                 )}
               </nav>
             )}
           </>
         )
       )}
-      <nav aria-label="Explore locations" className="mt-10 flex flex-wrap gap-4">
-        {route?.city && route?.category ? (
-          <>
-            {registry.areas
-              .filter((a) => a.cityId === route.city.id)
-              .map((a) => (
+      <nav aria-labelledby="explore-locations" className="mt-12 border-t border-border pt-8">
+        <h2 id="explore-locations" className="text-h4">
+          {route?.city ? `More in ${route.city.name}` : 'Explore by location'}
+        </h2>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {route?.city && route?.category ? (
+            <>
+              {registry.areas
+                .filter((a) => a.cityId === route.city.id)
+                .map((a) => (
+                  <Link
+                    className={locationChip}
+                    key={a.id}
+                    href={areaDiscoveryPath(route.city.slug, route.category.slug, a.slug)}
+                  >
+                    <MapPin className="size-4" aria-hidden="true" />
+                    {a.name}
+                  </Link>
+                ))}
+              {DISCOVERY_INTENTS.map((i) => (
                 <Link
-                  className="underline"
-                  key={a.id}
-                  href={areaDiscoveryPath(route.city.slug, route.category.slug, a.slug)}
+                  className={locationChip}
+                  key={i.slug}
+                  href={intentDiscoveryPath(route.city.slug, route.category.slug, i.slug)}
                 >
-                  {a.name}
+                  {i.label}
                 </Link>
               ))}
-            {DISCOVERY_INTENTS.map((i) => (
-              <Link
-                className="underline"
-                key={i.slug}
-                href={intentDiscoveryPath(route.city.slug, route.category.slug, i.slug)}
-              >
-                {i.label}
-              </Link>
-            ))}
-          </>
-        ) : (
-          registry.cities.flatMap((c) =>
-            registry.categories.map((cat) => (
-              <Link className="underline" key={`${c.id}-${cat.id}`} href={`/${c.slug}/${cat.slug}`}>
-                {cat.name} in {c.name}
-              </Link>
-            )),
-          )
-        )}
+            </>
+          ) : (
+            registry.cities.flatMap((c) =>
+              registry.categories.map((cat) => (
+                <Link
+                  className={locationChip}
+                  key={`${c.id}-${cat.id}`}
+                  href={`/${c.slug}/${cat.slug}`}
+                >
+                  <MapPin className="size-4" aria-hidden="true" />
+                  {cat.name} in {c.name}
+                </Link>
+              )),
+            )
+          )}
+        </div>
       </nav>
     </section>
   );

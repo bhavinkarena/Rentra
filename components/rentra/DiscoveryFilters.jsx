@@ -3,12 +3,19 @@
 import Form from '@/components/navigation/NavigationForm';
 import { useState } from 'react';
 import Link from '@/components/navigation/NavigationLink';
-import { Filter, Plus, Search, X } from 'lucide-react';
+import { ChevronDown, MapPin, Plus, Search, SlidersHorizontal, X } from 'lucide-react';
 import { addLocalDays, formatLocalDate, propertyToday } from '@/lib/domain/booking-dates';
 import { measureBrowser } from '@/lib/domain/browser-measurement';
 
+/* 16px text below lg so iOS does not zoom into a focused field. */
 const control =
-  'mt-1 min-h-11 w-full rounded-md border border-border bg-white px-3 py-2 text-ink-900 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100';
+  'mt-1 min-h-11 w-full rounded-md border border-border bg-white px-3 py-2 text-base text-ink-900 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100 lg:text-meta';
+/* Inside the search bar on desktop, cells match the home SearchBar. */
+const cell =
+  'font-medium lg:min-w-0 lg:flex-1 lg:border-r lg:border-border lg:px-5 lg:py-2.5 lg:text-tiny lg:font-bold lg:tracking-wider lg:text-ink-700 lg:uppercase lg:transition-colors lg:hover:bg-ink-50';
+const barControl = `${control} lg:mt-0.5 lg:min-h-8 lg:border-0 lg:bg-transparent lg:p-0 lg:font-normal lg:tracking-normal lg:normal-case lg:focus:ring-0`;
+const chip =
+  'inline-flex min-h-10 items-center gap-2 rounded-full border border-border bg-card px-4 font-semibold text-ink-800 transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800 aria-expanded:border-brand-300 aria-expanded:bg-brand-50 aria-expanded:text-brand-800';
 const slots = [
   ['day', 'Day visit'],
   ['night', 'Overnight'],
@@ -40,6 +47,35 @@ export default function DiscoveryFilters({ filters, registry, route, path }) {
     ),
   );
   const [kind, city = '', area = ''] = location.split(':');
+  // Phones see a one-line summary first so results start in the first screen.
+  const [editing, setEditing] = useState(false);
+  const activeFilters =
+    (filters.q ? 1 : 0) +
+    (!route?.category && filters.category ? 1 : 0) +
+    (filters.min != null ? 1 : 0) +
+    (filters.max != null ? 1 : 0) +
+    (filters.cancellation ? 1 : 0) +
+    filters.amenities.length;
+  const where =
+    route?.area?.name ||
+    route?.city?.name ||
+    (kind === 'area'
+      ? registry.areas.find((item) => item.slug === area)?.name
+      : kind === 'city'
+        ? registry.cities.find((item) => item.slug === city)?.name
+        : null) ||
+    'Anywhere';
+  const summary = [
+    slots.find(([value]) => value === filters.slot)?.[1],
+    filters.dates.length
+      ? filters.dates.length === 1
+        ? formatLocalDate(filters.dates[0])
+        : `${filters.dates.length} dates`
+      : 'Any date',
+    `${filters.guests} ${filters.guests === 1 ? 'guest' : 'guests'}`,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   function updateDate(index, value) {
     setDates((current) => current.map((date, position) => (position === index ? value : date)));
@@ -47,12 +83,13 @@ export default function DiscoveryFilters({ filters, registry, route, path }) {
 
   return (
     /* Sort renders beside the result count, outside this element. It joins this
-       form through form="discovery-filters" so one submit carries every choice. */
+       form through form="discovery-filters" so one submit carries every choice.
+       Collapsed fields use display:none, which still submits their values. */
     <Form
       id="discovery-filters"
       action={path}
       onSubmit={() => measureBrowser('search_submitted')}
-      className="mt-7 rounded-lg border border-border bg-card p-4 text-meta sm:p-6"
+      className="mt-6 text-meta"
     >
       {!route?.city && <input type="hidden" name="city" value={kind ? city : ''} />}
       {!route?.area && <input type="hidden" name="area" value={kind === 'area' ? area : ''} />}
@@ -60,190 +97,256 @@ export default function DiscoveryFilters({ filters, registry, route, path }) {
         <input type="hidden" name="dates" value={dates.filter(Boolean).join(',')} />
       )}
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <label className="font-medium">
-          Where
-          {route?.city ? (
-            <span className={`${control} block bg-ink-50`}>
-              {route.area?.name || route.city.name}
-            </span>
-          ) : (
+      <button
+        type="button"
+        onClick={() => setEditing((open) => !open)}
+        aria-expanded={editing}
+        aria-controls="discovery-search-fields"
+        className="flex min-h-14 w-full items-center gap-3 rounded-full border border-border bg-card py-2 pr-2 pl-4 text-left shadow-sm lg:hidden"
+      >
+        <Search className="size-5 shrink-0 text-brand-700" aria-hidden="true" />
+        <span className="min-w-0 flex-1">
+          <span className="block truncate font-semibold text-ink-900">{where}</span>
+          <span className="block truncate text-tiny text-ink-600">{summary}</span>
+        </span>
+        <span className="inline-flex min-h-10 shrink-0 items-center gap-1 rounded-full bg-brand-50 px-4 font-semibold text-brand-800">
+          {editing ? 'Close' : 'Edit'}
+          <ChevronDown
+            className={`size-4 transition-transform duration-150 ${editing ? 'rotate-180' : ''}`}
+            aria-hidden="true"
+          />
+        </span>
+      </button>
+
+      <div id="discovery-search-fields" className={editing ? 'mt-3 lg:mt-0' : 'max-lg:hidden'}>
+        <div
+          className={`grid grid-cols-2 gap-3 rounded-xl border border-border bg-card p-3 shadow-sm lg:flex lg:items-stretch lg:gap-0 lg:overflow-hidden lg:p-0 lg:pl-1 ${
+            // Several date rows make the bar tall; a pill would clip its corners.
+            mode === 'separate' ? '' : 'lg:rounded-full'
+          }`}
+        >
+          <label className={`col-span-2 ${cell}`}>
+            Where
+            {route?.city ? (
+              <span className={`${barControl} flex items-center gap-2 bg-ink-50`}>
+                <MapPin className="size-4 text-brand-700" aria-hidden="true" />
+                {route.area?.name || route.city.name}
+              </span>
+            ) : (
+              <select
+                aria-label="Location"
+                value={location}
+                onChange={(event) => setLocation(event.target.value)}
+                className={barControl}
+              >
+                <option value="">All locations</option>
+                {registry.cities.map((item) => (
+                  <optgroup key={item.id} label={item.name}>
+                    <option value={`city:${item.slug}`}>Anywhere in {item.name}</option>
+                    {registry.areas
+                      .filter((candidate) => candidate.cityId === item.id)
+                      .map((candidate) => (
+                        <option key={candidate.id} value={`area:${item.slug}:${candidate.slug}`}>
+                          {candidate.name}, {item.name}
+                        </option>
+                      ))}
+                  </optgroup>
+                ))}
+              </select>
+            )}
+          </label>
+
+          <label className={cell}>
+            Visit type
             <select
-              aria-label="Location"
-              value={location}
-              onChange={(event) => setLocation(event.target.value)}
-              className={control}
+              aria-label="Slot"
+              name="slot"
+              defaultValue={filters.slot}
+              className={barControl}
             >
-              <option value="">All locations</option>
-              {registry.cities.map((item) => (
-                <optgroup key={item.id} label={item.name}>
-                  <option value={`city:${item.slug}`}>Anywhere in {item.name}</option>
-                  {registry.areas
-                    .filter((candidate) => candidate.cityId === item.id)
-                    .map((candidate) => (
-                      <option key={candidate.id} value={`area:${item.slug}:${candidate.slug}`}>
-                        {candidate.name}, {item.name}
-                      </option>
-                    ))}
-                </optgroup>
+              {(route?.intent?.slot
+                ? slots.filter(([value]) => value === route.intent.slot)
+                : slots
+              ).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
               ))}
             </select>
-          )}
-        </label>
-
-        <label className="font-medium">
-          Visit type
-          <select aria-label="Slot" name="slot" defaultValue={filters.slot} className={control}>
-            {(route?.intent?.slot
-              ? slots.filter(([value]) => value === route.intent.slot)
-              : slots
-            ).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="font-medium">
-          Date choice
-          <select
-            aria-label="Date mode"
-            name="mode"
-            value={mode}
-            onChange={(event) => setMode(event.target.value)}
-            className={control}
-          >
-            <option value="single">One visit</option>
-            <option value="consecutive">Consecutive visits</option>
-            <option value="separate">Separate dates</option>
-          </select>
-        </label>
-
-        <label className="font-medium">
-          Guests
-          <input
-            type="number"
-            name="guests"
-            min="1"
-            max="500"
-            defaultValue={filters.guests}
-            className={control}
-          />
-        </label>
-      </div>
-
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
-        <label className="font-medium">
-          Property name or locality
-          <input
-            name="q"
-            defaultValue={filters.q}
-            maxLength={100}
-            placeholder="For example, Kamrej"
-            className={control}
-          />
-        </label>
-        {mode === 'single' && (
-          <label className="font-medium">
-            Visit date
-            <input
-              type="date"
-              name="date"
-              defaultValue={dates[0]}
-              min={today}
-              max={lastDate}
-              className={control}
-            />
           </label>
-        )}
-        {mode === 'consecutive' && (
-          <div className="grid grid-cols-2 gap-3">
-            <label className="font-medium">
-              First visit
-              <input
-                type="date"
-                name="date"
-                defaultValue={dates[0]}
-                min={today}
-                max={lastDate}
-                className={control}
-              />
-            </label>
-            <label className="font-medium">
-              Last visit
-              <input
-                type="date"
-                name="end"
-                defaultValue={dates.at(-1)}
-                min={today}
-                max={lastDate}
-                className={control}
-              />
-            </label>
-          </div>
-        )}
-        {mode === 'separate' && (
-          <fieldset>
-            <legend className="font-medium">Visit dates</legend>
-            <div className="mt-1 flex flex-wrap gap-2">
-              {dates.map((date, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-1 rounded-full bg-brand-50 p-1 pl-3"
-                >
-                  <label className="sr-only" htmlFor={`visit-date-${index}`}>
-                    Visit date {index + 1}
-                  </label>
+
+          <label className={cell}>
+            Date choice
+            <select
+              aria-label="Date mode"
+              name="mode"
+              value={mode}
+              onChange={(event) => setMode(event.target.value)}
+              className={barControl}
+            >
+              <option value="single">One visit</option>
+              <option value="consecutive">Consecutive visits</option>
+              <option value="separate">Separate dates</option>
+            </select>
+          </label>
+
+          <div className={`col-span-2 ${cell} lg:flex-[1.4]`}>
+            {mode === 'single' && (
+              <label className="block">
+                Visit date
+                <input
+                  type="date"
+                  name="date"
+                  defaultValue={dates[0]}
+                  min={today}
+                  max={lastDate}
+                  className={barControl}
+                />
+              </label>
+            )}
+            {mode === 'consecutive' && (
+              <div className="grid grid-cols-2 gap-2">
+                <label>
+                  First visit
                   <input
-                    id={`visit-date-${index}`}
-                    aria-label={`Visit date ${index + 1}`}
                     type="date"
-                    value={date}
+                    name="date"
+                    defaultValue={dates[0]}
                     min={today}
                     max={lastDate}
-                    onChange={(event) => updateDate(index, event.target.value)}
-                    className="min-h-10 bg-transparent"
+                    className={barControl}
                   />
-                  {dates.length > 1 && (
+                </label>
+                <label>
+                  Last visit
+                  <input
+                    type="date"
+                    name="end"
+                    defaultValue={dates.at(-1)}
+                    min={today}
+                    max={lastDate}
+                    className={barControl}
+                  />
+                </label>
+              </div>
+            )}
+            {mode === 'separate' && (
+              <fieldset>
+                <legend>Visit dates</legend>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {dates.map((date, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-1 rounded-full bg-brand-50 p-1 pl-3"
+                    >
+                      <label className="sr-only" htmlFor={`visit-date-${index}`}>
+                        Visit date {index + 1}
+                      </label>
+                      <input
+                        id={`visit-date-${index}`}
+                        aria-label={`Visit date ${index + 1}`}
+                        type="date"
+                        value={date}
+                        min={today}
+                        max={lastDate}
+                        onChange={(event) => updateDate(index, event.target.value)}
+                        className="min-h-10 bg-transparent text-base font-normal tracking-normal normal-case lg:text-meta"
+                      />
+                      {dates.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setDates((current) =>
+                              current.filter((_, position) => position !== index),
+                            )
+                          }
+                          className="grid size-10 place-items-center rounded-full hover:bg-white"
+                          aria-label={`Remove ${date ? formatLocalDate(date) : `date ${index + 1}`}`}
+                        >
+                          <X className="size-4" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  {dates.length < 10 && (
                     <button
                       type="button"
-                      onClick={() =>
-                        setDates((current) => current.filter((_, position) => position !== index))
-                      }
-                      className="grid size-10 place-items-center rounded-full hover:bg-white"
-                      aria-label={`Remove ${date ? formatLocalDate(date) : `date ${index + 1}`}`}
+                      onClick={() => setDates((current) => [...current, ''])}
+                      className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border px-4 font-medium tracking-normal normal-case"
                     >
-                      <X className="size-4" />
+                      <Plus className="size-4" />
+                      Add date
                     </button>
                   )}
                 </div>
-              ))}
-              {dates.length < 10 && (
-                <button
-                  type="button"
-                  onClick={() => setDates((current) => [...current, ''])}
-                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border px-4 font-medium"
-                >
-                  <Plus className="size-4" />
-                  Add date
-                </button>
-              )}
-            </div>
-          </fieldset>
-        )}
+              </fieldset>
+            )}
+          </div>
+
+          <label className={`col-span-2 ${cell} lg:max-w-32 lg:border-r-0`}>
+            Guests
+            <input
+              type="number"
+              name="guests"
+              min="1"
+              max="500"
+              defaultValue={filters.guests}
+              className={barControl}
+            />
+          </label>
+
+          <div className="col-span-2 lg:flex lg:items-center lg:p-2">
+            <button
+              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-brand-600 px-6 font-semibold whitespace-nowrap text-white transition-colors hover:bg-brand-700"
+              type="submit"
+            >
+              <Search className="size-4" aria-hidden="true" />
+              Show places
+            </button>
+          </div>
+        </div>
       </div>
 
-      <details
-        className="mt-5"
-        open={advanced}
-        onToggle={(event) => setAdvanced(event.currentTarget.open)}
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setAdvanced((open) => !open)}
+          aria-expanded={advanced}
+          aria-controls="discovery-more-filters"
+          className={chip}
+        >
+          <SlidersHorizontal className="size-4" aria-hidden="true" />
+          Filters
+          {activeFilters ? (
+            <span className="grid min-w-5 place-items-center rounded-full bg-brand-600 px-1.5 text-tiny text-white">
+              {activeFilters}
+            </span>
+          ) : null}
+        </button>
+        <Link
+          href={path}
+          className="inline-flex min-h-10 items-center px-3 font-semibold text-brand-700 hover:underline"
+        >
+          Clear all
+        </Link>
+      </div>
+
+      <div
+        id="discovery-more-filters"
+        hidden={!advanced}
+        className="mt-3 rounded-xl border border-border bg-card p-4 sm:p-5"
       >
-        <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-full border border-border px-4 font-semibold">
-          <Filter className="size-4" />
-          Filters{advanced ? ' · open' : ''}
-        </summary>
-        <div className="mt-4 grid gap-4 rounded-lg bg-ink-25 p-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <label className="font-medium sm:col-span-2 lg:col-span-1">
+            Property name or locality
+            <input
+              name="q"
+              defaultValue={filters.q}
+              maxLength={100}
+              placeholder="For example, Kamrej"
+              className={control}
+            />
+          </label>
           {!route?.category && (
             <label className="font-medium">
               Property type
@@ -292,11 +395,14 @@ export default function DiscoveryFilters({ filters, registry, route, path }) {
           </label>
           <fieldset className="sm:col-span-2 lg:col-span-4">
             <legend className="font-medium">Amenities</legend>
-            <div className="mt-2 flex flex-wrap gap-x-5 gap-y-3">
+            <div className="mt-2 flex flex-wrap gap-2">
               {registry.amenities.map((item) => (
-                <label className="inline-flex min-h-11 items-center gap-2" key={item.slug}>
+                <label
+                  className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-full border border-border px-3 has-checked:border-brand-300 has-checked:bg-brand-50 has-checked:text-brand-800"
+                  key={item.slug}
+                >
                   <input
-                    className="size-5 accent-brand-600"
+                    className="size-4 accent-brand-600"
                     type="checkbox"
                     name="amenities"
                     value={item.slug}
@@ -308,24 +414,13 @@ export default function DiscoveryFilters({ filters, registry, route, path }) {
             </div>
           </fieldset>
         </div>
-      </details>
-
-      <div className="mt-5 flex flex-wrap items-center gap-4">
         <button
-          className="inline-flex min-h-12 items-center gap-2 rounded-md bg-brand-600 px-6 font-semibold text-white transition-colors hover:bg-brand-700"
+          className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-brand-600 px-5 font-semibold text-white transition-colors hover:bg-brand-700"
           type="submit"
         >
-          <Search className="size-4" aria-hidden="true" />
-          Show places
+          Apply filters
         </button>
-        <Link href={path} className="inline-flex min-h-11 items-center text-brand-700 underline">
-          Clear all
-        </Link>
       </div>
-      <p className="mt-3 text-tiny text-ink-600">
-        With dates, prices include rent and the platform fee for every visit and guest. Refundable
-        deposits are shown separately.
-      </p>
     </Form>
   );
 }

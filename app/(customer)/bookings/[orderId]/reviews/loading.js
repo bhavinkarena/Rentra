@@ -1,5 +1,5 @@
 import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
 
 export default function Loading() {
-  return <ScreenSkeleton screen="review-detail" label="Loading bookings booking reviews" inset />;
+  return <ScreenSkeleton screen="review-detail" label="Loading review" inset />;
 }

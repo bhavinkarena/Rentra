@@ -23,7 +23,7 @@ colors:
   ink-100: '#ebeeeb'
   ink-200: '#dce1dd'
   ink-300: '#c0c7c2'
-  ink-400: '#66736a'
+  ink-400: '#9aa39d'
   ink-500: '#59655d'
   ink-600: '#5a635d'
   ink-700: '#414843'
@@ -38,22 +38,27 @@ colors:
   info: '#2563a5'
   info-bg: '#eaf1f8'
   whatsapp: '#1fa855'
+  forest-deep: '#142e23'
+  forest-line: '#3c5546'
+  paper: '#f5f6ed'
+  lime: '#dbeaaf'
+  lime-soft: '#e5efc8'
 typography:
   display:
     fontFamily: "'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Noto Sans Gujarati', system-ui, -apple-system, sans-serif"
-    fontSize: 'clamp(2.5rem, 4.2vw, 3.75rem)'
-    fontWeight: 600
-    lineHeight: 1.12
+    fontSize: '2.75rem'
+    fontWeight: 800
+    lineHeight: 1.06
     letterSpacing: '-0.035em'
   h1:
     fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif"
-    fontSize: 'clamp(1.875rem, 3vw, 2.5rem)'
+    fontSize: '2.125rem'
     fontWeight: 700
     lineHeight: 1.15
     letterSpacing: '-0.03em'
   h2:
     fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif"
-    fontSize: 'clamp(1.5rem, 2.4vw, 2rem)'
+    fontSize: '1.625rem'
     fontWeight: 700
     lineHeight: 1.22
     letterSpacing: '-0.025em'
@@ -96,10 +101,11 @@ typography:
     fontSize: '0.875rem'
     lineHeight: 1.62
 rounded:
-  sm: '6px'
-  md: '10px'
-  lg: '14px'
-  xl: '20px'
+  sm: '8px'
+  md: '12px'
+  lg: '16px'
+  xl: '24px'
+  full: '9999px'
 spacing:
   '1': '4px'
   '2': '8px'
@@ -116,7 +122,7 @@ components:
   button-primary:
     backgroundColor: '{colors.brand-600}'
     textColor: '{colors.ink-0}'
-    rounded: '{rounded.md}'
+    rounded: '{rounded.full}'
     padding: '0 16px'
     height: '44px'
   button-primary-hover:
@@ -165,7 +171,15 @@ components:
     padding: '0 10px'
   listing-photo:
     backgroundColor: '{colors.ink-100}'
-    rounded: '{rounded.lg}'
+    rounded: '{rounded.md}'
+  chip:
+    backgroundColor: '{colors.ink-0}'
+    textColor: '{colors.ink-700}'
+    rounded: '{rounded.full}'
+    height: '40px'
+  footer:
+    backgroundColor: '{colors.forest-deep}'
+    textColor: '{colors.paper}'
   booking-summary:
     backgroundColor: '{colors.ink-0}'
     textColor: '{colors.ink-900}'
@@ -179,160 +193,130 @@ components:
 
 **Creative North Star: "A Clear Path to the Outdoors"**
 
-RENTRA pairs bright, lightly green-tinted surfaces with grounded forest accents and real property photography. The public experience feels open and relaxed, while type, navigation, and financial detail make the next action clear. Imagery carries the atmosphere; interface decoration stays restrained.
+Sunlit property photography on pale, slightly green-tinted ground; forest green for every action; a deep-forest footer with a lime accent. The public home page is the reference for the whole customer experience and was re-approved by the owner on 29 Sep 2026 after an earlier redesign was rejected. The redesign plan (`RENTra-UI-REDESIGN-PLAN.md`) carries this look to every other customer page rather than replacing it.
 
-The same identity continues into owner, administrator, and caretaker workspaces through the local brand face, compact typography, tabular figures, forest navigation, and explicit states. Discovery cards and booking/financial surfaces serve different purposes: a photograph invites exploration; a bordered summary organizes a decision.
+Owner and admin workspaces share the tokens and type but keep their own dense, forest-sidebar shell. Nothing in this file changes them.
 
-**Key Characteristics:**
+**Key characteristics**
 
-- Bright nature-led surfaces and a forest action accent.
-- Real photography with quiet, flat listing anatomy.
-- One locally served type family with surface-specific density.
-- Clear forms, financial hierarchy, and permission-aware navigation.
-- Short state transitions with reduced-motion support.
+- Full-bleed photography on discovery surfaces; flat listing cards (photo + text, no box).
+- One action colour (forest green). Lime appears only on forest-deep surfaces.
+- Pill-shaped actions and chips, as in the home hero and footer.
+- Icon + short label rows in place of paragraphs.
+- Honest data: no invented ratings, counts, badges or photos.
 
-The frontmatter is the normative token record. Values come from `app/globals.css` and the existing component implementations. `.impeccable/design.json` extends this record with depth, motion, responsive thresholds, and standalone component samples. It is documentation, not a second runtime theme.
+The frontmatter is the token record; runtime values live in `app/globals.css` and win if the two disagree.
 
 ## Colors
 
-The palette is cool sunlight on pale ground, with deep field greens for action and sparse functional accents.
+- **Brand ramp (`brand-50…950`).** `brand-600` is the action fill; `brand-700` its hover and link colour. `brand-50` tints supportive surfaces (icon wells, selected chips). `brand-400` is decorative only.
+- **Amber.** Star ratings and peak-price context only. `amber-700` when amber is text.
+- **Ink ramp.** `ink-25` is the page, `ink-0` form and summary surfaces, `ink-100` photo placeholders, `ink-200` dividers, `ink-300` input borders, `ink-500/600` secondary text, `ink-900` primary text. `ink-400` is non-text.
+- **Semantic pairs.** success/warning/danger/info with matching `-bg`. Always pair colour with a text label.
+- **Forest-deep surfaces.** `forest-deep` background, `paper` text (at 60–75% for secondary), `lime` for accent text and headings, `lime-soft` for the one action fill, `forest-line` for dividers. Used by the footer; available for confirmation moments. Never put lime on a light surface.
+- **WhatsApp green.** Only the published WhatsApp contact button.
+- Occasion-picker tints in `components/rentra/OccasionPicker.jsx` are local to that component.
 
-### Primary
-
-The `brand-*` ramp runs from pale field tint to deep forest. `brand-600` is the light-surface action fill; `brand-700` is its hover and prominent-link companion. The darker end anchors navigation and the public headline, while pale tints distinguish selected or supportive surfaces. Preserve `brand-400` for fills rather than ordinary small text on light ground.
-
-**The Action Color Rule.** Forest green identifies the supported next action; additional color must explain state, rating, pricing context, or an existing external service.
-
-### Secondary
-
-Harvest amber is used for ratings, peak-price context, and existing portal attention badges. It is not a competing primary CTA color. Use the darker amber text token when amber conveys text rather than a star fill.
-
-Semantic success, warning, danger, and information pairs communicate existing states. WhatsApp green belongs only to the published WhatsApp contact action, shown when a real contact exists.
-
-### Neutral
-
-`ink-25` is the page ground; `ink-0` is the solid content and form surface. `ink-50` and `ink-100` create gentle grouping. `ink-200` separates surfaces, and `ink-300` outlines inputs. Primary text uses `ink-900`; the middle/darker neutral tokens provide secondary text and supporting detail.
-
-The shadcn semantic slots resolve to these runtime values. Scoped `.dark` overrides exist for operational shells; they are opt-in. Public discovery and booking remain light. The dark forest sidebar is navigation chrome and does not itself enable a dark page theme.
+Public and customer pages are light only. `.dark` exists for opt-in operational shells.
 
 ## Typography
 
-**Display Font:** Plus Jakarta Sans, with the existing system and Indic fallback stack.
+Plus Jakarta Sans, served locally (`assets/fonts/PlusJakartaSans-latin-variable.woff2`), with system and Indic fallbacks.
 
-**Body Font:** Plus Jakarta Sans, served locally by `next/font/local` from `assets/fonts/PlusJakartaSans-latin-variable.woff2`.
+| Role               | Size                       | Weight  | Use                                       |
+| ------------------ | -------------------------- | ------- | ----------------------------------------- |
+| `display`          | 2.75rem, lh 1.06, -0.035em | 800     | Home hero headline only                   |
+| `h1`               | 2.125rem                   | 700     | Page title                                |
+| `h2`               | 1.625rem                   | 700     | Section title                             |
+| `h3`               | 1.25rem                    | 600     | Sub-section, city row title               |
+| `h4`               | 1.0625rem                  | 600     | Card title, price                         |
+| `body-lg` / `body` | 1.0625 / 1rem, lh 1.62     | 400     | Reading text                              |
+| `meta`             | 0.875rem                   | 400–600 | Nav, labels, secondary detail, chips      |
+| `tiny`             | 0.75rem                    | 500     | Badges, eyebrow labels, footer legal line |
 
-**Character:** A readable, softly geometric voice throughout the product. Expressive public headlines use the fluid display scale; operational pages use a denser scoped scale without changing the brand face.
-
-### Hierarchy
-
-- **Display:** The fluid `display` role is used for the public hero; compact negative tracking and balanced wrapping keep it calm.
-- **Headlines:** `h1` and `h2` provide page and section hierarchy. `h3` and `h4` name subgroups and repeated listings.
-- **Body:** `body-lg` supports short introductory copy; `body` supports normal reading.
-- **Labels and metadata:** `meta` supports navigation and useful detail; `tiny` supports short secondary labels. Do not promote a long explanation into tiny text.
-- **Portal:** `.portal-ui` sets `h1` to 1.875rem, `h2` to 1.5rem, `h3` to 1.0625rem, `h4` and body-large to 0.9375rem, and body to 0.875rem. Metadata and tiny sizes remain unchanged. These are existing scope overrides, not a separate font identity.
-
-**The Stable Figures Rule.** Money, dates, timers, and aligned table values use tabular figures. Keep prices readable at their financial hierarchy rather than relying on a decorative monospace font.
-
-Headings balance and allow long content to wrap. Paragraphs use pretty wrapping. Hindi and Gujarati language selectors increase leading; fallback names alone do not load localized font files.
+Rules: headings balance and wrap; paragraphs use pretty wrapping. Money, dates and times use tabular figures (`data-money`, `<time>`, `.tabular`). Long explanations never go in `tiny` or arbitrary `text-[11px]`. Inputs are 16px below 768px so iOS does not zoom. `.portal-ui` scales headings down for operational workspaces.
 
 ## Layout
 
-The public page container is capped at the observed 1280px token, with 16px side gutters increasing to 24px at the small threshold. Tailwind spacing uses the existing 4px base. Compact controls use small steps; section padding grows from 40px to 56px where the current public pages do so.
-
-The home page places copy beside a real listing photo from the medium threshold, with the search form below. On narrower screens, the composition stacks. The photo and matching home skeleton are 16:8 below 768px and 4:3 from 768px, with a 420px height cap from the large threshold. The shallow mobile photo keeps the search form inside the tested 390 × 844 first viewport. This is a home-surface composition, not a required layout for every page.
-
-Listing grids use one column, then two at small, three at large, and four at extra-large widths. The four-cell search form starts as a two-column grid with a full-width search action, becoming a single horizontal row at medium width. Listing pages separate descriptive content, availability, and the booking summary; the narrow-screen booking bar yields the bottom action position, including clearance for the WhatsApp contact.
-
-Operational workspaces use a persistent forest sidebar at large width and a mobile drawer below it. The full sidebar is 236px wide and can collapse to a 64px icon rail. The rail preference is browser-local; keyboard-focus labels remain available. Tables and forms must keep their existing overflow and stacking behavior instead of shrinking content into unreadable density. The caretaker workspace is independently phone-first.
-
-The responsive thresholds inherited from Tailwind are carried in the sidecar. Refer to the actual route and component for narrower content-specific layouts.
+- Container: `max-w-(--container-page)` = 1280px, gutters 16px (mobile) / 24px (≥640px). Reading pages (help, policies) use a narrower text column inside it.
+- 4px spacing base. Sections 40px apart on mobile, 56px on desktop.
+- Header: sticky, light (`bg-background/90`, blur, bottom border), wordmark left (mark only below `sm`), `CustomerNavigation` right, "List your place" as a quiet link from `md`. Not floating, not framed.
+- Home: full-bleed photo hero (`HeroPhotos`, manual switcher) with the headline, `SearchBar` and intent chips inside it; `TrustStrip` below; "Explore places" with horizontally scrolling `CityRow`s ("Near {City}"); `OccasionPicker`; city chips; owner call-to-action; footer.
+- Listing grids: 1 → 2 (`sm`) → 3 (`lg`) → 4 (`xl`) columns. City rows scroll horizontally with arrow buttons.
+- Footer: compact deep-forest block — brand + one-line invitation, "Your next getaway" links, "Have a place to share?" with a lime-soft pill, city links, then legal links and the intermediary statement.
+- Listing pages reserve the bottom of narrow screens for the booking bar; the WhatsApp float moves above it via `--float-bottom`.
 
 ## Elevation & Depth
 
-The product is flat by default, with photographs and pale surface shifts supplying depth. Listing cards have no enclosing border or resting shadow. Booking summaries, search, floating controls, popovers, and overlays use the existing restrained shadow vocabulary when they need separation from surrounding content.
+Flat by default; photography supplies depth.
 
-### Shadow Vocabulary
-
-- **Extra-low:** `shadow-xs` gives minimal separation.
-- **Low:** `shadow-sm` supports small selected/floating surfaces.
-- **Summary:** `shadow-md` supports the search and booking decision surface.
-- **Overlay:** `shadow-lg` supports floating controls and overlay details.
-- **Focus:** `shadow-focus` supplements the visible outline. Preserve the shared two-pixel outline and offset rather than relying on the shadow alone.
-
-Exact shadow values are in the sidecar and runtime CSS. Shared Button and Input retain the global two-pixel `:focus-visible` outline with a three-pixel offset. Their component rings supplement this outline; removing a ring for an embedded field must not remove its keyboard outline.
-
-**The Flat Discovery Rule.** Keep the photograph and text as a single flat listing; reserve bordered, padded financial surfaces for quote and transaction decisions.
+- `shadow-xs` / `shadow-sm`: small selected or floating controls.
+- `shadow-md`: booking summary, sticky bars.
+- `shadow-lg`: the hero search bar, popovers, dialogs, the WhatsApp float.
+- Focus: 2px `--ring` outline with 3px offset plus `shadow-focus`, everywhere.
+  No resting shadow on listing or information cards.
 
 ## Shapes
 
-The implemented radius scale is compact: small accents use `sm`, controls use `md`, listing media and summaries use `lg`, and the hero photo uses `xl`. Borders are quiet functional separators. Rounded badges, circular save/contact controls, and avatars remain purpose-specific exceptions rather than a recipe for wrapping every section.
+Runtime radii: `sm` 8px, `md` 12px, `lg` 16px, `xl` 24px, `full`.
 
-Keep photography clipped to its media shape and retain its reserved aspect ratio while loading. Scrims are legibility treatments on images, not a general gradient style. Missing photography uses the existing neutral placeholder and honest copy.
+| Element                                                                      | Radius         |
+| ---------------------------------------------------------------------------- | -------------- |
+| Buttons, CTAs, chips, tabs, single-line search inputs, icon buttons, avatars | `rounded-full` |
+| Labelled form fields, selects, textareas, small icon wells                   | `rounded-md`   |
+| Listing photos                                                               | `rounded-md`   |
+| Summary cards, dialogs, record groups                                        | `rounded-lg`   |
+| Large feature panels (occasion picker, auth photo)                           | `rounded-xl`   |
+
+Do not use bare `rounded`, `rounded-2xl` or `rounded-3xl` in customer code: `--radius-xl` is overridden to 24px while Tailwind's `2xl` stays at 16px, so the scale is inverted above `xl`.
 
 ## Components
 
-### Buttons
+### Buttons and chips
 
-The shared `Button` uses `class-variance-authority` with default, outline, secondary, ghost, destructive, and link variants. The default control is 44px high with compact semibold text; large controls are 48px. Smaller variants are present for dense existing contexts and should not be treated as the default mobile touch size.
+`components/ui/button.jsx` (CVA): default, outline, secondary, ghost, destructive, link; heights 44px (default) and 48px (`lg`). On public and customer pages pass `rounded-full` to match the home page. Primary = `brand-600`, hover `brand-700`; never `bg-primary` hand-rolled alongside it. Chips: `min-h-10 rounded-full border border-border px-4 text-meta`, hover `border-brand-300 bg-brand-50 text-brand-800`; on photos use `border-white/25 bg-white/10 text-white backdrop-blur`. Keep pending labels and disabled guards.
 
-Primary actions use forest fill and white text; hover deepens the forest. Outline and secondary actions keep neutral surfaces. Destructive actions use semantic danger rather than forest. Disabled and pending states preserve their existing behavior and feedback. Background/color/border changes are short; pressed actions scale slightly when appropriate.
+### Search bar
 
-### Chips and Badges
+`components/rentra/SearchBar.jsx`: white labelled cells (Where / When / Slot / Guests) in one `rounded-full` bar on desktop, stacked `rounded-lg` card on mobile, `shadow-lg`, pill search button. Every cell ≥ 44px.
 
-Slot-selection buttons keep `aria-pressed`, the selected white surface, dark forest text, and the low selection shadow. Ratings retain amber stars. Status and trust badges describe only data supplied by the existing backend or content. Keep their labels visible rather than encoding meaning through color alone.
+### Listing card
 
-### Cards / Containers
+`components/rentra/ListingCard.jsx` is the only property card. 4:3 photo (`rounded-md`, top scrim, `TrustBadge` from API, `SaveButton` as a separate control, photo-count dots), then area (h4), "New" or rating, title as a stretched link, capacity line, price with "from" only when `isFromPrice`. When every card on a page shares one price note, show it once below the list. Missing photo: "Photos coming soon"; failed photo: `PropertyImage` fallback.
 
-Listing cards reserve 4:3 photography, then title/rating, location, capacity/facility detail, and price/unit. Preserve source-backed ratings, badges, counts, and the distinction between from-price and date-specific price. Property names use the full card width; location and review information wrap on the following row, with each rating kept together. Only priced rows receive a from qualifier. Home may show an identical API price qualification once above the grid when all cards share it, associating it with each property link; retain individual notes elsewhere and when conditions differ. Photo hover scales gently only when motion is allowed; the save control remains a separate interaction.
+### Inputs and forms
 
-Booking/financial summaries use a white surface, border, observed padding, and restrained depth to group date, guest, quote, fee, and transaction detail. Preserve the existing quote provider and minor-unit money formatting. Do not give every descriptive section this treatment.
-
-### Inputs / Fields
-
-The shared input is 44px high, uses the input border token, a white content surface, and the control radius. Input text is 16px below 768px and 14px from 768px. Keep visible labels, field associations, focus, invalid, disabled, and pending feedback. Server action and API field errors remain part of the form contract. Page-specific customer forms still have independent recipes; their integration is tracked in the redesign plan and is not certified by these shared primitive rules.
+`components/ui/input.jsx`: 44px, `rounded-md`, `border-input`, `bg-card`, 16px text below `md`. Visible labels, described errors, server-action field errors, pending states and unsaved-change guards stay as implemented. New shared field/select/textarea primitives are added in the phase that first needs them (see plan D7).
 
 ### Navigation
 
-Public and customer navigation share `CustomerHeader`: a sticky warm-white surround with a framed white navigation surface, pill-shaped active and login controls, the delivered wordmark and a separated host link on wider screens. Keep the wordmark visible on phones; use the existing accessible icon navigation to preserve room. Customer role detection, account avatar, nested account state, saved/bookings links and skip-link targets remain unchanged. Preserve 44px targets, keyboard focus, wrap at enlarged text, and the existing portal/sidebar system outside these layouts.
+`components/customer/CustomerNavigation.jsx`: Explore, Saved, Bookings (signed in), avatar menu; icon-only below `sm`, 44px targets, active item on a `brand-50` pill.
 
-The public footer is a deep-forest closing section with a large invitation, pale-lime discovery action, inverse brand lockup and grouped discovery/support/hosting links. A labelled native city selector is used at all widths; the associated category and five occasion links switch together. All destination links remain prerendered. Do not reintroduce a large repeated SEO list or expanding columns. Legal policies and the published intermediary statement remain visible. Use light focus outlines and readable pale text on the forest surface.
+### Badges and status
 
-### Dialogs, Popovers, and States
+`components/ui/badge.jsx` for status; `TrustBadge` for API-supplied verification; `Rating` with amber stars. Status always has a text label.
 
-Existing Radix primitives supply dialog/popover behavior in booking and selection flows. Preserve their semantic triggers, escape/focus behavior, and overscroll containment. Forms retain the existing unsaved-change guard and validation summary where supplied.
+### States
 
-Use the shared portal state, retry, navigation progress, brand loader, and skeleton components. State copy should name the relevant failure or next step without turning permission denial into an empty list. Skeletons reserve the shape of the future content. No testimonial, verification, price, or capability may be introduced as a loading placeholder.
+Empty states: icon in a brand tint, one-line title, one-line explanation, one action (reference: `BookingHistory` empty state). Errors: say what failed and offer a real next step; do not reuse search advice on unrelated pages. Loading: `ScreenSkeleton`/route skeletons that match the final layout; labels in plain words.
 
 ### Motion
 
-Controls use brief, state-driven transitions; card imagery uses a 200ms ease-out transform. Navigation, sidebar width, and loading animations communicate actual state. Listing submission has existing one-shot confirmation motion. Respect the global reduced-motion rule and component-level motion variants; avoid new decorative loops or page-wide reveal sequences.
+150–200ms colour/opacity/transform feedback; listing photo hover scale (300ms, `motion-safe`); hero photo switch and occasion tabs are user-triggered, never autoplay. No scroll-triggered reveals. Everything respects `prefers-reduced-motion`.
 
 ## Do's and Don'ts
 
-### Do:
+**Do**
 
-- **Do** use the local Plus Jakarta Sans face across public and portal surfaces, with the existing scoped density.
-- **Do** use real listing imagery and keep honest unavailable or empty states when data is absent.
-- **Do** keep discovery cards flat and give booking/financial summaries their own clear hierarchy.
-- **Do** preserve API-backed prices, dates, fees, permissions, form state, and role-specific navigation.
-- **Do** retain visible keyboard focus, semantic labels, tabular figures, and reduced-motion behavior.
+- Reuse the home page's pieces (chips, pill CTAs, `ListingCard`, `SearchBar`, forest footer) before inventing new ones.
+- Use real photos and real data; show honest empty/unavailable states.
+- Keep from-prices distinct from date-specific quotes, fees and deposits.
+- Keep focus outlines, labels, tabular figures and reduced-motion support.
 
-### Don't:
+**Don't**
 
-- **Don't** fabricate verification, guarantees, reviews, prices, proof counts, or new functionality.
-- **Don't** wrap every section in a rounded white card or add broad gradients, glass, and repeated shadows.
-- **Don't** introduce backend/API changes as part of this visual system.
-- **Don't** change public pages to dark mode or replace real property assets with invented imagery.
-- **Don't** claim that documentation establishes successful QA or production readiness.
-
-Home treats a successful empty listing result separately from an API read failure. Keep honest recovery and photo placeholders. Its four search fields have at least 44px targets; compact cell padding preserves the existing first-viewport mobile search composition.
-
-### Expressive home discovery
-
-All design decisions remain open for reassessment under the user's full-scope reopening. Occasion discovery uses dedicated, credited editorial inspiration photos for picnic, pool, bonfire, couple photography and team gathering. A tab change synchronizes photo, caption, copy, panel tone and action; the selected city persists. Do not label inspiration imagery as a real Rentra property. Preserve blur placeholders, keyboard tab navigation and reduced-motion support.
-
-The home rebuild uses an immersive, attributed property photograph with display typography up to 86px, a manual three-property hero, a native horizontally scrolling property rail and occasion/city discovery. Keep all content visible without entrance-animation dependencies. Rail cards use larger portrait crops only on home; search cards retain their existing geometry. Native scrolling, directional controls and keyboard access must agree at both rail boundaries.
-
-Home adds scoped warm white `#fafbf8`, pale olive `#e9efdf` and light lime `#dbebbc` to the established forest identity. These are editorial discovery surfaces, not replacements for financial/status tokens. Light 3px focus outlines belong on the dark hero and photo-credit surfaces; controls on pale surfaces retain forest focus. Real photo attribution and truthful price qualifications stay visible.
-
-Hero changes use a 450ms photo transition, property photos use a 400ms hover/focus transform, and action arrows move briefly on hover. Motion is manually triggered, never autoplay, and disabled by reduced-motion preferences. Occasion tabs use arrow keys/Home/End and retain owner-permission caveats. See the [home rebuild record](docs/rentra-ui-redesign-phase-4-rework.md).
+- Bring back the floating pill header, rounded carousel hero, oversized editorial display type or portrait property rail from the rejected redesign.
+- Wrap every section in a rounded bordered card, or add gradients, glass or hover shadows to information.
+- Show raw IDs, enums or ISO timestamps to customers.
+- Put lime on light surfaces or add a second action colour.
+- Change APIs, routes, validation or money formatting as part of visual work.

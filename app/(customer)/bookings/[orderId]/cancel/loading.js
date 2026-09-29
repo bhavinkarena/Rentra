@@ -1,5 +1,5 @@
 import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
 
 export default function Loading() {
-  return <ScreenSkeleton screen="form" label="Loading bookings booking cancel" inset />;
+  return <ScreenSkeleton screen="form" label="Loading cancellation" inset />;
 }

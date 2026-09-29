@@ -94,6 +94,14 @@
   --color-info-bg: #eaf1f8;
   --color-whatsapp: #1fa855; /* the ONE permitted second accent */
 
+  /* --- Deep forest surfaces (footer, dark panels) with the lime accent.
+         Lime is for text/fills on forest-deep only, never on light ground. --- */
+  --color-forest-deep: #142e23;
+  --color-forest-line: #3c5546; /* dividers on forest-deep */
+  --color-paper: #f5f6ed; /* body text on forest-deep */
+  --color-lime: #dbeaaf; /* accent text on forest-deep */
+  --color-lime-soft: #e5efc8; /* action fill on forest-deep */
+
   /* --- Type scale --- */
   --text-display: 2.75rem;
   --text-display--line-height: 1.06;

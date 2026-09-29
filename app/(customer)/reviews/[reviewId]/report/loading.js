@@ -1,5 +1,5 @@
 import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
 
 export default function Loading() {
-  return <ScreenSkeleton screen="form" label="Loading reviews [reviewId] report" inset />;
+  return <ScreenSkeleton screen="form" label="Loading report" inset />;
 }

@@ -46,3 +46,6 @@ next-env.d.ts
 # development seed photography — regenerate with `npm run seed:images`
 /public/seed
 .impeccable
+
+# redesign QA screenshots (local evidence only)
+/.impeccable/redesign/

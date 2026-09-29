@@ -1,5 +1,5 @@
 import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
 
 export default function Loading() {
-  return <ScreenSkeleton screen="updates" label="Loading account notifications" inset />;
+  return <ScreenSkeleton screen="updates" label="Loading notifications" inset />;
 }

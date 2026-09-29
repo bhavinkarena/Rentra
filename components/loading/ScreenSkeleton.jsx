@@ -239,7 +239,9 @@ function Content({ screen }) {
       return (
         <>
           <Header />
-          <Filters />
+          {/* Compact search bar (a summary pill on phones) and the Filters chip. */}
+          <Block className="h-14 w-full rounded-full lg:h-16" />
+          <Block className="h-10 w-28 rounded-full" />
           <div className="flex justify-between">
             <Block className="h-4 w-40" />
             <Block className="h-10 w-36" />
