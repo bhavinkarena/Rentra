@@ -20,7 +20,7 @@ export default function ReconcilePayment({ paymentId, requestKey }) {
       </p>
       <button
         disabled={pending}
-        className="inline-flex min-h-11 items-center gap-2 rounded bg-brand-700 px-4 font-semibold text-white disabled:opacity-70"
+        className="inline-flex min-h-11 items-center gap-2 rounded-md bg-primary px-4 font-semibold text-white disabled:bg-muted disabled:text-muted-foreground"
       >
         {pending ? (
           <RentraLoader label="Checking with the provider…" />

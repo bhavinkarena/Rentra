@@ -6,7 +6,10 @@ import { RentraLogo } from '@/components/rentra/Logo';
 export default function AuthLayout({ partner = false, children }) {
   return (
     <div className="mx-auto grid min-h-dvh max-w-(--container-page) gap-7 p-4 sm:gap-8 sm:p-8 lg:grid-cols-2 lg:gap-16">
-      <aside className="relative order-2 min-h-60 overflow-hidden rounded-xl bg-brand-900 lg:order-1 lg:min-h-[640px]">
+      <aside
+        data-surface="inverse"
+        className="relative order-2 min-h-60 overflow-hidden rounded-xl bg-brand-900 lg:order-1 lg:min-h-[640px]"
+      >
         <Image
           src={partner ? '/images/partner-login.jpg' : '/images/guest-login.jpg'}
           alt={partner ? 'A welcoming farmhouse bedroom' : 'A pool surrounded by greenery'}

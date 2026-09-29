@@ -1,9 +1,10 @@
 'use client';
 
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import { useState } from 'react';
 import { CommandForm, FieldError, control } from '@/components/admin/PropertyCommandForm';
 
-const area = 'mt-1 w-full rounded-md border border-input bg-card px-3 py-2 text-meta';
+const area = `${sharedFieldClass} mt-1`;
 
 function Consequences({ items }) {
   return (

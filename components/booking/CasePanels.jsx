@@ -14,7 +14,7 @@ const AUDIENCE = {
 
 export function CaseState({ item }) {
   return item.state === 'open' ? (
-    <span className={`${chip} bg-amber-100 text-amber-800`}>Open</span>
+    <span className={`${chip} bg-warning-bg text-warning`}>Open</span>
   ) : (
     <span className={`${chip} bg-ink-50 text-ink-700`}>{item.outcomeLabel ?? 'Resolved'}</span>
   );
@@ -57,7 +57,7 @@ export function OwnerCases({ record }) {
     <section
       id="requests"
       aria-labelledby="requests-heading"
-      className="scroll-mt-24 space-y-3 rounded-2xl border border-border bg-card p-5 sm:p-7 lg:col-span-2"
+      className="scroll-mt-24 space-y-3 rounded-lg border border-border bg-card p-5 sm:p-7 lg:col-span-2"
     >
       <h2 id="requests-heading" className="flex items-center gap-2 text-h3">
         <ClipboardList className="size-5 text-brand-700" aria-hidden="true" />
@@ -107,7 +107,7 @@ export function CustomerCaseUpdates({ record }) {
   return (
     <section
       aria-labelledby="rentra-updates-heading"
-      className="space-y-3 rounded-2xl border border-border bg-card p-5 sm:p-7 lg:col-span-2"
+      className="space-y-3 rounded-lg border border-border bg-card p-5 sm:p-7 lg:col-span-2"
     >
       <h2 id="rentra-updates-heading" className="flex items-center gap-2 text-h3">
         <MessageSquareText className="size-5 text-brand-700" aria-hidden="true" />

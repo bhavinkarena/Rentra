@@ -282,6 +282,7 @@ export default function SavedPlacesProvider({ children }) {
       {error && pathname !== '/saved' ? (
         <div
           role="alert"
+          data-surface="inverse"
           className="fixed inset-x-4 bottom-20 z-[70] mx-auto flex max-w-md items-center justify-between gap-4 rounded-lg bg-ink-900 p-4 text-meta text-white shadow-lg animate-in duration-200 ease-out fade-in slide-in-from-bottom-2"
         >
           <span>{error}</span>
@@ -296,6 +297,7 @@ export default function SavedPlacesProvider({ children }) {
       {undo && current ? (
         <div
           role="status"
+          data-surface="inverse"
           className="fixed inset-x-4 bottom-5 z-[70] mx-auto flex max-w-md items-center justify-between gap-4 rounded-lg bg-ink-900 p-4 text-white shadow-lg animate-in duration-200 ease-out fade-in slide-in-from-bottom-2"
         >
           <span>Removed from saved</span>

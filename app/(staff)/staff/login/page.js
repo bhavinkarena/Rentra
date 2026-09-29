@@ -8,7 +8,7 @@ export default async function StaffLoginPage({ searchParams }) {
     <div className="mx-auto max-w-md space-y-5">
       <h1 className="text-h2 font-bold text-ink-900">Caretaker sign in</h1>
       {query.session === 'ended' ? (
-        <p role="status" className="rounded-md bg-warning-bg p-3 text-meta text-amber-900">
+        <p role="status" className="rounded-md bg-warning-bg p-3 text-meta text-warning">
           Your caretaker session ended or the owner changed your access. Sign in again, or ask the
           owner for a new link.
         </p>

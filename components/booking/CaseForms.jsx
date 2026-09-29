@@ -1,4 +1,6 @@
 'use client';
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
+import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import { useActionState, useId, useState, useTransition } from 'react';
 import { ClipboardList, MessageSquarePlus, Scale, UserCheck } from 'lucide-react';
 import RentraLoader from '@/components/ui/rentra-loader';
@@ -18,11 +20,10 @@ import {
   resolveAdminCase,
 } from '@/lib/actions/admin';
 
-const field = 'mt-1 block min-h-11 w-full rounded border border-border bg-card p-2';
-const button =
-  'inline-flex min-h-11 items-center gap-2 rounded bg-brand-700 px-4 font-semibold text-white disabled:opacity-70';
+const field = `${sharedFieldClass} mt-1 min-h-11`;
+const button = `${sharedButtonVariants({ shape: 'default', size: 'default' })} `;
 const secondary =
-  'inline-flex min-h-11 items-center gap-2 rounded border border-border bg-card px-4 font-semibold text-brand-700 disabled:opacity-70';
+  'inline-flex min-h-11 items-center gap-2 rounded-md border border-border bg-card px-4 font-semibold text-brand-700 disabled:opacity-70';
 
 function Problem({ message }) {
   return message ? (
@@ -105,7 +106,7 @@ export function CreateCaseForm({ orderId, visits, requestKey, admin = false }) {
           </div>
         ) : null}
         {admin && type === 'change_request' ? (
-          <fieldset className="rounded border border-border p-3">
+          <fieldset className="rounded-md border border-border p-3">
             <legend className="font-medium">Requested new dates (checked, never held)</legend>
             <div className="grid gap-3 sm:grid-cols-3">
               <label className="block">
@@ -284,7 +285,7 @@ function PreviewTable({ result }) {
           : `${preview.remainingVisits} other visit(s) stay booked`}
       </p>
       {replacement ? (
-        <p className="rounded bg-card p-2">
+        <p className="rounded-md bg-card p-2">
           Requested {replacement.dates.join(', ')} ({replacement.slot.replaceAll('_', ' ')},{' '}
           {replacement.guests} guests):{' '}
           {replacement.available
@@ -350,7 +351,7 @@ export function ResolveCaseForm({ bookingCase, requestKey }) {
         <Problem message={state.errors?.outcome} />
       </fieldset>
       {cancel ? (
-        <fieldset className="space-y-2 rounded border border-border p-3">
+        <fieldset className="space-y-2 rounded-md border border-border p-3">
           <legend className="font-medium">Refund basis</legend>
           {[
             ['full', 'Full refund of rent and fee — the guest is not at fault'],

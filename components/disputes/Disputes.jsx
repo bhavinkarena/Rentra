@@ -1,3 +1,4 @@
+import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import Link from '@/components/navigation/NavigationLink';
 import { ChevronDown, ChevronRight, FileText, Plus, Scale } from 'lucide-react';
 import { DisputeForm } from './DisputeForms';
@@ -17,8 +18,7 @@ const words = (value) => String(value ?? '').replaceAll('_', ' ');
 const card = 'rounded-lg border border-border bg-card p-4 sm:p-5';
 const pill =
   'inline-flex min-h-10 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-semibold text-ink-800 transition-colors hover:border-brand-300 hover:bg-brand-50';
-const primary =
-  'inline-flex min-h-10 items-center gap-2 rounded-full bg-brand-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-700';
+const primary = `${sharedButtonVariants({ shape: 'pill', size: 'default' })} `;
 const select =
   'block min-h-10 rounded-full border border-border bg-card px-3 text-base capitalize sm:text-meta';
 
@@ -85,7 +85,10 @@ export function DisputeList({ data, kind }) {
                     </span>
                   )}
                 </div>
-                <ChevronRight className="mt-2 size-4 shrink-0 text-ink-400" aria-hidden="true" />
+                <ChevronRight
+                  className="mt-2 size-4 shrink-0 text-muted-foreground"
+                  aria-hidden="true"
+                />
               </Link>
             </li>
           ))}
@@ -132,7 +135,7 @@ export function NewDispute({ context, kind }) {
               aria-label="Booking order ID"
               name="order"
               required
-              className="mt-1 block min-h-11 w-full rounded-lg border border-border bg-card p-3 text-base sm:text-sm"
+              className="mt-1 block min-h-11 w-full rounded-lg border border-input bg-card p-3 text-base sm:text-sm"
             />
           </label>
           <p className="text-meta text-ink-600">

@@ -1,4 +1,5 @@
 'use client';
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import RentraLoader from '@/components/ui/rentra-loader';
 
 import {
@@ -20,7 +21,7 @@ import {
   unblockDates,
 } from '@/lib/actions/partner';
 
-const inputClass = 'mt-1 min-h-11 w-full rounded-md border border-border bg-card px-3 py-2';
+const inputClass = `${sharedFieldClass} mt-1 min-h-11`;
 const labels = { day: 'Day picnic', night: 'Overnight', full_day: 'Full day' };
 function Field({ label, ...props }) {
   return (
@@ -153,7 +154,7 @@ function ActionForm({ action, rentableId, title, children, button = 'Save', id }
       </div>
       <button
         disabled={pending}
-        className="min-h-11 rounded-md bg-brand-600 px-5 py-2 font-semibold text-white disabled:opacity-50"
+        className="min-h-11 rounded-md bg-primary px-5 py-2 font-semibold text-white disabled:bg-muted disabled:text-muted-foreground"
       >
         {pending ? (
           <RentraLoader label="Checking…" />

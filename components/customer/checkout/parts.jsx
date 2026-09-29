@@ -82,7 +82,7 @@ export function Stepper({ current }) {
             <span
               className={`grid size-7 shrink-0 place-items-center rounded-full border-2 text-xs ${
                 done
-                  ? 'border-brand-600 bg-brand-600 text-white'
+                  ? 'border-brand-600 bg-primary text-white'
                   : active
                     ? 'border-brand-600 bg-card text-brand-800'
                     : 'border-ink-200 bg-card text-ink-500'

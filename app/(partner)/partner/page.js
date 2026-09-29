@@ -51,7 +51,7 @@ export default async function PartnerDashboard() {
   const firstName = user.name?.trim().split(/\s+/)[0];
 
   return (
-    <div className="mx-auto w-full max-w-[1480px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+    <div className="mx-auto w-full max-w-(--container-workspace) px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       <PartnerPageHeader
         eyebrow={completion.approved ? 'Approved partner' : 'Getting set up'}
         title={firstName ? `Welcome back, ${firstName}` : 'Welcome to Rentra'}
@@ -199,9 +199,7 @@ function Tasks({ tasks }) {
       ].map(([heading, items, tone]) =>
         items.length ? (
           <div key={heading} className="mt-4">
-            <h3 className={`text-[0.68rem] font-bold tracking-[0.1em] uppercase ${tone}`}>
-              {heading}
-            </h3>
+            <h3 className={`text-tiny font-bold tracking-[0.1em] uppercase ${tone}`}>{heading}</h3>
             <ul className="mt-2 divide-y divide-border rounded-md border border-border">
               {items.map((task) => (
                 <li key={task.key}>
@@ -210,7 +208,10 @@ function Tasks({ tasks }) {
                     className="flex items-center justify-between gap-3 px-4 py-3 text-meta hover:bg-ink-50"
                   >
                     <span>{task.label}</span>
-                    <ArrowRight className="size-4 shrink-0 text-ink-400" aria-hidden="true" />
+                    <ArrowRight
+                      className="size-4 shrink-0 text-muted-foreground"
+                      aria-hidden="true"
+                    />
                   </Link>
                 </li>
               ))}
@@ -286,7 +287,7 @@ function OnboardingDashboard({ completion, application }) {
           <form action={submitApplication}>
             <PendingSubmitButton
               pendingLabel="Submitting for review…"
-              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-brand-600 px-5 text-meta font-semibold text-white hover:bg-brand-700 disabled:cursor-wait disabled:opacity-70"
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-primary px-5 text-meta font-semibold text-white hover:bg-primary-hover disabled:cursor-wait disabled:bg-muted disabled:text-muted-foreground"
             >
               Submit for review
             </PendingSubmitButton>
@@ -328,7 +329,7 @@ function OnboardingDashboard({ completion, application }) {
       </div>
 
       <aside className="rounded-lg border border-border bg-card p-5 shadow-xs">
-        <p className="text-[0.68rem] font-bold tracking-[0.1em] text-brand-700 uppercase">
+        <p className="text-tiny font-bold tracking-[0.1em] text-brand-700 uppercase">
           What happens next
         </p>
         <ol className="mt-4 space-y-4">
@@ -341,7 +342,7 @@ function OnboardingDashboard({ completion, application }) {
             ],
           ].map(([title, body], index) => (
             <li key={title} className="flex gap-3">
-              <span className="grid size-6 shrink-0 place-items-center rounded-full bg-brand-50 text-[0.68rem] font-bold text-brand-700 ring-1 ring-brand-100">
+              <span className="grid size-6 shrink-0 place-items-center rounded-full bg-brand-50 text-tiny font-bold text-brand-700 ring-1 ring-brand-100">
                 {index + 1}
               </span>
               <span>

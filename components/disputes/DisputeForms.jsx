@@ -1,9 +1,9 @@
 'use client';
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { disputeCommand } from '@/lib/actions/disputes';
-const field =
-  'mt-1 block min-h-11 w-full rounded-lg border border-border bg-card p-3 text-base focus:border-brand-600 focus:outline-none sm:text-sm';
+const field = `${sharedFieldClass} mt-1 min-h-11`;
 export const disputeBase = (kind) =>
   kind === 'admin' ? '/admin/disputes' : kind === 'owner' ? '/partner/disputes' : '/disputes';
 export function DisputeForm({ kind, command, record, context }) {
@@ -199,7 +199,7 @@ export function DisputeForm({ kind, command, record, context }) {
       {state.preview && (
         <section
           aria-label="Resolution preview"
-          className="space-y-2 rounded border border-border p-4"
+          className="space-y-2 rounded-md border border-border p-4"
         >
           <h3 className="text-h3">Review before resolving</h3>
           <p>{state.preview.outcome.replaceAll('_', ' ')}</p>

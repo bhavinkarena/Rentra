@@ -203,7 +203,7 @@ function OutcomeForm({ id, visit, checklist }) {
                   maxLength={4000}
                   value={findings}
                   onChange={(event) => setFindings(event.target.value)}
-                  className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2 text-meta"
+                  className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2 text-base md:text-sm"
                 />
               </label>
               <FieldError message={errors.findings} />
@@ -254,7 +254,7 @@ function PublishForm({ id, submissionId, inventory }) {
       {() => (
         <>
           <p
-            className={`rounded-md p-3 text-meta ${inventory.bookable ? 'bg-success-bg text-brand-900' : 'bg-warning-bg text-amber-900'}`}
+            className={`rounded-md p-3 text-meta ${inventory.bookable ? 'bg-success-bg text-brand-900' : 'bg-warning-bg text-warning'}`}
           >
             {inventory.note}
           </p>

@@ -28,7 +28,10 @@ export default function HeroPhotos({ places, children }) {
   };
 
   return (
-    <section className="relative isolate overflow-hidden border-b border-border bg-brand-900">
+    <section
+      data-surface="inverse"
+      className="relative isolate overflow-hidden border-b border-border bg-brand-900"
+    >
       {places.map((p, i) =>
         mounted.has(i) ? (
           <div
@@ -60,7 +63,7 @@ export default function HeroPhotos({ places, children }) {
           photo while letting the photograph still read as the subject. */}
       <div className="absolute inset-0 z-[2] bg-linear-to-r from-brand-950/92 via-brand-950/75 to-brand-900/45" />
 
-      <div className="relative z-[3] mx-auto max-w-(--container-page) px-6 pt-20 pb-24 md:pt-28 md:pb-32">
+      <div className="relative z-[3] mx-auto max-w-(--container-page) px-4 pt-20 sm:px-6 pb-24 md:pt-28 md:pb-32">
         {children}
 
         {place ? (
@@ -81,7 +84,7 @@ export default function HeroPhotos({ places, children }) {
                   type="button"
                   onClick={() => change(-1)}
                   aria-label="Previous photo"
-                  className="grid size-8 place-items-center rounded-full transition hover:bg-white/20 active:scale-95"
+                  className="grid size-11 place-items-center rounded-full transition hover:bg-white/20 active:scale-95"
                 >
                   <ArrowLeft className="size-4" aria-hidden="true" />
                 </button>
@@ -93,7 +96,7 @@ export default function HeroPhotos({ places, children }) {
                   type="button"
                   onClick={() => change(1)}
                   aria-label="Next photo"
-                  className="grid size-8 place-items-center rounded-full transition hover:bg-white/20 active:scale-95"
+                  className="grid size-11 place-items-center rounded-full transition hover:bg-white/20 active:scale-95"
                 >
                   <ArrowRight className="size-4" aria-hidden="true" />
                 </button>

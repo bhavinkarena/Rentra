@@ -1,5 +1,5 @@
-import RentraLoader from '@/components/ui/rentra-loader';
+import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
 
-export default function AdminLoading({ label = 'workspace' }) {
-  return <RentraLoader variant="page" label={`Loading ${label}`} />;
+export default function AdminLoading({ label = 'workspace', screen = 'table' }) {
+  return <ScreenSkeleton screen={screen} layout="portal" label={`Loading ${label}`} />;
 }

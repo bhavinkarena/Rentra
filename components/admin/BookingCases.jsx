@@ -12,7 +12,7 @@ import { CaseState, CaseUpdates } from '@/components/booking/CasePanels';
 const TZ = 'Asia/Kolkata';
 const REQUESTER = { customer: 'Customer', owner: 'Owner', admin: 'Rentra' };
 const tabClass = (active) =>
-  `inline-flex min-h-11 items-center rounded-full border px-4 text-meta font-semibold ${active ? 'border-brand-700 bg-brand-700 text-white' : 'border-border bg-card text-ink-700 hover:bg-ink-50'}`;
+  `inline-flex min-h-11 items-center rounded-full border px-4 text-meta font-semibold ${active ? 'border-brand-700 bg-primary text-white' : 'border-border bg-card text-ink-700 hover:bg-ink-50'}`;
 
 function listHref(data, changes) {
   const params = {
@@ -84,7 +84,7 @@ export function BookingCaseList({ data }) {
           <input
             name="q"
             defaultValue={data.q}
-            className="mt-1 block min-h-11 w-full rounded border border-border bg-card p-2"
+            className="mt-1 block min-h-11 w-full rounded-md border border-input bg-card p-2 text-base md:text-sm"
           />
         </label>
         <label className="block">
@@ -92,7 +92,7 @@ export function BookingCaseList({ data }) {
           <select
             name="type"
             defaultValue={data.type}
-            className="mt-1 block min-h-11 rounded border border-border bg-card p-2"
+            className="mt-1 block min-h-11 rounded-md border border-input bg-card p-2 text-base md:text-sm"
           >
             <option value="all">All types</option>
             {CASE_TYPES.map(([value, text]) => (
@@ -102,7 +102,7 @@ export function BookingCaseList({ data }) {
             ))}
           </select>
         </label>
-        <button className="inline-flex min-h-11 items-center gap-2 rounded bg-brand-700 px-4 font-semibold text-white">
+        <button className="inline-flex min-h-11 items-center gap-2 rounded-md bg-primary px-4 font-semibold text-white">
           <Search className="size-4" aria-hidden="true" />
           Filter
         </button>

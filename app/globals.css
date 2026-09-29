@@ -42,6 +42,11 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-ring-inverse: var(--ring-inverse);
+  --color-skeleton-base: var(--skeleton-base);
+  --color-skeleton-highlight: var(--skeleton-highlight);
 }
 
 /* ==========================================================================
@@ -51,17 +56,17 @@
    ========================================================================== */
 @theme {
   /* --- Brand: deep field green. The ONLY colour that means "act". --- */
-  --color-brand-50: #f1f7f3;
-  --color-brand-100: #ddebe2;
-  --color-brand-200: #bcd8c7;
-  --color-brand-300: #90bca3;
-  --color-brand-400: #629b7d; /* non-text: decorative fills only */
-  --color-brand-500: #3f7d5f;
-  --color-brand-600: #2e6449; /* PRIMARY ACTION · 6.92:1 on white */
-  --color-brand-700: #26503c; /* hover + brand text · 9.15:1 AAA */
-  --color-brand-800: #1f4031;
-  --color-brand-900: #1a3529;
-  --color-brand-950: #0d1d16;
+  --color-brand-50: #ecf4ef;
+  --color-brand-100: #ddece3;
+  --color-brand-200: #bbd8c8;
+  --color-brand-300: #8dbca4;
+  --color-brand-400: #609a7d;
+  --color-brand-500: #257454;
+  --color-brand-600: #064e3b;
+  --color-brand-700: #043d2e;
+  --color-brand-800: #033326;
+  --color-brand-900: #032d23;
+  --color-brand-950: #021f18;
 
   /* --- Accent: harvest amber. Star ratings + peak pricing ONLY. --- */
   --color-amber-100: #fdf2de;
@@ -71,36 +76,44 @@
 
   /* --- Neutrals: warm, biased a few degrees toward the brand green --- */
   --color-ink-0: #ffffff;
-  --color-ink-25: #fafbfa; /* page ground */
-  --color-ink-50: #f5f7f5;
-  --color-ink-100: #ebeeeb;
-  --color-ink-200: #dce1dd; /* dividers, card outlines */
-  --color-ink-300: #c0c7c2; /* input borders */
-  --color-ink-400: #9aa39d; /* non-text · 2.59:1 */
-  --color-ink-500: #59655d; /* secondary text: AA on paper and pale surfaces */
-  --color-ink-600: #5a635d; /* secondary text · 6.22:1 AA */
-  --color-ink-700: #414843;
-  --color-ink-800: #2a2f2b;
-  --color-ink-900: #171a18; /* all primary text · 16.91:1 AAA */
+  --color-ink-25: #faf9f6;
+  --color-ink-50: #f3f4ef;
+  --color-ink-100: #eceee8;
+  --color-ink-200: #e1e5de;
+  --color-ink-300: #c4ccc5;
+  --color-ink-400: #7c8780;
+  --color-ink-500: #59655d;
+  --color-ink-600: #4d5a52;
+  --color-ink-700: #38463e;
+  --color-ink-800: #2b3931;
+  --color-ink-900: #1f2924;
 
   /* --- Semantic: deliberately not the brand hue, except success --- */
-  --color-success: #2e6449;
-  --color-success-bg: #f1f7f3;
-  --color-warning: #b45309;
-  --color-warning-bg: #fdf3e7;
-  --color-danger: #c0362c;
-  --color-danger-bg: #fbedec;
-  --color-info: #2563a5;
-  --color-info-bg: #eaf1f8;
+  --color-success: #14532d;
+  --color-success-bg: #ecf5ee;
+  --color-warning: #9a4d0a;
+  --color-warning-bg: #fff4e5;
+  --color-danger: #b42318;
+  --color-danger-bg: #fef3f2;
+  --color-info: #1d4ed8;
+  --color-info-bg: #eff6ff;
   --color-whatsapp: #1fa855; /* the ONE permitted second accent */
 
-  /* --- Deep forest surfaces (footer, dark panels) with the lime accent.
-         Lime is for text/fills on forest-deep only, never on light ground. --- */
-  --color-forest-deep: #142e23;
-  --color-forest-line: #3c5546; /* dividers on forest-deep */
-  --color-paper: #f5f6ed; /* body text on forest-deep */
-  --color-lime: #dbeaaf; /* accent text on forest-deep */
-  --color-lime-soft: #e5efc8; /* action fill on forest-deep */
+  /* --- Inverse brand surfaces. Champagne is an accent, never status. --- */
+  --color-forest-deep: #032d23;
+  --color-forest-line: #386054;
+  --color-paper: #f8f5ee;
+
+  --color-champagne: #f8e7c9;
+  --color-champagne-hover: #f2dab0;
+  --color-champagne-active: #eacf9f;
+  --color-champagne-subtle: #fcf5e9;
+  --color-champagne-foreground: #064e3b;
+  --color-on-dark-muted: #d5dad5;
+  --color-danger-hover: #912018;
+  --color-danger-active: #7a1b14;
+  --color-event-adjustment: #6b3fa0;
+  --color-event-adjustment-bg: #f5f0fa;
 
   /* --- Type scale --- */
   --text-display: 2.75rem;
@@ -151,10 +164,11 @@
   --shadow-sm: 0 1px 3px rgba(23, 26, 24, 0.08), 0 1px 2px rgba(23, 26, 24, 0.04);
   --shadow-md: 0 4px 12px rgba(23, 26, 24, 0.08);
   --shadow-lg: 0 8px 28px rgba(23, 26, 24, 0.12);
-  --shadow-focus: 0 0 0 3px rgba(46, 100, 73, 0.32);
+  --shadow-focus: 0 0 0 3px rgb(6 78 59 / 16%);
 
   /* --- Layout --- */
   --container-page: 1280px;
+  --container-workspace: 1480px;
 }
 
 /* ==========================================================================
@@ -182,52 +196,57 @@
      * sits in a later cascade layer no matter how specific this selector is.
      * Inherited variables are not subject to that ordering.
      */
-  --float-bottom: calc(var(--spacing) * 5);
+  --float-bottom: calc(var(--spacing) * 5 + env(safe-area-inset-bottom, 0px));
 
-  --background: #fafbfa; /* ink-25 */
-  --foreground: #171a18; /* ink-900 */
+  --background: #faf9f6;
+  --foreground: #1f2924;
   --card: #ffffff;
-  --card-foreground: #171a18;
-  --popover: #ffffff;
-  --popover-foreground: #171a18;
-
-  --primary: #2e6449; /* brand-600 — the one action colour */
+  --card-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --primary: var(--color-brand-600);
   --primary-foreground: #ffffff;
-  --secondary: #f5f7f5; /* ink-50 */
-  --secondary-foreground: #171a18;
-  --muted: #ebeeeb; /* ink-100 */
-  --muted-foreground: #59655d; /* ink-500 — contrasting secondary text */
-  --accent: #f1f7f3; /* brand-50 */
-  --accent-foreground: #26503c; /* brand-700 */
-  --destructive: #c0362c;
-
-  --border: #dce1dd; /* ink-200 */
-  --input: #c0c7c2; /* ink-300 */
-  --ring: #2e6449; /* brand-600 */
-
-  --chart-1: #2e6449;
-  --chart-2: #629b7d;
-  --chart-3: #bcd8c7;
-  --chart-4: #d98a1f;
-  --chart-5: #59655d;
-
+  --primary-hover: var(--color-brand-700);
+  --primary-active: #032e23;
+  --secondary: #f3f4ef;
+  --secondary-foreground: var(--foreground);
+  --muted: #eceee8;
+  --muted-foreground: #59655d;
+  --accent: #ecf4ef;
+  --accent-foreground: var(--primary);
+  --destructive: var(--color-danger);
+  --border: #e1e5de;
+  --input: #7c8780;
+  --ring: var(--primary);
+  --ring-inverse: var(--color-champagne);
+  --skeleton-base: #e7ebe5;
+  --skeleton-highlight: #f3f5f0;
+  --chart-1: var(--primary);
+  --chart-2: var(--color-info);
+  --chart-3: var(--color-warning);
+  --chart-4: var(--color-event-adjustment);
+  --chart-5: #414d45;
   --radius: 1rem;
-
-  /* Partner dashboard shell */
-  --sidebar: #ffffff;
-  --sidebar-foreground: #171a18;
-  --sidebar-primary: #2e6449;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f1f7f3;
-  --sidebar-accent-foreground: #26503c;
-  --sidebar-border: #dce1dd;
-  --sidebar-ring: #2e6449;
+  --sidebar: var(--color-forest-deep);
+  --sidebar-foreground: var(--color-paper);
+  --sidebar-primary: var(--color-champagne);
+  --sidebar-primary-foreground: var(--primary);
+  --sidebar-accent: #164738;
+  --sidebar-accent-foreground: var(--color-paper);
+  --sidebar-border: var(--color-forest-line);
+  --sidebar-ring: var(--ring-inverse);
+  --booking-bar-space: calc(6.5rem + env(safe-area-inset-bottom, 0px));
 }
 
 /* The bar is `lg:hidden`, so only narrow viewports owe it any clearance. */
 @media (width < 64rem) {
+  html:has([data-booking-bar]) {
+    scroll-padding-bottom: var(--booking-bar-space);
+  }
   body:has([data-booking-bar]) {
-    --float-bottom: calc(var(--spacing) * 5 + 4.75rem);
+    --float-bottom: calc(var(--spacing) * 5 + var(--booking-bar-space));
+    padding-bottom: var(--booking-bar-space);
+    scroll-padding-bottom: var(--booking-bar-space);
   }
 }
 
@@ -235,8 +254,8 @@
    Dark mode is OPT-IN and scoped, never on <html>.
    Public booking and marketing surfaces ship light-only on purpose: the
    content IS photography, and dark chrome fights a sunlit farmhouse photo.
-   Add `className="dark"` to the (partner) / (admin) shells only — those are
-   utility screens read for long stretches, with almost no imagery.
+   Reserved for a future separately verified dark theme. The dark sidebar
+   uses inverse surface tokens inside the light application, not .dark.
    -------------------------------------------------------------------------- */
 .dark {
   --background: #171a18;
@@ -248,6 +267,10 @@
 
   --primary: #629b7d; /* lifted so it reads on dark ground */
   --primary-foreground: #0d1d16;
+  --primary-hover: #8dbca4;
+  --primary-active: #bbd8c8;
+  --skeleton-base: #2b3931;
+  --skeleton-highlight: #38463e;
   --secondary: #2a2f2b;
   --secondary-foreground: #f5f7f5;
   --muted: #2a2f2b;
@@ -339,6 +362,22 @@
     outline-offset: 3px;
     box-shadow: var(--shadow-focus);
     border-radius: var(--radius-sm);
+  }
+
+  /* Icon + input shells: the shell shows focus, never the bare input inside it. */
+  [data-field-shell]:focus-within {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+    box-shadow: var(--shadow-focus);
+  }
+  [data-field-shell] input:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+  /* Autofill tint would only cover the inner input, drawing a box inside the shell. */
+  [data-field-shell] input:autofill {
+    box-shadow: inset 0 0 0 100vmax var(--card);
+    -webkit-text-fill-color: var(--foreground);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -435,121 +474,137 @@
       block-size: auto;
     }
   }
-
-  @keyframes rentra-skeleton-shimmer {
-    from {
-      background-position: 200% 0;
-    }
-    to {
-      background-position: -200% 0;
-    }
-  }
-  .rentra-skeleton {
-    background-image: linear-gradient(
-      100deg,
-      var(--color-ink-100) 20%,
-      var(--color-ink-50) 38%,
-      var(--color-ink-100) 56%
-    );
-    background-size: 200% 100%;
-    animation: rentra-skeleton-shimmer 1.35s ease-in-out infinite;
-  }
 }
 
-/* Shared brand loader: upright mark, orbiting accent and a soft breathing halo. */
-.rentra-loading {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  vertical-align: middle;
+[data-surface='inverse'] {
+  --ring: var(--ring-inverse);
+  --shadow-focus: 0 0 0 3px rgb(248 231 201 / 16%);
+}
+
+.rentra-skeleton {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--skeleton-base);
+}
+.rentra-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, var(--skeleton-highlight), transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rentra-skeleton::after {
+    animation: rentra-skeleton-sweep 1.8s ease-in-out 2;
+  }
+  .rentra-spinner {
+    animation: rentra-orbit 1s linear infinite;
+  }
+}
+@keyframes rentra-skeleton-sweep {
+  to {
+    transform: translateX(100%);
+  }
+}
+.rentra-spinner {
+  display: inline-block;
+  width: 1.25rem;
+  height: 1.25rem;
   flex-shrink: 0;
-}
-.rentra-loading-inline {
-  width: 1.75rem;
-  height: 1.75rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  vertical-align: middle;
 }
 .rentra-loading-page {
-  position: fixed;
-  inset: 0;
-  z-index: 80;
-  display: flex;
-  pointer-events: none;
+  display: grid;
+  min-height: 12rem;
+  place-items: center;
+  padding: 2rem;
+  color: var(--primary);
 }
-
+.rentra-loading-page[data-tone='inverse'] {
+  color: var(--color-champagne);
+}
 .rentra-loading-art {
   position: relative;
   display: grid;
   place-items: center;
-  width: 100%;
-  height: 100%;
-  aspect-ratio: 1;
-  isolation: isolate;
-}
-.rentra-loading-page .rentra-loading-art {
   width: 3.5rem;
   height: 3.5rem;
 }
-.rentra-loading-halo {
+.rentra-loading-art .rentra-spinner {
   position: absolute;
   inset: 0;
-  border-radius: 50%;
-  background: #5c9a7220;
-}
-.rentra-loading-ring {
-  position: absolute;
-  inset: 0;
-  border: 2px solid #5c9a7230;
-  border-top-color: #5c9a72;
-  border-right-color: #1f5c41;
-  border-radius: 50%;
-}
-.rentra-loading-core {
-  display: grid;
-  place-items: center;
-  width: 76%;
-  height: 76%;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 2px 12px #1f5c4110;
+  width: 100%;
+  height: 100%;
 }
 .rentra-loading-mark {
-  width: 72%;
-  height: 72%;
+  width: 2.25rem;
+  height: 2.25rem;
 }
-@media (prefers-reduced-motion: no-preference) {
-  .rentra-loading-ring {
-    animation: rentra-brand-orbit 1.4s linear infinite;
-  }
-  .rentra-loading-halo {
-    animation: rentra-brand-breathe 2s ease-in-out infinite;
-  }
-  .rentra-loading-mark {
-    animation: rentra-brand-mark 2s ease-in-out infinite;
-  }
+
+[data-surface='light'] {
+  --ring: var(--primary);
+  --shadow-focus: 0 0 0 4px rgb(6 78 59 / 0.16);
 }
-@keyframes rentra-brand-orbit {
-  to {
-    transform: rotate(360deg);
+
+/* Legacy/native controls inherit the same baseline as shared field primitives. */
+@layer components {
+  :where(
+    input:not(
+      [type='hidden'],
+      [type='checkbox'],
+      [type='radio'],
+      [type='range'],
+      [type='file'],
+      [type='submit'],
+      [type='button']
+    ),
+    select,
+    textarea
+  ) {
+    color: var(--foreground);
+    caret-color: var(--primary);
   }
-}
-@keyframes rentra-brand-breathe {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.5;
-  }
-  50% {
-    transform: scale(1.2);
+  :where(input, textarea)::placeholder {
+    color: var(--muted-foreground);
     opacity: 1;
   }
-}
-@keyframes rentra-brand-mark {
-  0%,
-  100% {
-    transform: scale(0.94);
+  @media (width < 48rem) {
+    :is(
+      input:not(
+        [type='hidden'],
+        [type='checkbox'],
+        [type='radio'],
+        [type='range'],
+        [type='file'],
+        [type='submit'],
+        [type='button']
+      ),
+      select,
+      textarea
+    ) {
+      font-size: 1rem !important;
+    }
   }
-  50% {
-    transform: scale(1);
+}
+@media (forced-colors: active) {
+  :is(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid Highlight;
+  }
+  [aria-current='page'],
+  [aria-pressed='true'] {
+    outline: 1px solid Highlight;
+  }
+  .rentra-skeleton {
+    background: CanvasText;
+    opacity: 0.15;
+  }
+  .rentra-skeleton::after {
+    display: none;
   }
 }
 
@@ -580,7 +635,7 @@
 /* Thin, in-panel sidebar scrollbar in the portal greens. */
 .portal-scroll {
   scrollbar-width: thin;
-  scrollbar-color: rgb(144 188 163 / 0.35) transparent;
+  scrollbar-color: rgb(187 216 200 / 0.5) transparent;
 }
 .portal-scroll::-webkit-scrollbar {
   width: 6px;
@@ -590,10 +645,10 @@
 }
 .portal-scroll::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  background: rgb(144 188 163 / 0.35);
+  background: rgb(187 216 200 / 0.5);
 }
 .portal-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgb(144 188 163 / 0.6);
+  background: rgb(187 216 200 / 0.75);
 }
 
 @keyframes navigation-progress {

@@ -72,7 +72,7 @@ export default function AdminReviewQueue({ data }) {
                       {review.moderation_state}
                     </StatusBadge>
                   </div>
-                  <p className="mt-2 text-tiny font-semibold text-amber-900">
+                  <p className="mt-2 text-tiny font-semibold text-warning">
                     {'★'.repeat(review.rating)}
                     {'☆'.repeat(5 - review.rating)} · {review.rating}/5
                   </p>
@@ -125,7 +125,7 @@ export default function AdminReviewQueue({ data }) {
             {data.reports.map((report) => (
               <article key={report.id} className="grid gap-5 p-5 lg:grid-cols-2">
                 <div>
-                  <p className="font-mono text-[0.68rem] text-ink-500">Review {report.review_id}</p>
+                  <p className="font-mono text-tiny text-ink-500">Review {report.review_id}</p>
                   <p className="mt-2 text-meta font-semibold text-ink-900">
                     {report.rating}/5 · {report.body}
                   </p>

@@ -1,10 +1,12 @@
 'use client';
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
+import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from '@/components/navigation/NavigationLink';
 import { operatorCommand, enrollOperator } from '@/lib/actions/operators';
-const input = 'mt-1 block w-full rounded border border-ink-300 bg-white p-3';
-const button = 'min-h-11 rounded bg-ink-900 px-4 py-2 font-semibold text-white disabled:opacity-50';
+const input = `${sharedFieldClass} mt-1`;
+const button = `${sharedButtonVariants({ shape: 'default', size: 'default' })} `;
 const card = 'space-y-4 rounded-lg border border-ink-200 bg-white p-4 sm:p-6';
 function Grants({ options, initial = [], full = false }) {
   const [all, setAll] = useState(full);

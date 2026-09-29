@@ -19,8 +19,9 @@ flash in after paint.
 - **Size by height, never width.** The lockup is 3.66:1; setting a width fights
   the viewBox. In the app that means `h-7` / `h-9`, not `w-32`.
 - **Light grounds get the colour lockup, ink-900 gets `inverse`.** The delivered
-  deep green (`#1F5C41`) goes muddy on dark chrome, so the inverse swaps the
-  mark to brand-200 / brand-400 with a white wordmark.
+  emerald (`#064E3B`) needs a light ground. The inverse uses champagne
+  (`#F8E7C9`) and pale sage (`#BBD8C8`) with a warm white (`#F8F5EE`) wordmark.
+  The light lockup uses emerald for the main mark/wordmark and `#3F8061` for the leaf.
 - **Under ~20px, drop to the mark.** The wordmark stops being legible before the
   mark stops being recognisable — this is why the mobile header shows the mark
   alone below `sm`.
@@ -42,8 +43,12 @@ Artwork untouched, canvas and proportion corrected:
 ## Related
 
 - `app/icon.svg` — favicon, the mark on its delivered 200x200 box.
-- `app/apple-icon.js` — iOS home-screen icon, the mark on a brand-50 tile.
+- `app/apple-icon.js` — iOS home-screen icon, the mark on a warm off-white (`#FAF9F6`) tile.
   Opaque on purpose: iOS composites a transparent icon onto black.
 - `app/opengraph-image.js` — the share card, built from `rentra-lockup.svg`
   plus the `.ttf` files in `/assets/fonts`. Those exist because next/font
   self-hosts Plus Jakarta Sans as `.woff2`, which satori cannot parse.
+
+## Emerald & Champagne update
+
+The artwork geometry and wordmark proportions are preserved. SVG exports, inline logo, favicon, Apple tile and share cards now use the same colorways. Use the inverse mark in the collapsed portal rail as well as the full inverse lockup in the footer/sidebar. Keep photography in its original colors.

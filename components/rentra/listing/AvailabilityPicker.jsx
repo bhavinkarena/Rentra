@@ -208,7 +208,7 @@ export default function AvailabilityPicker({ code, prices, nextDates }) {
                       aria-pressed={slot === item.id}
                       disabled={!prices?.[item.id] || !selectionReady}
                       onClick={() => setSlot(item.id)}
-                      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md border px-2 text-sm ${slot === item.id ? 'border-brand-600 bg-brand-600 font-semibold text-white' : 'bg-card hover:border-brand-400'} disabled:opacity-40`}
+                      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md border px-2 text-sm ${slot === item.id ? 'border-brand-600 bg-primary font-semibold text-white' : 'bg-card hover:border-brand-400'} disabled:opacity-40`}
                     >
                       <Icon className="size-4 shrink-0" aria-hidden="true" />
                       {item.label}
@@ -335,7 +335,7 @@ export default function AvailabilityPicker({ code, prices, nextDates }) {
                             className={[
                               'relative min-h-11 rounded-full py-2 text-center text-meta tabular transition-colors',
                               selected
-                                ? 'bg-brand-600 font-bold text-white'
+                                ? 'bg-primary font-bold text-white'
                                 : open
                                   ? 'font-medium text-ink-900 hover:bg-brand-50 hover:text-brand-700'
                                   : 'text-ink-300',
@@ -395,7 +395,7 @@ export default function AvailabilityPicker({ code, prices, nextDates }) {
             ) : null}
             <div className="sticky -bottom-4 mt-4 flex items-center justify-between border-t border-border bg-card py-3 sm:-bottom-8">
               <p className="text-xs text-ink-500">{dates.length} of 10 visits selected</p>
-              <Dialog.Close className="min-h-11 rounded-lg bg-brand-700 px-7 text-sm font-semibold text-white hover:bg-brand-800">
+              <Dialog.Close className="min-h-11 rounded-lg bg-primary px-7 text-sm font-semibold text-white hover:bg-primary-hover active:bg-primary-active">
                 Done
               </Dialog.Close>
             </div>

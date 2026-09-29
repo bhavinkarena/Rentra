@@ -1,4 +1,5 @@
 'use client';
+import { Field } from '@/components/ui/field';
 import Loader2 from '@/components/ui/rentra-loader';
 
 import { useActionState, useState } from 'react';
@@ -8,22 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 /* --------------------------- shared field bits --------------------------- */
-
-function Field({ id, label, hint, error, children }) {
-  return (
-    <div>
-      <label htmlFor={id} className="mb-1.5 block text-meta font-semibold text-ink-700">
-        {label}
-      </label>
-      {children}
-      {error ? (
-        <p className="mt-1.5 text-tiny font-medium text-danger">{error}</p>
-      ) : hint ? (
-        <p className="mt-1.5 text-tiny text-ink-500">{hint}</p>
-      ) : null}
-    </div>
-  );
-}
 
 function Submit({ pending, children, icon: Icon }) {
   return (
@@ -81,7 +66,7 @@ export function DetailsForm({ user, application }) {
           name="residentialAddress"
           rows={3}
           defaultValue={application?.residentialAddress ?? ''}
-          className="w-full rounded-sm border border-input bg-card px-3.5 py-3 text-meta text-ink-900 placeholder:text-ink-400 focus:border-brand-600 focus:outline-none"
+          className="w-full rounded-md border border-input bg-card px-3.5 py-3 text-base md:text-sm text-ink-900 placeholder:text-muted-foreground focus:border-brand-600"
           placeholder="House / street, area, city"
           required
         />
@@ -103,7 +88,7 @@ export function DetailsForm({ user, application }) {
             id="preferredLocale"
             name="preferredLocale"
             defaultValue={user.preferredLocale ?? 'en'}
-            className="w-full rounded-sm border border-input bg-card px-3.5 py-3 text-meta text-ink-900 focus:border-brand-600 focus:outline-none"
+            className="w-full rounded-md border border-input bg-card px-3.5 py-3 text-base md:text-sm text-ink-900 focus:border-brand-600"
           >
             <option value="gu">ગુજરાતી</option>
             <option value="hi">हिन्दी</option>

@@ -1,11 +1,12 @@
 'use client';
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import { useActionState, useId, useState, useTransition } from 'react';
 import { ShieldX } from 'lucide-react';
 import RentraLoader from '@/components/ui/rentra-loader';
 import { Outcome } from '@/components/booking/EvidenceForms';
 import { failPayoutDestination, signInAgainAsAdmin } from '@/lib/actions/admin';
 
-const field = 'mt-1 block min-h-11 w-full rounded border border-border bg-card p-2';
+const field = `${sharedFieldClass} mt-1 min-h-11`;
 
 /**
  * Mark a destination failed: preview the effect first, then confirm with the
@@ -91,7 +92,7 @@ export function FailDestinationForm({ clientId, destination, requestKey }) {
         ) : null}
         <button
           disabled={pending}
-          className="inline-flex min-h-11 items-center gap-2 rounded bg-danger px-4 font-semibold text-white disabled:opacity-70"
+          className="inline-flex min-h-11 items-center gap-2 rounded-md bg-danger px-4 font-semibold text-white disabled:opacity-70"
         >
           {pending ? (
             <RentraLoader label="Checking…" />
@@ -105,7 +106,7 @@ export function FailDestinationForm({ clientId, destination, requestKey }) {
       </form>
       {reauth ? (
         <form action={signInAgainAsAdmin} className="mt-2">
-          <button className="inline-flex min-h-11 items-center rounded border border-border px-4 font-semibold text-brand-700">
+          <button className="inline-flex min-h-11 items-center rounded-md border border-border px-4 font-semibold text-brand-700">
             Sign in again
           </button>
         </form>

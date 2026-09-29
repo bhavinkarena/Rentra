@@ -15,7 +15,7 @@ export default function SortSelect({ value, options }) {
         name="sort"
         defaultValue={value}
         onChange={(event) => event.currentTarget.form?.requestSubmit()}
-        className="min-h-10 rounded-full border border-border bg-card px-4 text-base text-ink-900 lg:text-meta"
+        className="min-h-11 rounded-full border border-input bg-card px-4 text-base text-ink-900 lg:text-meta"
       >
         {Object.entries(options).map(([option, label]) => (
           <option key={option} value={option}>

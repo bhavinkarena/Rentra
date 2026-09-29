@@ -182,7 +182,7 @@ export default async function OperationsPage() {
             aria-label="Payment namespaces table"
           >
             <table className="w-full min-w-[760px] text-left">
-              <thead className="bg-ink-25 text-[0.65rem] font-bold uppercase text-ink-500">
+              <thead className="bg-ink-25 text-tiny font-bold uppercase text-ink-500">
                 <tr>
                   {['Provider', 'Environment', 'Mode', 'Intent', 'Captured', 'Refunded'].map(
                     (item) => (
@@ -250,7 +250,7 @@ export default async function OperationsPage() {
             aria-label="Aggregate events table"
           >
             <table className="w-full min-w-[720px] text-left">
-              <thead className="bg-ink-25 text-[0.65rem] font-bold uppercase text-ink-500">
+              <thead className="bg-ink-25 text-tiny font-bold uppercase text-ink-500">
                 <tr>
                   {['Event', 'Source', 'Device', 'Visits', 'Count'].map((item) => (
                     <th key={item} className="px-5 py-3">

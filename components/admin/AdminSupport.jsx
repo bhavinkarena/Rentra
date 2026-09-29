@@ -81,7 +81,7 @@ export function AdminSupportList({ data }) {
             <label className="text-tiny font-semibold text-ink-600">
               Status
               <select
-                className="mt-1 block min-h-10 rounded-md border border-border bg-white px-3"
+                className="mt-1 block min-h-10 rounded-md border border-input bg-card px-3 text-base md:text-sm"
                 name="state"
                 defaultValue={data.state}
               >
@@ -96,7 +96,7 @@ export function AdminSupportList({ data }) {
             <label className="text-tiny font-semibold">
               Participant
               <select
-                className="ml-2 min-h-11 rounded border p-2"
+                className="ml-2 min-h-11 rounded-md border p-2 text-base md:text-sm bg-card text-foreground"
                 name="participant"
                 defaultValue={data.participant}
               >
@@ -108,7 +108,7 @@ export function AdminSupportList({ data }) {
             <label className="text-tiny font-semibold">
               Assignment
               <select
-                className="ml-2 min-h-11 rounded border p-2"
+                className="ml-2 min-h-11 rounded-md border p-2 text-base md:text-sm bg-card text-foreground"
                 name="assignment"
                 defaultValue={data.assignment}
               >
@@ -117,7 +117,7 @@ export function AdminSupportList({ data }) {
                 <option value="unassigned">Unassigned</option>
               </select>
             </label>
-            <button className="min-h-10 rounded-md bg-brand-700 px-4 text-tiny font-semibold text-white">
+            <button className="min-h-10 rounded-md bg-primary px-4 text-tiny font-semibold text-white">
               Filter
             </button>
           </Form>
@@ -130,7 +130,7 @@ export function AdminSupportList({ data }) {
             aria-label="Support requests table"
           >
             <table className="w-full min-w-[760px] text-left">
-              <thead className="bg-ink-25 text-[0.65rem] font-bold tracking-wider text-ink-500 uppercase">
+              <thead className="bg-ink-25 text-tiny font-bold tracking-wider text-ink-500 uppercase">
                 <tr>
                   <th className="px-5 py-3">Request</th>
                   <th className="px-4 py-3">Category</th>
@@ -148,9 +148,7 @@ export function AdminSupportList({ data }) {
                         {request.participant} · {request.priority}
                         {request.assignedTo ? ' · Assigned' : ' · Unassigned'}
                       </p>
-                      <p className="mt-1 font-mono text-[0.68rem] text-ink-500">
-                        {request.reference}
-                      </p>
+                      <p className="mt-1 font-mono text-tiny text-ink-500">{request.reference}</p>
                     </td>
                     <td className="px-4 py-4 text-tiny text-ink-600">
                       {supportCategories[request.category]}
@@ -263,7 +261,7 @@ export function AdminSupportDetail({ record, listHref = '/admin/support', canWri
                     {message.author}
                     {message.internal ? ' · Internal note — admins only' : ''}
                   </p>
-                  <p className="text-[0.65rem] text-ink-500">{time(message.at)}</p>
+                  <p className="text-tiny text-ink-500">{time(message.at)}</p>
                 </div>
                 <p className="mt-2 whitespace-pre-wrap text-meta leading-6 text-ink-700">
                   {message.body}
@@ -286,11 +284,11 @@ export function AdminSupportDetail({ record, listHref = '/admin/support', canWri
         </section>
         <aside className="space-y-5">
           {canWrite && (
-            <section className="rounded border border-border bg-card p-5">
+            <section className="rounded-md border border-border bg-card p-5">
               <SupportManagement key={record.version} record={record} />
             </section>
           )}
-          <details className="rounded border border-border p-4">
+          <details className="rounded-md border border-border p-4">
             <summary className="min-h-11 cursor-pointer">Case history</summary>
             <ul className="space-y-3">
               {(record.history || []).map((entry, i) => (

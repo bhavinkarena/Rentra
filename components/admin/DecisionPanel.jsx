@@ -238,12 +238,12 @@ export default function DecisionPanel({ applicationId, strikeCount, reviewVersio
 
 const ta =
   'w-full rounded-sm border border-input bg-card px-3.5 py-3 text-meta ' +
-  'text-ink-900 placeholder:text-ink-400 focus:border-brand-600 focus:outline-none';
+  'text-ink-900 placeholder:text-muted-foreground focus:border-brand-600';
 
 function btn(tone) {
   const tones = {
     brand: 'border-brand-600 bg-brand-50 text-brand-700 hover:bg-brand-100',
-    amber: 'border-amber-300 bg-amber-100 text-amber-800 hover:brightness-95',
+    amber: 'border-warning/30 bg-warning-bg text-warning hover:brightness-95',
     danger: 'border-danger/30 bg-danger-bg text-danger hover:brightness-95',
   };
   return (

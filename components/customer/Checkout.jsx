@@ -1,4 +1,5 @@
 'use client';
+import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import RentraLoader from '@/components/ui/rentra-loader';
 import CheckboxCard from '@/components/ui/checkbox-card';
 
@@ -62,8 +63,7 @@ import {
   VisitList,
 } from './checkout/parts';
 
-const primary =
-  'inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-brand-600 px-5 py-3 font-semibold text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50';
+const primary = `${sharedButtonVariants({ shape: 'pill', size: 'lg' })} `;
 const secondary =
   'inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 text-sm font-semibold text-ink-800 transition-colors hover:border-brand-300 hover:bg-brand-50 disabled:opacity-50';
 const textLink =
@@ -699,7 +699,7 @@ export default function Checkout({ data }) {
                     type="button"
                     aria-pressed={purpose === option}
                     onClick={() => setPurpose(option)}
-                    className="min-h-10 rounded-full border border-ink-300 bg-card px-3.5 text-sm text-ink-700 transition-colors hover:border-brand-500 aria-pressed:border-brand-600 aria-pressed:bg-brand-600 aria-pressed:font-semibold aria-pressed:text-white"
+                    className="min-h-10 rounded-full border border-ink-300 bg-card px-3.5 text-sm text-ink-700 transition-colors hover:border-brand-500 aria-pressed:border-brand-600 aria-pressed:bg-primary aria-pressed:font-semibold aria-pressed:text-white"
                   >
                     {option}
                   </button>
@@ -714,7 +714,7 @@ export default function Checkout({ data }) {
                 onChange={(event) => setPurpose(event.target.value)}
                 placeholder="Or type your own"
                 aria-describedby="checkout-purpose-count"
-                className="mt-3 block min-h-12 w-full rounded-xl border border-ink-300 bg-card px-4 text-sm outline-none focus:border-brand-600"
+                className="mt-3 block min-h-12 w-full rounded-md border border-input bg-card px-4 text-base md:text-sm outline-none focus:border-brand-600"
               />
               <p id="checkout-purpose-count" className="mt-1.5 text-right text-xs text-ink-500">
                 {purpose.length}/160

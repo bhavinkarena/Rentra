@@ -22,7 +22,7 @@ export default async function AppleIcon() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#F1F7F3', // brand-50, the tinted-surface token
+        backgroundColor: '#FAF9F6', // brand-50, the tinted-surface token
       }}
     >
       <img src={markSrc} width={132} height={132} alt="" />

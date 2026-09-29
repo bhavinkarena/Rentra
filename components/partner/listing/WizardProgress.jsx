@@ -51,7 +51,7 @@ export function ChapterBar({ chapters, hrefs = {} }) {
                 <Link
                   href={href}
                   aria-current={chapter.isCurrent ? 'step' : undefined}
-                  className="block min-h-6 rounded sm:min-h-11"
+                  className="block min-h-6 rounded-md sm:min-h-11"
                   title={`${chapter.label} — ${chapter.done} of ${chapter.total} done`}
                 >
                   {track}
@@ -81,7 +81,7 @@ function StatusIcon({ step }) {
 
   if (step.done) {
     return (
-      <span className="grid size-6 shrink-0 place-items-center rounded-full bg-brand-600 text-white">
+      <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary text-white">
         <Check className="size-3.5" aria-hidden="true" />
         <span className="sr-only">Complete</span>
       </span>
@@ -98,7 +98,7 @@ function StatusIcon({ step }) {
   }
 
   return (
-    <span className="grid size-6 shrink-0 place-items-center rounded-full bg-ink-100 text-[0.65rem] font-bold text-ink-500">
+    <span className="grid size-6 shrink-0 place-items-center rounded-full bg-ink-100 text-tiny font-bold text-ink-500">
       {step.index}
       <span className="sr-only">Not started</span>
     </span>
@@ -220,7 +220,7 @@ export function MobileStepDisclosure({ progress, stepHrefs = {} }) {
           {progress.doneCount}/{progress.doneTotal}
         </span>
         <ChevronDown
-          className="size-4 text-ink-400 transition-transform group-open:rotate-180"
+          className="size-4 text-muted-foreground transition-transform group-open:rotate-180"
           aria-hidden="true"
         />
       </summary>

@@ -44,7 +44,7 @@ export function OwnershipSection({ listing, documents, clientType, kycName }) {
                     ? 'bg-brand-50 text-brand-700'
                     : d.status === 'rejected'
                       ? 'bg-danger-bg text-danger'
-                      : 'bg-amber-100 text-amber-900'
+                      : 'bg-warning-bg text-warning'
                 }`}
               >
                 {d.status}
@@ -124,7 +124,7 @@ export function OwnershipSection({ listing, documents, clientType, kycName }) {
           />
         </Field>
 
-        <p className="rounded-md border-l-4 border-blue bg-info-bg p-3 text-tiny text-ink-700">
+        <p className="rounded-md border-l-4 border-info bg-info-bg p-3 text-tiny text-ink-700">
           Stored privately with no public web address. Only a Rentra reviewer can open it, and every
           time one is opened it is logged.
         </p>

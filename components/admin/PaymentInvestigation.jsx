@@ -1,3 +1,4 @@
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import Form from '@/components/navigation/NavigationForm';
 import { randomUUID } from 'node:crypto';
 import Link from '@/components/navigation/NavigationLink';
@@ -27,8 +28,8 @@ const TONE = {
   legacy: 'neutral',
 };
 const tab = (active) =>
-  `inline-flex min-h-11 items-center rounded-full border px-4 text-meta font-semibold ${active ? 'border-brand-700 bg-brand-700 text-white' : 'border-border bg-card text-ink-700 hover:bg-ink-50'}`;
-const field = 'mt-1 block min-h-11 w-full rounded border border-border bg-card p-2';
+  `inline-flex min-h-11 items-center rounded-full border px-4 text-meta font-semibold ${active ? 'border-brand-700 bg-primary text-white' : 'border-border bg-card text-ink-700 hover:bg-ink-50'}`;
+const field = `${sharedFieldClass} mt-1 min-h-11`;
 const RECONCILE_OUTCOME = {
   checked: 'Re-fetched from the provider. Only what the provider verified was recorded.',
   unresolved:
@@ -179,7 +180,7 @@ export function PaymentList({ data }) {
           <span className="text-meta font-medium">To (India date)</span>
           <input type="date" name="to" defaultValue={data.to} className={field} />
         </label>
-        <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded bg-brand-700 px-4 font-semibold text-white lg:col-start-5">
+        <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-primary px-4 font-semibold text-white lg:col-start-5">
           <Search className="size-4" aria-hidden="true" /> Filter
         </button>
       </Form>
@@ -480,12 +481,12 @@ export function PaymentDetail({ payment: p }) {
                 <p>No provider execution: {p.status.label.toLowerCase()}.</p>
               )}
               {!p.gatewayEnabled && p.environment === 'test' ? (
-                <p className="rounded bg-warning-bg p-2 text-amber-800">
+                <p className="rounded-md bg-warning-bg p-2 text-warning">
                   New payment attempts are paused. This existing payment is still reconciled.
                 </p>
               ) : null}
               {p.reconciliations[0] ? (
-                <p role="status" className="rounded bg-info-bg p-2 text-ink-800">
+                <p role="status" className="rounded-md bg-info-bg p-2 text-ink-800">
                   Last re-fetch · {p.reconciliations[0].by ?? 'admin'} ·{' '}
                   {time(p.reconciliations[0].at, TZ)}:{' '}
                   {RECONCILE_OUTCOME[p.reconciliations[0].outcome] ?? p.reconciliations[0].outcome}{' '}

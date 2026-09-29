@@ -138,7 +138,7 @@ export default async function ListingBuilderPage({ params, searchParams }) {
         </div>
         <div className="mt-2.5 flex h-2 overflow-hidden rounded-full bg-ink-100">
           <span
-            className={completion.isLive || !completion.inReview ? 'bg-brand-600' : 'bg-amber-500'}
+            className={completion.isLive || !completion.inReview ? 'bg-brand-600' : 'bg-warning'}
             style={{ width: `${completion.percent}%` }}
           />
         </div>

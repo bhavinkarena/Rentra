@@ -59,7 +59,7 @@ export default function DateModeSelect({ value, onValueChange, disabled = false 
                   value={option}
                   className="group/item flex cursor-pointer items-center gap-3 rounded-lg px-2.5 py-2 outline-none select-none data-highlighted:bg-ink-50"
                 >
-                  <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-700 group-data-[state=checked]/item:bg-brand-600 group-data-[state=checked]/item:text-white">
+                  <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-700 group-data-[state=checked]/item:bg-primary group-data-[state=checked]/item:text-white">
                     <OptionIcon className="size-4" aria-hidden="true" />
                   </span>
                   <span className="min-w-0 flex-1">

@@ -1,5 +1,6 @@
 'use client';
 
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import { useActionState, useRef, useState } from 'react';
 import LoaderCircle from '@/components/ui/rentra-loader';
 import RetryButton from '@/components/portal/RetryButton';
@@ -7,7 +8,7 @@ import ValidationSummary from '@/components/portal/ValidationSummary';
 import { customerAccountCommand } from '@/lib/actions/admin';
 
 const CONFLICTS = ['ACCOUNT_CONFLICT', 'PROFILE_CONFLICT', 'LIFECYCLE_NOT_ALLOWED'];
-const inputCls = 'mt-1 block min-h-10 w-full rounded-md border border-input bg-card px-3 text-meta';
+const inputCls = `${sharedFieldClass} mt-1 min-h-10`;
 
 function Failure({ state }) {
   if (!state.error || (state.errors && !state.errors._)) return null;
@@ -42,7 +43,7 @@ function Reason({ id, value, onChange, error }) {
         value={value}
         onChange={(event) => onChange(event.target.value)}
         aria-invalid={Boolean(error)}
-        className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2 text-meta"
+        className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2 text-base md:text-sm"
       />
       {error ? <p className="mt-1 text-tiny font-medium text-danger">{error}</p> : null}
     </div>
@@ -132,7 +133,7 @@ export function CustomerProfileCorrection({ customer }) {
       <button
         type="submit"
         disabled={pending}
-        className="inline-flex min-h-11 items-center gap-2 rounded-md bg-brand-700 px-4 text-meta font-semibold text-white hover:bg-brand-800 disabled:cursor-wait disabled:opacity-70"
+        className="inline-flex min-h-11 items-center gap-2 rounded-md bg-primary px-4 text-meta font-semibold text-white hover:bg-primary-hover disabled:cursor-wait disabled:bg-muted disabled:text-muted-foreground active:bg-primary-active"
       >
         {pending ? <LoaderCircle className="size-4" aria-hidden="true" /> : null}
         Save correction

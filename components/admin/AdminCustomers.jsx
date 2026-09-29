@@ -57,7 +57,7 @@ export function AdminCustomerList({ data }) {
             aria-current={data.status === key ? 'page' : undefined}
             className={`inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-tiny font-semibold ${
               data.status === key
-                ? 'border-brand-700 bg-brand-700 text-white'
+                ? 'border-brand-700 bg-primary text-white'
                 : 'border-border bg-card text-ink-700 hover:bg-ink-50'
             }`}
           >
@@ -90,10 +90,10 @@ export function AdminCustomerList({ data }) {
                 name="q"
                 defaultValue={data.q}
                 maxLength={100}
-                className="mt-1 block min-h-10 w-56 max-w-full rounded-md border border-border bg-white px-3 text-meta"
+                className="mt-1 block min-h-10 w-56 max-w-full rounded-md border border-input bg-card px-3 text-base md:text-sm"
               />
             </label>
-            <button className="min-h-10 rounded-md bg-brand-700 px-4 text-tiny font-semibold text-white">
+            <button className="min-h-10 rounded-md bg-primary px-4 text-tiny font-semibold text-white">
               Search
             </button>
           </Form>
@@ -107,7 +107,7 @@ export function AdminCustomerList({ data }) {
             aria-label="Customers table"
           >
             <table className="w-full min-w-[760px] text-left">
-              <thead className="bg-ink-25 text-[0.65rem] font-bold tracking-wider text-ink-500 uppercase">
+              <thead className="bg-ink-25 text-tiny font-bold tracking-wider text-ink-500 uppercase">
                 <tr>
                   <th className="px-5 py-3">Customer</th>
                   <th className="px-4 py-3">Phone</th>

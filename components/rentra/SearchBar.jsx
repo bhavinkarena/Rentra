@@ -38,6 +38,7 @@ export default function SearchBar() {
 
   return (
     <form
+      data-surface="light"
       onSubmit={onSubmit}
       aria-label="Find your next visit"
       className="flex max-w-3xl flex-col overflow-hidden rounded-lg border border-border bg-card shadow-lg md:flex-row md:items-stretch md:rounded-full"
@@ -50,7 +51,7 @@ export default function SearchBar() {
           value={area}
           onChange={(e) => setField('area', e.target.value)}
           placeholder="Kamrej, Surat"
-          className="w-full bg-transparent text-meta text-ink-900 placeholder:text-ink-400 focus:outline-none"
+          className="w-full bg-transparent text-base text-ink-900 md:text-sm placeholder:text-muted-foreground focus:outline-none focus:shadow-none"
         />
       </Cell>
 
@@ -60,7 +61,7 @@ export default function SearchBar() {
           type="date"
           value={date}
           onChange={(e) => setField('date', e.target.value)}
-          className="w-full bg-transparent text-meta text-ink-900 tabular focus:outline-none"
+          className="w-full bg-transparent text-base text-ink-900 md:text-sm tabular focus:outline-none focus:shadow-none"
         />
       </Cell>
 
@@ -69,7 +70,7 @@ export default function SearchBar() {
           name="slot"
           value={slot}
           onChange={(e) => setField('slot', e.target.value)}
-          className="w-full bg-transparent text-meta text-ink-900 focus:outline-none"
+          className="w-full bg-transparent text-base text-ink-900 md:text-sm focus:outline-none focus:shadow-none"
         >
           {Object.values(SLOTS).map((s) => (
             <option key={s.id} value={s.id}>
@@ -87,7 +88,7 @@ export default function SearchBar() {
           max={500}
           value={guests}
           onChange={(e) => setField('guests', Number(e.target.value))}
-          className="w-full bg-transparent text-meta text-ink-900 tabular focus:outline-none"
+          className="w-full bg-transparent text-base text-ink-900 md:text-sm tabular focus:outline-none focus:shadow-none"
         />
       </Cell>
 
@@ -98,7 +99,7 @@ export default function SearchBar() {
           type="submit"
           disabled={pending}
           aria-busy={pending}
-          className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-600 px-6 py-3.5 text-meta font-semibold text-white transition-colors hover:bg-brand-700 disabled:cursor-wait disabled:opacity-70"
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-meta font-semibold text-white transition-colors hover:bg-primary-hover disabled:cursor-wait disabled:bg-muted disabled:text-muted-foreground"
         >
           <Search className="size-4" aria-hidden="true" />
           {pending ? 'Searching…' : 'Search'}
@@ -111,7 +112,7 @@ export default function SearchBar() {
 function Cell({ label, children, last }) {
   return (
     <label
-      className={`min-w-0 flex-1 cursor-text px-5 py-3 transition-colors hover:bg-ink-50 ${
+      className={`min-w-0 flex-1 cursor-text px-5 py-3 focus-within:bg-accent focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary transition-colors hover:bg-ink-50 ${
         last ? '' : 'border-b border-border md:border-b-0 md:border-r'
       }`}
     >

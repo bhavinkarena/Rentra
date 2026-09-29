@@ -15,7 +15,7 @@ export default function NotificationControls({ id, unknown }) {
             required
             pattern="SM[a-fA-F0-9]{32}"
             name="sid"
-            className="block min-h-11 w-full rounded border border-border p-2"
+            className="block min-h-11 w-full rounded-md border border-input p-2 text-base md:text-sm bg-card text-foreground"
           />
           <span className="text-meta">
             Fetches and verifies the original message. Does not send another SMS.

@@ -40,7 +40,7 @@ export default async function AccountPage() {
         </div>
         <Link
           href="/search"
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand-700 px-5 text-sm font-semibold text-white hover:bg-brand-800"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-white hover:bg-primary-hover active:bg-primary-active"
         >
           Find your next getaway
           <ArrowUpRight className="size-4" />
@@ -57,7 +57,7 @@ export default async function AccountPage() {
               <span className="grid size-11 place-items-center rounded-xl bg-brand-50 text-brand-700">
                 <Icon className="size-5" />
               </span>
-              <ArrowUpRight className="size-4 text-ink-400 transition group-hover:text-brand-700" />
+              <ArrowUpRight className="size-4 text-muted-foreground transition group-hover:text-brand-700" />
             </div>
             <h2 className="font-semibold">{title}</h2>
             <p className="mt-2 text-sm leading-relaxed text-ink-500">{description}</p>
@@ -107,7 +107,7 @@ export default async function AccountPage() {
               >
                 <Icon className="size-4 text-ink-500" />
                 {title}
-                <ArrowUpRight className="ml-auto size-4 text-ink-400" />
+                <ArrowUpRight className="ml-auto size-4 text-muted-foreground" />
               </Link>
             ))}
           </section>

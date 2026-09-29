@@ -1,4 +1,5 @@
 'use client';
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import Loader2 from '@/components/ui/rentra-loader';
 
 import { useActionState, useState } from 'react';
@@ -7,9 +8,7 @@ import { saveAccountSettings } from '@/lib/actions/partner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-const inputCls =
-  'w-full rounded-sm border border-input bg-card px-3.5 py-3 text-meta ' +
-  'text-ink-900 placeholder:text-ink-400 focus:border-brand-600 focus:outline-none';
+const inputCls = `${sharedFieldClass} `;
 
 function Field({ id, label, hint, error, children }) {
   return (

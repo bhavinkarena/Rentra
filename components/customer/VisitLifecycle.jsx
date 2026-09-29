@@ -1,4 +1,5 @@
 'use client';
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import RentraLoader from '@/components/ui/rentra-loader';
 
 import { useActionState, useState } from 'react';
@@ -38,7 +39,7 @@ export function VisitLifecycle({ visit, requestKey, admin = false, action = null
             required
             type="datetime-local"
             name="occurredAt"
-            className="mt-1 block min-h-11 w-full rounded border border-border p-2"
+            className="mt-1 block min-h-11 w-full rounded-md border border-input p-2 text-base md:text-sm bg-card text-foreground"
           />
         </label>
         <label className="block">
@@ -48,7 +49,7 @@ export function VisitLifecycle({ visit, requestKey, admin = false, action = null
             minLength={20}
             maxLength={1000}
             name="note"
-            className="mt-1 block w-full rounded border border-border p-2"
+            className="mt-1 block w-full rounded-md border border-input p-2 text-base md:text-sm bg-card text-foreground"
             placeholder="Describe the guest handover, return inspection or completion check. Do not include IDs, access codes or payment details."
           />
         </label>
@@ -57,7 +58,7 @@ export function VisitLifecycle({ visit, requestKey, admin = false, action = null
           <input type="checkbox" name="attested" required className="mt-1 size-5" />I confirm this
           observation and its time. A scheduled date alone is not evidence.
         </label>
-        <button disabled={pending} className="min-h-11 rounded bg-brand-700 px-4 text-white">
+        <button disabled={pending} className="min-h-11 rounded-md bg-primary px-4 text-white">
           {pending ? <RentraLoader label="Recording…" /> : `Record ${phase}`}
         </button>
         <Outcome state={state} />
@@ -67,8 +68,7 @@ export function VisitLifecycle({ visit, requestKey, admin = false, action = null
 }
 
 // Customer-only form (book the same place again).
-const field =
-  'mt-1 block min-h-11 w-full rounded-lg border border-border bg-card p-3 text-base font-normal sm:text-sm';
+const field = `${sharedFieldClass} mt-1 min-h-11`;
 export function BookAgainForm({ record }) {
   const [state, action, pending] = useActionState(bookAgain, {});
   const [dates, setDates] = useState(['']);
@@ -139,7 +139,7 @@ export function BookAgainForm({ record }) {
       </div>
       <button
         disabled={pending}
-        className="min-h-12 rounded-full bg-brand-700 px-6 font-semibold text-white transition-colors hover:bg-brand-800 disabled:opacity-50"
+        className="min-h-12 rounded-full bg-primary px-6 font-semibold text-white transition-colors hover:bg-primary-hover disabled:bg-muted disabled:text-muted-foreground active:bg-primary-active"
       >
         {pending ? <RentraLoader label="Checking…" /> : 'Check new dates and prices'}
       </button>

@@ -81,7 +81,7 @@ export default async function Monitor({ searchParams }) {
             {data.counts.map((row) => (
               <span
                 key={row.state}
-                className="rounded-full bg-ink-50 px-2.5 py-1 text-[0.68rem] font-semibold capitalize text-ink-600"
+                className="rounded-full bg-ink-50 px-2.5 py-1 text-tiny font-semibold capitalize text-ink-600"
               >
                 {row.state}: {row.count}
               </span>

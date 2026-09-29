@@ -1,13 +1,13 @@
 'use client';
 
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import { useActionState, useRef, useTransition } from 'react';
 import LoaderCircle from '@/components/ui/rentra-loader';
 import RetryButton from '@/components/portal/RetryButton';
 import ValidationSummary from '@/components/portal/ValidationSummary';
 import { propertyReviewCommand } from '@/lib/actions/admin';
 
-export const control =
-  'mt-1 block min-h-10 w-full rounded-md border border-input bg-card px-3 text-meta focus:border-brand-600 focus:outline-none';
+export const control = `${sharedFieldClass} mt-1 min-h-10`;
 
 /**
  * One command form. Dispatched from onSubmit rather than `<form action>`:
@@ -21,7 +21,7 @@ export function CommandForm({ id, command, hidden = {}, submitLabel, tone = 'bra
   const buttonTone =
     tone === 'danger'
       ? 'border border-danger text-danger hover:bg-danger-bg'
-      : 'bg-brand-700 text-white hover:bg-brand-800';
+      : 'bg-primary text-white hover:bg-primary-hover active:bg-primary-active';
   return (
     <form
       ref={formRef}

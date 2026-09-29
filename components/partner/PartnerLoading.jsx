@@ -1,13 +1,6 @@
 import BrandLoader from '@/components/ui/rentra-loader';
 
-function Skeleton({ className = '' }) {
-  return (
-    <span
-      className={`motion-safe:animate-pulse block max-w-full rounded-sm bg-ink-100 ${className}`}
-      aria-hidden="true"
-    />
-  );
-}
+import Skeleton from '@/components/ui/skeleton';
 
 export function RentraLoader({ label = 'Opening your workspace', inverse = false }) {
   return <BrandLoader variant="page" label={label} inverse={inverse} />;
@@ -90,7 +83,7 @@ function TableSkeleton({ rows = 6 }) {
 export function DashboardSkeleton() {
   return (
     <div
-      className="mx-auto w-full max-w-[1480px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
+      className="mx-auto w-full max-w-(--container-workspace) px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
       aria-busy="true"
     >
       <span className="sr-only" role="status">
@@ -122,7 +115,7 @@ export function DashboardSkeleton() {
 export function PropertiesSkeleton() {
   return (
     <div
-      className="mx-auto w-full max-w-[1480px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
+      className="mx-auto w-full max-w-(--container-workspace) px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
       aria-busy="true"
     >
       <span className="sr-only" role="status">

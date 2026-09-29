@@ -49,7 +49,7 @@ function bookingTone(state) {
     return 'bg-brand-50 text-brand-800 ring-brand-100';
   if (['cancelled', 'expired', 'failed'].includes(state))
     return 'bg-danger-bg text-danger ring-danger/10';
-  return 'bg-warning-bg text-amber-800 ring-warning/15';
+  return 'bg-warning-bg text-warning ring-warning/15';
 }
 
 function paymentSummary(payments) {
@@ -70,9 +70,9 @@ export default function AdminBookingHistory({ data }) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[1480px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+    <div className="mx-auto w-full max-w-(--container-workspace) px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       <header>
-        <p className="text-[0.68rem] font-bold tracking-[0.12em] text-brand-700 uppercase">
+        <p className="text-tiny font-bold tracking-[0.12em] text-brand-700 uppercase">
           Booking operations
         </p>
         <h1 className="mt-1 text-h1 text-ink-900">Booking records</h1>
@@ -125,18 +125,18 @@ export default function AdminBookingHistory({ data }) {
               <label className="relative min-w-0 flex-1">
                 <span className="sr-only">Search property or booking reference</span>
                 <Search
-                  className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-400"
+                  className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
                   aria-hidden="true"
                 />
                 <input
-                  className="min-h-11 w-full rounded-md border border-border bg-white pr-3 pl-10 text-meta text-ink-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+                  className="min-h-11 w-full rounded-md border border-input bg-card pr-3 pl-10 text-base md:text-sm text-ink-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   name="q"
                   maxLength={100}
                   defaultValue={data.q}
                   placeholder="Search bookings..."
                 />
               </label>
-              <button className="min-h-11 rounded-md bg-brand-700 px-4 text-meta font-semibold text-white transition hover:bg-brand-800">
+              <button className="min-h-11 rounded-md bg-primary px-4 text-meta font-semibold text-white transition hover:bg-primary-hover active:bg-primary-active">
                 Search
               </button>
             </Form>
@@ -176,7 +176,7 @@ export default function AdminBookingHistory({ data }) {
             aria-label="Booking records table"
           >
             <table className="w-full min-w-[900px] border-collapse text-left">
-              <thead className="bg-ink-25 text-[0.65rem] font-bold tracking-[0.08em] text-ink-500 uppercase">
+              <thead className="bg-ink-25 text-tiny font-bold tracking-[0.08em] text-ink-500 uppercase">
                 <tr>
                   <th className="px-5 py-3">Property and reference</th>
                   <th className="px-4 py-3">Booked on</th>
@@ -243,7 +243,7 @@ function BookingRow({ item, listHref }) {
     <tr className="group transition-colors hover:bg-ink-25/80">
       <td className="px-5 py-4">
         <p className="max-w-[300px] truncate text-meta font-semibold text-ink-900">{item.title}</p>
-        <p className="mt-1 font-mono text-[0.68rem] text-ink-500">{item.reference}</p>
+        <p className="mt-1 font-mono text-tiny text-ink-500">{item.reference}</p>
       </td>
       <td className="whitespace-nowrap px-4 py-4 text-tiny text-ink-600">
         {formatDate(item.createdAt)}
@@ -252,13 +252,13 @@ function BookingRow({ item, listHref }) {
         <p className="text-tiny font-semibold text-ink-800">
           {item.visitCount} visit{item.visitCount === 1 ? '' : 's'}
         </p>
-        <p className="mt-1 max-w-[180px] truncate text-[0.68rem] capitalize text-ink-500">
+        <p className="mt-1 max-w-[180px] truncate text-tiny capitalize text-ink-500">
           {item.visitStates.map(label).join(', ') || 'No visits recorded'}
         </p>
       </td>
       <td className="px-4 py-4">
         <span
-          className={`inline-flex rounded-full px-2.5 py-1 text-[0.68rem] font-bold capitalize ring-1 ${bookingTone(item.state)}`}
+          className={`inline-flex rounded-full px-2.5 py-1 text-tiny font-bold capitalize ring-1 ${bookingTone(item.state)}`}
         >
           {label(item.state)}
         </span>
@@ -271,13 +271,13 @@ function BookingRow({ item, listHref }) {
           {payment.text}
         </span>
         {item.payments.some((entry) => entry.environment === 'test') ? (
-          <p className="mt-1 text-[0.65rem] font-semibold text-amber-700">Test gateway</p>
+          <p className="mt-1 text-tiny font-semibold text-warning">Test gateway</p>
         ) : null}
       </td>
       <td className="px-5 py-4 text-right">
         <Link
           href={`/admin/bookings/${item.id}?from=${encodeURIComponent(listHref)}`}
-          className="inline-flex size-9 items-center justify-center rounded-md text-ink-400 transition hover:bg-brand-50 hover:text-brand-700"
+          className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition hover:bg-brand-50 hover:text-brand-700"
           aria-label={`Open booking ${item.reference}`}
         >
           <ChevronRight
@@ -310,7 +310,7 @@ function KpiCard({ label: title, value, hint, icon: Icon, tone = 'neutral' }) {
           <Icon className="size-[18px]" aria-hidden="true" />
         </span>
       </div>
-      <p className="mt-3 hidden text-[0.68rem] leading-4 text-ink-500 sm:block">{hint}</p>
+      <p className="mt-3 hidden text-tiny leading-4 text-ink-500 sm:block">{hint}</p>
     </article>
   );
 }

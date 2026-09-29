@@ -1,11 +1,11 @@
 'use client';
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import RentraLoader from '@/components/ui/rentra-loader';
 
 import { useActionState, useState } from 'react';
 import { setPaymentGatewayConfiguration as savePaymentGatewaySettings } from '@/lib/actions/admin';
 
-const fieldClass =
-  'mt-2 block min-h-11 w-full rounded-md border border-border bg-card px-3 py-2 text-meta';
+const fieldClass = `${sharedFieldClass} mt-2 min-h-11`;
 
 export default function PaymentGatewaySettings({ configuration, providers }) {
   const [state, action, pending] = useActionState(savePaymentGatewaySettings, {});
@@ -94,7 +94,7 @@ export default function PaymentGatewaySettings({ configuration, providers }) {
       <button
         type="submit"
         disabled={pending}
-        className="min-h-11 rounded-md bg-brand-600 px-5 py-2.5 text-meta font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
+        className="min-h-11 rounded-md bg-primary px-5 py-2.5 text-meta font-semibold text-white hover:bg-primary-hover disabled:bg-muted disabled:text-muted-foreground"
       >
         {pending ? <RentraLoader label="Saving…" /> : 'Save payment settings'}
       </button>

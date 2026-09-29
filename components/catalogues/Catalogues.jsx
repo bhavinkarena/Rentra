@@ -1,4 +1,6 @@
 'use client';
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
+import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from '@/components/navigation/NavigationLink';
@@ -25,8 +27,8 @@ const fieldNames = {
   isFilterable: 'Search filter',
   valueType: 'Value type',
 };
-const inputClass = 'mt-1 block w-full rounded border border-ink-300 bg-white p-3 text-ink-900';
-const buttonClass = 'rounded bg-ink-900 px-4 py-3 font-semibold text-white disabled:opacity-50';
+const inputClass = `${sharedFieldClass} mt-1`;
+const buttonClass = `${sharedButtonVariants({ shape: 'default', size: 'default' })} `;
 function Nav() {
   return (
     <nav aria-label="Catalogue types" className="flex flex-wrap gap-4">
@@ -332,7 +334,7 @@ export function CatalogueDetail({ data }) {
                     </select>
                   </label>
                 )}
-                <fieldset className="space-y-3 rounded border border-ink-200 p-4">
+                <fieldset className="space-y-3 rounded-md border border-ink-200 p-4">
                   <legend>Approximate locality map centre</legend>
                   <p>
                     Use an approved public locality centre. Never enter a property’s private arrival
@@ -414,7 +416,7 @@ export function CatalogueDetail({ data }) {
               Preview changes
             </button>
             {!creating && (
-              <fieldset className="space-y-3 rounded border border-ink-200 p-4">
+              <fieldset className="space-y-3 rounded-md border border-ink-200 p-4">
                 <legend>Replacement planning</legend>
                 <p>Preview affected references for a separately reviewed migration.</p>
                 <label className="block">
@@ -438,7 +440,7 @@ export function CatalogueDetail({ data }) {
       )}
       {pending && <p role="status">Checking catalogue…</p>}
       {result?.error && (
-        <p role="alert" className="rounded border border-red-300 p-4">
+        <p role="alert" className="rounded-md border border-danger/30 p-4">
           {result.error}
         </p>
       )}
@@ -458,7 +460,7 @@ export function CatalogueDetail({ data }) {
       {result?.preview && (
         <section
           aria-label="Change preview"
-          className="space-y-4 rounded border-2 border-ink-900 p-4"
+          className="space-y-4 rounded-md border-2 border-ink-900 p-4"
         >
           <h2 className="text-xl font-bold">Review impact</h2>
           <p>{result.notice}</p>

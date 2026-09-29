@@ -1,4 +1,6 @@
 'use client';
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
+import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import OtpDialog, { OtpInput } from '@/components/auth/OtpDialog';
 import { ArrowRight, Check, Smartphone, ChevronDown } from 'lucide-react';
 import RentraLoader from '@/components/ui/rentra-loader';
@@ -13,10 +15,8 @@ import {
 } from '@/lib/actions/customer';
 import { logoutCustomer } from '@/lib/actions/auth';
 
-const control =
-  'mt-2 min-h-12 w-full rounded-xl border border-input bg-background px-4 py-3 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100';
-const button =
-  'inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-brand-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-800 disabled:opacity-50';
+const control = `${sharedFieldClass} mt-2 min-h-12`;
+const button = `${sharedButtonVariants({ shape: 'pill', size: 'lg' })} `;
 export function FormStatus({ state }) {
   const message = useRef(null);
   useEffect(() => {
@@ -167,9 +167,7 @@ export function PhoneChangeForm() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 text-xs font-semibold text-ink-500">
-        <span className="grid size-7 place-items-center rounded-full bg-brand-700 text-white">
-          1
-        </span>
+        <span className="grid size-7 place-items-center rounded-full bg-primary text-white">1</span>
         New number
         <ArrowRight className="size-4" />
         <span className="grid size-7 place-items-center rounded-full bg-ink-100">2</span>Verify code

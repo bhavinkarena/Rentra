@@ -3,7 +3,7 @@ import { BadgeCheck, Zap } from 'lucide-react';
 const VARIANTS = {
   verified: {
     label: 'Physically Verified',
-    className: 'bg-brand-600 text-white',
+    className: 'bg-primary text-white',
     Icon: BadgeCheck,
   },
   owner: {
@@ -18,10 +18,10 @@ const VARIANTS = {
   },
   instant: {
     label: 'Instant Book',
-    className: 'bg-amber-100 text-amber-700 ring-1 ring-inset ring-amber-300',
+    className: 'bg-warning-bg text-warning ring-1 ring-inset ring-amber-300',
     Icon: Zap,
   },
-  peak: { label: 'Peak date', className: 'bg-amber-500 text-white', Icon: null },
+  peak: { label: 'Peak date', className: 'bg-warning text-white', Icon: null },
   new: { label: 'New', className: 'bg-ink-900 text-white', Icon: null },
 };
 

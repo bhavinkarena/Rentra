@@ -36,7 +36,7 @@ export default function ReviewDetail({ record: r, admin = false, canWrite = true
         <p>
           Visit {r.visitReference} · {r.visitDate}
         </p>
-        <blockquote className="mt-3 whitespace-pre-wrap rounded border border-border p-4">
+        <blockquote className="mt-3 whitespace-pre-wrap rounded-md border border-border p-4">
           {r.body}
         </blockquote>
         <p>
@@ -52,7 +52,7 @@ export default function ReviewDetail({ record: r, admin = false, canWrite = true
       )}
       {admin && r.moderationReason && <p>Latest reason shared with author: {r.moderationReason}</p>}
       {canWrite && (admin || r.public) && (
-        <section className="space-y-3 rounded border border-border p-4">
+        <section className="space-y-3 rounded-md border border-border p-4">
           <h2 className="text-h3">{admin ? 'Publication decision' : 'Public owner reply'}</h2>
           <ReviewControl
             key={r.version}
@@ -77,7 +77,7 @@ export default function ReviewDetail({ record: r, admin = false, canWrite = true
           <article
             id={`report-${report.id}`}
             key={report.id}
-            className="space-y-3 rounded border border-border p-4"
+            className="space-y-3 rounded-md border border-border p-4"
           >
             <p>
               {report.state} · {time(report.created_at)}
@@ -106,7 +106,7 @@ export default function ReviewDetail({ record: r, admin = false, canWrite = true
         {!r.history.length && <p>No recorded changes yet.</p>}
         <ol className="space-y-4">
           {r.history.map((h, i) => (
-            <li key={i} className="rounded border border-border p-4">
+            <li key={i} className="rounded-md border border-border p-4">
               <p>
                 {h.action.replaceAll('_', ' ')} · {time(h.at)}
               </p>

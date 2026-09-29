@@ -1,4 +1,5 @@
 'use client';
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import Loader2 from '@/components/ui/rentra-loader';
 
 import { useActionState, useMemo, useState } from 'react';
@@ -10,9 +11,7 @@ import { Input } from '@/components/ui/input';
 import { STEP_FORM_ID } from './chrome';
 import { ChapterBar, MobileStepDisclosure, StepRail } from './WizardProgress';
 
-const controlClass =
-  'min-h-12 w-full rounded-md border border-input bg-card px-3.5 py-3 text-meta ' +
-  'text-ink-900 placeholder:text-ink-400 focus:border-brand-600 focus:outline-none';
+const controlClass = `${sharedFieldClass} min-h-12`;
 
 function Field({ id, label, hint, error, optional = false, children }) {
   const descriptionId = `${id}-description`;
@@ -22,7 +21,7 @@ function Field({ id, label, hint, error, optional = false, children }) {
         <label htmlFor={id} className="text-meta font-semibold text-ink-800">
           {label}
         </label>
-        {optional ? <span className="text-tiny text-ink-400">Optional</span> : null}
+        {optional ? <span className="text-tiny text-muted-foreground">Optional</span> : null}
       </div>
       {children}
       <p
@@ -57,10 +56,10 @@ export default function NewListingStart({ categories, cities, progress }) {
           <span className="hidden h-4 w-px shrink-0 bg-ink-200 sm:block" aria-hidden="true" />
           <p className="min-w-0 flex-1 truncate text-tiny font-bold tracking-wider text-brand-700 uppercase">
             {progress.chapterLabel}
-            <span className="ml-2 hidden font-medium tracking-normal text-ink-400 normal-case sm:inline">
+            <span className="ml-2 hidden font-medium tracking-normal text-muted-foreground normal-case sm:inline">
               Chapter {progress.chapterNumber} of {progress.chapterTotal}
             </span>
-            <span className="ml-2 font-medium tracking-normal text-ink-400 normal-case sm:hidden">
+            <span className="ml-2 font-medium tracking-normal text-muted-foreground normal-case sm:hidden">
               Step {progress.stepNumber} of {progress.stepTotal}
             </span>
           </p>
@@ -69,7 +68,8 @@ export default function NewListingStart({ categories, cities, progress }) {
           </p>
           <Link
             href="/partner/listings"
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1.5 text-tiny font-semibold text-ink-600 transition-colors hover:bg-ink-100 hover:text-ink-900"
+            aria-label="Cancel property setup"
+            className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 rounded-full px-2.5 py-1.5 text-tiny font-semibold text-ink-600 transition-colors hover:bg-ink-100 hover:text-ink-900"
           >
             <X className="size-3.5" aria-hidden="true" />
             <span className="hidden sm:inline">Cancel</span>
@@ -107,7 +107,7 @@ export default function NewListingStart({ categories, cities, progress }) {
                 ) : null}
 
                 {!ready ? (
-                  <p className="mt-5 rounded-md border-l-4 border-amber-500 bg-warning-bg p-3 text-meta text-warning">
+                  <p className="mt-5 rounded-md border-l-4 border-warning bg-warning-bg p-3 text-meta text-warning">
                     Property categories and service areas are not available yet. Ask a Rentra admin
                     to finish marketplace setup before adding a property.
                   </p>
@@ -281,7 +281,7 @@ export default function NewListingStart({ categories, cities, progress }) {
                         disabled={!cityId}
                         aria-invalid={Boolean(errors.areaId)}
                         aria-describedby="areaId-description"
-                        className={`${controlClass} disabled:cursor-not-allowed disabled:bg-ink-50 disabled:text-ink-400`}
+                        className={`${controlClass} disabled:cursor-not-allowed disabled:bg-ink-50 disabled:text-muted-foreground`}
                       >
                         <option value="" disabled>
                           {cityId ? 'Select an area' : 'Choose a city first'}
@@ -321,19 +321,20 @@ export default function NewListingStart({ categories, cities, progress }) {
         <div className="mx-auto flex w-full max-w-[1180px] items-center gap-3 px-4 py-3 sm:px-6 lg:pl-[300px] lg:pr-8">
           <Link
             href="/partner/listings"
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-md px-3 py-2.5 text-meta font-semibold text-ink-700 transition-colors hover:bg-ink-100 hover:text-ink-900"
+            aria-label="Cancel property setup"
+            className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 rounded-md px-3 py-2.5 text-meta font-semibold text-ink-700 transition-colors hover:bg-ink-100 hover:text-ink-900"
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
             <span className="hidden sm:inline">Properties</span>
           </Link>
-          <p className="hidden text-tiny text-ink-400 sm:block">
+          <p className="hidden text-tiny text-muted-foreground sm:block">
             Nothing is created until this step is valid
           </p>
           <button
             type="submit"
             form={STEP_FORM_ID}
             disabled={pending || !ready}
-            className="ml-auto inline-flex shrink-0 items-center gap-2 rounded-full bg-brand-600 px-6 py-3 text-meta font-semibold text-white shadow-sm transition-all hover:bg-brand-700 hover:shadow active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-ink-200 disabled:text-ink-500 disabled:shadow-none"
+            className="ml-auto inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-6 py-3 text-meta font-semibold text-white shadow-sm transition-[background-color,color,border-color,box-shadow,transform] hover:bg-primary-hover hover:shadow disabled:cursor-not-allowed disabled:bg-ink-200 disabled:text-ink-500 disabled:shadow-none"
           >
             {pending ? <Loader2 className="size-4 " aria-hidden="true" /> : null}
             {pending ? <span className="sr-only">Creating your property…</span> : 'Continue'}

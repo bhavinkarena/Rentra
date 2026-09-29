@@ -11,7 +11,7 @@ export default function ReviewQueue({ data, admin = false }) {
       </p>
       <ul className="space-y-5">
         {data.rows.map((r) => (
-          <li key={r.id} className="space-y-3 rounded border border-border p-4">
+          <li key={r.id} className="space-y-3 rounded-md border border-border p-4">
             <h2 className="font-semibold">
               {r.title} · {r.rating} out of 5
             </h2>
@@ -41,7 +41,7 @@ export default function ReviewQueue({ data, admin = false }) {
             hides a review. Use its publication decision above if removal is justified.
           </p>
           {data.reports.map((r) => (
-            <div key={r.id} className="space-y-3 rounded border border-border p-4">
+            <div key={r.id} className="space-y-3 rounded-md border border-border p-4">
               <p className="break-all">Review {r.review_id}</p>
               <p>
                 {r.rating} out of 5 · {r.body}

@@ -23,10 +23,10 @@ function SuccessMark() {
     <div className="relative mx-auto grid size-20 place-items-center">
       <span
         aria-hidden="true"
-        className="animate-ripple absolute inset-0 rounded-full bg-brand-300"
+        className="animate-ripple absolute inset-0 rounded-full bg-success/15"
       />
       <svg viewBox="0 0 52 52" className="relative size-20" aria-hidden="true">
-        <circle cx="26" cy="26" r="26" className="fill-brand-600" />
+        <circle cx="26" cy="26" r="26" className="fill-success" />
         <path
           d="M15 27.5l7 7 15-15"
           fill="none"
@@ -138,7 +138,7 @@ export default function ConfirmedView({ data, checkout }) {
         {actions.map(({ href, icon: Icon, label, hint, file }) => {
           const tile = (
             <>
-              <span className="grid size-11 place-items-center rounded-full bg-brand-50 text-brand-700 transition-colors group-hover:bg-brand-600 group-hover:text-white">
+              <span className="grid size-11 place-items-center rounded-full bg-brand-50 text-brand-700 transition-colors group-hover:bg-primary-hover group-hover:text-white">
                 <Icon className="size-5" aria-hidden="true" />
               </span>
               <span className="mt-3 block text-sm font-semibold text-ink-900">{label}</span>

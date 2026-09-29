@@ -1,7 +1,7 @@
 import Link from '@/components/navigation/NavigationLink';
 import Breadcrumbs from '@/components/portal/Breadcrumbs';
 
-export function AdminPage({ children, width = 'max-w-[1480px]' }) {
+export function AdminPage({ children, width = 'max-w-(--container-workspace)' }) {
   return (
     <div className={`mx-auto w-full ${width} px-4 py-6 sm:px-6 sm:py-8 lg:px-8`}>{children}</div>
   );
@@ -25,7 +25,7 @@ export function AdminPageHeader({
       ) : backHref ? (
         <Link
           href={backHref}
-          className="mb-4 inline-flex min-h-9 items-center text-tiny font-semibold text-brand-700 hover:underline"
+          className="mb-4 inline-flex min-h-11 items-center md:min-h-9 text-tiny font-semibold text-brand-700 hover:underline"
         >
           ← {backLabel}
         </Link>
@@ -50,7 +50,7 @@ export function AdminKpiCard({ label, value, hint, icon: Icon, tone = 'neutral' 
   const styles = {
     neutral: 'border-border bg-card text-ink-600',
     brand: 'border-brand-200 bg-brand-50 text-brand-700',
-    warning: 'border-warning/25 bg-warning-bg text-amber-800',
+    warning: 'border-warning/25 bg-warning-bg text-warning',
     danger: 'border-danger/25 bg-danger-bg text-danger',
   };
   return (
@@ -90,10 +90,10 @@ export function AdminEmpty({ icon: Icon, title, description }) {
 export function StatusBadge({ children, tone = 'neutral' }) {
   const tones = {
     neutral: 'bg-ink-100 text-ink-700 ring-ink-200',
-    success: 'bg-brand-50 text-brand-800 ring-brand-100',
-    warning: 'bg-warning-bg text-amber-800 ring-warning/15',
+    success: 'bg-success-bg text-success ring-success/15',
+    warning: 'bg-warning-bg text-warning ring-warning/15',
     danger: 'bg-danger-bg text-danger ring-danger/10',
-    info: 'bg-info-bg text-ink-700 ring-blue/10',
+    info: 'bg-info-bg text-info ring-info/10',
   };
   return (
     <span
@@ -110,7 +110,7 @@ export function Pager({ page, hasNext, previousHref, nextHref, label = 'Page' })
       {page > 1 ? (
         <Link
           href={previousHref}
-          className="inline-flex min-h-9 items-center rounded-md border border-border px-3 text-tiny font-semibold text-ink-700 hover:bg-ink-50"
+          className="inline-flex min-h-11 items-center md:min-h-9 rounded-md border border-border px-3 text-tiny font-semibold text-ink-700 hover:bg-ink-50"
         >
           ← Previous
         </Link>
@@ -121,7 +121,7 @@ export function Pager({ page, hasNext, previousHref, nextHref, label = 'Page' })
       {hasNext ? (
         <Link
           href={nextHref}
-          className="inline-flex min-h-9 items-center rounded-md border border-border px-3 text-tiny font-semibold text-ink-700 hover:bg-ink-50"
+          className="inline-flex min-h-11 items-center md:min-h-9 rounded-md border border-border px-3 text-tiny font-semibold text-ink-700 hover:bg-ink-50"
         >
           Next →
         </Link>

@@ -21,7 +21,7 @@ export default function IncidentControls({ code, incident, count, initialRequest
       <label className="block text-meta font-semibold">
         Action
         <select
-          className="mt-2 min-h-11 w-full rounded border border-border p-2"
+          className="mt-2 min-h-11 w-full rounded-md border border-input p-2 text-base md:text-sm bg-card text-foreground"
           name="action"
           value={operation}
           onChange={(event) => {
@@ -43,7 +43,7 @@ export default function IncidentControls({ code, incident, count, initialRequest
             required
             name="assigneeId"
             pattern="[a-fA-F0-9-]{36}"
-            className="mt-2 min-h-11 w-full rounded border border-border p-2"
+            className="mt-2 min-h-11 w-full rounded-md border border-input p-2 text-base md:text-sm bg-card text-foreground"
             defaultValue={incident?.assignee_id ?? ''}
           />
         </label>
@@ -53,7 +53,7 @@ export default function IncidentControls({ code, incident, count, initialRequest
           Snooze duration
           <select
             name="snoozeHours"
-            className="mt-2 min-h-11 w-full rounded border border-border p-2"
+            className="mt-2 min-h-11 w-full rounded-md border border-input p-2 text-base md:text-sm bg-card text-foreground"
           >
             <option value="1">1 hour</option>
             <option value="4">4 hours</option>
@@ -69,7 +69,7 @@ export default function IncidentControls({ code, incident, count, initialRequest
           maxLength={2000}
           name="note"
           rows={3}
-          className="mt-2 w-full rounded border border-border p-2"
+          className="mt-2 w-full rounded-md border border-input p-2 text-base md:text-sm bg-card text-foreground"
         />
       </label>
       {operation === 'resolve' && count > 0 ? (
@@ -79,7 +79,7 @@ export default function IncidentControls({ code, incident, count, initialRequest
       ) : null}
       <button
         disabled={pending || !requestKey || (operation === 'resolve' && count > 0)}
-        className="min-h-11 rounded bg-brand-600 px-4 py-2 font-semibold text-white disabled:opacity-50"
+        className="min-h-11 rounded-md bg-primary px-4 py-2 font-semibold text-white disabled:bg-muted disabled:text-muted-foreground"
       >
         {pending ? 'Recording…' : 'Record incident action'}
       </button>

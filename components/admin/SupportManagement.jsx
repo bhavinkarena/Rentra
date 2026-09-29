@@ -1,8 +1,9 @@
 'use client';
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import { useActionState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { manageSupport } from '@/lib/actions/admin';
-const field = 'mt-1 block min-h-11 w-full rounded border border-border bg-card p-2';
+const field = `${sharedFieldClass} mt-1 min-h-11`;
 export default function SupportManagement({ record }) {
   const [state, action, pending] = useActionState(manageSupport, {}),
     [, startTransition] = useTransition(),
@@ -53,7 +54,7 @@ export default function SupportManagement({ record }) {
         Reason
         <textarea className={field} name="reason" minLength={5} maxLength={500} required />
       </label>
-      <button disabled={pending} className="min-h-11 rounded bg-brand-700 px-4 text-white">
+      <button disabled={pending} className="min-h-11 rounded-md bg-primary px-4 text-white">
         {pending ? 'Saving…' : 'Save assignment'}
       </button>
       {state.error && <p role="alert">{state.error}</p>}

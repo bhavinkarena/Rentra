@@ -45,7 +45,7 @@ export function TermsSection({ listing }) {
             <option value="strict">Strict — half up to 7 days, none after</option>
           </select>
         </Field>
-        <p className="rounded-md border-l-4 border-blue bg-info-bg p-3 text-tiny text-ink-700">
+        <p className="rounded-md border-l-4 border-info bg-info-bg p-3 text-tiny text-ink-700">
           Accepted bookings keep their original cancellation policy. Deposit collection and
           settlement policy remain separately governed; this estimate is not a collected balance.
         </p>

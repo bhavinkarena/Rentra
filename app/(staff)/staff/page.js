@@ -57,7 +57,7 @@ export default async function StaffHome({ searchParams }) {
                 aria-current={data.tab === key ? 'page' : undefined}
                 className={`inline-flex min-h-10 items-center gap-1.5 rounded-full border px-3 text-tiny font-semibold ${
                   data.tab === key
-                    ? 'border-brand-700 bg-brand-700 text-white'
+                    ? 'border-brand-700 bg-primary text-white'
                     : 'border-border bg-card text-ink-700'
                 }`}
               >

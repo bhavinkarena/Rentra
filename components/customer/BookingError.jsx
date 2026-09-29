@@ -10,7 +10,7 @@ export default function BookingError({ retry }) {
       <button
         onClick={() => startTransition(() => retry())}
         disabled={pending}
-        className="min-h-11 rounded-md bg-brand-700 px-4 text-white disabled:cursor-wait disabled:opacity-70"
+        className="min-h-11 rounded-md bg-primary px-4 text-white disabled:cursor-wait disabled:bg-muted disabled:text-muted-foreground"
       >
         {pending ? 'Retrying…' : 'Try again'}
       </button>

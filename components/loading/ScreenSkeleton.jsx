@@ -1,7 +1,8 @@
-// No data reads or client effects: loading boundaries must render immediately.
-function Block({ className = '' }) {
-  return <span className={`rentra-skeleton block max-w-full rounded-md bg-ink-100 ${className}`} />;
-}
+import Skeleton from '@/components/ui/skeleton';
+import { pageWidths } from '@/lib/ui/layout';
+
+// Pending boundaries perform no reads or client effects.
+const Block = Skeleton;
 function Lines({ count = 3 }) {
   return (
     <div className="space-y-3">
@@ -25,7 +26,7 @@ function Header({ action = false }) {
 }
 function Panel({ children, className = '' }) {
   return (
-    <div className={`min-w-0 rounded-2xl border border-border bg-card p-5 sm:p-6 ${className}`}>
+    <div className={`min-w-0 rounded-lg border border-border bg-card p-5 sm:p-6 ${className}`}>
       {children}
     </div>
   );
@@ -85,13 +86,24 @@ function Table({ people = false }) {
     </div>
   );
 }
-function Cards({ count = 6 }) {
+function Cards({ count = 6, rail = false }) {
   return (
-    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    <div
+      className={
+        rail
+          ? 'flex gap-5 overflow-hidden'
+          : 'grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+      }
+    >
       {Array.from({ length: count }, (_, i) => (
-        <div key={i} className="overflow-hidden rounded-2xl border border-border bg-card">
-          <Block className="aspect-4/3 w-full rounded-none" />
-          <div className="space-y-4 p-4">
+        <div
+          key={i}
+          className={
+            rail ? 'w-[80%] min-w-0 shrink-0 sm:w-[42%] lg:w-[calc((100%-3*1.25rem)/4)]' : 'min-w-0'
+          }
+        >
+          <Block className="aspect-4/3 w-full rounded-md" />
+          <div className="space-y-3 pt-3">
             <Lines count={2} />
             <div className="flex justify-between">
               <Block className="h-5 w-24" />
@@ -109,7 +121,7 @@ function Fields({ count = 4, upload = false }) {
       {Array.from({ length: count }, (_, i) => (
         <div key={i} className="space-y-2">
           <Block className="h-3 w-28" />
-          <Block className="h-11 w-full bg-ink-50" />
+          <Block className="h-11 w-full" />
         </div>
       ))}
       {upload && (
@@ -117,7 +129,7 @@ function Fields({ count = 4, upload = false }) {
           <Block className="size-10" />
         </div>
       )}
-      <Block className="h-11 w-40 bg-brand-100" />
+      <Block className="h-11 w-40" />
     </div>
   );
 }
@@ -127,10 +139,10 @@ function BookingCards() {
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className="grid overflow-hidden rounded-2xl border border-border bg-card sm:grid-cols-[240px_1fr]"
+          className="grid grid-cols-[112px_minmax(0,1fr)] overflow-hidden rounded-lg border border-border bg-card sm:grid-cols-[200px_minmax(0,1fr)]"
         >
-          <Block className="h-44 rounded-none sm:h-full sm:min-h-56" />
-          <div className="space-y-5 p-5 sm:p-6">
+          <Block className="h-full min-h-56 rounded-none" />
+          <div className="min-w-0 space-y-5 p-4 sm:p-5">
             <Block className="h-6 w-24 rounded-full" />
             <Block className="h-6 w-3/4" />
             <Lines count={2} />
@@ -156,7 +168,7 @@ function Feed({ reviews = false }) {
                 <Block className="h-4 w-44" />
                 <Block className="h-3 w-16" />
               </div>
-              {reviews && <Block className="h-4 w-24 bg-brand-100" />}
+              {reviews && <Block className="h-4 w-24" />}
               <Lines count={2} />
             </div>
           </div>
@@ -169,7 +181,7 @@ function Detail({ image = false }) {
   return (
     <>
       <Block className="h-4 w-28" />
-      {image && <Block className="h-56 w-full rounded-2xl sm:h-72" />}
+      {image && <Block className="h-56 w-full rounded-lg sm:h-72" />}
       <Header action />
       <Tabs />
       <div className="grid items-start gap-5 md:grid-cols-2">
@@ -204,7 +216,7 @@ function Calendar() {
               <Block key={i} className="mb-2 h-3 w-8" />
             ))}
             {Array.from({ length: 35 }, (_, i) => (
-              <Block key={i} className="aspect-square w-full bg-ink-50" />
+              <Block key={i} className="aspect-square w-full" />
             ))}
           </div>
         </Panel>
@@ -222,17 +234,34 @@ function Content({ screen }) {
     case 'home':
       return (
         <>
-          <div className="grid items-center gap-7 py-6 md:grid-cols-[0.9fr_1.1fr]">
-            <div className="space-y-5">
-              <Block className="h-12 w-full" />
-              <Block className="h-12 w-3/4" />
-              <Lines count={2} />
+          <div className="bg-secondary px-4 pt-20 pb-28 sm:px-6 md:pt-28 md:pb-32">
+            <div className="mx-auto max-w-(--container-page) space-y-6">
+              <Block className="h-6 w-64 rounded-full" />
+              <Block className="h-60 max-w-2xl min-[360px]:h-48 sm:h-36 md:h-24" />
+              <div className="max-w-prose space-y-3">
+                <Block className="h-4 w-full" />
+                <Block className="h-4 w-full" />
+                <Block className="h-4 w-3/4 sm:hidden" />
+              </div>
+              <Block className="h-80 max-w-3xl rounded-lg md:h-20 md:rounded-full" />
+              <Tabs />
             </div>
-            <Block className="aspect-[16/8] w-full rounded-xl md:aspect-4/3" />
           </div>
-          <Block className="h-56 w-full rounded-lg md:h-24" />
-          <Header />
-          <Cards count={3} />
+          <div className="mx-auto -mt-12 max-w-(--container-page) space-y-10 px-4 sm:px-6">
+            <Panel>
+              <div className="grid gap-5 sm:grid-cols-3">
+                {[0, 1, 2].map((i) => (
+                  <Lines key={i} count={2} />
+                ))}
+              </div>
+            </Panel>
+            {[0, 1].map((row) => (
+              <div key={row} className="space-y-5">
+                <Block className="h-6 w-48" />
+                <Cards count={4} rail />
+              </div>
+            ))}
+          </div>
         </>
       );
     case 'search':
@@ -262,7 +291,7 @@ function Content({ screen }) {
         <>
           <Block className="h-4 w-48" />
           {/* Full-width 4:3 strip on phones, mosaic from sm (matches PhotoGallery). */}
-          <div className="-mx-4 grid aspect-4/3 gap-2 overflow-hidden sm:mx-0 sm:aspect-auto sm:h-96 sm:grid-cols-2 sm:rounded-lg">
+          <div className="-mx-4 grid aspect-4/3 gap-2 overflow-hidden sm:mx-0 sm:aspect-8/3 sm:grid-cols-2 sm:rounded-lg">
             <Block className="h-full rounded-none" />
             <div className="hidden grid-cols-2 gap-2 sm:grid">
               {[0, 1, 2, 3].map((i) => (
@@ -270,7 +299,7 @@ function Content({ screen }) {
               ))}
             </div>
           </div>
-          <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="grid items-start gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,1fr)_380px]">
             <div className="min-w-0 space-y-8">
               <Header />
               <Tabs />
@@ -279,7 +308,7 @@ function Content({ screen }) {
                 <Lines count={5} />
               </Panel>
             </div>
-            <Panel>
+            <Panel className="hidden lg:block">
               <Block className="mb-6 h-9 w-40" />
               <Tabs />
               <div className="mt-5">
@@ -314,7 +343,7 @@ function Content({ screen }) {
               <Panel>
                 <Block className="mb-6 h-6 w-40" />
                 <Tabs />
-                <Block className="mt-6 h-12 w-full bg-brand-100" />
+                <Block className="mt-6 h-12 w-full" />
               </Panel>
             </div>
             <Panel>
@@ -371,6 +400,21 @@ function Content({ screen }) {
           <Filters />
           <Stats count={3} />
           <Table />
+        </>
+      );
+    case 'content':
+      return (
+        <>
+          <Header />
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {[0, 1, 2, 3, 4].map((item) => (
+              <Panel key={item}>
+                <Block className="mb-6 h-6 w-40" />
+                <Lines count={2} />
+                <Block className="mt-3 h-6 w-24 rounded-full" />
+              </Panel>
+            ))}
+          </div>
         </>
       );
     case 'table':
@@ -480,7 +524,7 @@ function Content({ screen }) {
             </Panel>
           </div>
           <Panel>
-            <Block className="h-28 w-full bg-ink-50" />
+            <Block className="h-28 w-full" />
             <Block className="mt-4 h-11 w-32" />
           </Panel>
         </>
@@ -560,8 +604,8 @@ function Content({ screen }) {
     case 'auth':
       return (
         <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
-          <Block className="h-48 rounded-[2rem] bg-brand-100 sm:h-64 lg:h-[700px]" />
-          <div className="mx-auto min-w-0 w-full max-w-md space-y-8 py-8">
+          <Block className="order-2 h-60 rounded-xl lg:order-1 lg:h-[640px]" />
+          <div className="order-1 mx-auto min-w-0 w-full max-w-md space-y-8 py-8 lg:order-2">
             <Header />
             <Fields count={2} />
             <Lines count={2} />
@@ -603,7 +647,7 @@ function Content({ screen }) {
     case 'success':
       return (
         <Panel className="py-12">
-          <Block className="mx-auto mb-6 size-16 rounded-full bg-brand-100" />
+          <Block className="mx-auto mb-6 size-16 rounded-full" />
           <div className="mx-auto max-w-md space-y-5">
             <Block className="mx-auto h-8 w-64" />
             <Lines count={3} />
@@ -613,6 +657,7 @@ function Content({ screen }) {
       );
     case 'detail':
       return <Detail />;
+    case 'content-editor':
     case 'form':
       return (
         <>
@@ -625,7 +670,7 @@ function Content({ screen }) {
     default:
       return (
         <>
-          <Block className="h-1 w-full bg-brand-100" />
+          <Block className="h-1 w-full" />
           <span className="sr-only">Opening page</span>
         </>
       );
@@ -639,23 +684,26 @@ const widths = {
   consent: 'max-w-3xl',
   document: 'max-w-3xl',
   help: 'max-w-3xl',
-  bookings: 'max-w-5xl',
+  bookings: pageWidths.records,
+  dashboard: pageWidths.portal,
+  properties: pageWidths.portal,
   'booking-detail': 'max-w-5xl',
   thread: 'max-w-3xl',
   support: 'max-w-4xl',
+  'content-editor': 'max-w-4xl',
   team: 'max-w-[1000px]',
   success: 'max-w-2xl',
 };
-export default function ScreenSkeleton({ screen, label = 'Loading page', inset = false }) {
+export default function ScreenSkeleton({ screen, label = 'Loading page…', inset = false, layout }) {
   return (
     <div
       role="status"
       aria-label={label}
       aria-busy="true"
-      className={`mx-auto w-full min-w-0 ${widths[screen] ?? 'max-w-(--container-page)'} ${inset ? '' : 'px-4 py-6 sm:px-6 sm:py-8'}`}
+      className={`mx-auto w-full min-w-0 ${screen === 'home' ? '' : (pageWidths[layout] ?? widths[screen] ?? pageWidths.public)} ${inset || screen === 'home' ? '' : 'px-4 py-6 sm:px-6 sm:py-8'}`}
     >
       <span className="sr-only">{label}</span>
-      <div aria-hidden="true" className="space-y-6 motion-safe:animate-pulse">
+      <div aria-hidden="true" className="space-y-6">
         <Content screen={screen} />
       </div>
     </div>

@@ -41,7 +41,7 @@ export default async function AdminQueuePage({ searchParams }) {
   const overdue = stats.overdue ?? 0;
 
   return (
-    <div className="mx-auto w-full max-w-[1480px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+    <div className="mx-auto w-full max-w-(--container-workspace) px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       {params?.decided && DECIDED_MESSAGE[params.decided] ? (
         <div className="mb-6 flex items-start gap-3 rounded-lg border border-brand-200 bg-success-bg p-4 text-meta text-brand-900">
           <CircleCheckBig className="mt-0.5 size-5 shrink-0 text-brand-700" aria-hidden="true" />
@@ -166,7 +166,7 @@ function Stat({ label, value, hint, icon: Icon, tone = 'calm' }) {
           <Icon className="size-[18px]" aria-hidden="true" />
         </span>
       </div>
-      <p className="mt-3 hidden text-[0.68rem] leading-4 text-ink-500 sm:block">{hint}</p>
+      <p className="mt-3 hidden text-tiny leading-4 text-ink-500 sm:block">{hint}</p>
     </article>
   );
 }
@@ -174,6 +174,6 @@ function Stat({ label, value, hint, icon: Icon, tone = 'calm' }) {
 function statusTone(status) {
   if (status === 'approved') return 'bg-brand-50 text-brand-700';
   if (status === 'rejected') return 'bg-danger-bg text-danger';
-  if (status === 'more_info_needed') return 'bg-amber-100 text-amber-800';
+  if (status === 'more_info_needed') return 'bg-warning-bg text-warning';
   return 'bg-ink-100 text-ink-600';
 }

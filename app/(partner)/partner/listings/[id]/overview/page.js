@@ -147,7 +147,7 @@ export default async function PropertyOverviewPage({ params, searchParams }) {
             {unfinished ? (
               <Link
                 href={stepHref(id, firstIncompleteStepId(completion))}
-                className="inline-flex min-h-10 items-center gap-1.5 rounded-md bg-brand-700 px-3 text-tiny font-semibold text-white hover:bg-brand-800"
+                className="inline-flex min-h-10 items-center gap-1.5 rounded-md bg-primary px-3 text-tiny font-semibold text-white hover:bg-primary-hover active:bg-primary-active"
               >
                 <Wand2 className="size-4" aria-hidden="true" /> Continue setup
               </Link>
@@ -248,7 +248,7 @@ export default async function PropertyOverviewPage({ params, searchParams }) {
                     <li key={section}>
                       <Link
                         href={`${editHref}#${sectionAnchorId(section)}`}
-                        className="inline-flex min-h-10 items-center gap-1.5 rounded-md border border-amber-300 bg-amber-100 px-3 text-tiny font-semibold text-amber-800 hover:bg-amber-200"
+                        className="inline-flex min-h-10 items-center gap-1.5 rounded-md border border-warning/30 bg-warning-bg px-3 text-tiny font-semibold text-warning hover:bg-warning/15"
                       >
                         <CircleAlert className="size-4" aria-hidden="true" />
                         Correct {SECTION_LABEL[section] ?? section}
@@ -290,7 +290,7 @@ export default async function PropertyOverviewPage({ params, searchParams }) {
                   ]}
                 />
                 <p
-                  className={`mt-4 rounded-md p-3 text-meta ${inventory.bookable && listing.status === 'live' ? 'bg-success-bg text-brand-900' : 'bg-warning-bg text-amber-900'}`}
+                  className={`mt-4 rounded-md p-3 text-meta ${inventory.bookable && listing.status === 'live' ? 'bg-success-bg text-brand-900' : 'bg-warning-bg text-warning'}`}
                 >
                   {listing.status === 'live'
                     ? inventory.note

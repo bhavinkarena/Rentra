@@ -53,21 +53,25 @@ export default function PropertyFilters({ query = '', status = 'all' }) {
       <NavigationProgress active={pending} />
       <form onSubmit={handleSubmit} className="relative min-w-0 flex-1">
         <Search
-          className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-ink-400"
+          className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground"
           aria-hidden="true"
         />
+        <label htmlFor="property-search" className="sr-only">
+          Search properties
+        </label>
         <input
+          id="property-search"
           ref={searchRef}
           type="search"
           name="q"
           defaultValue={query}
           placeholder="Search property, location or code"
-          className="h-11 w-full rounded-md border border-input bg-card pr-24 pl-10 text-meta text-ink-900 placeholder:text-ink-400 focus:border-brand-600 focus:outline-none"
+          className="h-14 w-full rounded-md border border-input bg-card pr-24 pl-10 text-base md:text-sm text-ink-900 placeholder:text-muted-foreground focus:border-brand-600"
         />
         <button
           type="submit"
           disabled={pending}
-          className="absolute top-1.5 right-1.5 h-8 rounded-sm bg-ink-900 px-3 text-tiny font-semibold text-white transition-colors hover:bg-ink-800 disabled:cursor-wait"
+          className="absolute top-1.5 right-1.5 h-11 rounded-md bg-primary px-3 text-tiny font-semibold text-white transition-colors hover:bg-primary-hover disabled:cursor-wait"
         >
           Search
         </button>
@@ -82,7 +86,7 @@ export default function PropertyFilters({ query = '', status = 'all' }) {
           value={status}
           onChange={handleStatus}
           disabled={pending}
-          className="h-11 min-w-0 flex-1 rounded-md border border-input bg-card px-3 text-meta font-medium text-ink-700 focus:border-brand-600 focus:outline-none sm:w-44"
+          className="h-11 min-w-0 flex-1 rounded-md border border-input bg-card px-3 text-base md:text-sm font-medium text-ink-700 focus:border-brand-600 sm:w-44"
         >
           {OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>

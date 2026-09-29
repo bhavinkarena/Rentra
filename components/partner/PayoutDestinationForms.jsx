@@ -1,4 +1,6 @@
 'use client';
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
+import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import { useActionState, useId, useState, useTransition } from 'react';
 import { Landmark, LogIn, Smartphone } from 'lucide-react';
 import RentraLoader from '@/components/ui/rentra-loader';
@@ -9,11 +11,10 @@ import {
   submitPayoutDraft,
 } from '@/lib/actions/partner';
 
-const field = 'mt-1 block min-h-11 w-full rounded border border-border bg-card p-2';
-const primary =
-  'inline-flex min-h-11 items-center gap-2 rounded bg-brand-700 px-4 font-semibold text-white disabled:opacity-70';
+const field = `${sharedFieldClass} mt-1 min-h-11`;
+const primary = `${sharedButtonVariants({ shape: 'default', size: 'default' })} `;
 const secondary =
-  'inline-flex min-h-11 items-center gap-2 rounded border border-border bg-card px-4 font-semibold text-brand-700 disabled:opacity-70';
+  'inline-flex min-h-11 items-center gap-2 rounded-md border border-border bg-card px-4 font-semibold text-brand-700 disabled:opacity-70';
 
 function Problem({ message }) {
   return message ? (
@@ -64,7 +65,7 @@ export function ChangeDestinationForm({ latestVersion, requestKey, current }) {
           ].map(([value, label, Icon]) => (
             <label
               key={value}
-              className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded border px-3 ${method === value ? 'border-brand-700 bg-brand-50' : 'border-border bg-card'}`}
+              className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md border px-3 ${method === value ? 'border-brand-700 bg-brand-50' : 'border-border bg-card'}`}
             >
               <input
                 type="radio"
@@ -158,7 +159,7 @@ export function ChangeDestinationForm({ latestVersion, requestKey, current }) {
             (a comparison, not bank verification).
           </p>
           {preview.needsRecentAuth ? (
-            <p className="font-semibold text-amber-800">
+            <p className="font-semibold text-warning">
               You signed in more than 15 minutes ago, so this will be saved as a draft until you
               sign in again.
             </p>

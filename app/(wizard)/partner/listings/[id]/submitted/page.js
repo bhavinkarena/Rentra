@@ -116,7 +116,7 @@ export default async function SubmittedPage({ params }) {
                 <span className="min-w-0 flex-1">
                   <span className="flex items-baseline gap-2">
                     <span className="text-meta font-bold text-ink-900">{s.title}</span>
-                    <span className="text-tiny font-semibold tracking-wider text-ink-400 uppercase">
+                    <span className="text-tiny font-semibold tracking-wider text-muted-foreground uppercase">
                       {s.when}
                     </span>
                   </span>
@@ -141,7 +141,7 @@ export default async function SubmittedPage({ params }) {
           >
             <Link
               href="/partner/listings"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-600 px-6 py-3 text-meta font-semibold text-white transition-all hover:bg-brand-700 active:scale-[0.98]"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-meta font-semibold text-white transition-[background-color,color,border-color,box-shadow,transform] hover:bg-primary-hover"
             >
               See your properties
             </Link>

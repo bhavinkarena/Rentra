@@ -49,7 +49,7 @@ export default function WizardReview({ listingId, listing, completion, submitAct
                             section.failed
                               ? 'bg-danger text-white'
                               : section.done
-                                ? 'bg-brand-600 text-white'
+                                ? 'bg-primary text-white'
                                 : 'bg-ink-200 text-ink-600'
                           }`}
                         >

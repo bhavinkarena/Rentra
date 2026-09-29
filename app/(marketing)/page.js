@@ -100,7 +100,7 @@ export default async function HomePage() {
           <SearchBar />
         </div>
 
-        <ul className="-mx-6 mt-6 flex gap-2 overflow-x-auto px-6 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+        <ul className="-mx-4 mt-6 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
           {DISCOVERY_INTENTS.map((intent) => {
             const Icon = INTENT_ICONS[intent.slug];
             return (
@@ -111,7 +111,7 @@ export default async function HomePage() {
                       ? `/${primaryCity.slug}/farmhouse/intent/${intent.slug}`
                       : '/search'
                   }
-                  className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 text-meta font-medium text-white backdrop-blur transition-colors hover:border-white/50 hover:bg-white/20"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 text-meta font-medium text-white backdrop-blur transition-colors hover:border-white/50 hover:bg-white/20"
                 >
                   {Icon ? <Icon className="size-4" aria-hidden="true" /> : null}
                   {intent.label}
@@ -124,13 +124,13 @@ export default async function HomePage() {
 
       {/* Lifted onto the hero edge so the trust points read as part of the
           search, not a separate block floating between hero and grid. */}
-      <section className="relative mx-auto -mt-12 max-w-(--container-page) px-6">
+      <section className="relative mx-auto -mt-12 max-w-(--container-page) px-4 sm:px-6">
         <div className="rounded-lg border border-border bg-card p-5 shadow-md sm:p-6">
           <TrustStrip />
         </div>
       </section>
 
-      <section className="mx-auto max-w-(--container-page) px-6 pt-4 pb-12">
+      <section className="mx-auto max-w-(--container-page) px-4 sm:px-6 pt-4 pb-12">
         {/* Visible heading removed at the owner's request; kept for screen readers
             so the city rows' h3 headings still sit under an h2. */}
         <h2 className="sr-only">Explore places</h2>
@@ -166,7 +166,7 @@ export default async function HomePage() {
       <OccasionPicker cities={registry.cities} category={farmhouse?.slug} />
 
       {farmhouse && registry.cities.length > 0 ? (
-        <section className="mx-auto max-w-(--container-page) px-6 pb-12">
+        <section className="mx-auto max-w-(--container-page) px-4 sm:px-6 pb-12">
           <h2 className="text-h3">Explore by city</h2>
           <ul className="mt-4 flex flex-wrap gap-2">
             {registry.cities.map((city) => (
@@ -184,8 +184,8 @@ export default async function HomePage() {
         </section>
       ) : null}
 
-      <section className="mx-auto max-w-(--container-page) px-6 pb-4">
-        <div className="flex flex-col items-start justify-between gap-4 rounded-lg bg-brand-50 px-6 py-6 sm:flex-row sm:items-center sm:px-8">
+      <section className="mx-auto max-w-(--container-page) px-4 sm:px-6 pb-4">
+        <div className="flex flex-col items-start justify-between gap-4 rounded-lg bg-champagne-subtle px-6 py-6 sm:flex-row sm:items-center sm:px-8">
           <div>
             <h2 className="text-h3 text-brand-900">Own a farmhouse or villa?</h2>
             <p className="mt-1 text-meta text-ink-600">
@@ -194,7 +194,7 @@ export default async function HomePage() {
           </div>
           <Link
             href="/partner/login"
-            className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-brand-600 px-5 text-meta font-semibold text-white transition-colors hover:bg-brand-700"
+            className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-primary px-5 text-meta font-semibold text-white transition-colors hover:bg-primary-hover"
           >
             List your place
             <ArrowRight className="size-4" aria-hidden="true" />

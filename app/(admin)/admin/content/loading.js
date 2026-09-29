@@ -1,4 +1,4 @@
 import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
 export default function Loading() {
-  return <ScreenSkeleton screen="table" label="Loading content" />;
+  return <ScreenSkeleton layout="portal" screen="content" label="Loading content" />;
 }

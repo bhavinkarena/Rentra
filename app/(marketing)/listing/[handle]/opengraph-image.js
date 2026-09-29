@@ -71,14 +71,14 @@ export default async function ListingOgImage({ params }) {
             fontWeight: 700,
             letterSpacing: '-0.03em',
             lineHeight: 1.1,
-            color: '#171A18',
+            color: '#1F2924',
             maxWidth: 1000,
           }}
         >
           {listing.title}
         </div>
 
-        <div style={{ display: 'flex', marginTop: 18, fontSize: 32, color: '#5A635D' }}>
+        <div style={{ display: 'flex', marginTop: 18, fontSize: 32, color: '#59655D' }}>
           {listing.areaName}, {listing.cityName} · up to {listing.capacity} guests
           {listing.bedrooms ? ` · ${listing.bedrooms} BR` : ''}
         </div>
@@ -96,11 +96,11 @@ export default async function ListingOgImage({ params }) {
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
             <span
-              style={{ fontSize: 68, fontWeight: 700, color: '#171A18', letterSpacing: '-0.03em' }}
+              style={{ fontSize: 68, fontWeight: 700, color: '#1F2924', letterSpacing: '-0.03em' }}
             >
               {formatINR(rent)}
             </span>
-            <span style={{ fontSize: 30, color: '#5A635D' }}>
+            <span style={{ fontSize: 30, color: '#59655D' }}>
               / {(SLOTS[slot]?.label ?? '').toLowerCase()}
             </span>
           </div>
@@ -109,7 +109,7 @@ export default async function ListingOgImage({ params }) {
               display: 'flex',
               marginTop: 10,
               fontSize: 27,
-              color: '#2E6449',
+              color: '#064E3B',
               fontWeight: 700,
             }}
           >
@@ -121,7 +121,7 @@ export default async function ListingOgImage({ params }) {
           <div
             style={{
               display: 'flex',
-              backgroundColor: '#2E6449',
+              backgroundColor: '#064E3B',
               color: '#FFFFFF',
               fontSize: 24,
               fontWeight: 700,
@@ -134,7 +134,7 @@ export default async function ListingOgImage({ params }) {
         ) : null}
       </div>
 
-      <div style={{ display: 'flex', height: 14, backgroundColor: '#2E6449' }} />
+      <div style={{ display: 'flex', height: 14, backgroundColor: '#064E3B' }} />
     </div>,
     { ...size, fonts },
   );

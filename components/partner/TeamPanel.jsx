@@ -1,5 +1,7 @@
 'use client';
 
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
+import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import { useActionState, useRef, useState, useTransition } from 'react';
 import LoaderCircle from '@/components/ui/rentra-loader';
 import ValidationSummary from '@/components/portal/ValidationSummary';
@@ -10,10 +12,8 @@ import {
   revokeCaretaker,
 } from '@/lib/actions/partner';
 
-const input =
-  'mt-1 block min-h-11 w-full rounded-md border border-input bg-card px-3 text-meta focus:border-brand-600 focus:outline-none';
-const primary =
-  'inline-flex min-h-11 items-center gap-2 rounded-md bg-brand-700 px-4 text-meta font-semibold text-white hover:bg-brand-800 disabled:cursor-wait disabled:opacity-70';
+const input = `${sharedFieldClass} mt-1 min-h-11`;
+const primary = `${sharedButtonVariants({ shape: 'default', size: 'default' })} `;
 const quiet =
   'inline-flex min-h-10 items-center gap-2 rounded-md border border-border bg-card px-3 text-tiny font-semibold text-ink-800 hover:bg-ink-50 disabled:cursor-wait disabled:opacity-60';
 const ist = (value) =>
@@ -274,7 +274,7 @@ function RevokeForm({ member }) {
 
 const STATE = {
   active: ['Active', 'bg-success-bg text-brand-800'],
-  invited: ['Invitation sent', 'bg-warning-bg text-amber-800'],
+  invited: ['Invitation sent', 'bg-warning-bg text-warning'],
   invite_expired: ['Invitation expired', 'bg-ink-100 text-ink-700'],
   revoked: ['Revoked', 'bg-danger-bg text-danger'],
 };

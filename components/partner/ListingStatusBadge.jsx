@@ -63,7 +63,7 @@ export default function ListingStatusBadge({ status, showHint = false }) {
         <span className={`size-2 rounded-full ${meta.dot}`} aria-hidden="true" />
         <span>
           <span className="block text-tiny font-semibold text-ink-800">{meta.label}</span>
-          <span className="block text-[0.68rem] text-ink-500">{meta.hint}</span>
+          <span className="block text-tiny text-ink-500">{meta.hint}</span>
         </span>
       </span>
     );
@@ -71,7 +71,7 @@ export default function ListingStatusBadge({ status, showHint = false }) {
 
   return (
     <span
-      className={`inline-flex min-h-6 items-center gap-1.5 rounded-full px-2.5 py-1 text-[0.68rem] font-bold capitalize ring-1 ring-inset ${meta.className}`}
+      className={`inline-flex min-h-6 items-center gap-1.5 rounded-full px-2.5 py-1 text-tiny font-bold capitalize ring-1 ring-inset ${meta.className}`}
     >
       <span className={`size-1.5 rounded-full ${meta.dot}`} aria-hidden="true" />
       {meta.label}

@@ -37,8 +37,11 @@ export default async function Help({ searchParams }) {
         <label htmlFor="help-search" className="sr-only">
           Search help
         </label>
-        <div className="flex items-center gap-2 rounded-full border border-border bg-card py-1.5 pr-1.5 pl-4 shadow-sm focus-within:border-brand-600">
-          <Search className="size-5 shrink-0 text-ink-400" aria-hidden="true" />
+        <div
+          data-field-shell
+          className="flex items-center gap-2 rounded-full border border-border bg-card py-1.5 pr-1.5 pl-4 shadow-sm focus-within:border-brand-600"
+        >
+          <Search className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
           <input
             id="help-search"
             className="min-h-10 w-full min-w-0 bg-transparent text-base outline-none sm:text-sm"
@@ -48,7 +51,7 @@ export default async function Help({ searchParams }) {
             maxLength={100}
             placeholder="Search help, for example refund"
           />
-          <button className="min-h-10 shrink-0 rounded-full bg-brand-700 px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-800">
+          <button className="min-h-10 shrink-0 rounded-full bg-primary px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-hover active:bg-primary-active">
             Search help
           </button>
         </div>

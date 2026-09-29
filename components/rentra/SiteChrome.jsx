@@ -96,20 +96,20 @@ async function MarketingFooter() {
     'marketing footer registry',
   );
   const farmhouse = categories.find((c) => c.slug === 'farmhouse');
-  const heading = 'text-tiny font-semibold tracking-wider text-lime uppercase';
-  const link = 'text-meta text-paper/75 transition-colors hover:text-white';
+  const heading = 'text-tiny font-semibold tracking-wider text-champagne uppercase';
+  const link = 'text-meta text-on-dark-muted transition-colors hover:text-white';
   return (
-    <footer className="mt-20 bg-forest-deep text-paper">
-      <div className="mx-auto max-w-(--container-page) px-6 pt-12 pb-6">
+    <footer data-surface="inverse" className="mt-16 bg-forest-deep text-paper">
+      <div className="mx-auto max-w-(--container-page) px-4 pt-12 sm:px-6 pb-6">
         <div className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-[1.5fr_1fr_1fr_1.3fr] lg:gap-10">
           <div className="col-span-2 lg:col-span-1">
             <Link href="/" aria-label="Rentra home" className="inline-block">
               <RentraLogo tone="inverse" className="h-7 w-auto" />
             </Link>
             <p className="mt-4 text-h3 font-medium tracking-tight lg:mt-5">
-              Make room for <span className="text-lime">a little getaway.</span>
+              Make room for <span className="text-champagne">a little getaway.</span>
             </p>
-            <p className="mt-2 max-w-xs text-meta text-paper/65 max-sm:hidden">
+            <p className="mt-2 max-w-xs text-meta text-on-dark-muted max-sm:hidden">
               Pool days, slow weekends and good company. Find a place to make them happen.
             </p>
           </div>
@@ -137,12 +137,12 @@ async function MarketingFooter() {
 
           <div>
             <h2 className={heading}>Have a place to share?</h2>
-            <p className="mt-4 max-w-56 text-meta text-paper/65 max-sm:hidden">
+            <p className="mt-4 max-w-56 text-meta text-on-dark-muted max-sm:hidden">
               Bring your property to Rentra and welcome your next guests.
             </p>
             <Link
               href="/partner/login"
-              className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-full bg-lime-soft px-4 text-meta font-semibold text-forest-deep transition-colors hover:bg-white"
+              className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-champagne px-4 text-meta font-semibold text-forest-deep transition-colors hover:bg-champagne-hover"
             >
               List your place
               <ArrowUpRight className="size-4" aria-hidden="true" />
@@ -165,7 +165,7 @@ async function MarketingFooter() {
           ) : null}
         </div>
 
-        <div className="mt-8 flex flex-col gap-3 border-t border-forest-line pt-5 text-tiny text-paper/60 md:flex-row md:items-center md:justify-between">
+        <div className="mt-8 flex flex-col gap-3 border-t border-forest-line pt-5 text-tiny text-on-dark-muted md:flex-row md:items-center md:justify-between">
           <nav aria-label="Legal policies" className="flex flex-wrap gap-x-5">
             {['terms', 'cancellation', 'privacy'].map((kind) => (
               <Link

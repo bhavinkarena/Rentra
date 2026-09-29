@@ -201,9 +201,9 @@ export function AmenityGrid({ amenities = {} }) {
         </details>
       ) : null}
       {unknown.length ? (
-        <div className="rounded-md bg-amber-50 p-4">
-          <p className="text-meta font-bold text-amber-900">Not confirmed</p>
-          <p className="mt-1 text-tiny text-amber-800">
+        <div className="rounded-md bg-warning-bg p-4">
+          <p className="text-meta font-bold text-warning">Not confirmed</p>
+          <p className="mt-1 text-tiny text-warning">
             These common amenities have no structured answer yet: {unknown.join(', ')}.
           </p>
         </div>
@@ -268,7 +268,7 @@ export function HouseRules({ listing }) {
       <ul className="space-y-2.5">
         {houseRules.map((rule) => (
           <li key={rule} className="flex items-start gap-2.5 text-body text-ink-700">
-            <Ban className="mt-1 size-4 shrink-0 text-ink-400" aria-hidden="true" />
+            <Ban className="mt-1 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             <span>{rule}</span>
           </li>
         ))}

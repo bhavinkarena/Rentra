@@ -1,30 +1,34 @@
+import { cn } from 'cn';
 import { RentraMark } from '@/components/rentra/Logo';
 
-/** Shared brand motion for route transitions, live data and pending controls. */
+/** Inline actions use one spinner; larger pending regions retain the upright mark. */
 export default function RentraLoader({
   label = 'Loading…',
   variant = 'inline',
   inverse = false,
   className = '',
+  'aria-label': ariaLabel,
+  'aria-hidden': hidden,
   ...props
 }) {
   const page = variant === 'page';
+  const decorative = hidden === true || hidden === 'true';
   return (
     <span
       {...props}
       data-tone={inverse ? 'inverse' : 'brand'}
-      role="status"
-      aria-live="polite"
-      aria-label={label}
-      className={`rentra-loading ${page ? 'rentra-loading-page' : 'rentra-loading-inline'} ${className}`}
+      role={decorative ? undefined : 'status'}
+      aria-live={decorative ? undefined : 'polite'}
+      aria-hidden={hidden}
+      aria-label={decorative ? undefined : (ariaLabel ?? label)}
+      className={cn(page ? 'rentra-loading-page' : 'rentra-spinner', className)}
     >
-      <span className="rentra-loading-art" aria-hidden="true">
-        <span className="rentra-loading-halo" />
-        <span className="rentra-loading-ring" />
-        <span className="rentra-loading-core">
-          <RentraMark className="rentra-loading-mark" />
+      {page ? (
+        <span className="rentra-loading-art" aria-hidden="true">
+          <span className="rentra-spinner" />
+          <RentraMark tone={inverse ? 'inverse' : 'brand'} className="rentra-loading-mark" />
         </span>
-      </span>
+      ) : null}
     </span>
   );
 }

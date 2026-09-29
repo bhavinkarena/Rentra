@@ -80,7 +80,7 @@ export function AmenitiesSection({ listing, catalogue, selected }) {
                               : ''
                         }
                         aria-label={`${item.labelEn} detail`}
-                        className="ml-1.5 w-20 rounded-sm border border-input px-2 py-1 text-tiny focus:border-brand-600 focus:outline-none"
+                        className="ml-1.5 w-20 rounded-md border border-input px-2 py-1 text-base md:text-sm focus:border-brand-600 bg-card text-foreground"
                       />
                     ) : null}
                   </span>

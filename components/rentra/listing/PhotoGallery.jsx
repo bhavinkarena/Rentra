@@ -16,7 +16,7 @@ const BLUR =
   'data:image/svg+xml;base64,' +
   btoaSafe(
     '<svg xmlns="http://www.w3.org/2000/svg" width="4" height="3">' +
-      '<rect width="4" height="3" fill="#EBEEEB"/></svg>',
+      '<rect width="4" height="3" fill="#E7EBE5"/></svg>',
   );
 
 const HERO_SIZES = '(max-width: 640px) 100vw, 50vw';
@@ -122,7 +122,8 @@ export default function PhotoGallery({ photos = [], title }) {
           <button
             type="button"
             onClick={(event) => open(slide, event)}
-            className="absolute right-3 bottom-3 inline-flex min-h-9 items-center gap-1.5 rounded-full bg-ink-900/70 px-3 text-tiny font-semibold text-white tabular backdrop-blur"
+            className="absolute right-3 bottom-3 inline-flex min-h-11 items-center gap-1.5 rounded-full bg-ink-900/85 px-3 text-tiny font-semibold text-white tabular backdrop-blur"
+            data-surface="inverse"
             aria-label={`View all ${count} photos`}
           >
             <Images className="size-3.5" aria-hidden="true" />
@@ -179,6 +180,7 @@ export default function PhotoGallery({ photos = [], title }) {
       {isOpen ? (
         <div
           role="dialog"
+          data-surface="inverse"
           ref={dialogRef}
           aria-modal="true"
           aria-label={`Photos of ${title}`}

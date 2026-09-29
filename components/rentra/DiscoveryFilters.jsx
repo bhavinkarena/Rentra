@@ -1,5 +1,6 @@
 'use client';
 
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import Form from '@/components/navigation/NavigationForm';
 import { useState } from 'react';
 import Link from '@/components/navigation/NavigationLink';
@@ -9,8 +10,7 @@ import { measureBrowser } from '@/lib/domain/browser-measurement';
 import { SLOTS } from '@/lib/domain/pricing';
 
 /* 16px text below lg so iOS does not zoom into a focused field. */
-const control =
-  'mt-1 min-h-11 w-full rounded-md border border-border bg-white px-3 py-2 text-base text-ink-900 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100 lg:text-meta';
+const control = `${sharedFieldClass} mt-1 min-h-11`;
 /* Inside the search bar on desktop, cells match the home SearchBar. */
 const cell =
   'font-medium xl:min-w-0 xl:flex-1 xl:border-r xl:border-border xl:px-5 xl:py-2.5 xl:text-tiny xl:font-bold xl:tracking-wider xl:text-ink-700 xl:uppercase xl:transition-colors xl:hover:bg-ink-50';
@@ -295,7 +295,7 @@ export default function DiscoveryFilters({ filters, registry, route, path }) {
 
           <div className="col-span-2 lg:col-span-1 xl:flex xl:items-center xl:p-2">
             <button
-              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-brand-600 px-6 font-semibold whitespace-nowrap text-white transition-colors hover:bg-brand-700"
+              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 font-semibold whitespace-nowrap text-white transition-colors hover:bg-primary-hover"
               type="submit"
             >
               <Search className="size-4" aria-hidden="true" />
@@ -316,7 +316,7 @@ export default function DiscoveryFilters({ filters, registry, route, path }) {
           <SlidersHorizontal className="size-4" aria-hidden="true" />
           Filters
           {activeFilters ? (
-            <span className="grid min-w-5 place-items-center rounded-full bg-brand-600 px-1.5 text-tiny text-white">
+            <span className="grid min-w-5 place-items-center rounded-full bg-primary px-1.5 text-tiny text-white">
               {activeFilters}
             </span>
           ) : null}
@@ -413,7 +413,7 @@ export default function DiscoveryFilters({ filters, registry, route, path }) {
           </fieldset>
         </div>
         <button
-          className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-brand-600 px-5 font-semibold text-white transition-colors hover:bg-brand-700"
+          className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 font-semibold text-white transition-colors hover:bg-primary-hover"
           type="submit"
         >
           Apply filters

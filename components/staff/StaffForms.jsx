@@ -1,5 +1,7 @@
 'use client';
 
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
+import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import { useActionState, useState } from 'react';
 import LoaderCircle from '@/components/ui/rentra-loader';
 import {
@@ -10,10 +12,8 @@ import {
   signOutCaretaker,
 } from '@/lib/actions/staff';
 
-const input =
-  'mt-1 block min-h-12 w-full rounded-md border border-input bg-card px-3.5 text-meta focus:border-brand-600 focus:outline-none';
-const primary =
-  'inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-brand-700 px-5 text-meta font-semibold text-white hover:bg-brand-800 disabled:cursor-wait disabled:opacity-70';
+const input = `${sharedFieldClass} mt-1 min-h-12`;
+const primary = `${sharedButtonVariants({ shape: 'default', size: 'lg' })} w-full`;
 
 function Problem({ state, field }) {
   const text = field

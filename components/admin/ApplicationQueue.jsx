@@ -64,10 +64,10 @@ export default function ApplicationQueue({ data }) {
                 name="q"
                 defaultValue={data.q}
                 maxLength={100}
-                className="mt-1 block min-h-10 w-52 max-w-full rounded-md border border-border bg-white px-3 text-meta"
+                className="mt-1 block min-h-10 w-52 max-w-full rounded-md border border-input bg-card px-3 text-base md:text-sm"
               />
             </label>
-            <button className="min-h-10 rounded-md bg-brand-700 px-4 text-tiny font-semibold text-white">
+            <button className="min-h-10 rounded-md bg-primary px-4 text-tiny font-semibold text-white">
               Search
             </button>
           </Form>
@@ -80,7 +80,7 @@ export default function ApplicationQueue({ data }) {
               aria-current={data.status === key ? 'page' : undefined}
               className={`inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-tiny font-semibold ${
                 data.status === key
-                  ? 'border-brand-700 bg-brand-700 text-white'
+                  ? 'border-brand-700 bg-primary text-white'
                   : 'border-border bg-card text-ink-700 hover:bg-ink-50'
               }`}
             >
@@ -137,7 +137,7 @@ export default function ApplicationQueue({ data }) {
                   </span>
                 ) : null}
                 {item.strikeCount > 0 ? (
-                  <span className="rounded-full bg-amber-100 px-2.5 py-1 text-tiny font-bold text-amber-800">
+                  <span className="rounded-full bg-warning-bg px-2.5 py-1 text-tiny font-bold text-warning">
                     strike {item.strikeCount}/3
                   </span>
                 ) : null}

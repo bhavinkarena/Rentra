@@ -35,7 +35,7 @@ export default function CreateListingButton({
   const tone =
     variant === 'secondary'
       ? 'border border-input bg-card text-ink-800 hover:bg-ink-50'
-      : 'border border-transparent bg-brand-600 text-white shadow-xs hover:bg-brand-700';
+      : 'border border-transparent bg-primary text-white shadow-xs hover:bg-primary-hover';
 
   return (
     <Link

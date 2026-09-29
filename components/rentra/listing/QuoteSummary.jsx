@@ -12,7 +12,7 @@ import { formatLocalDate } from '@/lib/domain/booking-dates';
 import { clockTime } from '@/lib/domain/checkout-display';
 
 const cta =
-  'inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 font-semibold text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50';
+  'inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 font-semibold text-white transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground';
 
 /**
  * Price, then the terms that come with it, then the one action — in that

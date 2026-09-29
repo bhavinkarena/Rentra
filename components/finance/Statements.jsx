@@ -35,7 +35,7 @@ function Filters({ filters, admin, properties = [], action }) {
   return (
     <form
       action={action}
-      className="flex flex-wrap items-end gap-4 rounded border border-border p-4"
+      className="flex flex-wrap items-end gap-4 rounded-md border border-border p-4"
     >
       <label className="grid gap-1">
         UTC month
@@ -45,7 +45,7 @@ function Filters({ filters, admin, properties = [], action }) {
           name="period"
           defaultValue={filters.period}
           required
-          className="min-h-11 rounded border p-2"
+          className="min-h-11 rounded-md border p-2 text-base md:text-sm bg-card text-foreground"
         />
       </label>
       <label className="grid gap-1">
@@ -54,7 +54,7 @@ function Filters({ filters, admin, properties = [], action }) {
           aria-label="Environment"
           name="environment"
           defaultValue={filters.environment}
-          className="min-h-11 rounded border p-2"
+          className="min-h-11 rounded-md border p-2 text-base md:text-sm bg-card text-foreground"
         >
           <option value="live">Live</option>
           <option value="test">Test — no bank earnings</option>
@@ -68,7 +68,7 @@ function Filters({ filters, admin, properties = [], action }) {
           aria-label="Property"
           name="propertyId"
           defaultValue={filters.propertyId}
-          className="min-h-11 max-w-64 rounded border p-2"
+          className="min-h-11 max-w-64 rounded-md border p-2 text-base md:text-sm bg-card text-foreground"
         >
           <option value="">All properties</option>
           {properties.map((p) => (
@@ -88,11 +88,11 @@ function Filters({ filters, admin, properties = [], action }) {
             aria-label="Owner ID (optional)"
             name="ownerId"
             defaultValue={filters.ownerId}
-            className="min-h-11 rounded border p-2"
+            className="min-h-11 rounded-md border p-2 text-base md:text-sm bg-card text-foreground"
           />
         </label>
       )}
-      <button className="min-h-11 rounded bg-primary px-4 text-white">Apply filters</button>
+      <button className="min-h-11 rounded-md bg-primary px-4 text-white">Apply filters</button>
     </form>
   );
 }
@@ -162,14 +162,14 @@ export function Statement({ data, admin = false, detail = false }) {
       <p>
         As of {data.asOf} · INR · {data.count} allocations
       </p>
-      <aside className="space-y-2 rounded border border-border p-4">
+      <aside className="space-y-2 rounded-md border border-border p-4">
         <p>{data.settlementNotice}</p>
         <p>{data.attributionNotice}</p>
         <p>{data.adjustmentNotice}</p>
       </aside>
       <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {Object.entries(data.totals).map(([k, v]) => (
-          <div key={k} className="rounded border border-border p-4">
+          <div key={k} className="rounded-md border border-border p-4">
             <dt>{labels[k]}</dt>
             <dd className="text-h3">{money(v)}</dd>
           </div>
@@ -192,7 +192,7 @@ export function Statement({ data, admin = false, detail = false }) {
       )}
       <div className="space-y-4">
         {data.items.slice((f.page - 1) * 30, f.page * 30).map((r) => (
-          <article key={r.id} className="space-y-2 rounded border border-border p-4">
+          <article key={r.id} className="space-y-2 rounded-md border border-border p-4">
             <h3 className="text-h3">
               <Link href={`${b}/allocations/${r.id}`}>
                 {r.title} · {r.component}
@@ -243,7 +243,7 @@ export function Allocation({ row, admin = false }) {
       <h2 className="text-h2">Refund adjustments</h2>
       {!row.refunds.length && <p>No refund adjustments recorded.</p>}
       {row.refunds.map((r) => (
-        <article className="rounded border p-4" key={r.id}>
+        <article className="rounded-md border p-4" key={r.id}>
           <p>
             {r.state} · Requested {money(r.expectedMinor)} · Completed {money(r.actualMinor)}
           </p>
@@ -280,7 +280,7 @@ export function PayoutList({ data, admin = false }) {
       <p>Live payout execution is unavailable. Recorded status does not initiate a transfer.</p>
       {!data.count && <p>No payout records match these filters.</p>}
       {data.items.slice((data.filters.page - 1) * 30, data.filters.page * 30).map((p) => (
-        <article key={p.id} className="space-y-2 rounded border p-4">
+        <article key={p.id} className="space-y-2 rounded-md border p-4">
           <h2 className="text-h3">
             <Link href={`${b}/payouts/${p.id}`}>
               {p.title} · {p.status}
@@ -346,14 +346,18 @@ export function FinanceFilterError({ message, admin = false }) {
             aria-label="UTC month"
             name="period"
             required
-            className="min-h-11 rounded border p-2"
+            className="min-h-11 rounded-md border p-2 text-base md:text-sm bg-card text-foreground"
           />
         </label>
         <label className="grid gap-1">
           Property ID
-          <input aria-label="Property" name="propertyId" className="min-h-11 rounded border p-2" />
+          <input
+            aria-label="Property"
+            name="propertyId"
+            className="min-h-11 rounded-md border p-2 text-base md:text-sm bg-card text-foreground"
+          />
         </label>
-        <button className="min-h-11 rounded border px-4">Apply narrower filters</button>
+        <button className="min-h-11 rounded-md border px-4">Apply narrower filters</button>
       </form>
     </div>
   );

@@ -87,7 +87,7 @@ export default function CityRow({ id, city, href, children }) {
         ref={rail}
         tabIndex={0}
         aria-label={`Places near ${city}`}
-        className="mt-4 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 [scrollbar-width:none] focus-visible:outline-2 focus-visible:outline-brand-600 max-lg:-mx-6 max-lg:scroll-px-6 max-lg:px-6"
+        className="mt-4 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 [scrollbar-width:none] focus-visible:outline-2 focus-visible:outline-brand-600 max-lg:-mx-4 max-lg:scroll-px-4 max-lg:px-4 sm:max-lg:-mx-6 sm:max-lg:scroll-px-6 sm:max-lg:px-6"
       >
         {Children.map(children, (card) => (
           // Peek on phones and tablets hints at swiping; desktop shows exactly 4.

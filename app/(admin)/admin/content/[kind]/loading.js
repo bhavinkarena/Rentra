@@ -1,4 +1,4 @@
 import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
 export default function Loading() {
-  return <ScreenSkeleton screen="form" label="Loading content" />;
+  return <ScreenSkeleton screen="content-editor" label="Loading content" />;
 }

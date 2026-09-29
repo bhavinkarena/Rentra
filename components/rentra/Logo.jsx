@@ -62,8 +62,8 @@ const WORDMARK = [
  * lighter than its leaf so the contrast hierarchy mirrors the light version.
  */
 const TONES = {
-  brand: { deep: '#1F5C41', leaf: '#5C9A72', word: '#12261C' },
-  inverse: { deep: '#BCD8C7', leaf: '#629B7D', word: '#FFFFFF' },
+  brand: { deep: '#064E3B', leaf: '#3F8061', word: '#064E3B' },
+  inverse: { deep: '#F8E7C9', leaf: '#BBD8C8', word: '#F8F5EE' },
 };
 
 function Mark({ deep, leaf }) {

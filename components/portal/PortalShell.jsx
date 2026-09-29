@@ -5,7 +5,15 @@ import { useState, useSyncExternalStore } from 'react';
 import Link, { useLinkStatus } from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useFormStatus } from 'react-dom';
-import { ArrowUpRight, Lock, LogOut, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import {
+  ArrowUpRight,
+  Lock,
+  LogOut,
+  Menu,
+  Search,
+  PanelLeftClose,
+  PanelLeftOpen,
+} from 'lucide-react';
 import LoaderCircle from '@/components/ui/rentra-loader';
 import { RentraLogo, RentraMark } from '@/components/rentra/Logo';
 import NavDrawer from './NavDrawer';
@@ -81,7 +89,10 @@ function NavItem({ item, pathname, rail, onNavigate }) {
 
   if (item.locked) {
     return (
-      <div className={`${base} cursor-not-allowed text-white/75`} tabIndex={rail ? 0 : undefined}>
+      <div
+        className={`${base} cursor-not-allowed text-on-dark-muted`}
+        tabIndex={rail ? 0 : undefined}
+      >
         <Icon className="size-4 shrink-0" aria-hidden="true" />
         {rail ? (
           <RailTip>
@@ -91,7 +102,7 @@ function NavItem({ item, pathname, rail, onNavigate }) {
           <>
             <span className="min-w-0">
               {item.label}
-              <span className="block text-tiny leading-4 font-normal text-white/75">
+              <span className="block text-tiny leading-4 font-normal text-on-dark-muted">
                 {item.lockedNote}
               </span>
             </span>
@@ -108,17 +119,19 @@ function NavItem({ item, pathname, rail, onNavigate }) {
       aria-current={active ? 'page' : undefined}
       onClick={onNavigate}
       className={`${base} ${
-        active ? 'bg-white/12 text-white' : 'text-white/80 hover:bg-white/7 hover:text-white'
+        active
+          ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+          : 'text-on-dark-muted hover:bg-white/7 hover:text-white'
       }`}
     >
       {active ? (
         <span
-          className="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-brand-300"
+          className="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-champagne"
           aria-hidden="true"
         />
       ) : null}
       <Icon
-        className={`size-4 shrink-0 ${active ? 'text-brand-200' : 'text-white/55 group-hover:text-white/80'}`}
+        className={`size-4 shrink-0 ${active ? 'text-brand-200' : 'text-on-dark-muted group-hover:text-on-dark-muted'}`}
         aria-hidden="true"
       />
       {rail ? <RailTip>{item.label}</RailTip> : <span className="truncate">{item.label}</span>}
@@ -126,8 +139,8 @@ function NavItem({ item, pathname, rail, onNavigate }) {
         <span
           className={
             rail
-              ? 'absolute -top-0.5 -right-0.5 grid min-w-4 place-items-center rounded-full bg-amber-300 px-1 text-[0.6rem] font-bold text-brand-950 empty:hidden'
-              : 'ml-auto rounded-full bg-amber-300 px-1.5 text-tiny font-semibold text-brand-950 tabular empty:hidden'
+              ? 'absolute -top-0.5 -right-0.5 grid min-w-4 place-items-center rounded-full bg-champagne px-1 text-tiny font-bold text-brand-950 empty:hidden'
+              : 'ml-auto rounded-full bg-champagne px-1.5 text-tiny font-semibold text-brand-950 tabular empty:hidden'
           }
         >
           {item.badge}
@@ -146,7 +159,7 @@ function SignOut({ rail }) {
       type="submit"
       disabled={pending}
       title={rail ? 'Sign out' : undefined}
-      className={`flex items-center gap-2 rounded-md text-tiny font-semibold text-white/80 hover:bg-white/7 hover:text-white disabled:cursor-wait ${
+      className={`flex items-center gap-2 rounded-md text-tiny font-semibold text-on-dark-muted hover:bg-white/7 hover:text-white disabled:cursor-wait ${
         rail ? 'size-10 justify-center' : 'mt-1 min-h-11 w-full px-2.5 py-2 text-left lg:min-h-10'
       }`}
     >
@@ -173,7 +186,10 @@ function Sidebar({ config, pathname, rail, onNavigate, onToggleRail }) {
           className="group relative grid size-10 place-items-center rounded-md hover:bg-white/10 focus-visible:bg-white/10"
           aria-label="Expand sidebar"
         >
-          <RentraMark className="size-8 transition-opacity group-hover:opacity-0 group-focus-visible:opacity-0" />
+          <RentraMark
+            tone="inverse"
+            className="size-8 transition-opacity group-hover:opacity-0 group-focus-visible:opacity-0"
+          />
           <PanelLeftOpen
             className="absolute size-5 text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
             aria-hidden="true"
@@ -184,7 +200,7 @@ function Sidebar({ config, pathname, rail, onNavigate, onToggleRail }) {
         <div className="flex items-center gap-2 px-1.5">
           <Link href={config.home} onClick={onNavigate} className="flex items-center gap-2.5">
             <RentraLogo tone="inverse" className="h-6 w-auto" />
-            <span className="rounded bg-white/10 px-1.5 py-0.5 text-tiny font-semibold text-brand-100">
+            <span className="rounded-md bg-white/10 px-1.5 py-0.5 text-tiny font-semibold text-brand-100">
               {config.product}
             </span>
           </Link>
@@ -192,7 +208,7 @@ function Sidebar({ config, pathname, rail, onNavigate, onToggleRail }) {
             <button
               type="button"
               onClick={onToggleRail}
-              className="ml-auto grid size-8 place-items-center rounded-md text-white/65 hover:bg-white/10 hover:text-white"
+              className="ml-auto grid size-8 place-items-center rounded-md text-on-dark-muted hover:bg-white/10 hover:text-white"
               aria-label="Collapse sidebar"
             >
               <PanelLeftClose className="size-4" aria-hidden="true" />
@@ -280,7 +296,8 @@ export default function PortalShell({ config, children }) {
       {/* Width animates; the full layout is clipped while it grows, and the
           rail stays unclipped so its tooltips can extend past it. */}
       <aside
-        className={`sticky top-0 hidden h-screen shrink-0 bg-brand-950 transition-[width] duration-200 ease-out motion-reduce:transition-none lg:block ${
+        data-surface="inverse"
+        className={`sticky top-0 hidden h-screen shrink-0 bg-sidebar transition-[width] duration-200 ease-out motion-reduce:transition-none lg:block ${
           rail ? 'w-16 overflow-visible' : 'w-[236px] overflow-hidden'
         }`}
       >
@@ -308,6 +325,15 @@ export default function PortalShell({ config, children }) {
             <div className="ml-auto hidden w-full max-w-md md:block">{config.search}</div>
           ) : null}
           <div className={`flex items-center gap-2 ${config.search ? 'md:ml-3' : ''} ml-auto`}>
+            {config.search ? (
+              <Link
+                href="/admin/search"
+                aria-label="Search workspace"
+                className="grid size-11 place-items-center rounded-md border border-input text-primary md:hidden"
+              >
+                <Search className="size-5" aria-hidden="true" />
+              </Link>
+            ) : null}
             {config.headerNote}
             <Link
               href="/"

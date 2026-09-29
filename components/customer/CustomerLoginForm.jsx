@@ -33,7 +33,10 @@ export default function CustomerLoginForm() {
         <label htmlFor="phone" className="block text-sm font-semibold">
           Mobile number
         </label>
-        <div className="flex h-14 items-center rounded-xl border border-input bg-card px-4 focus-within:ring-2 focus-within:ring-brand-100">
+        <div
+          data-field-shell
+          className="flex h-14 items-center rounded-xl border border-input bg-card px-4"
+        >
           <Smartphone className="mr-2 size-5 text-ink-500" aria-hidden="true" />
           <span className="mr-3 border-r border-border pr-3 text-sm">+91</span>
           <Input
@@ -45,7 +48,7 @@ export default function CustomerLoginForm() {
             required
             maxLength={18}
             placeholder="98765 43210"
-            className="h-12 border-0 px-0 shadow-none focus-visible:ring-0"
+            className="h-12 border-0 px-0"
           />
         </div>
         {sent?.error && (
@@ -116,7 +119,7 @@ export default function CustomerLoginForm() {
             <input type="hidden" name="phone" value={sent?.phone ?? ''} />
             <button
               disabled={sending || verifying || seconds > 0}
-              className="min-h-11 font-semibold text-brand-700 disabled:text-ink-400"
+              className="min-h-11 font-semibold text-brand-700 disabled:text-muted-foreground"
             >
               {seconds > 0 ? `Resend in ${seconds}s` : sending ? 'Sending…' : 'Resend code'}
             </button>

@@ -1,6 +1,6 @@
 import Link from '@/components/navigation/NavigationLink';
 
-const style = 'min-h-11 rounded-md border border-border bg-card px-3 py-2';
+const style = 'min-h-11 rounded-md border border-input bg-card px-3 py-2 text-base md:text-sm';
 const time = (value) =>
   new Intl.DateTimeFormat('en-IN', {
     timeZone: 'Asia/Kolkata',
@@ -10,9 +10,9 @@ const time = (value) =>
 const add = (day, offset) =>
   new Date(new Date(`${day}T00:00:00Z`).getTime() + offset * 86400000).toISOString().slice(0, 10);
 const tones = {
-  booking: 'border-blue-300 bg-blue-50 text-blue-950',
-  held: 'border-amber-300 bg-amber-50 text-amber-950',
-  owner_block: 'border-red-300 bg-red-50 text-red-950',
+  booking: 'border-info/30 bg-info-bg text-info',
+  held: 'border-warning/30 bg-warning-bg text-warning',
+  owner_block: 'border-input border-dashed bg-secondary text-ink-700',
 };
 
 function Interval({ interval, property }) {
@@ -43,12 +43,12 @@ function Interval({ interval, property }) {
         )}
         {interval.starts_at &&
           +new Date(interval.blocked_start_at) < +new Date(interval.starts_at) && (
-            <p className="rounded border border-dashed p-2">
+            <p className="rounded-md border border-dashed p-2">
               Buffer before: {time(interval.blocked_start_at)} – {time(interval.starts_at)}
             </p>
           )}
         {interval.ends_at && +new Date(interval.ends_at) < +new Date(interval.blocked_end_at) && (
-          <p className="rounded border border-dashed p-2">
+          <p className="rounded-md border border-dashed p-2">
             Buffer after: {time(interval.ends_at)} – {time(interval.blocked_end_at)}
           </p>
         )}
@@ -91,6 +91,17 @@ export default function PortfolioCalendar({
     `${basePath}?${new URLSearchParams({ from: data.from, days: String(data.days), view, slot: data.slot, ...(data.property ? { property: data.property } : {}), ...(listHref ? { fromList: listHref } : {}), ...changes })}`;
   return (
     <section className="space-y-5" aria-label="Property calendar">
+      <ul className="flex flex-wrap gap-3 text-sm" aria-label="Calendar legend">
+        <li className="rounded-md border border-info/30 bg-info-bg px-3 py-2 text-info">
+          Booked visit
+        </li>
+        <li className="rounded-md border border-warning/30 bg-warning-bg px-3 py-2 text-warning">
+          Temporary hold
+        </li>
+        <li className="rounded-md border border-dashed border-input bg-secondary px-3 py-2 text-ink-700">
+          Owner block
+        </li>
+      </ul>
       <form className="flex flex-wrap items-end gap-3">
         {listHref && <input type="hidden" name="fromList" value={listHref} />}
         <label className="grid gap-1 text-sm">
@@ -239,7 +250,7 @@ export default function PortfolioCalendar({
                   {overrides.map((o) => (
                     <details
                       key={o.slot}
-                      className="rounded border border-purple-300 bg-purple-50 p-2 text-sm text-purple-950"
+                      className="rounded-md border border-event-adjustment/30 bg-event-adjustment-bg p-2 text-sm text-event-adjustment"
                     >
                       <summary className="min-h-11 cursor-pointer">
                         Price override · {o.slot.replace('_', ' ')} · ₹{o.rent_minor / 100}

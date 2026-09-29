@@ -51,8 +51,11 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
           {data.property && <input type="hidden" name="property" value={data.property} />}
           <label className="min-w-0 flex-1">
             <span className="sr-only">Search property or booking reference</span>
-            <span className="flex h-12 items-center gap-3 rounded-full border border-border px-4 focus-within:border-brand-600">
-              <Search className="size-4 shrink-0 text-ink-400" />
+            <span
+              data-field-shell
+              className="flex h-12 items-center gap-3 rounded-full border border-border px-4 focus-within:border-brand-600"
+            >
+              <Search className="size-4 shrink-0 text-muted-foreground" />
               <input
                 className="w-full min-w-0 bg-transparent text-base outline-none sm:text-sm"
                 name="q"
@@ -62,7 +65,7 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
               />
             </span>
           </label>
-          <button className="min-h-12 rounded-full bg-brand-700 px-5 text-sm font-semibold text-white hover:bg-brand-800">
+          <button className="min-h-12 rounded-full bg-primary px-5 text-sm font-semibold text-white hover:bg-primary-hover active:bg-primary-active">
             Search
           </button>
         </Form>
@@ -74,7 +77,7 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
             <Link
               key={tab}
               aria-current={data.tab === tab ? 'page' : undefined}
-              className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm text-ink-600 hover:bg-ink-50 aria-[current=page]:bg-brand-700 aria-[current=page]:font-semibold aria-[current=page]:text-white"
+              className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm text-ink-600 hover:bg-ink-50 aria-[current=page]:bg-primary aria-[current=page]:font-semibold aria-[current=page]:text-white"
               href={href(base, data, { tab, page: '1' })}
             >
               {tab === 'action_needed' ? 'Action needed' : tab[0].toUpperCase() + tab.slice(1)}
@@ -105,7 +108,7 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
                     <h2 className="mt-2 text-h4 group-hover:text-brand-700">{item.title}</h2>
                   </div>
                   <ArrowUpRight
-                    className="size-5 shrink-0 text-ink-400 group-hover:text-brand-700"
+                    className="size-5 shrink-0 text-muted-foreground group-hover:text-brand-700"
                     aria-hidden="true"
                   />
                 </div>

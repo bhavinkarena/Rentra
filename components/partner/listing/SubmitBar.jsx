@@ -60,7 +60,7 @@ export function SubmitBar({ listing, completion, submitAction }) {
           </p>
         ) : null}
         {listing.bookingConfig?.inventoryReady !== true ? (
-          <p className="mt-2 text-meta font-semibold text-amber-800">
+          <p className="mt-2 text-meta font-semibold text-warning">
             Guests can see it but cannot book yet: confirm your booking hours and open dates on the
             calendar.
           </p>
@@ -93,8 +93,8 @@ export function SubmitBar({ listing, completion, submitAction }) {
   if (listing.status === 'hidden') {
     const reason = listing.restriction?.reason ?? listing.restrictionReason;
     return (
-      <div className="rounded-lg border border-amber-300 bg-amber-100 p-4">
-        <p className="text-h4 font-bold text-amber-700">Hidden by Rentra</p>
+      <div className="rounded-lg border border-warning/30 bg-warning-bg p-4">
+        <p className="text-h4 font-bold text-warning">Hidden by Rentra</p>
         {reason ? (
           <p className="mt-1 text-meta font-semibold text-ink-800">Reason: {reason}</p>
         ) : null}
@@ -109,8 +109,8 @@ export function SubmitBar({ listing, completion, submitAction }) {
 
   if (completion.inReview && !listing.reviewNeedsResubmission) {
     return (
-      <div className="rounded-lg border border-amber-300 bg-amber-100 p-4">
-        <p className="text-h4 font-bold text-amber-700">
+      <div className="rounded-lg border border-warning/30 bg-warning-bg p-4">
+        <p className="text-h4 font-bold text-warning">
           {listing.status === 'pending_verification'
             ? 'Verification visit next'
             : 'With us for review'}
@@ -152,7 +152,7 @@ export function SubmitBar({ listing, completion, submitAction }) {
       ) : null}
 
       {listing.reviewFlaggedFields?.length ? (
-        <p className="mb-3 text-meta text-amber-800">
+        <p className="mb-3 text-meta text-warning">
           Sections to correct:{' '}
           {listing.reviewFlaggedFields.map((section, index) => (
             <span key={section}>
@@ -166,7 +166,7 @@ export function SubmitBar({ listing, completion, submitAction }) {
         </p>
       ) : null}
       {listing.reviewNeedsResubmission ? (
-        <p className="mb-3 text-meta text-amber-800">
+        <p className="mb-3 text-meta text-warning">
           This property has changes that have not been submitted. Resubmit so Rentra can review the
           current version.
         </p>

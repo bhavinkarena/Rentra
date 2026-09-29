@@ -93,13 +93,13 @@ export default function KycUploadForm({ application, documents = [] }) {
         </fieldset>
 
         {spec?.requiresMaskConfirm ? (
-          <label className="flex cursor-pointer gap-3 rounded-md border border-amber-300 bg-amber-100 p-3">
+          <label className="flex cursor-pointer gap-3 rounded-md border border-warning/30 bg-warning-bg p-3">
             <input
               type="checkbox"
               name="maskedConfirmed"
               className="mt-1 size-4 shrink-0 accent-brand-600"
             />
-            <span className="text-meta text-amber-700">
+            <span className="text-meta text-warning">
               I confirm this is the <strong>masked</strong> Aadhaar downloaded from the UIDAI
               website, with the first 8 digits hidden. Rentra cannot accept a full Aadhaar copy.
             </span>
@@ -143,7 +143,7 @@ export default function KycUploadForm({ application, documents = [] }) {
           )}
         </div>
 
-        <p className="rounded-md border-l-4 border-blue bg-info-bg p-3 text-tiny text-ink-700">
+        <p className="rounded-md border-l-4 border-info bg-info-bg p-3 text-tiny text-ink-700">
           <strong className="font-semibold">How these are stored:</strong> in private storage that
           has no public web address. Only a Rentra reviewer can open one, through a link that
           expires in five minutes, and every time one is opened it is logged. We keep no copy of
@@ -180,7 +180,7 @@ export default function KycUploadForm({ application, documents = [] }) {
                       ? 'bg-brand-50 text-brand-700'
                       : d.status === 'rejected'
                         ? 'bg-danger-bg text-danger'
-                        : 'bg-amber-100 text-amber-700'
+                        : 'bg-warning-bg text-warning'
                   }`}
                 >
                   {d.status}

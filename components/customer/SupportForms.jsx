@@ -1,4 +1,6 @@
 'use client';
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
+import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import RentraLoader from '@/components/ui/rentra-loader';
 
 import { useActionState, useState, useTransition } from 'react';
@@ -7,10 +9,8 @@ import { useRouter } from 'next/navigation';
 import { openSupport, replyCustomerSupport } from '@/lib/actions/customer';
 import { replyAdminSupport } from '@/lib/actions/admin';
 import { supportCategories, supportStates } from '@/lib/domain/help';
-const field =
-  'mt-1 block min-h-11 w-full rounded-lg border border-border bg-card p-3 text-base focus:border-brand-600 focus:outline-none sm:text-sm';
-const button =
-  'min-h-11 rounded-full bg-brand-700 px-5 py-3 font-semibold text-white transition-colors hover:bg-brand-800 disabled:opacity-50';
+const field = `${sharedFieldClass} mt-1 min-h-11`;
+const button = `${sharedButtonVariants({ shape: 'pill', size: 'default' })} `;
 function Result({ state }) {
   return (
     <>

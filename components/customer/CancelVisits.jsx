@@ -174,7 +174,7 @@ export default function CancelVisits({ record }) {
                     request.current = null;
                   }}
                   maxLength={160}
-                  className="mt-1 block min-h-11 w-full rounded-lg border border-border bg-card p-3 text-base sm:text-sm"
+                  className="mt-1 block min-h-11 w-full rounded-lg border border-input bg-card p-3 text-base sm:text-sm"
                 />
               </label>
               <label className="flex gap-3">

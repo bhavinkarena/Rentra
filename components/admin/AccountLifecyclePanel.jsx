@@ -69,7 +69,7 @@ export default function AccountLifecyclePanel({
           <input type="hidden" name="action" value={preview.action} />
           <input type="hidden" name="expectedVersion" value={preview.expectedVersion} />
 
-          <div className="rounded-md border border-warning/30 bg-warning-bg p-3 text-meta text-amber-900">
+          <div className="rounded-md border border-warning/30 bg-warning-bg p-3 text-meta text-warning">
             <p className="font-semibold">
               {verbs[preview.action]}: {statuses[preview.fromStatus]} → {statuses[preview.toStatus]}
             </p>
@@ -116,7 +116,7 @@ export default function AccountLifecyclePanel({
             onChange={(event) => setReason(event.target.value)}
             aria-invalid={Boolean(state.errors?.reason)}
             aria-describedby={state.errors?.reason ? 'lifecycle-reason-error' : undefined}
-            className="w-full rounded-md border border-input bg-card px-3 py-2 text-meta"
+            className="w-full rounded-md border border-input bg-card px-3 py-2 text-base md:text-sm"
           />
           {state.errors?.reason ? (
             <p id="lifecycle-reason-error" className="text-tiny font-medium text-danger">

@@ -1,3 +1,4 @@
+import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import Form from '@/components/navigation/NavigationForm';
 import Link from '@/components/navigation/NavigationLink';
 import { randomUUID } from 'node:crypto';
@@ -8,8 +9,7 @@ import { BackLink, PageHeader } from '@/components/ui/page-header';
 import { EmptyState } from '@/components/ui/empty-state';
 import { StateBadge } from './BookingDisplay';
 const link = 'inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline';
-const primary =
-  'inline-flex min-h-10 items-center gap-2 rounded-full bg-brand-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-700';
+const primary = `${sharedButtonVariants({ shape: 'pill', size: 'default' })} `;
 const secondary =
   'inline-flex min-h-10 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-semibold text-ink-800 transition-colors hover:border-brand-300 hover:bg-brand-50';
 const time = (value) =>
@@ -45,7 +45,7 @@ export function SupportList({ data, admin = false, owner = false }) {
           <label className="flex items-center gap-2 text-meta font-medium">
             Status
             <select
-              className="min-h-10 max-w-48 rounded-full border border-border bg-card px-3 text-base sm:text-meta"
+              className="min-h-10 max-w-48 rounded-full border border-input bg-card px-3 text-base sm:text-meta"
               name="state"
               defaultValue={data.state}
             >
@@ -83,7 +83,10 @@ export function SupportList({ data, admin = false, owner = false }) {
                     {r.reference}
                   </span>
                 </span>
-                <ChevronRight className="mt-2 size-4 shrink-0 text-ink-400" aria-hidden="true" />
+                <ChevronRight
+                  className="mt-2 size-4 shrink-0 text-muted-foreground"
+                  aria-hidden="true"
+                />
               </Link>
             </li>
           ))}

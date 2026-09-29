@@ -69,7 +69,7 @@ export function PhotosSection({ listing, photos }) {
         disabled={disabled || busy}
         aria-label={label}
         title={label}
-        className="grid size-8 place-items-center rounded-full bg-white/95 text-ink-600 shadow-sm transition-transform hover:scale-110 hover:text-ink-900 disabled:cursor-not-allowed disabled:opacity-0"
+        className="grid size-11 place-items-center rounded-full bg-white md:size-8 text-ink-600 shadow-sm transition-colors hover:text-ink-900 disabled:cursor-not-allowed disabled:opacity-0"
       >
         {children}
       </button>
@@ -95,7 +95,7 @@ export function PhotosSection({ listing, photos }) {
         <div className="h-2 flex-1 overflow-hidden rounded-full bg-ink-100">
           <div
             className={`h-full rounded-full transition-[width] duration-700 ease-out ${
-              photos.length >= MIN_PHOTOS ? 'bg-brand-600' : 'bg-amber-500'
+              photos.length >= MIN_PHOTOS ? 'bg-brand-600' : 'bg-warning'
             }`}
             style={{ width: `${Math.min(100, (photos.length / MIN_PHOTOS) * 100)}%` }}
           />
@@ -130,7 +130,7 @@ export function PhotosSection({ listing, photos }) {
               </div>
 
               {i === 0 ? (
-                <span className="absolute top-2 left-2 rounded-full bg-brand-700 px-2 py-0.5 text-tiny font-bold text-white">
+                <span className="absolute top-2 left-2 rounded-full bg-primary px-2 py-0.5 text-tiny font-bold text-white">
                   Cover
                 </span>
               ) : null}
@@ -151,7 +151,7 @@ export function PhotosSection({ listing, photos }) {
                     type="submit"
                     disabled={busy}
                     aria-label={`Remove photo ${i + 1}`}
-                    className="grid size-8 place-items-center rounded-full bg-white/95 text-ink-600 shadow-sm transition-transform hover:scale-110 hover:text-danger disabled:opacity-30"
+                    className="grid size-11 place-items-center rounded-full bg-white md:size-8 text-ink-600 shadow-sm transition-colors hover:text-danger disabled:opacity-30"
                   >
                     <Trash2 className="size-4" aria-hidden="true" />
                   </button>
@@ -224,7 +224,7 @@ export function PhotosSection({ listing, photos }) {
               setDragging(false);
               accept(ev.dataTransfer.files);
             }}
-            className={`flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed p-8 text-center transition-all duration-200 ${
+            className={`flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed p-8 text-center transition-[background-color,color,border-color,box-shadow,transform] duration-200 ${
               dragging
                 ? 'scale-[1.01] border-brand-600 bg-brand-50'
                 : e.photos
@@ -234,7 +234,7 @@ export function PhotosSection({ listing, photos }) {
           >
             <span
               className={`grid size-12 place-items-center rounded-full transition-transform duration-200 ${
-                dragging ? 'scale-110 bg-brand-600 text-white' : 'bg-ink-100 text-ink-600'
+                dragging ? 'bg-primary text-primary-foreground' : 'bg-ink-100 text-ink-600'
               }`}
             >
               {pending ? (

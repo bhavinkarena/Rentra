@@ -59,7 +59,7 @@ export function OtpInput({ name = 'code', error = false, disabled = false }) {
               if (event.key === 'ArrowLeft') inputs.current[Math.max(0, index - 1)]?.focus();
               if (event.key === 'ArrowRight') inputs.current[Math.min(5, index + 1)]?.focus();
             }}
-            className="h-14 w-full min-w-0 rounded-md border border-border bg-background text-center text-xl font-semibold outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100 disabled:opacity-50 aria-invalid:border-danger"
+            className="h-14 w-full min-w-0 rounded-md border border-input bg-background text-center text-xl font-semibold outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100 disabled:opacity-50 aria-invalid:border-danger"
           />
         ))}
       </div>
@@ -77,8 +77,8 @@ export default function OtpDialog({ open, onOpenChange, description, children, b
     >
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[90] bg-ink-900/50 backdrop-blur-sm" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 z-[100] max-h-[90svh] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl bg-background p-6 shadow-xl sm:p-8">
-          <div className="mb-5 grid size-12 place-items-center rounded-2xl bg-brand-50 text-brand-700">
+        <Dialog.Content className="fixed top-1/2 left-1/2 z-[100] max-h-[90svh] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl bg-background p-6 shadow-xl sm:p-8">
+          <div className="mb-5 grid size-12 place-items-center rounded-lg bg-brand-50 text-brand-700">
             <ShieldCheck className="size-6" />
           </div>
           <Dialog.Title className="text-2xl font-semibold">Check your code</Dialog.Title>

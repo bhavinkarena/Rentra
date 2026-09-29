@@ -3,7 +3,7 @@
   height: clamp(360px, 43vw, 560px);
   overflow: hidden;
   border-radius: 12px;
-  background: #eef2ec;
+  background: var(--secondary);
 }
 .expanded {
   flex: 1;
@@ -20,19 +20,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid white;
+  border: 2px solid var(--card);
   border-radius: 16px;
-  background: white;
-  box-shadow: 0 6px 22px #12261c33;
+  background: var(--card);
+  box-shadow: 0 6px 22px rgb(6 78 59 / 20%);
 }
 .callout {
   padding: 16px 20px;
   border: none;
-  border-radius: 10px;
-  box-shadow: 0 4px 18px #12261c1a;
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 18px rgb(6 78 59 / 10%);
   font-size: 16px;
   font-weight: 650;
-  color: #18271e;
+  color: var(--foreground);
   opacity: 1 !important;
 }
 .expandButton {
@@ -43,12 +43,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
-  border: 1px solid #d5dad6;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--input);
   border-radius: 8px;
-  background: white;
-  box-shadow: 0 2px 6px #12261c1a;
+  background: var(--card);
+  box-shadow: 0 2px 6px rgb(6 78 59 / 10%);
   cursor: pointer;
 }
 .canvas :global(.leaflet-top.leaflet-right) {
@@ -56,16 +56,16 @@
 }
 .canvas :global(.leaflet-control-zoom) {
   margin-right: 12px;
-  border: 1px solid #d5dad6;
+  border: 1px solid var(--input);
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 6px #12261c1a;
+  box-shadow: 0 2px 6px rgb(6 78 59 / 10%);
 }
 .canvas :global(.leaflet-control-zoom a) {
-  width: 40px;
-  height: 40px;
-  line-height: 40px;
-  color: #24392d;
+  width: 44px;
+  height: 44px;
+  line-height: 44px;
+  color: var(--primary);
 }
 .expanded .canvas :global(.leaflet-top.leaflet-right) {
   top: 0;
@@ -78,7 +78,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #eef2ec;
+  background: var(--secondary);
   padding: 24px;
   text-align: center;
 }

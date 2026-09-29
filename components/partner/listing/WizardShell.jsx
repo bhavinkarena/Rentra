@@ -123,6 +123,7 @@ export default function WizardShell({
             {prevHref ? (
               <Link
                 href={prevHref}
+                aria-label="Back to previous setup step"
                 className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 rounded-md px-3 py-2.5 text-meta font-semibold text-ink-700 transition-colors hover:bg-ink-100 hover:text-ink-900"
               >
                 <ArrowLeft className="size-4" aria-hidden="true" />
@@ -153,7 +154,7 @@ export default function WizardShell({
                 form={isSubmitStep ? STEP_FORM_ID : undefined}
                 onClick={isSubmitStep ? undefined : () => handleSaved()}
                 disabled={busy}
-                className="ml-auto inline-flex shrink-0 items-center gap-2 rounded-full bg-brand-600 px-6 py-3 text-meta font-semibold text-white shadow-sm transition-all hover:bg-brand-700 hover:shadow active:scale-[0.98] disabled:bg-ink-200 disabled:text-ink-500 disabled:shadow-none"
+                className="ml-auto inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-6 py-3 text-meta font-semibold text-white shadow-sm transition-[background-color,color,border-color,box-shadow,transform] hover:bg-primary-hover hover:shadow disabled:bg-ink-200 disabled:text-ink-500 disabled:shadow-none"
               >
                 {busy ? <Loader2 className="size-4 " aria-hidden="true" /> : null}
                 {busy ? (

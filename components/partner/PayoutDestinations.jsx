@@ -14,7 +14,7 @@ const ist = (value) =>
     : '—';
 const chip = 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold';
 const TONE = {
-  submitted: 'bg-amber-100 text-amber-800',
+  submitted: 'bg-warning-bg text-warning',
   verified: 'bg-success-bg text-success',
   failed: 'bg-danger-bg text-danger',
   draft: 'bg-info-bg text-ink-800',
@@ -71,7 +71,7 @@ export default function PayoutDestinations({ data }) {
       <div className="mt-6 space-y-5">
         <p
           role="status"
-          className={`flex items-start gap-2 rounded-md border-l-4 p-3 text-meta ${data.readiness.ready ? 'border-success bg-success-bg' : 'border-amber-500 bg-amber-100 text-amber-900'}`}
+          className={`flex items-start gap-2 rounded-md border-l-4 p-3 text-meta ${data.readiness.ready ? 'border-success bg-success-bg' : 'border-warning bg-warning-bg text-warning'}`}
         >
           {data.readiness.ready ? (
             <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden="true" />

@@ -1,4 +1,5 @@
 'use client';
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import { useRouter } from 'next/navigation';
 import RentraLoader from '@/components/ui/rentra-loader';
 
@@ -7,8 +8,7 @@ import { submitCustomerReview, customerReviewReport } from '@/lib/actions/custom
 import { ownerReviewReply, ownerReviewReport } from '@/lib/actions/partner';
 import { moderateCustomerReview, resolveReviewReport } from '@/lib/actions/admin';
 import { ChevronDown } from 'lucide-react';
-const field =
-  'mt-1 block min-h-11 w-full rounded-md border border-border bg-card p-3 text-base sm:text-sm';
+const field = `${sharedFieldClass} mt-1 min-h-11`;
 function Result({ state }) {
   return (
     <>
@@ -72,7 +72,7 @@ export function CustomerReviewForm({ visits }) {
       </p>
       <button
         disabled={pending}
-        className="min-h-11 rounded-full bg-brand-700 px-5 font-semibold text-white transition-colors hover:bg-brand-800 disabled:opacity-50"
+        className="min-h-11 rounded-full bg-primary px-5 font-semibold text-white transition-colors hover:bg-primary-hover disabled:bg-muted disabled:text-muted-foreground active:bg-primary-active"
       >
         {pending ? <RentraLoader label="Submitting…" /> : 'Submit review'}
       </button>

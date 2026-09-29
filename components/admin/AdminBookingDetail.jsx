@@ -120,7 +120,7 @@ export default function AdminBookingDetail({ record, tab, params, listHref = '/a
       />
 
       {test ? (
-        <div className="mt-5 rounded-lg border border-warning/25 bg-warning-bg p-4 text-meta text-amber-900">
+        <div className="mt-5 rounded-lg border border-warning/25 bg-warning-bg p-4 text-meta text-warning">
           <strong>Test booking:</strong> no actual bank money was collected by the test gateway.
         </div>
       ) : null}
@@ -148,9 +148,7 @@ export default function AdminBookingDetail({ record, tab, params, listHref = '/a
                       <h3 className="font-bold text-ink-900">
                         {visit.date} · {visit.slot.replaceAll('_', ' ')}
                       </h3>
-                      <p className="mt-1 font-mono text-[0.68rem] text-ink-500">
-                        {visit.reference}
-                      </p>
+                      <p className="mt-1 font-mono text-tiny text-ink-500">{visit.reference}</p>
                     </div>
                     <StatusBadge tone={tone(visit.state)}>{visit.state}</StatusBadge>
                   </div>

@@ -20,7 +20,7 @@ export default function PartnerListingsView({ summary, result, args, submitted }
   const last = Math.min(result.page * result.pageSize, result.total);
 
   return (
-    <div className="mx-auto w-full max-w-[1480px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+    <div className="mx-auto w-full max-w-(--container-workspace) px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       {submitted ? (
         <div className="mb-6 flex items-start gap-3 rounded-lg border border-brand-200 bg-success-bg p-4 text-meta text-brand-900">
           <span className="mt-0.5 size-2 shrink-0 rounded-full bg-success" aria-hidden="true" />
@@ -119,7 +119,7 @@ export default function PartnerListingsView({ summary, result, args, submitted }
               </span>
             )}
 
-            <span className="grid min-h-8 min-w-8 place-items-center rounded-sm bg-brand-600 px-2 font-bold text-white tabular">
+            <span className="grid min-h-8 min-w-8 place-items-center rounded-sm bg-primary px-2 font-bold text-white tabular">
               {result.page}
             </span>
 

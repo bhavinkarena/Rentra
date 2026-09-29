@@ -1,4 +1,6 @@
 'use client';
+export { Field } from '@/components/ui/field';
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import Loader2 from '@/components/ui/rentra-loader';
 import { createContext, useContext, useEffect, useRef } from 'react';
 import { Check } from 'lucide-react';
@@ -51,28 +53,10 @@ export function VersionField({ listing, states = [] }) {
   return version ? <input type="hidden" name="contentVersion" value={version} /> : null;
 }
 
-export const inputCls =
-  'min-h-12 w-full rounded-md border border-input bg-card px-3.5 py-3 text-meta ' +
-  'text-ink-900 placeholder:text-ink-400 focus:border-brand-600 focus:outline-none';
+export const inputCls = `${sharedFieldClass} min-h-12`;
 
 export function Input({ className = '', ...props }) {
   return <BaseInput className={`min-h-12 rounded-md px-3.5 py-3 ${className}`} {...props} />;
-}
-
-export function Field({ id, label, hint, error, children }) {
-  return (
-    <div>
-      <label htmlFor={id} className="mb-1.5 block text-meta font-semibold text-ink-700">
-        {label}
-      </label>
-      {children}
-      {error ? (
-        <p className="mt-1.5 text-tiny font-medium text-danger">{error}</p>
-      ) : hint ? (
-        <p className="mt-1.5 text-tiny text-ink-500">{hint}</p>
-      ) : null}
-    </div>
-  );
 }
 
 /** Wraps a section: heading, save state, and the "sent back for review" note. */
@@ -126,7 +110,7 @@ export function Section({ id, title, intro, state, pending, children }) {
     <>
       {flagged ? (
         <p
-          className={`${wizard ? 'mt-5' : 'mt-3'} rounded-md border-l-4 border-amber-500 bg-amber-100 p-3 text-meta text-amber-800`}
+          className={`${wizard ? 'mt-5' : 'mt-3'} rounded-md border-l-4 border-warning bg-warning-bg p-3 text-meta text-warning`}
         >
           <strong>Rentra asked for changes here.</strong>
           {flags.reason ? ` ${flags.reason}` : ''} Save this section, then resubmit the property.
@@ -166,7 +150,7 @@ export function Section({ id, title, intro, state, pending, children }) {
           like a punishment. */}
       {state?.sentBack ? (
         <p
-          className={`${wizard ? 'mt-5' : 'mt-3'} rounded-md border-l-4 border-amber-500 bg-amber-100 p-3 text-tiny text-amber-700`}
+          className={`${wizard ? 'mt-5' : 'mt-3'} rounded-md border-l-4 border-warning bg-warning-bg p-3 text-tiny text-warning`}
         >
           <strong>This change needs re-approval.</strong> Submit the property again so Rentra can
           review it; it stays out of search until approved. Bookings already confirmed are

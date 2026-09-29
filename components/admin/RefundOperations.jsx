@@ -31,7 +31,7 @@ const SOURCE = {
   other: 'Other',
 };
 const tab = (active) =>
-  `inline-flex min-h-11 items-center rounded-full border px-4 text-meta font-semibold ${active ? 'border-brand-700 bg-brand-700 text-white' : 'border-border bg-card text-ink-700 hover:bg-ink-50'}`;
+  `inline-flex min-h-11 items-center rounded-full border px-4 text-meta font-semibold ${active ? 'border-brand-700 bg-primary text-white' : 'border-border bg-card text-ink-700 hover:bg-ink-50'}`;
 
 function href(data, changes) {
   const params = {
@@ -95,7 +95,7 @@ export function RefundList({ data }) {
           <select
             name="source"
             defaultValue={data.source}
-            className="mt-1 block min-h-11 rounded border border-border bg-card p-2"
+            className="mt-1 block min-h-11 rounded-md border border-input bg-card p-2 text-base md:text-sm"
           >
             <option value="all">All sources</option>
             {Object.entries(SOURCE).map(([value, label]) => (
@@ -111,10 +111,10 @@ export function RefundList({ data }) {
             name="q"
             defaultValue={data.q}
             placeholder="Refund or booking reference, rfnd_ id"
-            className="mt-1 block min-h-11 w-72 max-w-full rounded border border-border bg-card p-2"
+            className="mt-1 block min-h-11 w-72 max-w-full rounded-md border border-input bg-card p-2 text-base md:text-sm"
           />
         </label>
-        <button className="min-h-11 rounded border border-border bg-card px-4 font-semibold">
+        <button className="min-h-11 rounded-md border border-border bg-card px-4 font-semibold">
           Apply
         </button>
       </Form>

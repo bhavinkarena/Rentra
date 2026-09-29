@@ -100,7 +100,7 @@ export default function PhoneVerifyForm({ defaultPhone = '' }) {
         <button
           type="submit"
           disabled={issuing}
-          className="text-meta font-semibold text-brand-700 hover:underline disabled:text-ink-400"
+          className="text-meta font-semibold text-brand-700 hover:underline disabled:text-muted-foreground"
         >
           {issuing ? <Loader2 label="Sending code" /> : 'Resend code'}
         </button>

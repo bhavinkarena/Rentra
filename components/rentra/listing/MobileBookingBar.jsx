@@ -145,7 +145,7 @@ export default function MobileBookingBar({ sentinelId = 'gallery-end', prices })
               dialog.current.showModal();
             }}
             tabIndex={shown ? 0 : -1}
-            className="ml-auto min-h-12 shrink-0 rounded-full bg-brand-600 px-5 font-semibold text-white transition-colors hover:bg-brand-700"
+            className="ml-auto min-h-12 shrink-0 rounded-full bg-primary px-5 font-semibold text-white transition-colors hover:bg-primary-hover"
           >
             {dates.length ? 'Review booking' : 'Choose dates'}
           </button>

@@ -55,7 +55,7 @@ function PropertyIdentity({ listing }) {
         <span className="block truncate text-meta font-semibold text-ink-900">
           {displayTitle(listing.title)}
         </span>
-        <span className="mt-0.5 block truncate text-[0.68rem] font-medium tracking-wide text-ink-500 uppercase">
+        <span className="mt-0.5 block truncate text-tiny font-medium tracking-wide text-ink-500 uppercase">
           {listing.publicCode ? `ID ${listing.publicCode}` : 'Draft property'}
         </span>
       </span>
@@ -95,29 +95,29 @@ export default function PropertyTable({
         <table className="w-full min-w-[760px] border-collapse text-left">
           <thead>
             <tr className="border-b border-border bg-ink-25/80">
-              <th className="px-5 py-3 text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">
+              <th className="px-5 py-3 text-tiny font-bold tracking-[0.1em] text-ink-500 uppercase">
                 Property
               </th>
-              <th className="px-4 py-3 text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">
+              <th className="px-4 py-3 text-tiny font-bold tracking-[0.1em] text-ink-500 uppercase">
                 Location
               </th>
-              <th className="px-4 py-3 text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">
+              <th className="px-4 py-3 text-tiny font-bold tracking-[0.1em] text-ink-500 uppercase">
                 Status
               </th>
               {!compact ? (
                 <>
-                  <th className="px-4 py-3 text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">
+                  <th className="px-4 py-3 text-tiny font-bold tracking-[0.1em] text-ink-500 uppercase">
                     Capacity
                   </th>
-                  <th className="px-4 py-3 text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">
+                  <th className="px-4 py-3 text-tiny font-bold tracking-[0.1em] text-ink-500 uppercase">
                     Rating
                   </th>
                 </>
               ) : null}
-              <th className="px-4 py-3 text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">
+              <th className="px-4 py-3 text-tiny font-bold tracking-[0.1em] text-ink-500 uppercase">
                 Updated
               </th>
-              <th className="px-5 py-3 text-right text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">
+              <th className="px-5 py-3 text-right text-tiny font-bold tracking-[0.1em] text-ink-500 uppercase">
                 <span className="sr-only">Action</span>
               </th>
             </tr>
@@ -129,7 +129,7 @@ export default function PropertyTable({
                   <PropertyIdentity listing={listing} />
                   {listing.status === 'rejected' && listing.rejectionReason ? (
                     <p
-                      className="mt-2 max-w-64 truncate text-[0.68rem] text-danger"
+                      className="mt-2 max-w-64 truncate text-tiny text-danger"
                       title={listing.rejectionReason}
                     >
                       {listing.rejectionReason}
@@ -157,7 +157,9 @@ export default function PropertyTable({
                             aria-hidden="true"
                           />
                           {listing.ratingAvg.toFixed(1)}
-                          <span className="font-normal text-ink-400">({listing.reviewCount})</span>
+                          <span className="font-normal text-muted-foreground">
+                            ({listing.reviewCount})
+                          </span>
                         </span>
                       ) : (
                         '—'

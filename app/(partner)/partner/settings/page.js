@@ -74,35 +74,35 @@ export default async function SettingsPage() {
         </div>
 
         <aside className="rounded-lg border border-border bg-card p-5 shadow-xs lg:sticky lg:top-20">
-          <p className="text-[0.68rem] font-bold tracking-[0.1em] text-ink-500 uppercase">
+          <p className="text-tiny font-bold tracking-[0.1em] text-ink-500 uppercase">
             Sign-in & identity
           </p>
           <ul className="mt-4 divide-y divide-border">
             <li className="flex gap-3 pb-4">
-              <Mail className="mt-0.5 size-4 shrink-0 text-ink-400" aria-hidden="true" />
+              <Mail className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
               <span className="min-w-0">
                 <span className="block truncate text-tiny font-semibold text-ink-900">
                   {user.email}
                 </span>
-                <span className="mt-1 block text-[0.68rem] leading-4 text-ink-500">
+                <span className="mt-1 block text-tiny leading-4 text-ink-500">
                   Your verified sign-in address. Contact Rentra to move the account to a new email.
                 </span>
               </span>
             </li>
 
             <li className="flex gap-3 py-4">
-              <Phone className="mt-0.5 size-4 shrink-0 text-ink-400" aria-hidden="true" />
+              <Phone className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
               <span className="min-w-0 flex-1">
                 <span className="block text-tiny font-semibold text-ink-900">
                   {user.phone ?? 'No mobile number yet'}
                 </span>
-                <span className="mt-1 block text-[0.68rem] leading-4 text-ink-500">
+                <span className="mt-1 block text-tiny leading-4 text-ink-500">
                   Guests call this number on the day. Rentra does not send owner updates by SMS yet;
                   they appear in Updates.
                 </span>
                 <Link
                   href="/partner/onboarding/phone"
-                  className="mt-2 inline-flex text-[0.68rem] font-bold text-brand-700 hover:underline"
+                  className="mt-2 inline-flex text-tiny font-bold text-brand-700 hover:underline"
                 >
                   {user.phone ? 'Change number' : 'Add number'} →
                 </Link>
@@ -110,7 +110,10 @@ export default async function SettingsPage() {
             </li>
 
             <li className="flex gap-3 pt-4">
-              <ShieldCheck className="mt-0.5 size-4 shrink-0 text-ink-400" aria-hidden="true" />
+              <ShieldCheck
+                className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+                aria-hidden="true"
+              />
               <span className="min-w-0">
                 <span className="block text-tiny font-semibold text-ink-900">
                   Identity{' '}
@@ -118,7 +121,7 @@ export default async function SettingsPage() {
                     ? 'documents reviewed by Rentra'
                     : user.kycStatus.replace(/_/g, ' ')}
                 </span>
-                <span className="mt-1 block text-[0.68rem] leading-4 text-ink-500">
+                <span className="mt-1 block text-tiny leading-4 text-ink-500">
                   {user.kycStatus === 'verified'
                     ? 'A Rentra reviewer checked your ID documents. No automated KYC provider is connected.'
                     : 'Your ID is checked as part of partner verification.'}

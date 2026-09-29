@@ -19,7 +19,7 @@ function Nature({ nature }) {
   return nature === 'actual' ? (
     <span className={`${chip} bg-success-bg text-success`}>Actual</span>
   ) : (
-    <span className={`${chip} bg-amber-100 text-amber-800`}>Test / simulation</span>
+    <span className={`${chip} bg-warning-bg text-warning`}>Test / simulation</span>
   );
 }
 
@@ -128,7 +128,7 @@ function Incident({ incident, href, timeZone, admin }) {
       <div className="flex flex-wrap items-center gap-2">
         <strong>{incident.reference}</strong>
         <span
-          className={`${chip} ${open ? 'bg-amber-100 text-amber-800' : 'bg-ink-50 text-ink-700'}`}
+          className={`${chip} ${open ? 'bg-warning-bg text-warning' : 'bg-ink-50 text-ink-700'}`}
         >
           {open ? 'Open' : 'Closed'}
         </span>
@@ -145,7 +145,7 @@ function Incident({ incident, href, timeZone, admin }) {
       </p>
       <Photos items={incident.attachments} href={href} label={incident.reference} />
       {!open ? (
-        <p className="rounded bg-ink-25 p-2">
+        <p className="rounded-md bg-ink-25 p-2">
           Closed {time(incident.closedAt, timeZone)}: {incident.resolutionNote}
         </p>
       ) : null}
@@ -183,7 +183,7 @@ export function VisitEvidence({
       {action}
       <section aria-label={`Incidents for ${visit.reference}`} className="space-y-2">
         <h4 className="flex items-center gap-1.5 text-meta font-semibold">
-          <ShieldAlert className="size-4 text-amber-700" aria-hidden="true" />
+          <ShieldAlert className="size-4 text-warning" aria-hidden="true" />
           Incidents ({incidents.length})
         </h4>
         {incidents.length ? (

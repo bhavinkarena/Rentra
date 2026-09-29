@@ -21,7 +21,7 @@ const STORIES = {
     alt: 'A picnic basket and cups on a checked tablecloth among trees',
     credit: 'Bonnie Kittle',
     source: 'https://unsplash.com/photos/xBFEhnAMlFI',
-    tint: 'bg-[#e9efdf]',
+    tint: 'bg-accent',
   },
   'with-pool': {
     Icon: Waves,
@@ -31,7 +31,7 @@ const STORIES = {
     alt: 'Turquoise swimming pool with a waterfall beside a villa',
     credit: 'Alef Morais',
     source: 'https://unsplash.com/photos/w1BuW8zMNpw',
-    tint: 'bg-[#e0eeec]',
+    tint: 'bg-accent',
   },
   'bonfire-allowed': {
     Icon: Flame,
@@ -41,7 +41,7 @@ const STORIES = {
     alt: 'Friends gathered around a glowing bonfire at dusk',
     credit: 'Tim Arterbury',
     source: 'https://unsplash.com/photos/l5UZWEJpQPM',
-    tint: 'bg-[#f1e6d8]',
+    tint: 'bg-champagne-subtle',
   },
   'pre-wedding-shoot': {
     Icon: Camera,
@@ -51,7 +51,7 @@ const STORIES = {
     alt: 'A couple posing together in a sunlit garden',
     credit: 'Ben Atkins',
     source: 'https://unsplash.com/photos/JYR7DNdUqo4',
-    tint: 'bg-[#f0e5e5]',
+    tint: 'bg-champagne-subtle',
   },
   'corporate-offsite': {
     Icon: Users,
@@ -61,7 +61,7 @@ const STORIES = {
     alt: 'A team sharing ideas around a wooden table',
     credit: 'Parabol',
     source: 'https://unsplash.com/photos/e5ob6fBTi64',
-    tint: 'bg-[#e4e9f0]',
+    tint: 'bg-secondary',
   },
 };
 
@@ -111,7 +111,7 @@ export default function OccasionPicker({ cities, category }) {
       <div
         role="tablist"
         aria-label="Choose your occasion"
-        className="-mx-6 mt-8 flex gap-3 overflow-x-auto px-6 [scrollbar-width:none] md:mx-0 md:px-0"
+        className="-mx-4 mt-8 flex gap-3 overflow-x-auto px-4 sm:-mx-6 sm:px-6 [scrollbar-width:none] md:mx-0 md:px-0"
       >
         {INTENTS.map((item, index) => {
           const { Icon } = STORIES[item.slug];
@@ -129,7 +129,7 @@ export default function OccasionPicker({ cities, category }) {
               onKeyDown={(event) => onKeyDown(event, index)}
               className={`flex min-h-12 flex-[1_0_auto] items-center justify-center gap-2.5 rounded-full border px-5 text-meta font-medium whitespace-nowrap transition-colors ${
                 selected
-                  ? 'border-brand-900 bg-brand-900 text-white'
+                  ? 'border-primary bg-primary text-primary-foreground'
                   : 'border-ink-200 text-ink-700 hover:border-brand-300 hover:bg-brand-50'
               }`}
             >
@@ -160,7 +160,7 @@ export default function OccasionPicker({ cities, category }) {
                   <select
                     value={city}
                     onChange={(event) => setCity(event.target.value)}
-                    className="min-h-11 min-w-40 appearance-none border-b border-ink-500 bg-transparent py-1 pr-8 pl-1 text-body font-medium text-ink-900 focus-visible:outline-2 focus-visible:outline-brand-600"
+                    className="min-h-11 min-w-40 appearance-none border-b border-ink-500 bg-transparent py-1 pr-8 pl-1 text-body font-medium text-ink-900 focus-visible:outline-2 focus-visible:outline-brand-600 text-base md:text-sm"
                   >
                     {cities.map((c) => (
                       <option key={c.slug} value={c.slug}>
@@ -178,7 +178,7 @@ export default function OccasionPicker({ cities, category }) {
           </div>
           <Link
             href={href}
-            className="mt-5 inline-flex min-h-12 items-center gap-6 rounded-md bg-brand-900 px-5 text-body font-medium text-white transition-colors hover:bg-brand-800"
+            className="mt-5 inline-flex min-h-12 items-center gap-6 rounded-full bg-primary px-5 text-body font-medium text-white transition-colors hover:bg-primary-hover active:bg-primary-active"
           >
             Explore {intent.label.toLowerCase()}
             <ArrowUpRight className="size-5" aria-hidden="true" />
@@ -202,6 +202,7 @@ export default function OccasionPicker({ cities, category }) {
             href={story.source}
             target="_blank"
             rel="noopener noreferrer"
+            data-surface="inverse"
             className="absolute bottom-4 left-4 inline-flex min-h-11 items-center gap-3 rounded-md bg-ink-900/85 px-3.5 text-tiny text-white backdrop-blur transition-colors hover:bg-ink-900"
           >
             {intent.label} inspiration · {story.credit}

@@ -247,7 +247,7 @@ export default function AdminShell({ children, admin, logoutAction, counts = {} 
           noteTone: admin.hasTotp ? 'text-brand-200' : 'text-amber-300',
         },
         headerNote: !admin.hasTotp ? (
-          <span className="hidden items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-1 text-tiny font-bold text-amber-800 xl:inline-flex">
+          <span className="hidden items-center gap-1.5 rounded-full bg-warning-bg px-2.5 py-1 text-tiny font-bold text-warning xl:inline-flex">
             <TriangleAlert className="size-3.5" aria-hidden="true" /> 2FA not enrolled
           </span>
         ) : null,
@@ -266,7 +266,7 @@ export default function AdminShell({ children, admin, logoutAction, counts = {} 
               type="search"
               maxLength={100}
               placeholder="Search clients, customers, applications…"
-              className="min-h-9 w-full rounded-md border border-border bg-ink-25 pr-3 pl-9 text-meta placeholder:text-ink-500 focus:border-brand-600 focus:bg-white focus:outline-none"
+              className="min-h-9 w-full rounded-md border border-input bg-ink-25 pr-3 pl-9 text-base md:text-sm placeholder:text-ink-500 focus:border-brand-600 focus:bg-card"
             />
           </Form>
         ) : null,

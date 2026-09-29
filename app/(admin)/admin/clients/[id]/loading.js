@@ -1,5 +1,5 @@
 import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
 
 export default function Loading() {
-  return <ScreenSkeleton screen="profile" label="Loading admin clients details" />;
+  return <ScreenSkeleton layout="portal" screen="profile" label="Loading admin clients details" />;
 }

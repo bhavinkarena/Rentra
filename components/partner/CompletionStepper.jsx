@@ -40,7 +40,7 @@ export default function CompletionStepper({ completion }) {
         aria-label="Profile completion"
       >
         <span
-          className={approved || !submitted ? 'bg-brand-600' : 'bg-amber-500'}
+          className={approved || !submitted ? 'bg-brand-600' : 'bg-warning'}
           style={{ width: `${percent}%` }}
         />
       </div>
@@ -58,9 +58,9 @@ export default function CompletionStepper({ completion }) {
           <span
             className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-tiny font-bold ${
               review.state === 'done'
-                ? 'bg-brand-600 text-white'
+                ? 'bg-primary text-white'
                 : review.state === 'in_review'
-                  ? 'bg-amber-500 text-white'
+                  ? 'bg-warning text-white'
                   : 'bg-ink-200 text-ink-600'
             }`}
           >
@@ -100,7 +100,7 @@ function StepRow({ step, index }) {
       <span
         className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-tiny font-bold ${
           step.done && !step.flagged
-            ? 'bg-brand-600 text-white'
+            ? 'bg-primary text-white'
             : step.failed
               ? 'bg-danger text-white'
               : 'bg-ink-200 text-ink-600'
@@ -142,7 +142,7 @@ function StepRow({ step, index }) {
   return (
     <li>
       {open && step.href ? (
-        <Link href={step.href} className={`${cls} -mx-2 rounded px-2 hover:bg-ink-50`}>
+        <Link href={step.href} className={`${cls} -mx-2 rounded-md px-2 hover:bg-ink-50`}>
           {body}
         </Link>
       ) : (

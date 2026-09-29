@@ -170,7 +170,7 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
         ]}
       />
       {data.stale ? (
-        <p role="status" className="mt-5 rounded-md bg-warning-bg p-4 text-meta text-amber-800">
+        <p role="status" className="mt-5 rounded-md bg-warning-bg p-4 text-meta text-warning">
           The current property has no matching submitted revision. Ask the client to review their
           changes and resubmit. No decision can be recorded yet.
         </p>

@@ -62,7 +62,10 @@ export default async function Page({ searchParams }) {
                     {item.reference}
                   </span>
                 </span>
-                <ChevronRight className="size-4 shrink-0 text-ink-400" aria-hidden="true" />
+                <ChevronRight
+                  className="size-4 shrink-0 text-muted-foreground"
+                  aria-hidden="true"
+                />
               </Link>
             </li>
           ))}

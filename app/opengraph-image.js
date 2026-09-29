@@ -9,7 +9,7 @@ import { ImageResponse } from 'next/og';
  *
  * Statically generated at build time — nothing here reads a request.
  */
-export const alt = 'Rentra — book a verified farmhouse, directly from the owner';
+export const alt = 'Rentra — explore farmhouses and day visits';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -71,27 +71,27 @@ export default async function OpenGraphImage() {
             fontWeight: 700,
             letterSpacing: '-0.03em',
             lineHeight: 1.14,
-            color: '#171A18',
+            color: '#1F2924',
             maxWidth: 940,
           }}
         >
-          Book a verified farmhouse, directly from the owner
+          Find a place for your next day out or overnight stay.
         </div>
         <div
           style={{
             display: 'flex',
             fontSize: 29,
             fontWeight: 500,
-            color: '#5A635D',
+            color: '#59655D',
             marginTop: 30,
           }}
         >
-          Verified in person · Money held until check-in · Zero brokerage
+          Explore places · Compare facilities · Choose your dates
         </div>
       </div>
 
       {/* brand-600, the primary-action green, as the one branded edge. */}
-      <div style={{ display: 'flex', height: 14, backgroundColor: '#2E6449' }} />
+      <div style={{ display: 'flex', height: 14, backgroundColor: '#064E3B' }} />
     </div>,
     {
       ...size,

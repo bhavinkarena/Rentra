@@ -1,13 +1,14 @@
 'use client';
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
+import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import { useActionState, useId, useState, useTransition } from 'react';
 import { Camera, History, ShieldAlert, CircleCheck } from 'lucide-react';
 import RentraLoader from '@/components/ui/rentra-loader';
 import { reportOwnerIncident } from '@/lib/actions/partner';
 import { closeAdminIncident, correctAdminEvidence, reportAdminIncident } from '@/lib/actions/admin';
 
-const field = 'mt-1 block min-h-11 w-full rounded border border-border bg-card p-2';
-const button =
-  'inline-flex min-h-11 items-center gap-2 rounded bg-brand-700 px-4 font-semibold text-white disabled:opacity-70';
+const field = `${sharedFieldClass} mt-1 min-h-11`;
+const button = `${sharedButtonVariants({ shape: 'default', size: 'default' })} `;
 const MAX_PHOTOS = 3;
 const MAX_BYTES = 2 * 1024 * 1024;
 const TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -96,7 +97,7 @@ export function PhotoField({ error }) {
         accept={TYPES.join(',')}
         onChange={check}
         aria-describedby={`${id}-hint`}
-        className="mt-1 block w-full text-meta file:mr-3 file:min-h-10 file:rounded file:border file:border-border file:bg-card file:px-3"
+        className="mt-1 block w-full text-meta file:mr-3 file:min-h-10 file:rounded-md file:border file:border-border file:bg-card file:px-3"
       />
       <p id={`${id}-hint`} className="mt-1 text-tiny text-ink-600">
         Up to 3 · JPG, PNG or WebP · 2MB each · visible only to the property owner and Rentra
@@ -126,7 +127,7 @@ export function IncidentForm({ visit, requestKey, admin = false }) {
   return (
     <details className="rounded-md border border-border p-3">
       <summary className="flex min-h-11 cursor-pointer items-center gap-2 font-semibold">
-        <ShieldAlert className="size-4 text-amber-700" aria-hidden="true" />
+        <ShieldAlert className="size-4 text-warning" aria-hidden="true" />
         Report an incident
       </summary>
       <form onSubmit={onSubmit} className="mt-3 space-y-3">

@@ -78,7 +78,7 @@ export default async function ApplicationReviewPage({ params, searchParams }) {
   const title = app.legalName || user.email;
   const notAwaiting =
     app.status !== 'submitted' ? (
-      <p className="rounded-md border-l-4 border-blue bg-info-bg p-3 text-meta text-ink-700">
+      <p className="rounded-md border-l-4 border-info bg-info-bg p-3 text-meta text-ink-700">
         This application is <strong>{app.status.replace(/_/g, ' ')}</strong> and is not awaiting a
         decision.{' '}
         {app.decisionReason ? <>Last reason given: &ldquo;{app.decisionReason}&rdquo;</> : null}
@@ -345,7 +345,7 @@ const FIELD_LABELS = {
 
 function Panel({ title, tone, children }) {
   const border =
-    tone === 'bad' ? 'border-danger/40' : tone === 'warn' ? 'border-amber-300' : 'border-border';
+    tone === 'bad' ? 'border-danger/40' : tone === 'warn' ? 'border-warning/30' : 'border-border';
   return (
     <div className={`rounded-lg border bg-card p-4 ${border}`}>
       <h2 className="text-tiny font-bold tracking-wider text-brand-700 uppercase">{title}</h2>
@@ -368,7 +368,7 @@ function Row({ label, value, ok, bad, mono }) {
           <AlertTriangle className="mr-1 inline size-3.5" aria-hidden="true" />
         ) : null}
         {ok === false && bad !== true ? (
-          <X className="mr-1 inline size-3.5 text-ink-400" aria-hidden="true" />
+          <X className="mr-1 inline size-3.5 text-muted-foreground" aria-hidden="true" />
         ) : null}
         {String(value)}
       </dd>

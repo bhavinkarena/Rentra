@@ -23,8 +23,8 @@ import { ID_DOCUMENT_BY_ID } from '@/lib/constants';
 export default function DocumentViewer({ documents = [], kycNameOnDoc, accountName }) {
   if (documents.length === 0) {
     return (
-      <div className="rounded-lg border border-amber-300 bg-amber-100 p-4">
-        <p className="text-meta font-semibold text-amber-800">No identity document uploaded</p>
+      <div className="rounded-lg border border-warning/30 bg-warning-bg p-4">
+        <p className="text-meta font-semibold text-warning">No identity document uploaded</p>
         <p className="mt-1 text-tiny text-ink-700">
           The application cannot be approved without one. Send it back asking for photos of an ID.
         </p>
@@ -50,7 +50,7 @@ export default function DocumentViewer({ documents = [], kycNameOnDoc, accountNa
             nameMatch === 'exact'
               ? 'text-brand-700'
               : nameMatch === 'mismatch'
-                ? 'text-amber-700'
+                ? 'text-warning'
                 : 'text-ink-500'
           }`}
         >
@@ -74,7 +74,7 @@ export default function DocumentViewer({ documents = [], kycNameOnDoc, accountNa
       </dl>
 
       {nameMatch === 'mismatch' ? (
-        <p className="mt-2 rounded-md bg-amber-100 p-2.5 text-tiny text-amber-800">
+        <p className="mt-2 rounded-md bg-warning-bg p-2.5 text-tiny text-warning">
           A family or HUF name here is the most common real case and is <strong>not</strong> a
           rejection — ask for a relationship proof or a no-objection letter, or approve them as an
           authorised agent so the listing publicly says &ldquo;Authorised manager&rdquo;.
@@ -123,7 +123,7 @@ function DocRow({ doc }) {
               ? 'bg-brand-50 text-brand-700'
               : status === 'rejected'
                 ? 'bg-danger-bg text-danger'
-                : 'bg-amber-100 text-amber-800'
+                : 'bg-warning-bg text-warning'
           }`}
         >
           {status}
@@ -133,7 +133,7 @@ function DocRow({ doc }) {
           href={`/admin/documents/${doc.id}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-brand-600 px-3 py-1.5 text-meta font-semibold text-white hover:bg-brand-700"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-meta font-semibold text-white hover:bg-primary-hover"
         >
           <ExternalLink className="size-3.5" aria-hidden="true" />
           Open {doc.side}
@@ -152,7 +152,7 @@ function DocRow({ doc }) {
             value={note}
             onChange={(ev) => setNote(ev.target.value)}
             placeholder="e.g. the back is blurred, please re-take it in better light"
-            className="w-full rounded-sm border border-input bg-card px-3 py-2 text-meta placeholder:text-ink-400 focus:border-brand-600 focus:outline-none"
+            className="w-full rounded-md border border-input bg-card px-3 py-2 text-base md:text-sm placeholder:text-muted-foreground focus:border-brand-600"
           />
         </label>
         <form action={reviewAction} className="flex shrink-0 gap-2">

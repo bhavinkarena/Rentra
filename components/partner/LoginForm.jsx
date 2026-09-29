@@ -29,7 +29,10 @@ export default function LoginForm() {
         <label htmlFor="email" className="block text-sm font-semibold">
           Email address
         </label>
-        <div className="flex h-14 items-center gap-3 rounded-xl border border-input bg-card px-4 focus-within:ring-2 focus-within:ring-brand-100">
+        <div
+          data-field-shell
+          className="flex h-14 items-center gap-3 rounded-xl border border-input bg-card px-4"
+        >
           <Mail className="size-5 shrink-0 text-ink-500" aria-hidden="true" />
           <Input
             id="email"
@@ -39,7 +42,7 @@ export default function LoginForm() {
             placeholder="you@example.com"
             defaultValue={email}
             required
-            className="h-12 border-0 px-0 focus-visible:ring-0"
+            className="h-12 border-0 px-0"
           />
         </div>
         {(issueState.error || issueState.errors?.email) && (

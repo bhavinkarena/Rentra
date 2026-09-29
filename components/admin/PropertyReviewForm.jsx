@@ -1,5 +1,6 @@
 'use client';
 
+import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import { useActionState, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { propertyReviewCommand } from '@/lib/actions/admin';
@@ -16,7 +17,7 @@ const sections = [
   'photos',
   'ownership',
 ];
-const control = 'mt-1 w-full rounded-md border border-border bg-card p-3 text-meta';
+const control = `${sharedFieldClass} mt-1`;
 
 export default function PropertyReviewForm({
   id,
@@ -151,7 +152,7 @@ export default function PropertyReviewForm({
           type="submit"
           name="command"
           value="decide"
-          className="min-h-11 rounded-md bg-brand-700 px-5 text-meta font-semibold text-white"
+          className="min-h-11 rounded-md bg-primary px-5 text-meta font-semibold text-white"
         >
           {pending ? 'Saving…' : 'Record decision'}
         </button>

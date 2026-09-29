@@ -47,7 +47,7 @@ function Chip({ current, to, children }) {
       aria-current={current ? 'page' : undefined}
       className={`inline-flex min-h-9 items-center rounded-full border px-3 text-tiny font-semibold ${
         current
-          ? 'border-brand-700 bg-brand-700 text-white'
+          ? 'border-brand-700 bg-primary text-white'
           : 'border-border bg-card text-ink-700 hover:bg-ink-50'
       }`}
     >
@@ -133,12 +133,12 @@ export default async function UpdatesPage({ searchParams }) {
                         )}
                         <span>{title}</span>
                         {update.kind === 'action' ? (
-                          <span className="rounded-full bg-warning-bg px-2 text-[0.65rem] font-bold text-amber-800">
+                          <span className="rounded-full bg-warning-bg px-2 text-tiny font-bold text-warning">
                             Needs action
                           </span>
                         ) : null}
                         {update.detail?.simulation ? (
-                          <span className="rounded-full bg-ink-100 px-2 text-[0.65rem] font-bold text-ink-700">
+                          <span className="rounded-full bg-ink-100 px-2 text-tiny font-bold text-ink-700">
                             Test booking
                           </span>
                         ) : null}

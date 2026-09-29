@@ -35,7 +35,7 @@ export default async function AdminLoginPage({ searchParams }) {
         <span className="grid size-11 place-items-center rounded-lg bg-brand-50 text-brand-700 ring-1 ring-brand-100">
           <LockKeyhole className="size-5" aria-hidden="true" />
         </span>
-        <p className="mt-5 text-[0.68rem] font-bold tracking-[0.12em] text-brand-700 uppercase">
+        <p className="mt-5 text-tiny font-bold tracking-[0.12em] text-brand-700 uppercase">
           Secure operations
         </p>
         <h1 className="mt-1 text-h2">Admin sign in</h1>

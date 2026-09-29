@@ -1,0 +1,788 @@
+{
+  "checkedAt": "2026-09-29T16:13:00.294Z",
+  "results": [
+    {
+      "name": "home 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 58,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "search 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 37,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "saved 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 37,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "listing 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 35,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "bookings 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 31,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "booking-detail 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 27,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "checkout 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 25,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "dashboard 320px: reflow, single status, static reduced motion",
+      "pass": false,
+      "detail": {
+        "overflow": true,
+        "statuses": 1,
+        "bars": 59,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "people 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 39,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "finance 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 39,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "payments 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 38,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "table 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 34,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "content 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 23,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "content-editor 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 12,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "profile 320px: reflow, single status, static reduced motion",
+      "pass": false,
+      "detail": {
+        "overflow": true,
+        "statuses": 1,
+        "bars": 22,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "account 320px: reflow, single status, static reduced motion",
+      "pass": false,
+      "detail": {
+        "overflow": true,
+        "statuses": 1,
+        "bars": 40,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "calendar 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 57,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "updates 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 28,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "reviews 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 40,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "review-detail 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 32,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "support 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 19,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "thread 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 18,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "team 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 36,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "help 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 11,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "document 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 22,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "auth 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 11,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "login 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 8,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "upload 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 9,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "consent 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 13,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "success 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 6,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "form 320px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 12,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "DashboardSkeleton 320px: reflow and single status",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1
+      }
+    },
+    {
+      "name": "PropertiesSkeleton 320px: reflow and single status",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1
+      }
+    },
+    {
+      "name": "SettingsSkeleton 320px: reflow and single status",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1
+      }
+    },
+    {
+      "name": "EditorSkeleton 320px: reflow and single status",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1
+      }
+    },
+    {
+      "name": "WizardSkeleton 320px: reflow and single status",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1
+      }
+    },
+    {
+      "name": "home 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 58,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "search 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 37,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "saved 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 37,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "listing 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 35,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "bookings 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 31,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "booking-detail 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 27,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "checkout 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 25,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "dashboard 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 59,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "people 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 39,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "finance 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 39,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "payments 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 38,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "table 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 34,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "content 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 23,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "content-editor 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 12,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "profile 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 22,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "account 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 40,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "calendar 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 57,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "updates 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 28,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "reviews 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 40,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "review-detail 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 32,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "support 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 19,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "thread 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 18,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "team 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 36,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "help 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 11,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "document 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 22,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "auth 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 11,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "login 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 8,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "upload 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 9,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "consent 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 13,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "success 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 6,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "form 1440px: reflow, single status, static reduced motion",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1,
+        "bars": 12,
+        "motion": false,
+        "pulse": false
+      }
+    },
+    {
+      "name": "DashboardSkeleton 1440px: reflow and single status",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1
+      }
+    },
+    {
+      "name": "PropertiesSkeleton 1440px: reflow and single status",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1
+      }
+    },
+    {
+      "name": "SettingsSkeleton 1440px: reflow and single status",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1
+      }
+    },
+    {
+      "name": "EditorSkeleton 1440px: reflow and single status",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1
+      }
+    },
+    {
+      "name": "WizardSkeleton 1440px: reflow and single status",
+      "pass": true,
+      "detail": {
+        "overflow": false,
+        "statuses": 1
+      }
+    },
+    {
+      "name": "Button variants and field errors pass axe",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "Field error is associated with its input",
+      "pass": true
+    },
+    {
+      "name": "Shared field uses 16px mobile text",
+      "pass": true
+    },
+    {
+      "name": "Skeleton animation ends after two transform sweeps",
+      "pass": true
+    },
+    {
+      "name": "Skeleton sheen is removed in forced colors",
+      "pass": true
+    }
+  ]
+}

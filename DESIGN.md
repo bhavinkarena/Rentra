@@ -2,47 +2,53 @@
 name: RENTRA
 description: A bright, nature-led rental marketplace with precise operational workspaces.
 colors:
-  brand-50: '#f1f7f3'
-  brand-100: '#ddebe2'
-  brand-200: '#bcd8c7'
-  brand-300: '#90bca3'
-  brand-400: '#629b7d'
-  brand-500: '#3f7d5f'
-  brand-600: '#2e6449'
-  brand-700: '#26503c'
-  brand-800: '#1f4031'
-  brand-900: '#1a3529'
-  brand-950: '#0d1d16'
+  brand-50: '#ecf4ef'
+  brand-100: '#ddece3'
+  brand-200: '#bbd8c8'
+  brand-300: '#8dbca4'
+  brand-400: '#609a7d'
+  brand-500: '#257454'
+  brand-600: '#064e3b'
+  brand-700: '#043d2e'
+  brand-800: '#033326'
+  brand-900: '#032d23'
+  brand-950: '#021f18'
   amber-100: '#fdf2de'
   amber-300: '#f3c77e'
   amber-500: '#d98a1f'
   amber-700: '#a6640f'
   ink-0: '#ffffff'
-  ink-25: '#fafbfa'
-  ink-50: '#f5f7f5'
-  ink-100: '#ebeeeb'
-  ink-200: '#dce1dd'
-  ink-300: '#c0c7c2'
-  ink-400: '#9aa39d'
+  ink-25: '#faf9f6'
+  ink-50: '#f3f4ef'
+  ink-100: '#eceee8'
+  ink-200: '#e1e5de'
+  ink-300: '#c4ccc5'
+  ink-400: '#7c8780'
   ink-500: '#59655d'
-  ink-600: '#5a635d'
-  ink-700: '#414843'
-  ink-800: '#2a2f2b'
-  ink-900: '#171a18'
-  success: '#2e6449'
-  success-bg: '#f1f7f3'
-  warning: '#b45309'
-  warning-bg: '#fdf3e7'
-  danger: '#c0362c'
-  danger-bg: '#fbedec'
-  info: '#2563a5'
-  info-bg: '#eaf1f8'
+  ink-600: '#4d5a52'
+  ink-700: '#38463e'
+  ink-800: '#2b3931'
+  ink-900: '#1f2924'
+  success: '#14532d'
+  success-bg: '#ecf5ee'
+  warning: '#9a4d0a'
+  warning-bg: '#fff4e5'
+  danger: '#b42318'
+  danger-bg: '#fef3f2'
+  info: '#1d4ed8'
+  info-bg: '#eff6ff'
   whatsapp: '#1fa855'
-  forest-deep: '#142e23'
-  forest-line: '#3c5546'
-  paper: '#f5f6ed'
-  lime: '#dbeaaf'
-  lime-soft: '#e5efc8'
+  forest-deep: '#032d23'
+  forest-line: '#386054'
+  paper: '#f8f5ee'
+  champagne: '#f8e7c9'
+  champagne-hover: '#f2dab0'
+  champagne-active: '#eacf9f'
+  champagne-subtle: '#fcf5e9'
+  champagne-foreground: '#064e3b'
+  on-dark-muted: '#d5dad5'
+  event-adjustment: '#6b3fa0'
+  event-adjustment-bg: '#f5f0fa'
 typography:
   display:
     fontFamily: "'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Noto Sans Gujarati', system-ui, -apple-system, sans-serif"
@@ -145,7 +151,7 @@ components:
     rounded: '{rounded.md}'
     height: '44px'
   button-destructive:
-    backgroundColor: 'rgb(192 54 44 / 0.1)'
+    backgroundColor: '{colors.danger-bg}'
     textColor: '{colors.danger}'
     rounded: '{rounded.md}'
     height: '44px'
@@ -165,7 +171,7 @@ components:
     padding: '0 6px'
     height: '44px'
   portal-nav-active:
-    backgroundColor: 'rgb(255 255 255 / 0.12)'
+    backgroundColor: '#164738'
     textColor: '{colors.ink-0}'
     rounded: '{rounded.md}'
     padding: '0 10px'
@@ -193,14 +199,14 @@ components:
 
 **Creative North Star: "A Clear Path to the Outdoors"**
 
-Sunlit property photography on pale, slightly green-tinted ground; forest green for every action; a deep-forest footer with a lime accent. The public home page is the reference for the whole customer experience and was re-approved by the owner on 29 Sep 2026 after an earlier redesign was rejected. The redesign plan (`RENTra-UI-REDESIGN-PLAN.md`) carries this look to every other customer page rather than replacing it.
+Sunlit property photography on warm off-white ground; Emerald Ink (`#064E3B`) for primary actions and Champagne (`#F8E7C9`) for restrained premium accents. Preserve the approved full-bleed home hero, search, trust strip, flat property cards and city rows. The detailed specification is [Emerald & Champagne design system](docs/rentra-emerald-champagne-design-system.md); implementation and verification are recorded in [the theme handoff](docs/rentra-emerald-champagne-implementation.md).
 
-Owner and admin workspaces share the tokens and type but keep their own dense, forest-sidebar shell. Nothing in this file changes them.
+Owner and admin workspaces share these tokens and retain their denser type, operational layouts and deep emerald sidebar. The caretaker workspace uses the same accessible controls and brand artwork.
 
 **Key characteristics**
 
 - Full-bleed photography on discovery surfaces; flat listing cards (photo + text, no box).
-- One action colour (forest green). Lime appears only on forest-deep surfaces.
+- Emerald actions, white cards, neutral operational pages. Champagne is an accent or inverse-surface action, never a status color.
 - Pill-shaped actions and chips, as in the home hero and footer.
 - Icon + short label rows in place of paragraphs.
 - Honest data: no invented ratings, counts, badges or photos.
@@ -210,14 +216,14 @@ The frontmatter is the token record; runtime values live in `app/globals.css` an
 ## Colors
 
 - **Brand ramp (`brand-50…950`).** `brand-600` is the action fill; `brand-700` its hover and link colour. `brand-50` tints supportive surfaces (icon wells, selected chips). `brand-400` is decorative only.
-- **Amber.** Star ratings and peak-price context only. `amber-700` when amber is text.
-- **Ink ramp.** `ink-25` is the page, `ink-0` form and summary surfaces, `ink-100` photo placeholders, `ink-200` dividers, `ink-300` input borders, `ink-500/600` secondary text, `ink-900` primary text. `ink-400` is non-text.
+- **Amber.** Decorative star fill only; meaningful warning text uses `warning` on `warning-bg`. Peak context keeps an explicit label.
+- **Ink ramp.** `ink-25` is the page, `ink-0` form and summary surfaces, `--skeleton-base` photo placeholders, `ink-200` dividers, `border-input` (#7C8780) control boundaries, `ink-500/600` secondary text, `ink-900` primary text. `ink-400` is non-text.
 - **Semantic pairs.** success/warning/danger/info with matching `-bg`. Always pair colour with a text label.
-- **Forest-deep surfaces.** `forest-deep` background, `paper` text (at 60–75% for secondary), `lime` for accent text and headings, `lime-soft` for the one action fill, `forest-line` for dividers. Used by the footer; available for confirmation moments. Never put lime on a light surface.
+- **Inverse surfaces.** `forest-deep` background, `paper` text, opaque `on-dark-muted` secondary text, `champagne` accents/actions and `forest-line` dividers. Mark the surface `data-surface="inverse"` for a champagne focus outline; nested white cards use `data-surface="light"`.
 - **WhatsApp green.** Only the published WhatsApp contact button.
-- Occasion-picker tints in `components/rentra/OccasionPicker.jsx` are local to that component.
+- Occasion-picker tints use `accent`, `secondary`, and `champagne-subtle` tokens.
 
-Public and customer pages are light only. `.dark` exists for opt-in operational shells.
+The app ships a light theme. `.dark` remains reserved for separate future verification; the inverse sidebar/footer does not activate it.
 
 ## Typography
 
@@ -243,7 +249,7 @@ Rules: headings balance and wrap; paragraphs use pretty wrapping. Money, dates a
 - Header: sticky, light (`bg-background/90`, blur, bottom border), wordmark left (mark only below `sm`), `CustomerNavigation` right, "List your place" as a quiet link from `md`. Not floating, not framed.
 - Home: full-bleed photo hero (`HeroPhotos`, manual switcher) with the headline, `SearchBar` and intent chips inside it; `TrustStrip` below; "Explore places" with horizontally scrolling `CityRow`s ("Near {City}"); `OccasionPicker`; city chips; owner call-to-action; footer.
 - Listing grids: 1 → 2 (`sm`) → 3 (`lg`) → 4 (`xl`) columns. City rows scroll horizontally with arrow buttons.
-- Footer: compact deep-forest block — brand + one-line invitation, "Your next getaway" links, "Have a place to share?" with a lime-soft pill, city links, then legal links and the intermediary statement.
+- Footer: compact deep-forest block — brand + one-line invitation, "Your next getaway" links, "Have a place to share?" with a champagne pill, city links, then legal links and the intermediary statement.
 - Listing pages reserve the bottom of narrow screens for the booking bar; the WhatsApp float moves above it via `--float-bottom`.
 
 ## Elevation & Depth
@@ -274,7 +280,7 @@ Do not use bare `rounded`, `rounded-2xl` or `rounded-3xl` in customer code: `--r
 
 ### Buttons and chips
 
-`components/ui/button.jsx` (CVA): default, outline, secondary, ghost, destructive, link; heights 44px (default) and 48px (`lg`). On public and customer pages pass `rounded-full` to match the home page. Primary = `brand-600`, hover `brand-700`; never `bg-primary` hand-rolled alongside it. Chips: `min-h-10 rounded-full border border-border px-4 text-meta`, hover `border-brand-300 bg-brand-50 text-brand-800`; on photos use `border-white/25 bg-white/10 text-white backdrop-blur`. Keep pending labels and disabled guards.
+`components/ui/button.jsx` (CVA): default, outline, secondary, ghost, destructive (quiet), danger-solid, inverse and link; heights 44px (default) and 48px (`lg`). Public/customer CTAs use `shape="pill"`; operational commands use the default 12px radius. Reuse `Button` or `buttonVariants`; primary/hover/active come from semantic tokens, inverse uses champagne with emerald text, and disabled controls use muted colors. Chips: `min-h-10 rounded-full border border-border px-4 text-meta`, hover `border-brand-300 bg-brand-50 text-brand-800`; on photos use `border-white/25 bg-white/10 text-white backdrop-blur`. Keep pending labels and disabled guards.
 
 ### Search bar
 
@@ -286,7 +292,7 @@ Do not use bare `rounded`, `rounded-2xl` or `rounded-3xl` in customer code: `--r
 
 ### Inputs and forms
 
-`components/ui/input.jsx`: 44px, `rounded-md`, `border-input`, `bg-card`, 16px text below `md`. Visible labels, described errors, server-action field errors, pending states and unsaved-change guards stay as implemented. New shared field/select/textarea primitives are added in the phase that first needs them (see plan D7).
+`components/ui/input.jsx`: 44px, `rounded-md`, `border-input`, `bg-card`, 16px text below `md`. Visible labels, described errors, server-action field errors, pending states and unsaved-change guards stay as implemented. `components/ui/field.jsx` exports `fieldClass`, `Select`, `Textarea` and `Field`; the latter connects help/errors to the named direct child control. Use those primitives for new forms.
 
 ### Navigation
 
@@ -294,12 +300,12 @@ Do not use bare `rounded`, `rounded-2xl` or `rounded-3xl` in customer code: `--r
 
 ### Badges and status
 
-`StateBadge` (`components/customer/BookingDisplay.jsx`) for booking, visit, payment, support and dispute states: underscores become spaces, first letter capitalised, and the colour follows the state (brand for confirmed/completed/succeeded, ink for cancelled/expired, warning for disputed, danger for failed, info otherwise). `TrustBadge` for API-supplied verification; `Rating` with amber stars. Status always has a text label.
+`StateBadge` (`components/customer/BookingDisplay.jsx`) for booking, visit, payment, support and dispute states: underscores become spaces, first letter capitalised, and the colour follows the state (success for confirmed/completed/succeeded, ink for cancelled/expired, warning for disputed, danger for failed, info otherwise). `TrustBadge` for API-supplied verification; `Rating` with amber stars. Status always has a text label.
 
 ### Page structure and records
 
 - `PageHeader` / `BackLink` (`components/ui/page-header.jsx`): back link ("← Account"), `h1`, one-line description, actions on the right. Every customer sub-page uses it.
-- Record lists (bookings, notifications, support, disputes, privacy requests): one `rounded-lg` bordered list with `divide-y` rows, an icon well on the left, title + `StateBadge`, meta line, reference in `font-mono text-tiny`, chevron on the right. Not a stack of separate cards.
+- Booking history retains photo cards: 112px image column on phones, 200px from `sm`. Other record lists (notifications, support, disputes, privacy requests): one `rounded-lg` bordered list with `divide-y` rows, an icon well on the left, title + `StateBadge`, meta line, reference in `font-mono text-tiny`, chevron on the right. Not a stack of separate cards.
 - Label/value money rows: label left, amount right (`tabular`), totals bold behind a top border. Amounts use `displayMoney` (whole rupees without ".00", paise only when present).
 - Actions on a record: one row of icon pills; on phones one swipeable row (`overflow-x-auto`, `shrink-0` children).
 - Dates shown to customers use `formatLocalDate` / `en-IN` short dates ("Wed, 30 Sept, 2026"); slot names come from `SLOTS`.
@@ -314,7 +320,7 @@ Accordions and "show more" use native `<details class="group">` with `list-none`
 
 ### States
 
-Empty states: `EmptyState` (`components/ui/empty-state.jsx`) — icon in a brand tint, one-line title, one-line explanation, one action. Expired or blocked flows show a top `StatusBanner` with the way forward (reference: checkout "This price expired" → "Choose dates again"). Errors: say what failed and offer a real next step; do not reuse search advice on unrelated pages. Loading: `ScreenSkeleton`/route skeletons that match the final layout; labels in plain words.
+Empty states: `EmptyState` (`components/ui/empty-state.jsx`) — icon in a brand tint, one-line title, one-line explanation, one action. Expired or blocked flows show a top `StatusBanner` with the way forward (reference: checkout "This price expired" → "Choose dates again"). Errors: say what failed and offer a real next step; do not reuse search advice on unrelated pages. Loading: `ScreenSkeleton`/route skeletons match final layouts. All use `Skeleton` with `--skeleton-base` and `--skeleton-highlight`, a transform shimmer that stops after two cycles, and no parent pulse. One live status per boundary; decorative bars remain hidden from accessibility APIs. Page loaders stay in flow; inline pending controls use a single current-color spinner.
 
 ### Motion
 
@@ -334,5 +340,5 @@ Empty states: `EmptyState` (`components/ui/empty-state.jsx`) — icon in a brand
 - Bring back the floating pill header, rounded carousel hero, oversized editorial display type or portrait property rail from the rejected redesign.
 - Wrap every section in a rounded bordered card, or add gradients, glass or hover shadows to information.
 - Show raw IDs, enums or ISO timestamps to customers.
-- Put lime on light surfaces or add a second action colour.
+- Use champagne for warning/success text or a full-page dashboard background; add competing action greens.
 - Change APIs, routes, validation or money formatting as part of visual work.

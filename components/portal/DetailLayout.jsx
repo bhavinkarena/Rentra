@@ -9,17 +9,17 @@ import CopyChip from '@/components/portal/CopyChip';
  */
 
 const BADGE = {
-  success: 'bg-brand-50 text-brand-800 ring-brand-200',
-  warning: 'bg-warning-bg text-amber-800 ring-warning/20',
+  success: 'bg-success-bg text-success ring-success/15',
+  warning: 'bg-warning-bg text-warning ring-warning/20',
   danger: 'bg-danger-bg text-danger ring-danger/15',
-  info: 'bg-info-bg text-ink-800 ring-ink-200',
+  info: 'bg-info-bg text-info ring-info/15',
   neutral: 'bg-ink-100 text-ink-700 ring-ink-200',
 };
 
 const METRIC = {
   neutral: 'text-ink-900',
-  success: 'text-brand-700',
-  warning: 'text-amber-800',
+  success: 'text-success',
+  warning: 'text-warning',
   danger: 'text-danger',
 };
 
@@ -48,7 +48,7 @@ export function DetailHeader({ breadcrumbs, avatar, title, badges = [], id, chip
       <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start">
         <span
           aria-hidden="true"
-          className="grid size-14 shrink-0 place-items-center rounded-full bg-brand-700 text-h4 font-bold text-white sm:size-16"
+          className="grid size-14 shrink-0 place-items-center rounded-full bg-primary text-h4 font-bold text-white sm:size-16"
         >
           {initials(avatar ?? title)}
         </span>
@@ -109,7 +109,7 @@ export function MetricStrip({ items, label = 'Key figures' }) {
     >
       {items.map((item) => (
         <div key={item.label} className="bg-card p-4 sm:p-5">
-          <p className="text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">
+          <p className="text-tiny font-bold tracking-[0.1em] text-ink-500 uppercase">
             {item.label}
           </p>
           <p className={`mt-1.5 text-h3 font-bold tabular ${METRIC[item.tone ?? 'neutral']}`}>
@@ -156,7 +156,7 @@ export function DetailTabs({ tabs, active, basePath, params = {} }) {
                 {tab.label}
                 {tab.count != null ? (
                   <span
-                    className={`rounded-full px-1.5 text-[0.65rem] tabular ${current ? 'bg-brand-100 text-brand-800' : 'bg-ink-100 text-ink-700'}`}
+                    className={`rounded-full px-1.5 text-tiny tabular ${current ? 'bg-brand-100 text-brand-800' : 'bg-ink-100 text-ink-700'}`}
                   >
                     {tab.count}
                   </span>
@@ -205,7 +205,7 @@ export function FieldGrid({ fields }) {
     <dl className="grid gap-x-8 gap-y-5 sm:grid-cols-2">
       {fields.filter(Boolean).map((field) => (
         <div key={field.label} className="min-w-0">
-          <dt className="text-[0.65rem] font-bold tracking-[0.1em] text-ink-500 uppercase">
+          <dt className="text-tiny font-bold tracking-[0.1em] text-ink-500 uppercase">
             {field.label}
           </dt>
           <dd
