@@ -292,6 +292,8 @@ Do not use bare `rounded`, `rounded-2xl` or `rounded-3xl` in customer code: `--r
 
 ### Inputs and forms
 
+Global control styling in `app/globals.css` covers existing customer, partner and admin forms. Single-select menus use `appearance: base-select` where supported: rounded popover surfaces, 44px option rows, green selection and a checkmark. Other browsers retain native menus. Keep real `select`, `option`, `input` and form attributes so validation, reset, autofill and keyboard behavior remain native. Checkboxes, radios and file-upload buttons share semantic theme tokens; forced-colors mode restores system checkbox/radio rendering. Date/time pickers retain platform behavior.
+
 `components/ui/input.jsx`: 44px, `rounded-md`, `border-input`, `bg-card`, 16px text below `md`. Visible labels, described errors, server-action field errors, pending states and unsaved-change guards stay as implemented. `components/ui/field.jsx` exports `fieldClass`, `Select`, `Textarea` and `Field`; the latter connects help/errors to the named direct child control. Use those primitives for new forms.
 
 ### Navigation

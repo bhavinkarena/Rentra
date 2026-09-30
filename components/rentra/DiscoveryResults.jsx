@@ -77,6 +77,7 @@ export default async function DiscoveryResults({ query, registry: registryInput,
   const chips = Object.entries(chipLabels).filter(
     ([key, label]) =>
       label &&
+      !['city', 'area', 'dates', 'slot', 'guests'].includes(key) &&
       !(route?.[key] || (key === 'slot' && route?.intent?.slot)) &&
       !(key === 'guests' && filters.guests === 1) &&
       !(key === 'slot' && filters.slot === 'night'),
@@ -90,32 +91,45 @@ export default async function DiscoveryResults({ query, registry: registryInput,
   const locationChip =
     'inline-flex min-h-10 items-center gap-1.5 rounded-full border border-border bg-card px-4 text-meta font-medium text-ink-700 transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800';
   return (
-    <section className="mx-auto max-w-(--container-page) px-4 py-8 sm:px-6 sm:py-12">
-      <h1 className="text-h1">{route?.title || 'Find a place'}</h1>
-      <p className="mt-2 text-ink-600">
-        {route?.intent?.description ||
-          'Compare places by location, facilities and your visit dates.'}
-      </p>
+    <section className="mx-auto max-w-(--container-page) px-4 pt-3 pb-8 sm:px-6 sm:pb-12">
+      {route?.title ? (
+        <div className="pt-3 pb-4">
+          <h1 className="text-h2">{route.title}</h1>
+          {route.intent?.description && (
+            <p className="mt-2 max-w-prose text-meta text-ink-600">{route.intent.description}</p>
+          )}
+        </div>
+      ) : (
+        <h1 className="sr-only">Search places</h1>
+      )}
       <DiscoveryFilters
         key={JSON.stringify(query)}
         filters={filters}
         registry={registry}
         route={route}
         path={path}
+        activeChips={
+          chips.length ? (
+            <div
+              className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto"
+              role="group"
+              aria-label="Active filters"
+            >
+              {chips.map(([key, label]) => (
+                <Link
+                  key={key}
+                  className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full bg-brand-50 px-3 text-tiny font-medium text-brand-900 transition-colors hover:bg-brand-100"
+                  href={href(clearChip(key))}
+                  aria-label={`Remove ${label}`}
+                >
+                  {label}
+                  <X className="size-3.5" aria-hidden="true" />
+                </Link>
+              ))}
+            </div>
+          ) : null
+        }
       />
-      <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Active filters">
-        {chips.map(([key, label]) => (
-          <Link
-            key={key}
-            className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-brand-50 pr-3 pl-4 text-meta font-medium text-brand-900 transition-colors hover:bg-brand-100"
-            href={href(clearChip(key))}
-            aria-label={`Remove ${label}`}
-          >
-            {label}
-            <X className="size-4" aria-hidden="true" />
-          </Link>
-        ))}
-      </div>
       {messages.length > 0 && (
         <div
           role="alert"
@@ -151,7 +165,7 @@ export default async function DiscoveryResults({ query, registry: registryInput,
       ) : (
         !messages.length && (
           <>
-            <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2 className="text-h3">
                   {result.total} {result.total === 1 ? 'place' : 'places'}
@@ -193,7 +207,7 @@ export default async function DiscoveryResults({ query, registry: registryInput,
                 </Link>
               </EmptyState>
             )}
-            <div className="mt-7 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="mt-4 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {result.items.map((listing) => (
                 <ListingCard key={listing.id} listing={listing} showPriceNote={!sharedPriceNote} />
               ))}

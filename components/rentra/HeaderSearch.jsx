@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { usePathname } from 'next/navigation';
 import { Search } from 'lucide-react';
 import { formatLocalDate } from '@/lib/domain/booking-dates';
+import { SLOTS } from '@/lib/domain/pricing';
 import SearchBar, { useSearchDraft } from './SearchBar';
 
 const PANEL_ID = 'header-search-panel';
@@ -27,7 +28,7 @@ export default function HeaderSearch({ registry }) {
     () => null,
   );
   const [seenPath, setSeenPath] = useState(pathname);
-  const [{ location, dates, guests }] = useSearchDraft();
+  const [{ location, dates, slot, guests }] = useSearchDraft();
   const trigger = useRef(null);
   const panel = useRef(null);
 
@@ -109,6 +110,16 @@ export default function HeaderSearch({ registry }) {
             {...expand}
           >
             {when}
+          </button>
+          <span className="h-6 w-px shrink-0 bg-border max-md:hidden" aria-hidden="true" />
+          <button
+            type="button"
+            onClick={() => openAt('slot')}
+            aria-label={`Visit type: ${SLOTS[slot].label}`}
+            className={`${segment} max-md:hidden`}
+            {...expand}
+          >
+            {SLOTS[slot].label}
           </button>
           <span className="h-6 w-px shrink-0 bg-border max-md:hidden" aria-hidden="true" />
           <button

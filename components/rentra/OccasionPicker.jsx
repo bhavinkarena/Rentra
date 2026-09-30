@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowUpRight, Sun, Waves, Flame, Camera, Users, ChevronDown } from 'lucide-react';
+import { Select } from '@/components/ui/field';
+import { ArrowUpRight, Sun, Waves, Flame, Camera, Users } from 'lucide-react';
 import Link from '@/components/navigation/NavigationLink';
 import Image from './PropertyImage';
 import { DISCOVERY_INTENTS } from '@/lib/domain/discovery';
@@ -156,23 +157,17 @@ export default function OccasionPicker({ cities, category }) {
             {cities.length > 0 ? (
               <label className="flex items-center gap-4 text-meta text-ink-600">
                 Explore around
-                <span className="relative">
-                  <select
-                    value={city}
-                    onChange={(event) => setCity(event.target.value)}
-                    className="min-h-11 min-w-40 appearance-none border-b border-ink-500 bg-transparent py-1 pr-8 pl-1 text-body font-medium text-ink-900 focus-visible:outline-2 focus-visible:outline-brand-600 text-base md:text-sm"
-                  >
-                    {cities.map((c) => (
-                      <option key={c.slug} value={c.slug}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown
-                    className="pointer-events-none absolute top-1/2 right-1 size-4 -translate-y-1/2"
-                    aria-hidden="true"
-                  />
-                </span>
+                <Select
+                  value={city}
+                  onChange={(event) => setCity(event.target.value)}
+                  className="w-auto min-w-40 rounded-full"
+                >
+                  {cities.map((c) => (
+                    <option key={c.slug} value={c.slug}>
+                      {c.name}
+                    </option>
+                  ))}
+                </Select>
               </label>
             ) : null}
           </div>

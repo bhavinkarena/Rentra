@@ -265,17 +265,45 @@ function Content({ screen }) {
         </>
       );
     case 'search':
+    case 'location-search':
       return (
         <>
-          <Header />
-          {/* Compact search bar (a summary pill on phones) and the Filters chip. */}
-          <Block className="h-14 w-full rounded-full lg:h-16" />
-          <Block className="h-10 w-28 rounded-full" />
-          <div className="flex justify-between">
-            <Block className="h-4 w-40" />
-            <Block className="h-10 w-36" />
+          {screen === 'location-search' && (
+            <div className="pt-3 pb-4">
+              <Block className="h-8 w-64" />
+            </div>
+          )}
+          <div className="sticky top-17 z-30 -mx-4 border-b border-border bg-background px-4 py-3 sm:-mx-6 sm:px-6">
+            <div className="grid grid-cols-2 items-center rounded-3xl border border-border bg-ink-50 p-1.5 shadow-sm md:flex md:rounded-full">
+              {[0, 1, 2, 3].map((field) => (
+                <div
+                  key={field}
+                  className="flex min-h-16 min-w-0 flex-1 items-center gap-2.5 px-4 py-2 md:px-5"
+                >
+                  <Block className="size-5 shrink-0 rounded-full" />
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <Block className="h-3 w-12" />
+                    <Block className="h-3.5 w-24" />
+                  </div>
+                </div>
+              ))}
+              <Block className="col-span-2 m-1 h-12 shrink-0 rounded-full md:w-40" />
+            </div>
+            <div className="mt-2 flex items-center justify-between gap-2">
+              <Block className="h-10 w-24 rounded-full" />
+              <Block className="h-3 w-14" />
+            </div>
           </div>
-          <Cards />
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+            <Block className="h-6 w-28" />
+            <div className="flex items-center gap-2">
+              <Block className="h-3 w-8" />
+              <Block className="h-11 w-40 rounded-full" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <Cards count={8} />
+          </div>
         </>
       );
     case 'saved':
@@ -695,15 +723,16 @@ const widths = {
   success: 'max-w-2xl',
 };
 export default function ScreenSkeleton({ screen, label = 'Loading page…', inset = false, layout }) {
+  const discovery = screen === 'search' || screen === 'location-search';
   return (
     <div
       role="status"
       aria-label={label}
       aria-busy="true"
-      className={`mx-auto w-full min-w-0 ${screen === 'home' ? '' : (pageWidths[layout] ?? widths[screen] ?? pageWidths.public)} ${inset || screen === 'home' ? '' : 'px-4 py-6 sm:px-6 sm:py-8'}`}
+      className={`mx-auto w-full min-w-0 ${screen === 'home' ? '' : (pageWidths[layout] ?? widths[screen] ?? pageWidths.public)} ${inset || screen === 'home' ? '' : discovery ? 'px-4 pt-3 pb-8 sm:px-6 sm:pb-12' : 'px-4 py-6 sm:px-6 sm:py-8'}`}
     >
       <span className="sr-only">{label}</span>
-      <div aria-hidden="true" className="space-y-6">
+      <div aria-hidden="true" className={discovery ? '' : 'space-y-6'}>
         <Content screen={screen} />
       </div>
     </div>

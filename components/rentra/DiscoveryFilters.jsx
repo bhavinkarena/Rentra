@@ -4,7 +4,7 @@ import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import Form from '@/components/navigation/NavigationForm';
 import { useState } from 'react';
 import Link from '@/components/navigation/NavigationLink';
-import { SlidersHorizontal } from 'lucide-react';
+import { SlidersHorizontal, X } from 'lucide-react';
 import SearchFields from './SearchFields';
 import { measureBrowser } from '@/lib/domain/browser-measurement';
 
@@ -12,16 +12,8 @@ import { measureBrowser } from '@/lib/domain/browser-measurement';
 const control = `${sharedFieldClass} mt-1 min-h-11`;
 const chip =
   'inline-flex min-h-10 items-center gap-2 rounded-full border border-border bg-card px-4 font-semibold text-ink-800 transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800 aria-expanded:border-brand-300 aria-expanded:bg-brand-50 aria-expanded:text-brand-800';
-export default function DiscoveryFilters({ filters, registry, route, path }) {
-  const [advanced, setAdvanced] = useState(
-    Boolean(
-      filters.category ||
-      filters.min != null ||
-      filters.max != null ||
-      filters.cancellation ||
-      filters.amenities.length,
-    ),
-  );
+export default function DiscoveryFilters({ filters, registry, route, path, activeChips }) {
+  const [advanced, setAdvanced] = useState(false);
   const activeFilters =
     (filters.q ? 1 : 0) +
     (!route?.category && filters.category ? 1 : 0) +
@@ -37,17 +29,23 @@ export default function DiscoveryFilters({ filters, registry, route, path }) {
       id="discovery-filters"
       action={path}
       onSubmit={() => measureBrowser('search_submitted')}
-      className="mt-6 text-meta"
+      className="sticky top-17 z-30 -mx-4 border-b border-border bg-background px-4 py-3 text-meta sm:-mx-6 sm:px-6"
+      onKeyDown={(event) => {
+        if (event.key === 'Escape' && advanced) {
+          setAdvanced(false);
+          event.currentTarget.querySelector('[aria-controls="discovery-more-filters"]')?.focus();
+        }
+      }}
     >
       <SearchFields filters={filters} registry={registry} route={route} submitLabel="Show places" />
 
-      <div className="mt-3 flex flex-wrap items-center gap-2">
+      <div className="mt-2 flex items-center gap-2">
         <button
           type="button"
           onClick={() => setAdvanced((open) => !open)}
           aria-expanded={advanced}
           aria-controls="discovery-more-filters"
-          className={chip}
+          className={`${chip} shrink-0`}
         >
           <SlidersHorizontal className="size-4" aria-hidden="true" />
           Filters
@@ -57,9 +55,10 @@ export default function DiscoveryFilters({ filters, registry, route, path }) {
             </span>
           ) : null}
         </button>
+        {activeChips}
         <Link
           href={path}
-          className="inline-flex min-h-10 items-center px-3 font-semibold text-brand-700 hover:underline"
+          className="ml-auto inline-flex min-h-10 shrink-0 items-center px-2 text-tiny font-semibold text-brand-700 hover:underline"
         >
           Clear all
         </Link>
@@ -68,8 +67,19 @@ export default function DiscoveryFilters({ filters, registry, route, path }) {
       <div
         id="discovery-more-filters"
         hidden={!advanced}
-        className="mt-3 rounded-xl border border-border bg-card p-4 sm:p-5"
+        className="absolute inset-x-4 top-full mt-2 max-h-[calc(100dvh-24rem)] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-4 shadow-lg sm:inset-x-6 sm:p-5 md:max-h-[calc(100dvh-16rem)]"
       >
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-h4">Refine your search</h2>
+          <button
+            type="button"
+            onClick={() => setAdvanced(false)}
+            aria-label="Close filters"
+            className="grid size-11 place-items-center rounded-full hover:bg-ink-50"
+          >
+            <X className="size-4" aria-hidden="true" />
+          </button>
+        </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <label className="font-medium sm:col-span-2 lg:col-span-1">
             Property name or locality

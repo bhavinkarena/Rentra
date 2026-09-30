@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Popover } from 'radix-ui';
 import {
@@ -38,6 +38,22 @@ export default function SearchFields({
   onFieldChange,
 }) {
   const [active, setActive] = useState(null);
+  const [hoverDate, setHoverDate] = useState(null);
+  const dismissedByScroll = useRef(false);
+
+  useEffect(() => {
+    if (!active) return;
+    dismissedByScroll.current = false;
+    const startY = window.scrollY;
+    const closeOnPageScroll = () => {
+      if (window.scrollY === startY) return;
+      dismissedByScroll.current = true;
+      setActive(null);
+    };
+    // Listen only to page scrolling, not scrolling inside a search panel.
+    window.addEventListener('scroll', closeOnPageScroll, { passive: true });
+    return () => window.removeEventListener('scroll', closeOnPageScroll);
+  }, [active]);
   const [localFields, setLocalFields] = useState({
     location: { city: filters.city || '', area: filters.area || '' },
     slot: route?.intent?.slot || filters.slot || 'day',
@@ -92,6 +108,7 @@ export default function SearchFields({
     );
 
   function selectDate(date) {
+    setHoverDate(null);
     if (mode === 'single') setDates([date]);
     else if (mode === 'separate')
       setDates((current) =>
@@ -117,7 +134,7 @@ export default function SearchFields({
           <button
             data-search-field={id}
             type="button"
-            className="group flex min-h-20 min-w-0 flex-1 items-center gap-3 rounded-2xl px-4 py-3 text-left transition-colors hover:bg-brand-50 focus-visible:outline-2 focus-visible:outline-brand-600 data-[state=open]:bg-white data-[state=open]:shadow-md md:rounded-full md:px-5"
+            className="group flex min-h-16 min-w-0 flex-1 items-center gap-2.5 rounded-2xl px-4 py-2 text-left transition-colors hover:bg-brand-50 focus-visible:outline-2 focus-visible:outline-brand-600 data-[state=open]:bg-white data-[state=open]:shadow-md md:rounded-full md:px-5"
           >
             <Icon className="size-5 shrink-0 text-brand-600" aria-hidden="true" />
             <span className="min-w-0">
@@ -130,17 +147,18 @@ export default function SearchFields({
           <Popover.Content
             side="bottom"
             align={id === 'guests' ? 'end' : 'start'}
-            sideOffset={12}
+            sideOffset={8}
             collisionPadding={16}
             aria-label={label}
             data-search-panel
             data-surface="light"
             onCloseAutoFocus={(event) => {
-              if (active && active !== id) event.preventDefault();
+              // Restoring focus to the hero after scrolling would jump the page back.
+              if (dismissedByScroll.current || (active && active !== id)) event.preventDefault();
             }}
-            className={`z-[80] max-h-[min(720px,var(--radix-popover-content-available-height))] w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain rounded-3xl border border-border bg-card p-5 text-ink-900 shadow-lg outline-none sm:p-7 ${wide ? 'sm:w-[720px]' : 'sm:w-[390px]'}`}
+            className={`z-[80] max-h-[min(560px,var(--radix-popover-content-available-height))] w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain rounded-3xl border border-border bg-card p-4 text-ink-900 shadow-lg outline-none sm:p-5 ${wide ? 'sm:w-[640px]' : 'sm:w-[360px]'}`}
           >
-            <div className="mb-5 flex items-center justify-between gap-3">
+            <div className="mb-3 flex items-center justify-between gap-3">
               <h2 className="text-h4">
                 {label === 'Where'
                   ? 'Where would you like to go?'
@@ -198,13 +216,13 @@ export default function SearchFields({
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search a city or area"
                 aria-label="Search locations"
-                className="min-h-12 min-w-0 flex-1 bg-transparent text-base outline-none"
+                className="min-h-11 min-w-0 flex-1 bg-transparent text-base outline-none"
               />
             </label>
-            <p className="mt-5 mb-2 text-tiny font-semibold text-ink-600">
+            <p className="mt-3 mb-1 text-tiny font-semibold text-ink-600">
               {query ? 'Matching locations' : 'Explore Gujarat'}
             </p>
-            <div className="max-h-80 overflow-y-auto">
+            <div>
               {!query && (
                 <LocationOption
                   title="All locations"
@@ -245,7 +263,7 @@ export default function SearchFields({
         dateLabel,
         CalendarDays,
         <>
-          <div className="mb-6 flex flex-wrap gap-1 rounded-2xl bg-ink-50 p-1">
+          <div className="mb-3 flex flex-wrap gap-1 rounded-2xl bg-ink-50 p-1">
             {modes.map(([value, label]) => (
               <button
                 key={value}
@@ -261,7 +279,7 @@ export default function SearchFields({
               </button>
             ))}
           </div>
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-2 flex items-center justify-between">
             <button
               type="button"
               aria-label="Previous month"
@@ -288,7 +306,7 @@ export default function SearchFields({
               <ChevronRight className="size-4" />
             </button>
           </div>
-          <div className="grid gap-7 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2" onPointerLeave={() => setHoverDate(null)}>
             {[month, shiftMonth(month, 1)].map((value, index) => (
               <div key={value} className={index ? 'hidden sm:block' : ''}>
                 <CalendarMonth
@@ -298,11 +316,13 @@ export default function SearchFields({
                   dates={dates}
                   mode={mode}
                   onSelect={selectDate}
+                  hoverDate={hoverDate}
+                  onPreview={setHoverDate}
                 />
               </div>
             ))}
           </div>
-          <div className="mt-5 flex items-center justify-between gap-3 border-t border-border pt-4">
+          <div className="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3">
             <button
               type="button"
               onClick={() => setDates([])}
@@ -338,7 +358,7 @@ export default function SearchFields({
                   setSlot(item.id);
                   setActive('guests');
                 }}
-                className={`flex min-h-20 w-full items-center justify-between rounded-2xl border px-4 py-3 text-left ${slot === item.id ? 'border-brand-600 bg-brand-50' : 'border-border hover:bg-ink-50'}`}
+                className={`flex min-h-16 w-full items-center justify-between rounded-xl border px-3 py-2 text-left ${slot === item.id ? 'border-brand-600 bg-brand-50' : 'border-border hover:bg-ink-50'}`}
               >
                 <span>
                   <span className="block text-meta font-semibold">{item.label}</span>
@@ -356,7 +376,7 @@ export default function SearchFields({
         `${guests} ${guests === 1 ? 'guest' : 'guests'}`,
         Users,
         <>
-          <div className="flex items-center justify-between gap-3 py-4">
+          <div className="flex items-center justify-between gap-3 py-2">
             <div>
               <p className="font-semibold">Guests</p>
               <p className="mt-1 text-tiny text-ink-600">Everyone joining your visit</p>
@@ -394,10 +414,10 @@ export default function SearchFields({
               </button>
             </div>
           </div>
-          <p className="border-t border-border pt-4 text-meta text-ink-600">
+          <p className="mt-2 border-t border-border pt-3 text-meta text-ink-600">
             Find a place with room for your whole group.
           </p>
-          <div className="mt-5 flex justify-end">
+          <div className="mt-3 flex justify-end">
             <Popover.Close className="min-h-11 rounded-full bg-brand-600 px-6 text-meta font-semibold text-white hover:bg-brand-700">
               Done
             </Popover.Close>
@@ -409,7 +429,7 @@ export default function SearchFields({
         disabled={pending}
         aria-busy={pending}
         onClick={() => setActive(null)}
-        className="col-span-2 m-1 flex min-h-14 shrink-0 items-center justify-center gap-2 rounded-full bg-brand-600 px-6 text-meta font-semibold text-white transition-colors hover:bg-brand-700 disabled:opacity-70"
+        className="col-span-2 m-1 flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-brand-600 px-6 text-meta font-semibold text-white transition-colors hover:bg-brand-700 disabled:opacity-70"
       >
         <Search className="size-5" aria-hidden="true" />
         {pending ? 'Searching…' : submitLabel}
@@ -423,9 +443,9 @@ function LocationOption({ title, subtitle, selected, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className="flex min-h-20 w-full items-center gap-4 rounded-2xl p-3 text-left hover:bg-brand-50 focus-visible:outline-brand-600"
+      className="flex min-h-16 w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-brand-50 focus-visible:outline-brand-600"
     >
-      <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600">
+      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600">
         <MapPin className="size-5" aria-hidden="true" />
       </span>
       <span className="flex-1">
@@ -443,17 +463,17 @@ function shiftMonth(month, delta) {
   return date.toISOString().slice(0, 7);
 }
 
-function CalendarMonth({ month, today, lastDate, dates, mode, onSelect }) {
+function CalendarMonth({ month, today, lastDate, dates, mode, onSelect, hoverDate, onPreview }) {
   const start = new Date(`${month}-01T00:00:00Z`);
   const count = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 0)).getUTCDate();
   return (
     <div>
-      <h3 className="mb-5 text-center text-meta font-semibold">
+      <h3 className="mb-2 text-center text-meta font-semibold">
         {start.toLocaleDateString('en-IN', { month: 'long', year: 'numeric', timeZone: 'UTC' })}
       </h3>
       <div className="grid grid-cols-7 text-center">
         {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day) => (
-          <span key={day} className="pb-3 text-tiny text-ink-600">
+          <span key={day} className="pb-2 text-tiny text-ink-600">
             {day}
           </span>
         ))}
@@ -462,9 +482,24 @@ function CalendarMonth({ month, today, lastDate, dates, mode, onSelect }) {
         ))}
         {Array.from({ length: count }, (_, index) => {
           const date = `${month}-${String(index + 1).padStart(2, '0')}`;
-          const selected = dates.includes(date);
+          const rangeStart = dates[0];
+          const previewing =
+            mode === 'consecutive' &&
+            dates.length === 1 &&
+            hoverDate > rangeStart &&
+            hoverDate <= lastDate &&
+            hoverDate <= addLocalDays(rangeStart, BOOKING_POLICY.maxVisits - 1);
+          const rangeEnd = previewing ? hoverDate : dates.at(-1);
+          const selected =
+            mode === 'consecutive'
+              ? date === rangeStart || date === rangeEnd
+              : dates.includes(date);
           const inRange =
-            mode === 'consecutive' && dates.length === 2 && date > dates[0] && date < dates[1];
+            mode === 'consecutive' &&
+            (dates.length > 1 || previewing) &&
+            date >= rangeStart &&
+            date <= rangeEnd;
+          const weekday = (start.getUTCDay() + index) % 7;
           const disabled =
             date < today ||
             date > lastDate ||
@@ -473,18 +508,35 @@ function CalendarMonth({ month, today, lastDate, dates, mode, onSelect }) {
               dates.length === 1 &&
               date > addLocalDays(dates[0], BOOKING_POLICY.maxVisits - 1));
           return (
-            <button
+            <div
               key={date}
-              type="button"
-              disabled={disabled}
-              aria-label={formatLocalDate(date, { year: 'numeric' })}
-              aria-pressed={selected || inRange}
-              aria-current={date === today ? 'date' : undefined}
-              onClick={() => onSelect(date)}
-              className={`my-0.5 aspect-square min-h-10 rounded-full text-meta font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:text-ink-300 ${selected ? 'bg-brand-600 text-white' : inRange ? 'bg-brand-100 text-brand-800' : 'hover:bg-brand-50 aria-[current=date]:underline aria-[current=date]:underline-offset-4'}`}
+              className={`my-0.5 ${inRange ? `bg-brand-50 ${date === rangeStart ? 'rounded-l-full' : weekday === 0 || index === 0 ? 'rounded-l-lg' : ''} ${date === rangeEnd ? 'rounded-r-full' : weekday === 6 || index === count - 1 ? 'rounded-r-lg' : ''}` : ''}`}
             >
-              {index + 1}
-            </button>
+              <button
+                type="button"
+                disabled={disabled}
+                aria-label={formatLocalDate(date, { year: 'numeric' })}
+                aria-pressed={
+                  dates.includes(date) ||
+                  (mode === 'consecutive' &&
+                    dates.length > 1 &&
+                    date >= rangeStart &&
+                    date <= dates.at(-1))
+                }
+                aria-current={date === today ? 'date' : undefined}
+                onClick={() => onSelect(date)}
+                onPointerEnter={() => onPreview(disabled ? null : date)}
+                onFocus={() => onPreview(disabled ? null : date)}
+                onBlur={() => onPreview(null)}
+                className={`grid h-10 w-full place-items-center rounded-full text-meta font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:text-ink-300 ${selected ? 'text-white' : inRange ? 'text-brand-800 hover:bg-brand-100' : 'hover:bg-brand-50 aria-[current=date]:underline aria-[current=date]:underline-offset-4'}`}
+              >
+                <span
+                  className={`grid size-10 place-items-center rounded-full ${selected ? 'bg-brand-600' : ''}`}
+                >
+                  {index + 1}
+                </span>
+              </button>
+            </div>
           );
         })}
       </div>
