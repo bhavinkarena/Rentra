@@ -18,12 +18,20 @@ await sql`INSERT INTO admin_user(email,password_hash,name,permissions) VALUES
   ('second@fixture.invalid','fixture-not-a-hash','Second Reviewer',NULL)
   ON CONFLICT (email) DO NOTHING`;
 // CP03 fixture: one upcoming confirmed visit on the seeded client's live listing.
-await sql`INSERT INTO booking(reference,rentable_id,customer_id,day,slot,amount_rent,amount_fee,state,starts_at,ends_at)
-  SELECT 'GATEUP1', r.id, (SELECT id FROM "user" WHERE role='customer' LIMIT 1), (now() + interval '6 days')::date,
-    'day', 5000, 400, 'confirmed', now() + interval '6 days', now() + interval '6 days 8 hours'
-  FROM rentable r WHERE r.client_id=${client.id} AND r.status='live'
-  ORDER BY r.created_at LIMIT 1
-  ON CONFLICT (reference) DO NOTHING`;
+// Every visit belongs to an order (backend migration 0047).
+await sql`WITH o AS (
+    INSERT INTO booking_order(reference,customer_id,rentable_id,state,currency,time_zone,pricing_version,policy_version,
+      policy_snapshot,listing_snapshot,amount_rent_minor,amount_fee_minor,amount_deposit_minor,idempotency_key,request_hash)
+    SELECT 'GATEUP1-ORDER', (SELECT id FROM "user" WHERE role='customer' LIMIT 1), r.id, 'confirmed', 'INR', 'Asia/Kolkata',
+      'fixture', 'fixture', '{}'::jsonb, jsonb_build_object('title', r.title), 500000, 40000, 0, 'gate:GATEUP1', repeat('0', 64)
+    FROM rentable r WHERE r.client_id=${client.id} AND r.status='live'
+    ORDER BY r.created_at LIMIT 1
+    ON CONFLICT (reference) DO NOTHING RETURNING id, customer_id, rentable_id)
+  INSERT INTO booking(reference,rentable_id,customer_id,order_id,item_position,local_day,slot,state,starts_at,ends_at,
+    currency,time_zone,amount_rent_minor,amount_fee_minor,amount_deposit_minor)
+  SELECT 'GATEUP1', o.rentable_id, o.customer_id, o.id, 1, (now() + interval '6 days')::date,
+    'day', 'confirmed', now() + interval '6 days', now() + interval '6 days 8 hours', 'INR', 'Asia/Kolkata', 500000, 40000, 0
+  FROM o ON CONFLICT (reference) DO NOTHING`;
 const admins = await sql`SELECT id,email FROM admin_user WHERE email LIKE '%@fixture.invalid'`;
 const adminToken = async (id) =>
   new SignJWT({ adminId: id, sessionId: await issuePortalSession(sql, 'admin', id, 3600) })
