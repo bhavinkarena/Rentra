@@ -97,7 +97,7 @@ export default async function HomePage() {
           platform fees before continuing.
         </p>
         <div className="mt-8">
-          <SearchBar dock />
+          <SearchBar dock registry={registry} />
         </div>
 
         <ul className="-mx-4 mt-6 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">

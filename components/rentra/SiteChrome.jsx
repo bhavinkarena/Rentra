@@ -47,7 +47,9 @@ export default function SiteChrome({
               <RentraLogo className="hidden h-7 w-auto sm:block" />
               <RentraMark className="size-8 sm:hidden" />
             </Link>
-            <HeaderSearch />
+            <Suspense fallback={null}>
+              <MarketingHeaderSearch />
+            </Suspense>
             <div className="pointer-events-auto relative ml-auto">{navigation}</div>
             <Link
               href="/partner/login"
@@ -195,4 +197,13 @@ async function MarketingFooter() {
       </div>
     </footer>
   );
+}
+
+async function MarketingHeaderSearch() {
+  const registry = await degradeOnFailure(
+    () => discoveryApi.registry(),
+    EMPTY_REGISTRY,
+    'header search registry',
+  );
+  return <HeaderSearch registry={registry} />;
 }

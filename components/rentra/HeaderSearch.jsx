@@ -17,7 +17,7 @@ const noSubscribe = () => () => {};
  * bar beneath the header, over a dimmed page, focused on the field tapped.
  * It collapses on Escape, an outside tap, focus leaving, or a real scroll.
  */
-export default function HeaderSearch() {
+export default function HeaderSearch({ registry }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   // document.body after hydration, null on the server — no mount effect needed.
@@ -27,7 +27,7 @@ export default function HeaderSearch() {
     () => null,
   );
   const [seenPath, setSeenPath] = useState(pathname);
-  const [{ area, date, guests }] = useSearchDraft();
+  const [{ location, dates, guests }] = useSearchDraft();
   const trigger = useRef(null);
   const panel = useRef(null);
 
@@ -49,7 +49,7 @@ export default function HeaderSearch() {
     root.toggleAttribute('data-search-open', open);
     if (!open) return;
     const startY = window.scrollY;
-    const onKey = (e) => e.key === 'Escape' && close(true);
+    const onKey = (e) => e.key === 'Escape' && !e.defaultPrevented && close(true);
     // A small threshold so a mobile keyboard nudging the page doesn't close it.
     const onScroll = () => Math.abs(window.scrollY - startY) > 64 && close(false);
     window.addEventListener('keydown', onKey);
@@ -66,11 +66,16 @@ export default function HeaderSearch() {
   const openAt = (field) => {
     setOpen(true);
     requestAnimationFrame(() =>
-      panel.current?.querySelector(`[name="${field}"]`)?.focus({ preventScroll: true }),
+      panel.current?.querySelector(`[data-search-field="${field}"]`)?.click(),
     );
   };
-  const where = area.trim() || 'Anywhere';
-  const when = date ? formatLocalDate(date, { weekday: undefined }) : 'Any date';
+  const where = location.title || 'Anywhere';
+  const when =
+    dates.length > 1
+      ? `${dates.length} dates`
+      : dates[0]
+        ? formatLocalDate(dates[0], { weekday: undefined })
+        : 'Any date';
   const who = `${guests || 1} ${guests === 1 ? 'guest' : 'guests'}`;
   const segment =
     'flex h-full min-w-0 cursor-pointer items-center truncate rounded-full px-4 text-meta font-medium text-ink-900 transition-colors hover:bg-ink-50';
@@ -87,18 +92,18 @@ export default function HeaderSearch() {
           <button
             ref={trigger}
             type="button"
-            onClick={() => openAt('q')}
+            onClick={() => openAt('location')}
             aria-label={`Where: ${where}`}
             className={`${segment} max-md:flex-1 max-md:pr-2`}
             {...expand}
           >
-            <span className="truncate md:hidden">{area.trim() || 'Where to?'}</span>
+            <span className="truncate md:hidden">{location.title || 'Where to?'}</span>
             <span className="truncate max-md:hidden">{where}</span>
           </button>
           <span className="h-6 w-px shrink-0 bg-border max-md:hidden" aria-hidden="true" />
           <button
             type="button"
-            onClick={() => openAt('date')}
+            onClick={() => openAt('dates')}
             aria-label={`When: ${when}`}
             className={`${segment} max-md:hidden`}
             {...expand}
@@ -117,7 +122,7 @@ export default function HeaderSearch() {
           </button>
           <button
             type="button"
-            onClick={() => openAt('q')}
+            onClick={() => openAt('location')}
             aria-label="Open search"
             className="mr-1 grid size-9 shrink-0 cursor-pointer place-items-center rounded-full bg-primary text-white transition-colors hover:bg-primary-hover"
             {...expand}
@@ -144,6 +149,7 @@ export default function HeaderSearch() {
                 onBlur={(e) =>
                   e.relatedTarget &&
                   !e.currentTarget.contains(e.relatedTarget) &&
+                  !e.relatedTarget.closest('[data-search-panel]') &&
                   e.relatedTarget !== trigger.current &&
                   close(false)
                 }
@@ -153,9 +159,7 @@ export default function HeaderSearch() {
                     : 'invisible -translate-y-3 opacity-0'
                 }`}
               >
-                <div className="mx-auto max-w-3xl">
-                  <SearchBar />
-                </div>
+                <div className="mx-auto max-w-5xl">{open && <SearchBar registry={registry} />}</div>
               </div>
             </>,
             portal,
