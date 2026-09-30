@@ -3,6 +3,28 @@
 @import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
+/* Home page only: set on <html> by the hero SearchBar once it scrolls up
+   under the header, and by HeaderSearch while its expanded bar is open.
+   search-open is registered second so it wins over docked. */
+@custom-variant docked (&:where([data-search-docked], [data-search-docked] *));
+@custom-variant search-open (&:where([data-search-open], [data-search-open] *));
+
+/* Fade + move with visibility that flips at the START of a show (so focus()
+   works immediately) and at the END of a hide (so the fade-out still plays).
+   Pair with invisible/visible: `reveal invisible` hidden, add `visible
+   revealed` to show, `invisible concealed` to hide again under a variant. */
+@utility reveal {
+  transition-property: opacity, translate, scale, visibility;
+  transition-duration: 250ms, 250ms, 250ms, 0s;
+  transition-timing-function: var(--ease-out-strong);
+  transition-delay: 0s, 0s, 0s, 250ms;
+}
+@utility revealed {
+  transition-delay: 0s;
+}
+@utility concealed {
+  transition-delay: 0s, 0s, 0s, 250ms;
+}
 
 /* ==========================================================================
    shadcn semantic token mapping — DO NOT EDIT.
@@ -55,6 +77,9 @@
    token's purpose; decorative palette values are not all text colors.
    ========================================================================== */
 @theme {
+  /* Strong ease-out for UI that enters, leaves or docks. */
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+
   /* --- Brand: deep field green. The ONLY colour that means "act". --- */
   --color-brand-50: #ecf4ef;
   --color-brand-100: #ddece3;

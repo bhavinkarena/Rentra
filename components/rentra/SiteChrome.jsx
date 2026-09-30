@@ -8,6 +8,7 @@ import { degradeOnFailure, EMPTY_REGISTRY } from '@/lib/api/resilient';
 import { ArrowUpRight } from 'lucide-react';
 import CustomerNavigation from '@/components/customer/CustomerNavigation';
 import Providers from '@/components/providers';
+import HeaderSearch from '@/components/rentra/HeaderSearch';
 
 /**
  * The public site chrome: skip link, sticky header, main landmark, dark footer
@@ -30,18 +31,27 @@ export default function SiteChrome({
         >
           {skipLabel}
         </a>
-        <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur">
-          <div className="mx-auto flex max-w-(--container-page) flex-wrap items-center gap-2 px-4 py-3 sm:px-6">
-            <Link href="/" className="shrink-0" aria-label="Rentra home">
+        {/* Fixed 68px in the flow, so docking never shifts the page. Docked, the
+            background scales down to 60px and the row lifts 4px — transforms only.
+            The transparent strip left below must not swallow taps, hence the
+            pointer-events split. */}
+        <header data-site-header className="pointer-events-none sticky top-0 z-50 h-17">
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 origin-top border-b border-border bg-background/90 backdrop-blur transition-[scale] duration-250 ease-out-strong docked:scale-y-[0.8824] search-open:bg-background"
+          />
+          <div className="relative mx-auto flex h-full max-w-(--container-page) items-center gap-2 px-4 transition-[translate] duration-250 ease-out-strong sm:px-6 docked:-translate-y-1">
+            <Link href="/" className="pointer-events-auto shrink-0" aria-label="Rentra home">
               {/* The lockup is the home link. On the narrowest phones the mark
                 alone carries it, so the search bar keeps its width. */}
               <RentraLogo className="hidden h-7 w-auto sm:block" />
               <RentraMark className="size-8 sm:hidden" />
             </Link>
-            <div className="ml-auto">{navigation}</div>
+            <HeaderSearch />
+            <div className="pointer-events-auto relative ml-auto">{navigation}</div>
             <Link
               href="/partner/login"
-              className="hidden min-h-11 items-center rounded-full px-3 text-meta text-ink-500 hover:bg-brand-50 hover:text-brand-700 md:inline-flex"
+              className="pointer-events-auto relative hidden min-h-11 items-center rounded-full px-3 text-meta text-ink-500 hover:bg-brand-50 hover:text-brand-700 md:inline-flex docked:max-lg:hidden"
             >
               List your place
             </Link>
