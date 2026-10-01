@@ -6,6 +6,7 @@ import { useState } from 'react';
 import Link from '@/components/navigation/NavigationLink';
 import { SlidersHorizontal, X } from 'lucide-react';
 import SearchFields from './SearchFields';
+import { DOCK_EXIT, useSearchDock, usePublishDiscovery } from './SearchBar';
 import { measureBrowser } from '@/lib/domain/browser-measurement';
 
 /* 16px text below lg so iOS does not zoom into a focused field. */
@@ -14,6 +15,9 @@ const chip =
   'inline-flex min-h-10 items-center gap-2 rounded-full border border-border bg-card px-4 font-semibold text-ink-800 transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800 aria-expanded:border-brand-300 aria-expanded:bg-brand-50 aria-expanded:text-brand-800';
 export default function DiscoveryFilters({ filters, registry, route, path, activeChips }) {
   const [advanced, setAdvanced] = useState(false);
+  // Same docking as the home hero: the bar scrolls away and HeaderSearch's pill takes over.
+  const sentinel = useSearchDock();
+  usePublishDiscovery(filters, route, path);
   const activeFilters =
     (filters.q ? 1 : 0) +
     (!route?.category && filters.category ? 1 : 0) +
@@ -24,12 +28,13 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
   return (
     /* Sort renders beside the result count, outside this element. It joins this
        form through form="discovery-filters" so one submit carries every choice.
-       Search panels keep their submitted values in hidden fields. */
+       Search panels keep their submitted values in hidden fields. Not sticky:
+       once scrolled, the header pill carries the search (HeaderSearch). */
     <Form
       id="discovery-filters"
       action={path}
       onSubmit={() => measureBrowser('search_submitted')}
-      className="sticky top-17 z-30 -mx-4 border-b border-border bg-background px-4 py-3 text-meta sm:-mx-6 sm:px-6"
+      className="relative z-30 -mx-4 border-b border-border bg-background px-4 py-3 text-meta sm:-mx-6 sm:px-6"
       onKeyDown={(event) => {
         if (event.key === 'Escape' && advanced) {
           setAdvanced(false);
@@ -37,7 +42,15 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
         }
       }}
     >
-      <SearchFields filters={filters} registry={registry} route={route} submitLabel="Show places" />
+      <div ref={sentinel} aria-hidden="true" />
+      <div className={DOCK_EXIT}>
+        <SearchFields
+          filters={filters}
+          registry={registry}
+          route={route}
+          submitLabel="Show places"
+        />
+      </div>
 
       <div className="mt-2 flex items-center gap-2">
         <button

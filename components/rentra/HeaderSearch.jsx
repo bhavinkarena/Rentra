@@ -2,18 +2,22 @@
 
 import { useCallback, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { Search } from 'lucide-react';
 import { formatLocalDate } from '@/lib/domain/booking-dates';
 import { SLOTS } from '@/lib/domain/pricing';
-import SearchBar, { useSearchDraft } from './SearchBar';
+import Form from '@/components/navigation/NavigationForm';
+import { measureBrowser } from '@/lib/domain/browser-measurement';
+import SearchBar, { useDiscovery, useSearchDraft } from './SearchBar';
+import SearchFields from './SearchFields';
 
 const PANEL_ID = 'header-search-panel';
 const noSubscribe = () => () => {};
 
 /**
- * Airbnb-style docked search, home page only. Hidden until the hero bar
- * scrolls up under the header (data-search-docked, set by SearchBar), then a
+ * Airbnb-style docked search on home and discovery pages. Hidden until the
+ * page's bar scrolls up under the header (data-search-docked, set by
+ * useSearchDock), then a
  * compact pill rises into the header. Any part of the pill expands the full
  * bar beneath the header, over a dimmed page, focused on the field tapped.
  * It collapses on Escape, an outside tap, focus leaving, or a real scroll.
@@ -27,14 +31,17 @@ export default function HeaderSearch({ registry }) {
     () => document.body,
     () => null,
   );
-  const [seenPath, setSeenPath] = useState(pathname);
-  const [{ location, dates, slot, guests }] = useSearchDraft();
+  // Discovery searches stay on the same path, so the query counts as a new page too.
+  const url = `${pathname}?${useSearchParams()}`;
+  const [seenPath, setSeenPath] = useState(url);
+  const [draft] = useSearchDraft();
+  const discovery = useDiscovery();
   const trigger = useRef(null);
   const panel = useRef(null);
 
   // A submitted search navigates away; arriving anywhere starts collapsed.
-  if (seenPath !== pathname) {
-    setSeenPath(pathname);
+  if (seenPath !== url) {
+    setSeenPath(url);
     setOpen(false);
   }
 
@@ -62,7 +69,11 @@ export default function HeaderSearch({ registry }) {
     };
   }, [open, close]);
 
-  if (pathname !== '/') return null;
+  if (pathname !== '/' && !discovery) return null;
+
+  const { location, dates, slot, guests } = discovery
+    ? discoverySummary(discovery, registry)
+    : draft;
 
   const openAt = (field) => {
     setOpen(true);
@@ -115,11 +126,11 @@ export default function HeaderSearch({ registry }) {
           <button
             type="button"
             onClick={() => openAt('slot')}
-            aria-label={`Visit type: ${SLOTS[slot].label}`}
+            aria-label={`Visit type: ${SLOTS[slot]?.label}`}
             className={`${segment} max-md:hidden`}
             {...expand}
           >
-            {SLOTS[slot].label}
+            {SLOTS[slot]?.label}
           </button>
           <span className="h-6 w-px shrink-0 bg-border max-md:hidden" aria-hidden="true" />
           <button
@@ -170,12 +181,59 @@ export default function HeaderSearch({ registry }) {
                     : 'invisible -translate-y-3 opacity-0'
                 }`}
               >
-                <div className="mx-auto max-w-5xl">{open && <SearchBar registry={registry} />}</div>
+                <div className="mx-auto max-w-5xl">
+                  {open &&
+                    (discovery ? (
+                      <DiscoveryPanel discovery={discovery} registry={registry} />
+                    ) : (
+                      <SearchBar registry={registry} />
+                    ))}
+                </div>
               </div>
             </>,
             portal,
           )
         : null}
     </>
+  );
+}
+
+function discoverySummary({ filters, route }, registry) {
+  const city = registry.cities.find((item) => item.slug === filters.city);
+  const area = registry.areas.find(
+    (item) => item.slug === filters.area && item.cityId === city?.id,
+  );
+  return {
+    location: { title: route?.area?.name || route?.city?.name || area?.name || city?.name || '' },
+    dates: filters.dates,
+    slot: filters.slot,
+    guests: filters.guests,
+  };
+}
+
+/* The discovery bar again, posting to the same path. The extra filters ride
+   along as hidden fields so a header search never drops them. */
+function DiscoveryPanel({ discovery: { filters, route, path }, registry }) {
+  const kept = [
+    ['q', filters.q],
+    ['category', route?.category ? '' : filters.category],
+    ['min', filters.min],
+    ['max', filters.max],
+    ['cancellation', filters.cancellation],
+    ['sort', filters.sort],
+    ...filters.amenities.map((slug) => ['amenities', slug]),
+  ].filter(([, value]) => value !== '' && value != null);
+  return (
+    <Form
+      action={path}
+      data-surface="light"
+      aria-label="Search places"
+      onSubmit={() => measureBrowser('search_submitted')}
+    >
+      <SearchFields filters={filters} registry={registry} route={route} submitLabel="Show places" />
+      {kept.map(([name, value], index) => (
+        <input key={index} type="hidden" name={name} value={value} />
+      ))}
+    </Form>
   );
 }
