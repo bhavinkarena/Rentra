@@ -1,3 +1,4 @@
+import { homeHero } from '@/lib/ui/layout';
 import { publicMetadata } from '@/lib/seo/metadata';
 import Link from '@/components/navigation/NavigationLink';
 import SearchBar from '@/components/rentra/SearchBar';
@@ -94,14 +95,12 @@ export default async function HomePage() {
       <HeroPhotos places={heroPlaces}>
         {/* Below md only, and only once two verticals are public. */}
         <VerticalTabs items={verticalTabs(registry, 'farmhouse')} variant="hero" />
-        <p className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-tiny font-semibold text-brand-100 ring-1 ring-white/20 backdrop-blur">
+        <p className={homeHero.badge}>
           <House className="size-3.5" aria-hidden="true" />
           Farmhouses and day stays across Gujarat
         </p>
-        <h1 className="max-w-2xl text-display text-wrap text-white">
-          Find a place for your next day out or overnight stay.
-        </h1>
-        <p className="mt-4 max-w-prose text-body-lg text-brand-100">
+        <h1 className={homeHero.title}>Find a place for your next day out or overnight stay.</h1>
+        <p className={homeHero.description}>
           Explore places, compare facilities and choose your visit dates. See current rent and
           platform fees before continuing.
         </p>
@@ -109,7 +108,7 @@ export default async function HomePage() {
           <SearchBar dock registry={registry} />
         </div>
 
-        <ul className="-mx-4 mt-6 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+        <ul className={homeHero.chips}>
           {intentsFor('farmhouse').map((intent) => {
             const Icon = INTENT_ICONS[intent.slug];
             return (

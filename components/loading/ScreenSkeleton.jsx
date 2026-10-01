@@ -1,5 +1,5 @@
 import Skeleton from '@/components/ui/skeleton';
-import { pageWidths } from '@/lib/ui/layout';
+import { homeHero, pageWidths } from '@/lib/ui/layout';
 
 // Pending boundaries perform no reads or client effects.
 const Block = Skeleton;
@@ -234,24 +234,60 @@ function Content({ screen }) {
     case 'home':
       return (
         <>
-          <div className="bg-secondary px-4 pt-20 pb-28 sm:px-6 md:pt-28 md:pb-32">
-            <div className="mx-auto max-w-(--container-page) space-y-6">
-              <Block className="h-6 w-64 rounded-full" />
-              <Block className="h-60 max-w-2xl min-[360px]:h-48 sm:h-36 md:h-24" />
-              <div className="max-w-prose space-y-3">
-                <Block className="h-4 w-full" />
-                <Block className="h-4 w-full" />
-                <Block className="h-4 w-3/4 sm:hidden" />
+          <div className="border-b border-border bg-secondary">
+            <div className={homeHero.content}>
+              <div className="mb-5 grid grid-cols-2 gap-2 md:hidden">
+                <Block className="h-12 rounded-full" />
+                <Block className="h-12 rounded-full" />
               </div>
-              <Block className="h-80 max-w-3xl rounded-lg md:h-20 md:rounded-full" />
-              <Tabs />
+              <p className={`rentra-skeleton ${homeHero.badge}`}>
+                <span className="invisible">Loading places across Gujarat</span>
+              </p>
+              <div className={`relative ${homeHero.title}`}>
+                <Block style={{ minHeight: 'inherit' }} />
+              </div>
+              <div className={`relative ${homeHero.description}`}>
+                <Block style={{ minHeight: 'inherit' }} />
+              </div>
+              <div className="mt-8 max-w-5xl">
+                <div className="grid grid-cols-2 items-center rounded-3xl border border-border bg-ink-50 p-1.5 shadow-sm md:flex md:rounded-full">
+                  {[0, 1, 2, 3].map((field) => (
+                    <div
+                      key={field}
+                      className="flex min-h-16 min-w-0 flex-1 items-center gap-2.5 px-4 py-2 md:px-5"
+                    >
+                      <Block className="size-5 shrink-0 rounded-full" />
+                      <div className="min-w-0 flex-1 space-y-2">
+                        <Block className="h-3 w-12" />
+                        <Block className="h-3.5 w-24" />
+                      </div>
+                    </div>
+                  ))}
+                  <Block className="col-span-2 m-1 h-12 shrink-0 rounded-full md:w-40" />
+                </div>
+              </div>
+              <div className={homeHero.chips}>
+                {[0, 1, 2, 3, 4].map((chip) => (
+                  <Block key={chip} className="h-11 w-32 shrink-0 rounded-full" />
+                ))}
+              </div>
             </div>
           </div>
-          <div className="mx-auto -mt-12 max-w-(--container-page) space-y-10 px-4 sm:px-6">
-            <Panel>
+          <div className="relative mx-auto -mt-12 max-w-(--container-page) space-y-10 px-4 sm:px-6">
+            <Panel className="shadow-md">
               <div className="grid gap-5 sm:grid-cols-3">
                 {[0, 1, 2].map((i) => (
-                  <Lines key={i} count={2} />
+                  <div key={i} className="flex items-start gap-3">
+                    <Block className="size-10 shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <div className="relative min-h-[1lh] text-meta sm:min-h-[2lh] lg:min-h-[1lh]">
+                        <Block style={{ minHeight: 'inherit' }} />
+                      </div>
+                      <div className="relative mt-0.5 min-h-[3lh] text-tiny leading-relaxed sm:min-h-[4lh] md:min-h-[3lh] xl:min-h-[2lh]">
+                        <Block style={{ minHeight: 'inherit' }} />
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
             </Panel>
@@ -733,7 +769,7 @@ export default function ScreenSkeleton({ screen, label = 'Loading page…', inse
       className={`mx-auto w-full min-w-0 ${screen === 'home' ? '' : (pageWidths[layout] ?? widths[screen] ?? pageWidths.public)} ${inset || screen === 'home' ? '' : discovery ? 'px-4 pt-3 pb-8 sm:px-6 sm:pb-12' : 'px-4 py-6 sm:px-6 sm:py-8'}`}
     >
       <span className="sr-only">{label}</span>
-      <div aria-hidden="true" className={discovery ? '' : 'space-y-6'}>
+      <div aria-hidden="true" className={discovery || screen === 'home' ? '' : 'space-y-6'}>
         <Content screen={screen} />
       </div>
     </div>

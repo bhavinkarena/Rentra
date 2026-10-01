@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { homeHero } from '@/lib/ui/layout';
 import { ArrowUpRight, MapPin } from 'lucide-react';
 import Link from '@/components/navigation/NavigationLink';
 import Image from './PropertyImage';
@@ -66,9 +67,7 @@ export default function HeroPhotos({ places, children }) {
           photo while letting the photograph still read as the subject. */}
       <div className="absolute inset-0 z-[2] bg-linear-to-r from-brand-950/92 via-brand-950/75 to-brand-900/45" />
 
-      <div className="relative z-[3] mx-auto max-w-(--container-page) px-4 pt-20 sm:px-6 pb-24 md:pt-28 md:pb-32">
-        {children}
-      </div>
+      <div className={`relative z-[3] ${homeHero.content}`}>{children}</div>
 
       {/* Pinned to the hero's edge, not the page container, so it sits in the corner. */}
       {place ? (

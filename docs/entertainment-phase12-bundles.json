@@ -1,6 +1,0 @@
-{
-  "route": "/listing/[handle]",
-  "beforeGzipBytes": 360784,
-  "afterGzipBytes": 360111,
-  "deltaGzipBytes": -673
-}

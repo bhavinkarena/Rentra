@@ -1,3 +1,4 @@
+import { homeHero } from '@/lib/ui/layout';
 import { notFound } from 'next/navigation';
 import { publicMetadata } from '@/lib/seo/metadata';
 import Link from '@/components/navigation/NavigationLink';
@@ -106,19 +107,21 @@ export default async function EntertainmentHomePage() {
     <>
       <HeroPhotos places={heroPlaces}>
         <VerticalTabs items={verticalTabs(registry, VERTICAL)} variant="hero" />
-        <p className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-tiny font-semibold text-brand-100 ring-1 ring-white/20 backdrop-blur">
+        <p className={homeHero.badge}>
           <Trophy className="size-3.5" aria-hidden="true" />
           Turfs, courts and play zones across Gujarat
         </p>
-        <h1 className="max-w-2xl text-display text-wrap text-white">
-          Book a court, lane or game in minutes.
-        </h1>
+        <h1 className={homeHero.title}>Book a court, lane or game in minutes.</h1>
+        <p className={homeHero.description}>
+          Explore venues, compare activities and choose your date and time. See hourly rates and
+          platform fees before continuing.
+        </p>
         <div className="mt-8">
           <SearchBar dock registry={registry} vertical={VERTICAL} />
         </div>
 
         {activities.length > 0 ? (
-          <ul className="-mx-4 mt-6 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+          <ul className={homeHero.chips}>
             {activities.map((activity) => (
               <li key={activity.slug} className="shrink-0">
                 <Link
