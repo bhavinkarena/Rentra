@@ -3,6 +3,7 @@ import { useActionState, useState } from 'react';
 import { ArrowDown, ArrowUp, Copy, Plus, RotateCcw, Trash2 } from 'lucide-react';
 import { saveVenue } from '@/lib/actions/partner';
 import { ActivityIcon } from '@/components/rentra/icons/activity-icons';
+import { unitName as unitNameFor } from '@/lib/domain/vertical-ui';
 import { useStepFormId } from './chrome';
 import { VersionField, Input, Field, Section, SaveButton, inputCls } from './SectionPrimitives';
 
@@ -16,15 +17,23 @@ const SURFACES = [
   'Other',
 ];
 const MAX_COURTS = 30;
+const unitName = (activity) => unitNameFor(activity?.iconKey);
+const INDOOR = [
+  ['', 'Not stated'],
+  ['true', 'Indoor'],
+  ['false', 'Outdoor'],
+];
 
-const blank = (activity, index) => ({
-  key: `new-${Date.now()}-${index}`,
-  name: `Court ${index + 1}`,
+// `key` builds element ids, so the first row's must match between server and browser.
+const blank = (activity, index, key = `new-${Date.now()}-${index}`) => ({
+  key,
+  name: `${unitName(activity)} ${index + 1}`,
   capacity: 10,
   isIndoor: null,
   details: {},
-  activities: activity ? [activity] : [],
+  activities: activity ? [activity.slug] : [],
   isActive: true,
+  upcomingBookings: 0,
 });
 
 /** The editor's row from the API row (keeps the id; `key` is only for React). */
@@ -37,6 +46,7 @@ const fromApi = (row) => ({
   details: row.details ?? {},
   activities: row.activities ?? [],
   isActive: row.isActive !== false,
+  upcomingBookings: row.upcomingBookings ?? 0,
 });
 
 /**
@@ -48,9 +58,9 @@ const fromApi = (row) => ({
  */
 export function VenueSection({ listing, resources = [], activities = [] }) {
   const [state, action, pending] = useActionState(saveVenue, {});
-  const primary = activities.find((a) => a.id === listing.categoryId)?.slug;
+  const primary = activities.find((a) => a.id === listing.categoryId);
   const [courts, setCourts] = useState(() =>
-    resources.length ? resources.map(fromApi) : [blank(primary, 0)],
+    resources.length ? resources.map(fromApi) : [blank(primary, 0, 'new-0')],
   );
   const e = state.errors ?? {};
   const active = courts.filter((c) => c.isActive);
@@ -96,7 +106,7 @@ export function VenueSection({ listing, resources = [], activities = [] }) {
     <Section
       id="venue"
       title="Courts"
-      intro="Add each court, lane, turf or station guests can book on its own. Say which activities each one is for."
+      intro="Add each court, lane, turf or station players can book on its own. Say which activities each one is for."
       state={state}
       pending={pending}
     >
@@ -120,6 +130,7 @@ export function VenueSection({ listing, resources = [], activities = [] }) {
                     <Input
                       id={`court-${court.key}-name`}
                       value={court.name}
+                      placeholder={`${unitName(primary)} ${index + 1}`}
                       maxLength={60}
                       required
                       onChange={(event) => update(court.key, { name: event.target.value })}
@@ -144,12 +155,7 @@ export function VenueSection({ listing, resources = [], activities = [] }) {
                   aria-label={`Activities on ${court.name || `court ${index + 1}`}`}
                 >
                   <p className="mb-1.5 text-meta font-semibold text-ink-800">Can be booked for</p>
-                  <Field id={`court-${court.key}-format`} label="Playing format" hint="Optional, e.g. 6-a-side">
-                  <Input id={`court-${court.key}-format`} value={court.details.format ?? ''} maxLength={40}
-                    onChange={(event) => update(court.key, { details: { ...court.details, format: event.target.value } })} />
-                </Field>
-
-                <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2">
                     {activities.map((activity) => {
                       const checked = court.activities.includes(activity.slug);
                       return (
@@ -181,23 +187,38 @@ export function VenueSection({ listing, resources = [], activities = [] }) {
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field id={`court-${court.key}-indoor`} label="Indoor or outdoor">
-                    <select
-                      id={`court-${court.key}-indoor`}
-                      className={inputCls}
-                      value={court.isIndoor == null ? '' : String(court.isIndoor)}
-                      onChange={(event) =>
-                        update(court.key, {
-                          isIndoor:
-                            event.target.value === '' ? null : event.target.value === 'true',
-                        })
-                      }
-                    >
-                      <option value="">Not stated</option>
-                      <option value="true">Indoor</option>
-                      <option value="false">Outdoor</option>
-                    </select>
-                  </Field>
+                  <fieldset className="sm:col-span-2">
+                    <legend className="mb-1.5 text-meta font-semibold text-ink-800">
+                      Indoor or outdoor
+                    </legend>
+                    <div className="inline-flex flex-wrap rounded-full border border-border p-1">
+                      {INDOOR.map(([value, label]) => {
+                        const checked =
+                          (court.isIndoor == null ? '' : String(court.isIndoor)) === value;
+                        return (
+                          <label
+                            key={value}
+                            className={`inline-flex min-h-11 cursor-pointer items-center rounded-full px-4 text-meta has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring ${
+                              checked ? 'bg-brand-600 font-semibold text-white' : 'text-ink-700'
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              className="sr-only"
+                              name={`court-${court.key}-indoor`}
+                              checked={checked}
+                              onChange={() =>
+                                update(court.key, {
+                                  isIndoor: value === '' ? null : value === 'true',
+                                })
+                              }
+                            />
+                            {label}
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </fieldset>
                   <Field id={`court-${court.key}-surface`} label="Surface">
                     <select
                       id={`court-${court.key}-surface`}
@@ -231,6 +252,22 @@ export function VenueSection({ listing, resources = [], activities = [] }) {
                       }
                     />
                   </Field>
+                  <Field
+                    id={`court-${court.key}-format`}
+                    label="Playing format"
+                    hint="Optional, e.g. 6-a-side"
+                  >
+                    <Input
+                      id={`court-${court.key}-format`}
+                      value={court.details.format ?? ''}
+                      maxLength={40}
+                      onChange={(event) =>
+                        update(court.key, {
+                          details: { ...court.details, format: event.target.value },
+                        })
+                      }
+                    />
+                  </Field>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
@@ -259,6 +296,7 @@ export function VenueSection({ listing, resources = [], activities = [] }) {
                           key: `copy-${Date.now()}`,
                           id: undefined,
                           name: `${court.name} copy`,
+                          upcomingBookings: 0,
                         },
                       ])
                     }
@@ -267,11 +305,18 @@ export function VenueSection({ listing, resources = [], activities = [] }) {
                   </IconButton>
                   <IconButton
                     label="Remove"
-                    disabled={active.length === 1}
+                    disabled={active.length === 1 || court.upcomingBookings > 0}
                     onClick={() => remove(court)}
                   >
                     <Trash2 className="size-4" aria-hidden="true" />
                   </IconButton>
+                  {court.upcomingBookings > 0 ? (
+                    <p className="self-center text-tiny text-ink-600">
+                      {court.upcomingBookings} upcoming booking
+                      {court.upcomingBookings === 1 ? '' : 's'}: cannot be removed, and its booked
+                      activities stay.
+                    </p>
+                  ) : null}
                 </div>
               </fieldset>
             </li>

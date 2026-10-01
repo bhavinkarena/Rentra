@@ -9,6 +9,7 @@ import { ArrowUpRight } from 'lucide-react';
 import CustomerNavigation from '@/components/customer/CustomerNavigation';
 import Providers from '@/components/providers';
 import HeaderSearch from '@/components/rentra/HeaderSearch';
+import { HeaderVerticalTabs } from '@/components/rentra/VerticalTabs';
 
 /**
  * The public site chrome: skip link, sticky header, main landmark, dark footer
@@ -47,6 +48,11 @@ export default function SiteChrome({
               <RentraLogo className="hidden h-7 w-auto sm:block" />
               <RentraMark className="size-8 sm:hidden" />
             </Link>
+            {/* Its own boundary: the search reads the query string, which would
+                render the tabs client-side too on the static homes. */}
+            <Suspense fallback={null}>
+              <MarketingVerticalTabs />
+            </Suspense>
             <Suspense fallback={null}>
               <MarketingHeaderSearch />
             </Suspense>
@@ -102,18 +108,30 @@ async function MarketingFooter() {
   /* The footer's location links are chrome. If the registry is unreachable
      the public site must still render — an empty link list beats a 500 on
      every marketing page, including at build time when no API is running. */
-  const { cities, categories } = await degradeOnFailure(
+  const {
+    cities,
+    categories,
+    verticals = [],
+  } = await degradeOnFailure(
     () => discoveryApi.registry(),
     EMPTY_REGISTRY,
     'marketing footer registry',
   );
-  const farmhouse = categories.find((c) => c.slug === 'farmhouse');
+  const farmhouse = categories.find((c) => (c.vertical ?? 'farmhouse') === 'farmhouse');
+  // Venue landings per city, once Entertainment is public (entertainment plan).
+  const play = verticals.find((v) => v.code === 'entertainment');
   const heading = 'text-tiny font-semibold tracking-wider text-champagne uppercase';
   const link = 'text-meta text-on-dark-muted transition-colors hover:text-white';
   return (
     <footer data-surface="inverse" className="mt-16 bg-forest-deep text-paper">
       <div className="mx-auto max-w-(--container-page) px-4 pt-12 sm:px-6 pb-6">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-[1.5fr_1fr_1fr_1.3fr] lg:gap-10">
+        <div
+          className={`grid grid-cols-2 gap-x-6 gap-y-8 lg:gap-10 ${
+            play && cities.length > 0
+              ? 'lg:grid-cols-[1.4fr_1fr_1fr_1.2fr_1.2fr]'
+              : 'lg:grid-cols-[1.5fr_1fr_1fr_1.3fr]'
+          }`}
+        >
           <div className="col-span-2 lg:col-span-1">
             <Link href="/" aria-label="Rentra home" className="inline-block">
               <RentraLogo tone="inverse" className="h-7 w-auto" />
@@ -175,6 +193,21 @@ async function MarketingFooter() {
               </ul>
             </nav>
           ) : null}
+
+          {play && cities.length > 0 ? (
+            <nav aria-label="Play venues by city" className="col-span-2 lg:col-span-1">
+              <h2 className={heading}>Play near you</h2>
+              <ul className="mt-4 grid grid-cols-3 gap-x-4 gap-y-2.5 sm:grid-cols-5 lg:grid-cols-2 lg:gap-x-6">
+                {cities.map((city) => (
+                  <li key={city.slug}>
+                    <Link href={`/${city.slug}/${play.slug}`} className={link}>
+                      {city.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ) : null}
         </div>
 
         <div className="mt-8 flex flex-col gap-3 border-t border-forest-line pt-5 text-tiny text-on-dark-muted md:flex-row md:items-center md:justify-between">
@@ -197,6 +230,15 @@ async function MarketingFooter() {
       </div>
     </footer>
   );
+}
+
+async function MarketingVerticalTabs() {
+  const registry = await degradeOnFailure(
+    () => discoveryApi.registry(),
+    EMPTY_REGISTRY,
+    'header tabs registry',
+  );
+  return <HeaderVerticalTabs registry={registry} />;
 }
 
 async function MarketingHeaderSearch() {

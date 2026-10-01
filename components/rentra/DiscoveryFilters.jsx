@@ -7,6 +7,8 @@ import Link from '@/components/navigation/NavigationLink';
 import { SlidersHorizontal, X } from 'lucide-react';
 import SearchFields from './SearchFields';
 import { DOCK_EXIT, useSearchDock, usePublishDiscovery } from './SearchBar';
+import VerticalTabs from './VerticalTabs';
+import { searchTabHref, verticalTabs } from '@/lib/domain/vertical-ui';
 import { measureBrowser } from '@/lib/domain/browser-measurement';
 
 /* 16px text below lg so iOS does not zoom into a focused field. */
@@ -44,6 +46,22 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
     >
       <div ref={sentinel} aria-hidden="true" />
       <div className={DOCK_EXIT}>
+        {/* Phones: the tabs sit above the fields (md+ has them in the header). */}
+        <VerticalTabs
+          variant="light"
+          items={verticalTabs(
+            registry,
+            route?.verticalCode ?? filters.vertical,
+            path === '/search'
+              ? (code) =>
+                  searchTabHref(code, {
+                    city: filters.city,
+                    area: filters.area,
+                    date: filters.dates[0],
+                  })
+              : undefined,
+          )}
+        />
         <SearchFields
           filters={filters}
           registry={registry}

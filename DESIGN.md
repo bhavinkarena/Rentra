@@ -328,10 +328,10 @@ Owner-approved on 1 Oct 2026 (mockups: `docs/design/entertainment/shots/`; plan:
 - Times are 12-hour with "(next day)" when the end passes midnight. One label helper per visit (`describeVisit`, Phase 10 of the plan).
 - Entertainment trust strip items are limited to true statements (live availability, price before payment, cancellation window). "Verified" only from API data.
 
-### Entertainment pieces (approved layout, built in later phases)
+### Entertainment pieces (approved layout)
 
-- **Entertainment home** mirrors the locked home skeleton: hero (real venue photos, licensed fallback until three venues have photos) → Where / What / When / Time search → activity chips → trust strip → "Play near {City}" rows → "What are you playing?" activity tiles (replaces the occasion picker) → city chips → owner CTA "Own a turf, court or play zone?" → footer, which gains a "Play near you" column.
-- **Venue card:** `ListingCard` with facts from the vertical: activity icons, "N courts · Up to N players · Indoor/Outdoor", "From ₹X / hr". When a date is searched, up to three free start-time chips.
+- **Entertainment home** mirrors the locked home skeleton: hero (real venue photos, licensed fallback until three venues have photos) → Where / What / When / Time search → activity chips → trust strip → "Play near {City}" rows → "What are you playing?" activity tiles (replaces the occasion picker) → city chips → owner CTA "Own a turf, court or play zone?" → footer, which gains a "Play near you" column. Built in Phase 6 (`app/(marketing)/entertainment/page.js`); the tiles list only activities a city's live venues offer, with venue counts.
+- **Venue card:** `ListingCard` with facts from the vertical (`listingFacts`): activity icons, "Box cricket · 3 courts · Up to 12 players · Outdoor", "from ₹X / hr". The unit noun follows the activity (courts, lanes, turfs, stations). When a date is searched, up to three free start-time chips (Phase 7).
 - **Venue page:** the shared gallery, header, reviews, host and map, plus facts row, courts cards, opening hours (today highlighted), prices per activity (weekday/weekend bands, peak marked with a dot _and_ the word "Peak"), venue rules and hour-based cancellation. Desktop rail: activity → date strip → duration stepper → start-time grid (time + price) → court ("Any available court (N free)") → quote → Reserve. Phones: a sticky "From ₹X / hr · Check times" bar opens the same picker as a bottom sheet.
 
 ### Disclosures
@@ -340,7 +340,7 @@ Accordions and "show more" use native `<details class="group">` with `list-none`
 
 ### Discovery search
 
-`DiscoveryFilters` renders the shared `SearchFields` (the same fields as the home `SearchBar`: a 2-column grid on phones, one pill bar from `md`) inside one form, with a dock sentinel. When the page scrolls past it, the in-page bar fades out and the header shows the compact `HeaderSearch` pill (Where · When · visit type · guests); clicking a segment opens the full fields in a panel under the header. The pill exists only on `/` and discovery pages. Secondary filters sit behind a "Filters" chip with an active-count badge.
+`DiscoveryFilters` renders the shared `SearchFields` (the same fields as the home `SearchBar`: a 2-column grid on phones, one pill bar from `md`) inside one form, with a dock sentinel. When the page scrolls past it, the in-page bar fades out and the header shows the compact `HeaderSearch` pill (Where · When · visit type · guests; on the Entertainment home Where · What · When · Time); clicking a segment opens the full fields in a panel under the header. The pill exists only on `/`, `/entertainment` and discovery pages. `SearchFields vertical="entertainment"` renders the venue fields (Where, What, When, Time, "Find venues") in the same bar shape. Secondary filters sit behind a "Filters" chip with an active-count badge.
 
 ### States
 

@@ -219,7 +219,10 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
                     }),
                 cancellationTier: listing.cancellationTier,
                 depositAmount: listing.depositAmount,
-                extraGuestCharge: listing.extraGuestCharge,
+                // Venues price per hour; extra-guest charges do not apply to them.
+                ...(listing.rentalUnit === 'hour'
+                  ? {}
+                  : { extraGuestCharge: listing.extraGuestCharge }),
               }).map(([label, value]) => ({
                 label: label.replace(/([A-Z])/g, ' $1'),
                 value: display(value),
@@ -307,7 +310,7 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
               <p className="text-meta">Photo previews are unavailable for this snapshot.</p>
             ) : null}
           </SectionCard>
-          <SectionCard title="Amenities & prices">
+          <SectionCard title={listing.rentalUnit === 'hour' ? 'Amenities' : 'Amenities & prices'}>
             <ul className="space-y-2 text-meta">
               {snap.amenities.map((a) => (
                 <li key={a.amenityId}>
@@ -633,7 +636,7 @@ const venueRules = (rules) => {
     .filter(Boolean)
     .join('\n');
 };
-const clock = (minute) => `${minuteToHhmm(minute)}${minute > 1440 ? ' (next day)' : ''}`;
+const clock = (minute) => `${minuteToHhmm(minute)}${minute >= 1440 ? ' (next day)' : ''}`;
 
 /** Courts, opening hours and hourly prices of a submitted venue revision. */
 function VenueSubmission({ snap, listing }) {

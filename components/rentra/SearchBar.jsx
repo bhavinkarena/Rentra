@@ -5,7 +5,7 @@ import Form from '@/components/navigation/NavigationForm';
 import SearchFields from './SearchFields';
 import { measureBrowser } from '@/lib/domain/browser-measurement';
 
-export default function SearchBar({ registry, dock = false }) {
+export default function SearchBar({ registry, dock = false, vertical = 'farmhouse' }) {
   const [draft, setField] = useSearchDraft();
   const sentinel = useSearchDock(dock);
 
@@ -15,11 +15,16 @@ export default function SearchBar({ registry, dock = false }) {
       <Form
         action="/search"
         data-surface="light"
-        aria-label="Find your next visit"
+        aria-label={vertical === 'entertainment' ? 'Find a venue' : 'Find your next visit'}
         onSubmit={() => measureBrowser('search_submitted')}
         className={`max-w-5xl ${dock ? DOCK_EXIT : ''}`}
       >
-        <SearchFields registry={registry} draft={draft} onFieldChange={setField} />
+        <SearchFields
+          registry={registry}
+          draft={draft}
+          onFieldChange={setField}
+          vertical={vertical}
+        />
       </Form>
     </>
   );
@@ -55,13 +60,19 @@ export function useSearchDock(enabled = true) {
 }
 
 /* One draft shared by the hero bar and the header copy, so what the guest
-   typed above the fold is still there when they open search from the header. */
+   typed above the fold is still there when they open search from the header.
+   The location carries across tabs; the rest belongs to one vertical
+   (farmhouse: dates, slot, guests; entertainment: activity, date, time). */
 const INITIAL_DRAFT = {
   location: { city: '', area: '' },
   dates: [],
   mode: 'single',
   slot: 'day',
   guests: 2,
+  activity: '',
+  date: '',
+  start: '',
+  duration: 60,
 };
 let draft = INITIAL_DRAFT;
 const listeners = new Set();

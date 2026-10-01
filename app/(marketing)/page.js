@@ -6,6 +6,8 @@ import TrustStrip from '@/components/rentra/TrustStrip';
 import HeroPhotos from '@/components/rentra/HeroPhotos';
 import CityRow from '@/components/rentra/CityRow';
 import OccasionPicker from '@/components/rentra/OccasionPicker';
+import VerticalTabs from '@/components/rentra/VerticalTabs';
+import { verticalTabs } from '@/lib/domain/vertical-ui';
 import { intentsFor } from '@/lib/domain/discovery';
 import { discoveryApi } from '@/lib/api/endpoints';
 import { degradeOnFailure, EMPTY_REGISTRY } from '@/lib/api/resilient';
@@ -45,11 +47,16 @@ export const revalidate = 3600;
 
 export default async function HomePage() {
   const [listings, registry] = await Promise.all([
-    degradeOnFailure(() => discoveryApi.listings({ limit: 5 }), [], 'home listings'),
+    degradeOnFailure(
+      () => discoveryApi.listings({ vertical: 'farmhouse', limit: 5 }),
+      [],
+      'home listings',
+    ),
     degradeOnFailure(() => discoveryApi.registry(), EMPTY_REGISTRY, 'home registry'),
   ]);
   const primaryCity = registry.cities.find((c) => c.slug === 'surat') || registry.cities[0];
-  const farmhouse = registry.categories.find((c) => c.slug === 'farmhouse');
+  // The vertical's first category, not a slug literal (entertainment plan).
+  const farmhouse = registry.categories.find((c) => (c.vertical ?? 'farmhouse') === 'farmhouse');
 
   const rank = (slug) => {
     const i = ROW_CITY_ORDER.indexOf(slug);
@@ -64,7 +71,7 @@ export default async function HomePage() {
       rowCities.map(async (city) => ({
         city,
         places: await degradeOnFailure(
-          () => discoveryApi.listings({ citySlug: city.slug, limit: 10 }),
+          () => discoveryApi.listings({ vertical: 'farmhouse', citySlug: city.slug, limit: 10 }),
           [],
           `home listings ${city.slug}`,
         ),
@@ -85,6 +92,8 @@ export default async function HomePage() {
   return (
     <>
       <HeroPhotos places={heroPlaces}>
+        {/* Below md only, and only once two verticals are public. */}
+        <VerticalTabs items={verticalTabs(registry, 'farmhouse')} variant="hero" />
         <p className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-tiny font-semibold text-brand-100 ring-1 ring-white/20 backdrop-blur">
           <House className="size-3.5" aria-hidden="true" />
           Farmhouses and day stays across Gujarat

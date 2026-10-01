@@ -1,4 +1,4 @@
-import { ScanSearch, ReceiptIndianRupee, CalendarCheck } from 'lucide-react';
+import { ScanSearch, ReceiptIndianRupee, CalendarCheck, Clock, ShieldCheck } from 'lucide-react';
 
 /**
  * Exactly three. A row of six trust badges reads as protesting too much.
@@ -21,10 +21,29 @@ const ITEMS = [
   },
 ];
 
-export default function TrustStrip() {
+/** Venues: true statements only (live times, price before paying, refund window). */
+export const PLAY_TRUST = [
+  {
+    Icon: Clock,
+    title: 'Live court availability',
+    body: 'Pick a date and time to see which courts are free. Times are checked again when you book.',
+  },
+  {
+    Icon: ReceiptIndianRupee,
+    title: 'Price shown before you pay',
+    body: 'Hourly rates and platform fees are shown before checkout.',
+  },
+  {
+    Icon: ShieldCheck,
+    title: 'Cancellation window shown',
+    body: 'Each venue shows how many hours before your start time you can cancel for a refund.',
+  },
+];
+
+export default function TrustStrip({ items = ITEMS }) {
   return (
     <ul className="grid gap-5 sm:grid-cols-3">
-      {ITEMS.map(({ Icon, title, body }) => (
+      {items.map(({ Icon, title, body }) => (
         <li key={title} className="flex items-start gap-3">
           <span className="grid size-10 shrink-0 place-items-center rounded-md bg-brand-50">
             <Icon className="size-5 text-brand-600" aria-hidden="true" />

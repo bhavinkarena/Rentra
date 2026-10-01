@@ -5,6 +5,8 @@ import TrustBadge from './TrustBadge';
 import SaveButton from './SaveButton';
 import { formatINR } from '@/lib/domain/pricing';
 import { formatINRMinor } from '@/lib/domain/booking-money';
+import { listingFacts, unitLabel } from '@/lib/domain/vertical-ui';
+import { ActivityIcon } from './icons/activity-icons';
 import { ImageOff } from 'lucide-react';
 
 /**
@@ -39,9 +41,6 @@ export default function ListingCard({ listing, eager = false, showPriceNote = tr
     href,
     area,
     title,
-    capacity,
-    bedrooms,
-    highlight,
     price,
     strikePrice,
     isFromPrice,
@@ -53,9 +52,8 @@ export default function ListingCard({ listing, eager = false, showPriceNote = tr
     photoCount,
   } = listing;
 
-  const capacityLine = [`Up to ${capacity} guests`, bedrooms ? `${bedrooms} BR` : null, highlight]
-    .filter(Boolean)
-    .join(' · ');
+  // Farmhouse: guests, bedrooms, highlight. Venue: activities, courts, players, indoor.
+  const capacityLine = listingFacts(listing).join(' · ');
 
   return (
     <article className="group relative min-w-0">
@@ -121,6 +119,13 @@ export default function ListingCard({ listing, eager = false, showPriceNote = tr
             {title}
           </Link>
         </p>
+        {listing.activities?.length ? (
+          <p className="mt-1 flex gap-1.5 text-brand-700">
+            {listing.activities.map((activity) => (
+              <ActivityIcon key={activity.slug} iconKey={activity.iconKey} className="size-5" />
+            ))}
+          </p>
+        ) : null}
         <p className="mt-1 text-tiny text-ink-500">{capacityLine}</p>
 
         <p className="mt-2 flex flex-wrap items-baseline gap-2">
@@ -134,7 +139,9 @@ export default function ListingCard({ listing, eager = false, showPriceNote = tr
                 ? formatINRMinor(listing.priceMinor)
                 : formatINR(price)}
           </span>
-          <span className="text-meta text-ink-600">{price == null ? null : `/ ${unit}`}</span>
+          <span className="text-meta text-ink-600">
+            {price == null ? null : `/ ${unitLabel(unit)}`}
+          </span>
           {strikePrice ? (
             <s className="text-meta text-ink-600 tabular" data-money>
               {formatINR(strikePrice)}

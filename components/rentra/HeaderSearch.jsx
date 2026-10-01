@@ -1,11 +1,19 @@
 'use client';
 
-import { useCallback, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
+import {
+  Fragment,
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import { createPortal } from 'react-dom';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Search } from 'lucide-react';
 import { formatLocalDate } from '@/lib/domain/booking-dates';
 import { SLOTS } from '@/lib/domain/pricing';
+import { clock12 } from '@/lib/domain/vertical-ui';
 import Form from '@/components/navigation/NavigationForm';
 import { measureBrowser } from '@/lib/domain/browser-measurement';
 import SearchBar, { useDiscovery, useSearchDraft } from './SearchBar';
@@ -69,7 +77,9 @@ export default function HeaderSearch({ registry }) {
     };
   }, [open, close]);
 
-  if (pathname !== '/' && !discovery) return null;
+  // The homes (`/`, `/entertainment`) and discovery pages; nowhere else.
+  const play = !discovery && pathname === '/entertainment';
+  if (pathname !== '/' && !play && !discovery) return null;
 
   const { location, dates, slot, guests } = discovery
     ? discoverySummary(discovery, registry)
@@ -92,6 +102,30 @@ export default function HeaderSearch({ registry }) {
   const segment =
     'flex h-full min-w-0 cursor-pointer items-center truncate rounded-full px-4 text-meta font-medium text-ink-900 transition-colors hover:bg-ink-50';
   const expand = { 'aria-expanded': open, 'aria-controls': PANEL_ID };
+  // Entertainment: What · When · Time instead of When · Visit type · Who.
+  const segments = play
+    ? [
+        [
+          'activity',
+          'What',
+          registry.categories.find((c) => c.slug === draft.activity)?.name || 'Any activity',
+        ],
+        [
+          'date',
+          'When',
+          draft.date ? formatLocalDate(draft.date, { weekday: undefined }) : 'Any date',
+        ],
+        [
+          'time',
+          'Time',
+          `${draft.start ? `From ${clock12(draft.start)}` : 'Any time'} · ${draft.duration / 60} hr`,
+        ],
+      ]
+    : [
+        ['dates', 'When', when],
+        ['slot', 'Visit type', SLOTS[slot]?.label],
+        ['guests', 'Guests', who],
+      ];
 
   return (
     <>
@@ -112,36 +146,20 @@ export default function HeaderSearch({ registry }) {
             <span className="truncate md:hidden">{location.title || 'Where to?'}</span>
             <span className="truncate max-md:hidden">{where}</span>
           </button>
-          <span className="h-6 w-px shrink-0 bg-border max-md:hidden" aria-hidden="true" />
-          <button
-            type="button"
-            onClick={() => openAt('dates')}
-            aria-label={`When: ${when}`}
-            className={`${segment} max-md:hidden`}
-            {...expand}
-          >
-            {when}
-          </button>
-          <span className="h-6 w-px shrink-0 bg-border max-md:hidden" aria-hidden="true" />
-          <button
-            type="button"
-            onClick={() => openAt('slot')}
-            aria-label={`Visit type: ${SLOTS[slot]?.label}`}
-            className={`${segment} max-md:hidden`}
-            {...expand}
-          >
-            {SLOTS[slot]?.label}
-          </button>
-          <span className="h-6 w-px shrink-0 bg-border max-md:hidden" aria-hidden="true" />
-          <button
-            type="button"
-            onClick={() => openAt('guests')}
-            aria-label={`Guests: ${who}`}
-            className={`${segment} text-ink-600 max-md:hidden`}
-            {...expand}
-          >
-            {who}
-          </button>
+          {segments.map(([field, label, value], index) => (
+            <Fragment key={field}>
+              <span className="h-6 w-px shrink-0 bg-border max-md:hidden" aria-hidden="true" />
+              <button
+                type="button"
+                onClick={() => openAt(field)}
+                aria-label={`${label}: ${value}`}
+                className={`${segment}${index === 2 ? ' text-ink-600' : ''} max-md:hidden`}
+                {...expand}
+              >
+                {value}
+              </button>
+            </Fragment>
+          ))}
           <button
             type="button"
             onClick={() => openAt('location')}
@@ -186,7 +204,10 @@ export default function HeaderSearch({ registry }) {
                     (discovery ? (
                       <DiscoveryPanel discovery={discovery} registry={registry} />
                     ) : (
-                      <SearchBar registry={registry} />
+                      <SearchBar
+                        registry={registry}
+                        vertical={play ? 'entertainment' : 'farmhouse'}
+                      />
                     ))}
                 </div>
               </div>

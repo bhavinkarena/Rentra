@@ -155,9 +155,9 @@ export default function PortfolioCalendar({
         </Link>
       </div>
       <p className="text-sm text-ink-600">
-        All times are India time. Blue: booked visit · Amber: temporary hold · Red: owner block ·
-        Dashed: buffer · Purple: price override. Expand an interval for its source and actions. Open
-        dates still require confirmed hours and a successful availability check at checkout.
+        All times are India time. Blue: booked visit · Amber: temporary hold · Dashed grey: owner
+        block or buffer · Purple: price override. Expand an interval for its source and actions.
+        Open dates still require confirmed hours and a successful availability check at checkout.
       </p>
       {!data.items.length && (
         <p className="rounded-lg border border-border p-5">

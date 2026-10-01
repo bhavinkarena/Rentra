@@ -8,6 +8,9 @@ async (page) => {
     const form = page.locator('#discovery-filters');
     await page.waitForFunction(() => document.documentElement.hasAttribute('data-search-docked'));
     if (!(await page.getByRole('group', { name: 'Search' }).isVisible())) throw new Error('Scrolled search must dock into the header');
+    await page.waitForTimeout(200); // the tabs fade over 150ms
+    const tabs = page.locator('[data-site-header]').getByRole('navigation', { name: 'Categories' });
+    if (width >= 768 && (await tabs.count()) && (await tabs.evaluate((el) => getComputedStyle(el.parentElement).opacity)) !== '0') throw new Error('Vertical tabs must fade out when the search docks');
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)) throw new Error('Toolbar must fit the viewport');
     await page.getByRole('button', { name: /^Filters/ }).click();
     const extra = page.locator('#discovery-more-filters');
@@ -23,5 +26,5 @@ async (page) => {
     await page.getByRole('dialog', { name: 'When', exact: true }).waitFor();
     await page.keyboard.press('Escape');
   }
-  return 'PASS: desktop/mobile header docking, viewport fit, filter dismissal, retained values and calendar access';
+  return 'PASS: desktop/mobile header docking, vertical tabs hidden when docked, viewport fit, filter dismissal, retained values and calendar access';
 }

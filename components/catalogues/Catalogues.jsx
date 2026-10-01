@@ -5,6 +5,8 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from '@/components/navigation/NavigationLink';
 import { catalogueCommand } from '@/lib/actions/catalogues';
+import { ActivityIcon } from '@/components/rentra/icons/activity-icons';
+import { VerticalIcon } from '@/components/rentra/icons/vertical-icons';
 const names = {
   verticals: 'Verticals',
   cities: 'Cities',
@@ -385,22 +387,7 @@ export function CatalogueDetail({ data }) {
                 </fieldset>
               </>
             )}
-            {type === 'categories' && (
-              <label className="block">
-                Icon
-                <select
-                  aria-label="Icon"
-                  name="iconKey"
-                  className={inputClass}
-                  defaultValue={r?.icon_key ?? ''}
-                >
-                  <option value="">Generic</option>
-                  {ICON_KEYS.map((key) => (
-                    <option key={key}>{key}</option>
-                  ))}
-                </select>
-              </label>
-            )}
+            {type === 'categories' && <IconKeyField defaultValue={r?.icon_key ?? ''} />}
             {type === 'categories' && creating && (
               <>
                 <label className="block">
@@ -720,5 +707,39 @@ function VerticalRow({ vertical: v, canWrite }) {
         </section>
       )}
     </li>
+  );
+}
+
+/** Icon select with a live preview of what owners and guests will see. */
+function IconKeyField({ defaultValue }) {
+  const [iconKey, setIconKey] = useState(defaultValue);
+  return (
+    <label className="block">
+      Icon
+      <span className="mt-1 flex items-center gap-3">
+        <select
+          aria-label="Icon"
+          name="iconKey"
+          className={inputClass}
+          value={iconKey}
+          onChange={(event) => setIconKey(event.target.value)}
+        >
+          <option value="">Generic</option>
+          {ICON_KEYS.map((key) => (
+            <option key={key}>{key}</option>
+          ))}
+        </select>
+        <span
+          className="grid size-11 shrink-0 place-items-center rounded-md border border-ink-200 text-ink-800"
+          aria-hidden="true"
+        >
+          {iconKey === 'farmhouse' ? (
+            <VerticalIcon code="farmhouse" className="size-7" />
+          ) : (
+            <ActivityIcon iconKey={iconKey} className="size-6" />
+          )}
+        </span>
+      </span>
+    </label>
   );
 }

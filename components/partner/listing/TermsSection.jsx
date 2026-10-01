@@ -12,7 +12,7 @@ export function TermsSection({ listing }) {
     <Section
       id="terms"
       title="Deposit and cancellation"
-      intro="Guests see the refund in rupees, never as policy language."
+      intro={`${listing.rentalUnit === 'hour' ? 'Players' : 'Guests'} see the refund in rupees, never as policy language.`}
       state={state}
       pending={pending}
     >

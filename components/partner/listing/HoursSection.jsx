@@ -91,7 +91,7 @@ export function HoursSection({ listing, calendar }) {
     <Section
       id="hours"
       title="Opening hours"
-      intro="When guests can book, and how long a booking can be. Changing hours never cancels a booking."
+      intro="When players can book, and how long a booking can be. Changing hours never cancels a booking."
       state={state}
       pending={pending}
     >
@@ -349,7 +349,8 @@ export function HoursSection({ listing, calendar }) {
               <>
                 <p>
                   {outside.length} upcoming booking{outside.length === 1 ? '' : 's'} fall outside
-                  the new hours. They stay booked; contact the guests if you will not open for them.
+                  the new hours. They stay booked; contact the players if you will not open for
+                  them.
                 </p>
                 <ul className="list-disc pl-5">
                   {outside.map((row) => (

@@ -20,9 +20,9 @@ Phases are delivered one at a time. The owner asks for the next phase after revi
 | 2 → Product & UX Architecture | ✅ Complete (owner-approved) | 1 Oct 2026 |
 | 3 → Database Architecture | ✅ Complete (local; Neon rehearsal with R1) | 1 Oct 2026 |
 | 4 → Backend/API Changes | ✅ Complete (local) | 1 Oct 2026 |
-| 5 → Owner Listing Flow | ⏳ Next | |
-| 6 → Homepage & Navigation | ⬜ Not started | |
-| 7 → Search & Filters | ⬜ Not started | |
+| 5 → Owner Listing Flow | ✅ Complete (local) | 1 Oct 2026 |
+| 6 → Homepage & Navigation | ✅ Complete (local; owner screenshot review open) | 1 Oct 2026 |
+| 7 → Search & Filters | ⏳ Next | |
 | 8 → Entertainment Detail Page | ⬜ Not started | |
 | 9 → Availability, Slots & Pricing | ⬜ Not started | |
 | 10 → Booking & Payment Flow | ⬜ Not started | |
@@ -1496,7 +1496,7 @@ Built and verified on a disposable local PostgreSQL 14. **Neon was not touched.*
 - 0052–0055 go to Neon only with R1.
 
 ---
-## Phase 5 → Owner Listing Flow — ⏳ Next
+## Phase 5 → Owner Listing Flow — ✅ Complete (1 Oct 2026)
 
 ### Objective
 
@@ -1620,9 +1620,141 @@ The tables are written as defined in Phase 3. No more schema changes.
 - A new owner creates, submits and publishes a 3-court box-cricket venue end to end on a disposable stack. The listing then appears in entertainment search.
 - No farmhouse wizard step, field or copy changes. Screenshot diffs of the farmhouse wizard are empty.
 
+### Completion record (1 Oct 2026)
+
+Built and verified on a disposable local stack: PostgreSQL 17 on `127.0.0.1:55432`, API on `:4106`, web on `:3106`. **Neon was not touched.**
+
+Most of this phase landed earlier in backend `bc188b2` and frontend `b5e34b0`. This pass checked those commits against the plan and finished the rest. The new changes are uncommitted on branch `feat/entertainment` in both repos.
+
+**What now works**
+
+- **The owner wizard for venues.**
+  - Step 0 asks "What are you listing?". It is hidden when only one vertical is open to partners. For a venue the category select is labelled "Main activity", and the placeholders talk about venues.
+  - `chaptersFor(model)` returns `VENUE_CHAPTERS` for hour listings: The venue → Courts and facilities → Hours, rules and price → Photos → Proof and publish. The farmhouse chapters are unchanged.
+  - **Courts** (`VenueSection`):
+    - each court has a name, which defaults by activity (Court, Lane, Turf, Station, Arena or Track);
+    - activity chips, max players, and an Indoor / Outdoor / Not stated segmented control;
+    - surface, size and playing format;
+    - move up and down, duplicate, remove and restore, up to 30 courts.
+
+    A court with upcoming bookings shows how many it has and cannot be removed. If the save is attempted anyway, the API refusal names the court.
+
+  - **Opening hours** (`HoursSection`), **venue rules**, and **hourly prices** (`HourlyPricingSection`):
+    - the prices show a live list of gaps;
+    - there is a "Peak from 6 PM" preset and "Copy Mon–Fri to Sat–Sun".
+
+    Hours, prices and terms all preview first, then confirm.
+
+  - **Terms** show the cancellation bands in hours. The deposit defaults to ₹0.
+  - **Proof documents.** Venues get their own 8 document types. An upload of a document type from the other vertical's list is refused.
+  - The approach road field is removed from the location step (owner decision).
+
+- **Completion and gates.** The backend is the source; the frontend has a copy.
+  - `listingCompletion` grades a venue on:
+    - courts: at least one active court, each with a capacity and an activity, and the main activity offered by at least one;
+    - hours: a valid configuration that the owner has confirmed;
+    - rules: a footwear rule or notes;
+    - pricing: every offered activity is priced for every open minute, on weekdays and weekends, with no overlapping bands.
+  - Submitting while the vertical is `hidden` is refused with `VERTICAL_CLOSED`.
+  - Changing courts on a live venue sends it back to review. Reordering courts alone does not.
+  - The verification checklist depends on the booking model. `VENUE_CHECKLIST` replaces `safeForGuests` with `resourcesMatch`, `playSafety` and `lightingWorks`.
+  - Publishing a venue needs valid hours, courts that offer the main activity, and no price gap.
+
+- **The venue calendar.** `ResourceDayTimeline` replaces the Day/Night cards that venues used to get:
+  - one day, court by court, on a 30-minute grid across the opening hours;
+  - bookings are solid and link to the booking, holds are striped, blocks are dashed and buffers are pale;
+  - a venue-wide block gets its own row;
+  - previous / today / next day, and a list on phones.
+
+  The block form has a court select. The day/night forms are hidden.
+
+- **Admin.**
+  - The verticals catalogue has the launch switch. Its preview says what guests will see before `public` is confirmed.
+  - Categories take a vertical, which sets the rental unit, and an icon with a live preview. Amenities take verticals.
+  - Property review has panes for courts, opening hours and hourly prices, and shows venue rules as readable lines. `venue` and `hours` can be flagged. The farmhouse-only extra guest charge is hidden for venues.
+
+**Verification**
+
+- **Backend `npm test`: 162 tests, 162 pass, 0 fail.** Three CP01 suites run only when `CP01_TEST_DATABASE_URL` is set; without it they skip.
+  - New in this pass: `venue-owner-flow.integration.test.js` also checks that the edit payload counts upcoming bookings per court, and that removing a booked court is refused with its name.
+  - `npm run db:check` passes (56 files). The changed test files lint clean.
+- **Frontend `npm test`: 41/41.** The new `test/domain/listing-steps.test.js` covers:
+  - the farmhouse walkthrough is unchanged;
+  - the venue chapters and their wording;
+  - each step that needs input has exactly one completion section, for both models;
+  - price coverage: full, split bands, missing weekend, a gap, and overlapping bands;
+  - which step an unfinished venue resumes at.
+
+  eslint and Prettier are clean on every changed file, and `next build` passes.
+
+- **Browser gate `scripts/portal-gate/cp32_venue_gate.mjs`: 57/57 checks pass.**
+  - The owner creates a 3-court box-cricket venue through the wizard and submits it.
+  - The calendar shows the three courts and a court block.
+  - The admin sees the venue panes and approves the submission. They schedule a video verification, which shows the venue checklist, then pass it and publish.
+  - The launch switch goes `public`, and the venue appears in `GET /discovery/search?vertical=entertainment` with 3 courts.
+  - On all 8 new screens, axe (WCAG 2.1 AA) reports 0 violations, with no horizontal overflow at 1440 or 390 and no console errors.
+- **Farmhouse wizard before and after.** Screenshots from before this phase (frontend `9db03e5`) and after were compared byte for byte, at 1440 and 390, with Entertainment `hidden`. They covered `/partner/listings/new`, all ten setup steps, the manage page and the calendar. They are identical except in three places:
+  - location step and manage page: the approach road field is gone (owner decision);
+  - amenities step: the venue-only groups (Play, Facilities) no longer appear for farmhouses. The catalogue is now scoped by vertical. Before, the amenities added by `seed:entertainment` leaked into the farmhouse step;
+  - calendar: the legend now says "Dashed grey: owner block or buffer". It used to say red.
+
+**Fixed in this pass**
+
+- **Courts editor:**
+  - a hydration mismatch: the first court's element ids came from `Date.now()`;
+  - "Playing format" sat inside the activity group.
+- Venue screens said "guests". They now say "players".
+- Venue calendars showed farmhouse Day/Night cards.
+- The test helper `migrateWithDrizzle` used `URL.pathname`, which breaks on Windows; two schema tests failed there.
+- **Domain copies:**
+  - the backend copy of `listing-steps.js` is synced;
+  - the frontend `listing-completion.js` is regenerated as Prettier(backend).
+
+**Deviations from the plan text**
+
+- Weekday and weekend price bands sit side by side, not in tabs.
+- A first version of `ResourceDayTimeline` ships here. Dragging over an empty range to pre-fill the block form is not built; a `ponytail:` note in the component marks it.
+- The gate checks entertainment search through the public API, because the guest search UI for entertainment is Phase 7.
+- Photos and the ownership file need Cloudinary, so the gate's fixture inserts them. The fixture database has no PostGIS, so the gate also writes the map pin itself.
+- Admin review shows activity names derived from the slug.
+- The new venue amenities have no Gujarati or Hindi labels yet. None are claimed.
+
+**Found, not fixed (outside Phase 5)**
+
+- **Doubled public code in URLs.** Listings created in the wizard store `slug = <title>-<code>`, and `listingPath` appends the code again, e.g. `/listing/smash-arena-box-cricket-vesu-5zcdnp20-5zcdnp20`. The link works, because the route reads the code, but the URL is untidy. Farmhouses created in the wizard have the same problem.
+- **Stale mint scripts.** `scripts/portal-gate/mint.mjs` and the backend's `.qa-mint.mjs` still write to `customer_session`, which migration 0041 removed, so they fail on the current schema. The venue gate uses its own `venue-mint.mjs` instead.
+
+#### Running the venue gate
+
+All commands below run against the disposable database only. Every script refuses any URL except `127.0.0.1:55432/rentra_cp02`.
+
+1. Create the database `rentra_cp02` on a local PostgreSQL listening on `127.0.0.1:55432`.
+2. Copy `fixture-migrate.mjs` and `venue-mint.mjs` from `Rentra/scripts/portal-gate/` into `rentra-backend/`. They need its packages and its `@/` alias.
+3. In `rentra-backend/`, set `DATABASE_URL=postgres://postgres@127.0.0.1:55432/rentra_cp02`, then run:
+   1. `node fixture-migrate.mjs`
+   2. `npm run db:seed`
+   3. `node --import ./loader/register.mjs --env-file=.env src/scripts/seed-amenities.js`
+   4. `npm run seed:entertainment`
+   5. `node --import ./loader/register.mjs --env-file=.env venue-mint.mjs tokens.json`
+4. Start the API, still in `rentra-backend/`:
+   `PORT=4106 FAKE_RAZORPAY_STATE=<file> node --import ./loader/register.mjs --env-file=.env .qa-serve.mjs`
+5. Start the web app in `Rentra/`:
+   `RENTRA_BROWSER_FIXTURE=1 RENTRA_BROWSER_FIXTURE_ID=venue NEXT_PUBLIC_API_URL=http://localhost:4106/api/v1 npx next dev -p 3106`
+   The fixture `distDir` keeps it apart from a normal `next dev`.
+6. Run the gate in `Rentra/`:
+   `GATE_DATABASE_URL=… GATE_TOKENS=tokens.json GATE_OUT=<dir> PLAYWRIGHT_MODULE=<path to playwright> CHROME=<chrome.exe> node scripts/portal-gate/cp32_venue_gate.mjs`
+
+Re-run step 3.5 (`venue-mint.mjs`) before each gate run. It sets Entertainment back to `partners`.
+
+**Owner actions still open (unchanged)**
+
+- Rotate the Neon password.
+- Run R0 (0040–0051) with the Phase 3 runbook.
+- 0052–0055 go to Neon only with R1.
+
 ---
 
-## Phase 6 → Homepage & Navigation
+## Phase 6 → Homepage & Navigation — ✅ Complete (1 Oct 2026)
 
 ### Objective
 
@@ -1727,6 +1859,91 @@ It renders, in order:
 - With two public verticals: tabs as in the reference, both homes load statically (`x-nextjs-cache` HIT after the first request), and switching tabs is a soft navigation.
 - The owner approves screenshots of the header (undocked and docked) and the Entertainment home at 390 and 1440.
 
+### Completion record (1 Oct 2026)
+
+Built and verified on the disposable local stack from Phase 5 (PostgreSQL 17 on `127.0.0.1:55432`, API on `:4106`). The web app was checked both as a production build (`next build` + `next start` on `:3106`) and in dev mode. **Neon was not touched.** Uncommitted, branch `feat/entertainment` (frontend only; no backend change in this phase).
+
+**What now works**
+
+- **Header tabs** (`components/rentra/VerticalTabs.jsx`):
+  - Links, not a tablist. `aria-current="page"` marks the active tab. There is one tab per public vertical, in registry order, and nothing renders until two verticals are public.
+  - From `md` they sit centred between the wordmark and the navigation, in their own `Suspense` boundary. That keeps them in the static HTML of both homes: the search pill reads the query string, which would push anything in its boundary to client rendering.
+  - When the search docks they fade out (150ms, opacity only) and stop taking clicks; the pill takes the centre. Header heights are unchanged.
+  - The active tab comes from the page (`pageVertical`): `/`, `/entertainment`, `/search?vertical=`, and taxonomy pages by their category or vertical slug. Listing, saved, help and portal pages show no tabs.
+  - On `/search`, a tab keeps the city, the area and the first date and drops everything else (`searchTabHref`). On other pages a tab links to that vertical's home.
+  - Below `md`, two pill tabs sit at the top of each home's hero (photo chip recipe) and above the search fields on discovery pages.
+- **Entertainment home** (`app/(marketing)/entertainment/page.js`). It has the farmhouse home's skeleton and caching (`revalidate`, anonymous reads, degraded fallbacks), and the farmhouse home's loading skeleton through the `(marketing)` boundary.
+  - **Hero.** Venue photos appear only once three venues have photos; until then the plain brand hero shows, and nothing fabricated. Eyebrow, headline, the venue search bar, then activity chips that link to `/{city}/{activity}`.
+  - **Trust strip** with venue statements only (`PLAY_TRUST`).
+  - **"Play near {City}" rows.** The subtitle names the activities that city's venues really offer.
+  - **`ActivityPicker`** ("What are you playing?"). It offers only cities with live venues, and only the activities they have, with venue counts.
+  - City chips to `/{city}/entertainment`, the owner CTA, and the footer's new "Play near you" column.
+  - It answers not-found while Entertainment is not public. Metadata title "Book box cricket, pickleball, bowling and more in Gujarat", canonical `/entertainment`, and its own OG card.
+- **Venue search bar.** `SearchFields vertical="entertainment"` gives Where / What / When / Time and "Find venues" in the same bar shape:
+  - **What:** an activity grid.
+  - **When:** Today, Tomorrow and the coming Saturday and Sunday, plus a calendar limited to 60 days.
+  - **Time:** Any / Morning / Afternoon / Evening / Late, a specific start in 30-minute steps, and a 1–4 hour duration stepper.
+  
+  It submits `vertical, city, area, category, date, start, duration`, never `slot`, `mode` or `guests`. The shared search draft keeps the location across tabs.
+- **Header pill on `/entertainment`:** Where · What · When · Time. Each segment opens the venue fields at that segment.
+- **Venue cards.** `listingFacts(card)` gives "Box cricket · 3 courts · Up to 10 players", with the activity icons and "/ hr". The unit noun follows the activity (lanes, turfs, stations…). The farmhouse line is unchanged.
+- **Farmhouse home:**
+  - finds its category through the vertical, not the slug literal;
+  - passes `vertical: 'farmhouse'` to its card reads;
+  - shows the hero tabs below `md` once two verticals are public.
+  
+  The footer's farmhouse column is found through the vertical too.
+- **Shared pieces:**
+  - `TrustStrip` takes `items`, and `CityRow` takes `title` and `subtitle`; the farmhouse defaults are unchanged;
+  - the root OG image now uses the shared `lib/seo/og-card.js`, which renders the same card;
+  - `VenueSection` reuses the unit names from `lib/domain/vertical-ui.js`.
+
+**Verification**
+
+- **Frontend `npm test`: 46/46.** The new `test/domain/vertical-ui.test.js` covers:
+  - tab order and the two-vertical threshold;
+  - the active vertical for every page type, including pages that show no tabs;
+  - the `/search` switch rules;
+  - card facts for both verticals;
+  - the clock and unit labels.
+  
+  eslint and Prettier are clean on every changed file. `next build` passes, and **both homes build as static ISR pages** (`○ /` and `○ /entertainment`, 5-minute revalidate as `/` had before).
+- **Gate `scripts/portal-gate/cp33_vertical_tabs_gate.mjs` against the production build.**
+  - **With two public verticals, 46/46 checks pass:**
+    - tabs on `/`, and switching to `/entertainment` is a soft navigation;
+    - at 768, 1024 and 1440, the tabs are clear of the logo and the navigation;
+    - docked, the tabs are hidden and inert, and the pill is visible and clear of the navigation;
+    - the docked pill opens the venue fields on What;
+    - the venue search posts exactly `vertical=entertainment&category=box-cricket&date=<tomorrow>&start=17:00&duration=90`;
+    - the active tab is correct on `/search?vertical=entertainment`, `/surat/box-cricket` and `/surat/farmhouse`, and there are no tabs on a listing page;
+    - at 390, on both homes, the tabs, the search bar and the first chip row fit in the first viewport;
+    - axe (WCAG 2.1 AA) reports 0 violations, with no overflow at 1440 or 390;
+    - a second request to `/` and to `/entertainment` gets `x-nextjs-cache: HIT`;
+    - no console errors.
+  - **With one public vertical, 5/5 checks pass:**
+    - no tabs on `/`, `/search` or `/surat/farmhouse`;
+    - `/entertainment` renders the not-found page with `noindex`.
+- **Farmhouse pages before and after, with one public vertical.** Screenshots from frontend `b5e34b0` and from this phase were compared byte for byte at 1440 and 390. The pages were `/`, `/` docked, `/search`, `/search?city=surat&slot=night&guests=4`, `/surat/farmhouse`, a farmhouse listing, `/saved` and `/help`. **All 16 are identical.**
+- The existing `scripts/check-sticky-search.cjs` now also asserts that the header tabs fade out when the search docks. The assertion is a no-op until two verticals are public.
+- Screenshots for the owner's review are in `docs/design/entertainment/shots/phase6/`: both homes at 1440 and 390, and the docked header. They show fixture data; the venue photos were copied from a farmhouse.
+
+**Deviations from the plan text**
+
+- **Two Phase 7 pieces were built here,** because the approved Entertainment home renders them: the venue search fields (Phase 7 "PlayFields") and venue card facts (`listingFacts`).
+  - They live in the existing `SearchFields` and `ListingCard` as a `vertical` branch, not as separate components.
+  - Phase 7 still owns the results page, filters, landing pages, the sitemap, the URL redirects and the discovery tests.
+- **No 404 status.** A hidden `/entertainment` answers with Next's soft 404: HTTP 200 with the not-found page and `<meta name="robots" content="noindex">`. The `(marketing)` group's `loading.js` streams first, so the status cannot change. This is documented Next behaviour (`loading.js` → Status Codes), and taxonomy pages already behave the same way. A real 404 would need a `proxy` check, which is not worth a registry read on every request.
+- **No new loading file for `/entertainment`.** The group's `loading.js` already serves the same `home` skeleton, so `app/(marketing)/entertainment/loading.js` and a separate `entertainment-home` skeleton were not added.
+- **The vertical presentation lives in `lib/domain/vertical-ui.js`.** `lib/domain/verticals.js` is the backend domain copy and must stay identical to the backend.
+- **One gate instead of a new check script.** The new checks are in the fixture gate `cp33` rather than a new `scripts/check-vertical-tabs.cjs`. Those `.cjs` scripts run against whatever is on `:3000`, which has one public vertical in normal development.
+- **No licensed fallback photos.** None are in the repo, so the hero falls back to the plain brand background until three venues have photos. The owner can add licensed images later.
+- Card prices keep the existing lower-case "from".
+
+**Owner actions**
+
+- Review and approve the Phase 6 screenshots: tabs undocked and docked, and the Entertainment home at 390 and 1440.
+- Unchanged: rotate the Neon password; R0 with the Phase 3 runbook; 0052–0055 only with R1.
+
 ---
 
 ## Phase 7 → Search & Filters
@@ -1740,10 +1957,10 @@ Search, filters, results and SEO landing pages adapt to the active vertical whil
 | File | Change |
 |---|---|
 | `lib/domain/discovery.js` (FE) + backend copy | `parseDiscoveryQuery`/`discoveryQuery` add `vertical`, `start`, `duration`, `players` and `indoor`. `resolveDiscoveryRoute` handles vertical landings. Intents gain `vertical`. Delete the unused `INTENTS` in `lib/constants.js:2-8`. |
-| `components/rentra/SearchFields.jsx` (shared by hero, discovery bar and header panel) | Gains a `vertical` prop. Extract the generic `Segment`/`Panel` shell, `WherePanel` and the calendar. `StayFields` = today's When / Visit type / Who. `PlayFields` = What / When / Time. Hidden inputs are written per vertical. |
+| `components/rentra/SearchFields.jsx` (shared by hero, discovery bar and header panel) | Gains a `vertical` prop (✅ done in Phase 6, with the venue fields; Phase 7 wires it into `DiscoveryFilters` and the header panel on discovery pages). Extract the generic `Segment`/`Panel` shell, `WherePanel` and the calendar. `StayFields` = today's When / Visit type / Who. `PlayFields` = What / When / Time. Hidden inputs are written per vertical. |
 | `components/rentra/DiscoveryFilters.jsx:80-180` | The panel content depends on the vertical (below). The active-count badge counts the vertical's own filters. |
 | `components/rentra/DiscoveryResults.jsx` | Title, count copy ("{n} venues" vs "{n} places"), chips, empty states and "Explore by location" chips depend on the vertical. |
-| `components/rentra/ListingCard.jsx:38-58,137` | Facts come from `listingFacts(card)` in `lib/domain/verticals.js`. Shows `times` chips when present. Unit "hr". |
+| `components/rentra/ListingCard.jsx:38-58,137` | Facts come from `listingFacts(card)` (✅ done in Phase 6, in `lib/domain/vertical-ui.js`). Shows `times` chips when present. Unit "hr". |
 | `app/(marketing)/search/page.js` | Unchanged (it passes the query through). It stays `noindex`. |
 | `app/(marketing)/[city]/[category]/[[...place]]/page.js`, `app/sitemap.js:20-41` | Vertical landings, and vertical-scoped intents in the sitemap. |
 
@@ -2005,6 +2222,8 @@ for date D, activity A, duration L, players P:
 - Clicking a booking opens the booking detail. Selecting an empty range pre-fills the block form.
 - A day picker (previous / today / next). Mobile shows an agenda list instead of the grid.
 - Fix the existing legend mismatch while here (`PortfolioCalendar.jsx:158` says red, but blocks are drawn dashed).
+
+A first version of `ResourceDayTimeline` and the legend fix shipped in Phase 5 (see its completion record). Still to do here: selecting an empty range to pre-fill the block form, and the 30 courts × 20 hours layout test.
 
 ### UX/UI requirements
 
@@ -2558,7 +2777,7 @@ It changes the database guarantee from an exclusion constraint to counting. That
 | Legacy `calculateBookingPrice`, `cheapestSlot` callers in the backend | None exist. Keep the frontend uses until the cancellation display moves to snapshot bands, then delete. |
 | Direct `SLOTS[...]` lookups (5 places, Phase 1) | Replace with `describeVisit` / `SLOTS` from one module. |
 | Hard-coded `'farmhouse'` slugs | Replace with vertical lookups. |
-| `location.approachNote` | **Remove** from the location form and the backend `locationSchema` (owner decision, 1 Oct 2026; Phase 5). |
+| `location.approachNote` | **Remove** from the location form and the backend `locationSchema` (owner decision, 1 Oct 2026; Phase 5). ✅ Done in Phase 5. |
 | `PortfolioCalendar.jsx:239` dead `blocked_by_client` branch, and the legend colour mismatch | Fix. |
 | Amenity group label "Entertainment" | Relabel "Music & games". |
 | `inventory_reservation.resource_key` | Contract in R5. |
