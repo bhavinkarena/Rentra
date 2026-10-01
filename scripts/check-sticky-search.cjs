@@ -6,8 +6,8 @@ async (page) => {
     await page.setViewportSize({ width, height: 900 });
     await page.evaluate(() => window.scrollTo({ top: 650, behavior: 'instant' }));
     const form = page.locator('#discovery-filters');
-    const bounds = await form.boundingBox();
-    if (Math.abs(bounds.y - 68) > 2) throw new Error('Search toolbar must stick immediately below the header');
+    await page.waitForFunction(() => document.documentElement.hasAttribute('data-search-docked'));
+    if (!(await page.getByRole('group', { name: 'Search' }).isVisible())) throw new Error('Scrolled search must dock into the header');
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)) throw new Error('Toolbar must fit the viewport');
     await page.getByRole('button', { name: /^Filters/ }).click();
     const extra = page.locator('#discovery-more-filters');
@@ -23,5 +23,5 @@ async (page) => {
     await page.getByRole('dialog', { name: 'When', exact: true }).waitFor();
     await page.keyboard.press('Escape');
   }
-  return 'PASS: desktop/mobile sticky position, viewport fit, filter dismissal, retained values and calendar access';
+  return 'PASS: desktop/mobile header docking, viewport fit, filter dismissal, retained values and calendar access';
 }

@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import SearchFields from './SearchFields';
 import { discoveryQuery } from '@/lib/domain/discovery';
+import { DOCK_EXIT, useSearchDock, usePublishDiscovery } from './SearchBar';
 import { measureBrowser } from '@/lib/domain/browser-measurement';
 
 const control = `${fieldClass} mt-1.5`;
@@ -50,6 +51,9 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
   const [amenities, setAmenities] = useState(filters.amenities);
   const budgetInvalid =
     budget.min !== '' && budget.max !== '' && Number(budget.min) > Number(budget.max);
+  // Same docking as the home hero: the bar scrolls away and HeaderSearch's pill takes over.
+  const sentinel = useSearchDock();
+  usePublishDiscovery(filters, route, path);
   const activeFilters =
     Number(Boolean(filters.q)) +
     Number(!route?.category && Boolean(filters.category)) +
@@ -89,12 +93,21 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
         }
         measureBrowser('search_submitted');
       }}
-      className="sticky top-17 z-30 -mx-4 border-b border-border bg-background px-4 py-3 text-meta sm:-mx-6 sm:px-6"
+      className="relative z-30 -mx-4 border-b border-border bg-background px-4 py-3 text-meta sm:-mx-6 sm:px-6"
       onKeyDown={(event) => {
         if (event.key === 'Escape' && advanced) closeFilters(event);
       }}
     >
-      <SearchFields filters={filters} registry={registry} route={route} submitLabel="Show places" />
+      <div ref={sentinel} aria-hidden="true" />
+      <div className={DOCK_EXIT}>
+        <SearchFields
+          filters={filters}
+          registry={registry}
+          route={route}
+          submitLabel="Show places"
+        />
+      </div>
+
       <div className="mt-2 flex items-center gap-2">
         <button
           type="button"

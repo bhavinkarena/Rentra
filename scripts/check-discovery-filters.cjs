@@ -28,7 +28,7 @@ async page => {
   }
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.evaluate(() => window.scrollTo(0, 700));
-  const bar = await page.locator('#discovery-filters').boundingBox();
-  if (!bar || Math.abs(bar.y - 68) > 2) throw new Error('Search must remain below sticky header');
+  await page.waitForFunction(() => document.documentElement.hasAttribute('data-search-docked'));
+  if (!(await page.getByRole('group', { name: 'Search', exact: true }).isVisible())) throw new Error('Search must dock into the header');
   return { filters: params, checks: 'budget validation, submission, sort preservation, mobile sizes, sticky position' };
 }
