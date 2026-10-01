@@ -69,6 +69,8 @@ export default async function DiscoveryResults({ query, registry: registryInput,
     guests: `${filters.guests} ${filters.guests === 1 ? 'guest' : 'guests'}`,
     min: filters.min != null ? `From ₹${filters.min.toLocaleString('en-IN')}` : null,
     max: filters.max != null ? `Up to ₹${filters.max.toLocaleString('en-IN')}` : null,
+    bedrooms: filters.bedrooms ? `${filters.bedrooms}+ bedrooms` : null,
+    verified: filters.verified === '1' ? 'Physically verified' : null,
     cancellation: filters.cancellation
       ? `${filters.cancellation[0].toUpperCase() + filters.cancellation.slice(1)} cancellation`
       : null,

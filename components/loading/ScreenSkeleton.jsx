@@ -289,9 +289,10 @@ function Content({ screen }) {
               ))}
               <Block className="col-span-2 m-1 h-12 shrink-0 rounded-full md:w-40" />
             </div>
-            <div className="mt-2 flex items-center justify-between gap-2">
-              <Block className="h-10 w-24 rounded-full" />
-              <Block className="h-3 w-14" />
+            <div className="mt-2 flex items-center gap-2 overflow-hidden">
+              {[0, 1, 2, 3].map((item) => (
+                <Block key={item} className="h-11 w-24 shrink-0 rounded-full" />
+              ))}
             </div>
           </div>
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3">

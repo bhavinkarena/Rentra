@@ -10,6 +10,7 @@ import {
   ChevronRight,
   MapPin,
   Minus,
+  Navigation,
   Plus,
   Search,
   Sun,
@@ -19,6 +20,7 @@ import {
 import { addLocalDays, formatLocalDate, propertyToday } from '@/lib/domain/booking-dates';
 import { BOOKING_POLICY } from '@/lib/domain/booking-policy';
 import { SLOTS } from '@/lib/domain/pricing';
+import { discoveryApi } from '@/lib/api/endpoints';
 
 const roundButton =
   'grid size-11 shrink-0 place-items-center rounded-full border border-border text-ink-700 hover:border-brand-600 hover:bg-brand-50 focus-visible:outline-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-30';
@@ -40,6 +42,16 @@ export default function SearchFields({
   const [active, setActive] = useState(null);
   const [hoverDate, setHoverDate] = useState(null);
   const dismissedByScroll = useRef(false);
+  const nearbyRequest = useRef(0);
+  const [locating, setLocating] = useState(false);
+  const [locationError, setLocationError] = useState('');
+
+  useEffect(
+    () => () => {
+      nearbyRequest.current += 1;
+    },
+    [active],
+  );
 
   useEffect(() => {
     if (!active) return;
@@ -106,6 +118,54 @@ export default function SearchFields({
     .filter((item) =>
       `${item.title} ${item.subtitle}`.toLowerCase().includes(query.trim().toLowerCase()),
     );
+
+  async function findNearby() {
+    setLocationError('');
+    if (!navigator.geolocation) {
+      setLocationError('Location is unavailable in this browser. Choose a city or area below.');
+      return;
+    }
+    const request = ++nearbyRequest.current;
+    setLocating(true);
+    try {
+      const position = await new Promise((resolve, reject) =>
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          timeout: 10000,
+          maximumAge: 60000,
+        }),
+      );
+      if (request !== nearbyRequest.current) return;
+      const places = await discoveryApi.nearby({
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        km: 25,
+        limit: 1,
+      });
+      if (request !== nearbyRequest.current) return;
+      // Nearby cards expose the public area/city label, not private property coordinates.
+      const match = registry.areas.find((candidate) => {
+        const parent = registry.cities.find((item) => item.id === candidate.cityId);
+        return parent && `${candidate.name}, ${parent.name}` === places?.[0]?.area;
+      });
+      if (!match) {
+        setLocationError('No supported places found within 25 km. Choose a city or area below.');
+        return;
+      }
+      const parent = registry.cities.find((item) => item.id === match.cityId);
+      setLocation({ city: parent.slug, area: match.slug, title: match.name });
+      setQuery('');
+      setActive('dates');
+    } catch (error) {
+      if (request !== nearbyRequest.current) return;
+      setLocationError(
+        error.code === 1
+          ? 'Location permission was denied. Allow location in your browser or choose an area below.'
+          : 'Could not find your location or nearby places. Try again or choose an area below.',
+      );
+    } finally {
+      setLocating(false);
+    }
+  }
 
   function selectDate(date) {
     setHoverDate(null);
@@ -209,7 +269,10 @@ export default function SearchFields({
           </p>
         ) : (
           <>
-            <label className="flex items-center gap-3 rounded-xl border border-ink-300 px-4 focus-within:border-brand-600 focus-within:ring-2 focus-within:ring-brand-100">
+            <label
+              data-field-shell
+              className="flex items-center gap-3 rounded-xl border border-ink-300 px-4"
+            >
               <Search className="size-4 text-brand-600" aria-hidden="true" />
               <input
                 value={query}
@@ -223,6 +286,16 @@ export default function SearchFields({
               {query ? 'Matching locations' : 'Explore Gujarat'}
             </p>
             <div>
+              <LocationOption
+                title={locating ? 'Finding nearby places…' : 'Nearby me'}
+                subtitle="Use my location · areas within 25 km"
+                Icon={Navigation}
+                disabled={locating}
+                onClick={findNearby}
+              />
+              <p role="status" className="px-2 text-tiny text-ink-600">
+                {locationError}
+              </p>
               {!query && (
                 <LocationOption
                   title="All locations"
@@ -438,15 +511,17 @@ export default function SearchFields({
   );
 }
 
-function LocationOption({ title, subtitle, selected, onClick }) {
+function LocationOption({ title, subtitle, selected, onClick, Icon = MapPin, disabled = false }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex min-h-16 w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-brand-50 focus-visible:outline-brand-600"
+      disabled={disabled}
+      aria-busy={disabled}
+      className="flex min-h-16 w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-brand-50 focus-visible:outline-brand-600 disabled:cursor-wait disabled:opacity-60"
     >
       <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600">
-        <MapPin className="size-5" aria-hidden="true" />
+        <Icon className="size-5" aria-hidden="true" />
       </span>
       <span className="flex-1">
         <span className="block text-meta font-semibold">{title}</span>

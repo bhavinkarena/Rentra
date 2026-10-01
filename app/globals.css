@@ -381,8 +381,7 @@
   /* One brand-tinted focus style, everywhere. */
   /* Date/time inputs lose :focus-visible while moving between their day,
      month and year parts, so they keep the ring while anything inside them has focus. */
-  :is(a, button, input, select, textarea, summary, [tabindex]):focus-visible,
-  input:is([type='date'], [type='time'], [type='datetime-local']):focus-within {
+  :is(a, button, summary, [tabindex]):not(input, select, textarea):focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 3px;
     box-shadow: var(--shadow-focus);
@@ -393,6 +392,7 @@
   :is(input, select, textarea):focus-visible,
   input:is([type='date'], [type='time'], [type='datetime-local']):focus-within {
     border-color: var(--ring);
+    outline: 2px solid var(--ring);
     outline-offset: -1px;
     box-shadow: none;
   }
