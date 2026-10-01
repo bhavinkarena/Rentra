@@ -17,9 +17,17 @@ export default async function sitemap() {
     degradeOnFailure(() => discoveryApi.registry(), EMPTY_REGISTRY, 'sitemap registry'),
   ]);
   const routes = [];
+  // Every category, plus each public vertical's own landing (/surat/entertainment)
+  // where its slug is not also a category's.
+  const scopes = [
+    ...registry.categories.map((category) => category.slug),
+    ...(registry.verticals ?? [])
+      .map((vertical) => vertical.slug)
+      .filter((slug) => !registry.categories.some((category) => category.slug === slug)),
+  ];
   for (const city of registry.cities)
-    for (const category of registry.categories) {
-      const base = [city.slug, category.slug];
+    for (const scope of scopes) {
+      const base = [city.slug, scope];
       const segments = [
         base,
         ...registry.areas.filter((a) => a.cityId === city.id).map((a) => [...base, 'area', a.slug]),

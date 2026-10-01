@@ -100,6 +100,7 @@ test('card facts: farmhouse line unchanged, venues by activity, courts, players 
     }),
     ['Bowling', '1 lane', 'Up to 12 players'],
   );
+  assert.equal(listingFacts({ ...venue, isIndoor: 'mixed' }).at(-1), 'Indoor and outdoor');
 });
 
 test('time and unit labels', () => {

@@ -16,7 +16,9 @@ export async function generateMetadata({ params, searchParams }) {
         title: route.title,
         description:
           route.intent?.description ||
-          `Explore ${route.title}. Compare facilities and check all your visit dates.`,
+          (route.verticalCode === 'entertainment'
+            ? `${route.title}: see free times and hourly prices, then book a court online.`
+            : `Explore ${route.title}. Compare facilities and check all your visit dates.`),
         path: route.path,
         index: Boolean(index),
       })

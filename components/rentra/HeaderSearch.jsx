@@ -78,8 +78,18 @@ export default function HeaderSearch({ registry }) {
   }, [open, close]);
 
   // The homes (`/`, `/entertainment`) and discovery pages; nowhere else.
-  const play = !discovery && pathname === '/entertainment';
-  if (pathname !== '/' && !play && !discovery) return null;
+  const playHome = !discovery && pathname === '/entertainment';
+  if (pathname !== '/' && !playHome && !discovery) return null;
+  // Entertainment: the home's draft, or a venue search's own filters.
+  const play = playHome || discoveryVertical(discovery) === 'entertainment';
+  const venue = playHome
+    ? draft
+    : discovery && {
+        activity: discovery.route?.category?.slug ?? discovery.filters.category,
+        date: discovery.filters.dates[0] ?? '',
+        start: discovery.filters.start,
+        duration: discovery.filters.duration ?? 60,
+      };
 
   const { location, dates, slot, guests } = discovery
     ? discoverySummary(discovery, registry)
@@ -108,17 +118,17 @@ export default function HeaderSearch({ registry }) {
         [
           'activity',
           'What',
-          registry.categories.find((c) => c.slug === draft.activity)?.name || 'Any activity',
+          registry.categories.find((c) => c.slug === venue.activity)?.name || 'Any activity',
         ],
         [
           'date',
           'When',
-          draft.date ? formatLocalDate(draft.date, { weekday: undefined }) : 'Any date',
+          venue.date ? formatLocalDate(venue.date, { weekday: undefined }) : 'Any date',
         ],
         [
           'time',
           'Time',
-          `${draft.start ? `From ${clock12(draft.start)}` : 'Any time'} · ${draft.duration / 60} hr`,
+          `${venue.start ? `From ${clock12(venue.start)}` : 'Any time'} · ${venue.duration / 60} hr`,
         ],
       ]
     : [
@@ -234,10 +244,22 @@ function discoverySummary({ filters, route }, registry) {
 
 /* The discovery bar again, posting to the same path. The extra filters ride
    along as hidden fields so a header search never drops them. */
-function DiscoveryPanel({ discovery: { filters, route, path }, registry }) {
+const discoveryVertical = (discovery) =>
+  discovery ? (discovery.route?.verticalCode ?? discovery.filters.vertical) : null;
+
+function DiscoveryPanel({ discovery, registry }) {
+  const { filters, route, path } = discovery;
+  const play = discoveryVertical(discovery) !== 'farmhouse';
   const kept = [
     ['q', filters.q],
-    ['category', route?.category ? '' : filters.category],
+    // Venues choose the activity in the fields themselves.
+    ['category', route?.category || play ? '' : filters.category],
+    ...(play
+      ? [
+          ['players', filters.players],
+          ['indoor', filters.indoor],
+        ]
+      : []),
     ['min', filters.min],
     ['max', filters.max],
     ['cancellation', filters.cancellation],
@@ -248,10 +270,16 @@ function DiscoveryPanel({ discovery: { filters, route, path }, registry }) {
     <Form
       action={path}
       data-surface="light"
-      aria-label="Search places"
+      aria-label={play ? 'Search venues' : 'Search places'}
       onSubmit={() => measureBrowser('search_submitted')}
     >
-      <SearchFields filters={filters} registry={registry} route={route} submitLabel="Show places" />
+      <SearchFields
+        filters={filters}
+        registry={registry}
+        route={route}
+        vertical={discoveryVertical(discovery)}
+        submitLabel={play ? 'Show venues' : 'Show places'}
+      />
       {kept.map(([name, value], index) => (
         <input key={index} type="hidden" name={name} value={value} />
       ))}

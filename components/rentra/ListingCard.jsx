@@ -5,7 +5,7 @@ import TrustBadge from './TrustBadge';
 import SaveButton from './SaveButton';
 import { formatINR } from '@/lib/domain/pricing';
 import { formatINRMinor } from '@/lib/domain/booking-money';
-import { listingFacts, unitLabel } from '@/lib/domain/vertical-ui';
+import { clock12, listingFacts, unitLabel } from '@/lib/domain/vertical-ui';
 import { ActivityIcon } from './icons/activity-icons';
 import { ImageOff } from 'lucide-react';
 
@@ -140,7 +140,7 @@ export default function ListingCard({ listing, eager = false, showPriceNote = tr
                 : formatINR(price)}
           </span>
           <span className="text-meta text-ink-600">
-            {price == null ? null : `/ ${unitLabel(unit)}`}
+            {price == null ? null : listing.times ? `for ${unit}` : `/ ${unitLabel(unit)}`}
           </span>
           {strikePrice ? (
             <s className="text-meta text-ink-600 tabular" data-money>
@@ -148,6 +148,25 @@ export default function ListingCard({ listing, eager = false, showPriceNote = tr
             </s>
           ) : null}
         </p>
+        {/* Dated venue search: the first free start times, each opening the venue at that time. */}
+        {listing.times?.length ? (
+          <ul className="relative z-10 mt-2 flex flex-wrap gap-2" aria-label="Free start times">
+            {listing.times.map((time) => (
+              <li key={time.start}>
+                <Link
+                  href={`${href}${href.includes('?') ? '&' : '?'}start=${time.start}`}
+                  aria-label={`Book ${clock12(time.start)}, ${formatINRMinor(time.rentMinor)}${time.peak ? ', peak' : ''}`}
+                  className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-tiny font-semibold text-ink-800 tabular hover:border-brand-300 hover:bg-brand-50"
+                >
+                  {time.peak ? (
+                    <span className="size-1.5 rounded-full bg-champagne" aria-hidden="true" />
+                  ) : null}
+                  {clock12(time.start)}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : null}
         {showPriceNote && listing.priceNote && (
           <p className="mt-1 text-tiny text-ink-500">{listing.priceNote}</p>
         )}

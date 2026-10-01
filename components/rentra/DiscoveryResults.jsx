@@ -1,7 +1,9 @@
 import Link from '@/components/navigation/NavigationLink';
 import ListingCard from './ListingCard';
 import DiscoveryFilters from './DiscoveryFilters';
-import { formatLocalDate } from '@/lib/domain/booking-dates';
+import { addLocalDays, formatLocalDate } from '@/lib/domain/booking-dates';
+import { clock12 } from '@/lib/domain/vertical-ui';
+import { degradeOnFailure } from '@/lib/api/resilient';
 import {
   parseDiscoveryQuery,
   discoveryQuery,
@@ -11,7 +13,7 @@ import {
   intentsFor,
 } from '@/lib/domain/discovery';
 import { discoveryApi } from '@/lib/api/endpoints';
-import { ArrowLeft, ArrowRight, MapPin, RefreshCw, SearchX, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CalendarX, MapPin, RefreshCw, SearchX, X } from 'lucide-react';
 import SortSelect from './SortSelect';
 import { EmptyState } from '@/components/ui/empty-state';
 import { buttonVariants } from '@/components/ui/button';
@@ -37,6 +39,10 @@ export default async function DiscoveryResults({ query, registry: registryInput,
     }
   }
   const registry = await registryInput;
+  // Entertainment (time-booked venues) or farmhouse; a landing route decides, else the query.
+  const vertical = route?.verticalCode ?? filters.vertical;
+  const play = vertical !== 'farmhouse';
+  const date = play ? filters.dates[0] : null;
   const messages = [...errors, ...(result.errors ?? [])];
   const path = route?.path || '/search';
   const href = (changes) => `${path}?${discoveryQuery(filters, { page: 1, ...changes })}`;
@@ -67,17 +73,29 @@ export default async function DiscoveryResults({ query, registry: registryInput,
     dates: filters.dates.map(formatLocalDate).join(' · '),
     slot: slotLabels[filters.slot],
     guests: `${filters.guests} ${filters.guests === 1 ? 'guest' : 'guests'}`,
-    min: filters.min != null ? `From ₹${filters.min.toLocaleString('en-IN')}` : null,
-    max: filters.max != null ? `Up to ₹${filters.max.toLocaleString('en-IN')}` : null,
+    min:
+      filters.min != null
+        ? `From ₹${filters.min.toLocaleString('en-IN')}${play ? ' / hr' : ''}`
+        : null,
+    max:
+      filters.max != null
+        ? `Up to ₹${filters.max.toLocaleString('en-IN')}${play ? ' / hr' : ''}`
+        : null,
+    players: filters.players ? `${filters.players} players` : null,
+    indoor: filters.indoor == null ? null : filters.indoor ? 'Indoor' : 'Outdoor',
     cancellation: filters.cancellation
       ? `${filters.cancellation[0].toUpperCase() + filters.cancellation.slice(1)} cancellation`
       : null,
     amenities: filters.amenities.map((value) => amenityNames[value] || value).join(' · '),
   };
+  // Fields the search bar already shows are not repeated as chips.
+  const inBar = play
+    ? ['city', 'area', 'dates', 'category', 'slot', 'guests']
+    : ['city', 'area', 'dates', 'slot', 'guests'];
   const chips = Object.entries(chipLabels).filter(
     ([key, label]) =>
       label &&
-      !['city', 'area', 'dates', 'slot', 'guests'].includes(key) &&
+      !inBar.includes(key) &&
       !(route?.[key] || (key === 'slot' && route?.intent?.slot)) &&
       !(key === 'guests' && filters.guests === 1) &&
       !(key === 'slot' && filters.slot === 'night'),
@@ -88,6 +106,30 @@ export default async function DiscoveryResults({ query, registry: registryInput,
       ? result.items[0].priceNote
       : null;
   const pill = cn(buttonVariants({ variant: 'outline' }), 'rounded-full px-5');
+  // Nothing free, or no venue at all: where else has venues (only read when needed).
+  const scopeSlug = route?.category?.slug ?? route?.vertical?.slug ?? filters.category;
+  const otherCities =
+    play && !failed && !messages.length && !result.total && !date
+      ? (
+          await Promise.all(
+            registry.cities
+              .filter((c) => c.slug !== (route?.city?.slug ?? filters.city))
+              .map(async (c) => {
+                const path = `/${c.slug}/${scopeSlug || 'entertainment'}`;
+                const { count } = await degradeOnFailure(
+                  () => discoveryApi.routeCount(path),
+                  { count: 0 },
+                  `venues in ${c.slug}`,
+                );
+                return count > 0 ? { ...c, path } : null;
+              }),
+          )
+        ).filter(Boolean)
+      : [];
+  const cityName =
+    route?.city?.name || registry.cities.find((c) => c.slug === filters.city)?.name || null;
+  const activityName =
+    route?.category?.name || registry.categories.find((c) => c.slug === filters.category)?.name;
   const locationChip =
     'inline-flex min-h-10 items-center gap-1.5 rounded-full border border-border bg-card px-4 text-meta font-medium text-ink-700 transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800';
   return (
@@ -100,7 +142,7 @@ export default async function DiscoveryResults({ query, registry: registryInput,
           )}
         </div>
       ) : (
-        <h1 className="sr-only">Search places</h1>
+        <h1 className="sr-only">{play ? 'Search venues' : 'Search places'}</h1>
       )}
       <DiscoveryFilters
         key={JSON.stringify(query)}
@@ -167,11 +209,18 @@ export default async function DiscoveryResults({ query, registry: registryInput,
           <>
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h2 className="text-h3">
-                  {result.total} {result.total === 1 ? 'place' : 'places'}
-                  {filters.dates.length ? ' matching every selected date' : ''}
-                </h2>
-                {filters.dates.length ? (
+                {play ? (
+                  <h2 className="text-h3">
+                    {result.total} {result.total === 1 ? 'venue' : 'venues'}
+                    {date ? ` with free times on ${formatLocalDate(date)}` : ''}
+                  </h2>
+                ) : (
+                  <h2 className="text-h3">
+                    {result.total} {result.total === 1 ? 'place' : 'places'}
+                    {filters.dates.length ? ' matching every selected date' : ''}
+                  </h2>
+                )}
+                {!play && filters.dates.length ? (
                   <p className="mt-1 text-tiny text-ink-600">
                     Prices include rent and the platform fee for every visit and guest. Refundable
                     deposits are shown separately.
@@ -187,7 +236,58 @@ export default async function DiscoveryResults({ query, registry: registryInput,
                 </noscript>
               </div>
             </div>
-            {!result.total && (
+            {!result.total && play && date ? (
+              <EmptyState
+                as="h3"
+                icon={CalendarX}
+                title={`Every court is booked on ${formatLocalDate(date)}${filters.start ? ` from ${clock12(filters.start)}` : ''}`}
+                description="Times fill up fast in the evening. Try another time or day."
+              >
+                {filters.start ? (
+                  <Link
+                    className={cn(buttonVariants(), 'rounded-full px-5')}
+                    href={href({ start: '' })}
+                  >
+                    Any time that day
+                  </Link>
+                ) : null}
+                <Link className={pill} href={href({ dates: [addLocalDays(date, 1)] })}>
+                  Next day
+                </Link>
+                {filters.duration > 60 ? (
+                  <Link className={pill} href={href({ duration: 60 })}>
+                    Try 1 hour
+                  </Link>
+                ) : null}
+              </EmptyState>
+            ) : null}
+            {!result.total && play && !date ? (
+              <EmptyState
+                as="h3"
+                icon={SearchX}
+                title={
+                  cityName
+                    ? `No ${activityName ? `${activityName.toLowerCase()} ` : ''}venues in ${cityName} yet`
+                    : 'No venues match these filters'
+                }
+                description={
+                  otherCities.length
+                    ? 'These cities have venues you can book now.'
+                    : 'Courts and play zones are joining Rentra. Check back soon, or list yours.'
+                }
+              >
+                {otherCities.map((c) => (
+                  <Link key={c.slug} className={locationChip} href={c.path}>
+                    <MapPin className="size-4" aria-hidden="true" />
+                    {c.name}
+                  </Link>
+                ))}
+                <Link className={pill} href="/partner/login">
+                  List your venue
+                </Link>
+              </EmptyState>
+            ) : null}
+            {!result.total && !play && (
               <EmptyState
                 as="h3"
                 icon={SearchX}
@@ -247,7 +347,7 @@ export default async function DiscoveryResults({ query, registry: registryInput,
           {route?.city ? `More in ${route.city.name}` : 'Explore by location'}
         </h2>
         <div className="mt-4 flex flex-wrap gap-2">
-          {route?.city && route?.category ? (
+          {route?.city && (route.category || route.vertical) ? (
             <>
               {registry.areas
                 .filter((a) => a.cityId === route.city.id)
@@ -255,7 +355,7 @@ export default async function DiscoveryResults({ query, registry: registryInput,
                   <Link
                     className={locationChip}
                     key={a.id}
-                    href={areaDiscoveryPath(route.city.slug, route.category.slug, a.slug)}
+                    href={areaDiscoveryPath(route.city.slug, scopeSlug, a.slug)}
                   >
                     <MapPin className="size-4" aria-hidden="true" />
                     {a.name}
@@ -265,7 +365,7 @@ export default async function DiscoveryResults({ query, registry: registryInput,
                 <Link
                   className={locationChip}
                   key={i.slug}
-                  href={intentDiscoveryPath(route.city.slug, route.category.slug, i.slug)}
+                  href={intentDiscoveryPath(route.city.slug, scopeSlug, i.slug)}
                 >
                   {i.label}
                 </Link>
@@ -273,16 +373,18 @@ export default async function DiscoveryResults({ query, registry: registryInput,
             </>
           ) : (
             registry.cities.flatMap((c) =>
-              registry.categories.map((cat) => (
-                <Link
-                  className={locationChip}
-                  key={`${c.id}-${cat.id}`}
-                  href={`/${c.slug}/${cat.slug}`}
-                >
-                  <MapPin className="size-4" aria-hidden="true" />
-                  {cat.name} in {c.name}
-                </Link>
-              )),
+              registry.categories
+                .filter((cat) => (cat.vertical ?? 'farmhouse') === vertical)
+                .map((cat) => (
+                  <Link
+                    className={locationChip}
+                    key={`${c.id}-${cat.id}`}
+                    href={`/${c.slug}/${cat.slug}`}
+                  >
+                    <MapPin className="size-4" aria-hidden="true" />
+                    {cat.name} in {c.name}
+                  </Link>
+                )),
             )
           )}
         </div>

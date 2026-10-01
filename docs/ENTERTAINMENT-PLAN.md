@@ -22,8 +22,8 @@ Phases are delivered one at a time. The owner asks for the next phase after revi
 | 4 → Backend/API Changes | ✅ Complete (local) | 1 Oct 2026 |
 | 5 → Owner Listing Flow | ✅ Complete (local) | 1 Oct 2026 |
 | 6 → Homepage & Navigation | ✅ Complete (local; owner screenshot review open) | 1 Oct 2026 |
-| 7 → Search & Filters | ⏳ Next | |
-| 8 → Entertainment Detail Page | ⬜ Not started | |
+| 7 → Search & Filters | ✅ Complete (local) | 1 Oct 2026 |
+| 8 → Entertainment Detail Page | ⏳ Next | |
 | 9 → Availability, Slots & Pricing | ⬜ Not started | |
 | 10 → Booking & Payment Flow | ⬜ Not started | |
 | 11 → Dashboards | ⬜ Not started | |
@@ -1946,7 +1946,7 @@ Built and verified on the disposable local stack from Phase 5 (PostgreSQL 17 on 
 
 ---
 
-## Phase 7 → Search & Filters
+## Phase 7 → Search & Filters — ✅ Complete (1 Oct 2026)
 
 ### Objective
 
@@ -2062,6 +2062,84 @@ Sort uses the same `SortSelect`. "Price: low to high" means the hourly rate (und
 
 - The farmhouse search URL contract and results are unchanged. The existing regression scripts pass with no edits other than additions.
 - An entertainment search with date and time returns only venues with a truly free court. This is verified by booking the last slot in one tab and re-searching in another: the venue disappears.
+
+### Completion record (1 Oct 2026)
+
+Built and verified on the disposable local stack (PostgreSQL 17 on `127.0.0.1:55432`, API on `:4106`, web as a production build and in dev mode on `:3106`). **Neon was not touched.**
+
+Phases 5 and 6 were committed by the owner (backend `ad48b66`, frontend `4b4c7c0`). The Phase 7 changes are uncommitted on `feat/entertainment`.
+
+**What now works**
+
+- **One search page for both verticals.** `DiscoveryFilters`, `DiscoveryResults` and the header panel follow the page's vertical: a landing route's `verticalCode`, else the query's `vertical`.
+  - **Search bar:** the venue fields (Where / What / When / Time) from Phase 6, here with a "Show venues" button.
+  - **Filters panel for venues:** venue name or locality, players, indoor or outdoor, price per hour, cancellation, and only that vertical's amenities. Farmhouse now also lists only its own property types and amenities. The badge counts the vertical's own filters.
+  - **Active chips:** players, indoor or outdoor, and per-hour prices. Fields already shown in the bar are not repeated.
+  - **Heading:** "{n} venues", or "{n} venues with free times on Fri, 2 Oct" for a dated search.
+  - **"Explore by location":** for venues, activities × cities. Areas and intents work under activity landings and under `/{city}/entertainment`.
+- **Cards for a dated search.** The price is for the chosen duration ("₹1,200 for 1 hr"). Up to three free start-time chips each link to the venue with the activity, date, start, duration and players set, e.g. `aria-label="Book 6:00 PM, ₹1,200, peak"`. A dot marks peak times, and the word "peak" is in the label. A venue with mixed courts shows "Indoor and outdoor".
+- **Empty states:**
+  - **Dated, nothing free:** "Every court is booked on Fri, 2 Oct from 11:30 PM", with "Any time that day" (when a start was set), "Next day", and "Try 1 hour" (when the duration was longer).
+  - **No venue:** "No bowling venues in Surat yet". Other cities with matching venues are offered; they are read from route counts, and only on this empty page. There is also an owner CTA.
+- **Canonical URLs:**
+  - `/search?category=box-cricket` without `vertical` redirects permanently to the same search with `vertical=entertainment`.
+  - A venue search with only a city and an activity opens that landing, `/{city}/{activity}`.
+  - Farmhouse searches are never redirected.
+- **Landings and SEO:**
+  - `/{city}/{activity}` ("Box cricket in Surat") and `/{city}/entertainment` ("Sports and play venues in Surat") get a venue description.
+  - The sitemap adds each public vertical's own landings, with their areas and intents, under the existing route-count gate (≥3 live venues).
+- **Other:**
+  - the header panel on venue searches keeps players and indoor in its hidden fields;
+  - the unused `INTENTS` is removed from `lib/constants.js`.
+
+**Verification**
+
+- **Backend `npm test`: 163/163 pass, 0 skipped** (with `CP01_TEST_DATABASE_URL` set). New `venue-search-free-court.integration.test.js`, the Phase 7 acceptance test:
+  - a dated search shows the venue's 22:00 and 23:00 times;
+  - two guests then hold both box-cricket courts for 22:00–24:00 through the real quote → hold path;
+  - the venue drops out of a 22:00 search;
+  - a 20:00 search still offers 20:00 and 21:00, and nothing that overlaps the holds.
+- **Frontend `npm test`: 51/51.** The new `test/domain/discovery.test.js` covers:
+  - parse → serialise round trips for farmhouse (the URL string is pinned) and for venues (documented parameter order);
+  - each vertical dropping the other's parameters;
+  - validation of venue parameters;
+  - landings for activities, the whole vertical, areas, and intents that never cross verticals.
+  
+  eslint and Prettier are clean, and `next build` passes. `/` and `/entertainment` are still static, and `/search` is dynamic as before.
+- **Gate `scripts/portal-gate/cp34_venue_search_gate.mjs` on the production build: 52/52.** It covers:
+  - the venue bar, cards and filters panel, and that the submitted URL has `players`/`indoor` and never `slot`/`guests`;
+  - the chips;
+  - dated time chips (name, price and link) and the "for 1 hr" price;
+  - the booked-out and no-venue states with their actions;
+  - both landing types;
+  - both redirects, and no redirect for farmhouse;
+  - a keyboard-only search from the Entertainment home;
+  - axe 0 violations and no overflow at 1440 and 390 on 4 pages;
+  - no console errors.
+  
+  `cp33` (tabs and homes) still passes 46/46.
+- **Farmhouse unchanged.** With one public vertical, screenshots from frontend `b5e34b0` (before Phases 6–7) and from now were compared byte for byte at 1440 and 390. The pages were `/`, `/` docked, `/search`, a slot search, a search with chips, a dated search, an empty search, `/surat/farmhouse`, an intent landing, an area landing, a listing, `/saved` and `/help`. **All 26 are identical.**
+  - The first run showed one sub-pixel difference in the dated heading: the text had been merged into one text node, which changes kerning. The farmhouse heading now keeps its original nodes.
+- Screenshots: `docs/design/entertainment/shots/phase7/`. They show fixture data; the venue photos were copied from a farmhouse.
+
+**Deviations from the plan text**
+
+- **No "Activity" select in the venue Filters panel.** The bar's What field already writes `category`, and a second `category` field would submit the parameter twice.
+- **The redirects arrive as streamed redirects.** They reach the browser as a meta refresh plus a `308`/`307` in the RSC payload, and the HTTP status is 200. The `(marketing)` loading boundary streams first, as with the soft 404 in Phase 6, so a true 3xx status would need a `proxy` registry read on every request. Browsers follow them, and `/search` is `noindex`.
+- **The city+activity landing redirect is new for venues only.** The plan says it "matches farmhouse behaviour", but farmhouse never did this, and its URL contract must not change.
+- **No extraction into `StayFields`/`PlayFields`.** The fields stay one `SearchFields` with a `vertical` branch (Phase 6).
+- **New checks are in the fixture gate `cp34`.** The `:3000` regression scripts (`check-search-panels.cjs`, `check-search-scroll.cjs`) only see one public vertical in normal development.
+- **The `VERTICAL_MISMATCH` unit test is not in the frontend.** That check runs on the backend (`searchDiscovery`) and is covered by `venue-apis.integration.test.js`.
+
+**Found, not fixed (outside Phase 7)**
+
+- **React key warning, dev only.** It fires on every search page with active filter chips, farmhouse ones included: "Each child in a list should have a unique key … passed a child from DiscoveryResults". The chips are keyed, and production builds do not log it. It needs a separate look at how the server-rendered chip list crosses into the `DiscoveryFilters` client component.
+
+**Owner actions**
+
+- Review the Phase 7 screenshots.
+- Still open from Phase 6: approve the tabs and the Entertainment home screenshots.
+- Unchanged: rotate the Neon password; R0 with the Phase 3 runbook; 0052–0055 only with R1.
 
 ---
 

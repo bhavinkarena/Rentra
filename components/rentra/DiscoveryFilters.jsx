@@ -20,13 +20,24 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
   // Same docking as the home hero: the bar scrolls away and HeaderSearch's pill takes over.
   const sentinel = useSearchDock();
   usePublishDiscovery(filters, route, path);
+  // Venues pick the activity in the search bar; players and indoor are their own filters.
+  const vertical = route?.verticalCode ?? filters.vertical;
+  const play = vertical !== 'farmhouse';
   const activeFilters =
     (filters.q ? 1 : 0) +
-    (!route?.category && filters.category ? 1 : 0) +
+    (!play && !route?.category && filters.category ? 1 : 0) +
+    (play && filters.players != null ? 1 : 0) +
+    (play && filters.indoor != null ? 1 : 0) +
     (filters.min != null ? 1 : 0) +
     (filters.max != null ? 1 : 0) +
     (filters.cancellation ? 1 : 0) +
     filters.amenities.length;
+  const ownCategories = registry.categories.filter(
+    (item) => (item.vertical ?? 'farmhouse') === vertical,
+  );
+  const ownAmenities = registry.amenities.filter(
+    (item) => !item.verticals?.length || item.verticals.includes(vertical),
+  );
   return (
     /* Sort renders beside the result count, outside this element. It joins this
        form through form="discovery-filters" so one submit carries every choice.
@@ -66,7 +77,8 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
           filters={filters}
           registry={registry}
           route={route}
-          submitLabel="Show places"
+          vertical={vertical}
+          submitLabel={play ? 'Show venues' : 'Show places'}
         />
       </div>
 
@@ -113,21 +125,49 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <label className="font-medium sm:col-span-2 lg:col-span-1">
-            Property name or locality
+            {play ? 'Venue name or locality' : 'Property name or locality'}
             <input
               name="q"
               defaultValue={filters.q}
               maxLength={100}
-              placeholder="For example, Kamrej"
+              placeholder={play ? 'For example, Vesu' : 'For example, Kamrej'}
               className={control}
             />
           </label>
-          {!route?.category && (
+          {play ? (
+            <>
+              <label className="font-medium">
+                Players
+                <input
+                  name="players"
+                  type="number"
+                  min="1"
+                  max="500"
+                  placeholder="Any"
+                  defaultValue={filters.players ?? ''}
+                  className={control}
+                />
+              </label>
+              <label className="font-medium">
+                Indoor or outdoor
+                <select
+                  name="indoor"
+                  defaultValue={filters.indoor == null ? '' : String(filters.indoor)}
+                  className={control}
+                >
+                  <option value="">Either</option>
+                  <option value="true">Indoor</option>
+                  <option value="false">Outdoor</option>
+                </select>
+              </label>
+            </>
+          ) : null}
+          {!play && !route?.category && (
             <label className="font-medium">
               Property type
               <select name="category" defaultValue={filters.category} className={control}>
                 <option value="">Any type</option>
-                {registry.categories.map((item) => (
+                {ownCategories.map((item) => (
                   <option key={item.id} value={item.slug}>
                     {item.name}
                   </option>
@@ -136,7 +176,7 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
             </label>
           )}
           <label className="font-medium">
-            Minimum price (₹)
+            {play ? 'Minimum price per hour (₹)' : 'Minimum price (₹)'}
             <input
               name="min"
               type="number"
@@ -147,7 +187,7 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
             />
           </label>
           <label className="font-medium">
-            Maximum price (₹)
+            {play ? 'Maximum price per hour (₹)' : 'Maximum price (₹)'}
             <input
               name="max"
               type="number"
@@ -171,7 +211,7 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
           <fieldset className="sm:col-span-2 lg:col-span-4">
             <legend className="font-medium">Amenities</legend>
             <div className="mt-2 flex flex-wrap gap-2">
-              {registry.amenities.map((item) => (
+              {ownAmenities.map((item) => (
                 <label
                   className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-full border border-border px-3 has-checked:border-brand-300 has-checked:bg-brand-50 has-checked:text-brand-800"
                   key={item.slug}
