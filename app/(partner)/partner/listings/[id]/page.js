@@ -19,11 +19,19 @@ import {
   TermsSection,
   PhotosSection,
   OwnershipSection,
+  VenueSection,
+  HoursSection,
+  HourlyPricingSection,
   SubmitBar,
   ReviewFlags,
 } from '@/components/partner/listing/ListingSections';
 import { ListingChrome } from '@/components/partner/listing/chrome';
-import { firstIncompleteStepId, sectionAnchorId, stepHref } from '@/lib/domain/listing-steps';
+import {
+  firstIncompleteStepId,
+  listingModel,
+  sectionAnchorId,
+  stepHref,
+} from '@/lib/domain/listing-steps';
 
 export const metadata = {
   title: 'Edit property',
@@ -57,14 +65,25 @@ export default async function ListingBuilderPage({ params, searchParams }) {
   const { data, failure } = await settle(partnerApi.listing(id));
   if (failure) return <PortalState kind={failure} backHref={listHref} backLabel="All properties" />;
 
-  const [catalogue, categories, cities] = await Promise.all([
-    partnerApi.amenityCatalogue(),
-    partnerApi.categories(),
+  const venue = data.listing.rentalUnit === 'hour';
+  const vertical = data.listing.vertical;
+  const [catalogue, categories, cities, calendar] = await Promise.all([
+    partnerApi.amenityCatalogue(vertical),
+    partnerApi.categories(vertical),
     partnerApi.places(),
+    // Opening hours are edited here for venues; they need the calendar version.
+    venue ? partnerApi.calendar(id) : null,
   ]);
 
-  const { listing, prices, amenities, photos, documents } = data;
-  const completion = listingCompletion(listing, { prices, amenities, photos, documents });
+  const { listing, prices, amenities, photos, documents, resources = [], hourlyRates = [] } = data;
+  const completion = listingCompletion(listing, {
+    prices,
+    amenities,
+    photos,
+    documents,
+    resources,
+    hourlyRates,
+  });
   const title = listing.title === 'Untitled property' ? 'New property' : listing.title;
   const overviewHref = `/partner/listings/${id}/overview?from=${encodeURIComponent(listHref)}`;
   // Review corrections are actionable only while the owner is fixing them.
@@ -107,7 +126,13 @@ export default async function ListingBuilderPage({ params, searchParams }) {
             : undefined
         }
         chips={[
-          { icon: Users, label: 'Up to', value: `${listing.capacity ?? '—'} guests` },
+          venue
+            ? {
+                icon: Users,
+                label: 'Courts',
+                value: `${resources.filter((r) => r.isActive !== false).length} · up to ${listing.capacity ?? '—'} players`,
+              }
+            : { icon: Users, label: 'Up to', value: `${listing.capacity ?? '—'} guests` },
           {
             icon: CircleCheck,
             label: 'Setup',
@@ -168,7 +193,7 @@ export default async function ListingBuilderPage({ params, searchParams }) {
           prompt disappears rather than nagging. */}
       {!completion.isLive && !completion.inReview && completion.remaining.length > 0 ? (
         <Link
-          href={stepHref(id, firstIncompleteStepId(completion))}
+          href={stepHref(id, firstIncompleteStepId(completion, listingModel(listing)))}
           className="mt-5 flex items-center gap-3 rounded-lg border border-brand-200 bg-brand-50 p-4 hover:border-brand-300 hover:bg-brand-100"
         >
           <span className="grid size-9 shrink-0 place-items-center rounded-md bg-brand-600">
@@ -197,7 +222,9 @@ export default async function ListingBuilderPage({ params, searchParams }) {
             href={`/partner/listings/${id}/calendar?from=${encodeURIComponent(listHref)}`}
             className="inline-flex min-h-11 items-center rounded-md border border-border px-4 text-meta font-semibold text-brand-700"
           >
-            Manage booking hours, dates and prices
+            {venue
+              ? 'Manage blocks and the court calendar'
+              : 'Manage booking hours, dates and prices'}
           </Link>
         </div>
         <SubmitBar listing={listing} completion={completion} submitAction={submitListing} />
@@ -212,10 +239,24 @@ export default async function ListingBuilderPage({ params, searchParams }) {
           <div className="mt-6 space-y-5">
             <BasicsSection listing={listing} categories={categories} />
             <LocationSection listing={listing} cities={cities} />
-            <CapacitySection listing={listing} />
+            {venue ? (
+              <VenueSection listing={listing} resources={resources} activities={categories} />
+            ) : (
+              <CapacitySection listing={listing} />
+            )}
             <AmenitiesSection listing={listing} catalogue={catalogue} selected={amenities} />
+            {venue ? <HoursSection listing={listing} calendar={calendar} /> : null}
             <RulesSection listing={listing} />
-            <PricingSection listing={listing} prices={prices} />
+            {venue ? (
+              <HourlyPricingSection
+                listing={listing}
+                hourlyRates={hourlyRates}
+                resources={resources}
+                activities={categories}
+              />
+            ) : (
+              <PricingSection listing={listing} prices={prices} />
+            )}
             <TermsSection listing={listing} />
             <PhotosSection listing={listing} photos={photos} />
             <OwnershipSection

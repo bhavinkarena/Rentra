@@ -6,6 +6,7 @@ import { VersionField, Input, Field, Section, SaveButton, inputCls } from './Sec
 export function BasicsSection({ listing, categories }) {
   const [state, action, pending] = useActionState(saveBasics, {});
   const e = state.errors ?? {};
+  const venue = listing.rentalUnit === 'hour';
 
   return (
     <Section
@@ -18,7 +19,7 @@ export function BasicsSection({ listing, categories }) {
       <form id={useStepFormId()} action={action} className="space-y-4">
         <input type="hidden" name="id" value={listing.id} />
         <VersionField listing={listing} states={[state]} />
-        <Field id="categoryId" label="Category" error={e.categoryId}>
+        <Field id="categoryId" label={venue ? 'Main activity' : 'Category'} error={e.categoryId}>
           <select
             id="categoryId"
             name="categoryId"
@@ -37,7 +38,11 @@ export function BasicsSection({ listing, categories }) {
         <Field
           id="title"
           label="Title"
-          hint="Say what makes it different. “Riverside Farm with private pool” beats “Farmhouse in Kamrej”."
+          hint={
+            venue
+              ? 'Say what makes it different. “Floodlit box cricket in Vesu” beats “Sports venue”.'
+              : 'Say what makes it different. “Riverside Farm with private pool” beats “Farmhouse in Kamrej”.'
+          }
           error={e.title}
         >
           <Input
@@ -47,7 +52,9 @@ export function BasicsSection({ listing, categories }) {
             required
             minLength={8}
             defaultValue={listing.title === 'Untitled property' ? '' : listing.title}
-            placeholder="Riverside Farm with private pool"
+            placeholder={
+              venue ? 'Smash Arena — floodlit box cricket' : 'Riverside Farm with private pool'
+            }
             aria-invalid={Boolean(e.title)}
           />
         </Field>
@@ -62,13 +69,17 @@ export function BasicsSection({ listing, categories }) {
             name="highlight"
             maxLength={60}
             defaultValue={listing.highlight ?? ''}
-            placeholder="Private pool"
+            placeholder={venue ? 'Floodlit until 1 AM' : 'Private pool'}
           />
         </Field>
         <Field
           id="description"
           label="Description"
-          hint="Write for someone deciding whether to drive 40km. What is it like, what is nearby, what should they know?"
+          hint={
+            venue
+              ? 'What players get: courts, surface, lighting, parking, what to bring.'
+              : 'Write for someone deciding whether to drive 40km. What is it like, what is nearby, what should they know?'
+          }
           error={e.description}
         >
           <textarea

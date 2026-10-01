@@ -2,11 +2,12 @@
 import { useActionState, useState } from 'react';
 import { Upload, Pause } from 'lucide-react';
 import { uploadOwnershipDocument } from '@/lib/actions/partner';
-import { OWNERSHIP_DOC_TYPES } from '@/lib/domain/listing-completion';
+import { ownershipDocTypesFor } from '@/lib/domain/listing-completion';
 import { Input, Field, Section, SaveButton, inputCls } from './SectionPrimitives';
 export function OwnershipSection({ listing, documents, clientType, kycName }) {
   const [state, action, pending] = useActionState(uploadOwnershipDocument, {});
-  const [docType, setDocType] = useState(documents[0]?.docType ?? 'extract_7_12');
+  const OWNERSHIP_DOC_TYPES = ownershipDocTypesFor(listing.rentalUnit);
+  const [docType, setDocType] = useState(documents[0]?.docType ?? OWNERSHIP_DOC_TYPES[0].id);
   const e = state.errors ?? {};
 
   const options = OWNERSHIP_DOC_TYPES.filter(
@@ -17,8 +18,12 @@ export function OwnershipSection({ listing, documents, clientType, kycName }) {
   return (
     <Section
       id="ownership"
-      title="Proof it is yours"
-      intro="One document, with the name matched against your ID. This is the check that separates Rentra from a classified ad."
+      title={listing.rentalUnit === 'hour' ? 'Proof you can list it' : 'Proof it is yours'}
+      intro={
+        listing.rentalUnit === 'hour'
+          ? 'One document showing you own or lease the premises, or run the business there, name-matched against your ID.'
+          : 'One document, with the name matched against your ID. This is the check that separates Rentra from a classified ad.'
+      }
       state={state}
       pending={pending}
     >

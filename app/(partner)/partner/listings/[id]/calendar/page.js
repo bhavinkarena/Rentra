@@ -22,7 +22,7 @@ export default async function CalendarPage({ params, searchParams }) {
   const { data: page, failure } = await settle(partnerApi.calendar(id));
   if (failure)
     return <PortalState kind={failure} backHref={overviewHref} backLabel="Back to property" />;
-  const { listing, blocks } = page;
+  const { listing, blocks, resources = [] } = page;
   const intervals = await settle(
     partnerApi.calendarIntervals(id, {
       from: query?.from?.startsWith('/') ? undefined : query?.from,
@@ -57,7 +57,7 @@ export default async function CalendarPage({ params, searchParams }) {
           listHref={listHref}
         />
       )}
-      <BookingCalendarSettings listing={listing} blocks={blocks} />
+      <BookingCalendarSettings listing={listing} blocks={blocks} resources={resources} />
     </div>
   );
 }

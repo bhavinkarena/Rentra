@@ -13,8 +13,23 @@ export const metadata = {
 export default async function NewListingPage() {
   await requireActiveClient();
 
-  const [categories, cities] = await Promise.all([partnerApi.categories(), partnerApi.places()]);
+  // Verticals came with the entertainment plan; an older API answers 404, so fall back to none.
+  const [categories, cities, verticals] = await Promise.all([
+    partnerApi.categories(),
+    partnerApi.places(),
+    partnerApi.verticals().catch(() => []),
+  ]);
   const progress = wizardProgress(listingCompletion(null), 'basics');
+  // The rail follows the "What are you listing?" choice.
+  const venueProgress = wizardProgress(listingCompletion({ rentalUnit: 'hour' }), 'basics', 'hour');
 
-  return <NewListingStart categories={categories} cities={cities} progress={progress} />;
+  return (
+    <NewListingStart
+      categories={categories}
+      cities={cities}
+      verticals={verticals}
+      progress={progress}
+      venueProgress={venueProgress}
+    />
+  );
 }

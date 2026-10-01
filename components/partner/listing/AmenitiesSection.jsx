@@ -9,9 +9,12 @@ const GROUP_LABELS = {
   kitchen: 'Kitchen and food',
   power: 'Power',
   outdoor: 'Outdoor',
-  entertainment: 'Entertainment',
+  // Slug kept; labelled so it never reads like the Entertainment vertical.
+  entertainment: 'Music & games',
   practical: 'Practical',
   event: 'Events',
+  play: 'Play',
+  facilities: 'Facilities',
 };
 
 export function AmenitiesSection({ listing, catalogue, selected }) {

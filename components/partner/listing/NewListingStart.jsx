@@ -9,6 +9,7 @@ import { createListingFromBasics } from '@/lib/actions/partner';
 import { RentraLogo } from '@/components/rentra/Logo';
 import { Input } from '@/components/ui/input';
 import { STEP_FORM_ID } from './chrome';
+import { VerticalIcon } from '@/components/rentra/icons/vertical-icons';
 import { ChapterBar, MobileStepDisclosure, StepRail } from './WizardProgress';
 
 const controlClass = `${sharedFieldClass} min-h-12`;
@@ -34,8 +35,33 @@ function Field({ id, label, hint, error, optional = false, children }) {
   );
 }
 
-export default function NewListingStart({ categories, cities, progress }) {
+const VERTICAL_COPY = {
+  farmhouse: { title: 'Farmhouse or villa', hint: 'Day visits and overnight stays' },
+  entertainment: {
+    title: 'Sports or play venue',
+    hint: 'Courts, turfs, lanes or zones booked by the hour',
+  },
+};
+
+export default function NewListingStart({
+  categories,
+  cities,
+  verticals = [],
+  progress: slotProgress,
+  venueProgress = slotProgress,
+}) {
   const [state, action, pending] = useActionState(createListingFromBasics, {});
+  // Only verticals that have categories to choose from; with one, no choice is shown.
+  const choices = verticals.filter((v) =>
+    categories.some((c) => (c.vertical ?? 'farmhouse') === v.code),
+  );
+  const [vertical, setVertical] = useState(choices.length === 1 ? choices[0].code : null);
+  const venue = vertical === 'entertainment';
+  const progress = venue ? venueProgress : slotProgress;
+  const shown =
+    choices.length > 1
+      ? categories.filter((c) => (c.vertical ?? 'farmhouse') === vertical)
+      : categories;
   const [cityId, setCityId] = useState('');
   const [areaId, setAreaId] = useState('');
   const [title, setTitle] = useState('');
@@ -113,7 +139,51 @@ export default function NewListingStart({ categories, cities, progress }) {
                   </p>
                 ) : null}
 
-                <section className="mt-8" aria-labelledby="identity-heading">
+                {choices.length > 1 ? (
+                  <fieldset className="mt-8">
+                    <legend className="text-h4 font-bold text-ink-900">
+                      What are you listing?
+                    </legend>
+                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                      {choices.map((choice) => {
+                        const copy = VERTICAL_COPY[choice.code] ?? { title: choice.name, hint: '' };
+                        const checked = vertical === choice.code;
+                        return (
+                          <label
+                            key={choice.code}
+                            className={`flex cursor-pointer items-center gap-4 rounded-lg border p-4 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring ${
+                              checked
+                                ? 'border-brand-600 bg-brand-50'
+                                : 'border-border hover:border-brand-300'
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name="vertical"
+                              value={choice.code}
+                              className="sr-only"
+                              checked={checked}
+                              onChange={() => setVertical(choice.code)}
+                            />
+                            <VerticalIcon code={choice.code} className="size-10 shrink-0" />
+                            <span>
+                              <span className="block text-meta font-bold text-ink-900">
+                                {copy.title}
+                              </span>
+                              <span className="block text-tiny text-ink-600">{copy.hint}</span>
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </fieldset>
+                ) : null}
+
+                <section
+                  className="mt-8"
+                  aria-labelledby="identity-heading"
+                  hidden={choices.length > 1 && !vertical}
+                >
                   <div className="flex items-start gap-3 border-b border-border pb-4">
                     <span className="grid size-10 shrink-0 place-items-center rounded-md bg-brand-50 text-brand-700 ring-1 ring-inset ring-brand-100">
                       <Building2 className="size-5" aria-hidden="true" />
@@ -131,8 +201,12 @@ export default function NewListingStart({ categories, cities, progress }) {
                   <div className="mt-5 space-y-5">
                     <Field
                       id="categoryId"
-                      label="Category"
-                      hint="Choose the closest type of property."
+                      label={venue ? 'Main activity' : 'Category'}
+                      hint={
+                        venue
+                          ? 'The main thing played here. You add every court and activity in the next steps.'
+                          : 'Choose the closest type of property.'
+                      }
                       error={errors.categoryId}
                     >
                       <select
@@ -145,9 +219,9 @@ export default function NewListingStart({ categories, cities, progress }) {
                         className={controlClass}
                       >
                         <option value="" disabled>
-                          Select a category
+                          {venue ? 'Select an activity' : 'Select a category'}
                         </option>
-                        {categories.map((category) => (
+                        {shown.map((category) => (
                           <option key={category.id} value={category.id}>
                             {category.name}
                           </option>
@@ -158,7 +232,7 @@ export default function NewListingStart({ categories, cities, progress }) {
                     <Field
                       id="title"
                       label="Property title"
-                      hint={`${title.length}/90 · “Riverside farm with private pool” is clear and specific.`}
+                      hint={`${title.length}/90 · ${venue ? '“Floodlit box cricket in Vesu”' : '“Riverside farm with private pool”'} is clear and specific.`}
                       error={errors.title}
                     >
                       <Input
@@ -170,7 +244,11 @@ export default function NewListingStart({ categories, cities, progress }) {
                         minLength={8}
                         maxLength={90}
                         autoComplete="off"
-                        placeholder="Riverside farm with private pool"
+                        placeholder={
+                          venue
+                            ? 'Smash Arena — floodlit box cricket'
+                            : 'Riverside farm with private pool'
+                        }
                         aria-invalid={Boolean(errors.title)}
                         aria-describedby="title-description"
                         className={controlClass}
@@ -189,7 +267,11 @@ export default function NewListingStart({ categories, cities, progress }) {
                         name="highlight"
                         maxLength={60}
                         autoComplete="off"
-                        placeholder="Private pool · 25 minutes from Surat"
+                        placeholder={
+                          venue
+                            ? 'Floodlit until 1 AM · parking'
+                            : 'Private pool · 25 minutes from Surat'
+                        }
                         aria-invalid={Boolean(errors.highlight)}
                         aria-describedby="highlight-description"
                         className={controlClass}

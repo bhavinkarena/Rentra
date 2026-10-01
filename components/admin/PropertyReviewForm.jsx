@@ -6,11 +6,24 @@ import { useRouter } from 'next/navigation';
 import { propertyReviewCommand } from '@/lib/actions/admin';
 import ValidationSummary from '@/components/portal/ValidationSummary';
 
-const sections = [
+const SLOT_SECTIONS = [
   'basics',
   'location',
   'capacity',
   'amenities',
+  'rules',
+  'pricing',
+  'terms',
+  'photos',
+  'ownership',
+];
+/** Time-booked venues: courts and opening hours instead of size and capacity. */
+const VENUE_SECTIONS = [
+  'basics',
+  'location',
+  'venue',
+  'amenities',
+  'hours',
   'rules',
   'pricing',
   'terms',
@@ -26,7 +39,9 @@ export default function PropertyReviewForm({
   adminId,
   canDecide,
   writable,
+  venue = false,
 }) {
+  const sections = venue ? VENUE_SECTIONS : SLOT_SECTIONS;
   const [state, action, pending] = useActionState(propertyReviewCommand, {});
   const [, startTransition] = useTransition();
   const [reason, setReason] = useState('');

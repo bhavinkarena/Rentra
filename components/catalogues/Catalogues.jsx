@@ -6,11 +6,26 @@ import { useRouter } from 'next/navigation';
 import Link from '@/components/navigation/NavigationLink';
 import { catalogueCommand } from '@/lib/actions/catalogues';
 const names = {
+  verticals: 'Verticals',
   cities: 'Cities',
   areas: 'Areas',
   categories: 'Categories',
   amenities: 'Amenities',
 };
+/** Icon keys the frontend ships (components/rentra/icons). */
+const ICON_KEYS = [
+  'farmhouse',
+  'cricket',
+  'pickleball',
+  'badminton',
+  'bowling',
+  'football',
+  'gaming',
+  'trampoline',
+  'kart',
+];
+/** V1 booking model per vertical, as the API enforces it. */
+const UNIT_FOR = { farmhouse: 'slot', entertainment: 'hour' };
 const fieldNames = {
   label: 'Label',
   sortOrder: 'Display order',
@@ -26,6 +41,9 @@ const fieldNames = {
   groupSlug: 'Group',
   isFilterable: 'Search filter',
   valueType: 'Value type',
+  verticalCode: 'Vertical',
+  iconKey: 'Icon',
+  verticals: 'Verticals',
 };
 const inputClass = `${sharedFieldClass} mt-1`;
 const buttonClass = `${sharedButtonVariants({ shape: 'default', size: 'default' })} `;
@@ -201,13 +219,16 @@ export function CatalogueDetail({ data }) {
       Object.assign(fields, {
         form: String(f.get('form')),
         rentalUnit: String(f.get('rentalUnit')),
+        verticalCode: String(f.get('verticalCode')),
       });
+    if (type === 'categories') fields.iconKey = String(f.get('iconKey')) || null;
     if (type === 'amenities')
       Object.assign(fields, {
         labelHi: String(f.get('labelHi')),
         labelGu: String(f.get('labelGu')),
         groupSlug: String(f.get('groupSlug')),
         isFilterable: f.get('isFilterable') === 'on',
+        verticals: f.getAll('verticals').map(String),
         ...(creating ? { valueType: String(f.get('valueType')) } : {}),
       });
     const input = {
@@ -259,9 +280,10 @@ export function CatalogueDetail({ data }) {
           {type === 'amenities' && <p>Value type: {r.value_type}</p>}
           {type === 'categories' && (
             <p>
-              Form: {r.form} · Rental unit: {r.default_rental_unit}
+              Vertical: {r.vertical_code} · Form: {r.form} · Rental unit: {r.default_rental_unit}
             </p>
           )}
+          {type === 'amenities' && <p>Verticals: {(r.verticals ?? []).join(', ') || 'none'}</p>}
           {type === 'areas' && (
             <p>City: {data.cities.find((c) => c.id === r.city_id)?.name || r.city_id}</p>
           )}
@@ -363,8 +385,44 @@ export function CatalogueDetail({ data }) {
                 </fieldset>
               </>
             )}
+            {type === 'categories' && (
+              <label className="block">
+                Icon
+                <select
+                  aria-label="Icon"
+                  name="iconKey"
+                  className={inputClass}
+                  defaultValue={r?.icon_key ?? ''}
+                >
+                  <option value="">Generic</option>
+                  {ICON_KEYS.map((key) => (
+                    <option key={key}>{key}</option>
+                  ))}
+                </select>
+              </label>
+            )}
             {type === 'categories' && creating && (
               <>
+                <label className="block">
+                  Vertical
+                  <select
+                    aria-label="Vertical"
+                    name="verticalCode"
+                    className={inputClass}
+                    defaultValue="farmhouse"
+                    onChange={(event) => {
+                      const unit = event.currentTarget.form?.elements.namedItem('rentalUnit');
+                      if (unit && UNIT_FOR[event.target.value])
+                        unit.value = UNIT_FOR[event.target.value];
+                    }}
+                  >
+                    {(data.verticals ?? [{ code: 'farmhouse', name: 'Farmhouse' }]).map((v) => (
+                      <option key={v.code} value={v.code}>
+                        {v.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
                 <label className="block">
                   Form
                   <select aria-label="Form" name="form" className={inputClass}>
@@ -375,7 +433,7 @@ export function CatalogueDetail({ data }) {
                 <label className="block">
                   Rental unit
                   <select aria-label="Rental unit" name="rentalUnit" className={inputClass}>
-                    {['slot', 'night', 'day', 'week', 'month'].map((v) => (
+                    {['slot', 'hour', 'night', 'day', 'week', 'month'].map((v) => (
                       <option key={v}>{v}</option>
                     ))}
                   </select>
@@ -395,6 +453,20 @@ export function CatalogueDetail({ data }) {
                   <input type="checkbox" name="isFilterable" defaultChecked={r?.is_filterable} />
                   Available as a search filter
                 </label>
+                <fieldset className="space-y-2">
+                  <legend>Offered for</legend>
+                  {(data.verticals ?? []).map((v) => (
+                    <label key={v.code} className="flex gap-2">
+                      <input
+                        type="checkbox"
+                        name="verticals"
+                        value={v.code}
+                        defaultChecked={(r?.verticals ?? ['farmhouse']).includes(v.code)}
+                      />
+                      {v.name}
+                    </label>
+                  ))}
+                </fieldset>
                 {creating && (
                   <label className="block">
                     Value type
@@ -500,5 +572,153 @@ export function CatalogueDetail({ data }) {
         </section>
       )}
     </section>
+  );
+}
+
+const STATUS_LABEL = {
+  hidden: 'Hidden — nobody sees it',
+  partners: 'Open to owners — guests see nothing',
+  public: 'Public — guests see it',
+};
+
+/**
+ * Verticals (Farmhouse, Entertainment) and the launch switch. Same two-step
+ * save as other catalogue records: preview shows who will see what, then confirm.
+ */
+export function VerticalList({ data }) {
+  return (
+    <section className="space-y-6 p-4 sm:p-6">
+      <Nav />
+      <h1 className="text-2xl font-bold">Verticals</h1>
+      <p>
+        The kinds of place guests switch between. Status is the launch switch: open a vertical to
+        owners first, make it public once enough places are live. Farmhouse always stays public.
+      </p>
+      <ul className="space-y-4">
+        {data.items.map((v) => (
+          <VerticalRow key={v.code} vertical={v} canWrite={data.canWrite} />
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function VerticalRow({ vertical: v, canWrite }) {
+  const router = useRouter();
+  const [result, setResult] = useState(null);
+  const [proposal, setProposal] = useState(null);
+  const [pending, startTransition] = useTransition();
+  const submit = (event) => {
+    event.preventDefault();
+    const f = new FormData(event.currentTarget);
+    const input = {
+      version: v.version,
+      name: String(f.get('name')),
+      sortOrder: Number(f.get('sortOrder')),
+      status: String(f.get('status')),
+      reason: String(f.get('reason')),
+      preview: true,
+    };
+    setProposal(input);
+    startTransition(async () => setResult(await catalogueCommand('verticals', v.code, input)));
+  };
+  const confirm = () =>
+    startTransition(async () => {
+      const saved = await catalogueCommand('verticals', v.code, {
+        ...proposal,
+        preview: false,
+        previewHash: result.previewHash,
+      });
+      setResult(saved);
+      setProposal(null);
+      if (saved.ok) router.refresh();
+    });
+  return (
+    <li className="rounded-md border border-ink-200 p-4">
+      <p className="font-semibold">
+        {v.name} <span className="font-normal text-ink-600">({v.code})</span>
+      </p>
+      <p className="text-meta">
+        {STATUS_LABEL[v.status] ?? v.status} · {v.categories} categories · {v.live} live listings
+      </p>
+      {canWrite && (
+        <form
+          onSubmit={submit}
+          onChange={() => setResult(null)}
+          className="mt-3 grid gap-3 sm:grid-cols-2"
+        >
+          <label className="block">
+            Name
+            <input
+              name="name"
+              className={inputClass}
+              defaultValue={v.name}
+              required
+              minLength={2}
+              maxLength={60}
+            />
+          </label>
+          <label className="block">
+            Display order
+            <input
+              name="sortOrder"
+              type="number"
+              min={0}
+              max={10000}
+              className={inputClass}
+              defaultValue={v.sortOrder}
+              required
+            />
+          </label>
+          <label className="block">
+            Status
+            <select
+              name="status"
+              className={inputClass}
+              defaultValue={v.status}
+              disabled={v.code === 'farmhouse'}
+            >
+              {Object.entries(STATUS_LABEL).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+            {v.code === 'farmhouse' && <input type="hidden" name="status" value="public" />}
+          </label>
+          <label className="block">
+            Reason for change
+            <input name="reason" className={inputClass} required minLength={10} maxLength={1000} />
+          </label>
+          <button
+            disabled={pending}
+            className={`${buttonClass} sm:col-span-2 sm:justify-self-start`}
+          >
+            Preview changes
+          </button>
+        </form>
+      )}
+      {result?.error && (
+        <p role="alert" className="mt-3 rounded-md border border-danger/30 p-3">
+          {result.error}
+        </p>
+      )}
+      {result?.ok && (
+        <p role="status" className="mt-3">
+          Saved. The public site refreshes within a few minutes.
+        </p>
+      )}
+      {result?.preview && (
+        <section
+          aria-label="Change preview"
+          className="mt-3 space-y-2 rounded-md border-2 border-ink-900 p-4"
+        >
+          <p>{result.effect}</p>
+          <button disabled={pending || !proposal} onClick={confirm} className={buttonClass}>
+            Confirm and save
+          </button>
+        </section>
+      )}
+    </li>
   );
 }
