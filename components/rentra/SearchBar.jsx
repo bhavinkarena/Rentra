@@ -52,8 +52,9 @@ export function useSearchDock(enabled = true) {
     );
     observer.observe(sentinel.current);
     return () => {
+      // The next page's observer updates docking. Clearing it here would flash
+      // the full header between two pages that both have a docked search.
       observer.disconnect();
-      root.removeAttribute('data-search-docked');
     };
   }, [enabled]);
   return sentinel;

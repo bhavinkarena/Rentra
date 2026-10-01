@@ -59,7 +59,7 @@ export default function SiteChrome({
             <div className="pointer-events-auto relative ml-auto">{navigation}</div>
             <Link
               href="/partner/login"
-              className="pointer-events-auto relative hidden min-h-11 items-center rounded-full px-3 text-meta text-ink-500 hover:bg-brand-50 hover:text-brand-700 md:inline-flex docked:max-lg:hidden"
+              className="pointer-events-auto relative hidden min-h-11 items-center rounded-full px-3 text-meta text-ink-500 hover:bg-brand-50 hover:text-brand-700 md:inline-flex docked:max-xl:hidden"
             >
               List your place
             </Link>

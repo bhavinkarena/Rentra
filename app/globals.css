@@ -936,3 +936,83 @@
     width: 100%;
   }
 }
+
+/* The category menu grows from the docked search trigger. Radix retains it
+   for the closing animation; keyboard and reduced-motion access stay instant. */
+@keyframes rentra-category-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes rentra-category-menu-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .header-vertical-menu[data-motion='true'][data-state='open'] {
+    animation: rentra-category-menu-in 180ms var(--ease-out-strong);
+  }
+  .header-vertical-menu[data-motion='true'][data-state='closed'] {
+    animation: rentra-category-menu-out 150ms var(--ease-out-strong);
+  }
+}
+
+/* Compact navigation expands the active label and the item being explored.
+   The grid follows the text's intrinsic width in both directions. */
+@media (min-width: 640px) {
+  .customer-nav--compact .customer-nav-label {
+    display: grid;
+    grid-template-columns: 0fr;
+    margin-left: 0;
+    opacity: 0;
+    transition:
+      grid-template-columns 200ms var(--ease-out-strong),
+      margin-left 200ms var(--ease-out-strong),
+      opacity 150ms ease;
+  }
+  .customer-nav--compact .customer-nav-label > span {
+    overflow: hidden;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .customer-nav--compact a[aria-current='page'] .customer-nav-label,
+  .customer-nav--compact a:focus-visible .customer-nav-label {
+    grid-template-columns: 1fr;
+    margin-left: 0.5rem;
+    opacity: 1;
+  }
+}
+@media (min-width: 640px) and (hover: hover) and (pointer: fine) {
+  .customer-nav--compact a:hover .customer-nav-label {
+    grid-template-columns: 1fr;
+    margin-left: 0.5rem;
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .customer-nav--compact .customer-nav-label {
+    transition: none;
+  }
+}
+
+.customer-nav--compact a:focus-visible .customer-nav-label {
+  transition: none;
+}
+/* Signed-in navigation has the extra Bookings item; leave room for its label. */
+@media (min-width: 768px) {
+  [data-site-header]:has([data-customer='true']) [data-header-search-pill] {
+    position: relative;
+    left: -5rem;
+  }
+}

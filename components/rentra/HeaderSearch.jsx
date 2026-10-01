@@ -13,11 +13,12 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { Search } from 'lucide-react';
 import { formatLocalDate } from '@/lib/domain/booking-dates';
 import { SLOTS } from '@/lib/domain/pricing';
-import { clock12 } from '@/lib/domain/vertical-ui';
+import { clock12, pageVertical, searchTabHref, verticalTabs } from '@/lib/domain/vertical-ui';
 import Form from '@/components/navigation/NavigationForm';
 import { measureBrowser } from '@/lib/domain/browser-measurement';
 import SearchBar, { useDiscovery, useSearchDraft } from './SearchBar';
 import SearchFields from './SearchFields';
+import HeaderVerticalSwitch from './HeaderVerticalSwitch';
 
 const PANEL_ID = 'header-search-panel';
 const noSubscribe = () => () => {};
@@ -77,6 +78,15 @@ export default function HeaderSearch({ registry }) {
     };
   }, [open, close]);
 
+  useLayoutEffect(() => () => document.documentElement.removeAttribute('data-search-docked'), []);
+
+  // The shared header owns clearing docking when we leave discovery entirely.
+  useLayoutEffect(() => {
+    if (pageVertical(pathname, registry) === null) {
+      document.documentElement.removeAttribute('data-search-docked');
+    }
+  }, [pathname, registry]);
+
   // The homes (`/`, `/entertainment`) and discovery pages; nowhere else.
   const playHome = !discovery && pathname === '/entertainment';
   if (pathname !== '/' && !playHome && !discovery) return null;
@@ -101,6 +111,18 @@ export default function HeaderSearch({ registry }) {
       panel.current?.querySelector(`[data-search-field="${field}"]`)?.click(),
     );
   };
+  const categoryItems = verticalTabs(
+    registry,
+    play ? 'entertainment' : 'farmhouse',
+    discovery
+      ? (code) =>
+          searchTabHref(code, {
+            city: discovery.route?.city?.slug || discovery.filters.city,
+            area: discovery.route?.area?.slug || discovery.filters.area,
+            date: dates[0],
+          })
+      : undefined,
+  );
   const where = location.title || 'Anywhere';
   const when =
     dates.length > 1
@@ -110,7 +132,7 @@ export default function HeaderSearch({ registry }) {
         : 'Any date';
   const who = `${guests || 1} ${guests === 1 ? 'guest' : 'guests'}`;
   const segment =
-    'flex h-full min-w-0 cursor-pointer items-center truncate rounded-full px-4 text-meta font-medium text-ink-900 transition-colors hover:bg-ink-50';
+    'flex h-full min-w-0 cursor-pointer items-center truncate rounded-full px-3 text-meta font-medium text-ink-900 transition-colors hover:bg-ink-50';
   const expand = { 'aria-expanded': open, 'aria-controls': PANEL_ID };
   // Entertainment: What · When · Time instead of When · Visit type · Who.
   const segments = play
@@ -143,17 +165,25 @@ export default function HeaderSearch({ registry }) {
         <div
           role="group"
           aria-label="Search"
-          className="reveal pointer-events-auto invisible flex h-11 min-w-0 translate-y-6 scale-[1.15] items-center rounded-full border border-border bg-card opacity-0 shadow-sm docked:visible docked:revealed docked:translate-y-0 docked:scale-100 docked:opacity-100 search-open:invisible search-open:concealed search-open:translate-y-3 search-open:scale-[1.15] search-open:opacity-0 max-md:w-full md:max-w-md lg:max-w-lg"
+          data-header-search-pill
+          className="reveal pointer-events-auto invisible flex h-11 min-w-0 translate-y-6 scale-[1.15] items-center rounded-full border border-border bg-card opacity-0 shadow-sm docked:visible docked:revealed docked:translate-y-0 docked:scale-100 docked:opacity-100 search-open:invisible search-open:concealed search-open:translate-y-3 search-open:scale-[1.15] search-open:opacity-0 max-md:w-full md:max-w-[13rem] lg:max-w-[26rem] xl:max-w-[30rem] min-[1600px]:max-w-xl"
         >
+          <HeaderVerticalSwitch items={categoryItems} />
+          {categoryItems.length > 1 ? (
+            <span className="ml-1 h-6 w-px shrink-0 bg-border" aria-hidden="true" />
+          ) : null}
           <button
             ref={trigger}
             type="button"
             onClick={() => openAt('location')}
             aria-label={`Where: ${where}`}
-            className={`${segment} max-md:flex-1 max-md:pr-2`}
+            className={`${segment} max-md:flex-1 max-md:gap-1.5 max-md:px-2`}
             {...expand}
           >
-            <span className="truncate md:hidden">{location.title || 'Where to?'}</span>
+            <Search className="size-4 shrink-0 text-brand-600 md:hidden" aria-hidden="true" />
+            <span className="hidden truncate min-[360px]:inline md:hidden">
+              {location.title || 'Where to?'}
+            </span>
             <span className="truncate max-md:hidden">{where}</span>
           </button>
           {segments.map(([field, label, value], index) => (
@@ -174,7 +204,7 @@ export default function HeaderSearch({ registry }) {
             type="button"
             onClick={() => openAt('location')}
             aria-label="Open search"
-            className="mr-1 grid size-9 shrink-0 cursor-pointer place-items-center rounded-full bg-primary text-white transition-colors hover:bg-primary-hover"
+            className="mr-1 grid size-9 shrink-0 max-md:hidden cursor-pointer place-items-center rounded-full bg-primary text-white transition-colors hover:bg-primary-hover"
             {...expand}
           >
             <Search className="size-4" aria-hidden="true" />

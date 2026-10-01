@@ -5,11 +5,6 @@ import { Compass, Heart, CalendarDays, CircleUserRound } from 'lucide-react';
 import { useSavedPlaces } from './SavedPlacesProvider';
 import ProfileAvatar from './ProfileAvatar';
 
-/* Labels fold away (width + fade) when the home search docks into the header,
-   leaving icon-only circles; the words stay in the accessibility tree. */
-const foldingLabel =
-  'inline-block max-w-24 overflow-hidden whitespace-nowrap transition-[max-width,margin,opacity] duration-250 ease-out-strong docked:ml-0 docked:max-w-0 docked:opacity-0';
-
 export default function CustomerNavigation({ authenticated = false, compact = false, profile }) {
   const pathname = usePathname();
   const saved = useSavedPlaces();
@@ -23,23 +18,28 @@ export default function CustomerNavigation({ authenticated = false, compact = fa
   return (
     <nav
       aria-label="Customer navigation"
-      className={`flex items-center gap-1 text-sm font-medium ${compact ? 'max-sm:text-xs' : ''}`}
+      data-customer={customer}
+      className={`flex items-center gap-1 text-sm font-medium ${compact ? 'customer-nav--compact max-sm:text-xs' : ''}`}
     >
       {items.map(([href, label, Icon]) => (
         <Link
           key={href}
           href={href}
           aria-current={
-            pathname === href || (href !== '/' && pathname.startsWith(href + '/'))
+            pathname === href ||
+            (href === '/' && ['/entertainment', '/search'].includes(pathname)) ||
+            (href !== '/' && pathname.startsWith(href + '/'))
               ? 'page'
               : undefined
           }
-          title={label}
-          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full hover:bg-brand-50 aria-[current=page]:bg-brand-50 aria-[current=page]:text-brand-800 sm:px-3"
+          aria-label={label}
+          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full transition-colors duration-150 hover:bg-ink-200 hover:text-brand-800 aria-[current=page]:bg-brand-600 aria-[current=page]:text-white aria-[current=page]:hover:bg-brand-700 motion-reduce:transition-none sm:px-3"
         >
           <Icon className="size-4.5" aria-hidden="true" />
           {/* Phones get the icon row; the words return once they fit beside the logo. */}
-          <span className={`max-sm:sr-only sm:ml-2 ${foldingLabel}`}>{label}</span>
+          <span className="customer-nav-label max-sm:sr-only sm:ml-2">
+            <span>{label}</span>
+          </span>
         </Link>
       ))}
       {customer ? (
@@ -57,11 +57,14 @@ export default function CustomerNavigation({ authenticated = false, compact = fa
       ) : (
         <Link
           href="/login"
-          title="Log in"
-          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full px-3 hover:bg-brand-50"
+          aria-label="Log in"
+          aria-current={pathname === '/login' ? 'page' : undefined}
+          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full px-3 transition-colors duration-150 hover:bg-ink-200 hover:text-brand-800 aria-[current=page]:bg-brand-600 aria-[current=page]:text-white aria-[current=page]:hover:bg-brand-700 motion-reduce:transition-none"
         >
           <CircleUserRound className="size-4.5" aria-hidden="true" />
-          <span className={`ml-2 ${foldingLabel}`}>Log in</span>
+          <span className="customer-nav-label max-sm:sr-only sm:ml-2">
+            <span>Log in</span>
+          </span>
         </Link>
       )}
     </nav>
