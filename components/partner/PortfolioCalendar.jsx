@@ -236,11 +236,9 @@ export default function PortfolioCalendar({
                         {slot === 'day' ? 'Day' : 'Night'}:{' '}
                         {!row
                           ? 'Closed (not opened)'
-                          : row.blocked_by_client
-                            ? 'Owner closed'
-                            : row.units_available <= 0
-                              ? 'Unavailable'
-                              : 'Open date'}
+                          : row.units_available <= 0
+                            ? 'Unavailable'
+                            : 'Open date'}
                       </p>
                     );
                   })}

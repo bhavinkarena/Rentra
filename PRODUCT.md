@@ -66,3 +66,5 @@ The existing UI includes semantic controls, keyboard focus treatments, skip link
 ## Open Decisions
 
 Additional rental categories, new backend capabilities, and additional language delivery remain outside this frontend redesign. Record any missing capability separately before proposing an API change.
+
+An **Entertainment** vertical (sports courts, turfs, bowling, gaming and play zones, booked by the hour per court) was approved on 1 Oct 2026 and is planned, with backend changes, in `docs/ENTERTAINMENT-PLAN.md`. It is not bookable until that plan's launch switch makes it public. Until then, the guest-facing product remains farmhouses only.

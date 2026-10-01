@@ -8,7 +8,7 @@ import {
   SEARCH_SORTS,
   areaDiscoveryPath,
   intentDiscoveryPath,
-  DISCOVERY_INTENTS,
+  intentsFor,
 } from '@/lib/domain/discovery';
 import { discoveryApi } from '@/lib/api/endpoints';
 import { ArrowLeft, ArrowRight, MapPin, RefreshCw, SearchX, X } from 'lucide-react';
@@ -261,7 +261,7 @@ export default async function DiscoveryResults({ query, registry: registryInput,
                     {a.name}
                   </Link>
                 ))}
-              {DISCOVERY_INTENTS.map((i) => (
+              {intentsFor(route.verticalCode).map((i) => (
                 <Link
                   className={locationChip}
                   key={i.slug}

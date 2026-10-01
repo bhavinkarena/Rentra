@@ -246,8 +246,8 @@ Rules: headings balance and wrap; paragraphs use pretty wrapping. Money, dates a
 
 - Container: `max-w-(--container-page)` = 1280px, gutters 16px (mobile) / 24px (≥640px). Reading pages (help, policies) use a narrower text column inside it.
 - 4px spacing base. Sections 40px apart on mobile, 56px on desktop.
-- Header: sticky, light (`bg-background/90`, blur, bottom border), wordmark left (mark only below `sm`), `CustomerNavigation` right, "List your place" as a quiet link from `md`. Not floating, not framed.
-- Home: full-bleed photo hero (`HeroPhotos`, manual switcher) with the headline, `SearchBar` and intent chips inside it; `TrustStrip` below; "Explore places" with horizontally scrolling `CityRow`s ("Near {City}"); `OccasionPicker`; city chips; owner call-to-action; footer.
+- Header: sticky, light (`bg-background/90`, blur, bottom border), fixed 68px (60px docked), wordmark left (mark only below `sm`), `CustomerNavigation` right, "List your place" as a quiet link from `md`. Not floating, not framed. From `md`, the centre holds the vertical tabs (see _Vertical tabs_) until the search docks, then the docked search pill. Header heights are coupled to `SearchBar`, `HeaderSearch`, `ScreenSkeleton` and the listing rail; do not change them.
+- Home: full-bleed photo hero (`HeroPhotos`: auto-advances every 3s, pauses on hover and focus, never autoplays under reduced motion, with dots) with the headline, `SearchBar` and intent chips inside it; `TrustStrip` below; "Explore places" with horizontally scrolling `CityRow`s ("Near {City}"); `OccasionPicker`; city chips; owner call-to-action; footer.
 - Listing grids: 1 → 2 (`sm`) → 3 (`lg`) → 4 (`xl`) columns. City rows scroll horizontally with arrow buttons.
 - Footer: compact deep-forest block — brand + one-line invitation, "Your next getaway" links, "Have a place to share?" with a champagne pill, city links, then legal links and the intermediary statement.
 - Listing pages reserve the bottom of narrow screens for the booking bar; the WhatsApp float moves above it via `--float-bottom`.
@@ -312,13 +312,35 @@ Global control styling in `app/globals.css` covers existing customer, partner an
 - Actions on a record: one row of icon pills; on phones one swipeable row (`overflow-x-auto`, `shrink-0` children).
 - Dates shown to customers use `formatLocalDate` / `en-IN` short dates ("Wed, 30 Sept, 2026"); slot names come from `SLOTS`.
 
+### Vertical tabs (Farmhouse / Entertainment)
+
+Owner-approved on 1 Oct 2026 (mockups: `docs/design/entertainment/shots/`; plan: `docs/ENTERTAINMENT-PLAN.md`).
+
+- **What:** links, not an ARIA tablist (`<nav aria-label="Categories">`, `aria-current="page"` on the active tab). One per public vertical, ordered by the registry `sortOrder`. Render nothing when fewer than two verticals are public.
+- **Where:** from `md`, centred in the free space between the wordmark and `CustomerNavigation`, full header height. They fade out when the search docks and the docked pill takes the centre (`docked:` variant, opacity only, 150ms). Below `md`, two equal pill links sit at the top of the hero (photo chip recipe; the active tab is solid white with ink text) and above the search fields on discovery pages. Not shown on listing, checkout, account or portal pages.
+- **Look:** 32px duotone icon plus a 15px semibold label; inactive `ink-500`, active `ink-900` with a 3px `ink-900` underline on the header's bottom edge. The icon lifts 2px on hover (`motion-safe`). Targets ≥44px. Icons are inline SVG in brand tokens (farmhouse in champagne and emerald with a sage tree; a cricket bat in amber with a red ball). They are not copies of another marketplace's illustrations.
+- **Switching:** home tabs link to `/` and `/entertainment`. On `/search`, a tab keeps `city`, `area` and the first date, and drops parameters of the other vertical.
+
+### Vertical vocabulary
+
+- Farmhouse surfaces keep "guests", "stay", "visit type" and the `SLOTS` labels.
+- Entertainment surfaces use "players", "booking", "time", "court/lane/station" (by activity) and "per hour". Never "night", "stay", "check-in" or "BR".
+- Times are 12-hour with "(next day)" when the end passes midnight. One label helper per visit (`describeVisit`, Phase 10 of the plan).
+- Entertainment trust strip items are limited to true statements (live availability, price before payment, cancellation window). "Verified" only from API data.
+
+### Entertainment pieces (approved layout, built in later phases)
+
+- **Entertainment home** mirrors the locked home skeleton: hero (real venue photos, licensed fallback until three venues have photos) → Where / What / When / Time search → activity chips → trust strip → "Play near {City}" rows → "What are you playing?" activity tiles (replaces the occasion picker) → city chips → owner CTA "Own a turf, court or play zone?" → footer, which gains a "Play near you" column.
+- **Venue card:** `ListingCard` with facts from the vertical: activity icons, "N courts · Up to N players · Indoor/Outdoor", "From ₹X / hr". When a date is searched, up to three free start-time chips.
+- **Venue page:** the shared gallery, header, reviews, host and map, plus facts row, courts cards, opening hours (today highlighted), prices per activity (weekday/weekend bands, peak marked with a dot _and_ the word "Peak"), venue rules and hour-based cancellation. Desktop rail: activity → date strip → duration stepper → start-time grid (time + price) → court ("Any available court (N free)") → quote → Reserve. Phones: a sticky "From ₹X / hr · Check times" bar opens the same picker as a bottom sheet.
+
 ### Disclosures
 
 Accordions and "show more" use native `<details class="group">` with `list-none` + a rotating `ChevronDown` (150ms), never the browser triangle. FAQs use `FaqList` (`components/content/ContentBody.jsx`): one bordered list, 56px summaries.
 
 ### Discovery search
 
-`DiscoveryFilters`: below `lg` a one-line summary pill that expands; `lg`–`xl` a 3-column field card; from `xl` the pill bar that mirrors the home `SearchBar`. Secondary filters sit behind a "Filters" chip with an active-count badge.
+`DiscoveryFilters` renders the shared `SearchFields` (the same fields as the home `SearchBar`: a 2-column grid on phones, one pill bar from `md`) inside one form, with a dock sentinel. When the page scrolls past it, the in-page bar fades out and the header shows the compact `HeaderSearch` pill (Where · When · visit type · guests); clicking a segment opens the full fields in a panel under the header. The pill exists only on `/` and discovery pages. Secondary filters sit behind a "Filters" chip with an active-count badge.
 
 ### States
 
@@ -326,7 +348,7 @@ Empty states: `EmptyState` (`components/ui/empty-state.jsx`) — icon in a brand
 
 ### Motion
 
-150–200ms colour/opacity/transform feedback; listing photo hover scale (300ms, `motion-safe`); hero photo switch and occasion tabs are user-triggered, never autoplay. Dialogs fade/scale in 200ms (`data-[state]` utilities); the `<dialog>` bottom sheet uses `.sheet-dialog` (slide up via `@starting-style`); `details.group` answers grow open via `::details-content`; toasts slide up 8px. No scroll-triggered reveals. Everything respects `prefers-reduced-motion`; motion that the blanket rule cannot reach (pseudo-elements) lives inside `@media (prefers-reduced-motion: no-preference)`.
+150–200ms colour/opacity/transform feedback; listing photo hover scale (300ms, `motion-safe`); the hero photos auto-advance every 3s (owner-confirmed 1 Oct 2026; paused on hover/focus and under reduced motion); occasion tabs are user-triggered. Dialogs fade/scale in 200ms (`data-[state]` utilities); the `<dialog>` bottom sheet uses `.sheet-dialog` (slide up via `@starting-style`); `details.group` answers grow open via `::details-content`; toasts slide up 8px. No scroll-triggered reveals. Everything respects `prefers-reduced-motion`; motion that the blanket rule cannot reach (pseudo-elements) lives inside `@media (prefers-reduced-motion: no-preference)`.
 
 ## Do's and Don'ts
 

@@ -6,7 +6,7 @@ import TrustStrip from '@/components/rentra/TrustStrip';
 import HeroPhotos from '@/components/rentra/HeroPhotos';
 import CityRow from '@/components/rentra/CityRow';
 import OccasionPicker from '@/components/rentra/OccasionPicker';
-import { DISCOVERY_INTENTS } from '@/lib/domain/discovery';
+import { intentsFor } from '@/lib/domain/discovery';
 import { discoveryApi } from '@/lib/api/endpoints';
 import { degradeOnFailure, EMPTY_REGISTRY } from '@/lib/api/resilient';
 import {
@@ -101,7 +101,7 @@ export default async function HomePage() {
         </div>
 
         <ul className="-mx-4 mt-6 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
-          {DISCOVERY_INTENTS.map((intent) => {
+          {intentsFor('farmhouse').map((intent) => {
             const Icon = INTENT_ICONS[intent.slug];
             return (
               <li key={intent.slug} className="shrink-0">

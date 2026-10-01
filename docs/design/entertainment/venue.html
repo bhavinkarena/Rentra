@@ -1,0 +1,87 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mock · Venue page</title><link rel="stylesheet" href="mock.css">
+<style>
+.crumbs { font-size: 13px; color: var(--ink-500); padding: 16px 0 12px; }
+.gal { display: grid; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 190px 190px; gap: 8px; border-radius: 16px; overflow: hidden; }
+.gal .photo { aspect-ratio: auto; border-radius: 0; } .gal .photo:first-child { grid-row: span 2; }
+.head { display: flex; justify-content: space-between; align-items: start; margin-top: 22px; }
+h1 { font-size: 30px; font-weight: 700; letter-spacing: -.03em; } .loc { color: var(--ink-500); font-size: 15px; margin-top: 2px; display: flex; gap: 14px; align-items: center; }
+.loc .ic { width: 15px; height: 15px; } .hacts { display: flex; gap: 8px; }
+.layout { display: grid; grid-template-columns: 1fr 400px; gap: 56px; margin-top: 16px; padding-bottom: 64px; }
+.facts { display: flex; flex-wrap: wrap; gap: 10px 22px; padding: 18px 0; border-bottom: 1px solid var(--ink-200); font-size: 15px; color: var(--ink-700); }
+.facts span { display: inline-flex; align-items: center; gap: 8px; } .facts .ic { color: var(--brand-600); }
+.sec { padding: 28px 0; border-bottom: 1px solid var(--ink-200); } .sec h2 { font-size: 21px; margin-bottom: 14px; }
+.courts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.court { border: 1px solid var(--ink-200); border-radius: 16px; padding: 16px; background: #fff; font-size: 14px; color: var(--ink-500); }
+.court b { color: var(--ink-900); font-size: 16px; display: block; margin-bottom: 6px; } .court .acts { display: flex; gap: 6px; color: var(--brand-600); margin-top: 10px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; } td { padding: 9px 0; border-bottom: 1px solid var(--ink-100); } td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+tr.today td { font-weight: 700; } tr.today td:first-child::after { content: ' · Today'; color: var(--brand-600); font-weight: 600; }
+.rates { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; } .rates div { border: 1px solid var(--ink-200); border-radius: 16px; padding: 16px; background: #fff; }
+.rates h4 { font-size: 14px; color: var(--ink-500); font-weight: 600; margin-bottom: 6px; } .peak::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 9px; background: var(--amber-500); margin-right: 6px; vertical-align: 1px; }
+.amen { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 15px; } .amen span { display: flex; gap: 10px; align-items: center; } .amen .ic { color: var(--ink-700); }
+.rail { position: sticky; top: 84px; align-self: start; background: #fff; border: 1px solid var(--ink-200); border-radius: 16px; box-shadow: 0 6px 20px rgba(31,41,36,.08); padding: 20px; }
+.rail .price { font-size: 22px; font-weight: 700; } .rail .price small { font-size: 14px; font-weight: 500; color: var(--ink-500); }
+.lbl { font-size: 13px; font-weight: 700; margin: 16px 0 8px; display: block; }
+.field { display: flex; justify-content: space-between; align-items: center; min-height: 44px; border: 1px solid var(--ink-400); border-radius: 12px; padding: 0 14px; font-size: 15px; } .field .ic { width: 16px; height: 16px; }
+.dates { display: flex; gap: 8px; overflow: hidden; } .dates span { flex: 0 0 56px; text-align: center; border: 1px solid var(--ink-200); border-radius: 12px; padding: 8px 0; font-size: 12px; color: var(--ink-500); }
+.dates span b { display: block; font-size: 17px; color: var(--ink-900); } .dates span.sel { background: var(--brand-600); border-color: var(--brand-600); color: #dbeee4; } .dates span.sel b { color: #fff; } .dates span.off { opacity: .45; }
+.step { display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--ink-400); border-radius: 999px; padding: 4px; } .step span { width: 36px; height: 36px; border-radius: 99px; border: 1px solid var(--ink-300); display: grid; place-items: center; } .step span .ic { width: 16px; height: 16px; } .step b { font-size: 15px; }
+.tgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; } .tgrid span { min-height: 52px; border: 1px solid var(--ink-300); border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 14px; font-weight: 600; }
+.tgrid span i { font-style: normal; font-size: 12px; font-weight: 500; color: var(--ink-500); } .tgrid span.sel { border: 2px solid var(--brand-600); background: var(--brand-50); }
+.sum { margin-top: 16px; border-top: 1px solid var(--ink-200); padding-top: 12px; font-size: 14px; } .sum p { display: flex; justify-content: space-between; padding: 3px 0; font-variant-numeric: tabular-nums; } .sum p.tot { font-weight: 700; font-size: 16px; border-top: 1px solid var(--ink-200); margin-top: 6px; padding-top: 8px; }
+.rail .btn { width: 100%; justify-content: center; margin-top: 14px; min-height: 48px; } .fine { font-size: 12px; color: var(--ink-500); text-align: center; margin-top: 8px; }
+.mbar { display: none; } .layout > * { min-width: 0; }
+@media (max-width: 767px) {
+  .gal { grid-template-columns: 1fr; grid-template-rows: 240px; border-radius: 0; margin: 0 -16px; } .gal .photo:not(:first-child) { display: none; }
+  .layout { grid-template-columns: 1fr; gap: 0; } h1 { font-size: 24px; } .courts, .rates, .amen { grid-template-columns: 1fr; } .hacts { display: none; }
+  .rail-wrap { display: none; } body { padding-bottom: 76px; }
+  .sheet .rail-wrap { display: block; position: fixed; inset: 0; background: rgba(31,41,36,.45); z-index: 70; }
+  .sheet .rail { position: absolute; left: 0; right: 0; bottom: 0; top: auto; border-radius: 20px 20px 0 0; max-height: 92vh; overflow: hidden; }
+  .sheet .rail::before { content: ''; display: block; width: 40px; height: 4px; border-radius: 4px; background: var(--ink-300); margin: -6px auto 12px; }
+  .mbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; background: #fff; border-top: 1px solid var(--ink-200); padding: 12px 16px; justify-content: space-between; align-items: center; z-index: 60; }
+}
+</style></head>
+<body data-vertical="entertainment" data-tabs="off">
+<p class="mock-note">Phase 2 mockup with a sample venue. Not a real listing. Striped boxes stand in for photos.</p>
+<div id="hdr"></div>
+<main class="wrap">
+  <p class="crumbs">Home › Entertainment › Surat › Box cricket › Smash Arena</p>
+  <div class="gal"><div class="photo">Venue photo</div><div class="photo">Court</div><div class="photo">Floodlights</div><div class="photo">Pickleball court</div><div class="photo">Seating</div></div>
+  <div class="head"><div><h1>Smash Arena</h1><p class="loc"><span><i data-icon="pin"></i>Vesu, Surat</span><span><i data-icon="star"></i><b>4.6</b> (38 reviews)</span><span class="chip" style="min-height:28px;padding:0 10px;font-size:12px;color:var(--brand-700)">Verified</span></p></div>
+    <div class="hacts"><span class="btn light"><i data-icon="heart"></i>Save</span></div></div>
+  <div class="chips" style="margin-top:14px"><span class="chip"><i data-icon="cricket"></i>Box cricket</span><span class="chip"><i data-icon="pickleball"></i>Pickleball</span></div>
+  <div class="layout">
+    <div>
+      <div class="facts"><span><i data-icon="grid"></i>3 courts</span><span><i data-icon="users"></i>Up to 12 players</span><span><i data-icon="sun"></i>Outdoor</span><span><i data-icon="football"></i>Artificial turf</span><span><i data-icon="clock"></i>Open today 6 AM – 1 AM</span></div>
+      <div class="sec"><h2>About this venue</h2><p style="color:var(--ink-700)">Two floodlit box-cricket cages and one pickleball court off Vesu Main Road. Nets on all sides, bats and balls available to rent, and parking for 30 cars.</p></div>
+      <div class="sec"><h2>Courts</h2><div class="courts">
+        <div class="court"><b>Court 1</b>40 × 80 ft · Turf · Floodlit<br>Up to 12 players<div class="acts"><i data-icon="cricket"></i></div></div>
+        <div class="court"><b>Court 2</b>40 × 80 ft · Turf · Floodlit<br>Up to 12 players<div class="acts"><i data-icon="cricket"></i><i data-icon="football"></i></div></div>
+        <div class="court"><b>Pickleball 1</b>Standard · Synthetic<br>Up to 4 players<div class="acts"><i data-icon="pickleball"></i></div></div></div></div>
+      <div class="sec"><h2>Opening hours</h2><table>
+        <tr><td>Monday – Friday</td><td>6:00 AM – 1:00 AM (next day)</td></tr><tr class="today"><td>Saturday</td><td>6:00 AM – 2:00 AM (next day)</td></tr><tr><td>Sunday</td><td>6:00 AM – 2:00 AM (next day)</td></tr></table></div>
+      <div class="sec"><h2>Prices · Box cricket</h2><div class="rates">
+        <div><h4>Weekday</h4><table><tr><td>6 AM – 6 PM</td><td>₹800 / hr</td></tr><tr><td class="peak">6 PM – 1 AM · Peak</td><td>₹1,200 / hr</td></tr></table></div>
+        <div><h4>Weekend</h4><table><tr><td>6 AM – 4 PM</td><td>₹1,000 / hr</td></tr><tr><td class="peak">4 PM – 2 AM · Peak</td><td>₹1,400 / hr</td></tr></table></div></div>
+        <p class="note">Per hour, per court. Platform fee added at checkout.</p></div>
+      <div class="sec"><h2>What this venue has</h2><div class="amen"><span><i data-icon="floodlight"></i>Floodlights</span><span><i data-icon="parking"></i>Parking · 30 cars</span><span><i data-icon="shirt"></i>Changing rooms</span><span><i data-icon="water"></i>Drinking water</span><span><i data-icon="cricket"></i>Equipment on rent · ₹100</span><span><i data-icon="shield"></i>First aid</span></div></div>
+      <div class="sec"><h2>Venue rules</h2><p style="color:var(--ink-700)">Non-marking shoes or turf studs only · No smoking · Outside food allowed in the seating area</p></div>
+      <div class="sec" style="border:0"><h2>Cancellation</h2><p style="color:var(--ink-700)">Moderate: full refund up to 24 hours before start, 50% up to 6 hours before, then no refund. Example: for Sat 4 Oct 7:00 PM, cancel by Fri 3 Oct 7:00 PM for a full refund.</p></div>
+    </div>
+    <div class="rail-wrap"><aside class="rail" aria-label="Book a time">
+      <p class="price">From ₹800 <small>/ hr</small></p>
+      <span class="lbl">Activity</span><div class="field">Box cricket<i data-icon="chevron"></i></div>
+      <span class="lbl">Date</span><div class="dates"><span class="sel">Sat<b>4</b></span><span>Sun<b>5</b></span><span>Mon<b>6</b></span><span>Tue<b>7</b></span><span class="off">Wed<b>8</b>Full</span><span>Thu<b>9</b></span></div>
+      <span class="lbl">Duration</span><div class="step"><span><i data-icon="minus"></i></span><b>1 hr</b><span><i data-icon="plus"></i></span></div>
+      <span class="lbl">Start time</span><div class="tgrid">
+        <span>4:00 PM<i class="peak">₹1,400</i></span><span>5:00 PM<i class="peak">₹1,400</i></span><span class="sel">7:00 PM<i class="peak">₹1,400</i></span>
+        <span>8:00 PM<i class="peak">₹1,400</i></span><span>10:00 PM<i class="peak">₹1,400</i></span><span>11:00 PM<i class="peak">₹1,400</i></span></div>
+      <span class="lbl">Court</span><div class="field">Any available court (2 free)<i data-icon="chevron"></i></div>
+      <div class="sum"><p><span>Sat 4 Oct · 7:00 – 8:00 PM</span><span></span></p><p><span>Court rent</span><span>₹1,400</span></p><p><span>Platform fee</span><span>₹112</span></p><p class="tot"><span>Total</span><span>₹1,512</span></p></div>
+      <a class="btn" href="#">Reserve</a><p class="fine">Free cancellation until Fri 3 Oct, 7:00 PM</p>
+    </aside></div>
+  </div>
+</main>
+<div class="mbar"><span><b class="tabular">From ₹800</b> / hr<br><small style="color:var(--ink-500)">3 courts · Open today</small></span><a class="btn" href="#">Check times</a></div>
+<div id="ftr"></div>
+<script>if (new URLSearchParams(location.search).get('sheet')) document.body.classList.add('sheet')</script><script src="icons.js" defer></script><script src="chrome.js"></script>
+</body></html>
