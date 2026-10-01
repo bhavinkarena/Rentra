@@ -1,6 +1,5 @@
 import { discoveryApi } from '@/lib/api/endpoints';
-import { degradeOnFailure, EMPTY_REGISTRY } from '@/lib/api/resilient';
-import { resolveDiscoveryRoute, DISCOVERY_INTENTS } from '@/lib/domain/discovery';
+import { degradeOnFailure } from '@/lib/api/resilient';
 import { listingUrl } from '@/lib/domain/listing-url';
 import { publicContent } from '@/lib/api/content';
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
@@ -11,42 +10,17 @@ export default async function sitemap() {
    * home, help and the policies — and regains the listing and location URLs
    * on the next revalidation. Failing the build instead would mean an
    * unreachable API blocks the deploy that fixes it.
+   *
+   * Landing routes (city × category or vertical × area or intent) with at
+   * least 3 live listings come counted in the same response; asking per
+   * route was 1,500+ requests and outlasted the build's 60-second limit.
+   * An older API without `routes` leaves them out until it is redeployed.
    */
-  const [{ listings }, registry] = await Promise.all([
-    degradeOnFailure(() => discoveryApi.sitemap(), { listings: [] }, 'sitemap listings'),
-    degradeOnFailure(() => discoveryApi.registry(), EMPTY_REGISTRY, 'sitemap registry'),
-  ]);
-  const routes = [];
-  // Every category, plus each public vertical's own landing (/surat/entertainment)
-  // where its slug is not also a category's.
-  const scopes = [
-    ...registry.categories.map((category) => category.slug),
-    ...(registry.verticals ?? [])
-      .map((vertical) => vertical.slug)
-      .filter((slug) => !registry.categories.some((category) => category.slug === slug)),
-  ];
-  for (const city of registry.cities)
-    for (const scope of scopes) {
-      const base = [city.slug, scope];
-      const segments = [
-        base,
-        ...registry.areas.filter((a) => a.cityId === city.id).map((a) => [...base, 'area', a.slug]),
-        ...DISCOVERY_INTENTS.map((i) => [...base, 'intent', i.slug]),
-      ];
-      for (const parts of segments) {
-        const route = resolveDiscoveryRoute(registry, parts);
-        if (!route) continue;
-        /* A route whose count cannot be read is left out rather than
-         published as an indexable page we know nothing about. */
-        const { count } = await degradeOnFailure(
-          () => discoveryApi.routeCount(route.path),
-          { count: 0 },
-          `sitemap route count ${route.path}`,
-        );
-        if (count >= 3)
-          routes.push({ url: `${siteUrl}${route.path}`, changeFrequency: 'daily', priority: 0.7 });
-      }
-    }
+  const { listings, routes = [] } = await degradeOnFailure(
+    () => discoveryApi.sitemap(),
+    { listings: [] },
+    'sitemap listings',
+  );
   const policies = await Promise.all(
     ['terms', 'cancellation', 'privacy'].map((kind) =>
       degradeOnFailure(() => publicContent(kind), null, `sitemap policy ${kind}`),
@@ -54,7 +28,11 @@ export default async function sitemap() {
   );
   return [
     { url: `${siteUrl}/`, changeFrequency: 'daily', priority: 1 },
-    ...routes,
+    ...routes.map(({ path }) => ({
+      url: `${siteUrl}${path}`,
+      changeFrequency: 'daily',
+      priority: 0.7,
+    })),
     ...['/help', ...policies.filter(Boolean).map((p) => `/policies/${p.kind}/${p.version}`)].map(
       (path) => ({ url: `${siteUrl}${path}`, changeFrequency: 'monthly', priority: 0.4 }),
     ),
