@@ -210,7 +210,9 @@ function TimeGrid({ id, day, unit, ctx }) {
       <div className="rounded-md bg-ink-50 p-3 text-meta" role="status">
         {ctx.timesError === 'ACTIVITY_UNAVAILABLE'
           ? 'No court takes this many players for this activity.'
-          : 'Start times could not load.'}{' '}
+          : ctx.timesError === 'RATE_LIMITED'
+            ? 'Too many requests. Wait a moment, then try again.'
+            : 'Start times could not load.'}{' '}
         <button
           type="button"
           onClick={ctx.retry}

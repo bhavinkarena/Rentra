@@ -171,7 +171,7 @@ try {
         !query.has('guests'),
       page.url(),
     );
-    await page.goto(`${web}/entertainment`);
+    await page.goto(`${web}/entertainment`, { waitUntil: 'networkidle' });
 
     // Docked: the tabs fade out and stop taking clicks; the pill takes the centre.
     for (const width of [768, 1024, 1440]) {
@@ -213,7 +213,7 @@ try {
         await pill.getByRole('button', { name: /^What: / }).click();
         check(
           'docked pill opens the venue search on What',
-          await page.getByRole('dialog', { name: 'What' }).isVisible({ timeout: 5000 }),
+          await page.getByRole('dialog', { name: 'What' }).waitFor({ state: 'visible', timeout: 5000 }).then(() => true, () => false),
         );
         await page.keyboard.press('Escape');
         await page.keyboard.press('Escape');
@@ -252,7 +252,7 @@ try {
     // Phones: tabs move into the hero; the first viewport holds tabs, search and the first chips.
     for (const path of ['/', '/entertainment']) {
       await page.setViewportSize({ width: 390, height: 844 });
-      await page.goto(`${web}${path}`);
+      await page.goto(`${web}${path}`, { waitUntil: 'networkidle' });
       const hero = page.locator('[data-hero]').getByRole('navigation', { name: 'Categories' });
       check(`${path} @390 tabs in the hero`, await hero.isVisible());
       check(`${path} @390 header tabs hidden`, !(await headerTabs.isVisible()));

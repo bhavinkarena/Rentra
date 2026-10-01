@@ -5,7 +5,7 @@ import { formatINR } from '@/lib/domain/pricing';
 import { formatINRMinor } from '@/lib/domain/booking-money';
 import { useBookingQuote } from './booking-context';
 import { useShownAfter } from './use-shown-after';
-import TimeSlotPicker from './TimeSlotPicker';
+import TimeSlotPicker from './LazyTimeSlotPicker';
 import QuoteSummary from './QuoteSummary';
 
 /**

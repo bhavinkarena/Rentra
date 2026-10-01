@@ -27,8 +27,8 @@ Phases are delivered one at a time. The owner asks for the next phase after revi
 | 9 → Availability, Slots & Pricing | ✅ Complete (local) | 1 Oct 2026 |
 | 10 → Booking & Payment Flow | ✅ Complete (local) | 1 Oct 2026 |
 | 11 → Dashboards | ✅ Complete (local) | 1 Oct 2026 |
-| 12 → Performance & Optimization | ⏳ Next | |
-| 13 → QA & Edge Cases | ⬜ Not started | |
+| 12 → Performance & Optimization | ✅ Complete (local) | 1 Oct 2026 |
+| 13 → QA & Edge Cases | ⏳ Next | |
 | 14 → Migration & Deployment | ⬜ Not started | |
 
 ---
@@ -2754,7 +2754,7 @@ Verified on the disposable local stack (PostgreSQL 14 on `127.0.0.1:55432`, the 
 
 ---
 
-## Phase 12 → Performance & Optimization
+## Phase 12 → Performance & Optimization — ✅ Complete (local, 1 Oct 2026)
 
 ### Objective
 
@@ -2814,6 +2814,23 @@ The exclusion constraint's GiST index on `(rentable_id, coalesce(resource_id), t
 
 - P1–P6 are merged with their tests.
 - Farmhouse checkout latency is not worse than the baseline (`docs/performance-baseline.json`).
+
+### Phase 12 implementation record — 1 Oct 2026
+
+Code and local validation are complete, uncommitted. No migration, hosted database change, deployment or commit was performed.
+
+- **P1–P3:** previously implemented snapshot quotes, windowed reads and active-row locks retained. Added 20 simultaneous persisted quotes plus a hold (identical hashes), an explicit read-under-writer-lock test, and 60 reproducible randomized farmhouse full-history/windowed comparisons, including overnight intervals and buffers.
+- **P4:** dated venue search now loads each candidate batch (up to 100 venues) in one MVCC SQL statement. Shared composable queries return configurations, resources, activities, rates, bookings and windowed reservations. Both batch and individual paths use the same readiness validation, expired-hold handling, conflict checks and grid algorithm. Tests cover multiple durations, owner blocks, two venues with distinct courts/prices, and hidden verticals. Database failures still propagate rather than becoming empty results.
+- **P5–P6:** existing 60-second registry cache/invalidation and 120/min/IP endpoint limiters retained. `/times` remains `no-store`; the load gate runs the production discovery router, controller and response middleware.
+- **Frontend:** shared client wrapper dynamically imports `TimeSlotPicker` with `ssr: false`; desktop rail and mobile sheet use the same chunk and server-rendered date/time skeleton. The bundle script now reads the isolated build when `RENTRA_BUILD_FIXTURE=1`.
+- **Local HTTP load:** 50 concurrent `/times` requests plus five real test checkout holds: p95 **74.66 ms**, max **74.78 ms**; all succeeded. No exhausted serialization/deadlock retries. Existing retry ceiling remains three attempts. A further 20 simultaneous quotes and one hold passed with identical quote hashes.
+- **Query plan:** `EXPLAIN ANALYZE` with 10,000 historical reservations chose `reservation_active_overlap_excl` (GiST), without disabling sequential scans.
+- **Bundle:** same-environment comparison against the previous direct picker imports: `/listing/[handle]` **360,784 → 360,111 gzip bytes** (−673 bytes), within the +15 KB budget. Both `/` and `/entertainment` remain static with 300-second revalidation. Build used the existing unavailable-local-API fallback, not production inventory.
+- **Regressions:** backend **166 passed / 3 skipped / 0 failed**; frontend **55 passed / 0 failed**. Production build passed. Changed frontend files and new backend gate files passed ESLint; touched ported backend services passed explicit `--no-ignore` semantic lint with their existing formatting preserved.
+
+**Farmhouse latency comparison:** the historical `docs/performance-baseline.json` contains bundle sizes, not checkout latency. An isolated source copy of pre-change backend `dc35a4e` established a replacement local baseline using the identical harness. Three alternating runs per version, 50 sequential quote+hold samples per run (**150 per version**), measured median **3.05 → 3.03 ms** and p95 **6.29 → 6.33 ms**. Median did not regress; the 0.04 ms p95 difference is below useful resolution for this local smoke benchmark. This is local regression evidence, not a production SLO. Both raw distributions and the method are preserved in `rentra-backend/docs/entertainment-farmhouse-comparison.json`. Phase 13 is next.
+
+Reproduction commands, evidence files and limitations: [Phase 12 runbook](entertainment-phase12.md).
 
 ---
 

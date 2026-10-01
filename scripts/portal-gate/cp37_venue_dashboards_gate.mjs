@@ -73,6 +73,7 @@ try {
   check('customer list: venue row shows time, court and activity', courtLabel.test(text));
   await customer.locator('a[href^="/bookings/"]', { hasText: 'Smash Arena' }).first().click();
   await customer.waitForURL(/\/bookings\/[0-9a-f-]{36}/);
+  await customer.getByText('1 visit · 1 player', { exact: false }).waitFor();
   text = await customer.locator('main').innerText();
   check('customer detail: header in players', /1 visit · 1 player/.test(text), text.slice(0, 300));
 

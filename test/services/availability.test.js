@@ -1,6 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fetchAvailability, availabilityMonthRange } from '../../lib/api/availability.js';
+import {
+  fetchAvailability,
+  availabilityMonthRange,
+  fetchTimes,
+  fetchHourlyAvailability,
+} from '../../lib/api/availability.js';
 
 const input = { code: 'u4pshrym', from: '2026-09-23', days: 8, guests: 1 };
 
@@ -60,4 +65,53 @@ test('requests stay within the displayed month, including leap years', () => {
     from: '2028-02-01',
     days: 29,
   });
+});
+
+test('hourly availability uses public uncached endpoints and preserves selections', async (t) => {
+  const calls = [];
+  t.mock.method(globalThis, 'fetch', async (url, options) => {
+    calls.push({ url: new URL(url), options });
+    return Response.json({
+      success: true,
+      data: String(url).includes('/times?')
+        ? { times: [], durations: [60, 120] }
+        : { days: { '2030-01-07': { open: true, freeStarts: 2 } } },
+    });
+  });
+  const choice = {
+    code: 'venue001',
+    date: '2030-01-07',
+    activity: 'box-cricket',
+    duration: 120,
+    guests: 4,
+  };
+  assert.deepEqual(await fetchTimes(choice), { times: [], durations: [60, 120] });
+  await fetchHourlyAvailability({ ...choice, from: choice.date, days: 14 });
+  assert.match(calls[0].url.pathname, /venue001\/times$/);
+  assert.match(calls[1].url.pathname, /venue001\/availability$/);
+  for (const { url, options } of calls) {
+    assert.equal(options.cache, 'no-store');
+    assert.equal(options.credentials, 'omit');
+    assert.equal(url.searchParams.get('activity'), 'box-cricket');
+    assert.equal(url.searchParams.get('duration'), '120');
+    assert.equal(url.searchParams.get('guests'), '4');
+  }
+});
+
+test('time-grid failures preserve API error codes and reject malformed success', async (t) => {
+  const choice = {
+    code: 'venue001',
+    date: '2030-01-07',
+    activity: 'box-cricket',
+    duration: 60,
+    guests: 1,
+  };
+  t.mock.method(globalThis, 'fetch', async () =>
+    Response.json({ success: false, code: 'RATE_LIMITED' }, { status: 429 }),
+  );
+  await assert.rejects(fetchTimes(choice), { code: 'RATE_LIMITED' });
+  t.mock.method(globalThis, 'fetch', async () =>
+    Response.json({ success: true, data: { times: [] } }),
+  );
+  await assert.rejects(fetchTimes(choice), /Invalid availability response/);
 });

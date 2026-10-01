@@ -34,8 +34,9 @@ export default async function DiscoveryResults({ query, registry: registryInput,
        drift apart. `path` scopes the search to a landing route. */
     try {
       result = await discoveryApi.search({ ...query, ...(route ? { path: route.path } : {}) });
-    } catch {
-      failed = true;
+    } catch (error) {
+      if (error.code === 'VERTICAL_MISMATCH') result = { ...result, errors: [error.message] };
+      else failed = true;
     }
   }
   const registry = await registryInput;

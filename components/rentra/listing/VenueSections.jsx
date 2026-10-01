@@ -3,7 +3,7 @@ import { ActivityIcon } from '@/components/rentra/icons/activity-icons';
 import { calculateBookingPrice, CANCELLATION_TIERS_HOURLY, formatINR } from '@/lib/domain/pricing';
 import { WEEKDAYS, weekdayKey } from '@/lib/domain/hourly';
 import { clock12, unitName } from '@/lib/domain/vertical-ui';
-import TimeSlotPicker from './TimeSlotPicker';
+import TimeSlotPicker from './LazyTimeSlotPicker';
 import QuoteSummary from './QuoteSummary';
 
 /**

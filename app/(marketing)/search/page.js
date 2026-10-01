@@ -31,7 +31,7 @@ export default async function SearchPage({ searchParams }) {
     const { cities, categories } = await registry;
     const category = categories.find((c) => c.slug === query.category);
     // A category implies its vertical, so each search has one canonical URL (308).
-    if (category?.vertical && category.vertical !== 'farmhouse' && !query.vertical)
+    if (category?.vertical && category.vertical !== (query.vertical || 'farmhouse'))
       permanentRedirect(`/search?${params(query, { vertical: category.vertical })}`);
     // A venue search for just a city and an activity is that landing page.
     const onlyPlace = Object.entries(query).every(
