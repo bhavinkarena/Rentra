@@ -20,6 +20,7 @@ import PropertyLifecyclePanel from '@/components/admin/PropertyLifecyclePanel';
 import { diffRevisions } from '@/lib/domain/revision-diff';
 import { normalizePublicPhotos } from '@/lib/domain/listing-content';
 import { listingPath } from '@/lib/domain/listing-url';
+import { minuteToHhmm, WEEKDAYS } from '@/lib/domain/hourly';
 
 const tabs = [
   { key: 'submission', label: 'Submitted property' },
@@ -203,15 +204,25 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
                   listing.location?.x != null
                     ? `${listing.location.y}, ${listing.location.x} (lat, lng)`
                     : listing.location,
-                capacity: listing.capacity,
-                bedrooms: listing.bedrooms,
-                farmSize: listing.farmSize,
-                farmSizeUnit: listing.farmSizeUnit,
-                checkInFrom: listing.checkInFrom,
-                checkOutBy: listing.checkOutBy,
+                ...(listing.rentalUnit === 'hour'
+                  ? {
+                      maxPlayers: listing.capacity,
+                      courts: (snap.resources ?? []).filter((r) => r.isActive).length,
+                    }
+                  : {
+                      capacity: listing.capacity,
+                      bedrooms: listing.bedrooms,
+                      farmSize: listing.farmSize,
+                      farmSizeUnit: listing.farmSizeUnit,
+                      checkInFrom: listing.checkInFrom,
+                      checkOutBy: listing.checkOutBy,
+                    }),
                 cancellationTier: listing.cancellationTier,
                 depositAmount: listing.depositAmount,
-                extraGuestCharge: listing.extraGuestCharge,
+                // Venues price per hour; extra-guest charges do not apply to them.
+                ...(listing.rentalUnit === 'hour'
+                  ? {}
+                  : { extraGuestCharge: listing.extraGuestCharge }),
               }).map(([label, value]) => ({
                 label: label.replace(/([A-Z])/g, ' $1'),
                 value: display(value),
@@ -219,9 +230,16 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
             />
             <h3 className="mt-4 font-semibold">Description</h3>
             <p className="mt-2 whitespace-pre-wrap text-meta">{listing.description}</p>
-            <h3 className="mt-4 font-semibold">House rules</h3>
-            <p className="mt-2 whitespace-pre-wrap text-meta">{display(listing.houseRules)}</p>
+            <h3 className="mt-4 font-semibold">
+              {listing.rentalUnit === 'hour' ? 'Venue rules' : 'House rules'}
+            </h3>
+            <p className="mt-2 whitespace-pre-wrap text-meta">
+              {listing.rentalUnit === 'hour'
+                ? venueRules(listing.houseRules)
+                : display(listing.houseRules)}
+            </p>
           </SectionCard>
+          {listing.rentalUnit === 'hour' ? <VenueSubmission snap={snap} listing={listing} /> : null}
           {base ? (
             <SectionCard
               title={`Changes since pass ${base.passNumber}${base.id === published?.id ? ' (published)' : ''}`}
@@ -292,7 +310,7 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
               <p className="text-meta">Photo previews are unavailable for this snapshot.</p>
             ) : null}
           </SectionCard>
-          <SectionCard title="Amenities & prices">
+          <SectionCard title={listing.rentalUnit === 'hour' ? 'Amenities' : 'Amenities & prices'}>
             <ul className="space-y-2 text-meta">
               {snap.amenities.map((a) => (
                 <li key={a.amenityId}>
@@ -376,6 +394,7 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
               assignedTo={current.assignedTo}
               adminId={admin.id}
               canDecide={canDecide}
+              venue={data.current?.snapshot?.listing?.rentalUnit === 'hour'}
               writable={admin.capabilities.includes('admin.properties.write')}
             />
           ) : (
@@ -498,7 +517,9 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
               <ul className="mt-4 space-y-1 text-meta" aria-label="Upcoming confirmed visits">
                 {data.lifecycle.visits.map((v) => (
                   <li key={v.reference}>
-                    {v.reference} · {v.day} · {v.slot.replaceAll('_', ' ')} · {v.state}
+                    {v.reference} ·{' '}
+                    {v.slot === 'hourly' ? v.label : `${v.day} · ${v.slot.replaceAll('_', ' ')}`} ·{' '}
+                    {v.state}
                   </li>
                 ))}
               </ul>
@@ -583,5 +604,123 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
         </div>
       ) : null}
     </AdminPage>
+  );
+}
+
+const DAY_NAMES = {
+  mon: 'Mon',
+  tue: 'Tue',
+  wed: 'Wed',
+  thu: 'Thu',
+  fri: 'Fri',
+  sat: 'Sat',
+  sun: 'Sun',
+};
+const activityName = (slug) => slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, ' ');
+const FOOTWEAR = {
+  non_marking: 'Non-marking shoes only',
+  no_studs: 'Sports shoes, no studs',
+  studs_ok: 'Studs allowed',
+  any: 'Any footwear',
+};
+const FOOD = { yes: 'allowed', no: 'not allowed', seating_only: 'seating area only' };
+/** The venue rules as the owner chose them, one per line. */
+const venueRules = (rules) => {
+  if (!rules || Array.isArray(rules)) return display(rules);
+  return [
+    `Footwear: ${FOOTWEAR[rules.footwear] ?? 'Not stated'}`,
+    `Minimum age: ${rules.minAge ?? 'None'}`,
+    `Outside food: ${FOOD[rules.foodAllowed] ?? 'Not stated'}`,
+    `Smoking: ${rules.smokingAllowed ? 'allowed' : 'not allowed'}`,
+    `Alcohol: ${rules.alcoholAllowed ? 'allowed' : 'not allowed'}`,
+    rules.notes ? `Other rules: ${rules.notes}` : null,
+  ]
+    .filter(Boolean)
+    .join('\n');
+};
+const clock = (minute) => `${minuteToHhmm(minute)}${minute >= 1440 ? ' (next day)' : ''}`;
+
+/** Courts, opening hours and hourly prices of a submitted venue revision. */
+function VenueSubmission({ snap, listing }) {
+  const config = listing.bookingConfig?.model === 'hourly' ? listing.bookingConfig : null;
+  return (
+    <>
+      <SectionCard title="Courts" description="Each bookable court, lane or station as submitted.">
+        <div
+          className="relative overflow-x-auto"
+          tabIndex={0}
+          role="region"
+          aria-label="Submitted courts"
+        >
+          <table className="w-full min-w-[520px] text-left text-meta">
+            <thead className="text-tiny uppercase text-ink-500">
+              <tr>
+                {['Court', 'Activities', 'Max players', 'Indoor', 'Surface / size', 'Status'].map(
+                  (h) => (
+                    <th key={h} scope="col" className="py-2 pr-3">
+                      {h}
+                    </th>
+                  ),
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {(snap.resources ?? []).map((r) => (
+                <tr key={r.id} className="border-t border-border align-top">
+                  <th scope="row" className="py-2 pr-3 font-semibold">
+                    {r.name}
+                  </th>
+                  <td className="py-2 pr-3">{(r.activities ?? []).map(activityName).join(', ')}</td>
+                  <td className="py-2 pr-3 tabular">{r.capacity}</td>
+                  <td className="py-2 pr-3">
+                    {r.isIndoor == null ? 'Not stated' : r.isIndoor ? 'Indoor' : 'Outdoor'}
+                  </td>
+                  <td className="py-2 pr-3">
+                    {[r.details?.surface, r.details?.size].filter(Boolean).join(' · ') || '—'}
+                  </td>
+                  <td className="py-2">{r.isActive ? 'Active' : 'Removed'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </SectionCard>
+      <SectionCard title="Opening hours and booking grid">
+        {config ? (
+          <>
+            <ul className="grid gap-1 text-meta sm:grid-cols-2">
+              {WEEKDAYS.map((day) => (
+                <li key={day}>
+                  <span className="font-semibold">{DAY_NAMES[day]}:</span>{' '}
+                  {(config.weeklyHours?.[day] ?? []).length
+                    ? config.weeklyHours[day]
+                        .map((w) => `${w.open}–${w.close}${w.closesNextDay ? ' (next day)' : ''}`)
+                        .join(', ')
+                    : 'Closed'}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3 text-meta">
+              Starts every {config.stepMinutes} min · bookings {config.minDurationMinutes / 60}–
+              {config.maxDurationMinutes / 60} hr · changeover {config.bufferAfterMinutes} min ·
+              book {config.leadTimeMinutes} min ahead, up to {config.bookingHorizonDays} days
+            </p>
+          </>
+        ) : (
+          <p className="text-meta">No opening hours submitted.</p>
+        )}
+      </SectionCard>
+      <SectionCard title="Hourly prices" description="Per court per hour, before the platform fee.">
+        <ul className="space-y-1 text-meta tabular">
+          {(snap.hourlyRates ?? []).map((r, i) => (
+            <li key={i}>
+              {activityName(r.activity)} · {r.dayKind === 'weekend' ? 'Sat–Sun' : 'Mon–Fri'} ·{' '}
+              {clock(r.startMinute)}–{clock(r.endMinute)} · ₹{r.hourlyRate}/hr
+            </li>
+          ))}
+          {!snap.hourlyRates?.length && <li>No hourly prices submitted.</li>}
+        </ul>
+      </SectionCard>
+    </>
   );
 }

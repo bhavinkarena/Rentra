@@ -146,7 +146,9 @@ export default function AdminBookingDetail({ record, tab, params, listHref = '/a
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <h3 className="font-bold text-ink-900">
-                        {visit.date} · {visit.slot.replaceAll('_', ' ')}
+                        {visit.slot === 'hourly'
+                          ? visit.label
+                          : `${visit.date} · ${visit.slot.replaceAll('_', ' ')}`}
                       </h3>
                       <p className="mt-1 font-mono text-tiny text-ink-500">{visit.reference}</p>
                     </div>

@@ -42,14 +42,28 @@ export default function SaveButton({
     const selection =
       suppliedSelection !== undefined
         ? suppliedSelection
-        : date
-          ? {
-              rentableId,
-              dates: booking?.dates ?? [date],
-              slot: booking.slot,
-              guests: booking.guests,
-            }
-          : null;
+        : booking?.kind === 'hourly'
+          ? // A venue saves the chosen time only once one is picked.
+            booking.start
+            ? {
+                kind: 'hourly',
+                rentableId,
+                activity: booking.activity,
+                date: booking.date,
+                start: booking.start,
+                durationMinutes: booking.durationMinutes,
+                resourceId: booking.resourceId,
+                guests: booking.guests,
+              }
+            : null
+          : date
+            ? {
+                rentableId,
+                dates: booking?.dates ?? [date],
+                slot: booking.slot,
+                guests: booking.guests,
+              }
+            : null;
     startTransition(() => places.change(rentableId, !saved, selection));
   }
 

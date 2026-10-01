@@ -4,7 +4,7 @@ import { partnerApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
 import PortalState from '@/components/portal/PortalState';
 import { listingCompletion } from '@/lib/domain/listing-completion';
-import { firstIncompleteStepId, stepHref } from '@/lib/domain/listing-steps';
+import { firstIncompleteStepId, listingModel, stepHref } from '@/lib/domain/listing-steps';
 
 export const metadata = {
   title: 'Set up your property',
@@ -30,5 +30,5 @@ export default async function SetupEntryPage({ params }) {
     return <PortalState kind={failure} backHref="/partner/listings" backLabel="All properties" />;
 
   const completion = listingCompletion(data.listing, data);
-  redirect(stepHref(id, firstIncompleteStepId(completion)));
+  redirect(stepHref(id, firstIncompleteStepId(completion, listingModel(data.listing))));
 }

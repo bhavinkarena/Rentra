@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { formatINRMinor } from '@/lib/domain/booking-money';
 import { SLOTS } from '@/lib/domain/pricing';
 import { useBookingQuote } from './BookingQuoteProvider';
 import QuoteSummary from './QuoteSummary';
+import { useShownAfter } from './use-shown-after';
 
 /**
  * The bottom bar, below lg. Appears once the photo grid has scrolled out of
@@ -22,7 +23,7 @@ export default function MobileBookingBar({ sentinelId = 'gallery-end', prices })
   const basePrice = prices?.[slot]
     ? Math.min(prices[slot].weekday, prices[slot].weekend) * 100
     : null;
-  const [shown, setShown] = useState(false);
+  const shown = useShownAfter(sentinelId);
   const dialog = useRef(null);
   const opener = useRef(null);
   const previousOverflow = useRef('');
@@ -55,36 +56,6 @@ export default function MobileBookingBar({ sentinelId = 'gallery-end', prices })
       if (element?.open) document.body.style.overflow = previousOverflow.current;
     };
   }, []);
-
-  useEffect(() => {
-    const sentinel = document.getElementById(sentinelId);
-
-    if (sentinel) {
-      // An observer always delivers an initial entry, so the correct state
-      // arrives from the callback — nothing has to be seeded by hand here.
-      const observer = new IntersectionObserver(
-        ([entry]) => setShown(entry.boundingClientRect.top < 0 && !entry.isIntersecting),
-        { threshold: 0 },
-      );
-      observer.observe(sentinel);
-      return () => observer.disconnect();
-    }
-
-    /**
-     * No sentinel means an unexpected page shape. Fall back to scroll depth
-     * rather than silently losing the only booking CTA on a phone. The first
-     * reading is taken in a frame callback, not in the effect body: setting
-     * state synchronously here would cascade an extra render on every mount.
-     */
-    const onScroll = () => setShown(window.scrollY > 320);
-    const frame = requestAnimationFrame(onScroll);
-    window.addEventListener('scroll', onScroll, { passive: true });
-
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener('scroll', onScroll);
-    };
-  }, [sentinelId]);
 
   return (
     <>

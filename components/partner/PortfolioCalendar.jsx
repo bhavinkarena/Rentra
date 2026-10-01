@@ -29,7 +29,12 @@ function Interval({ interval, property }) {
     <details className={`rounded-md border p-3 ${tones[kind]}`}>
       <summary className="min-h-11 cursor-pointer text-sm font-semibold">
         {label}
-        {interval.slot ? ` · ${interval.slot.replace('_', ' ')}` : ''}
+        {interval.slot === 'hourly'
+          ? // Venue: which court and activity, not a slot name (entertainment plan, Phase 11).
+            [interval.resource_name, interval.activity].filter(Boolean).map((part) => ` · ${part}`)
+          : interval.slot
+            ? ` · ${interval.slot.replace('_', ' ')}`
+            : ''}
         <span className="block text-xs font-normal">
           {time(interval.blocked_start_at)} – {time(interval.blocked_end_at)}
         </span>
@@ -123,6 +128,9 @@ export default function PortfolioCalendar({
             <option value="day">Day picnic</option>
             <option value="night">Overnight</option>
             <option value="full_day">Full day</option>
+            {data.items.some((p) => p.rentalUnit === 'hour') || data.slot === 'hourly' ? (
+              <option value="hourly">Court bookings</option>
+            ) : null}
           </select>
         </label>
         {basePath === '/partner/calendar' && (
@@ -155,9 +163,9 @@ export default function PortfolioCalendar({
         </Link>
       </div>
       <p className="text-sm text-ink-600">
-        All times are India time. Blue: booked visit · Amber: temporary hold · Red: owner block ·
-        Dashed: buffer · Purple: price override. Expand an interval for its source and actions. Open
-        dates still require confirmed hours and a successful availability check at checkout.
+        All times are India time. Blue: booked visit · Amber: temporary hold · Dashed grey: owner
+        block or buffer · Purple: price override. Expand an interval for its source and actions.
+        Open dates still require confirmed hours and a successful availability check at checkout.
       </p>
       {!data.items.length && (
         <p className="rounded-lg border border-border p-5">
@@ -229,18 +237,25 @@ export default function PortfolioCalendar({
                       }).format(new Date(`${day}T00:00:00Z`))}
                     </time>
                   </h3>
-                  {slots.map((slot) => {
+                  {property.rentalUnit === 'hour' ? (
+                    // Venues open by weekly hours, not by opened dates: link the day's court timeline.
+                    <Link
+                      className="inline-flex min-h-11 items-center text-xs font-semibold text-brand-700 underline"
+                      href={`/partner/listings/${property.id}/calendar?date=${day}`}
+                    >
+                      Court timeline
+                    </Link>
+                  ) : null}
+                  {(property.rentalUnit === 'hour' ? [] : slots).map((slot) => {
                     const row = property.availability.find((r) => r.day === day && r.slot === slot);
                     return (
                       <p className="text-xs" key={slot}>
                         {slot === 'day' ? 'Day' : 'Night'}:{' '}
                         {!row
                           ? 'Closed (not opened)'
-                          : row.blocked_by_client
-                            ? 'Owner closed'
-                            : row.units_available <= 0
-                              ? 'Unavailable'
-                              : 'Open date'}
+                          : row.units_available <= 0
+                            ? 'Unavailable'
+                            : 'Open date'}
                       </p>
                     );
                   })}

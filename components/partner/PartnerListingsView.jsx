@@ -5,17 +5,18 @@ import PropertyFilters from '@/components/partner/PropertyFilters';
 import PropertyTable from '@/components/partner/PropertyTable';
 import { KpiCard, PartnerPageHeader } from '@/components/partner/PortalPrimitives';
 
-function pageHref({ query, status, page }) {
+function pageHref({ query, status, vertical, page }) {
   const params = new URLSearchParams();
   if (query) params.set('q', query);
   if (status !== 'all') params.set('status', status);
+  if (vertical) params.set('vertical', vertical);
   if (page > 1) params.set('page', String(page));
   const suffix = params.toString();
   return suffix ? `/partner/listings?${suffix}` : '/partner/listings';
 }
 
 export default function PartnerListingsView({ summary, result, args, submitted }) {
-  const { query, status } = args;
+  const { query, status, vertical } = args;
   const first = result.total ? (result.page - 1) * result.pageSize + 1 : 0;
   const last = Math.min(result.page * result.pageSize, result.total);
 
@@ -86,10 +87,16 @@ export default function PartnerListingsView({ summary, result, args, submitted }
           <p className="text-tiny text-ink-500">Updated properties appear first</p>
         </div>
 
-        <PropertyFilters key={`${query}:${status}`} query={query} status={status} />
+        <PropertyFilters
+          key={`${query}:${status}:${vertical}`}
+          query={query}
+          status={status}
+          vertical={vertical}
+          verticals={summary.verticals ?? []}
+        />
         <PropertyTable
           listings={result.items}
-          from={pageHref({ query, status, page: result.page })}
+          from={pageHref({ query, status, vertical, page: result.page })}
           emptyTitle={summary.total ? 'No matching properties' : 'No properties yet'}
           emptyDescription={
             summary.total

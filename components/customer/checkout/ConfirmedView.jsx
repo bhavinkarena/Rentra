@@ -11,11 +11,20 @@ import {
   ShieldCheck,
   Wallet,
 } from 'lucide-react';
-import { CANCELLATION_TIERS } from '@/lib/domain/pricing';
+import { CANCELLATION_TIERS, CANCELLATION_TIERS_HOURLY } from '@/lib/domain/pricing';
+import { houseRuleLines } from '@/lib/domain/venue-rules';
 import { formatINRMinor as money } from '@/lib/domain/booking-money';
 import { cancellationSteps, clockTime, shortDay } from '@/lib/domain/checkout-display';
 import CopyReference from './CopyReference';
-import { PriceDetails, SecureNote, StayFacts, StayPhoto, TestBadge } from './parts';
+import {
+  PriceDetails,
+  SecureNote,
+  StayFacts,
+  StayPhoto,
+  TestBadge,
+  isHourly,
+  visitHours,
+} from './parts';
 
 /** A tick that draws itself — the one moment in checkout that earns a flourish. */
 function SuccessMark() {
@@ -47,10 +56,24 @@ export default function ConfirmedView({ data, checkout }) {
   const first = quote.visits[0];
   const base = `/bookings/${checkout.orderId}`;
   const later = quote.payment.remainingMinor > 0;
-  const tier = CANCELLATION_TIERS[quote.policy.cancellationTier];
+  const hourly = isHourly(quote);
+  const tier = (hourly ? CANCELLATION_TIERS_HOURLY : CANCELLATION_TIERS)[
+    quote.policy.cancellationTier
+  ];
   const [nextRefund] = first
-    ? cancellationSteps(quote.policy.cancellationTier, first.startsAt, checkout.serverNow)
+    ? cancellationSteps(
+        quote.policy.cancellationTier,
+        first.startsAt,
+        checkout.serverNow,
+        quote.policy.cancellation,
+      )
     : [];
+  // Only when the owner's rules ask for it, e.g. "Arrive 10 minutes early".
+  const arriveEarly = hourly
+    ? houseRuleLines(quote.policy.houseRules).find((rule) =>
+        /arriv\w*.*early|early.*arriv/i.test(rule),
+      )
+    : null;
   const actions = [
     { href: base, icon: ReceiptText, label: 'View booking', hint: 'Every detail' },
     {
@@ -84,18 +107,26 @@ export default function ConfirmedView({ data, checkout }) {
       title: 'Arrival details unlocked',
       text: 'The address and host contact are now in your booking.',
     },
-    {
-      icon: Wallet,
-      title: later ? 'Remaining amount and deposit' : 'Refundable deposit',
-      text: `${later ? `${money(quote.payment.remainingMinor)} is not collected now. ` : ''}The ${money(quote.totals.depositMinor)} refundable deposit is paid separately.`,
-    },
-    first
+    hourly && !later && !quote.totals.depositMinor
+      ? null
+      : {
+          icon: Wallet,
+          title: later ? 'Remaining amount and deposit' : 'Refundable deposit',
+          text: `${later ? `${money(quote.payment.remainingMinor)} is not collected now. ` : ''}The ${money(quote.totals.depositMinor)} refundable deposit is paid separately.`,
+        },
+    first && hourly
       ? {
           icon: PartyPopper,
-          title: 'Enjoy your visit',
-          text: `${quote.visits.length > 1 ? 'Your first visit starts' : 'Arrive from'} ${clockTime(first.startsAt, quote.timeZone)} on ${shortDay(first.startsAt, quote.timeZone)}.`,
+          title: 'Enjoy your game',
+          text: `${first.resourceName ? `${first.resourceName}, ` : ''}${shortDay(first.startsAt, quote.timeZone)}, ${visitHours(quote)}.${arriveEarly ? ` ${arriveEarly}` : ''}`,
         }
-      : null,
+      : first
+        ? {
+            icon: PartyPopper,
+            title: 'Enjoy your visit',
+            text: `${quote.visits.length > 1 ? 'Your first visit starts' : 'Arrive from'} ${clockTime(first.startsAt, quote.timeZone)} on ${shortDay(first.startsAt, quote.timeZone)}.`,
+          }
+        : null,
   ].filter(Boolean);
 
   return (
@@ -205,7 +236,10 @@ export default function ConfirmedView({ data, checkout }) {
           </p>
           {tier ? (
             <p className="mt-2 text-xs text-ink-600">
-              {tier.label} policy · counted from each visit’s arrival.
+              {tier.label} policy ·{' '}
+              {hourly
+                ? 'counted in hours before your start time.'
+                : 'counted from each visit’s arrival.'}
             </p>
           ) : null}
           <Link

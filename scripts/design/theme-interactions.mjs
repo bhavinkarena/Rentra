@@ -2,52 +2,116 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
-const { chromium } = require(process.env.PLAYWRIGHT_MODULE || '/tmp/rentra-ux-tools/node_modules/playwright');
+const { chromium } = require(
+  process.env.PLAYWRIGHT_MODULE || '/tmp/rentra-ux-tools/node_modules/playwright',
+);
 const origin = process.env.THEME_ORIGIN || 'http://localhost:3196';
-if (!['localhost', '127.0.0.1'].includes(new URL(origin).hostname)) throw new Error('Local server required');
+if (!['localhost', '127.0.0.1'].includes(new URL(origin).hostname))
+  throw new Error('Local server required');
 const f = JSON.parse(await readFile(process.env.GATE_TOKENS, 'utf8'));
-if (!new URL(f.databaseUrl).pathname.startsWith('/rentra_test_')) throw new Error('Disposable fixture required');
+if (!new URL(f.databaseUrl).pathname.startsWith('/rentra_test_'))
+  throw new Error('Disposable fixture required');
 const results = [];
-const check = (name, pass, detail) => { results.push({ name, pass: !!pass, ...(detail ? { detail } : {}) }); console.log(`${pass ? 'PASS' : 'FAIL'} ${name}`); };
-const browser = await chromium.launch({ executablePath: process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
-const goto = async (page, route) => { await page.goto(origin + route, { waitUntil: 'domcontentloaded' }); await page.locator('main h1').first().waitFor(); };
+const check = (name, pass, detail) => {
+  results.push({ name, pass: !!pass, ...(detail ? { detail } : {}) });
+  console.log(`${pass ? 'PASS' : 'FAIL'} ${name}`);
+};
+const browser = await chromium.launch({
+  executablePath:
+    process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+});
+const goto = async (page, route) => {
+  await page.goto(origin + route, { waitUntil: 'domcontentloaded' });
+  await page.locator('main h1').first().waitFor();
+};
 try {
-  const publicContext = await browser.newContext({ viewport: { width: 390, height: 900 }, reducedMotion: 'reduce' });
+  const publicContext = await browser.newContext({
+    viewport: { width: 390, height: 900 },
+    reducedMotion: 'reduce',
+  });
   const page = await publicContext.newPage();
   await goto(page, '/');
   await page.getByLabel('Where', { exact: true }).fill('Surat');
   await page.getByLabel('Guests', { exact: true }).fill('4');
   const focus = await page.getByLabel('Where', { exact: true }).evaluate((input) => {
-    input.focus(); const cell = input.closest('label'); return { color: getComputedStyle(cell).backgroundColor, ring: getComputedStyle(cell).boxShadow };
+    input.focus();
+    const cell = input.closest('label');
+    return {
+      color: getComputedStyle(cell).backgroundColor,
+      ring: getComputedStyle(cell).boxShadow,
+    };
   });
-  check('Compound search cell has a visible inset focus ring', focus.ring.includes('inset') && focus.color === 'rgb(236, 244, 239)', focus);
+  check(
+    'Compound search cell has a visible inset focus ring',
+    focus.ring.includes('inset') && focus.color === 'rgb(236, 244, 239)',
+    focus,
+  );
   await page.getByRole('button', { name: 'Search', exact: true }).click();
   await page.waitForURL((url) => url.pathname === '/search');
   await page.locator('main h1').waitFor();
   let url = new URL(page.url());
-  check('Home search preserves query, visit type and guests', url.searchParams.get('q') === 'Surat' && url.searchParams.get('slot') === 'day' && url.searchParams.get('guests') === '4');
+  check(
+    'Home search preserves query, visit type and guests',
+    url.searchParams.get('q') === 'Surat' &&
+      url.searchParams.get('slot') === 'day' &&
+      url.searchParams.get('guests') === '4',
+  );
   await page.getByLabel('Sort', { exact: true }).selectOption({ index: 1 });
-  await page.waitForURL((url) => url.searchParams.get('sort') && url.searchParams.get('sort') !== 'recommended');
+  await page.waitForURL(
+    (url) => url.searchParams.get('sort') && url.searchParams.get('sort') !== 'recommended',
+  );
   url = new URL(page.url());
-  check('Mobile sort preserves collapsed search filters', url.searchParams.get('q') === 'Surat' && url.searchParams.get('guests') === '4');
+  check(
+    'Mobile sort preserves collapsed search filters',
+    url.searchParams.get('q') === 'Surat' && url.searchParams.get('guests') === '4',
+  );
   await goto(page, `/listing/${f.submission.slug}-${f.submission.publicCode}`);
   const open = page.getByRole('button', { name: /Choose dates & visit type/ });
   await open.scrollIntoViewIfNeeded();
   await open.click();
   const calendar = page.getByRole('dialog');
   await calendar.waitFor();
-  check('Calendar opens within the mobile viewport', await calendar.evaluate((e) => { const r = e.getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth && r.top >= 0 && r.bottom <= innerHeight + 1; }));
-  await page.addScriptTag({ content: await readFile(new URL('../../node_modules/axe-core/axe.min.js', import.meta.url), 'utf8') });
-  const violations = await page.evaluate(async () => (await axe.run(document, { runOnly: ['wcag2a','wcag2aa','wcag21aa','wcag22aa'] })).violations.map((v) => v.id));
+  check(
+    'Calendar opens within the mobile viewport',
+    await calendar.evaluate((e) => {
+      const r = e.getBoundingClientRect();
+      return r.left >= 0 && r.right <= innerWidth && r.top >= 0 && r.bottom <= innerHeight + 1;
+    }),
+  );
+  await page.addScriptTag({
+    content: await readFile(
+      new URL('../../node_modules/axe-core/axe.min.js', import.meta.url),
+      'utf8',
+    ),
+  });
+  const violations = await page.evaluate(async () =>
+    (
+      await axe.run(document, { runOnly: ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'] })
+    ).violations.map((v) => v.id),
+  );
   check('Open calendar passes axe', !violations.length, violations);
   await page.keyboard.press('Escape');
-  check('Calendar closes and restores focus to its opener', await open.evaluate((e) => e === document.activeElement));
+  check(
+    'Calendar closes and restores focus to its opener',
+    await open.evaluate((e) => e === document.activeElement),
+  );
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
   await page.locator('[data-booking-bar]').waitFor();
-  const clearance = await page.evaluate(() => ({ padding: parseFloat(getComputedStyle(document.body).paddingBottom), bar: document.querySelector('[data-booking-bar]').getBoundingClientRect().height, scrollPadding: parseFloat(getComputedStyle(document.documentElement).scrollPaddingBottom) }));
-  check('Sticky booking controls have page and focus clearance', clearance.padding >= clearance.bar && clearance.scrollPadding >= clearance.bar, clearance);
+  const clearance = await page.evaluate(() => ({
+    padding: parseFloat(getComputedStyle(document.body).paddingBottom),
+    bar: document.querySelector('[data-booking-bar]').getBoundingClientRect().height,
+    scrollPadding: parseFloat(getComputedStyle(document.documentElement).scrollPaddingBottom),
+  }));
+  check(
+    'Sticky booking controls have page and focus clearance',
+    clearance.padding >= clearance.bar && clearance.scrollPadding >= clearance.bar,
+    clearance,
+  );
   await publicContext.close();
-  const admin = await browser.newContext({ viewport: { width: 390, height: 900 }, reducedMotion: 'reduce' });
+  const admin = await browser.newContext({
+    viewport: { width: 390, height: 900 },
+    reducedMotion: 'reduce',
+  });
   await admin.addCookies([{ name: 'rentra_admin', value: f.tokens.admin, url: origin }]);
   const portal = await admin.newPage();
   await goto(portal, '/admin/content');
@@ -56,25 +120,55 @@ try {
   const drawer = portal.getByRole('dialog');
   await drawer.waitFor();
   const close = drawer.getByRole('button', { name: 'Close navigation' });
-  check('Drawer close control is at least 44px', await close.evaluate((e) => { const r = e.getBoundingClientRect(); return r.width >= 44 && r.height >= 44; }));
+  check(
+    'Drawer close control is at least 44px',
+    await close.evaluate((e) => {
+      const r = e.getBoundingClientRect();
+      return r.width >= 44 && r.height >= 44;
+    }),
+  );
   await portal.keyboard.press('Tab');
-  check('Drawer keyboard focus stays inside the modal', await drawer.evaluate((e) => e.contains(document.activeElement)));
-  const drawerRing = await drawer.evaluate((e) => getComputedStyle(e).getPropertyValue('--ring').trim());
-  check('Inverse navigation uses champagne focus color', drawerRing.toLowerCase() === '#f8e7c9', drawerRing);
+  check(
+    'Drawer keyboard focus stays inside the modal',
+    await drawer.evaluate((e) => e.contains(document.activeElement)),
+  );
+  const drawerRing = await drawer.evaluate((e) =>
+    getComputedStyle(e).getPropertyValue('--ring').trim(),
+  );
+  check(
+    'Inverse navigation uses champagne focus color',
+    drawerRing.toLowerCase() === '#f8e7c9',
+    drawerRing,
+  );
   await portal.keyboard.press('Escape');
-  check('Drawer returns focus to the menu', await menu.evaluate((e) => e === document.activeElement));
+  check(
+    'Drawer returns focus to the menu',
+    await menu.evaluate((e) => e === document.activeElement),
+  );
   await portal.getByRole('link', { name: 'Search workspace' }).click();
   await portal.waitForURL('**/admin/search');
-  check('Admin search remains reachable on phones', new URL(portal.url()).pathname === '/admin/search');
+  check(
+    'Admin search remains reachable on phones',
+    new URL(portal.url()).pathname === '/admin/search',
+  );
   await portal.setViewportSize({ width: 1440, height: 900 });
   await portal.getByRole('button', { name: 'Collapse sidebar' }).click();
-  check('Collapsed sidebar retains an inverse logo and 64px rail', await portal.locator('aside').evaluate((e) => { const fills = [...e.querySelectorAll('svg path')].map((p) => p.getAttribute('fill')); return e.getBoundingClientRect().width === 64 && fills.includes('#F8E7C9'); }));
+  check(
+    'Collapsed sidebar retains an inverse logo and 64px rail',
+    await portal.locator('aside').evaluate((e) => {
+      const fills = [...e.querySelectorAll('svg path')].map((p) => p.getAttribute('fill'));
+      return e.getBoundingClientRect().width === 64 && fills.includes('#F8E7C9');
+    }),
+  );
   await portal.getByRole('button', { name: 'Expand sidebar' }).click();
   await admin.close();
 } catch (error) {
   check('Interaction script completed', false, error.message);
 } finally {
   await browser.close();
-  await writeFile('docs/rentra-emerald-champagne-interaction-results.json', JSON.stringify({ checkedAt: new Date().toISOString(), results }, null, 2) + '\n');
+  await writeFile(
+    'docs/rentra-emerald-champagne-interaction-results.json',
+    JSON.stringify({ checkedAt: new Date().toISOString(), results }, null, 2) + '\n',
+  );
 }
 if (results.some((r) => !r.pass)) process.exitCode = 1;

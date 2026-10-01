@@ -1,0 +1,71 @@
+{
+  "date": "2026-10-01",
+  "scope": "Disposable local PostgreSQL and production browser fixture only",
+  "backend": {
+    "tests": 172,
+    "passed": 169,
+    "failed": 0,
+    "skipped": 3
+  },
+  "frontend": {
+    "tests": 63,
+    "passed": 63,
+    "failed": 0,
+    "skipped": 0
+  },
+  "smoke": {
+    "passed": 6,
+    "failed": 0
+  },
+  "migrationJournal": {
+    "entries": 56,
+    "passed": true
+  },
+  "browser": {
+    "cp33": {
+      "passed": 46,
+      "failed": 0
+    },
+    "cp34": {
+      "passed": 52,
+      "failed": 0
+    },
+    "cp35": {
+      "passed": 28,
+      "failed": 0
+    },
+    "cp36": {
+      "passed": 23,
+      "failed": 0
+    },
+    "cp37": {
+      "passed": 19,
+      "failed": 0
+    },
+    "cp38": {
+      "passed": 5,
+      "failed": 0
+    },
+    "cp39": {
+      "passed": 10,
+      "failed": 0
+    }
+  },
+  "realMigrator": {
+    "from": "0039_governed_exports",
+    "pending": "0040-0055",
+    "singleTransaction": true,
+    "passed": true
+  },
+  "ownerScreenshotReview": "pending",
+  "hostedRelease": "pending",
+  "additionalBackendLint": {
+    "errors": 520,
+    "warnings": 1,
+    "status": "Existing failures outside Phase 13 acceptance commands"
+  },
+  "additionalBackendFormat": {
+    "files": 15,
+    "status": "Existing failures"
+  }
+}

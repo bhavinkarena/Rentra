@@ -139,6 +139,23 @@ function ApprovedDashboard({ summary, tasks, updates }) {
                 View all <ArrowRight className="size-3.5" aria-hidden="true" />
               </Link>
             </div>
+            {(summary.verticals ?? []).length > 1 ? (
+              // Owners with farmhouses and venues: jump to one kind (entertainment plan, Phase 11).
+              <nav
+                aria-label="Properties by kind"
+                className="flex flex-wrap gap-2 border-b border-border px-4 py-3 sm:px-5"
+              >
+                {summary.verticals.map((code) => (
+                  <Link
+                    key={code}
+                    href={`/partner/listings?vertical=${code}`}
+                    className="inline-flex min-h-9 items-center rounded-full border border-border px-3 text-tiny font-semibold text-ink-700 hover:border-brand-300 hover:bg-brand-50"
+                  >
+                    {{ farmhouse: 'Farmhouses', entertainment: 'Venues' }[code] ?? code}
+                  </Link>
+                ))}
+              </nav>
+            ) : null}
             <PropertyTable
               listings={summary.recent}
               compact

@@ -26,7 +26,8 @@ export function compareRoutes(current, baseline) {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const root = resolve(import.meta.dirname, '../..');
-  const statsPath = resolve(root, '.next/diagnostics/route-bundle-stats.json');
+  const dist = process.env.RENTRA_BUILD_FIXTURE === '1' ? '.next/verification-build' : '.next';
+  const statsPath = resolve(root, dist, 'diagnostics/route-bundle-stats.json');
   try {
     const stats = JSON.parse(readFileSync(statsPath, 'utf8'));
     const baseline = JSON.parse(readFileSync(resolve(root, 'docs/performance-baseline.json')));

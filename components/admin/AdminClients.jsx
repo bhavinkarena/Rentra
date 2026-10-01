@@ -200,7 +200,7 @@ const CLIENT_TABS = (data) => [
 function VisitRow({ visit }) {
   return (
     <Row
-      primary={`${visit.day} · ${label(visit.slot)} · ${visit.listingTitle}`}
+      primary={`${visit.slot === 'hourly' ? visit.label : `${visit.day} · ${label(visit.slot)}`} · ${visit.listingTitle}`}
       secondary={`${visit.reference} · ${visit.guests} guest${visit.guests === 1 ? '' : 's'} · ${when(visit.startsAt, { timeZone: visit.timeZone, dateStyle: 'medium', timeStyle: 'short' })} (${visit.timeZone})`}
       trailing={<StatusBadge tone="info">{label(visit.state)}</StatusBadge>}
       href={visit.orderId ? `/admin/bookings/${visit.orderId}` : null}

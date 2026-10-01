@@ -19,6 +19,8 @@ import {
 import SearchFields from './SearchFields';
 import { discoveryQuery } from '@/lib/domain/discovery';
 import { DOCK_EXIT, useSearchDock, usePublishDiscovery } from './SearchBar';
+import VerticalTabs from './VerticalTabs';
+import { searchTabHref, verticalTabs } from '@/lib/domain/vertical-ui';
 import { measureBrowser } from '@/lib/domain/browser-measurement';
 
 const control = `${fieldClass} mt-1.5`;
@@ -54,25 +56,38 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
   // Same docking as the home hero: the bar scrolls away and HeaderSearch's pill takes over.
   const sentinel = useSearchDock();
   usePublishDiscovery(filters, route, path);
+  // Venues pick the activity in the search bar; players and indoor are their own filters.
+  const vertical = route?.verticalCode ?? filters.vertical;
+  const play = vertical !== 'farmhouse';
   const activeFilters =
     Number(Boolean(filters.q)) +
-    Number(!route?.category && Boolean(filters.category)) +
+    Number(!play && !route?.category && Boolean(filters.category)) +
+    Number(play && filters.players != null) +
+    Number(play && filters.indoor != null) +
     Number(filters.min != null || filters.max != null) +
     Number(Boolean(filters.cancellation)) +
     Number(Boolean(filters.bedrooms)) +
     Number(filters.verified === '1') +
     filters.amenities.length;
+  const ownCategories = registry.categories.filter(
+    (item) => (item.vertical ?? 'farmhouse') === vertical,
+  );
+  const ownAmenities = registry.amenities.filter(
+    (item) => !item.verticals?.length || item.verticals.includes(vertical),
+  );
   const assigned = amenityGroups.flatMap(([, slugs]) => slugs);
-  const groups = [
-    ...amenityGroups.map(([title, slugs]) => [
-      title,
-      registry.amenities.filter((item) => slugs.includes(item.slug)),
-    ]),
-    [
-      'More facilities & accessibility',
-      registry.amenities.filter((item) => !assigned.includes(item.slug)),
-    ],
-  ];
+  const groups = play
+    ? [['Facilities', ownAmenities]]
+    : [
+        ...amenityGroups.map(([title, slugs]) => [
+          title,
+          ownAmenities.filter((item) => slugs.includes(item.slug)),
+        ]),
+        [
+          'More facilities & accessibility',
+          ownAmenities.filter((item) => !assigned.includes(item.slug)),
+        ],
+      ];
   const href = (changes) => `${path}?${discoveryQuery(filters, { page: 1, ...changes })}`;
   function closeFilters(event) {
     setAdvanced(false);
@@ -100,11 +115,28 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
     >
       <div ref={sentinel} aria-hidden="true" />
       <div className={DOCK_EXIT}>
+        {/* Phones: the tabs sit above the fields (md+ has them in the header). */}
+        <VerticalTabs
+          variant="light"
+          items={verticalTabs(
+            registry,
+            route?.verticalCode ?? filters.vertical,
+            path === '/search'
+              ? (code) =>
+                  searchTabHref(code, {
+                    city: filters.city,
+                    area: filters.area,
+                    date: filters.dates[0],
+                  })
+              : undefined,
+          )}
+        />
         <SearchFields
           filters={filters}
           registry={registry}
           route={route}
-          submitLabel="Show places"
+          vertical={vertical}
+          submitLabel={play ? 'Show venues' : 'Show places'}
         />
       </div>
 
@@ -130,7 +162,7 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
           {quickChoices
             .filter(
               ([slug]) =>
-                registry.amenities.some((item) => item.slug === slug) &&
+                ownAmenities.some((item) => item.slug === slug) &&
                 (filters.amenities.includes(slug) || filters.amenities.length < 10) &&
                 route?.intent?.amenity !== slug,
             )
@@ -191,12 +223,13 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
               Your budget
             </h3>
             <p className="mt-1 text-tiny text-ink-600">
-              Select dates for a total including rent and platform fees. Without dates, filters use
-              base rent. Refundable deposits are extra.
+              {play
+                ? 'Prices are per hour of play.'
+                : 'Select dates for a total including rent and platform fees. Without dates, filters use base rent. Refundable deposits are extra.'}
             </p>
             <div className="mt-3 grid grid-cols-2 gap-3">
               <label className="text-tiny font-medium">
-                Minimum price (₹)
+                {play ? 'Minimum price per hour (₹)' : 'Minimum price (₹)'}
                 <input
                   name="min"
                   type="number"
@@ -209,7 +242,7 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
                 />
               </label>
               <label className="text-tiny font-medium">
-                Maximum price (₹)
+                {play ? 'Maximum price per hour (₹)' : 'Maximum price (₹)'}
                 <input
                   name="max"
                   type="number"
@@ -229,7 +262,7 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
                 Maximum price must be at least the minimum price.
               </p>
             )}
-            <div className="mt-3 flex flex-wrap gap-2">
+            <div className="mt-3 flex flex-wrap gap-2" hidden={play}>
               {[
                 ['Any budget', '', ''],
                 ['Up to ₹5,000', '', 5000],
@@ -253,40 +286,75 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
           <section className="border-t border-border pt-5" aria-labelledby="filter-place">
             <h3 id="filter-place" className="flex items-center gap-2 font-semibold">
               <BedDouble className="size-4 text-brand-600" aria-hidden="true" />
-              The right space
+              {play ? 'The right venue' : 'The right space'}
             </h3>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              {!route?.category && (
-                <label className="text-tiny font-medium">
-                  Property type
-                  <select name="category" defaultValue={filters.category} className={control}>
-                    <option value="">Any type</option>
-                    {registry.categories.map((item) => (
-                      <option key={item.id} value={item.slug}>
-                        {item.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+              {play ? (
+                <>
+                  <label className="text-tiny font-medium">
+                    Players
+                    <input
+                      name="players"
+                      type="number"
+                      min="1"
+                      max="500"
+                      placeholder="Any"
+                      defaultValue={filters.players ?? ''}
+                      className={control}
+                    />
+                  </label>
+                  <label className="text-tiny font-medium">
+                    Indoor or outdoor
+                    <select
+                      name="indoor"
+                      defaultValue={filters.indoor == null ? '' : String(filters.indoor)}
+                      className={control}
+                    >
+                      <option value="">Either</option>
+                      <option value="true">Indoor</option>
+                      <option value="false">Outdoor</option>
+                    </select>
+                  </label>
+                </>
+              ) : (
+                <>
+                  {!route?.category && (
+                    <label className="text-tiny font-medium">
+                      Property type
+                      <select name="category" defaultValue={filters.category} className={control}>
+                        <option value="">Any type</option>
+                        {ownCategories.map((item) => (
+                          <option key={item.id} value={item.slug}>
+                            {item.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
+                  <label className="text-tiny font-medium">
+                    Minimum bedrooms
+                    <select
+                      name="bedrooms"
+                      defaultValue={filters.bedrooms ?? ''}
+                      className={control}
+                    >
+                      <option value="">Any number</option>
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <option key={n} value={n}>
+                          {n}+ {n === 1 ? 'bedroom' : 'bedrooms'}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </>
               )}
               <label className="text-tiny font-medium">
-                Minimum bedrooms
-                <select name="bedrooms" defaultValue={filters.bedrooms ?? ''} className={control}>
-                  <option value="">Any number</option>
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <option key={n} value={n}>
-                      {n}+ {n === 1 ? 'bedroom' : 'bedrooms'}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="text-tiny font-medium">
-                Property name or locality
+                {play ? 'Venue name or locality' : 'Property name or locality'}
                 <input
                   name="q"
                   defaultValue={filters.q}
                   maxLength={100}
-                  placeholder="For example, Kamrej"
+                  placeholder={play ? 'For example, Vesu' : 'For example, Kamrej'}
                   className={control}
                 />
               </label>

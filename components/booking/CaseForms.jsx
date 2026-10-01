@@ -78,8 +78,10 @@ export function CreateCaseForm({ orderId, visits, requestKey, admin = false }) {
           {visits.map((visit) => (
             <label key={visit.id} className="mt-1 flex min-h-11 items-center gap-2">
               <input type="checkbox" name="visitId" value={visit.id} className="size-5" />
-              {visit.date} · {visit.slot.replaceAll('_', ' ')} · {visit.reference} (
-              {visit.state.replaceAll('_', ' ')})
+              {visit.slot === 'hourly'
+                ? visit.label
+                : `${visit.date} · ${visit.slot.replaceAll('_', ' ')}`}{' '}
+              · {visit.reference} ({visit.state.replaceAll('_', ' ')})
             </label>
           ))}
           <Problem message={e.visitIds} />
@@ -260,8 +262,9 @@ function PreviewTable({ result }) {
             </strong>{' '}
             {visit.action === 'cancel' ? (
               <>
-                → cancel, release {visit.slot.replaceAll('_', ' ')} inventory, refund{' '}
-                {money(visit.refundMinor)}
+                → cancel, release{' '}
+                {visit.slot === 'hourly' ? 'court' : visit.slot.replaceAll('_', ' ')} inventory,
+                refund {money(visit.refundMinor)}
                 {visit.paid
                   ? ` (rent ${money(visit.refundByComponent.rent)}, fee ${money(visit.refundByComponent.fee)})`
                   : ' — no verified payment to refund'}

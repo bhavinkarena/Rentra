@@ -12,7 +12,7 @@ export function TermsSection({ listing }) {
     <Section
       id="terms"
       title="Deposit and cancellation"
-      intro="Guests see the refund in rupees, never as policy language."
+      intro={`${listing.rentalUnit === 'hour' ? 'Players' : 'Guests'} see the refund in rupees, never as policy language.`}
       state={state}
       pending={pending}
     >
@@ -40,9 +40,21 @@ export function TermsSection({ listing }) {
             defaultValue={listing.cancellationTier ?? 'moderate'}
             className={inputCls}
           >
-            <option value="flexible">Flexible — full refund up to 3 days before</option>
-            <option value="moderate">Moderate — full refund up to 7 days, half after</option>
-            <option value="strict">Strict — half up to 7 days, none after</option>
+            {listing.rentalUnit === 'hour' ? (
+              <>
+                <option value="flexible">Flexible — full refund up to 4 hours before</option>
+                <option value="moderate">
+                  Moderate — full refund up to 24 hours, half up to 6 hours
+                </option>
+                <option value="strict">Strict — half up to 48 hours, none after</option>
+              </>
+            ) : (
+              <>
+                <option value="flexible">Flexible — full refund up to 3 days before</option>
+                <option value="moderate">Moderate — full refund up to 7 days, half after</option>
+                <option value="strict">Strict — half up to 7 days, none after</option>
+              </>
+            )}
           </select>
         </Field>
         <p className="rounded-md border-l-4 border-info bg-info-bg p-3 text-tiny text-ink-700">

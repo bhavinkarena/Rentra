@@ -91,19 +91,6 @@ export function LocationSection({ listing, cities }) {
             className={inputCls}
           />
         </Field>
-        <Field
-          id="approachNote"
-          label="Approach road"
-          hint="Anything a driver should know. Optional."
-          error={e.approachNote}
-        >
-          <Input
-            id="approachNote"
-            name="approachNote"
-            defaultValue=""
-            placeholder="Last 500m is unpaved"
-          />
-        </Field>
         <SaveButton pending={pending} />
       </form>
     </Section>

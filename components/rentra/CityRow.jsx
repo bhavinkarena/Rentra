@@ -9,7 +9,14 @@ import Link from '@/components/navigation/NavigationLink';
  * keyboard all work). The arrows are for mouse users, who cannot swipe.
  * Cards are server-rendered children; this island only moves the rail.
  */
-export default function CityRow({ id, city, href, children }) {
+export default function CityRow({
+  id,
+  city,
+  href,
+  children,
+  title = `Near ${city}`,
+  subtitle = <>Luxury farmhouses near {city} for birthday &amp; pool parties.</>,
+}) {
   const rail = useRef(null);
   const [edge, setEdge] = useState({ start: true, end: false });
 
@@ -47,11 +54,9 @@ export default function CityRow({ id, city, href, children }) {
       <div className="flex items-end justify-between gap-4">
         <div className="min-w-0">
           <h3 id={id} className="text-h3">
-            Near {city}
+            {title}
           </h3>
-          <p className="mt-1 text-meta text-ink-600">
-            Luxury farmhouses near {city} for birthday &amp; pool parties.
-          </p>
+          <p className="mt-1 text-meta text-ink-600">{subtitle}</p>
         </div>
         <div className="flex shrink-0 items-center gap-3">
           <Link

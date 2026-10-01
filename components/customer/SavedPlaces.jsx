@@ -5,6 +5,7 @@ import Image from '@/components/rentra/PropertyImage';
 import { startTransition } from 'react';
 import { useSavedPlaces } from './SavedPlacesProvider';
 import { formatLocalDate } from '@/lib/domain/booking-dates';
+import { clock12, listingFacts } from '@/lib/domain/vertical-ui';
 import { SLOTS } from '@/lib/domain/pricing';
 import { EmptyState } from '@/components/ui/empty-state';
 import { buttonVariants } from '@/components/ui/button';
@@ -110,6 +111,10 @@ export default function SavedPlaces() {
                   entry.title
                 )}
               </h2>
+              {entry.available && entry.activities ? (
+                // Venues: "Box cricket · Pickleball · 3 courts · Up to 12 players".
+                <p className="mt-1 text-meta text-ink-600">{listingFacts(entry).join(' · ')}</p>
+              ) : null}
               {!entry.available ? (
                 <p className="mt-2 text-meta text-ink-600">
                   {entry.detailsUnavailable
@@ -123,12 +128,24 @@ export default function SavedPlaces() {
                     className="mt-0.5 size-4 shrink-0 text-brand-700"
                     aria-hidden="true"
                   />
-                  <span>
-                    <strong>{entry.selection.dates.map(formatLocalDate).join(' · ')}</strong>
-                    <br />
-                    {SLOTS[entry.selection.slot]?.label ?? 'Overnight'} · {entry.selection.guests}{' '}
-                    {entry.selection.guests === 1 ? 'guest' : 'guests'}
-                  </span>
+                  {entry.selection.kind === 'hourly' ? (
+                    // A time-booked venue: one date, a start time and a duration.
+                    <span>
+                      <strong>
+                        {formatLocalDate(entry.selection.date)} · {clock12(entry.selection.start)}
+                      </strong>
+                      <br />
+                      {entry.selection.durationMinutes / 60} hr · {entry.selection.guests}{' '}
+                      {entry.selection.guests === 1 ? 'player' : 'players'}
+                    </span>
+                  ) : (
+                    <span>
+                      <strong>{entry.selection.dates.map(formatLocalDate).join(' · ')}</strong>
+                      <br />
+                      {SLOTS[entry.selection.slot]?.label ?? 'Overnight'} · {entry.selection.guests}{' '}
+                      {entry.selection.guests === 1 ? 'guest' : 'guests'}
+                    </span>
+                  )}
                 </p>
               ) : null}
               {entry.available ? (

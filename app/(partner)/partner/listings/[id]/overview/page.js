@@ -14,7 +14,12 @@ import { partnerApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
 import { safeReturnPath } from '@/lib/domain/portal-state';
 import { listingCompletion } from '@/lib/domain/listing-completion';
-import { firstIncompleteStepId, sectionAnchorId, stepHref } from '@/lib/domain/listing-steps';
+import {
+  firstIncompleteStepId,
+  listingModel,
+  sectionAnchorId,
+  stepHref,
+} from '@/lib/domain/listing-steps';
 import { formatINR } from '@/lib/domain/pricing';
 import PortalState from '@/components/portal/PortalState';
 import RetryButton from '@/components/portal/RetryButton';
@@ -108,8 +113,15 @@ export default async function PropertyOverviewPage({ params, searchParams }) {
   ]);
   if (failure) return <PortalState kind={failure} backHref={listHref} backLabel="All properties" />;
 
-  const { listing, prices, amenities, photos, documents } = data;
-  const completion = listingCompletion(listing, { prices, amenities, photos, documents });
+  const { listing, prices, amenities, photos, documents, resources, hourlyRates } = data;
+  const completion = listingCompletion(listing, {
+    prices,
+    amenities,
+    photos,
+    documents,
+    resources,
+    hourlyRates,
+  });
   const title = listing.title === 'Untitled property' ? 'New property' : listing.title;
   const status = listingStatusMeta(listing.status);
   const editHref = `/partner/listings/${id}?${keep}`;
@@ -135,7 +147,13 @@ export default async function PropertyOverviewPage({ params, searchParams }) {
             : undefined
         }
         chips={[
-          { icon: Users, label: 'Up to', value: `${listing.capacity ?? '—'} guests` },
+          listing.rentalUnit === 'hour'
+            ? {
+                icon: Users,
+                label: 'Courts',
+                value: `${(resources ?? []).filter((r) => r.isActive !== false).length}`,
+              }
+            : { icon: Users, label: 'Up to', value: `${listing.capacity ?? '—'} guests` },
           {
             icon: CircleCheck,
             label: 'Setup',
@@ -146,7 +164,7 @@ export default async function PropertyOverviewPage({ params, searchParams }) {
           <div className="flex flex-wrap gap-2">
             {unfinished ? (
               <Link
-                href={stepHref(id, firstIncompleteStepId(completion))}
+                href={stepHref(id, firstIncompleteStepId(completion, listingModel(listing)))}
                 className="inline-flex min-h-10 items-center gap-1.5 rounded-md bg-primary px-3 text-tiny font-semibold text-white hover:bg-primary-hover active:bg-primary-active"
               >
                 <Wand2 className="size-4" aria-hidden="true" /> Continue setup
@@ -285,7 +303,9 @@ export default async function PropertyOverviewPage({ params, searchParams }) {
                   fields={[
                     { label: 'Live on Rentra', value: yesNo(listing.status === 'live') },
                     { label: 'Booking hours confirmed', value: yesNo(inventory.scheduleReady) },
-                    { label: 'Open future dates', value: String(inventory.openDates) },
+                    listing.rentalUnit === 'hour'
+                      ? { label: 'Open future dates', value: 'By weekly opening hours' }
+                      : { label: 'Open future dates', value: String(inventory.openDates) },
                     { label: 'Next open date', value: day(inventory.nextOpenDate) },
                   ]}
                 />
@@ -317,10 +337,13 @@ export default async function PropertyOverviewPage({ params, searchParams }) {
                   >
                     <div className="min-w-0 text-meta">
                       <p className="font-semibold text-ink-900">
-                        {day(visit.date)} · {visit.slot.replaceAll('_', ' ')}
+                        {visit.slot === 'hourly'
+                          ? visit.label
+                          : `${day(visit.date)} · ${visit.slot.replaceAll('_', ' ')}`}
                       </p>
                       <p className="text-tiny text-ink-500">
-                        {visit.reference} · {visit.guests} guest(s) ·{' '}
+                        {visit.reference} · {visit.guests}{' '}
+                        {visit.slot === 'hourly' ? 'player(s)' : 'guest(s)'} ·{' '}
                         {visit.state.replaceAll('_', ' ')}
                         {visit.startsAt ? ` · arrives ${ist(visit.startsAt)} IST` : ''}
                       </p>

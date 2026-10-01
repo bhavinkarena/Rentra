@@ -11,6 +11,7 @@ export function usePolicyAction(action) {
     state,
     pending,
     preview,
+    invalidatePreview: () => setEdited(true),
     form: {
       onChange: () => setEdited(true),
       onSubmit: (event) => {

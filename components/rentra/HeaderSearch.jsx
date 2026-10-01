@@ -1,11 +1,19 @@
 'use client';
 
-import { useCallback, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
+import {
+  Fragment,
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import { createPortal } from 'react-dom';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Search } from 'lucide-react';
 import { formatLocalDate } from '@/lib/domain/booking-dates';
 import { SLOTS } from '@/lib/domain/pricing';
+import { clock12 } from '@/lib/domain/vertical-ui';
 import Form from '@/components/navigation/NavigationForm';
 import { measureBrowser } from '@/lib/domain/browser-measurement';
 import SearchBar, { useDiscovery, useSearchDraft } from './SearchBar';
@@ -69,7 +77,19 @@ export default function HeaderSearch({ registry }) {
     };
   }, [open, close]);
 
-  if (pathname !== '/' && !discovery) return null;
+  // The homes (`/`, `/entertainment`) and discovery pages; nowhere else.
+  const playHome = !discovery && pathname === '/entertainment';
+  if (pathname !== '/' && !playHome && !discovery) return null;
+  // Entertainment: the home's draft, or a venue search's own filters.
+  const play = playHome || discoveryVertical(discovery) === 'entertainment';
+  const venue = playHome
+    ? draft
+    : discovery && {
+        activity: discovery.route?.category?.slug ?? discovery.filters.category,
+        date: discovery.filters.dates[0] ?? '',
+        start: discovery.filters.start,
+        duration: discovery.filters.duration ?? 60,
+      };
 
   const { location, dates, slot, guests } = discovery
     ? discoverySummary(discovery, registry)
@@ -92,6 +112,30 @@ export default function HeaderSearch({ registry }) {
   const segment =
     'flex h-full min-w-0 cursor-pointer items-center truncate rounded-full px-4 text-meta font-medium text-ink-900 transition-colors hover:bg-ink-50';
   const expand = { 'aria-expanded': open, 'aria-controls': PANEL_ID };
+  // Entertainment: What · When · Time instead of When · Visit type · Who.
+  const segments = play
+    ? [
+        [
+          'activity',
+          'What',
+          registry.categories.find((c) => c.slug === venue.activity)?.name || 'Any activity',
+        ],
+        [
+          'date',
+          'When',
+          venue.date ? formatLocalDate(venue.date, { weekday: undefined }) : 'Any date',
+        ],
+        [
+          'time',
+          'Time',
+          `${venue.start ? `From ${clock12(venue.start)}` : 'Any time'} · ${venue.duration / 60} hr`,
+        ],
+      ]
+    : [
+        ['dates', 'When', when],
+        ['slot', 'Visit type', SLOTS[slot]?.label],
+        ['guests', 'Guests', who],
+      ];
 
   return (
     <>
@@ -112,36 +156,20 @@ export default function HeaderSearch({ registry }) {
             <span className="truncate md:hidden">{location.title || 'Where to?'}</span>
             <span className="truncate max-md:hidden">{where}</span>
           </button>
-          <span className="h-6 w-px shrink-0 bg-border max-md:hidden" aria-hidden="true" />
-          <button
-            type="button"
-            onClick={() => openAt('dates')}
-            aria-label={`When: ${when}`}
-            className={`${segment} max-md:hidden`}
-            {...expand}
-          >
-            {when}
-          </button>
-          <span className="h-6 w-px shrink-0 bg-border max-md:hidden" aria-hidden="true" />
-          <button
-            type="button"
-            onClick={() => openAt('slot')}
-            aria-label={`Visit type: ${SLOTS[slot]?.label}`}
-            className={`${segment} max-md:hidden`}
-            {...expand}
-          >
-            {SLOTS[slot]?.label}
-          </button>
-          <span className="h-6 w-px shrink-0 bg-border max-md:hidden" aria-hidden="true" />
-          <button
-            type="button"
-            onClick={() => openAt('guests')}
-            aria-label={`Guests: ${who}`}
-            className={`${segment} text-ink-600 max-md:hidden`}
-            {...expand}
-          >
-            {who}
-          </button>
+          {segments.map(([field, label, value], index) => (
+            <Fragment key={field}>
+              <span className="h-6 w-px shrink-0 bg-border max-md:hidden" aria-hidden="true" />
+              <button
+                type="button"
+                onClick={() => openAt(field)}
+                aria-label={`${label}: ${value}`}
+                className={`${segment}${index === 2 ? ' text-ink-600' : ''} max-md:hidden`}
+                {...expand}
+              >
+                {value}
+              </button>
+            </Fragment>
+          ))}
           <button
             type="button"
             onClick={() => openAt('location')}
@@ -186,7 +214,10 @@ export default function HeaderSearch({ registry }) {
                     (discovery ? (
                       <DiscoveryPanel discovery={discovery} registry={registry} />
                     ) : (
-                      <SearchBar registry={registry} />
+                      <SearchBar
+                        registry={registry}
+                        vertical={play ? 'entertainment' : 'farmhouse'}
+                      />
                     ))}
                 </div>
               </div>
@@ -213,10 +244,22 @@ function discoverySummary({ filters, route }, registry) {
 
 /* The discovery bar again, posting to the same path. The extra filters ride
    along as hidden fields so a header search never drops them. */
-function DiscoveryPanel({ discovery: { filters, route, path }, registry }) {
+const discoveryVertical = (discovery) =>
+  discovery ? (discovery.route?.verticalCode ?? discovery.filters.vertical) : null;
+
+function DiscoveryPanel({ discovery, registry }) {
+  const { filters, route, path } = discovery;
+  const play = discoveryVertical(discovery) !== 'farmhouse';
   const kept = [
     ['q', filters.q],
-    ['category', route?.category ? '' : filters.category],
+    // Venues choose the activity in the fields themselves.
+    ['category', route?.category || play ? '' : filters.category],
+    ...(play
+      ? [
+          ['players', filters.players],
+          ['indoor', filters.indoor],
+        ]
+      : []),
     ['min', filters.min],
     ['max', filters.max],
     ['bedrooms', filters.bedrooms],
@@ -229,10 +272,16 @@ function DiscoveryPanel({ discovery: { filters, route, path }, registry }) {
     <Form
       action={path}
       data-surface="light"
-      aria-label="Search places"
+      aria-label={play ? 'Search venues' : 'Search places'}
       onSubmit={() => measureBrowser('search_submitted')}
     >
-      <SearchFields filters={filters} registry={registry} route={route} submitLabel="Show places" />
+      <SearchFields
+        filters={filters}
+        registry={registry}
+        route={route}
+        vertical={discoveryVertical(discovery)}
+        submitLabel={play ? 'Show venues' : 'Show places'}
+      />
       {kept.map(([name, value], index) => (
         <input key={index} type="hidden" name={name} value={value} />
       ))}

@@ -4,9 +4,32 @@
 |---|---|
 | Date | 1 October 2026 |
 | Scope | `Rentra/` (Next.js 16 frontend) and `rentra-backend/` (Express + Drizzle + Postgres) |
-| Status | Plan only. No code or database was changed while writing it. |
+| Status | Phases 1–13 implemented and verified locally. Phase 14 release preparation implemented; hosted deployment and launch gates remain open. |
 | Audited at | Frontend `6010f94`, backend `bee13c0`. Line references are from these commits and will drift. |
 | Audience | Developers implementing the feature, and the owner approving the decisions in §H |
+
+---
+
+## Progress
+
+Phases 1–12 were delivered one at a time. The owner requested Phases 13 and 14 together on 1 October 2026. Work happens on branch `feat/entertainment` in both repos and is not committed until the owner asks. Local verification does not imply a hosted migration or public launch.
+
+| Phase | Status | Completed |
+|---|---|---|
+| 1 → Existing System Audit | ✅ Complete (owner gates open, see Phase 1 completion record) | 1 Oct 2026 |
+| 2 → Product & UX Architecture | ✅ Complete (owner-approved) | 1 Oct 2026 |
+| 3 → Database Architecture | ✅ Complete (local; Neon rehearsal with R1) | 1 Oct 2026 |
+| 4 → Backend/API Changes | ✅ Complete (local) | 1 Oct 2026 |
+| 5 → Owner Listing Flow | ✅ Complete (local) | 1 Oct 2026 |
+| 6 → Homepage & Navigation | ✅ Complete (local; owner screenshot review open) | 1 Oct 2026 |
+| 7 → Search & Filters | ✅ Complete (local) | 1 Oct 2026 |
+| 8 → Entertainment Detail Page | ✅ Complete (local) | 1 Oct 2026 |
+| 9 → Availability, Slots & Pricing | ✅ Complete (local) | 1 Oct 2026 |
+| 10 → Booking & Payment Flow | ✅ Complete (local) | 1 Oct 2026 |
+| 11 → Dashboards | ✅ Complete (local) | 1 Oct 2026 |
+| 12 → Performance & Optimization | ✅ Complete (local) | 1 Oct 2026 |
+| 13 → QA & Edge Cases | ✅ Complete (local automated gates; owner screenshot review open) | 1 Oct 2026 |
+| 14 → Migration & Deployment | 🟡 Release preparation complete; hosted R0–R4 pending | |
 
 ---
 
@@ -110,7 +133,7 @@ The owner prefers decisions grounded in what other sites do, so here is a short 
 
 ---
 
-## Phase 1 → Existing System Audit
+## Phase 1 → Existing System Audit — ✅ Complete (1 Oct 2026)
 
 ### Objective
 
@@ -237,9 +260,47 @@ Every later phase must keep these green.
 - The team agrees on this audit.
 - The hosted database has had 0040–0051 applied (§20 runbook) before any Phase 3 migration is written against it.
 
+### Completion record (1 Oct 2026)
+
+**Baseline recorded before any change.** The hosted Neon database was not touched. Backend tests ran with `DATABASE_URL` and `PORTAL_TEST_DATABASE_URL` pointed at a disposable local Postgres 14 on `127.0.0.1:55432`, because `npm test` loads `.env`, which points at Neon.
+
+| Check | Before | After Phase 1 |
+|---|---|---|
+| Backend `npm test` | 144 tests: 141 pass, 3 skipped, 0 fail | 145 tests: 142 pass, 3 skipped, 0 fail (new seed-guard test) |
+| Backend `npm run db:check` | 52 migrations verified | Same |
+| Backend `npm run lint` | **Red before this work:** 512 problems (508 `prettier/prettier`, 2 `no-unused-vars`, 1 `prefer-const`, 1 `no-console`) | 510. The removed file carried 2; no new problems |
+| Frontend `npm test` | 36 pass | 36 pass |
+| Frontend `npm run lint` | **Red before this work:** 55 problems (54 `prettier/prettier` and 1 `@next/next/no-assign-module-variable`, all in `scripts/design/theme-*.mjs`) | 55, unchanged |
+| Frontend `next build` (isolated `RENTRA_BUILD_FIXTURE=1`) | Pass; `/` is static with a 5-minute revalidate, which confirms the audit's ISR inference | Pass |
+| Backend `npm run smoke`, journey scripts | Not run: smoke boots against the hosted database, and the journeys need the full QA stack | Not run |
+
+Because `npm run ci` fails on these pre-existing lint errors in both repos, CI is not a usable gate until someone formats the repos. That should be a separate formatting-only commit, to avoid diff noise for concurrent work.
+
+**Changes made** (uncommitted, branch `feat/entertainment`):
+
+| Repo | File | Change |
+|---|---|---|
+| backend | `src/scripts/seed-guard.js` **(new)** | `seedDatabaseUrl(script)`. It requires `DATABASE_URL` and has no fallback. It refuses `NODE_ENV=production`, and refuses any non-local host unless `SEED_ALLOW_HOST=<that exact host>` is set. |
+| backend | `src/scripts/seed.js`, `seed-gujarat-partners.js`, `seed-owner-listings.js`, `seed-amenities.js` | Connect only through `seedDatabaseUrl`. **The hard-coded Neon URL with credentials was removed from `seed-gujarat-partners.js`.** Verified: `npm run db:seed` and `npm run seed:partners` now refuse the Neon host from `.env`. `seed-admin.js` is unchanged, because it is the intended way to create a production admin. |
+| backend | `src/scripts/check-db.js` **(deleted)** | An unreferenced debug script holding a second hard-coded Neon URL with credentials. |
+| backend | `test/scripts/seed-guard.test.js` **(new)** | Covers local allow, missing URL, remote refusal, wrong opt-in host, correct opt-in, production refusal and an invalid URL. |
+| backend | `docs/MIGRATION.md` | The shared-schema section is rewritten to match reality: there is no frontend schema copy; migrations are hand-written SQL because the snapshots stop at 0039; the single-transaction migrator and the `55P04` enum hazard; the domain-copy rule. The CORS paragraph is corrected (allowlist through `CORS_ALLOWED_ORIGINS`, not "echoes every origin"). |
+| backend | `README.md`, `docs/API.md` | Test count (145) and route count (291, from `npm run routes`). CORS wording corrected. `API.md`'s route list is flagged as incomplete. |
+| root | `Rentra-Project/README.md` | The CORS variable name is corrected to `CORS_ALLOWED_ORIGINS`. |
+| frontend | `components/partner/PortfolioCalendar.jsx` | Removed the "Owner closed" branch, which read `blocked_by_client`, a column dropped in 0045. |
+| frontend | `lib/domain/booking-availability.js` | Removed `legacyAvailabilityDays`. It had no callers, read the dropped `blockedByClient`, and would have reported every date as closed. The backend copy had already removed it. |
+
+**Owner actions still open.** These are gates for later phases, not blockers for Phase 2:
+
+1. **Rotate the Neon database password now.** Two scripts committed it to git history (`seed-gujarat-partners.js`, `check-db.js`). Removing the files does not remove it from history, and anyone with repo access can read it. Rotate it in the Neon console, then update `.env` and the Render environment variables.
+2. **Apply migrations 0040–0051 to Neon** using the `DATABASE-REVIEW.md` §20 runbook, before Phase 3 migrations are written against it. This is release R0 in Phase 14. I did not run it, because it changes production.
+3. ~~Decide `location.approachNote`~~. Decided 1 Oct 2026: remove the field (Phase 5).
+4. ~~`DESIGN.md` drift~~. Fixed in Phase 2: autoplay confirmed as intended.
+5. ~~Agree the audit~~. Agreed by the owner on 1 Oct 2026.
+
 ---
 
-## Phase 2 → Product & UX Architecture
+## Phase 2 → Product & UX Architecture — ✅ Complete (1 Oct 2026)
 
 ### Objective
 
@@ -371,8 +432,45 @@ Amenities · Venue rules · Reviews · Host · Cancellation · Map · Similar ve
 - The owner approves: tab placement and icons, the Entertainment home composition, the venue page wireframe, and the decisions in §H.
 - `DESIGN.md` and the redesign plan record the change to the header.
 
+### Completion record (1 Oct 2026)
+
+**Owner decisions** (answered 1 Oct 2026):
+
+| Question | Answer |
+|---|---|
+| Header tab design (icon + label, ink underline, centred, fading to the docked pill, hero pill links on mobile) | **Approved as shown** |
+| Hero autoplay vs `DESIGN.md` "never autoplay" | **Keep autoplay.** `DESIGN.md` now matches the code |
+| §H defaults D1–D12 | **All accepted** (§H marked confirmed) |
+| `location.approachNote` (validated, never stored) | **Remove the field.** Scheduled in Phase 5 |
+
+**Deliverables** (uncommitted, branch `feat/entertainment`):
+
+| File | What |
+|---|---|
+| `docs/design/entertainment/` **(new)** | Static review mockups built from the `DESIGN.md` tokens and the local Plus Jakarta Sans: `farmhouse-header.html` (tabs on the locked home, `?docked=1` for the docked state), `entertainment-home.html` and `venue.html` (`?sheet=1` for the mobile picker sheet). Shared `mock.css`, `chrome.js` and `icons.js`. `icons.js` holds the **draft SVGs to port in Phase 6**: the two duotone tab icons and eight 24px activity icons (cricket, pickleball, badminton, bowling, football, gaming, trampoline, kart), plus UI icons. Every page carries a "mockup, sample data" banner, and striped boxes stand in for photos, so no fake listing could be mistaken for real. |
+| `docs/design/entertainment/shots/` **(new)** | 9 screenshots at 2× scale: header at 1440, 1024 and 390, docked at 1440; Entertainment home at 1440 and 390; venue page at 1440 and 390, plus the 390 sheet. |
+| `DESIGN.md` | Header line updated (68/60px, tabs in the centre until docked, coupled heights). Hero autoplay is recorded as intended (two places). The *Discovery search* section is rewritten to match the shipped docking `SearchFields` and `HeaderSearch` pill. New sections: *Vertical tabs*, *Vertical vocabulary*, *Entertainment pieces*. |
+| `RENTra-UI-REDESIGN-PLAN.md` | Decisions **D12** (header vertical tabs, hidden while only one vertical is public) and **D13** (autoplay intended). Ground rule 1 notes the header may carry the tabs. |
+| `PRODUCT.md` | "Open Decisions" records the approved Entertainment vertical, and that it stays unbookable until launch. |
+
+**Verification**
+
+- All mockup pages load with no script errors, no failed requests and **no horizontal overflow at 390, 1024 and 1440px**. This was checked with Playwright on system Chrome.
+- Two layout faults were found and fixed during review:
+  - With absolute centring, the tabs collided with the navigation at 1440. They are now centred in the free space between the logo and the navigation.
+  - The docked pill overlapped the navigation labels. The navigation now folds to icons when docked, as `CustomerNavigation` already does.
+- A venue-page grid min-width overflow at 390 was also fixed.
+- `npx prettier --check` passes on `DESIGN.md`, `RENTra-UI-REDESIGN-PLAN.md` and `PRODUCT.md`.
+- No application code was changed in this phase, so the test, lint and build results from Phase 1 still apply.
+
+**Not done in this phase (by design):**
+- No component code. `VerticalTabs`, the icon components and the Entertainment home are built in Phase 6.
+- No axe run on the mockups. axe applies to the real components in Phases 6–8.
+
+**Gate for Phase 3:** Neon must be on migration 0051 (release R0). The owner should also have rotated the leaked database password.
+
 ---
-## Phase 3 → Database Architecture
+## Phase 3 → Database Architecture — ✅ Complete (1 Oct 2026)
 
 ### Objective
 
@@ -438,7 +536,7 @@ Every new discriminator uses `varchar` + CHECK. The only enum changes are two `A
 | `created_at`, `updated_at` | `timestamptz` | |
 
 **2. `category`** (changed)
-- `vertical_code varchar(24) NOT NULL REFERENCES vertical(code)`. Backfilled to `farmhouse`. **Immutable** after create, like `form` and `rental_unit` (`catalogues/service.js:346-347`).
+- `vertical_code varchar(24) NOT NULL DEFAULT 'farmhouse' REFERENCES vertical(code)`. Backfilled to `farmhouse`; the default keeps older writers valid, and the admin form passes it explicitly from Phase 4. **Immutable** after create, like `form` and `rental_unit` (`catalogues/service.js:346-347`).
 - `icon_key varchar(40) NULL`. One of a fixed set that the frontend ships (`cricket`, `pickleball`, `bowling`, `football`, `badminton`, `gaming`, `trampoline`, `kart`, `farmhouse`…). An unknown key falls back to a generic icon.
 - Index `category_vertical_idx (vertical_code, is_active, sort_order)`.
 
@@ -497,7 +595,7 @@ Exclusion `rentable_rate_no_overlap`: `rentable_id =, category_id =, day_kind =,
 
 **11. `document_type` enum:** add `rent_agreement`, `shop_establishment` and `gst_certificate`. Many venues are leased. The existing `authorisation_letter`, `noc`, `electricity_bill` and `property_tax` remain valid.
 
-**12. `customer_measurement`** (changed; ships in Phase 4 with the analytics work)
+**12. `customer_measurement`** (changed; ships in Phase 4 as migration 0055, together with the insert code whose `ON CONFLICT` target changes)
 - `vertical varchar(24) NOT NULL DEFAULT 'unknown'` is added to the primary key.
 - The event CHECK is extended with `vertical_switched`, `times_viewed` and `time_selected`.
 
@@ -692,7 +790,6 @@ In the same file, `CREATE OR REPLACE FUNCTION catalogue_reference_guard()` keeps
 **`drizzle/0054_time_booking_notifications.sql`** (body in Phase 10)
 
 - `CREATE OR REPLACE FUNCTION rentra_notification_event()`: an hourly reminder 2 hours before start, and no reminder when it would fire within 15 minutes of confirmation.
-- `customer_measurement`: the `vertical` dimension and the new events.
 
 **Later release (contract):** `DROP` the `resource_key` column and its CHECK term once the monitors read `resource_id` (Phase 12). The optional `rentable_rate_override` table ships only with date-specific hourly pricing (Phase 9).
 
@@ -742,7 +839,7 @@ All with `vertical_code = 'entertainment'`, `form = 'fixed'`, `default_rental_un
 - **New amenities:**
   - Group `play`: `equipment_rental` (value type `charge`, filterable), `coaching` (filterable), `scoreboard`, `spectator_seating`.
   - Group `facilities`: `washrooms`, `changing_rooms` (filterable), `lockers`, `cafeteria`, `air_conditioned` (filterable).
-- **Mark filterable:** `floodlights` and `parking`.
+- **Filterability:** unchanged in Phase 3. `is_filterable` is global; per-vertical filters are decided in Phase 7.
 
 **Guards**
 
@@ -792,8 +889,93 @@ None.
 - Farmhouse quote, hold, pay and cancel flows produce byte-identical quote hashes before and after the migration on the same data. The pricing inputs did not change.
 - `db:check` passes, and there is no `db:generate` diff work.
 
+### Completion record (1 Oct 2026)
+
+Built and verified on a disposable local PostgreSQL 14 (`127.0.0.1:55432`). **The hosted Neon database was not touched.** All changes are uncommitted on branch `feat/entertainment` in `rentra-backend/`.
+
+**Changes made**
+
+| File | Change |
+|---|---|
+| `drizzle/0052_verticals.sql` | `vertical` lookup (farmhouse `public`, entertainment `hidden`); `category.vertical_code` (NOT NULL, FK) and `icon_key`; `amenity_vertical`, backfilled to farmhouse. Opens with a pre-check that refuses non-slot categories or listings. |
+| `drizzle/0053_time_booking.sql` | Enum values `rental_unit 'hour'`, `booking_slot 'hourly'` and three venue document types; tables `rentable_resource`, `rentable_resource_activity`, `rentable_rate` (no-overlap exclusion); `booking.resource_id` and `inventory_reservation.resource_id` with composite FKs. The exclusion constraint is rebuilt per (listing, court), with the NULL sentinel for farmhouses. Adds content-version triggers on the 3 new tables, `resource_activity_guard`, and replaces `catalogue_reference_guard` (body of 0035 kept, 3 checks added). |
+| `drizzle/0054_time_booking_notifications.sql` | `rentra_notification_event()` with an hourly reminder 2 hours before start and none within 15 minutes of confirmation. The body is taken from `pg_get_functiondef` at the 0051 head; only the reminder insert differs. |
+| `drizzle/meta/_journal.json` | Entries 52–54 (`when` 1790591200000–1790591400000). Additive only; `npm run db:check` passes (55 files). |
+| `src/services/db/schema/index.js` | Mirrors all of the above. Verified by a script comparing every Drizzle table and column, and its nullability, against a fully migrated database: no differences. |
+| `src/scripts/seed-entertainment.js` **(new)**, `package.json` (`seed:entertainment`) | 8 activities (box cricket, pickleball, badminton, bowling, sports turf, gaming zone, trampoline park, go-karting), 9 new venue amenities, and 8 shared amenities mapped to entertainment. It goes through `seed-guard`, and never changes vertical status or existing amenity flags. Ran twice on a migrated database: the second run added 0 mappings (idempotent). |
+| `src/scripts/seed-amenities.js`, `src/services/catalogues/service.js`, `test/helpers/listing-review-fixture.js` | New amenities are mapped to farmhouse, so the new amenity guard does not break admin amenity creation or existing fixtures. The catalogue deactivation guard also protects `floodlights`, `air_conditioned` and `equipment_rental` (future intents). |
+| `src/services/operations/overview.js`, `incidents.js` | The overlap monitor joins on the resource: "same court, or either side is the whole listing". Two courts busy at once is no longer a false double booking. |
+| `test/helpers/disposable-db.js` | A `through` option stops at a migration tag. `migrateWithDrizzle()` applies the rest with the **real** drizzle migrator in one transaction, as `npm run db:migrate` does. |
+| `test/integration/entertainment-schema.integration.test.js` **(new)** | Covers the Phase 3 test list (below). |
+| `docs/rollback/0052-0054_entertainment.down.sql` **(new)** | Manual rollback with a "no time-booked data yet" pre-check. Tested: migrate, then roll back (constraint restored, tables gone), then re-apply cleanly. |
+
+**Deviations from the plan text, and why**
+
+- **`category.vertical_code` has `DEFAULT 'farmhouse'`.** Every existing category writer stays valid: the admin catalogue, `seed.js` and 3 test fixtures. From Phase 4 the admin form must pass the vertical explicitly.
+- **`customer_measurement` moved out of 0054 to Phase 4 (as 0055).** Its primary key changes, and the measurement insert code's `ON CONFLICT` target must change in the same release. 0054 is now notifications only.
+- **`floodlights` and `parking` were not made filterable.** `is_filterable` is global, so the change would add filters to the farmhouse panel. Per-vertical filterability is decided in Phase 7.
+- **New amenity Hindi and Gujarati labels are left empty** until a translator supplies them. Untranslated labels are not invented.
+
+**Verification**
+
+- **New integration test:**
+  - It builds the database at 0051, seeds farmhouse data, then applies 0052–0054 in one drizzle transaction. There is no `55P04`. A demonstration confirmed Postgres raises `unsafe use of new value` when the hazard is present.
+  - It checks the backfill: vertical rows, the farmhouse category, the amenity mapping and the enum values.
+  - Farmhouse overlap is still refused (`23P01`).
+  - Venues:
+    - a slot venue in an hourly category is refused (`23514`);
+    - a duplicate court name, ignoring case, is refused (`23505`);
+    - a farmhouse activity on a court is refused (`23514`);
+    - an activity on a farmhouse is refused (`23514`);
+    - a court belonging to another listing is refused (`23503`);
+    - the same court overlapping is refused (`23P01`); a different court at the same time is OK; back-to-back slots are OK.
+  - Moving a listing across verticals or booking models is refused (`23514`). Amenity scope is enforced, then allowed once the amenity is mapped.
+  - Rates: overlapping bands are refused (`23P01`); an end after 06:00 the next day is refused (`23514`).
+  - Bookings: an hourly visit without a court is refused (`23514`), as is a slot visit with a court (`23514`).
+  - Reminders: none for a booking confirmed 1 hour before start; 2 hours ahead for hourly; 24 hours for farmhouse (unchanged).
+  - The overlap monitor reports 0 for two courts at the same time, and at least 1 for a venue-wide closure overlapping a court.
+  - Resource changes bump `content_version`.
+- **Pre-check test:** a non-slot listing makes 0052 raise, and the whole release rolls back, so the `vertical` table does not exist afterwards.
+- **Full backend suite:** **147 tests, 147 pass, 0 skipped.** `CP01_TEST_DATABASE_URL` was also set, so the 3 tests skipped in Phase 1 (CP29 incidents, portal sessions) now ran and passed against the changed monitors.
+- **Lint:** the new and changed test and script files pass `eslint`. `src/services/**` is lint-ignored by the repo config.
+- **Farmhouse quote hashes:** the quote engine and its inputs (`rentable_price`, `booking_price_override`, `booking_config`) are untouched in this phase. The existing checkout and pricing integration tests pass unchanged.
+- **Frontend:** none in this phase, by plan. The frontend has no database access.
+
+**Gates carried forward**
+
+- The Neon-branch rehearsal of 0052–0054 (the first acceptance criterion) happens with release R1 (Phase 14), together with the Phase 4 code. **Do not apply 0052–0054 to Neon before then.**
+- Release R0 (0040–0051) is the owner's next step. Use the runbook below.
+
+#### R0 runbook (owner): apply 0040–0051 to Neon
+
+Read this first: `origin/master` is already at `bee13c0` (the consolidation merge). If Render auto-deploys `master`, the live API may already be running 0051 code against an older database. Check the Render deploy history before step 1.
+
+1. **Rotate the database password** in the Neon console. Put the new URL in `rentra-backend/.env` and in the Render environment for **both** `rentra-api` and `rentra-worker`.
+2. **Restore point:** Neon console → Branches → create a branch from production named `pre-r0-2026-10-01`. Copy its connection string.
+3. **Use a clean `master` checkout**, so that 0052–0054 from `feat/entertainment` cannot be applied by accident:
+   ```bash
+   cd Rentra-Project/rentra-backend
+   git worktree add ../rentra-backend-r0 master
+   cd ../rentra-backend-r0 && npm ci
+   ls drizzle/*.sql | tail -1        # must end at 0051_worker_performance.sql
+   ```
+4. **Rehearse on the branch.** Do not use `npm run db:migrate` here: the worktree has no `.env` and the script requires one.
+   ```bash
+   DATABASE_URL='<branch connection string>' node src/scripts/migrate.js
+   DATABASE_URL='<branch connection string>' psql "$DATABASE_URL" -c "select count(*), max(created_at) from drizzle.__drizzle_migrations"
+   ```
+   It should end at `max(created_at) = 1790591100000` (0051). If it fails, stop and send me the error; production is untouched.
+5. **Production:** Render → `rentra-worker` → Suspend. Then:
+   ```bash
+   DATABASE_URL='<production connection string>' node src/scripts/migrate.js
+   ```
+6. Render → `rentra-api` → deploy the latest `master` (`bee13c0`). When `/health` is green, resume `rentra-worker`.
+7. **Check:** open the site, search with dates, open a listing, get a quote. Expect a one-time `QUOTE_CHANGED` on old quotes (§20).
+8. **Clean up:** `git -C rentra-backend worktree remove ../rentra-backend-r0`. Keep the Neon restore branch for a week.
+
 ---
-## Phase 4 → Backend/API Changes
+
+## Phase 4 → Backend/API Changes — ✅ Complete (1 Oct 2026)
 
 ### Objective
 
@@ -1219,8 +1401,102 @@ Error copy must say what to do next. Add these keys to the existing code→copy 
 - An hour listing can be quoted, held, paid (Razorpay test plus the fake provider), confirmed and cancelled, with refunds computed in hours.
 - A double booking of a court is impossible in a concurrent test of 50 parallel holds.
 
+### Completion record (1 Oct 2026)
+
+Built and verified on a disposable local PostgreSQL 14. **Neon was not touched.** Uncommitted, branch `feat/entertainment` in both repos.
+
+**What now works (backend)**
+
+- **Booking model dispatch** (`domain/verticals.js`). `rentable.rental_unit = 'hour'` takes the time path; every slot function is untouched except a one-line guard.
+- **Opening hours.** `hourlyBookingConfigSchema` with `validateHourlyConfig` checks step alignment, durations, split shifts, closing by 06:00, and the after-midnight overlap with the next day.
+- **Selection contract.** `bookingSelectionSchema` is now `slot | hourly`. A body without `kind` parses exactly as before.
+- **Pure time maths and pricing** (`domain/hourly.js`):
+  - operating windows and the start grid;
+  - visit validation (DURATION_INVALID, START_INVALID, OUTSIDE_OPENING_HOURS, OUTSIDE_BOOKING_WINDOW);
+  - band-split pricing in exact paise, rounded half up once;
+  - price-gap detection.
+- **Quote** (`prepareHourlyQuote`). Same shape and hashing as slot quotes. Hour-based cancellation bands are carried as `bandUnit: 'hours'`. The court is not part of the hash when the guest chose "any court".
+- **New quotes need a public vertical** (`requireBookableListing`). A hidden or partners-only venue cannot be quoted, held or shown in a time grid. Existing bookings are unaffected.
+- **Inventory** (`prepareHourlyInventoryCheck`):
+  - courts are blocked by their own reservations and by venue-wide (NULL) closures;
+  - the readiness audit checks that a booking and its reservation hold the same court;
+  - owner blocks take an optional court.
+- **Hold.**
+  - The court is assigned under the listing mutex: the requested court, else the first free one by court order.
+  - `TOO_MANY_HOLDS` caps a customer at 3 live holds, for both kinds of booking.
+  - A 23P01 is not retried: under the mutex the application check is authoritative, and the constraint is the backstop.
+- **Public reads:**
+  - `GET /discovery/listings/:code/times` (new), and the venue date strip on `/availability`. Both are `no-store` and use the new `discoveryLimiter` at 120/min.
+  - Venue cards, detail (courts, activities, hours, rate bands), next dates, similar listings (same vertical), and search with activity, date, start, duration, players and indoor.
+  - Vertical landing routes (`/{city}/entertainment`); intents are scoped by vertical.
+  - The registry carries `verticals`, category vertical, icon and booking model, and amenity verticals, behind a 60 s in-process cache (P5) that catalogue writes clear.
+- **One shared predicate.** `publiclyListed` now also requires a public vertical, so detail, availability, cards, similar and the sitemap all respect the launch switch.
+- **Owner APIs:**
+  - `POST …/venue` (courts, upsert or deactivate, `RESOURCE_HAS_BOOKINGS`; capacity follows the largest court);
+  - hourly pricing on `…/pricing` (preview/apply, `PRICE_GAP`, `HOURS_REQUIRED`);
+  - hourly hours on `…/calendar/schedule` (lists `outsideHours`, which are kept, not cancelled);
+  - court blocks on `…/calendar/block`;
+  - `open-dates` refused for venues;
+  - vertical-scoped catalogue (`/catalogue/verticals`, `?vertical=`);
+  - create and basics keep a listing in a partner-open vertical and re-derive its booking model;
+  - calendars carry courts; the edit payload carries courts and rate bands;
+  - "unbookable" and publish readiness understand venues.
+- **Admin APIs:**
+  - the verticals catalogue (rename, reorder, launch switch with preview hash and reason; farmhouse stays public);
+  - categories take `verticalCode` (default `farmhouse` for the current admin form) and `iconKey`, with the booking model per vertical enforced;
+  - amenities take `verticals[]` (removal blocked while listings use it);
+  - review snapshots include courts and rate bands; review sections add `venue` and `hours`.
+- **Other services:**
+  - booking records carry `vertical`, and per visit the court and activity;
+  - book-again on a venue gives `REBOOK_UNSUPPORTED` with the venue URL;
+  - change-request cases on venues give `CASE_ACTION_UNSUPPORTED`;
+  - the audit allow-list includes `hourly`;
+  - cancellation entitlement reads `bandUnit`.
+- **Measurement:** migration `0055_measurement_vertical.sql`. It adds the `vertical` dimension to the primary key, and the events `vertical_switched`, `times_viewed` and `time_selected`. It ships together with the matching insert code.
+- **Performance:**
+  - **P1:** previews and quote creation read from a snapshot, never the write lock. The quote row is inserted afterwards.
+  - **P2:** inventory state is windowed to the visits ±2 days, and slot calendars to their days. Unknown-hours bookings are always loaded.
+  - **P3:** the listing mutex locks only rows that can still change.
+  - **P5:** registry cache.
+  - **P6:** rate limiter.
+  - **P4 (batched dated venue search)** is deferred with a `ponytail:` note. Each dated candidate reads its own read-only snapshot, which takes no write lock.
+
+**Frontend in this phase** (domain copies only, per plan)
+
+- `lib/domain/{discovery,cancellation,pricing,booking-money,measurement}.js` and `lib/validation/zod/{booking,booking-config}.js` are regenerated as Prettier(backend). Before the change each was exactly Prettier(backend HEAD), except `cancellation.js`, whose drift (it ignored snapshot bands) is now fixed.
+- `lib/domain/verticals.js` and `lib/domain/hourly.js` are new.
+- New `intentsFor(vertical)`. The farmhouse home chips and the results-page intent chips use it, so the five farmhouse chips are unchanged. The admin catalogue impact paths use it too.
+
+**Verification**
+
+- **Backend `npm test`: 158 tests, 158 pass, 0 skipped**, with every DB integration suite enabled. New tests:
+  - `hourly-domain.test.js` (7 pure tests).
+  - `hourly-booking.integration.test.js`:
+    - the end-to-end path: quote → grid → "any court" fills Court 1 then Court 2 → requested court → court and venue blocks → race → hold cap → expiry → date strip → payment confirms and commits the court → refund at hour bands;
+    - **50 guests racing for 2 courts: exactly 2 holds, one per court**.
+  - `venue-apis.integration.test.js`: the launch switch, registry, search, landings, catalogue, courts, `RESOURCE_HAS_BOOKINGS`, `PRICE_GAP`, preview/apply, hours with `outsideHours`, and the schema mismatch.
+  - `venue-public-http.integration.test.js`: through the real Express app, hidden venues give 404 or empty everywhere, then the public cards, detail, `/times` (no-store and rate-limit headers), availability, next dates, search and route count.
+- **Farmhouse contract, before and after, on the same data.** HEAD code on a 0051 database with a live farmhouse; then the real drizzle `migrate()` to 0055; then branch code. Twelve public responses were compared: registry, cards, three searches (undated, dated single, dated multi with price sort), detail, 14-day availability, next dates, similar, and two route counts. They are **identical apart from additive keys**: `filters.vertical/start/duration/players/indoor` echoed in search, card `vertical`/`rentalUnit`, and registry `verticals`. **The quote hash, pricing version and totals are identical.**
+- **Lint:** `npm run db:check` passes (56 files). Backend lint is 510 problems, equal to the pre-existing baseline: all of it is Prettier formatting in `seed-gujarat-partners.js` (502, one fewer than HEAD) and in local QA scripts. Changed and new files lint clean.
+- **Frontend:** `npm test` 36/36, eslint clean on `lib/domain` and `lib/validation`, `next build` passes.
+
+**Deviations from the plan text**
+
+- Measurement moved from 0054 to **0055** (already noted in Phase 3).
+- 23P01 is not retried at hold (reason above).
+- P4 is deferred, with the ceiling marked in code.
+- `GET /partner/listings?vertical=` is moved to Phase 11 (dashboards).
+- The per-vertical verification checklist stays in Phase 5, as the plan says.
+- Category `verticalCode` defaults to `farmhouse`, so today's admin form keeps working until Phase 5 sends it.
+
+**Owner actions still open (unchanged)**
+
+- Rotate the Neon password.
+- Run R0 (0040–0051) with the Phase 3 runbook.
+- 0052–0055 go to Neon only with R1.
+
 ---
-## Phase 5 → Owner Listing Flow
+## Phase 5 → Owner Listing Flow — ✅ Complete (1 Oct 2026)
 
 ### Objective
 
@@ -1344,9 +1620,141 @@ The tables are written as defined in Phase 3. No more schema changes.
 - A new owner creates, submits and publishes a 3-court box-cricket venue end to end on a disposable stack. The listing then appears in entertainment search.
 - No farmhouse wizard step, field or copy changes. Screenshot diffs of the farmhouse wizard are empty.
 
+### Completion record (1 Oct 2026)
+
+Built and verified on a disposable local stack: PostgreSQL 17 on `127.0.0.1:55432`, API on `:4106`, web on `:3106`. **Neon was not touched.**
+
+Most of this phase landed earlier in backend `bc188b2` and frontend `b5e34b0`. This pass checked those commits against the plan and finished the rest. The new changes are uncommitted on branch `feat/entertainment` in both repos.
+
+**What now works**
+
+- **The owner wizard for venues.**
+  - Step 0 asks "What are you listing?". It is hidden when only one vertical is open to partners. For a venue the category select is labelled "Main activity", and the placeholders talk about venues.
+  - `chaptersFor(model)` returns `VENUE_CHAPTERS` for hour listings: The venue → Courts and facilities → Hours, rules and price → Photos → Proof and publish. The farmhouse chapters are unchanged.
+  - **Courts** (`VenueSection`):
+    - each court has a name, which defaults by activity (Court, Lane, Turf, Station, Arena or Track);
+    - activity chips, max players, and an Indoor / Outdoor / Not stated segmented control;
+    - surface, size and playing format;
+    - move up and down, duplicate, remove and restore, up to 30 courts.
+
+    A court with upcoming bookings shows how many it has and cannot be removed. If the save is attempted anyway, the API refusal names the court.
+
+  - **Opening hours** (`HoursSection`), **venue rules**, and **hourly prices** (`HourlyPricingSection`):
+    - the prices show a live list of gaps;
+    - there is a "Peak from 6 PM" preset and "Copy Mon–Fri to Sat–Sun".
+
+    Hours, prices and terms all preview first, then confirm.
+
+  - **Terms** show the cancellation bands in hours. The deposit defaults to ₹0.
+  - **Proof documents.** Venues get their own 8 document types. An upload of a document type from the other vertical's list is refused.
+  - The approach road field is removed from the location step (owner decision).
+
+- **Completion and gates.** The backend is the source; the frontend has a copy.
+  - `listingCompletion` grades a venue on:
+    - courts: at least one active court, each with a capacity and an activity, and the main activity offered by at least one;
+    - hours: a valid configuration that the owner has confirmed;
+    - rules: a footwear rule or notes;
+    - pricing: every offered activity is priced for every open minute, on weekdays and weekends, with no overlapping bands.
+  - Submitting while the vertical is `hidden` is refused with `VERTICAL_CLOSED`.
+  - Changing courts on a live venue sends it back to review. Reordering courts alone does not.
+  - The verification checklist depends on the booking model. `VENUE_CHECKLIST` replaces `safeForGuests` with `resourcesMatch`, `playSafety` and `lightingWorks`.
+  - Publishing a venue needs valid hours, courts that offer the main activity, and no price gap.
+
+- **The venue calendar.** `ResourceDayTimeline` replaces the Day/Night cards that venues used to get:
+  - one day, court by court, on a 30-minute grid across the opening hours;
+  - bookings are solid and link to the booking, holds are striped, blocks are dashed and buffers are pale;
+  - a venue-wide block gets its own row;
+  - previous / today / next day, and a list on phones.
+
+  The block form has a court select. The day/night forms are hidden.
+
+- **Admin.**
+  - The verticals catalogue has the launch switch. Its preview says what guests will see before `public` is confirmed.
+  - Categories take a vertical, which sets the rental unit, and an icon with a live preview. Amenities take verticals.
+  - Property review has panes for courts, opening hours and hourly prices, and shows venue rules as readable lines. `venue` and `hours` can be flagged. The farmhouse-only extra guest charge is hidden for venues.
+
+**Verification**
+
+- **Backend `npm test`: 162 tests, 162 pass, 0 fail.** Three CP01 suites run only when `CP01_TEST_DATABASE_URL` is set; without it they skip.
+  - New in this pass: `venue-owner-flow.integration.test.js` also checks that the edit payload counts upcoming bookings per court, and that removing a booked court is refused with its name.
+  - `npm run db:check` passes (56 files). The changed test files lint clean.
+- **Frontend `npm test`: 41/41.** The new `test/domain/listing-steps.test.js` covers:
+  - the farmhouse walkthrough is unchanged;
+  - the venue chapters and their wording;
+  - each step that needs input has exactly one completion section, for both models;
+  - price coverage: full, split bands, missing weekend, a gap, and overlapping bands;
+  - which step an unfinished venue resumes at.
+
+  eslint and Prettier are clean on every changed file, and `next build` passes.
+
+- **Browser gate `scripts/portal-gate/cp32_venue_gate.mjs`: 57/57 checks pass.**
+  - The owner creates a 3-court box-cricket venue through the wizard and submits it.
+  - The calendar shows the three courts and a court block.
+  - The admin sees the venue panes and approves the submission. They schedule a video verification, which shows the venue checklist, then pass it and publish.
+  - The launch switch goes `public`, and the venue appears in `GET /discovery/search?vertical=entertainment` with 3 courts.
+  - On all 8 new screens, axe (WCAG 2.1 AA) reports 0 violations, with no horizontal overflow at 1440 or 390 and no console errors.
+- **Farmhouse wizard before and after.** Screenshots from before this phase (frontend `9db03e5`) and after were compared byte for byte, at 1440 and 390, with Entertainment `hidden`. They covered `/partner/listings/new`, all ten setup steps, the manage page and the calendar. They are identical except in three places:
+  - location step and manage page: the approach road field is gone (owner decision);
+  - amenities step: the venue-only groups (Play, Facilities) no longer appear for farmhouses. The catalogue is now scoped by vertical. Before, the amenities added by `seed:entertainment` leaked into the farmhouse step;
+  - calendar: the legend now says "Dashed grey: owner block or buffer". It used to say red.
+
+**Fixed in this pass**
+
+- **Courts editor:**
+  - a hydration mismatch: the first court's element ids came from `Date.now()`;
+  - "Playing format" sat inside the activity group.
+- Venue screens said "guests". They now say "players".
+- Venue calendars showed farmhouse Day/Night cards.
+- The test helper `migrateWithDrizzle` used `URL.pathname`, which breaks on Windows; two schema tests failed there.
+- **Domain copies:**
+  - the backend copy of `listing-steps.js` is synced;
+  - the frontend `listing-completion.js` is regenerated as Prettier(backend).
+
+**Deviations from the plan text**
+
+- Weekday and weekend price bands sit side by side, not in tabs.
+- A first version of `ResourceDayTimeline` ships here. Dragging over an empty range to pre-fill the block form is not built; a `ponytail:` note in the component marks it.
+- The gate checks entertainment search through the public API, because the guest search UI for entertainment is Phase 7.
+- Photos and the ownership file need Cloudinary, so the gate's fixture inserts them. The fixture database has no PostGIS, so the gate also writes the map pin itself.
+- Admin review shows activity names derived from the slug.
+- The new venue amenities have no Gujarati or Hindi labels yet. None are claimed.
+
+**Found, not fixed (outside Phase 5)**
+
+- **Doubled public code in URLs.** Listings created in the wizard store `slug = <title>-<code>`, and `listingPath` appends the code again, e.g. `/listing/smash-arena-box-cricket-vesu-5zcdnp20-5zcdnp20`. The link works, because the route reads the code, but the URL is untidy. Farmhouses created in the wizard have the same problem.
+- **Stale mint scripts.** `scripts/portal-gate/mint.mjs` and the backend's `.qa-mint.mjs` still write to `customer_session`, which migration 0041 removed, so they fail on the current schema. The venue gate uses its own `venue-mint.mjs` instead.
+
+#### Running the venue gate
+
+All commands below run against the disposable database only. Every script refuses any URL except `127.0.0.1:55432/rentra_cp02`.
+
+1. Create the database `rentra_cp02` on a local PostgreSQL listening on `127.0.0.1:55432`.
+2. Copy `fixture-migrate.mjs` and `venue-mint.mjs` from `Rentra/scripts/portal-gate/` into `rentra-backend/`. They need its packages and its `@/` alias.
+3. In `rentra-backend/`, set `DATABASE_URL=postgres://postgres@127.0.0.1:55432/rentra_cp02`, then run:
+   1. `node fixture-migrate.mjs`
+   2. `npm run db:seed`
+   3. `node --import ./loader/register.mjs --env-file=.env src/scripts/seed-amenities.js`
+   4. `npm run seed:entertainment`
+   5. `node --import ./loader/register.mjs --env-file=.env venue-mint.mjs tokens.json`
+4. Start the API, still in `rentra-backend/`:
+   `PORT=4106 FAKE_RAZORPAY_STATE=<file> node --import ./loader/register.mjs --env-file=.env .qa-serve.mjs`
+5. Start the web app in `Rentra/`:
+   `RENTRA_BROWSER_FIXTURE=1 RENTRA_BROWSER_FIXTURE_ID=venue NEXT_PUBLIC_API_URL=http://localhost:4106/api/v1 npx next dev -p 3106`
+   The fixture `distDir` keeps it apart from a normal `next dev`.
+6. Run the gate in `Rentra/`:
+   `GATE_DATABASE_URL=… GATE_TOKENS=tokens.json GATE_OUT=<dir> PLAYWRIGHT_MODULE=<path to playwright> CHROME=<chrome.exe> node scripts/portal-gate/cp32_venue_gate.mjs`
+
+Re-run step 3.5 (`venue-mint.mjs`) before each gate run. It sets Entertainment back to `partners`.
+
+**Owner actions still open (unchanged)**
+
+- Rotate the Neon password.
+- Run R0 (0040–0051) with the Phase 3 runbook.
+- 0052–0055 go to Neon only with R1.
+
 ---
 
-## Phase 6 → Homepage & Navigation
+## Phase 6 → Homepage & Navigation — ✅ Complete (1 Oct 2026)
 
 ### Objective
 
@@ -1451,9 +1859,94 @@ It renders, in order:
 - With two public verticals: tabs as in the reference, both homes load statically (`x-nextjs-cache` HIT after the first request), and switching tabs is a soft navigation.
 - The owner approves screenshots of the header (undocked and docked) and the Entertainment home at 390 and 1440.
 
+### Completion record (1 Oct 2026)
+
+Built and verified on the disposable local stack from Phase 5 (PostgreSQL 17 on `127.0.0.1:55432`, API on `:4106`). The web app was checked both as a production build (`next build` + `next start` on `:3106`) and in dev mode. **Neon was not touched.** Uncommitted, branch `feat/entertainment` (frontend only; no backend change in this phase).
+
+**What now works**
+
+- **Header tabs** (`components/rentra/VerticalTabs.jsx`):
+  - Links, not a tablist. `aria-current="page"` marks the active tab. There is one tab per public vertical, in registry order, and nothing renders until two verticals are public.
+  - From `md` they sit centred between the wordmark and the navigation, in their own `Suspense` boundary. That keeps them in the static HTML of both homes: the search pill reads the query string, which would push anything in its boundary to client rendering.
+  - When the search docks they fade out (150ms, opacity only) and stop taking clicks; the pill takes the centre. Header heights are unchanged.
+  - The active tab comes from the page (`pageVertical`): `/`, `/entertainment`, `/search?vertical=`, and taxonomy pages by their category or vertical slug. Listing, saved, help and portal pages show no tabs.
+  - On `/search`, a tab keeps the city, the area and the first date and drops everything else (`searchTabHref`). On other pages a tab links to that vertical's home.
+  - Below `md`, two pill tabs sit at the top of each home's hero (photo chip recipe) and above the search fields on discovery pages.
+- **Entertainment home** (`app/(marketing)/entertainment/page.js`). It has the farmhouse home's skeleton and caching (`revalidate`, anonymous reads, degraded fallbacks), and the farmhouse home's loading skeleton through the `(marketing)` boundary.
+  - **Hero.** Venue photos appear only once three venues have photos; until then the plain brand hero shows, and nothing fabricated. Eyebrow, headline, the venue search bar, then activity chips that link to `/{city}/{activity}`.
+  - **Trust strip** with venue statements only (`PLAY_TRUST`).
+  - **"Play near {City}" rows.** The subtitle names the activities that city's venues really offer.
+  - **`ActivityPicker`** ("What are you playing?"). It offers only cities with live venues, and only the activities they have, with venue counts.
+  - City chips to `/{city}/entertainment`, the owner CTA, and the footer's new "Play near you" column.
+  - It answers not-found while Entertainment is not public. Metadata title "Book box cricket, pickleball, bowling and more in Gujarat", canonical `/entertainment`, and its own OG card.
+- **Venue search bar.** `SearchFields vertical="entertainment"` gives Where / What / When / Time and "Find venues" in the same bar shape:
+  - **What:** an activity grid.
+  - **When:** Today, Tomorrow and the coming Saturday and Sunday, plus a calendar limited to 60 days.
+  - **Time:** Any / Morning / Afternoon / Evening / Late, a specific start in 30-minute steps, and a 1–4 hour duration stepper.
+  
+  It submits `vertical, city, area, category, date, start, duration`, never `slot`, `mode` or `guests`. The shared search draft keeps the location across tabs.
+- **Header pill on `/entertainment`:** Where · What · When · Time. Each segment opens the venue fields at that segment.
+- **Venue cards.** `listingFacts(card)` gives "Box cricket · 3 courts · Up to 10 players", with the activity icons and "/ hr". The unit noun follows the activity (lanes, turfs, stations…). The farmhouse line is unchanged.
+- **Farmhouse home:**
+  - finds its category through the vertical, not the slug literal;
+  - passes `vertical: 'farmhouse'` to its card reads;
+  - shows the hero tabs below `md` once two verticals are public.
+  
+  The footer's farmhouse column is found through the vertical too.
+- **Shared pieces:**
+  - `TrustStrip` takes `items`, and `CityRow` takes `title` and `subtitle`; the farmhouse defaults are unchanged;
+  - the root OG image now uses the shared `lib/seo/og-card.js`, which renders the same card;
+  - `VenueSection` reuses the unit names from `lib/domain/vertical-ui.js`.
+
+**Verification**
+
+- **Frontend `npm test`: 46/46.** The new `test/domain/vertical-ui.test.js` covers:
+  - tab order and the two-vertical threshold;
+  - the active vertical for every page type, including pages that show no tabs;
+  - the `/search` switch rules;
+  - card facts for both verticals;
+  - the clock and unit labels.
+  
+  eslint and Prettier are clean on every changed file. `next build` passes, and **both homes build as static ISR pages** (`○ /` and `○ /entertainment`, 5-minute revalidate as `/` had before).
+- **Gate `scripts/portal-gate/cp33_vertical_tabs_gate.mjs` against the production build.**
+  - **With two public verticals, 46/46 checks pass:**
+    - tabs on `/`, and switching to `/entertainment` is a soft navigation;
+    - at 768, 1024 and 1440, the tabs are clear of the logo and the navigation;
+    - docked, the tabs are hidden and inert, and the pill is visible and clear of the navigation;
+    - the docked pill opens the venue fields on What;
+    - the venue search posts exactly `vertical=entertainment&category=box-cricket&date=<tomorrow>&start=17:00&duration=90`;
+    - the active tab is correct on `/search?vertical=entertainment`, `/surat/box-cricket` and `/surat/farmhouse`, and there are no tabs on a listing page;
+    - at 390, on both homes, the tabs, the search bar and the first chip row fit in the first viewport;
+    - axe (WCAG 2.1 AA) reports 0 violations, with no overflow at 1440 or 390;
+    - a second request to `/` and to `/entertainment` gets `x-nextjs-cache: HIT`;
+    - no console errors.
+  - **With one public vertical, 5/5 checks pass:**
+    - no tabs on `/`, `/search` or `/surat/farmhouse`;
+    - `/entertainment` renders the not-found page with `noindex`.
+- **Farmhouse pages before and after, with one public vertical.** Screenshots from frontend `b5e34b0` and from this phase were compared byte for byte at 1440 and 390. The pages were `/`, `/` docked, `/search`, `/search?city=surat&slot=night&guests=4`, `/surat/farmhouse`, a farmhouse listing, `/saved` and `/help`. **All 16 are identical.**
+- The existing `scripts/check-sticky-search.cjs` now also asserts that the header tabs fade out when the search docks. The assertion is a no-op until two verticals are public.
+- Screenshots for the owner's review are in `docs/design/entertainment/shots/phase6/`: both homes at 1440 and 390, and the docked header. They show fixture data; the venue photos were copied from a farmhouse.
+
+**Deviations from the plan text**
+
+- **Two Phase 7 pieces were built here,** because the approved Entertainment home renders them: the venue search fields (Phase 7 "PlayFields") and venue card facts (`listingFacts`).
+  - They live in the existing `SearchFields` and `ListingCard` as a `vertical` branch, not as separate components.
+  - Phase 7 still owns the results page, filters, landing pages, the sitemap, the URL redirects and the discovery tests.
+- **No 404 status.** A hidden `/entertainment` answers with Next's soft 404: HTTP 200 with the not-found page and `<meta name="robots" content="noindex">`. The `(marketing)` group's `loading.js` streams first, so the status cannot change. This is documented Next behaviour (`loading.js` → Status Codes), and taxonomy pages already behave the same way. A real 404 would need a `proxy` check, which is not worth a registry read on every request.
+- **No new loading file for `/entertainment`.** The group's `loading.js` already serves the same `home` skeleton, so `app/(marketing)/entertainment/loading.js` and a separate `entertainment-home` skeleton were not added.
+- **The vertical presentation lives in `lib/domain/vertical-ui.js`.** `lib/domain/verticals.js` is the backend domain copy and must stay identical to the backend.
+- **One gate instead of a new check script.** The new checks are in the fixture gate `cp33` rather than a new `scripts/check-vertical-tabs.cjs`. Those `.cjs` scripts run against whatever is on `:3000`, which has one public vertical in normal development.
+- **No licensed fallback photos.** None are in the repo, so the hero falls back to the plain brand background until three venues have photos. The owner can add licensed images later.
+- Card prices keep the existing lower-case "from".
+
+**Owner actions**
+
+- Review and approve the Phase 6 screenshots: tabs undocked and docked, and the Entertainment home at 390 and 1440.
+- Unchanged: rotate the Neon password; R0 with the Phase 3 runbook; 0052–0055 only with R1.
+
 ---
 
-## Phase 7 → Search & Filters
+## Phase 7 → Search & Filters — ✅ Complete (1 Oct 2026)
 
 ### Objective
 
@@ -1464,10 +1957,10 @@ Search, filters, results and SEO landing pages adapt to the active vertical whil
 | File | Change |
 |---|---|
 | `lib/domain/discovery.js` (FE) + backend copy | `parseDiscoveryQuery`/`discoveryQuery` add `vertical`, `start`, `duration`, `players` and `indoor`. `resolveDiscoveryRoute` handles vertical landings. Intents gain `vertical`. Delete the unused `INTENTS` in `lib/constants.js:2-8`. |
-| `components/rentra/SearchFields.jsx` (shared by hero, discovery bar and header panel) | Gains a `vertical` prop. Extract the generic `Segment`/`Panel` shell, `WherePanel` and the calendar. `StayFields` = today's When / Visit type / Who. `PlayFields` = What / When / Time. Hidden inputs are written per vertical. |
+| `components/rentra/SearchFields.jsx` (shared by hero, discovery bar and header panel) | Gains a `vertical` prop (✅ done in Phase 6, with the venue fields; Phase 7 wires it into `DiscoveryFilters` and the header panel on discovery pages). Extract the generic `Segment`/`Panel` shell, `WherePanel` and the calendar. `StayFields` = today's When / Visit type / Who. `PlayFields` = What / When / Time. Hidden inputs are written per vertical. |
 | `components/rentra/DiscoveryFilters.jsx:80-180` | The panel content depends on the vertical (below). The active-count badge counts the vertical's own filters. |
 | `components/rentra/DiscoveryResults.jsx` | Title, count copy ("{n} venues" vs "{n} places"), chips, empty states and "Explore by location" chips depend on the vertical. |
-| `components/rentra/ListingCard.jsx:38-58,137` | Facts come from `listingFacts(card)` in `lib/domain/verticals.js`. Shows `times` chips when present. Unit "hr". |
+| `components/rentra/ListingCard.jsx:38-58,137` | Facts come from `listingFacts(card)` (✅ done in Phase 6, in `lib/domain/vertical-ui.js`). Shows `times` chips when present. Unit "hr". |
 | `app/(marketing)/search/page.js` | Unchanged (it passes the query through). It stays `noindex`. |
 | `app/(marketing)/[city]/[category]/[[...place]]/page.js`, `app/sitemap.js:20-41` | Vertical landings, and vertical-scoped intents in the sitemap. |
 
@@ -1570,9 +2063,87 @@ Sort uses the same `SortSelect`. "Price: low to high" means the hourly rate (und
 - The farmhouse search URL contract and results are unchanged. The existing regression scripts pass with no edits other than additions.
 - An entertainment search with date and time returns only venues with a truly free court. This is verified by booking the last slot in one tab and re-searching in another: the venue disappears.
 
+### Completion record (1 Oct 2026)
+
+Built and verified on the disposable local stack (PostgreSQL 17 on `127.0.0.1:55432`, API on `:4106`, web as a production build and in dev mode on `:3106`). **Neon was not touched.**
+
+Phases 5 and 6 were committed by the owner (backend `ad48b66`, frontend `4b4c7c0`). The Phase 7 changes are uncommitted on `feat/entertainment`.
+
+**What now works**
+
+- **One search page for both verticals.** `DiscoveryFilters`, `DiscoveryResults` and the header panel follow the page's vertical: a landing route's `verticalCode`, else the query's `vertical`.
+  - **Search bar:** the venue fields (Where / What / When / Time) from Phase 6, here with a "Show venues" button.
+  - **Filters panel for venues:** venue name or locality, players, indoor or outdoor, price per hour, cancellation, and only that vertical's amenities. Farmhouse now also lists only its own property types and amenities. The badge counts the vertical's own filters.
+  - **Active chips:** players, indoor or outdoor, and per-hour prices. Fields already shown in the bar are not repeated.
+  - **Heading:** "{n} venues", or "{n} venues with free times on Fri, 2 Oct" for a dated search.
+  - **"Explore by location":** for venues, activities × cities. Areas and intents work under activity landings and under `/{city}/entertainment`.
+- **Cards for a dated search.** The price is for the chosen duration ("₹1,200 for 1 hr"). Up to three free start-time chips each link to the venue with the activity, date, start, duration and players set, e.g. `aria-label="Book 6:00 PM, ₹1,200, peak"`. A dot marks peak times, and the word "peak" is in the label. A venue with mixed courts shows "Indoor and outdoor".
+- **Empty states:**
+  - **Dated, nothing free:** "Every court is booked on Fri, 2 Oct from 11:30 PM", with "Any time that day" (when a start was set), "Next day", and "Try 1 hour" (when the duration was longer).
+  - **No venue:** "No bowling venues in Surat yet". Other cities with matching venues are offered; they are read from route counts, and only on this empty page. There is also an owner CTA.
+- **Canonical URLs:**
+  - `/search?category=box-cricket` without `vertical` redirects permanently to the same search with `vertical=entertainment`.
+  - A venue search with only a city and an activity opens that landing, `/{city}/{activity}`.
+  - Farmhouse searches are never redirected.
+- **Landings and SEO:**
+  - `/{city}/{activity}` ("Box cricket in Surat") and `/{city}/entertainment` ("Sports and play venues in Surat") get a venue description.
+  - The sitemap adds each public vertical's own landings, with their areas and intents, under the existing route-count gate (≥3 live venues).
+- **Other:**
+  - the header panel on venue searches keeps players and indoor in its hidden fields;
+  - the unused `INTENTS` is removed from `lib/constants.js`.
+
+**Verification**
+
+- **Backend `npm test`: 163/163 pass, 0 skipped** (with `CP01_TEST_DATABASE_URL` set). New `venue-search-free-court.integration.test.js`, the Phase 7 acceptance test:
+  - a dated search shows the venue's 22:00 and 23:00 times;
+  - two guests then hold both box-cricket courts for 22:00–24:00 through the real quote → hold path;
+  - the venue drops out of a 22:00 search;
+  - a 20:00 search still offers 20:00 and 21:00, and nothing that overlaps the holds.
+- **Frontend `npm test`: 51/51.** The new `test/domain/discovery.test.js` covers:
+  - parse → serialise round trips for farmhouse (the URL string is pinned) and for venues (documented parameter order);
+  - each vertical dropping the other's parameters;
+  - validation of venue parameters;
+  - landings for activities, the whole vertical, areas, and intents that never cross verticals.
+  
+  eslint and Prettier are clean, and `next build` passes. `/` and `/entertainment` are still static, and `/search` is dynamic as before.
+- **Gate `scripts/portal-gate/cp34_venue_search_gate.mjs` on the production build: 52/52.** It covers:
+  - the venue bar, cards and filters panel, and that the submitted URL has `players`/`indoor` and never `slot`/`guests`;
+  - the chips;
+  - dated time chips (name, price and link) and the "for 1 hr" price;
+  - the booked-out and no-venue states with their actions;
+  - both landing types;
+  - both redirects, and no redirect for farmhouse;
+  - a keyboard-only search from the Entertainment home;
+  - axe 0 violations and no overflow at 1440 and 390 on 4 pages;
+  - no console errors.
+  
+  `cp33` (tabs and homes) still passes 46/46.
+- **Farmhouse unchanged.** With one public vertical, screenshots from frontend `b5e34b0` (before Phases 6–7) and from now were compared byte for byte at 1440 and 390. The pages were `/`, `/` docked, `/search`, a slot search, a search with chips, a dated search, an empty search, `/surat/farmhouse`, an intent landing, an area landing, a listing, `/saved` and `/help`. **All 26 are identical.**
+  - The first run showed one sub-pixel difference in the dated heading: the text had been merged into one text node, which changes kerning. The farmhouse heading now keeps its original nodes.
+- Screenshots: `docs/design/entertainment/shots/phase7/`. They show fixture data; the venue photos were copied from a farmhouse.
+
+**Deviations from the plan text**
+
+- **No "Activity" select in the venue Filters panel.** The bar's What field already writes `category`, and a second `category` field would submit the parameter twice.
+- **The redirects arrive as streamed redirects.** They reach the browser as a meta refresh plus a `308`/`307` in the RSC payload, and the HTTP status is 200. The `(marketing)` loading boundary streams first, as with the soft 404 in Phase 6, so a true 3xx status would need a `proxy` registry read on every request. Browsers follow them, and `/search` is `noindex`.
+- **The city+activity landing redirect is new for venues only.** The plan says it "matches farmhouse behaviour", but farmhouse never did this, and its URL contract must not change.
+- **No extraction into `StayFields`/`PlayFields`.** The fields stay one `SearchFields` with a `vertical` branch (Phase 6).
+- **New checks are in the fixture gate `cp34`.** The `:3000` regression scripts (`check-search-panels.cjs`, `check-search-scroll.cjs`) only see one public vertical in normal development.
+- **The `VERTICAL_MISMATCH` unit test is not in the frontend.** That check runs on the backend (`searchDiscovery`) and is covered by `venue-apis.integration.test.js`.
+
+**Found, not fixed (outside Phase 7)**
+
+- **React key warning, dev only.** It fires on every search page with active filter chips, farmhouse ones included: "Each child in a list should have a unique key … passed a child from DiscoveryResults". The chips are keyed, and production builds do not log it. It needs a separate look at how the server-rendered chip list crosses into the `DiscoveryFilters` client component.
+
+**Owner actions**
+
+- Review the Phase 7 screenshots.
+- Still open from Phase 6: approve the tabs and the Entertainment home screenshots.
+- Unchanged: rotate the Neon password; R0 with the Phase 3 runbook; 0052–0055 only with R1.
+
 ---
 
-## Phase 8 → Entertainment Detail Page
+## Phase 8 → Entertainment Detail Page — ✅ Complete (1 Oct 2026)
 
 ### Objective
 
@@ -1650,9 +2221,68 @@ None.
 - The structured data validates.
 - The farmhouse listing page renders unchanged (empty screenshot diff).
 
+### Completion record (1 Oct 2026)
+
+Built and verified on the disposable local stack (PostgreSQL 14 on `127.0.0.1:55432`, API on `:4106`, web in dev mode on `:3106`, plus a production `next build`). **Neon was not touched.** Phase 7 was committed by the other developer (backend `21a84a8`, frontend `46e53ac`). The Phase 8 changes are uncommitted on `feat/entertainment`.
+
+**What now works**
+
+- **One route, two layouts.** `/listing/{slug}-{code}` checks `listing.rentalUnit` after `loadListing`. Hour listings render `VenueListing`; farmhouse code is unchanged.
+- **Shared parts stay shared:** breadcrumbs, gallery and the `#gallery-end` sentinel, `MeasuredView`, reviews, host, map and similar listings. The title, place, rating, save, share and badges block became `ListingHeader`, which both layouts use. The farmhouse markup is the same.
+- **Venue sections** (new `components/rentra/listing/VenueSections.jsx`), in the planned order:
+  - activity chips;
+  - **facts:** "3 courts" (the unit noun comes from the activity), "Up to 12 players", "Indoor and outdoor", surfaces, and "Open today 6 AM – 1 AM" or "Closed today";
+  - About this venue;
+  - **Courts:** one card per active court with its size, surface, indoor or outdoor, players and activities;
+  - **Opening hours:** a weekly table. Days with the same hours share a row ("Monday – Sunday"). Today is bold and marked "· Today". After-midnight closes show "(next day)";
+  - **Prices:** Weekday and Weekend bands for each activity. Peak bands have a dot and the word "Peak". The note reads "Per hour, per court. Platform fee added at checkout.";
+  - amenities: the existing `AmenityGrid`;
+  - **Venue rules:** footwear, age, food, smoking, alcohol and the owner's notes;
+  - Reviews ("{n} bookings") and the host;
+  - **Cancellation:** the hour bands from `CANCELLATION_TIERS_HOURLY`, with rupee amounts for a one-hour booking at the from-price, and a worked example: "for a Saturday 7:00 PM start, cancel by Friday 7:00 PM for a full refund".
+- **Rail and phone bar:**
+  - The rail (`VenueBookingRail`, `id="book"`) shows "From ₹X / hr", the court count, today's hours, and a marked `data-slot="time-picker"` box. Phase 9 puts `TimeSlotPicker` in that box.
+  - The phone bar (`VenueMobileBar`) shows "from ₹X / hr", "3 courts · Open today …" and a "Check times" link to `#book`. It appears after the gallery, exactly like the farmhouse bar; both now use the extracted `use-shown-after.js` hook.
+- **SEO:**
+  - venue `generateMetadata`: "{title}, {area} — from ₹600/hr", with activities, courts, players and the per-hour price in the description;
+  - **JSON-LD:** `SportsActivityLocation` (`BowlingAlley` for bowling, `EntertainmentBusiness` for gaming and trampoline), with `openingHoursSpecification` from the weekly hours, `priceRange` "₹600–₹1,400 per hour" and the breadcrumbs. As on farmhouse there is no geo, no street address, and no rating until reviews exist;
+  - **OG image:** "₹600 / hr", "Vesu, Surat · Box cricket · Pickleball · 3 courts", and the next open day from `next-dates.hourly`.
+- **Copy:** `OwnerCard`'s fallback is "Property owner" (it was "Farmhouse owner"); `Reviews` takes a noun; the not-found title is "Listing not found".
+- **Backend** (`db/queries.js`):
+  - The detail's amenity catalogue is limited to the listing's vertical through `amenity_vertical`. Before this, a venue page would have listed farmhouse amenities such as a pool as "not confirmed".
+  - New `bookable` (= `bookingConfig.inventoryReady`) for the edge case where the venue's booking setup is mid-update.
+
+**Verification**
+
+- **Backend `npm test`: 163/163 pass.** `venue-public-http.integration.test.js` now asserts that a farmhouse-only amenity never reaches the venue detail, and that `bookable` is true.
+  - Mutation check: with the amenity filter removed, that test fails.
+- **Frontend `npm test`: 51/51.** eslint and Prettier are clean on the changed files, and `next build` passes.
+- **Browser** (fixture farmhouse `review01` and fixture venue `venue001` with 3 courts, 2 activities and 6 bands, at 1440 and 390):
+  - axe: 0 violations in `<main>` on both pages at both widths;
+  - no horizontal overflow at 390;
+  - no console errors;
+  - the venue phone bar is `aria-hidden` before the gallery scrolls away and shown after it, the same as farmhouse.
+- **Facts match the database:** courts, surfaces, players, hours (06:00–01:00 next day), the box-cricket ₹800/₹1,200 and ₹1,000/₹1,400 bands, and pickleball ₹600/₹700.
+- **No farmhouse words:** the rendered `<main>` text of the venue page has no match for `farm|guests?|stays?|nights?`.
+- **Pending config:** with `inventoryReady=false`, the rail says "The venue is updating its booking times", and the rest of the page renders.
+- **JSON-LD:** a node assertion script checked the type, address, 7 `OpeningHoursSpecification` entries (schema.org day URLs, HH:MM), the absence of geo and street address, and the BreadcrumbList.
+- **OG image:** renders as a PNG for the venue (`shots/phase8/venue-og.png`).
+- **Farmhouse unchanged:** the rendered `<main>` DOM of the farmhouse listing, captured with Playwright with the Phase 8 changes stashed and then restored, is **identical (775 lines, empty diff)**.
+- Screenshots: `docs/design/entertainment/shots/phase8/` (venue and farmhouse at 1440 and 390, the phone bar, the OG image). They show fixture data; the venue photos are farmhouse seed images.
+
+**Deviations from the plan text**
+
+- **The rail has no picker yet.** The plan lists `TimeSlotPicker` under Phase 9, so the rail and the phone bar link to a marked placeholder. Pre-selection from card time chips, URL sync, and hiding the activity and court selects for single values arrive with the picker.
+- **`PRICE_MISSING` logging** belongs to the time grid, so it is Phase 9.
+- **Old farmhouse parameters on a venue URL** are ignored, because the venue layout reads no `slot` or `date` parameters.
+- **Screenshot diff:** the farmhouse check is a DOM diff, not an image diff. The fixture photos load lazily, which makes pixel diffs noisy.
+- **JSON-LD:** validated by assertions, not by Google's online validator, because the page is not public.
+
+**Owner actions:** none. No migration.
+
 ---
 
-## Phase 9 → Availability, Slots & Pricing
+## Phase 9 → Availability, Slots & Pricing — ✅ Complete (1 Oct 2026)
 
 ### Objective
 
@@ -1730,6 +2360,8 @@ for date D, activity A, duration L, players P:
 - A day picker (previous / today / next). Mobile shows an agenda list instead of the grid.
 - Fix the existing legend mismatch while here (`PortfolioCalendar.jsx:158` says red, but blocks are drawn dashed).
 
+A first version of `ResourceDayTimeline` and the legend fix shipped in Phase 5 (see its completion record). Still to do here: selecting an empty range to pre-fill the block form, and the 30 courts × 20 hours layout test.
+
 ### UX/UI requirements
 
 - Every chip is ≥44px tall, with its full accessible name ("6:00 PM to 7:00 PM, ₹1,200, 2 courts free"). The grid is a `role="group"` labelled with the date. Arrow keys move between chips (roving tabindex, the `OccasionPicker` tablist pattern).
@@ -1757,8 +2389,80 @@ for date D, activity A, duration L, players P:
 
 - For a fixture day, the grid shown to the guest, the free count on search cards and the hold result agree in an automated test that books every displayed start one by one.
 
+### Completion record (1 Oct 2026)
+
+Built and verified on the disposable local stack (PostgreSQL 14 on `127.0.0.1:55432`, API on `:4106` with test Razorpay keys, web on `:3106` in dev mode, plus a production `next build`). **Neon was not touched.** There is no migration. Phase 8 and Phase 9 changes are uncommitted on `feat/entertainment`.
+
+**What now works**
+
+- **Guest time picker** (`TimeSlotPicker.jsx`) in the desktop rail and in a phone bottom sheet. Its state lives in the new `HourlyQuoteProvider.jsx`, which fills the same context as `BookingQuoteProvider`, so `QuoteSummary` and the login hand-off are reused. The picker, top to bottom:
+  - **Activity:** a select, hidden when the venue has one bookable activity.
+  - **Date strip:** the next 14 days, ending at the booking horizon. Each day is marked "Closed" or "Full" from `availability?activity&duration`. A native date input reaches later dates up to the horizon.
+  - **Duration stepper** within the venue's `durations`.
+  - **Start-time grid:** chips in 3 columns, 56px tall.
+    - Each chip shows the time and the price; peak times have a dot.
+    - Each chip's accessible name is the full sentence, e.g. "6:00 PM to 7:00 PM, ₹1,200, Peak, 2 courts free".
+    - The grid is one `role="group"`, described by the date. It uses a roving tabindex: Tab enters once, then arrow keys, Home and End move.
+    - Taken times are not rendered. The empty state reads "No times left on …" and offers a "Next open: …" button.
+    - Skeleton chips match the real chip size.
+  - **Court:** "Any available court (N free)" or a specific free court. The unit noun follows the activity. When there is one court, the picker shows "1 court" instead of a select.
+  - **Players:** a stepper capped by the largest eligible court.
+- **Quote.** Any change waits 250ms and then calls `requestBookingQuote({ kind: 'hourly', … })`. As on farmhouse, the tick-to-review step, the "price changed" notice and re-quoting on expiry all apply.
+  - A signed-out guest gets "Log in to book", and the hourly selection survives login.
+  - `QuoteSummary` reads "Court rent" and uses date-and-time tick copy when `kind === 'hourly'`. The farmhouse copy is unchanged.
+- **Freshness:**
+  - Times are fetched `no-store` (`lib/api/availability.js`: `fetchTimes` and `fetchHourlyAvailability`) and refetched on window focus when older than 60 seconds.
+  - A quote error that means the grid is out of date (`AVAILABILITY_CONFLICT`, `START_INVALID`, `OUTSIDE_OPENING_HOURS`) refetches the grid. A time or court that is no longer free is dropped with "That time was just taken…". This is derived state, not an effect.
+- **Pre-selection and URL sync:**
+  - Card time chips (`activity`, `date`, `duration`, `players`, `start`) pre-fill the picker.
+  - The selection is written back to the URL with `history.replaceState` (adding `court` when one is chosen), so a shared link opens the same time.
+  - Invalid or past values are ignored.
+- **Phone:** `VenueMobileBar` shows "from ₹X / hr", or the booking total once quoted, and opens a `<dialog>` sheet with the same picker and quote. The rail picker is desktop-only, so the page never shows two pickers at once.
+- **Owner timeline:** dragging across free time on a court (`SelectableLane.jsx`) fills in the "Block an exact period" form (court, dates, times; a single click blocks one hour) and moves focus to the reason field. It is pointer-only; keyboard users fill in the same form directly. The ponytail note in `ResourceDayTimeline` is resolved. The legend fix had already shipped in Phase 5.
+- **Backend:**
+  - `time-slots.js` logs a `PRICE_MISSING` advisory once per listing, activity and day kind when open hours have no price band; those starts stay hidden.
+  - The venue detail's `openingHours` now carries `bookingHorizonDays`.
+
+**Verification**
+
+- **Backend `npm test`: 165/165 pass.** The new `time-grid.integration.test.js` has two tests:
+  - **Acceptance:** for a fixture weekday, the grid offers 18 one-hour starts with 2 courts each, and the search card shows the grid's first three times.
+    - Every displayed start is quoted at the grid's price and held once per free court (36 holds through the real quote → hold path).
+    - After each start's holds, the grid drops that start, and one more quote is refused with `AVAILABILITY_CONFLICT`.
+    - At the end the grid is empty and the venue drops out of search.
+  - **Property test** over 10 seeded random configs. The configs vary step (30/60), single or split shifts, closes after midnight, changeover buffers of 0–30 minutes, gaps in price bands, court and venue-wide owner blocks, and durations.
+    - For every half-hour start of the day: shown in the grid ⇔ the quote accepts it, at the same price.
+    - Guarded against a vacuous pass (more than 50 starts offered across the configs).
+- **Frontend `npm test`: 51/51.** eslint is clean on `components`, `lib` and `app`. Prettier is clean on the changed files, and `next build` passes.
+- **Browser gate `scripts/portal-gate/cp35_venue_times_gate.mjs`: 27/27.** It checks:
+  - the grid count, the full chip names, chip height of at least 44px, roving tabindex with arrow keys;
+  - the quote total (₹864 for 10 AM), the free-court select and URL sync;
+  - duration change clearing the time, the one-court activity, and the "Review booking" link to `/checkout/review/:id`;
+  - card pre-selection (7 PM for 2 hr, ₹2,592);
+  - the conflict refresh (a venue block inserted behind the guest's back drops 7 PM with a notice);
+  - "Log in to book" when signed out;
+  - the phone sheet, with no overflow and the bar showing the total;
+  - owner drag 10:00–11:30 filling in the block form;
+  - 30 courts × 20 hours rendering 30 lanes at full height with no page overflow;
+  - axe (WCAG 2.1 AA) 0 on the 1440 rail, the 390 sheet and the owner timeline `<main>`;
+  - no console errors.
+  - The partner shell's sidebar avatar has a contrast finding that predates this work and sits outside `<main>`.
+- **Farmhouse unchanged:** the rendered `<main>` DOM of the farmhouse listing, captured with all Phase 8–9 changes stashed and then restored, is **identical (775 lines, empty diff)**.
+- Screenshots: `docs/design/entertainment/shots/phase9/` (rail with quote, phone sheet, owner drag, the 30×20 timeline). They show fixture data.
+
+**Deviations from the plan text**
+
+- **`rentable_rate_override`** (holiday prices) is not shipped. The plan marks it optional, to ship when owners ask.
+- **Files:** `DateStrip` and `DurationStepper` live inside `TimeSlotPicker.jsx` rather than in separate files.
+- **"More dates":** a native date input (min today, max the horizon) instead of a calendar popover.
+- **"Reserve" opens the existing quote review** (`/checkout/review/:id`). How the hourly review, hold, payment and confirmation screens render is Phase 10.
+- **Hold conflicts:** the "refresh the grid and keep the scroll position" behaviour is wired to quote errors. Hold errors surface at checkout, which is Phase 10.
+- **Visual and keyboard tests** are a browser gate script, not a snapshot suite.
+
+**Owner actions:** none. No migration.
+
 ---
-## Phase 10 → Booking & Payment Flow
+## Phase 10 → Booking & Payment Flow — ✅ Complete (1 Oct 2026)
 
 ### Objective
 
@@ -1846,9 +2550,80 @@ Farmhouse behaviour is identical. The SMS bodies are already generic (`domain/no
 - Refund amounts match the hour bands to the paisa in tests.
 - The farmhouse checkout is visually and behaviourally unchanged.
 
+### Completion record (1 Oct 2026)
+
+Verified on the disposable local stack. That stack had PostgreSQL 14 on `127.0.0.1:55432`, the API on `:4106` with a file-backed fake Razorpay, and the web app on `:3106` as a production build (`next start`). The owner's own `next dev` was running in the repo, so a second dev server was not possible. **Neon was not touched. There is no new migration:** the reminder trigger is the existing `0054`. Phases 8–10 are uncommitted on `feat/entertainment`.
+
+**What now works**
+
+- **The quote → review → hold → pay → confirm pipeline handles hourly bookings.** No route changes. The money code is unchanged: `startCheckoutPayment`, verify, webhooks and settlement.
+  - **Review (`parts.jsx`):** for `quote.selection.kind === 'hourly'`, the facts are Date (with the duration), Time ("7:00 pm – 8:00 pm", India time, "next day" when the end is on a later date), Court and Activity (with players).
+    - The court reads "Any available court · assigned when you pay", or the chosen court's name · "reserved when you pay". After the hold it reads "Court 2 · reserved for you". The quote now carries `requestedResourceName`.
+    - Prices show "Court rent · 1 hr". The deposit line is hidden when it is ₹0.
+    - Cancellation uses the quote's own hour bands: "Cancel before Sun, 4 Oct, 7:00 pm for a full rent refund", then 50% and none, with "Deadlines count in hours before your start time".
+    - The rules heading is "Venue rules", built from the owner's choices.
+  - **`Checkout.jsx`:**
+    - The section is titled "Your booking".
+    - Venue purpose quick picks: Friendly match, Tournament, Practice, Birthday party, Corporate event, Kids' play.
+    - Venue terms copy.
+    - "Reserving your time…" and "Your time is held".
+    - Shared messages reword "dates" as "time" for venues (`forVenue`).
+  - **`ConfirmedView.jsx`:** "Enjoy your game · Court 2, Mon, 5 Oct, 7:00 pm – 8:00 pm", plus "Arrive 10 minutes early" only when the owner's rules say so. Hour-based cancellation copy. The `.ics` link and the arrival details are unchanged.
+  - **Order review fix:** `readOwnedCheckoutReview` rebuilds an hourly selection for venue orders. It used to rebuild a slot selection.
+- **`describeVisit` and `visitLabel`, one label everywhere** (`domain/booking-record.js`, both copies):
+  - slot visits read "Sat 3 Oct · Overnight";
+  - hourly visits read "Sat 3 Oct · 7:00 pm – 9:00 pm · Court 2 · Box cricket", with "next day" after midnight and court or activity skipped on legacy rows;
+  - formatting is digits-only, so server and browser output never differ.
+  - The API adds a `label` to every visit DTO: booking record, staff list and record, case plan and case detail, admin client, property overview, property lifecycle impact, and the review form.
+  - These surfaces print it, so the last direct `SLOTS[...]` and `slot.replaceAll` visit labels are gone: `BookingRecords`, `CancelVisits`, `CaseForms`/`CasePanels`, `BookingCases`, `AdminClients`, `AdminBookingDetail`, `ReviewForms`, staff pages, partner overview, admin property.
+  - The summary `.txt` uses the label too. The `.ics` `DESCRIPTION` leads with it for hourly visits.
+- **Venue rules as lines:** `houseRuleLines` (new `domain/venue-rules.js`, both copies). Records and staff views used to drop venue rules because they were an object; they now show them. Checkout uses it as well.
+- **Saved places and links:**
+  - `savedListingHref` and `validSavedSelection` (both copies) accept hourly selections and produce the same link a venue card does. Before this, they threw on `selection.dates`, which would have broken the venue checkout review.
+  - `SaveButton` saves the chosen time.
+  - `SavedPlaces` shows "Mon 5 Oct · 7:00 PM · 2 hr · 6 players".
+  - The listing slug redirect keeps venue parameters.
+- **Book again** for a court booking opens the venue page with the same activity, duration and players, on the same weekday a week later (the next such day from today). This goes through `hourlyRebookHref`, used by the record's `rebookHref` and by `REBOOK_UNSUPPORTED`.
+- **One fewer step:** a venue without a deposit has no rail tick, because the review page carries the binding terms tick.
+
+**Verification**
+
+- **Backend `npm test`: 165/165.** `hourly-booking.integration.test.js` now checks moderate refunds **to the paisa** at 30, 12 and 3 hours before the start (100%, 50%, 0%), and that the fee is kept. The reminder trigger (2 hours before; none for same-day; farmhouse still 24 hours before) is already covered by `entertainment-schema.integration.test.js`.
+- **Frontend `npm test`: 55/55.** New `test/domain/checkout-hourly.test.js` covers:
+  - hour-band `cancellationSteps`, with farmhouse days unchanged;
+  - `describeVisit` for both models, after midnight and legacy rows;
+  - `houseRuleLines`;
+  - hourly saved selection and link.
+- eslint is clean on every changed file. The 55 repo-wide errors are all in `scripts/design/*`, which this work did not touch. `next build` passes.
+- **End to end: `scripts/portal-gate/cp36_venue_checkout_gate.mjs` 23/23.** Razorpay's `checkout.js` is stubbed: it captures in the fake provider and returns a real HMAC signature, so verify runs unchanged. The path:
+  - venue → 7 PM on Court 2, signed out;
+  - development OTP login, which keeps the selection;
+  - review: facts, court rent, hour-band deadline, venue rules, no deposit line, venue purposes; axe 0;
+  - hold ("Your time is held", court reserved);
+  - pay → confirmed (court, time, arrive-early rule, hour copy); axe 0;
+  - `.ics` and summary name the court and activity;
+  - the record shows the label;
+  - the cancel preview refunds the full rent; axe 0;
+  - book again opens the venue a week later.
+- **Interactions from the venue page to paid: 6**, including the optional court: time, court, Review booking, terms tick, Continue to payment, Pay. This is within the "at most 6" criterion.
+- **`cp35` (Phase 9) still passes: 28/28.** It now also checks that there is no rail tick.
+- **Farmhouse checkout unchanged.** The rendered `<main>` of the farmhouse **review page and held-order page** was captured with Playwright on a fresh database, once with the Phase 10 checkout files stashed and once with them in place. The result is **identical, 1,258 lines**.
+  - The first comparison differed only in class order on the facts grid; that was restored.
+  - The farmhouse confirmed screen was not captured (it needs a paid farmhouse order). Its farmhouse branch is the original code.
+- Screenshots: `docs/design/entertainment/shots/phase10/` (review, confirmed, cancel). They show fixture data.
+
+**Deviations from the plan text**
+
+- **`StayFacts` keeps its name**, with an hourly branch, rather than being renamed `VisitFacts`. Fewer call-site changes.
+- **The visit label is computed by the API** (`label`) and printed by the surfaces. The frontend calls `describeVisit` directly only where it holds the data itself (saved selections, tests).
+- **Rain or a power cut** is handled by the existing owner or booking-case cancellation (full refund). It is not re-tested here.
+- **Advance-mode payments** are not exercised on the stack (collection purpose `full`).
+
+**Owner actions:** none. No migration.
+
 ---
 
-## Phase 11 → Dashboards
+## Phase 11 → Dashboards — ✅ Complete (1 Oct 2026)
 
 ### Objective
 
@@ -1902,9 +2677,84 @@ Snapshot tests of `describeVisit` output in each surface. The portal-gate script
 
 Every role can tell from the list alone when a booking starts and which court it uses. Farmhouse records render unchanged.
 
+### Completion record (1 Oct 2026)
+
+Verified on the disposable local stack (PostgreSQL 14 on `127.0.0.1:55432`, the API on `:4106` with the fake Razorpay, and the web app on `:3106` as a production build). The owner's own `next dev` was left running on `:3000`. **Neon was not touched. No migration.** Phases 8–11 are uncommitted on `feat/entertainment`.
+
+**What now works**
+
+- **One list for every role.** The records list API (`listBookingRecords`) now returns, per booking:
+  - `firstVisitLabel`, from `visitLabel`: "Sat 3 Oct · 7:00 pm – 8:00 pm · Court 2 · Box cricket";
+  - `firstVisitSlot`, `firstVisitStartsAt`, `resourceName` and `vertical`.
+  
+  It accepts `vertical` (all actors) and `resource` (owner and admin, only together with `property`) filters. It returns the filter choices: `verticals` the actor has bookings in, and the chosen property's `resources`, scoped to the actor. The validation schemas accept both filters.
+- **Customer:**
+  - Bookings list: venue rows show the first visit's time, court and activity.
+  - Empty state: one "Explore farmhouses" / "Explore venues" link per public vertical (from the registry). With one public vertical it is unchanged.
+  - Booking detail: the header gives the visit label and "N players" for court bookings.
+  - Review form: "Court condition" for venues. The listing page's venue sub-scores read Cleanliness / Court condition / Value for money (`subScoreLabels`).
+  - Saved venues show `listingFacts` ("Box cricket · Pickleball · 3 courts · Up to 12 players"); `savedPlaceCards` returns the venue facts.
+- **Owner:**
+  - **Bookings list:** venue rows show the time, court and activity.
+    - "All kinds / Farmhouses / Venues" chips appear when the owner has bookings of both kinds.
+    - A "Court" select appears on a venue's bookings (`?property=` → `?resource=`).
+  - **Listings table:** the Capacity column reads "3 courts · 12 players" for venues. A "kind" select appears for owners who list both; it goes through `vertical` in `listingFilters`, `listingsPageQuery` and `normalizeListings`.
+  - **Dashboard:** "Farmhouses / Venues" chips over Recent properties for owners with both, linking to the filtered list.
+  - **Portfolio calendar:**
+    - Venues skip the farmhouse "Day/Night closed" rows and link each day's court timeline.
+    - Bookings read "Booked visit · Court 2 · Box cricket".
+    - The slot filter gains "Court bookings", shown only when the owner has a venue.
+  - **Overview:**
+    - "Open future dates: By weekly opening hours" (it used to print "null").
+    - "Next open date" is computed from the weekly hours (`nextWeeklyOpenDay`).
+    - The chip reads "Courts N".
+    - Upcoming visits read "player(s)".
+- **Staff:**
+  - "Today" pages by day (`?date=`, previous and next day). The API returns `date`; a malformed date falls back to today.
+  - Venue visits lead with the time, court and activity in tabular figures, then the property and players.
+- **Admin:** the bookings list shows the venue label under the reference, plus kind chips when both kinds have bookings. The record detail, cases and property pages already used the label (Phase 10).
+- **Finance:** the statement CSV gets a `vertical` column only when the export spans both kinds. Statement items carry `vertical`.
+- **Farmhouse rendering restored to the pre-Phase-10 format.** Every surface prints the visit label for court bookings only. Farmhouse visits keep their exact previous strings, e.g. "Tue, 6 Oct, 2026 · Day picnic · 2 guests".
+
+**Verification**
+
+- **Backend `npm test`: 168/168.** The new `venue-dashboards.integration.test.js` covers:
+  - one owner with a farmhouse and a venue: list labels, `verticals`, the vertical filters, the court filter and its choices;
+  - a court filter without a property is ignored, and another owner sees no courts;
+  - owner listings: venue columns, the kind filter, summary `verticals`;
+  - the venue's next open day;
+  - staff day paging, the label, and the malformed-date fallback.
+  
+  One full-suite run had a single failure in the Phase 4 hourly test. It did not reproduce in 3 isolated runs or in 2 later full runs, so it looks like load-dependent timing; recorded here for Phase 13.
+- **Frontend `npm test`: 55/55.** `portal-cache.test.js` now covers the `vertical` and `resource` arguments. eslint is clean on every changed file; the remaining repo-wide errors are the pre-existing ones in `scripts/design/*`. `next build` passes.
+- **Browser gate `scripts/portal-gate/cp37_venue_dashboards_gate.mjs`: 19/19.** It runs after `cp36` (23/23 on the same database) and one farmhouse booking. It checks:
+  - customer list and detail;
+  - owner dashboard chips;
+  - listings capacity and kind filter;
+  - owner bookings: label, kind chips, venue-only filter, court filter;
+  - overview weekly hours;
+  - portfolio agenda: court timeline and court label;
+  - admin bookings: label and chips;
+  - axe 0 on owner listings, owner bookings, portfolio agenda and admin bookings;
+  - no console errors.
+- **Farmhouse unchanged:** a farmhouse-only owner and a customer with a farmhouse booking. The rendered `<main>` was captured on `/bookings`, the booking detail, the cancel page, `/partner`, `/partner/listings`, `/partner/bookings`, the farmhouse overview and the portfolio agenda, once with the **HEAD frontend** (all of Phases 8–11 stashed) and once with the current code.
+  - After normalising React's hydration comment markers and timestamps, the comparison is **identical**. Two other runs differed only by hydration-timing artefacts (attribute order, comment text nodes).
+  - The first comparison caught one real difference, the "Court bookings" option shown to a farmhouse-only owner, which is now hidden.
+- Screenshots: `docs/design/entertainment/shots/phase11/` (owner bookings, admin bookings). They show fixture data.
+
+**Deviations from the plan text**
+
+- **Kind chips follow bookings, not listings,** on booking lists: an owner who lists both but has bookings in only one kind sees no chips there. The listings page and the dashboard chips follow listings.
+- **Admin global search** (people and applications) is unchanged. Bookings are searched and filtered by kind on `/admin/bookings`.
+- **Review screens** (`ReviewQueue`/`ReviewDetail`) show only the overall rating, so they have no sub-score labels to change.
+- **The staff UI** was checked by the API test, not by a browser gate: there is no staff-session fixture on this stack.
+- **"Snapshot tests of describeVisit in each surface"** are covered instead by the API label tests plus the cp37 gate's text checks.
+
+**Owner actions:** none. No migration.
+
 ---
 
-## Phase 12 → Performance & Optimization
+## Phase 12 → Performance & Optimization — ✅ Complete (local, 1 Oct 2026)
 
 ### Objective
 
@@ -1965,9 +2815,26 @@ The exclusion constraint's GiST index on `(rentable_id, coalesce(resource_id), t
 - P1–P6 are merged with their tests.
 - Farmhouse checkout latency is not worse than the baseline (`docs/performance-baseline.json`).
 
+### Phase 12 implementation record — 1 Oct 2026
+
+Code and local validation are complete, uncommitted. No migration, hosted database change, deployment or commit was performed.
+
+- **P1–P3:** previously implemented snapshot quotes, windowed reads and active-row locks retained. Added 20 simultaneous persisted quotes plus a hold (identical hashes), an explicit read-under-writer-lock test, and 60 reproducible randomized farmhouse full-history/windowed comparisons, including overnight intervals and buffers.
+- **P4:** dated venue search now loads each candidate batch (up to 100 venues) in one MVCC SQL statement. Shared composable queries return configurations, resources, activities, rates, bookings and windowed reservations. Both batch and individual paths use the same readiness validation, expired-hold handling, conflict checks and grid algorithm. Tests cover multiple durations, owner blocks, two venues with distinct courts/prices, and hidden verticals. Database failures still propagate rather than becoming empty results.
+- **P5–P6:** existing 60-second registry cache/invalidation and 120/min/IP endpoint limiters retained. `/times` remains `no-store`; the load gate runs the production discovery router, controller and response middleware.
+- **Frontend:** shared client wrapper dynamically imports `TimeSlotPicker` with `ssr: false`; desktop rail and mobile sheet use the same chunk and server-rendered date/time skeleton. The bundle script now reads the isolated build when `RENTRA_BUILD_FIXTURE=1`.
+- **Local HTTP load:** 50 concurrent `/times` requests plus five real test checkout holds: p95 **74.66 ms**, max **74.78 ms**; all succeeded. No exhausted serialization/deadlock retries. Existing retry ceiling remains three attempts. A further 20 simultaneous quotes and one hold passed with identical quote hashes.
+- **Query plan:** `EXPLAIN ANALYZE` with 10,000 historical reservations chose `reservation_active_overlap_excl` (GiST), without disabling sequential scans.
+- **Bundle:** same-environment comparison against the previous direct picker imports: `/listing/[handle]` **360,784 → 360,111 gzip bytes** (−673 bytes), within the +15 KB budget. Both `/` and `/entertainment` remain static with 300-second revalidation. Build used the existing unavailable-local-API fallback, not production inventory.
+- **Regressions:** backend **166 passed / 3 skipped / 0 failed**; frontend **55 passed / 0 failed**. Production build passed. Changed frontend files and new backend gate files passed ESLint; touched ported backend services passed explicit `--no-ignore` semantic lint with their existing formatting preserved.
+
+**Farmhouse latency comparison:** the historical `docs/performance-baseline.json` contains bundle sizes, not checkout latency. An isolated source copy of pre-change backend `dc35a4e` established a replacement local baseline using the identical harness. Three alternating runs per version, 50 sequential quote+hold samples per run (**150 per version**), measured median **3.05 → 3.03 ms** and p95 **6.29 → 6.33 ms**. Median did not regress; the 0.04 ms p95 difference is below useful resolution for this local smoke benchmark. This is local regression evidence, not a production SLO. Both raw distributions and the method are preserved in `rentra-backend/docs/entertainment-farmhouse-comparison.json`. Phase 13 verification is recorded below.
+
+Reproduction commands, evidence files and limitations: [Phase 12 runbook](entertainment-phase12.md).
+
 ---
 
-## Phase 13 → QA & Edge Cases
+## Phase 13 → QA & Edge Cases — ✅ Complete locally (1 Oct 2026)
 
 ### Objective
 
@@ -2062,9 +2929,21 @@ Owner screenshot review of every new surface at 390 and 1440 before merge (the o
 - Every row of the master list has an automated test, or (for UI-only rows) a script assertion.
 - `npm run ci` (frontend) and `npm test` + `npm run smoke` (backend) are green.
 
+### Implementation and verification record — 1 October 2026
+
+Completed the remaining QA tooling: browser gates now resolve Windows filesystem paths correctly, reuse the frontend's pinned `axe-core`, return nonzero for failed assertions/browser errors, wait for the streamed time grid, and restore the 30-court stress fixture before dashboard checks. Fixture photos use a bundled image so QA does not depend on missing `/seed` assets. ImageResponse-only `<img>` uses have documented lint exceptions, allowing the zero-warning frontend CI command to pass.
+
+**Verified gates:** backend **169 passed, zero failed, three existing optional suites skipped**; smoke **six checks passed**; migration journal check **56 entries passed**. Frontend **`npm run ci` passed**, including lint, formatting, **63 tests** and production build. CP33–CP39 passed **183 assertions total**: tabs/homes/ISR 46, search/landings 52, time picker/owner timeline 28, login/payment/cancellation 23, dashboards 19, keyboard-only paid booking 5, audited launch switch 10. Accessibility and overflow assertions pass at the exercised 390/1440 surfaces. Payment uses the local file-backed fake provider.
+
+The database suites prove actual concurrent holds, multi-sport resource exclusion, expired holds and late-capture refund obligations, stale-price quotes, hourly cancellation boundaries, catalogue guards, opening-hours changes and notification timing. The HTTP contract asserts default farmhouse search byte equality across launch-switch changes. It is not a historical snapshot of every pre-entertainment endpoint. The real Drizzle migrator passed 0052–0055 in the schema suite and **0040–0055 in one transaction** in the release rehearsal from a pre-0040 disposable database.
+
+CP39 exercises `public → partners → public` through the audited admin preview/save UI, verifies public cache invalidation, hides tabs and venue guest routes, preserves all existing order states and customer management, and restores venue detail. This is local release evidence; hosted staging is still required by Phase 14.
+
+Owner screenshot approval and a staging Razorpay test-mode journey remain open. Local screenshots/logs are under `C:/Kunj/Rentra/.qa/entertainment/` and `C:/Kunj/Rentra/.qa/`. The additional backend lint/format check has existing legacy failures, recorded in the handoff; it is not reported green. No hosted database was queried. See [the QA handoff and master-list coverage](entertainment-phase13.md) and [the release runbook](entertainment-phase14.md).
+
 ---
 
-## Phase 14 → Migration & Deployment
+## Phase 14 → Migration & Deployment — 🟡 Release preparation complete (1 Oct 2026)
 
 ### Objective
 
@@ -2077,15 +2956,15 @@ Ship to production with no farmhouse downtime, a reversible launch switch and th
 
 ### Database impact
 
-Migrations 0052–0054 on Neon. 0055 (`rentable_rate_override`) only when Phase 9's optional feature ships. The contract migration (drop `resource_key`) comes one release later.
+Migrations 0052–0055 on Neon: **0055 is `measurement_vertical`**, already implemented in Phase 4. The optional `rentable_rate_override` table has not shipped and has no migration in this release. If production is still at 0039, the current migrator applies **all pending 0040–0055**. The contract migration (drop `resource_key`) comes one release later.
 
 ### Backend changes
 
-None beyond the earlier phases.
+Added `npm run release:entertainment -- expand|pilot|public`, backed by a repeatable-read, read-only inspection. It checks the current migration journal and entertainment checksums, farmhouse/public and entertainment launch states, the resource-aware exclusion constraint, eight seeded activities, hourly rollback limits and six fully priced, live, bookable Surat venues before public launch. It never migrates, seeds or changes a switch. Integration tests cover missing migrations, price gaps, checksum drift, the six-venue threshold and unchanged switch state.
 
 ### Frontend changes
 
-None beyond the earlier phases. The frontend must tolerate the old backend (missing `verticals` → behave as today) for the window between deploys.
+Added CP39 to rehearse the audited launch switch, public cache invalidation and existing-booking management on a disposable stack. The frontend must tolerate the old backend (missing `verticals` → behave as today) for the window between deploys.
 
 ### UX/UI requirements
 
@@ -2100,6 +2979,9 @@ No visible change until `entertainment.status = 'public'`.
 ### Release train
 
 **R0 — prerequisites** (blocking; no entertainment code involved)
+
+**Execution correction:** `db:migrate` has no “stop at 0051” option. For a separate R0, use the historical backend checkout containing only that journal; otherwise rehearse and deploy the current checkout's complete pending 0040–0055 range as one release. Follow [the executable runbook](entertainment-phase14.md), not an assumed migration upper bound.
+
 1. Execute `DATABASE-REVIEW.md` §20 on Neon:
    - restore branch
    - stop the worker
@@ -2114,14 +2996,14 @@ No visible change until `entertainment.status = 'public'`.
 1. Create a Neon branch from production; run `npm run db:migrate` there; run the smoke and farmhouse contract snapshots against the branch.
 2. Production:
    - stop the Render worker
-   - `npm run db:migrate` (0052–0054 in one transaction)
+   - `npm run db:migrate` (0052–0055 in one transaction, plus any earlier pending entries)
    - deploy the backend
    - start the worker
 3. Verify:
    - a farmhouse quote, hold and pay in Razorpay test mode
    - `GET /discovery/registry` has `verticals` with farmhouse only public
    - the overlap monitor is quiet
-4. `npm run seed:entertainment` against production, after the migration has committed. This creates the activities and amenities. The vertical is still hidden.
+4. `npm run seed:entertainment` against the explicitly targeted database, after the migration has committed. The seed guard refuses `NODE_ENV=production`: use a dedicated operator process with `NODE_ENV=development`, the secret target URL and `SEED_ALLOW_HOST` equal to its exact hostname. This creates activities/amenities and preserves the hidden status. Then require `npm run release:entertainment -- expand` to pass.
 
 **R2 — frontend.** Deploy to Vercel. With one public vertical, nothing visible changes. Check: screenshot diff of `/`, `/search`, a farmhouse listing and checkout.
 
@@ -2134,6 +3016,8 @@ No visible change until `entertainment.status = 'public'`.
 Real bookings are not possible yet: discovery excludes non-public verticals and the listing page 404s.
 
 **R4 — public launch.** When at least 6 live, bookable venues exist in the launch city (§H D6), admin sets `status = 'public'`. The registry tag revalidates, and the tabs and `/entertainment` appear. Announce.
+
+Require `npm run release:entertainment -- public` while still in `partners`, the staging switch rehearsal and owner screenshot approval before this action. Any announcement requires the owner's separate instruction.
 
 **R5 — contract** (2+ weeks later): drop `resource_key` and its CHECK term, after the monitors and code no longer read it.
 
@@ -2153,7 +3037,7 @@ Watch the logs and admin operations for:
 | Product issue after R4 | Set `status` to `partners` or `hidden`. The tabs and pages disappear within the revalidation window. Existing bookings stand and remain manageable in the portals. |
 | Backend bug | Redeploy the previous backend. The schema is additive, and the old code ignores the new columns. **Exception:** old code does not know `booking.slot = 'hourly'`. If any hourly booking exists, roll forward instead of back. |
 | Migration failure | It runs in one transaction, so nothing is applied. Fix and rerun. For a failure after commit, use the Neon restore branch. |
-| Exclusion constraint | Rollback SQL is kept in `docs/rollback/0053_time_booking.down.sql`, outside `drizzle/` per `ARCHITECTURE.md`. It recreates the per-listing constraint, and is valid only while no `resource_id IS NOT NULL` reservations exist. The enum values cannot be removed, which is harmless. |
+| Exclusion constraint | Rollback SQL is kept in `docs/rollback/0052-0054_entertainment.down.sql`, outside `drizzle/` per `ARCHITECTURE.md`. It recreates the per-listing constraint, and is valid only while no `resource_id IS NOT NULL` reservations exist. The enum values cannot be removed, which is harmless. |
 
 ### Testing
 
@@ -2165,6 +3049,12 @@ Watch the logs and admin operations for:
 
 - R1–R4 are completed with zero farmhouse errors attributable to the release.
 - The launch switch has been exercised in both directions on staging.
+
+### Implementation and release status — 1 October 2026
+
+Local release preparation is complete: the read-only inspection, full pending-range Drizzle rehearsal and CP39 audited switch/caching/booking-preservation gate passed. No new migration was generated, and no hosted migration or deployment was performed. The release inspection is implemented in `rentra-backend/src/services/operations/entertainment-release.js`; its command is `src/scripts/entertainment-release-check.js` and its disposable integration test is `test/integration/entertainment-release.integration.test.js`.
+
+**Hosted acceptance remains pending:** Neon restore/rehearsal and production migration, exposed credential rotation, Render API/worker deployment, Vercel deployment and farmhouse comparison, pilot onboarding of 6–10 venues, at least six bookable Surat venues, staging Razorpay verification, staging switch in both directions and owner screenshot review. R4 public launch and R5 contract are not complete. The document deliberately keeps Phase 14 open until those operational gates have real evidence. [The release runbook](entertainment-phase14.md) records exact steps, seed-guard handling, rollback restrictions, monitoring and each outstanding gate.
 
 ---
 
@@ -2252,7 +3142,7 @@ It changes the database guarantee from an exclusion constraint to counting. That
 - `domain/verticals.js`, `domain/hourly.js`
 - `booking/venue.js`, `booking/hourly-rates.js`, `booking/time-slots.js`
 - `scripts/seed-entertainment.js`
-- `docs/rollback/0053_time_booking.down.sql`
+- `docs/rollback/0052-0054_entertainment.down.sql`
 - Test helpers for venues
 
 **Frontend**
@@ -2282,7 +3172,7 @@ It changes the database guarantee from an exclusion constraint to counting. That
 | Legacy `calculateBookingPrice`, `cheapestSlot` callers in the backend | None exist. Keep the frontend uses until the cancellation display moves to snapshot bands, then delete. |
 | Direct `SLOTS[...]` lookups (5 places, Phase 1) | Replace with `describeVisit` / `SLOTS` from one module. |
 | Hard-coded `'farmhouse'` slugs | Replace with vertical lookups. |
-| `location.approachNote` | Either add a column or stop validating it. The owner decides; it is validated but never stored. |
+| `location.approachNote` | **Remove** from the location form and the backend `locationSchema` (owner decision, 1 Oct 2026; Phase 5). ✅ Done in Phase 5. |
 | `PortfolioCalendar.jsx:239` dead `blocked_by_client` branch, and the legend colour mismatch | Fix. |
 | Amenity group label "Entertainment" | Relabel "Music & games". |
 | `inventory_reservation.resource_key` | Contract in R5. |
@@ -2305,8 +3195,8 @@ It changes the database guarantee from an exclusion constraint to counting. That
 | `inventory_reservation` | + `resource_id` (composite FK); exclusion rebuilt per resource | 0053 |
 | Triggers | `version_listing_child` on 3 new tables; new `resource_activity_guard`; replaced `catalogue_reference_guard` | 0053 |
 | `rentra_notification_event()` | Hourly reminder timing | 0054 |
-| `customer_measurement` | + `vertical` dimension, new events | 0054 |
-| `rentable_rate_override` | New (optional, later) | 0055 |
+| `customer_measurement` | + `vertical` dimension, new events | 0055 (Phase 4) |
+| `rentable_rate_override` | Deferred optional feature; not implemented | Future migration |
 | `inventory_reservation.resource_key` | Drop (contract) | later |
 
 ## F. Breaking changes and how each is neutralised
@@ -2353,7 +3243,7 @@ Rules while implementing:
   - read the Next 16 docs in `node_modules/next/dist/docs/` before writing route or caching code;
   - update the customer plan HTML, session log and runbook for each numbered part.
 
-## H. Open decisions for the owner
+## H. Open decisions for the owner — ✅ All defaults confirmed by the owner, 1 Oct 2026
 
 The recommended default is in bold. The plan above assumes it.
 

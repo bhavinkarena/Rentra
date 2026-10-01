@@ -17,16 +17,24 @@ const OPTIONS = [
   { value: 'hidden', label: 'Hidden by Rentra' },
 ];
 
-export default function PropertyFilters({ query = '', status = 'all' }) {
+const KINDS = { farmhouse: 'Farmhouses', entertainment: 'Venues' };
+
+export default function PropertyFilters({
+  query = '',
+  status = 'all',
+  vertical = '',
+  verticals = [],
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchRef = useRef(null);
   const [pending, startTransition] = useTransition();
 
-  function navigate(nextQuery, nextStatus) {
+  function navigate(nextQuery, nextStatus, nextVertical = vertical) {
     const params = new URLSearchParams();
     if (nextQuery.trim()) params.set('q', nextQuery.trim());
     if (nextStatus !== 'all') params.set('status', nextStatus);
+    if (nextVertical) params.set('vertical', nextVertical);
     const suffix = params.toString();
 
     startTransition(() => {
@@ -45,7 +53,7 @@ export default function PropertyFilters({ query = '', status = 'all' }) {
 
   function reset() {
     if (searchRef.current) searchRef.current.value = '';
-    navigate('', 'all');
+    navigate('', 'all', '');
   }
 
   return (
@@ -95,7 +103,32 @@ export default function PropertyFilters({ query = '', status = 'all' }) {
           ))}
         </select>
 
-        {query || status !== 'all' ? (
+        {verticals.length > 1 ? (
+          // Entertainment plan, Phase 11: only for owners who list both kinds.
+          <>
+            <label htmlFor="property-kind" className="sr-only">
+              Filter by kind of place
+            </label>
+            <select
+              id="property-kind"
+              value={vertical}
+              onChange={(event) =>
+                navigate(searchRef.current?.value ?? query, status, event.target.value)
+              }
+              disabled={pending}
+              className="h-11 min-w-0 flex-1 rounded-md border border-input bg-card px-3 text-base md:text-sm font-medium text-ink-700 focus:border-brand-600 sm:w-36"
+            >
+              <option value="">All kinds</option>
+              {verticals.map((code) => (
+                <option key={code} value={code}>
+                  {KINDS[code] ?? code}
+                </option>
+              ))}
+            </select>
+          </>
+        ) : null}
+
+        {query || status !== 'all' || vertical ? (
           <button
             type="button"
             onClick={reset}

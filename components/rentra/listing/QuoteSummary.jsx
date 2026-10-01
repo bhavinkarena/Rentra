@@ -35,13 +35,18 @@ export default function QuoteSummary({ compact = false, onChooseDates }) {
     login,
     loginError,
     loggingIn,
+    kind,
   } = useBookingQuote();
+  const hourly = kind === 'hourly';
   // Remembers which quote the guest tried to continue with, so a fresh quote starts clean.
   const [promptedQuote, setPromptedQuote] = useState(null);
   const tick = useRef(null);
-  const missingTick = Boolean(quote) && promptedQuote === quote && !accepted;
+  // A venue with no deposit has nothing extra to acknowledge here: the review page
+  // carries the binding terms tick, so one fewer step between the time and Pay.
+  const tickless = hourly && quote && !quote.totals.depositMinor;
+  const missingTick = Boolean(quote) && !tickless && promptedQuote === quote && !accepted;
   function requireTick(event) {
-    if (accepted) return;
+    if (accepted || tickless) return;
     event.preventDefault();
     setPromptedQuote(quote);
     tick.current?.focus();
@@ -81,7 +86,9 @@ export default function QuoteSummary({ compact = false, onChooseDates }) {
               Choose dates
             </button>
           )}
-          <p className="mt-2 text-center text-xs text-ink-500">Choose dates to see your total.</p>
+          <p className="mt-2 text-center text-xs text-ink-500">
+            {hourly ? 'Choose a start time to see your total.' : 'Choose dates to see your total.'}
+          </p>
         </>
       ) : null}
       {quote ? (
@@ -117,7 +124,7 @@ export default function QuoteSummary({ compact = false, onChooseDates }) {
           ) : null}
           <dl className="space-y-2 text-sm">
             {Object.entries({
-              'Rent and extra guests': quote.totals.rentMinor,
+              [hourly ? 'Court rent' : 'Rent and extra guests']: quote.totals.rentMinor,
               'Platform fee': quote.totals.feeMinor,
             }).map(([label, amount]) => (
               <div key={label} className="flex justify-between gap-3 text-ink-700">
@@ -132,32 +139,52 @@ export default function QuoteSummary({ compact = false, onChooseDates }) {
               </dd>
             </div>
           </dl>
-          <CheckboxCard
-            className="mt-3"
-            inputRef={tick}
-            checked={accepted}
-            invalid={missingTick}
-            aria-describedby={missingTick ? 'quote-tick-hint' : undefined}
-            onCheckedChange={(checked) => {
-              if (checked) accept();
-              else unaccept();
-            }}
-          >
-            <span className="block">
-              I understand the{' '}
-              <strong className="font-semibold text-ink-900">
-                {formatINRMinor(quote.totals.depositMinor)} refundable deposit
-              </strong>{' '}
-              is paid separately.
-            </span>
-            <span className="mt-0.5 block text-xs text-ink-600">
-              Each visit ends at its departure time.
-              {quote.visits.length > 1 ? ' Gaps between visits are not included.' : ''}
-            </span>
-          </CheckboxCard>
+          {tickless ? null : (
+            <CheckboxCard
+              className="mt-3"
+              inputRef={tick}
+              checked={accepted}
+              invalid={missingTick}
+              aria-describedby={missingTick ? 'quote-tick-hint' : undefined}
+              onCheckedChange={(checked) => {
+                if (checked) accept();
+                else unaccept();
+              }}
+            >
+              {hourly ? (
+                <>
+                  <span className="block">
+                    I&apos;ve checked the date, start time and duration.
+                  </span>
+                  <span className="mt-0.5 block text-xs text-ink-600">
+                    {quote.totals.depositMinor > 0
+                      ? `The ${formatINRMinor(quote.totals.depositMinor)} refundable deposit is paid separately. `
+                      : ''}
+                    The booking ends at {clockTime(quote.visits[0].endsAt, quote.timeZone)}.
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="block">
+                    I understand the{' '}
+                    <strong className="font-semibold text-ink-900">
+                      {formatINRMinor(quote.totals.depositMinor)} refundable deposit
+                    </strong>{' '}
+                    is paid separately.
+                  </span>
+                  <span className="mt-0.5 block text-xs text-ink-600">
+                    Each visit ends at its departure time.
+                    {quote.visits.length > 1 ? ' Gaps between visits are not included.' : ''}
+                  </span>
+                </>
+              )}
+            </CheckboxCard>
+          )}
           {missingTick ? (
             <p id="quote-tick-hint" role="alert" className="mt-2 text-xs font-medium text-danger">
-              Tick the box to confirm you’ve seen the deposit and visit timings.
+              {hourly
+                ? 'Tick the box to confirm the date and time.'
+                : 'Tick the box to confirm you’ve seen the deposit and visit timings.'}
             </p>
           ) : null}
           {!quote.payment.enabled ? (

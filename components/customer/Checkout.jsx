@@ -56,6 +56,7 @@ import {
   SecureNote,
   StatusBanner,
   StayFacts,
+  isHourly,
   Stepper,
   SummaryCard,
   TermsVersion,
@@ -136,6 +137,15 @@ const STAGES = {
   },
 };
 const PAYING = ['held', 'failed', 'pending', 'timeUp'];
+/** Quick picks for time-booked venues (entertainment plan, Phase 10). Free text stays. */
+const VENUE_PURPOSES = [
+  'Friendly match',
+  'Tournament',
+  'Practice',
+  'Birthday party',
+  'Corporate event',
+  "Kids' play",
+];
 const PURPOSES = [
   'Family picnic',
   'Birthday party',
@@ -149,6 +159,18 @@ const PAYMENT_METHODS = [
   ['Cards', CreditCard],
   ['Netbanking', Landmark],
 ];
+
+/** Venue checkouts hold a time, not dates: the shared messages are reworded, not duplicated. */
+const forVenue = (text) =>
+  text
+    .replaceAll('Your dates are', 'Your time is')
+    .replaceAll('your dates', 'your time')
+    .replaceAll('date hold', 'time hold')
+    .replaceAll('choosing dates', 'choosing a time')
+    .replaceAll('One or more dates are', 'This time is')
+    .replaceAll('choose another date', 'choose another time')
+    .replaceAll('after the dates became', 'after the time became')
+    .replaceAll('your visits are', 'your booking is');
 
 function displayPhone(phone) {
   return /^\+91\d{10}$/.test(phone ?? '') ? `+91 ${phone.slice(3, 8)} ${phone.slice(8)}` : phone;
@@ -412,6 +434,8 @@ export default function Checkout({ data }) {
       ? `${remaining <= 60 ? 'Less than 1 minute' : 'Less than 2 minutes'} left to ${review ? 'continue with this price' : 'complete your payment'}.`
       : '';
 
+  const hourly = isHourly(quote);
+  const words = (text) => (hourly && typeof text === 'string' ? forVenue(text) : text);
   const banner = verifyingPayment ? null : STAGES[stage];
   const alert = message ? (
     <p
@@ -422,7 +446,7 @@ export default function Checkout({ data }) {
         className={`mt-0.5 size-4 shrink-0 ${verifyingPayment ? 'text-ink-500' : 'text-danger'}`}
         aria-hidden="true"
       />
-      {message}
+      {words(message)}
     </p>
   ) : null;
   const statusButton = (
@@ -445,7 +469,7 @@ export default function Checkout({ data }) {
     <Link href={data.listingHref} className={`${primary} text-sm`}>
       {/* text-current!: banners tint every svg inside them. */}
       <CalendarDays className="size-4 text-current!" aria-hidden="true" />
-      Choose dates again
+      {hourly ? 'Choose a time again' : 'Choose dates again'}
     </Link>
   );
 
@@ -498,8 +522,8 @@ export default function Checkout({ data }) {
           <PropertyHeader data={data} className="lg:hidden" />
 
           {banner ? (
-            <StatusBanner tone={banner.tone} icon={banner.icon} title={banner.title}>
-              {banner.text}
+            <StatusBanner tone={banner.tone} icon={banner.icon} title={words(banner.title)}>
+              {words(banner.text)}
             </StatusBanner>
           ) : review && holdTimer && remaining <= 0 ? (
             // Say it where it is seen, with the way out, not only under the disabled button.
@@ -618,7 +642,7 @@ export default function Checkout({ data }) {
 
           <Section
             icon={CalendarDays}
-            title="Your trip"
+            title={isHourly(quote) ? 'Your booking' : 'Your trip'}
             action={
               review ? (
                 <Link href={data.listingHref} className={textLink}>
@@ -673,7 +697,7 @@ export default function Checkout({ data }) {
             <CancellationPolicy quote={quote} now={serverNow} />
           </Section>
 
-          <Section icon={ScrollText} title="House rules">
+          <Section icon={ScrollText} title={isHourly(quote) ? 'Venue rules' : 'House rules'}>
             <HouseRules rules={quote.policy.houseRules} />
             <TermsVersion quote={quote} />
           </Section>
@@ -693,7 +717,7 @@ export default function Checkout({ data }) {
                 Purpose of your visit
               </label>
               <div role="group" aria-label="Quick picks" className="mt-2.5 flex flex-wrap gap-2">
-                {PURPOSES.map((option) => (
+                {(isHourly(quote) ? VENUE_PURPOSES : PURPOSES).map((option) => (
                   <button
                     key={option}
                     type="button"
@@ -743,12 +767,26 @@ export default function Checkout({ data }) {
                 <span className="block font-semibold text-ink-900">
                   I agree to these booking terms
                 </span>
-                <span className="mt-0.5 block text-ink-600">
-                  The linked terms and cancellation explanations, privacy notice, visit times, price
-                  and house rules above, and a{' '}
-                  <span data-money>{money(quote.totals.depositMinor)}</span> refundable deposit paid
-                  separately.
-                </span>
+                {hourly ? (
+                  <span className="mt-0.5 block text-ink-600">
+                    The linked terms and cancellation explanations, privacy notice, booking time,
+                    price and venue rules above
+                    {quote.totals.depositMinor ? (
+                      <>
+                        , and a <span data-money>{money(quote.totals.depositMinor)}</span>{' '}
+                        refundable deposit paid separately
+                      </>
+                    ) : null}
+                    .
+                  </span>
+                ) : (
+                  <span className="mt-0.5 block text-ink-600">
+                    The linked terms and cancellation explanations, privacy notice, visit times,
+                    price and house rules above, and a{' '}
+                    <span data-money>{money(quote.totals.depositMinor)}</span> refundable deposit
+                    paid separately.
+                  </span>
+                )}
               </CheckboxCard>
               {!quote.payment.enabled ? (
                 <p className="mt-4 rounded-xl bg-warning-bg p-3.5 text-sm text-ink-900">
@@ -767,8 +805,11 @@ export default function Checkout({ data }) {
               >
                 {busy ? (
                   <>
-                    <RentraLoader inverse label="Reserving your dates…" />
-                    Reserving your dates…
+                    <RentraLoader
+                      inverse
+                      label={hourly ? 'Reserving your time…' : 'Reserving your dates…'}
+                    />
+                    {hourly ? 'Reserving your time…' : 'Reserving your dates…'}
                   </>
                 ) : (
                   <>
@@ -779,8 +820,10 @@ export default function Checkout({ data }) {
               </button>
               <p className="mt-3 text-center text-xs text-ink-600">
                 {remaining <= 0
-                  ? 'This price expired. Go back to your dates for a fresh quote.'
-                  : `We hold your dates for up to ${BOOKING_POLICY.holdMinutes} minutes while you pay on the next step. You won’t be charged yet.`}
+                  ? words('This price expired. Go back to your dates for a fresh quote.')
+                  : words(
+                      `We hold your dates for up to ${BOOKING_POLICY.holdMinutes} minutes while you pay on the next step. You won’t be charged yet.`,
+                    )}
               </p>
             </form>
           ) : null}

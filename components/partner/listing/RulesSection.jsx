@@ -8,6 +8,17 @@ export function RulesSection({ listing }) {
   const [state, action, pending] = useActionState(saveRules, {});
   const e = state.errors ?? {};
   const r = listing.houseRules ?? {};
+  const formId = useStepFormId();
+  if (listing.rentalUnit === 'hour')
+    return (
+      <VenueRules
+        listing={listing}
+        state={state}
+        action={action}
+        pending={pending}
+        formId={formId}
+      />
+    );
 
   return (
     <Section
@@ -17,7 +28,7 @@ export function RulesSection({ listing }) {
       state={state}
       pending={pending}
     >
-      <form id={useStepFormId()} action={action} className="space-y-4">
+      <form id={formId} action={action} className="space-y-4">
         <input type="hidden" name="id" value={listing.id} />
         <VersionField listing={listing} states={[state]} />
         <div className="grid gap-4 sm:grid-cols-2">
@@ -113,4 +124,104 @@ export function RulesSection({ listing }) {
   );
 }
 
-/* -------------------------------- pricing -------------------------------- */
+/** Venue rules for time-booked listings: what players wear, age, food, smoking, alcohol. */
+function VenueRules({ listing, state, action, pending, formId }) {
+  const e = state.errors ?? {};
+  const r = listing.houseRules && !Array.isArray(listing.houseRules) ? listing.houseRules : {};
+  const yesNo = (value) => (value ? 'yes' : 'no');
+  return (
+    <Section
+      id="rules"
+      title="Venue rules"
+      intro="Short, structured rules players see before they book."
+      state={state}
+      pending={pending}
+    >
+      <form id={formId} action={action} className="space-y-4">
+        <input type="hidden" name="id" value={listing.id} />
+        <VersionField listing={listing} states={[state]} />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field id="footwear" label="Footwear" error={e.footwear}>
+            <select
+              id="footwear"
+              name="footwear"
+              defaultValue={r.footwear ?? ''}
+              className={inputCls}
+            >
+              <option value="">Not stated</option>
+              <option value="non_marking">Non-marking shoes only</option>
+              <option value="no_studs">Sports shoes, no studs</option>
+              <option value="studs_ok">Studs allowed</option>
+              <option value="any">Any footwear</option>
+            </select>
+          </Field>
+          <Field
+            id="minAge"
+            label="Minimum age"
+            hint="Leave empty if there is none."
+            error={e.minAge}
+          >
+            <Input
+              id="minAge"
+              name="minAge"
+              inputMode="numeric"
+              defaultValue={r.minAge ?? ''}
+              className="w-24 tabular"
+            />
+          </Field>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Field id="foodAllowed" label="Outside food">
+            <select
+              id="foodAllowed"
+              name="foodAllowed"
+              defaultValue={r.foodAllowed ?? 'yes'}
+              className={inputCls}
+            >
+              <option value="yes">Allowed</option>
+              <option value="seating_only">In the seating area only</option>
+              <option value="no">Not allowed</option>
+            </select>
+          </Field>
+          <Field id="smokingAllowed" label="Smoking">
+            <select
+              id="smokingAllowed"
+              name="smokingAllowed"
+              defaultValue={yesNo(r.smokingAllowed)}
+              className={inputCls}
+            >
+              <option value="no">Not allowed</option>
+              <option value="yes">Allowed in a marked area</option>
+            </select>
+          </Field>
+          <Field id="alcoholAllowed" label="Alcohol">
+            <select
+              id="alcoholAllowed"
+              name="alcoholAllowed"
+              defaultValue={yesNo(r.alcoholAllowed)}
+              className={inputCls}
+            >
+              <option value="no">Not allowed</option>
+              <option value="yes">Allowed</option>
+            </select>
+          </Field>
+        </div>
+        <Field
+          id="extraRules"
+          label="Anything else"
+          hint="Moderated before publishing. Rules based on religion, caste or marital status are not permitted."
+          error={e.extraRules}
+        >
+          <textarea
+            id="extraRules"
+            name="extraRules"
+            rows={3}
+            defaultValue={r.notes ?? ''}
+            className={inputCls}
+          />
+        </Field>
+        <SaveButton pending={pending} />
+      </form>
+    </Section>
+  );
+}

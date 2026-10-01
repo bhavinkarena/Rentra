@@ -8,19 +8,28 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  Clock,
   MapPin,
   Minus,
   Navigation,
   Plus,
   Search,
   Sun,
+  Trophy,
   Users,
   X,
 } from 'lucide-react';
-import { addLocalDays, formatLocalDate, propertyToday } from '@/lib/domain/booking-dates';
+import {
+  addLocalDays,
+  formatLocalDate,
+  parseLocalDate,
+  propertyToday,
+} from '@/lib/domain/booking-dates';
 import { BOOKING_POLICY } from '@/lib/domain/booking-policy';
 import { SLOTS } from '@/lib/domain/pricing';
 import { discoveryApi } from '@/lib/api/endpoints';
+import { ActivityIcon } from './icons/activity-icons';
+import { clock12 as clock } from '@/lib/domain/vertical-ui';
 
 const roundButton =
   'grid size-11 shrink-0 place-items-center rounded-full border border-border text-ink-700 hover:border-brand-600 hover:bg-brand-50 focus-visible:outline-2 focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-30';
@@ -29,16 +38,34 @@ const modes = [
   ['consecutive', 'Consecutive visits'],
   ['separate', 'Separate dates'],
 ];
+/* Time-booked venues (entertainment plan): the earliest start a guest wants. */
+const TIME_BUCKETS = [
+  ['', 'Any time'],
+  ['06:00', 'Morning'],
+  ['12:00', 'Afternoon'],
+  ['17:00', 'Evening'],
+  ['21:00', 'Late'],
+];
+const START_TIMES = Array.from(
+  { length: 48 },
+  (_, i) => `${String(Math.floor(i / 2)).padStart(2, '0')}:${i % 2 ? '30' : '00'}`,
+);
+const DURATIONS = [60, 90, 120, 150, 180, 210, 240];
+const PLAY_HORIZON_DAYS = 60;
+const hoursLabel = (minutes) => `${minutes / 60} hr`;
 
 /** Shared by home and discovery. Hidden fields stay in the form while panels portal out. */
 export default function SearchFields({
   filters = {},
   registry = { cities: [], areas: [] },
   route,
-  submitLabel = 'Search',
+  submitLabel,
   draft,
   onFieldChange,
+  vertical = 'farmhouse',
 }) {
+  // Entertainment searches one date, an activity and a time instead of visit dates and guests.
+  const play = vertical === 'entertainment';
   const [active, setActive] = useState(null);
   const [hoverDate, setHoverDate] = useState(null);
   const dismissedByScroll = useRef(false);
@@ -72,9 +99,13 @@ export default function SearchFields({
     mode: filters.mode || 'single',
     dates: filters.dates || [],
     guests: filters.guests || 2,
+    activity: filters.category || '',
+    date: filters.dates?.[0] || '',
+    start: filters.start || '',
+    duration: filters.duration || 60,
   });
   const fields = draft || localFields;
-  const { location, slot, mode, dates, guests } = fields;
+  const { location, slot, mode, dates, guests, activity, date, start, duration } = fields;
   const setField = (name, value) => {
     const next = typeof value === 'function' ? value(fields[name]) : value;
     if (onFieldChange) onFieldChange(name, next);
@@ -88,7 +119,7 @@ export default function SearchFields({
   const [query, setQuery] = useState('');
   const today = propertyToday();
   const lastDate = addLocalDays(today, 365);
-  const [month, setMonth] = useState(() => (dates[0] || today).slice(0, 7));
+  const [month, setMonth] = useState(() => ((play ? date : dates[0]) || today).slice(0, 7));
   const { pending } = useFormStatus();
   const city = registry.cities.find((item) => item.slug === location.city);
   const area = registry.areas.find(
@@ -105,7 +136,12 @@ export default function SearchFields({
         : `${dates.length} dates selected`;
   const locations = registry.cities
     .flatMap((item) => [
-      { city: item.slug, area: '', title: item.name, subtitle: `Explore places in ${item.name}` },
+      {
+        city: item.slug,
+        area: '',
+        title: item.name,
+        subtitle: `Explore ${play ? 'venues' : 'places'} in ${item.name}`,
+      },
       ...registry.areas
         .filter((candidate) => candidate.cityId === item.id)
         .map((candidate) => ({
@@ -154,7 +190,7 @@ export default function SearchFields({
       const parent = registry.cities.find((item) => item.id === match.cityId);
       setLocation({ city: parent.slug, area: match.slug, title: match.name });
       setQuery('');
-      setActive('dates');
+      setActive(play ? 'activity' : 'dates');
     } catch (error) {
       if (request !== nearbyRequest.current) return;
       setLocationError(
@@ -182,7 +218,7 @@ export default function SearchFields({
       );
   }
 
-  function panel(id, label, value, Icon, children, wide = false) {
+  function panel(id, label, value, Icon, children, wide = false, heading = null) {
     return (
       <Popover.Root
         open={active === id}
@@ -206,7 +242,7 @@ export default function SearchFields({
         <Popover.Portal>
           <Popover.Content
             side="bottom"
-            align={id === 'guests' ? 'end' : 'start'}
+            align={id === 'guests' || id === 'time' ? 'end' : 'start'}
             sideOffset={8}
             collisionPadding={16}
             aria-label={label}
@@ -220,13 +256,14 @@ export default function SearchFields({
           >
             <div className="mb-3 flex items-center justify-between gap-3">
               <h2 className="text-h4">
-                {label === 'Where'
-                  ? 'Where would you like to go?'
-                  : label === 'When'
-                    ? 'Choose your visit dates'
-                    : label === 'Who'
-                      ? 'Who’s coming along?'
-                      : 'Make a day of it'}
+                {heading ??
+                  (label === 'Where'
+                    ? 'Where would you like to go?'
+                    : label === 'When'
+                      ? 'Choose your visit dates'
+                      : label === 'Who'
+                        ? 'Who’s coming along?'
+                        : 'Make a day of it')}
               </h2>
               <Popover.Close
                 className="grid size-9 shrink-0 place-items-center rounded-full hover:bg-ink-50"
@@ -239,6 +276,316 @@ export default function SearchFields({
           </Popover.Content>
         </Popover.Portal>
       </Popover.Root>
+    );
+  }
+
+  const wherePanel = panel(
+    'location',
+    'Where',
+    where,
+    MapPin,
+    route?.city ? (
+      <p className="text-meta text-ink-600">
+        Showing {play ? 'venues' : 'places'} in {where}. Use the main search to explore other
+        locations.
+      </p>
+    ) : (
+      <>
+        <label
+          data-field-shell
+          className="flex items-center gap-3 rounded-xl border border-ink-300 px-4 focus-within:border-brand-600 focus-within:ring-2 focus-within:ring-brand-100"
+        >
+          <Search className="size-4 text-brand-600" aria-hidden="true" />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search a city or area"
+            aria-label="Search locations"
+            className="min-h-11 min-w-0 flex-1 bg-transparent text-base outline-none"
+          />
+        </label>
+        <p className="mt-3 mb-1 text-tiny font-semibold text-ink-600">
+          {query ? 'Matching locations' : 'Explore Gujarat'}
+        </p>
+        <div>
+          <LocationOption
+            title={locating ? 'Finding nearby places…' : 'Nearby me'}
+            subtitle="Use my location · areas within 25 km"
+            Icon={Navigation}
+            disabled={locating}
+            onClick={findNearby}
+          />
+          <p role="status" className="px-2 text-tiny text-ink-600">
+            {locationError}
+          </p>
+          {!query && (
+            <LocationOption
+              title="All locations"
+              subtitle={play ? 'Find a place to play' : 'Find your next day out'}
+              selected={!location.city}
+              onClick={() => {
+                setLocation({ city: '', area: '' });
+                setActive(play ? 'activity' : 'dates');
+              }}
+            />
+          )}
+          {locations.map((item) => (
+            <LocationOption
+              key={`${item.city}:${item.area}`}
+              {...item}
+              selected={location.city === item.city && location.area === item.area}
+              onClick={() => {
+                setLocation(item);
+                setActive(play ? 'activity' : 'dates');
+              }}
+            />
+          ))}
+          {!locations.length && (
+            <p className="py-4 text-meta text-ink-600">
+              {query
+                ? 'No matching locations. Try another city or area.'
+                : 'Locations are unavailable right now. You can still search all places.'}
+            </p>
+          )}
+        </div>
+      </>
+    ),
+    false,
+    play ? 'Where would you like to play?' : null,
+  );
+
+  const submit = (
+    <button
+      type="submit"
+      disabled={pending}
+      aria-busy={pending}
+      onClick={() => setActive(null)}
+      className="col-span-2 m-1 flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-brand-600 px-6 text-meta font-semibold text-white transition-colors hover:bg-brand-700 disabled:opacity-70"
+    >
+      <Search className="size-5" aria-hidden="true" />
+      {pending ? 'Searching…' : (submitLabel ?? (play ? 'Find venues' : 'Search'))}
+    </button>
+  );
+
+  if (play) {
+    const activities = registry.categories?.filter((item) => item.vertical === vertical) ?? [];
+    const chosen = activities.find((item) => item.slug === activity);
+    const horizon = addLocalDays(today, PLAY_HORIZON_DAYS);
+    // Today, tomorrow and the coming weekend; a day already listed is not repeated.
+    const toSaturday = (6 - parseLocalDate(today).getUTCDay() + 7) % 7;
+    const quick = [
+      ['Today', today],
+      ['Tomorrow', addLocalDays(today, 1)],
+      [null, addLocalDays(today, toSaturday)],
+      [null, addLocalDays(today, toSaturday + 1)],
+    ].filter(([, day], i, all) => all.findIndex(([, other]) => other === day) === i);
+    const timeLabel = `${
+      TIME_BUCKETS.find(([value]) => value === start)?.[1] ?? `From ${clock(start)}`
+    } · ${hoursLabel(duration)}`;
+    const option = (selected) =>
+      `flex min-h-12 items-center gap-2.5 rounded-xl border px-3 text-left text-meta font-medium ${selected ? 'border-brand-600 bg-brand-50 text-brand-800' : 'border-border hover:bg-ink-50'}`;
+
+    return (
+      <div className="grid grid-cols-2 items-center rounded-3xl border border-border bg-ink-50 p-1.5 shadow-sm md:flex md:rounded-full">
+        <input type="hidden" name="vertical" value={vertical} />
+        {!route?.city && <input type="hidden" name="city" value={location.city} />}
+        {!route?.area && (
+          <input type="hidden" name="area" value={route?.city ? '' : location.area} />
+        )}
+        {!route?.category && <input type="hidden" name="category" value={activity} />}
+        <input type="hidden" name="date" value={date} />
+        <input type="hidden" name="start" value={start} />
+        <input type="hidden" name="duration" value={duration} />
+
+        {wherePanel}
+
+        {panel(
+          'activity',
+          'What',
+          route?.category?.name || chosen?.name || 'Any activity',
+          Trophy,
+          route?.category ? (
+            <p className="text-meta text-ink-600">
+              Showing {route.category.name} venues. Use the main search for other activities.
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {[{ slug: '', name: 'Any activity' }, ...activities].map((item) => (
+                <button
+                  key={item.slug || 'any'}
+                  type="button"
+                  aria-pressed={activity === item.slug}
+                  onClick={() => {
+                    setField('activity', item.slug);
+                    setActive('date');
+                  }}
+                  className={option(activity === item.slug)}
+                >
+                  <ActivityIcon iconKey={item.iconKey} className="size-6 shrink-0 text-brand-700" />
+                  {item.name}
+                </button>
+              ))}
+            </div>
+          ),
+          true,
+          'What are you playing?',
+        )}
+
+        {panel(
+          'date',
+          'When',
+          date ? formatLocalDate(date) : 'Any date',
+          CalendarDays,
+          <>
+            <div className="mb-3 flex flex-wrap gap-2" role="group" aria-label="Quick dates">
+              {quick.map(([label, day]) => (
+                <button
+                  key={day}
+                  type="button"
+                  aria-pressed={date === day}
+                  onClick={() => {
+                    setField('date', day);
+                    setActive('time');
+                  }}
+                  className={`min-h-11 rounded-full border px-4 text-meta font-medium ${date === day ? 'border-brand-600 bg-brand-50 text-brand-800' : 'border-border hover:bg-ink-50'}`}
+                >
+                  {label ?? formatLocalDate(day)}
+                </button>
+              ))}
+            </div>
+            <div className="mb-2 flex items-center justify-between">
+              <button
+                type="button"
+                aria-label="Previous month"
+                disabled={month <= today.slice(0, 7)}
+                className={roundButton}
+                onClick={() => setMonth(shiftMonth(month, -1))}
+              >
+                <ChevronLeft className="size-4" />
+              </button>
+              <p className="px-2 text-center text-tiny text-ink-600">
+                Bookable up to {PLAY_HORIZON_DAYS} days ahead
+              </p>
+              <button
+                type="button"
+                aria-label="Next month"
+                disabled={month >= horizon.slice(0, 7)}
+                className={roundButton}
+                onClick={() => setMonth(shiftMonth(month, 1))}
+              >
+                <ChevronRight className="size-4" />
+              </button>
+            </div>
+            <CalendarMonth
+              month={month}
+              today={today}
+              lastDate={horizon}
+              dates={date ? [date] : []}
+              mode="single"
+              onSelect={(day) => {
+                setField('date', day);
+                setActive('time');
+              }}
+              hoverDate={null}
+              onPreview={() => {}}
+            />
+            <div className="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3">
+              <button
+                type="button"
+                onClick={() => setField('date', '')}
+                className="min-h-11 text-meta font-semibold text-ink-600 underline underline-offset-4"
+              >
+                Clear date
+              </button>
+              <Popover.Close className="min-h-11 rounded-full bg-brand-600 px-5 text-meta font-semibold text-white hover:bg-brand-700">
+                Done
+              </Popover.Close>
+            </div>
+          </>,
+          false,
+          'When do you want to play?',
+        )}
+
+        {panel(
+          'time',
+          'Time',
+          timeLabel,
+          Clock,
+          <>
+            <div className="grid grid-cols-2 gap-2" role="group" aria-label="Start time">
+              {TIME_BUCKETS.map(([value, label]) => (
+                <button
+                  key={label}
+                  type="button"
+                  aria-pressed={start === value}
+                  onClick={() => setField('start', value)}
+                  className={option(start === value)}
+                >
+                  {label}
+                  {value ? (
+                    <span className="ml-auto text-tiny text-ink-500">from {clock(value)}</span>
+                  ) : null}
+                </button>
+              ))}
+            </div>
+            <label className="mt-3 block text-tiny font-semibold text-ink-700">
+              Specific start time
+              <select
+                value={start}
+                onChange={(event) => setField('start', event.target.value)}
+                className="mt-1 min-h-11 w-full rounded-xl border border-ink-300 bg-card px-3 text-base"
+              >
+                <option value="">Any time</option>
+                {START_TIMES.map((value) => (
+                  <option key={value} value={value}>
+                    {clock(value)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3">
+              <div>
+                <p className="font-semibold">How long</p>
+                <p className="mt-1 text-tiny text-ink-600">Per court, lane or station</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  aria-label="Shorter"
+                  className={roundButton}
+                  disabled={duration <= DURATIONS[0]}
+                  onClick={() => setField('duration', duration - 30)}
+                >
+                  <Minus className="size-4" />
+                </button>
+                <span
+                  className="w-14 text-center text-meta font-semibold tabular"
+                  aria-live="polite"
+                >
+                  {hoursLabel(duration)}
+                </span>
+                <button
+                  type="button"
+                  aria-label="Longer"
+                  className={roundButton}
+                  disabled={duration >= DURATIONS.at(-1)}
+                  onClick={() => setField('duration', duration + 30)}
+                >
+                  <Plus className="size-4" />
+                </button>
+              </div>
+            </div>
+            <div className="mt-3 flex justify-end">
+              <Popover.Close className="min-h-11 rounded-full bg-brand-600 px-6 text-meta font-semibold text-white hover:bg-brand-700">
+                Done
+              </Popover.Close>
+            </div>
+          </>,
+          false,
+          'What time suits you?',
+        )}
+        {submit}
+      </div>
     );
   }
 
@@ -258,77 +605,7 @@ export default function SearchFields({
         </>
       )}
 
-      {panel(
-        'location',
-        'Where',
-        where,
-        MapPin,
-        route?.city ? (
-          <p className="text-meta text-ink-600">
-            Showing places in {where}. Use the main search to explore other locations.
-          </p>
-        ) : (
-          <>
-            <label
-              data-field-shell
-              className="flex items-center gap-3 rounded-xl border border-ink-300 px-4"
-            >
-              <Search className="size-4 text-brand-600" aria-hidden="true" />
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search a city or area"
-                aria-label="Search locations"
-                className="min-h-11 min-w-0 flex-1 bg-transparent text-base outline-none"
-              />
-            </label>
-            <p className="mt-3 mb-1 text-tiny font-semibold text-ink-600">
-              {query ? 'Matching locations' : 'Explore Gujarat'}
-            </p>
-            <div>
-              <LocationOption
-                title={locating ? 'Finding nearby places…' : 'Nearby me'}
-                subtitle="Use my location · areas within 25 km"
-                Icon={Navigation}
-                disabled={locating}
-                onClick={findNearby}
-              />
-              <p role="status" className="px-2 text-tiny text-ink-600">
-                {locationError}
-              </p>
-              {!query && (
-                <LocationOption
-                  title="All locations"
-                  subtitle="Find your next day out"
-                  selected={!location.city}
-                  onClick={() => {
-                    setLocation({ city: '', area: '' });
-                    setActive('dates');
-                  }}
-                />
-              )}
-              {locations.map((item) => (
-                <LocationOption
-                  key={`${item.city}:${item.area}`}
-                  {...item}
-                  selected={location.city === item.city && location.area === item.area}
-                  onClick={() => {
-                    setLocation(item);
-                    setActive('dates');
-                  }}
-                />
-              ))}
-              {!locations.length && (
-                <p className="py-4 text-meta text-ink-600">
-                  {query
-                    ? 'No matching locations. Try another city or area.'
-                    : 'Locations are unavailable right now. You can still search all places.'}
-                </p>
-              )}
-            </div>
-          </>
-        ),
-      )}
+      {wherePanel}
 
       {panel(
         'dates',
@@ -497,16 +774,7 @@ export default function SearchFields({
           </div>
         </>,
       )}
-      <button
-        type="submit"
-        disabled={pending}
-        aria-busy={pending}
-        onClick={() => setActive(null)}
-        className="col-span-2 m-1 flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-brand-600 px-6 text-meta font-semibold text-white transition-colors hover:bg-brand-700 disabled:opacity-70"
-      >
-        <Search className="size-5" aria-hidden="true" />
-        {pending ? 'Searching…' : submitLabel}
-      </button>
+      {submit}
     </div>
   );
 }

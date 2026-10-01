@@ -242,7 +242,10 @@ export function BookingCaseDetail({ bookingCase: c }) {
               {c.visits.map((visit) => (
                 <li key={visit.id} className="space-y-1 px-5 py-4 text-meta">
                   <p className="flex flex-wrap items-center gap-2 font-semibold">
-                    {visit.date} · {visit.slot.replaceAll('_', ' ')} · {visit.reference}
+                    {visit.slot === 'hourly'
+                      ? visit.label
+                      : `${visit.date} · ${visit.slot.replaceAll('_', ' ')}`}{' '}
+                    · {visit.reference}
                     <StatusBadge
                       tone={
                         visit.state === 'cancelled'

@@ -1,6 +1,6 @@
 import Link from '@/components/navigation/NavigationLink';
 import { Check, AlertTriangle, Circle } from 'lucide-react';
-import { LISTING_CHAPTERS, stepHref } from '@/lib/domain/listing-steps';
+import { chaptersFor, stepHref } from '@/lib/domain/listing-steps';
 import { SubmitBar } from './ListingSections';
 
 /**
@@ -13,7 +13,13 @@ import { SubmitBar } from './ListingSections';
  *     missing in prose; here each gap is one tap from being fixed, because
  *     this is the screen where somebody is trying to finish.
  */
-export default function WizardReview({ listingId, listing, completion, submitAction }) {
+export default function WizardReview({
+  listingId,
+  model = 'slot',
+  listing,
+  completion,
+  submitAction,
+}) {
   const bySection = new Map(completion.sections.map((s) => [s.id, s]));
 
   return (
@@ -26,7 +32,7 @@ export default function WizardReview({ listingId, listing, completion, submitAct
       </p>
 
       <div className="mt-7 space-y-4">
-        {LISTING_CHAPTERS.map((chapter) => {
+        {chaptersFor(model).map((chapter) => {
           const rows = chapter.steps.filter((s) => bySection.has(s.id));
           if (rows.length === 0) return null;
 

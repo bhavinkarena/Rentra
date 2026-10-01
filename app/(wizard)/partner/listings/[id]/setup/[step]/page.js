@@ -5,9 +5,10 @@ import { settle } from '@/lib/api/page-state';
 import PortalState from '@/components/portal/PortalState';
 import { listingCompletion } from '@/lib/domain/listing-completion';
 import {
-  LISTING_CHAPTERS,
+  chaptersFor,
   getStep,
   isListingStep,
+  listingModel,
   nextStepId,
   prevStepId,
   stepHref,
@@ -26,6 +27,9 @@ import {
   TermsSection,
   PhotosSection,
   OwnershipSection,
+  VenueSection,
+  HoursSection,
+  HourlyPricingSection,
 } from '@/components/partner/listing/ListingSections';
 
 export const metadata = {
@@ -50,24 +54,27 @@ export default async function SetupStepPage({ params }) {
   const user = await requireActiveClient();
   const { id, step: stepId } = await params;
 
-  if (!isListingStep(stepId)) notFound();
-
   /* Scoped to this Client on the API — another Client's id answers 404. */
-  const [listingResult, referenceResult] = await Promise.all([
-    settle(partnerApi.listing(id)),
-    settle(
-      stepId === 'amenities'
-        ? partnerApi.amenityCatalogue()
-        : stepId === 'basics'
-          ? partnerApi.categories()
-          : stepId === 'location'
-            ? partnerApi.places()
-            : Promise.resolve(null),
-    ),
-  ]);
+  const listingResult = await settle(partnerApi.listing(id));
   const { data, failure } = listingResult;
   if (failure)
     return <PortalState kind={failure} backHref="/partner/listings" backLabel="All properties" />;
+
+  // Farmhouse (slot) or venue (hour): the steps and their reference data differ.
+  const model = listingModel(data.listing);
+  const vertical = data.listing.vertical;
+  if (!isListingStep(stepId, model)) notFound();
+  const referenceResult = await settle(
+    stepId === 'amenities'
+      ? partnerApi.amenityCatalogue(vertical)
+      : ['basics', 'venue', 'pricing'].includes(stepId)
+        ? partnerApi.categories(vertical)
+        : stepId === 'location'
+          ? partnerApi.places()
+          : stepId === 'hours'
+            ? partnerApi.calendar(id)
+            : Promise.resolve(null),
+  );
   if (referenceResult.failure)
     return (
       <PortalState
@@ -77,19 +84,20 @@ export default async function SetupStepPage({ params }) {
       />
     );
 
-  const { listing, prices, amenities, photos, documents } = data;
+  const { listing, prices, amenities, photos, documents, resources = [], hourlyRates = [] } = data;
   const completion = listingCompletion(listing, data);
-  const step = getStep(stepId);
-  const progress = wizardProgress(completion, stepId);
+  const step = getStep(stepId, model);
+  const progress = wizardProgress(completion, stepId, model);
 
   // Only fetch what this step actually renders. The amenity catalogue has no
   // business being queried on the pricing step.
   const catalogue = stepId === 'amenities' ? referenceResult.data : null;
-  const categories = stepId === 'basics' ? referenceResult.data : null;
+  const categories = ['basics', 'venue', 'pricing'].includes(stepId) ? referenceResult.data : null;
   const cities = stepId === 'location' ? referenceResult.data : null;
+  const calendar = stepId === 'hours' ? referenceResult.data : null;
 
-  const next = nextStepId(stepId);
-  const prev = prevStepId(stepId);
+  const next = nextStepId(stepId, model);
+  const prev = prevStepId(stepId, model);
 
   // The rail shows the full journey, but only saved, failed, and current
   // steps are links. That keeps an accidental jump from discarding unsaved
@@ -97,9 +105,9 @@ export default async function SetupStepPage({ params }) {
   const navigableSteps = progress.steps.filter((s) => s.done || s.failed || s.isCurrent);
   const stepHrefs = Object.fromEntries(navigableSteps.map((s) => [s.id, stepHref(id, s.id)]));
   const chapterHrefs = Object.fromEntries(
-    LISTING_CHAPTERS.map((c) => [c.id, stepHrefs[c.steps[0].id]]).filter(([, href]) =>
-      Boolean(href),
-    ),
+    chaptersFor(model)
+      .map((c) => [c.id, stepHrefs[c.steps[0].id]])
+      .filter(([, href]) => Boolean(href)),
   );
 
   return (
@@ -118,8 +126,22 @@ export default async function SetupStepPage({ params }) {
       {stepId === 'amenities' ? (
         <AmenitiesSection listing={listing} catalogue={catalogue} selected={amenities} />
       ) : null}
+      {stepId === 'venue' ? (
+        <VenueSection listing={listing} resources={resources} activities={categories} />
+      ) : null}
+      {stepId === 'hours' ? <HoursSection listing={listing} calendar={calendar} /> : null}
       {stepId === 'rules' ? <RulesSection listing={listing} /> : null}
-      {stepId === 'pricing' ? <PricingSection listing={listing} prices={prices} /> : null}
+      {stepId === 'pricing' && model === 'hour' ? (
+        <HourlyPricingSection
+          listing={listing}
+          hourlyRates={hourlyRates}
+          resources={resources}
+          activities={categories}
+        />
+      ) : null}
+      {stepId === 'pricing' && model !== 'hour' ? (
+        <PricingSection listing={listing} prices={prices} />
+      ) : null}
       {stepId === 'terms' ? <TermsSection listing={listing} /> : null}
       {stepId === 'photos' ? <PhotosSection listing={listing} photos={photos} /> : null}
       {stepId === 'ownership' ? (
@@ -133,6 +155,7 @@ export default async function SetupStepPage({ params }) {
       {stepId === 'review' ? (
         <WizardReview
           listingId={id}
+          model={model}
           listing={listing}
           completion={completion}
           submitAction={submitListing}

@@ -1,0 +1,232 @@
+[
+  {
+    "check": "header tabs on /",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "Farmhouse is current on /",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "@768 tabs clear of logo and navigation",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "@1024 tabs clear of logo and navigation",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "@1440 tabs clear of logo and navigation",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "switching tabs is a soft navigation",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "Entertainment is current on /entertainment",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "entertainment search has Where",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "entertainment search has What",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "entertainment search has When",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "entertainment search has Time",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "entertainment search submits \"Find venues\"",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "venue search submits vertical, activity, date, start and duration",
+    "pass": true,
+    "detail": "http://localhost:3106/search?vertical=entertainment&city=&area=&category=box-cricket&date=2026-10-02&start=17%3A00&duration=90"
+  },
+  {
+    "check": "@768 docked: tabs hidden and inert",
+    "pass": true,
+    "detail": "{\"opacity\":\"0\",\"events\":\"none\"}"
+  },
+  {
+    "check": "@768 docked: pill visible",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "@768 docked: pill clear of navigation",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "@1024 docked: tabs hidden and inert",
+    "pass": true,
+    "detail": "{\"opacity\":\"0\",\"events\":\"none\"}"
+  },
+  {
+    "check": "@1024 docked: pill visible",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "@1024 docked: pill clear of navigation",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "@1440 docked: tabs hidden and inert",
+    "pass": true,
+    "detail": "{\"opacity\":\"0\",\"events\":\"none\"}"
+  },
+  {
+    "check": "@1440 docked: pill visible",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "@1440 docked: pill clear of navigation",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "docked pill names the venue search",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "docked pill opens the venue search on What",
+    "pass": false,
+    "detail": ""
+  },
+  {
+    "check": "/search?vertical=entertainment: Entertainment current",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "/search tab switch keeps the city, drops the other vertical",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "/surat/box-cricket: Entertainment current",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "/surat/farmhouse: Farmhouse current",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "no tabs on a listing page",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "/ @390 tabs in the hero",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "/ @390 header tabs hidden",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "/ @390 tabs, search and first chips in the first viewport",
+    "pass": true,
+    "detail": "793px"
+  },
+  {
+    "check": "home-farmhouse @1440 axe 0",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "home-farmhouse @1440 no horizontal overflow",
+    "pass": true,
+    "detail": "0px"
+  },
+  {
+    "check": "home-farmhouse @390 axe 0",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "home-farmhouse @390 no horizontal overflow",
+    "pass": true,
+    "detail": "0px"
+  },
+  {
+    "check": "/entertainment @390 tabs in the hero",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "/entertainment @390 header tabs hidden",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "/entertainment @390 tabs, search and first chips in the first viewport",
+    "pass": true,
+    "detail": "695px"
+  },
+  {
+    "check": "home-entertainment @1440 axe 0",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "home-entertainment @1440 no horizontal overflow",
+    "pass": true,
+    "detail": "0px"
+  },
+  {
+    "check": "home-entertainment @390 axe 0",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "home-entertainment @390 no horizontal overflow",
+    "pass": true,
+    "detail": "0px"
+  },
+  {
+    "check": "/ served from the static cache",
+    "pass": true,
+    "detail": "HIT"
+  },
+  {
+    "check": "/entertainment served from the static cache",
+    "pass": true,
+    "detail": "HIT"
+  },
+  {
+    "check": "no console errors",
+    "pass": true,
+    "detail": ""
+  }
+]
