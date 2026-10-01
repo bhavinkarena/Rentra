@@ -42,4 +42,4 @@ The historical baseline contains bundles, not checkout timings. The same current
 
 To repeat the comparison, copy the benchmark harness into an isolated source checkout of the baseline commit, install/use the same dependencies, and run the local-only command above in alternating baseline/current order three times, preserving each output before the next run. Compare pooled medians and p95 as well as individual runs. The original bundle baseline remains unchanged.
 
-Phase 13 is next. No launch or migration gate is implied by this local performance completion.
+Phase 13 QA is now complete locally; see [the QA handoff](entertainment-phase13.md). Hosted release gates remain in [Phase 14](entertainment-phase14.md).

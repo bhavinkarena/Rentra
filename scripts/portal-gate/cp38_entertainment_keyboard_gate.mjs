@@ -12,8 +12,8 @@ import { existsSync } from 'node:fs';
 
 const req = createRequire(process.env.PLAYWRIGHT_DIR || process.cwd() + '/');
 const { chromium } = req('playwright-core');
-const { default: AxeBuilder } = await import(req.resolve('@axe-core/playwright'));
-const postgres = createRequire(new URL('../../../rentra-backend/', import.meta.url).pathname)(
+import { auditPage } from './browser-audit.mjs';
+const postgres = createRequire(new URL('../../../rentra-backend/package.json', import.meta.url))(
   'postgres',
 );
 const db = JSON.parse(await readFile(process.env.GATE_DB_JSON, 'utf8'));
@@ -38,8 +38,7 @@ const check = (name, pass, detail = '') => {
   console.log((pass ? 'PASS ' : 'FAIL ') + name + (pass ? '' : ' — ' + detail));
 };
 const browser = await chromium.launch({
-  executablePath:
-    process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  executablePath: process.env.CHROME || undefined,
 });
 const problems = [];
 const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
@@ -83,10 +82,7 @@ page.on(
     problems.push('console ' + m.text().slice(0, 200)),
 );
 const axe = async (name) => {
-  const r = await new AxeBuilder({ page })
-    .include('main')
-    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-    .analyze();
+  const r = await auditPage(page, 'main');
   check(
     name + ' axe 0',
     r.violations.length === 0,
@@ -105,7 +101,7 @@ try {
       }
       await page.keyboard.press('Tab');
     }
-    throw new Error('Target is not keyboard reachable: ' + await target.innerText());
+    throw new Error('Target is not keyboard reachable: ' + (await target.innerText()));
   }
   await page.goto(web + path + '?date=' + date, { waitUntil: 'domcontentloaded' });
   const rail = page.locator('#book');
@@ -115,21 +111,27 @@ try {
   await keyboardActivate(rail.getByRole('link', { name: 'Review booking' }));
   await page.waitForURL(/\/checkout\/review\//);
   await keyboardActivate(page.getByRole('button', { name: 'Friendly match' }));
-  await keyboardActivate(page.getByRole('checkbox', { name: /I agree to these booking terms/ }), 'Space');
+  await keyboardActivate(
+    page.getByRole('checkbox', { name: /I agree to these booking terms/ }),
+    'Space',
+  );
   await keyboardActivate(page.getByRole('button', { name: 'Continue to payment' }));
   await page.waitForURL(/\/checkout\/[0-9a-f-]{36}$/);
   await keyboardActivate(page.getByRole('button', { name: /^Pay ₹/ }).first());
   await page.getByText('You’re all set!').waitFor({ timeout: 30000 });
   check('keyboard-only signed-in venue selection through paid confirmation', true);
-  for (const width of [1440,390]) {
-    await page.setViewportSize({width,height:844});
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 844 });
     await axe('keyboard confirmation ' + width);
-    check('confirmation has no overflow ' + width, await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-    await page.screenshot({path: `${OUT}/keyboard-confirmed-${width}.png`, fullPage:true});
+    check(
+      'confirmation has no overflow ' + width,
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    );
+    await page.screenshot({ path: `${OUT}/keyboard-confirmed-${width}.png`, fullPage: true });
   }
 } finally {
-  console.log('problems',problems);
+  console.log('problems', problems);
   await browser.close();
   await sql.end();
-  if (results.some((ok) => !ok) || problems.length) process.exitCode=1;
+  if (results.some((ok) => !ok) || problems.length) process.exitCode = 1;
 }

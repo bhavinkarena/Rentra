@@ -4,7 +4,7 @@
 |---|---|
 | Date | 1 October 2026 |
 | Scope | `Rentra/` (Next.js 16 frontend) and `rentra-backend/` (Express + Drizzle + Postgres) |
-| Status | Plan only. No code or database was changed while writing it. |
+| Status | Phases 1–13 implemented and verified locally. Phase 14 release preparation implemented; hosted deployment and launch gates remain open. |
 | Audited at | Frontend `6010f94`, backend `bee13c0`. Line references are from these commits and will drift. |
 | Audience | Developers implementing the feature, and the owner approving the decisions in §H |
 
@@ -12,7 +12,7 @@
 
 ## Progress
 
-Phases are delivered one at a time. The owner asks for the next phase after reviewing the previous one. Work happens on branch `feat/entertainment` in both repos and is not committed until the owner asks.
+Phases 1–12 were delivered one at a time. The owner requested Phases 13 and 14 together on 1 October 2026. Work happens on branch `feat/entertainment` in both repos and is not committed until the owner asks. Local verification does not imply a hosted migration or public launch.
 
 | Phase | Status | Completed |
 |---|---|---|
@@ -28,8 +28,8 @@ Phases are delivered one at a time. The owner asks for the next phase after revi
 | 10 → Booking & Payment Flow | ✅ Complete (local) | 1 Oct 2026 |
 | 11 → Dashboards | ✅ Complete (local) | 1 Oct 2026 |
 | 12 → Performance & Optimization | ✅ Complete (local) | 1 Oct 2026 |
-| 13 → QA & Edge Cases | ⏳ Next | |
-| 14 → Migration & Deployment | ⬜ Not started | |
+| 13 → QA & Edge Cases | ✅ Complete (local automated gates; owner screenshot review open) | 1 Oct 2026 |
+| 14 → Migration & Deployment | 🟡 Release preparation complete; hosted R0–R4 pending | |
 
 ---
 
@@ -2828,13 +2828,13 @@ Code and local validation are complete, uncommitted. No migration, hosted databa
 - **Bundle:** same-environment comparison against the previous direct picker imports: `/listing/[handle]` **360,784 → 360,111 gzip bytes** (−673 bytes), within the +15 KB budget. Both `/` and `/entertainment` remain static with 300-second revalidation. Build used the existing unavailable-local-API fallback, not production inventory.
 - **Regressions:** backend **166 passed / 3 skipped / 0 failed**; frontend **55 passed / 0 failed**. Production build passed. Changed frontend files and new backend gate files passed ESLint; touched ported backend services passed explicit `--no-ignore` semantic lint with their existing formatting preserved.
 
-**Farmhouse latency comparison:** the historical `docs/performance-baseline.json` contains bundle sizes, not checkout latency. An isolated source copy of pre-change backend `dc35a4e` established a replacement local baseline using the identical harness. Three alternating runs per version, 50 sequential quote+hold samples per run (**150 per version**), measured median **3.05 → 3.03 ms** and p95 **6.29 → 6.33 ms**. Median did not regress; the 0.04 ms p95 difference is below useful resolution for this local smoke benchmark. This is local regression evidence, not a production SLO. Both raw distributions and the method are preserved in `rentra-backend/docs/entertainment-farmhouse-comparison.json`. Phase 13 is next.
+**Farmhouse latency comparison:** the historical `docs/performance-baseline.json` contains bundle sizes, not checkout latency. An isolated source copy of pre-change backend `dc35a4e` established a replacement local baseline using the identical harness. Three alternating runs per version, 50 sequential quote+hold samples per run (**150 per version**), measured median **3.05 → 3.03 ms** and p95 **6.29 → 6.33 ms**. Median did not regress; the 0.04 ms p95 difference is below useful resolution for this local smoke benchmark. This is local regression evidence, not a production SLO. Both raw distributions and the method are preserved in `rentra-backend/docs/entertainment-farmhouse-comparison.json`. Phase 13 verification is recorded below.
 
 Reproduction commands, evidence files and limitations: [Phase 12 runbook](entertainment-phase12.md).
 
 ---
 
-## Phase 13 → QA & Edge Cases
+## Phase 13 → QA & Edge Cases — ✅ Complete locally (1 Oct 2026)
 
 ### Objective
 
@@ -2929,9 +2929,21 @@ Owner screenshot review of every new surface at 390 and 1440 before merge (the o
 - Every row of the master list has an automated test, or (for UI-only rows) a script assertion.
 - `npm run ci` (frontend) and `npm test` + `npm run smoke` (backend) are green.
 
+### Implementation and verification record — 1 October 2026
+
+Completed the remaining QA tooling: browser gates now resolve Windows filesystem paths correctly, reuse the frontend's pinned `axe-core`, return nonzero for failed assertions/browser errors, wait for the streamed time grid, and restore the 30-court stress fixture before dashboard checks. Fixture photos use a bundled image so QA does not depend on missing `/seed` assets. ImageResponse-only `<img>` uses have documented lint exceptions, allowing the zero-warning frontend CI command to pass.
+
+**Verified gates:** backend **169 passed, zero failed, three existing optional suites skipped**; smoke **six checks passed**; migration journal check **56 entries passed**. Frontend **`npm run ci` passed**, including lint, formatting, **63 tests** and production build. CP33–CP39 passed **183 assertions total**: tabs/homes/ISR 46, search/landings 52, time picker/owner timeline 28, login/payment/cancellation 23, dashboards 19, keyboard-only paid booking 5, audited launch switch 10. Accessibility and overflow assertions pass at the exercised 390/1440 surfaces. Payment uses the local file-backed fake provider.
+
+The database suites prove actual concurrent holds, multi-sport resource exclusion, expired holds and late-capture refund obligations, stale-price quotes, hourly cancellation boundaries, catalogue guards, opening-hours changes and notification timing. The HTTP contract asserts default farmhouse search byte equality across launch-switch changes. It is not a historical snapshot of every pre-entertainment endpoint. The real Drizzle migrator passed 0052–0055 in the schema suite and **0040–0055 in one transaction** in the release rehearsal from a pre-0040 disposable database.
+
+CP39 exercises `public → partners → public` through the audited admin preview/save UI, verifies public cache invalidation, hides tabs and venue guest routes, preserves all existing order states and customer management, and restores venue detail. This is local release evidence; hosted staging is still required by Phase 14.
+
+Owner screenshot approval and a staging Razorpay test-mode journey remain open. Local screenshots/logs are under `C:/Kunj/Rentra/.qa/entertainment/` and `C:/Kunj/Rentra/.qa/`. The additional backend lint/format check has existing legacy failures, recorded in the handoff; it is not reported green. No hosted database was queried. See [the QA handoff and master-list coverage](entertainment-phase13.md) and [the release runbook](entertainment-phase14.md).
+
 ---
 
-## Phase 14 → Migration & Deployment
+## Phase 14 → Migration & Deployment — 🟡 Release preparation complete (1 Oct 2026)
 
 ### Objective
 
@@ -2944,15 +2956,15 @@ Ship to production with no farmhouse downtime, a reversible launch switch and th
 
 ### Database impact
 
-Migrations 0052–0054 on Neon. 0055 (`rentable_rate_override`) only when Phase 9's optional feature ships. The contract migration (drop `resource_key`) comes one release later.
+Migrations 0052–0055 on Neon: **0055 is `measurement_vertical`**, already implemented in Phase 4. The optional `rentable_rate_override` table has not shipped and has no migration in this release. If production is still at 0039, the current migrator applies **all pending 0040–0055**. The contract migration (drop `resource_key`) comes one release later.
 
 ### Backend changes
 
-None beyond the earlier phases.
+Added `npm run release:entertainment -- expand|pilot|public`, backed by a repeatable-read, read-only inspection. It checks the current migration journal and entertainment checksums, farmhouse/public and entertainment launch states, the resource-aware exclusion constraint, eight seeded activities, hourly rollback limits and six fully priced, live, bookable Surat venues before public launch. It never migrates, seeds or changes a switch. Integration tests cover missing migrations, price gaps, checksum drift, the six-venue threshold and unchanged switch state.
 
 ### Frontend changes
 
-None beyond the earlier phases. The frontend must tolerate the old backend (missing `verticals` → behave as today) for the window between deploys.
+Added CP39 to rehearse the audited launch switch, public cache invalidation and existing-booking management on a disposable stack. The frontend must tolerate the old backend (missing `verticals` → behave as today) for the window between deploys.
 
 ### UX/UI requirements
 
@@ -2967,6 +2979,9 @@ No visible change until `entertainment.status = 'public'`.
 ### Release train
 
 **R0 — prerequisites** (blocking; no entertainment code involved)
+
+**Execution correction:** `db:migrate` has no “stop at 0051” option. For a separate R0, use the historical backend checkout containing only that journal; otherwise rehearse and deploy the current checkout's complete pending 0040–0055 range as one release. Follow [the executable runbook](entertainment-phase14.md), not an assumed migration upper bound.
+
 1. Execute `DATABASE-REVIEW.md` §20 on Neon:
    - restore branch
    - stop the worker
@@ -2981,14 +2996,14 @@ No visible change until `entertainment.status = 'public'`.
 1. Create a Neon branch from production; run `npm run db:migrate` there; run the smoke and farmhouse contract snapshots against the branch.
 2. Production:
    - stop the Render worker
-   - `npm run db:migrate` (0052–0054 in one transaction)
+   - `npm run db:migrate` (0052–0055 in one transaction, plus any earlier pending entries)
    - deploy the backend
    - start the worker
 3. Verify:
    - a farmhouse quote, hold and pay in Razorpay test mode
    - `GET /discovery/registry` has `verticals` with farmhouse only public
    - the overlap monitor is quiet
-4. `npm run seed:entertainment` against production, after the migration has committed. This creates the activities and amenities. The vertical is still hidden.
+4. `npm run seed:entertainment` against the explicitly targeted database, after the migration has committed. The seed guard refuses `NODE_ENV=production`: use a dedicated operator process with `NODE_ENV=development`, the secret target URL and `SEED_ALLOW_HOST` equal to its exact hostname. This creates activities/amenities and preserves the hidden status. Then require `npm run release:entertainment -- expand` to pass.
 
 **R2 — frontend.** Deploy to Vercel. With one public vertical, nothing visible changes. Check: screenshot diff of `/`, `/search`, a farmhouse listing and checkout.
 
@@ -3001,6 +3016,8 @@ No visible change until `entertainment.status = 'public'`.
 Real bookings are not possible yet: discovery excludes non-public verticals and the listing page 404s.
 
 **R4 — public launch.** When at least 6 live, bookable venues exist in the launch city (§H D6), admin sets `status = 'public'`. The registry tag revalidates, and the tabs and `/entertainment` appear. Announce.
+
+Require `npm run release:entertainment -- public` while still in `partners`, the staging switch rehearsal and owner screenshot approval before this action. Any announcement requires the owner's separate instruction.
 
 **R5 — contract** (2+ weeks later): drop `resource_key` and its CHECK term, after the monitors and code no longer read it.
 
@@ -3032,6 +3049,12 @@ Watch the logs and admin operations for:
 
 - R1–R4 are completed with zero farmhouse errors attributable to the release.
 - The launch switch has been exercised in both directions on staging.
+
+### Implementation and release status — 1 October 2026
+
+Local release preparation is complete: the read-only inspection, full pending-range Drizzle rehearsal and CP39 audited switch/caching/booking-preservation gate passed. No new migration was generated, and no hosted migration or deployment was performed. The release inspection is implemented in `rentra-backend/src/services/operations/entertainment-release.js`; its command is `src/scripts/entertainment-release-check.js` and its disposable integration test is `test/integration/entertainment-release.integration.test.js`.
+
+**Hosted acceptance remains pending:** Neon restore/rehearsal and production migration, exposed credential rotation, Render API/worker deployment, Vercel deployment and farmhouse comparison, pilot onboarding of 6–10 venues, at least six bookable Surat venues, staging Razorpay verification, staging switch in both directions and owner screenshot review. R4 public launch and R5 contract are not complete. The document deliberately keeps Phase 14 open until those operational gates have real evidence. [The release runbook](entertainment-phase14.md) records exact steps, seed-guard handling, rollback restrictions, monitoring and each outstanding gate.
 
 ---
 
@@ -3173,7 +3196,7 @@ It changes the database guarantee from an exclusion constraint to counting. That
 | Triggers | `version_listing_child` on 3 new tables; new `resource_activity_guard`; replaced `catalogue_reference_guard` | 0053 |
 | `rentra_notification_event()` | Hourly reminder timing | 0054 |
 | `customer_measurement` | + `vertical` dimension, new events | 0055 (Phase 4) |
-| `rentable_rate_override` | New (optional, later) | 0055 |
+| `rentable_rate_override` | Deferred optional feature; not implemented | Future migration |
 | `inventory_reservation.resource_key` | Drop (contract) | later |
 
 ## F. Breaking changes and how each is neutralised

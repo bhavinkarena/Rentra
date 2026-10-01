@@ -213,7 +213,13 @@ try {
         await pill.getByRole('button', { name: /^What: / }).click();
         check(
           'docked pill opens the venue search on What',
-          await page.getByRole('dialog', { name: 'What' }).waitFor({ state: 'visible', timeout: 5000 }).then(() => true, () => false),
+          await page
+            .getByRole('dialog', { name: 'What' })
+            .waitFor({ state: 'visible', timeout: 5000 })
+            .then(
+              () => true,
+              () => false,
+            ),
         );
         await page.keyboard.press('Escape');
         await page.keyboard.press('Escape');

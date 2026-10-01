@@ -9,8 +9,8 @@ import { readFile } from 'node:fs/promises';
 
 const req = createRequire(process.env.PLAYWRIGHT_DIR || process.cwd() + '/');
 const { chromium } = req('playwright-core');
-const { default: AxeBuilder } = await import(req.resolve('@axe-core/playwright'));
-const postgres = createRequire(new URL('../../../rentra-backend/', import.meta.url).pathname)(
+import { auditPage } from './browser-audit.mjs';
+const postgres = createRequire(new URL('../../../rentra-backend/package.json', import.meta.url))(
   'postgres',
 );
 const db = JSON.parse(await readFile(process.env.GATE_DB_JSON, 'utf8'));
@@ -26,8 +26,7 @@ const check = (name, pass, detail = '') => {
   console.log((pass ? 'PASS ' : 'FAIL ') + name + (pass ? '' : ' — ' + detail));
 };
 const browser = await chromium.launch({
-  executablePath:
-    process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  executablePath: process.env.CHROME || undefined,
 });
 const problems = [];
 async function open(cookie, width = 1440) {
@@ -49,10 +48,7 @@ const go = async (page, path) => {
   return page.locator('main').innerText();
 };
 const axe = async (page, name) => {
-  const r = await new AxeBuilder({ page })
-    .include('main')
-    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-    .analyze();
+  const r = await auditPage(page, 'main');
   check(
     name + ' axe 0',
     r.violations.length === 0,
@@ -147,4 +143,5 @@ try {
   console.log(results.filter(Boolean).length + '/' + results.length + ' passed');
   await browser.close();
   await sql.end();
+  if (results.some((ok) => !ok) || problems.length) process.exitCode = 1;
 }

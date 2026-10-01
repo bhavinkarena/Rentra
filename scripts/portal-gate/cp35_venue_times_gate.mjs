@@ -8,10 +8,10 @@ import { createRequire } from 'node:module';
 import { readFile } from 'node:fs/promises';
 const req = createRequire(process.env.PLAYWRIGHT_DIR || process.cwd() + '/');
 const { chromium } = req('playwright-core');
-const postgres = createRequire(new URL('../../../rentra-backend/', import.meta.url).pathname)(
+const postgres = createRequire(new URL('../../../rentra-backend/package.json', import.meta.url))(
   'postgres',
 );
-const { default: AxeBuilder } = await import(req.resolve('@axe-core/playwright'));
+import { auditPage } from './browser-audit.mjs';
 const db = JSON.parse(await readFile(process.env.GATE_DB_JSON, 'utf8'));
 if (!/^postgres:\/\/postgres@127\.0\.0\.1:55432\//.test(db.url))
   throw new Error('refusing non-disposable database');
@@ -35,8 +35,7 @@ const check = (name, pass, detail = '') => {
   console.log((pass ? 'PASS ' : 'FAIL ') + name + (pass ? '' : ' — ' + detail));
 };
 const browser = await chromium.launch({
-  executablePath:
-    process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  executablePath: process.env.CHROME || undefined,
 });
 const problems = [];
 async function open(width, cookie) {
@@ -54,9 +53,7 @@ async function open(width, cookie) {
   return page;
 }
 const axe = async (page, name, scope) => {
-  let b = new AxeBuilder({ page });
-  if (scope) b = b.include(scope);
-  const r = await b.withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  const r = await auditPage(page, scope);
   check(
     name + ' axe 0',
     r.violations.length === 0,
@@ -81,6 +78,8 @@ try {
   await page.goto(web + path + '?date=' + date, { waitUntil: 'networkidle' });
   const chips = rail(page).getByRole('group', { name: 'Start time' }).getByRole('button');
   await chips.first().waitFor();
+  // Streaming can briefly expose the two skeleton buttons before the real grid.
+  await chips.nth(17).waitFor();
   check('grid shows 18 starts for 1 hr', (await chips.count()) === 18, String(await chips.count()));
   const peakName = await chips.nth(12).getAttribute('aria-label');
   check(
@@ -282,5 +281,10 @@ try {
   console.log('problems', problems);
   console.log(results.filter(Boolean).length + '/' + results.length + ' passed');
   await browser.close();
+  // The stress fixture must not change the resource counts in the next dashboard gate.
+  await sql`DELETE FROM rentable_resource WHERE rentable_id=${venue.id} AND sort_order >= 10`;
+  await sql`DELETE FROM inventory_reservation WHERE rentable_id=${venue.id} AND reason='Gate conflict'`;
+  await sql`UPDATE rentable SET booking_config = booking_config || ${sql.json({ weeklyHours: Object.fromEntries(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].map((k) => [k, [{ open: '06:00', close: '01:00', closesNextDay: true }]])) })} WHERE id=${venue.id}`;
   await sql.end();
+  if (results.some((ok) => !ok) || problems.length) process.exitCode = 1;
 }
