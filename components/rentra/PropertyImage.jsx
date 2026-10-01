@@ -19,5 +19,15 @@ export default function PropertyImage({ src, alt = '', ...props }) {
       </div>
     );
   }
-  return <Image src={src} alt={alt} {...props} onError={() => setFailedSource(src)} />;
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      {...props}
+      onError={(event) => {
+        setFailedSource(src);
+        props.onError?.(event);
+      }}
+    />
+  );
 }

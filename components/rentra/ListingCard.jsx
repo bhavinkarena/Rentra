@@ -1,5 +1,5 @@
 import Link from '@/components/navigation/NavigationLink';
-import Image from './PropertyImage';
+import CardPhotos from './CardPhotos';
 import Rating from './Rating';
 import TrustBadge from './TrustBadge';
 import SaveButton from './SaveButton';
@@ -49,8 +49,9 @@ export default function ListingCard({ listing, eager = false, showPriceNote = tr
     reviewCount,
     badge,
     photo,
-    photoCount,
   } = listing;
+
+  const photos = listing.photos?.length ? listing.photos : photo ? [photo] : [];
 
   // Farmhouse: guests, bedrooms, highlight. Venue: activities, courts, players, indoor.
   const capacityLine = listingFacts(listing).join(' · ');
@@ -59,16 +60,8 @@ export default function ListingCard({ listing, eager = false, showPriceNote = tr
     <article className="group relative min-w-0">
       {/* The photo IS the card — no border, no shadow at rest. */}
       <div className="relative aspect-4/3 overflow-hidden rounded-md bg-ink-100 transition-shadow group-hover:shadow-md">
-        {photo ? (
-          <Image
-            src={photo.url}
-            alt={photo.alt}
-            fill
-            loading={eager ? 'eager' : 'lazy'}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            placeholder={BLUR}
-            className="object-cover transition-transform duration-300 motion-safe:group-hover:scale-[1.03]"
-          />
+        {photos.length ? (
+          <CardPhotos photos={photos} title={title} eager={eager} placeholder={BLUR} />
         ) : (
           <span className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-meta text-ink-600">
             <ImageOff className="size-6" aria-hidden="true" />
@@ -86,17 +79,6 @@ export default function ListingCard({ listing, eager = false, showPriceNote = tr
         ) : null}
 
         <SaveButton rentableId={listing.id} listingTitle={title} selection={listing.selection} />
-
-        {photoCount > 1 ? (
-          <div className="pointer-events-none absolute bottom-2.5 left-1/2 flex -translate-x-1/2 gap-1.5">
-            {Array.from({ length: Math.min(photoCount, 5) }).map((_, i) => (
-              <span
-                key={i}
-                className={`size-1.5 rounded-full ${i === 0 ? 'bg-white' : 'bg-white/55'}`}
-              />
-            ))}
-          </div>
-        ) : null}
       </div>
 
       <div className="pt-3">

@@ -79,6 +79,7 @@
 @theme {
   /* Strong ease-out for UI that enters, leaves or docks. */
   --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
 
   /* --- Brand: deep field green. The ONLY colour that means "act". --- */
   --color-brand-50: #ecf4ef;
@@ -1015,4 +1016,27 @@
     position: relative;
     left: -5rem;
   }
+}
+
+/* Keep card photos uncluttered with a pointer; touch and keyboard retain controls. */
+@media (hover: hover) and (pointer: fine) {
+  .card-photo-arrow {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 150ms var(--ease-out-strong);
+  }
+  .group:hover .card-photo-arrow,
+  .group:focus-within .card-photo-arrow {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-photo-arrow {
+    transition: none;
+  }
+}
+
+.group:focus-within .card-photo-arrow {
+  transition: none;
 }
