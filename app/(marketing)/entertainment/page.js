@@ -83,19 +83,34 @@ export default async function EntertainmentHomePage() {
       ? rowPlaces[0].priceNote
       : null;
   // Activities each city really has, counted from its venue cards, in catalogue order.
-  const pickerCities = cityRows.map(({ city, places }) => ({
-    slug: city.slug,
-    name: city.name,
-    activities: activities
-      .map((activity) => ({
-        slug: activity.slug,
-        name: activity.name,
-        iconKey: activity.iconKey,
-        count: places.filter((p) => p.activities?.some((a) => a.slug === activity.slug)).length,
-        more: places.length === CITY_READ,
-      }))
-      .filter((activity) => activity.count > 0),
-  }));
+  const pickerCities = cityRows.map(({ city, places }) => {
+    const usedPhotos = new Set();
+    return {
+      slug: city.slug,
+      name: city.name,
+      activities: activities
+        .map((activity) => {
+          const matching = places.filter((p) =>
+            p.activities?.some((a) => a.slug === activity.slug),
+          );
+          const primary = matching.filter((p) => p.categorySlug === activity.slug);
+          const photos = [...primary, ...matching].flatMap((p) =>
+            p.photos?.length ? p.photos : p.photo ? [p.photo] : [],
+          );
+          const photo = photos.find((p) => !usedPhotos.has(p.url));
+          if (photo) usedPhotos.add(photo.url);
+          return {
+            slug: activity.slug,
+            name: activity.name,
+            iconKey: activity.iconKey,
+            photo,
+            count: matching.length,
+            more: places.length === CITY_READ,
+          };
+        })
+        .filter((activity) => activity.count > 0),
+    };
+  });
   const offered = (places) => {
     const names = activities
       .filter((a) => places.some((p) => p.activities?.some((x) => x.slug === a.slug)))
