@@ -26,6 +26,7 @@ import { SLOT_ICONS } from '@/components/rentra/slot-icons';
 import Rating from '@/components/rentra/Rating';
 import TrustBadge from '@/components/rentra/TrustBadge';
 import { CANCELLATION_TIERS, calculateRefund, formatINR, SLOTS } from '@/lib/domain/pricing';
+import { subScoreLabels } from '@/lib/domain/vertical-ui';
 
 /**
  * The read-only half of the listing page. Server Components, every one —
@@ -290,7 +291,7 @@ const SUB_SCORES = [
   ['valueForMoney', 'Value for money'],
 ];
 
-export function Reviews({ listing }) {
+export function Reviews({ listing, noun = ['stay', 'stays'] }) {
   const { reviews = [], subScores, rating, reviewCount } = listing;
 
   if (!reviewCount || !reviews.length) {
@@ -310,13 +311,16 @@ export function Reviews({ listing }) {
             <span className="text-body text-ink-500">/ 5</span>
           </p>
           <p className="mt-1 text-meta text-ink-600">
-            {reviewCount} {reviewCount === 1 ? 'stay' : 'stays'}
+            {reviewCount} {reviewCount === 1 ? noun[0] : noun[1]}
           </p>
         </div>
 
         {subScores ? (
           <dl className="grid content-center gap-2.5">
-            {SUB_SCORES.map(([key, label]) => {
+            {SUB_SCORES.map(([key, farmLabel]) => {
+              // Venues rate the court where farmhouses rate the photos' accuracy.
+              const label =
+                listing.rentalUnit === 'hour' ? subScoreLabels('entertainment')[key] : farmLabel;
               const value = subScores[key];
               if (value == null) return null;
               return (
@@ -405,7 +409,7 @@ export function OwnerCard({ listing }) {
         <div className="min-w-0">
           <p className="text-h4 font-bold">{client?.firstName}</p>
           <p className="text-meta text-ink-600">
-            {listing.categoryName ?? 'Farmhouse'} owner
+            {listing.categoryName ?? 'Property'} owner
             {client?.since ? ` · on Rentra since ${new Date(client.since).getFullYear()}` : ''}
           </p>
         </div>

@@ -159,12 +159,16 @@ export function BookingDetail({
           <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 border-t border-border pt-4 text-meta text-ink-600">
             <span className="inline-flex items-center gap-2">
               <CalendarDays className="size-4 text-brand-700" aria-hidden="true" />
-              {shortDate(record.visits[0]?.date)}
+              {record.visits[0]?.slot === 'hourly'
+                ? record.visits[0].label
+                : shortDate(record.visits[0]?.date)}
             </span>
             <span className="inline-flex items-center gap-2">
               <Users className="size-4 text-brand-700" aria-hidden="true" />
               {plural(record.visits.length, 'visit')}
-              {guests ? ` · ${plural(guests, 'guest')}` : ''}
+              {guests
+                ? ` · ${plural(guests, record.visits[0]?.slot === 'hourly' ? 'player' : 'guest')}`
+                : ''}
             </span>
             <a
               href="#getting-there"
@@ -264,8 +268,16 @@ export function BookingDetail({
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
                     <h3 className="font-semibold">
-                      {v.date ? formatLocalDate(v.date, { year: 'numeric' }) : 'Date not recorded'}{' '}
-                      · {SLOTS[v.slot]?.label ?? words(v.slot)} · {plural(v.guests, 'guest')}
+                      {v.slot === 'hourly' ? (
+                        `${v.label} · ${plural(v.guests, 'player')}`
+                      ) : (
+                        <>
+                          {v.date
+                            ? formatLocalDate(v.date, { year: 'numeric' })
+                            : 'Date not recorded'}{' '}
+                          · {SLOTS[v.slot]?.label ?? words(v.slot)} · {plural(v.guests, 'guest')}
+                        </>
+                      )}
                     </h3>
                     <p className="font-mono text-tiny break-all text-ink-500">
                       Visit {v.reference}

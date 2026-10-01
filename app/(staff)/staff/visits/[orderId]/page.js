@@ -70,7 +70,9 @@ export default async function StaffVisitPage({ params }) {
             </span>
           </div>
           <p className="text-tiny text-ink-600">
-            {visit.reference} · {visit.slot.replaceAll('_', ' ')} · {visit.guests} guest(s)
+            {visit.reference} ·{' '}
+            {visit.slot === 'hourly' ? visit.label : visit.slot.replaceAll('_', ' ')} ·{' '}
+            {visit.guests} {visit.slot === 'hourly' ? 'player(s)' : 'guest(s)'}
             {visit.endsAt ? ` · ends ${ist(visit.endsAt, data.timeZone)} IST` : ''}
           </p>
           <VisitEvidence

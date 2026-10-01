@@ -14,9 +14,14 @@ test('URL arguments normalize arrays, pages, search, queues and property IDs', (
   assert.deepEqual(normalizeListings({ page: '-1', q: ['a'], status: 'invalid' }), {
     query: '',
     status: 'all',
+    vertical: '',
     page: 1,
     pageSize: 10,
   });
+  assert.equal(normalizeListings({ vertical: 'entertainment' }).vertical, 'entertainment');
+  assert.equal(normalizeListings({ vertical: 'casino' }).vertical, '');
+  assert.equal(normalizeBookings({ resource: '../foo', vertical: 'x' }).resource, '');
+  assert.equal(normalizeBookings({ vertical: 'farmhouse' }).vertical, 'farmhouse');
   assert.equal(normalizeListings({ q: ' hi ', page: '03' }).query, 'hi');
   assert.equal(normalizeListings({ page: '03' }).page, 3);
   assert.equal(normalizeBookings({ page: ['2'], property: '../foo', tab: 'today' }).page, 1);

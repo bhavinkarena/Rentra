@@ -23,11 +23,11 @@ Phases are delivered one at a time. The owner asks for the next phase after revi
 | 5 → Owner Listing Flow | ✅ Complete (local) | 1 Oct 2026 |
 | 6 → Homepage & Navigation | ✅ Complete (local; owner screenshot review open) | 1 Oct 2026 |
 | 7 → Search & Filters | ✅ Complete (local) | 1 Oct 2026 |
-| 8 → Entertainment Detail Page | ⏳ Next | |
-| 9 → Availability, Slots & Pricing | ⬜ Not started | |
-| 10 → Booking & Payment Flow | ⬜ Not started | |
-| 11 → Dashboards | ⬜ Not started | |
-| 12 → Performance & Optimization | ⬜ Not started | |
+| 8 → Entertainment Detail Page | ✅ Complete (local) | 1 Oct 2026 |
+| 9 → Availability, Slots & Pricing | ✅ Complete (local) | 1 Oct 2026 |
+| 10 → Booking & Payment Flow | ✅ Complete (local) | 1 Oct 2026 |
+| 11 → Dashboards | ✅ Complete (local) | 1 Oct 2026 |
+| 12 → Performance & Optimization | ⏳ Next | |
 | 13 → QA & Edge Cases | ⬜ Not started | |
 | 14 → Migration & Deployment | ⬜ Not started | |
 
@@ -2143,7 +2143,7 @@ Phases 5 and 6 were committed by the owner (backend `ad48b66`, frontend `4b4c7c0
 
 ---
 
-## Phase 8 → Entertainment Detail Page
+## Phase 8 → Entertainment Detail Page — ✅ Complete (1 Oct 2026)
 
 ### Objective
 
@@ -2221,9 +2221,68 @@ None.
 - The structured data validates.
 - The farmhouse listing page renders unchanged (empty screenshot diff).
 
+### Completion record (1 Oct 2026)
+
+Built and verified on the disposable local stack (PostgreSQL 14 on `127.0.0.1:55432`, API on `:4106`, web in dev mode on `:3106`, plus a production `next build`). **Neon was not touched.** Phase 7 was committed by the other developer (backend `21a84a8`, frontend `46e53ac`). The Phase 8 changes are uncommitted on `feat/entertainment`.
+
+**What now works**
+
+- **One route, two layouts.** `/listing/{slug}-{code}` checks `listing.rentalUnit` after `loadListing`. Hour listings render `VenueListing`; farmhouse code is unchanged.
+- **Shared parts stay shared:** breadcrumbs, gallery and the `#gallery-end` sentinel, `MeasuredView`, reviews, host, map and similar listings. The title, place, rating, save, share and badges block became `ListingHeader`, which both layouts use. The farmhouse markup is the same.
+- **Venue sections** (new `components/rentra/listing/VenueSections.jsx`), in the planned order:
+  - activity chips;
+  - **facts:** "3 courts" (the unit noun comes from the activity), "Up to 12 players", "Indoor and outdoor", surfaces, and "Open today 6 AM – 1 AM" or "Closed today";
+  - About this venue;
+  - **Courts:** one card per active court with its size, surface, indoor or outdoor, players and activities;
+  - **Opening hours:** a weekly table. Days with the same hours share a row ("Monday – Sunday"). Today is bold and marked "· Today". After-midnight closes show "(next day)";
+  - **Prices:** Weekday and Weekend bands for each activity. Peak bands have a dot and the word "Peak". The note reads "Per hour, per court. Platform fee added at checkout.";
+  - amenities: the existing `AmenityGrid`;
+  - **Venue rules:** footwear, age, food, smoking, alcohol and the owner's notes;
+  - Reviews ("{n} bookings") and the host;
+  - **Cancellation:** the hour bands from `CANCELLATION_TIERS_HOURLY`, with rupee amounts for a one-hour booking at the from-price, and a worked example: "for a Saturday 7:00 PM start, cancel by Friday 7:00 PM for a full refund".
+- **Rail and phone bar:**
+  - The rail (`VenueBookingRail`, `id="book"`) shows "From ₹X / hr", the court count, today's hours, and a marked `data-slot="time-picker"` box. Phase 9 puts `TimeSlotPicker` in that box.
+  - The phone bar (`VenueMobileBar`) shows "from ₹X / hr", "3 courts · Open today …" and a "Check times" link to `#book`. It appears after the gallery, exactly like the farmhouse bar; both now use the extracted `use-shown-after.js` hook.
+- **SEO:**
+  - venue `generateMetadata`: "{title}, {area} — from ₹600/hr", with activities, courts, players and the per-hour price in the description;
+  - **JSON-LD:** `SportsActivityLocation` (`BowlingAlley` for bowling, `EntertainmentBusiness` for gaming and trampoline), with `openingHoursSpecification` from the weekly hours, `priceRange` "₹600–₹1,400 per hour" and the breadcrumbs. As on farmhouse there is no geo, no street address, and no rating until reviews exist;
+  - **OG image:** "₹600 / hr", "Vesu, Surat · Box cricket · Pickleball · 3 courts", and the next open day from `next-dates.hourly`.
+- **Copy:** `OwnerCard`'s fallback is "Property owner" (it was "Farmhouse owner"); `Reviews` takes a noun; the not-found title is "Listing not found".
+- **Backend** (`db/queries.js`):
+  - The detail's amenity catalogue is limited to the listing's vertical through `amenity_vertical`. Before this, a venue page would have listed farmhouse amenities such as a pool as "not confirmed".
+  - New `bookable` (= `bookingConfig.inventoryReady`) for the edge case where the venue's booking setup is mid-update.
+
+**Verification**
+
+- **Backend `npm test`: 163/163 pass.** `venue-public-http.integration.test.js` now asserts that a farmhouse-only amenity never reaches the venue detail, and that `bookable` is true.
+  - Mutation check: with the amenity filter removed, that test fails.
+- **Frontend `npm test`: 51/51.** eslint and Prettier are clean on the changed files, and `next build` passes.
+- **Browser** (fixture farmhouse `review01` and fixture venue `venue001` with 3 courts, 2 activities and 6 bands, at 1440 and 390):
+  - axe: 0 violations in `<main>` on both pages at both widths;
+  - no horizontal overflow at 390;
+  - no console errors;
+  - the venue phone bar is `aria-hidden` before the gallery scrolls away and shown after it, the same as farmhouse.
+- **Facts match the database:** courts, surfaces, players, hours (06:00–01:00 next day), the box-cricket ₹800/₹1,200 and ₹1,000/₹1,400 bands, and pickleball ₹600/₹700.
+- **No farmhouse words:** the rendered `<main>` text of the venue page has no match for `farm|guests?|stays?|nights?`.
+- **Pending config:** with `inventoryReady=false`, the rail says "The venue is updating its booking times", and the rest of the page renders.
+- **JSON-LD:** a node assertion script checked the type, address, 7 `OpeningHoursSpecification` entries (schema.org day URLs, HH:MM), the absence of geo and street address, and the BreadcrumbList.
+- **OG image:** renders as a PNG for the venue (`shots/phase8/venue-og.png`).
+- **Farmhouse unchanged:** the rendered `<main>` DOM of the farmhouse listing, captured with Playwright with the Phase 8 changes stashed and then restored, is **identical (775 lines, empty diff)**.
+- Screenshots: `docs/design/entertainment/shots/phase8/` (venue and farmhouse at 1440 and 390, the phone bar, the OG image). They show fixture data; the venue photos are farmhouse seed images.
+
+**Deviations from the plan text**
+
+- **The rail has no picker yet.** The plan lists `TimeSlotPicker` under Phase 9, so the rail and the phone bar link to a marked placeholder. Pre-selection from card time chips, URL sync, and hiding the activity and court selects for single values arrive with the picker.
+- **`PRICE_MISSING` logging** belongs to the time grid, so it is Phase 9.
+- **Old farmhouse parameters on a venue URL** are ignored, because the venue layout reads no `slot` or `date` parameters.
+- **Screenshot diff:** the farmhouse check is a DOM diff, not an image diff. The fixture photos load lazily, which makes pixel diffs noisy.
+- **JSON-LD:** validated by assertions, not by Google's online validator, because the page is not public.
+
+**Owner actions:** none. No migration.
+
 ---
 
-## Phase 9 → Availability, Slots & Pricing
+## Phase 9 → Availability, Slots & Pricing — ✅ Complete (1 Oct 2026)
 
 ### Objective
 
@@ -2330,8 +2389,80 @@ A first version of `ResourceDayTimeline` and the legend fix shipped in Phase 5 (
 
 - For a fixture day, the grid shown to the guest, the free count on search cards and the hold result agree in an automated test that books every displayed start one by one.
 
+### Completion record (1 Oct 2026)
+
+Built and verified on the disposable local stack (PostgreSQL 14 on `127.0.0.1:55432`, API on `:4106` with test Razorpay keys, web on `:3106` in dev mode, plus a production `next build`). **Neon was not touched.** There is no migration. Phase 8 and Phase 9 changes are uncommitted on `feat/entertainment`.
+
+**What now works**
+
+- **Guest time picker** (`TimeSlotPicker.jsx`) in the desktop rail and in a phone bottom sheet. Its state lives in the new `HourlyQuoteProvider.jsx`, which fills the same context as `BookingQuoteProvider`, so `QuoteSummary` and the login hand-off are reused. The picker, top to bottom:
+  - **Activity:** a select, hidden when the venue has one bookable activity.
+  - **Date strip:** the next 14 days, ending at the booking horizon. Each day is marked "Closed" or "Full" from `availability?activity&duration`. A native date input reaches later dates up to the horizon.
+  - **Duration stepper** within the venue's `durations`.
+  - **Start-time grid:** chips in 3 columns, 56px tall.
+    - Each chip shows the time and the price; peak times have a dot.
+    - Each chip's accessible name is the full sentence, e.g. "6:00 PM to 7:00 PM, ₹1,200, Peak, 2 courts free".
+    - The grid is one `role="group"`, described by the date. It uses a roving tabindex: Tab enters once, then arrow keys, Home and End move.
+    - Taken times are not rendered. The empty state reads "No times left on …" and offers a "Next open: …" button.
+    - Skeleton chips match the real chip size.
+  - **Court:** "Any available court (N free)" or a specific free court. The unit noun follows the activity. When there is one court, the picker shows "1 court" instead of a select.
+  - **Players:** a stepper capped by the largest eligible court.
+- **Quote.** Any change waits 250ms and then calls `requestBookingQuote({ kind: 'hourly', … })`. As on farmhouse, the tick-to-review step, the "price changed" notice and re-quoting on expiry all apply.
+  - A signed-out guest gets "Log in to book", and the hourly selection survives login.
+  - `QuoteSummary` reads "Court rent" and uses date-and-time tick copy when `kind === 'hourly'`. The farmhouse copy is unchanged.
+- **Freshness:**
+  - Times are fetched `no-store` (`lib/api/availability.js`: `fetchTimes` and `fetchHourlyAvailability`) and refetched on window focus when older than 60 seconds.
+  - A quote error that means the grid is out of date (`AVAILABILITY_CONFLICT`, `START_INVALID`, `OUTSIDE_OPENING_HOURS`) refetches the grid. A time or court that is no longer free is dropped with "That time was just taken…". This is derived state, not an effect.
+- **Pre-selection and URL sync:**
+  - Card time chips (`activity`, `date`, `duration`, `players`, `start`) pre-fill the picker.
+  - The selection is written back to the URL with `history.replaceState` (adding `court` when one is chosen), so a shared link opens the same time.
+  - Invalid or past values are ignored.
+- **Phone:** `VenueMobileBar` shows "from ₹X / hr", or the booking total once quoted, and opens a `<dialog>` sheet with the same picker and quote. The rail picker is desktop-only, so the page never shows two pickers at once.
+- **Owner timeline:** dragging across free time on a court (`SelectableLane.jsx`) fills in the "Block an exact period" form (court, dates, times; a single click blocks one hour) and moves focus to the reason field. It is pointer-only; keyboard users fill in the same form directly. The ponytail note in `ResourceDayTimeline` is resolved. The legend fix had already shipped in Phase 5.
+- **Backend:**
+  - `time-slots.js` logs a `PRICE_MISSING` advisory once per listing, activity and day kind when open hours have no price band; those starts stay hidden.
+  - The venue detail's `openingHours` now carries `bookingHorizonDays`.
+
+**Verification**
+
+- **Backend `npm test`: 165/165 pass.** The new `time-grid.integration.test.js` has two tests:
+  - **Acceptance:** for a fixture weekday, the grid offers 18 one-hour starts with 2 courts each, and the search card shows the grid's first three times.
+    - Every displayed start is quoted at the grid's price and held once per free court (36 holds through the real quote → hold path).
+    - After each start's holds, the grid drops that start, and one more quote is refused with `AVAILABILITY_CONFLICT`.
+    - At the end the grid is empty and the venue drops out of search.
+  - **Property test** over 10 seeded random configs. The configs vary step (30/60), single or split shifts, closes after midnight, changeover buffers of 0–30 minutes, gaps in price bands, court and venue-wide owner blocks, and durations.
+    - For every half-hour start of the day: shown in the grid ⇔ the quote accepts it, at the same price.
+    - Guarded against a vacuous pass (more than 50 starts offered across the configs).
+- **Frontend `npm test`: 51/51.** eslint is clean on `components`, `lib` and `app`. Prettier is clean on the changed files, and `next build` passes.
+- **Browser gate `scripts/portal-gate/cp35_venue_times_gate.mjs`: 27/27.** It checks:
+  - the grid count, the full chip names, chip height of at least 44px, roving tabindex with arrow keys;
+  - the quote total (₹864 for 10 AM), the free-court select and URL sync;
+  - duration change clearing the time, the one-court activity, and the "Review booking" link to `/checkout/review/:id`;
+  - card pre-selection (7 PM for 2 hr, ₹2,592);
+  - the conflict refresh (a venue block inserted behind the guest's back drops 7 PM with a notice);
+  - "Log in to book" when signed out;
+  - the phone sheet, with no overflow and the bar showing the total;
+  - owner drag 10:00–11:30 filling in the block form;
+  - 30 courts × 20 hours rendering 30 lanes at full height with no page overflow;
+  - axe (WCAG 2.1 AA) 0 on the 1440 rail, the 390 sheet and the owner timeline `<main>`;
+  - no console errors.
+  - The partner shell's sidebar avatar has a contrast finding that predates this work and sits outside `<main>`.
+- **Farmhouse unchanged:** the rendered `<main>` DOM of the farmhouse listing, captured with all Phase 8–9 changes stashed and then restored, is **identical (775 lines, empty diff)**.
+- Screenshots: `docs/design/entertainment/shots/phase9/` (rail with quote, phone sheet, owner drag, the 30×20 timeline). They show fixture data.
+
+**Deviations from the plan text**
+
+- **`rentable_rate_override`** (holiday prices) is not shipped. The plan marks it optional, to ship when owners ask.
+- **Files:** `DateStrip` and `DurationStepper` live inside `TimeSlotPicker.jsx` rather than in separate files.
+- **"More dates":** a native date input (min today, max the horizon) instead of a calendar popover.
+- **"Reserve" opens the existing quote review** (`/checkout/review/:id`). How the hourly review, hold, payment and confirmation screens render is Phase 10.
+- **Hold conflicts:** the "refresh the grid and keep the scroll position" behaviour is wired to quote errors. Hold errors surface at checkout, which is Phase 10.
+- **Visual and keyboard tests** are a browser gate script, not a snapshot suite.
+
+**Owner actions:** none. No migration.
+
 ---
-## Phase 10 → Booking & Payment Flow
+## Phase 10 → Booking & Payment Flow — ✅ Complete (1 Oct 2026)
 
 ### Objective
 
@@ -2419,9 +2550,80 @@ Farmhouse behaviour is identical. The SMS bodies are already generic (`domain/no
 - Refund amounts match the hour bands to the paisa in tests.
 - The farmhouse checkout is visually and behaviourally unchanged.
 
+### Completion record (1 Oct 2026)
+
+Verified on the disposable local stack. That stack had PostgreSQL 14 on `127.0.0.1:55432`, the API on `:4106` with a file-backed fake Razorpay, and the web app on `:3106` as a production build (`next start`). The owner's own `next dev` was running in the repo, so a second dev server was not possible. **Neon was not touched. There is no new migration:** the reminder trigger is the existing `0054`. Phases 8–10 are uncommitted on `feat/entertainment`.
+
+**What now works**
+
+- **The quote → review → hold → pay → confirm pipeline handles hourly bookings.** No route changes. The money code is unchanged: `startCheckoutPayment`, verify, webhooks and settlement.
+  - **Review (`parts.jsx`):** for `quote.selection.kind === 'hourly'`, the facts are Date (with the duration), Time ("7:00 pm – 8:00 pm", India time, "next day" when the end is on a later date), Court and Activity (with players).
+    - The court reads "Any available court · assigned when you pay", or the chosen court's name · "reserved when you pay". After the hold it reads "Court 2 · reserved for you". The quote now carries `requestedResourceName`.
+    - Prices show "Court rent · 1 hr". The deposit line is hidden when it is ₹0.
+    - Cancellation uses the quote's own hour bands: "Cancel before Sun, 4 Oct, 7:00 pm for a full rent refund", then 50% and none, with "Deadlines count in hours before your start time".
+    - The rules heading is "Venue rules", built from the owner's choices.
+  - **`Checkout.jsx`:**
+    - The section is titled "Your booking".
+    - Venue purpose quick picks: Friendly match, Tournament, Practice, Birthday party, Corporate event, Kids' play.
+    - Venue terms copy.
+    - "Reserving your time…" and "Your time is held".
+    - Shared messages reword "dates" as "time" for venues (`forVenue`).
+  - **`ConfirmedView.jsx`:** "Enjoy your game · Court 2, Mon, 5 Oct, 7:00 pm – 8:00 pm", plus "Arrive 10 minutes early" only when the owner's rules say so. Hour-based cancellation copy. The `.ics` link and the arrival details are unchanged.
+  - **Order review fix:** `readOwnedCheckoutReview` rebuilds an hourly selection for venue orders. It used to rebuild a slot selection.
+- **`describeVisit` and `visitLabel`, one label everywhere** (`domain/booking-record.js`, both copies):
+  - slot visits read "Sat 3 Oct · Overnight";
+  - hourly visits read "Sat 3 Oct · 7:00 pm – 9:00 pm · Court 2 · Box cricket", with "next day" after midnight and court or activity skipped on legacy rows;
+  - formatting is digits-only, so server and browser output never differ.
+  - The API adds a `label` to every visit DTO: booking record, staff list and record, case plan and case detail, admin client, property overview, property lifecycle impact, and the review form.
+  - These surfaces print it, so the last direct `SLOTS[...]` and `slot.replaceAll` visit labels are gone: `BookingRecords`, `CancelVisits`, `CaseForms`/`CasePanels`, `BookingCases`, `AdminClients`, `AdminBookingDetail`, `ReviewForms`, staff pages, partner overview, admin property.
+  - The summary `.txt` uses the label too. The `.ics` `DESCRIPTION` leads with it for hourly visits.
+- **Venue rules as lines:** `houseRuleLines` (new `domain/venue-rules.js`, both copies). Records and staff views used to drop venue rules because they were an object; they now show them. Checkout uses it as well.
+- **Saved places and links:**
+  - `savedListingHref` and `validSavedSelection` (both copies) accept hourly selections and produce the same link a venue card does. Before this, they threw on `selection.dates`, which would have broken the venue checkout review.
+  - `SaveButton` saves the chosen time.
+  - `SavedPlaces` shows "Mon 5 Oct · 7:00 PM · 2 hr · 6 players".
+  - The listing slug redirect keeps venue parameters.
+- **Book again** for a court booking opens the venue page with the same activity, duration and players, on the same weekday a week later (the next such day from today). This goes through `hourlyRebookHref`, used by the record's `rebookHref` and by `REBOOK_UNSUPPORTED`.
+- **One fewer step:** a venue without a deposit has no rail tick, because the review page carries the binding terms tick.
+
+**Verification**
+
+- **Backend `npm test`: 165/165.** `hourly-booking.integration.test.js` now checks moderate refunds **to the paisa** at 30, 12 and 3 hours before the start (100%, 50%, 0%), and that the fee is kept. The reminder trigger (2 hours before; none for same-day; farmhouse still 24 hours before) is already covered by `entertainment-schema.integration.test.js`.
+- **Frontend `npm test`: 55/55.** New `test/domain/checkout-hourly.test.js` covers:
+  - hour-band `cancellationSteps`, with farmhouse days unchanged;
+  - `describeVisit` for both models, after midnight and legacy rows;
+  - `houseRuleLines`;
+  - hourly saved selection and link.
+- eslint is clean on every changed file. The 55 repo-wide errors are all in `scripts/design/*`, which this work did not touch. `next build` passes.
+- **End to end: `scripts/portal-gate/cp36_venue_checkout_gate.mjs` 23/23.** Razorpay's `checkout.js` is stubbed: it captures in the fake provider and returns a real HMAC signature, so verify runs unchanged. The path:
+  - venue → 7 PM on Court 2, signed out;
+  - development OTP login, which keeps the selection;
+  - review: facts, court rent, hour-band deadline, venue rules, no deposit line, venue purposes; axe 0;
+  - hold ("Your time is held", court reserved);
+  - pay → confirmed (court, time, arrive-early rule, hour copy); axe 0;
+  - `.ics` and summary name the court and activity;
+  - the record shows the label;
+  - the cancel preview refunds the full rent; axe 0;
+  - book again opens the venue a week later.
+- **Interactions from the venue page to paid: 6**, including the optional court: time, court, Review booking, terms tick, Continue to payment, Pay. This is within the "at most 6" criterion.
+- **`cp35` (Phase 9) still passes: 28/28.** It now also checks that there is no rail tick.
+- **Farmhouse checkout unchanged.** The rendered `<main>` of the farmhouse **review page and held-order page** was captured with Playwright on a fresh database, once with the Phase 10 checkout files stashed and once with them in place. The result is **identical, 1,258 lines**.
+  - The first comparison differed only in class order on the facts grid; that was restored.
+  - The farmhouse confirmed screen was not captured (it needs a paid farmhouse order). Its farmhouse branch is the original code.
+- Screenshots: `docs/design/entertainment/shots/phase10/` (review, confirmed, cancel). They show fixture data.
+
+**Deviations from the plan text**
+
+- **`StayFacts` keeps its name**, with an hourly branch, rather than being renamed `VisitFacts`. Fewer call-site changes.
+- **The visit label is computed by the API** (`label`) and printed by the surfaces. The frontend calls `describeVisit` directly only where it holds the data itself (saved selections, tests).
+- **Rain or a power cut** is handled by the existing owner or booking-case cancellation (full refund). It is not re-tested here.
+- **Advance-mode payments** are not exercised on the stack (collection purpose `full`).
+
+**Owner actions:** none. No migration.
+
 ---
 
-## Phase 11 → Dashboards
+## Phase 11 → Dashboards — ✅ Complete (1 Oct 2026)
 
 ### Objective
 
@@ -2474,6 +2676,81 @@ Snapshot tests of `describeVisit` output in each surface. The portal-gate script
 ### Acceptance criteria
 
 Every role can tell from the list alone when a booking starts and which court it uses. Farmhouse records render unchanged.
+
+### Completion record (1 Oct 2026)
+
+Verified on the disposable local stack (PostgreSQL 14 on `127.0.0.1:55432`, the API on `:4106` with the fake Razorpay, and the web app on `:3106` as a production build). The owner's own `next dev` was left running on `:3000`. **Neon was not touched. No migration.** Phases 8–11 are uncommitted on `feat/entertainment`.
+
+**What now works**
+
+- **One list for every role.** The records list API (`listBookingRecords`) now returns, per booking:
+  - `firstVisitLabel`, from `visitLabel`: "Sat 3 Oct · 7:00 pm – 8:00 pm · Court 2 · Box cricket";
+  - `firstVisitSlot`, `firstVisitStartsAt`, `resourceName` and `vertical`.
+  
+  It accepts `vertical` (all actors) and `resource` (owner and admin, only together with `property`) filters. It returns the filter choices: `verticals` the actor has bookings in, and the chosen property's `resources`, scoped to the actor. The validation schemas accept both filters.
+- **Customer:**
+  - Bookings list: venue rows show the first visit's time, court and activity.
+  - Empty state: one "Explore farmhouses" / "Explore venues" link per public vertical (from the registry). With one public vertical it is unchanged.
+  - Booking detail: the header gives the visit label and "N players" for court bookings.
+  - Review form: "Court condition" for venues. The listing page's venue sub-scores read Cleanliness / Court condition / Value for money (`subScoreLabels`).
+  - Saved venues show `listingFacts` ("Box cricket · Pickleball · 3 courts · Up to 12 players"); `savedPlaceCards` returns the venue facts.
+- **Owner:**
+  - **Bookings list:** venue rows show the time, court and activity.
+    - "All kinds / Farmhouses / Venues" chips appear when the owner has bookings of both kinds.
+    - A "Court" select appears on a venue's bookings (`?property=` → `?resource=`).
+  - **Listings table:** the Capacity column reads "3 courts · 12 players" for venues. A "kind" select appears for owners who list both; it goes through `vertical` in `listingFilters`, `listingsPageQuery` and `normalizeListings`.
+  - **Dashboard:** "Farmhouses / Venues" chips over Recent properties for owners with both, linking to the filtered list.
+  - **Portfolio calendar:**
+    - Venues skip the farmhouse "Day/Night closed" rows and link each day's court timeline.
+    - Bookings read "Booked visit · Court 2 · Box cricket".
+    - The slot filter gains "Court bookings", shown only when the owner has a venue.
+  - **Overview:**
+    - "Open future dates: By weekly opening hours" (it used to print "null").
+    - "Next open date" is computed from the weekly hours (`nextWeeklyOpenDay`).
+    - The chip reads "Courts N".
+    - Upcoming visits read "player(s)".
+- **Staff:**
+  - "Today" pages by day (`?date=`, previous and next day). The API returns `date`; a malformed date falls back to today.
+  - Venue visits lead with the time, court and activity in tabular figures, then the property and players.
+- **Admin:** the bookings list shows the venue label under the reference, plus kind chips when both kinds have bookings. The record detail, cases and property pages already used the label (Phase 10).
+- **Finance:** the statement CSV gets a `vertical` column only when the export spans both kinds. Statement items carry `vertical`.
+- **Farmhouse rendering restored to the pre-Phase-10 format.** Every surface prints the visit label for court bookings only. Farmhouse visits keep their exact previous strings, e.g. "Tue, 6 Oct, 2026 · Day picnic · 2 guests".
+
+**Verification**
+
+- **Backend `npm test`: 168/168.** The new `venue-dashboards.integration.test.js` covers:
+  - one owner with a farmhouse and a venue: list labels, `verticals`, the vertical filters, the court filter and its choices;
+  - a court filter without a property is ignored, and another owner sees no courts;
+  - owner listings: venue columns, the kind filter, summary `verticals`;
+  - the venue's next open day;
+  - staff day paging, the label, and the malformed-date fallback.
+  
+  One full-suite run had a single failure in the Phase 4 hourly test. It did not reproduce in 3 isolated runs or in 2 later full runs, so it looks like load-dependent timing; recorded here for Phase 13.
+- **Frontend `npm test`: 55/55.** `portal-cache.test.js` now covers the `vertical` and `resource` arguments. eslint is clean on every changed file; the remaining repo-wide errors are the pre-existing ones in `scripts/design/*`. `next build` passes.
+- **Browser gate `scripts/portal-gate/cp37_venue_dashboards_gate.mjs`: 19/19.** It runs after `cp36` (23/23 on the same database) and one farmhouse booking. It checks:
+  - customer list and detail;
+  - owner dashboard chips;
+  - listings capacity and kind filter;
+  - owner bookings: label, kind chips, venue-only filter, court filter;
+  - overview weekly hours;
+  - portfolio agenda: court timeline and court label;
+  - admin bookings: label and chips;
+  - axe 0 on owner listings, owner bookings, portfolio agenda and admin bookings;
+  - no console errors.
+- **Farmhouse unchanged:** a farmhouse-only owner and a customer with a farmhouse booking. The rendered `<main>` was captured on `/bookings`, the booking detail, the cancel page, `/partner`, `/partner/listings`, `/partner/bookings`, the farmhouse overview and the portfolio agenda, once with the **HEAD frontend** (all of Phases 8–11 stashed) and once with the current code.
+  - After normalising React's hydration comment markers and timestamps, the comparison is **identical**. Two other runs differed only by hydration-timing artefacts (attribute order, comment text nodes).
+  - The first comparison caught one real difference, the "Court bookings" option shown to a farmhouse-only owner, which is now hidden.
+- Screenshots: `docs/design/entertainment/shots/phase11/` (owner bookings, admin bookings). They show fixture data.
+
+**Deviations from the plan text**
+
+- **Kind chips follow bookings, not listings,** on booking lists: an owner who lists both but has bookings in only one kind sees no chips there. The listings page and the dashboard chips follow listings.
+- **Admin global search** (people and applications) is unchanged. Bookings are searched and filtered by kind on `/admin/bookings`.
+- **Review screens** (`ReviewQueue`/`ReviewDetail`) show only the overall rating, so they have no sub-score labels to change.
+- **The staff UI** was checked by the API test, not by a browser gate: there is no staff-session fixture on this stack.
+- **"Snapshot tests of describeVisit in each surface"** are covered instead by the API label tests plus the cp37 gate's text checks.
+
+**Owner actions:** none. No migration.
 
 ---
 

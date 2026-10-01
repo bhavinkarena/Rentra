@@ -6,7 +6,9 @@ import {
   CigaretteOff,
   CircleCheck,
   Clock,
+  Dumbbell,
   FlaskConical,
+  LayoutGrid,
   House,
   Lock,
   MapPin,
@@ -23,7 +25,8 @@ import {
 } from 'lucide-react';
 import Rating from '@/components/rentra/Rating';
 import { SLOT_ICONS } from '@/components/rentra/slot-icons';
-import { SLOTS, CANCELLATION_TIERS } from '@/lib/domain/pricing';
+import { SLOTS, CANCELLATION_TIERS, CANCELLATION_TIERS_HOURLY } from '@/lib/domain/pricing';
+import { houseRuleLines } from '@/lib/domain/venue-rules';
 import { formatINRMinor as money } from '@/lib/domain/booking-money';
 import { cancellationSteps, clockTime, dayTile, shortDay } from '@/lib/domain/checkout-display';
 
@@ -33,11 +36,18 @@ import { cancellationSteps, clockTime, dayTile, shortDay } from '@/lib/domain/ch
  */
 
 const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
+/** Time-booked venue (entertainment plan, Phase 10): one court, one time range. */
+export const isHourly = (quote) => quote.selection.kind === 'hourly';
+const hours = (minutes) => `${minutes / 60} hr`;
 
 export function visitHours(quote) {
   const first = quote.visits[0];
   if (!first) return '';
-  const nextDay = quote.selection.slot === 'night' ? ' next day' : '';
+  // "next day" whenever the end falls on a later local date (overnight slots, late courts).
+  const nextDay =
+    shortDay(first.endsAt, quote.timeZone) !== shortDay(first.startsAt, quote.timeZone)
+      ? ' next day'
+      : '';
   return `${clockTime(first.startsAt, quote.timeZone)} – ${clockTime(first.endsAt, quote.timeZone)}${nextDay}`;
 }
 
@@ -149,16 +159,43 @@ export function StayPhoto({ photo, title, className = '', sizes }) {
   );
 }
 
-/** Icon rows: the three facts a guest checks first. `row` lays them side by side from `sm`. */
+/** Court and activity of a venue visit: the assigned court once held, else "any". */
+function courtFact(quote) {
+  const visit = quote.visits[0] ?? {};
+  return [
+    visit.resourceName ?? visit.requestedResourceName ?? 'Any available court',
+    visit.resourceName
+      ? 'reserved for you'
+      : visit.requestedResourceName
+        ? 'reserved when you pay'
+        : 'assigned when you pay',
+  ];
+}
+
+/** Icon rows: the facts a guest checks first. `row` lays them side by side from `sm`. */
 export function StayFacts({ quote, row = false, className = '' }) {
   const SlotIcon = SLOT_ICONS[quote.selection.slot] ?? Clock;
-  const rows = [
-    [CalendarDays, 'Dates', visitDates(quote), plural(quote.visits.length, 'visit')],
-    [SlotIcon, 'Visit type', SLOTS[quote.selection.slot]?.label ?? 'Visit', visitHours(quote)],
-    [Users, 'Guests', plural(quote.selection.guests, 'guest'), 'per visit'],
-  ];
+  const rows = isHourly(quote)
+    ? [
+        [CalendarDays, 'Date', visitDates(quote), hours(quote.selection.durationMinutes)],
+        [Clock, 'Time', visitHours(quote), 'India time'],
+        [LayoutGrid, 'Court', ...courtFact(quote)],
+        [
+          Dumbbell,
+          'Activity',
+          quote.visits[0]?.activity?.name ?? 'Activity',
+          plural(quote.selection.guests, 'player'),
+        ],
+      ]
+    : [
+        [CalendarDays, 'Dates', visitDates(quote), plural(quote.visits.length, 'visit')],
+        [SlotIcon, 'Visit type', SLOTS[quote.selection.slot]?.label ?? 'Visit', visitHours(quote)],
+        [Users, 'Guests', plural(quote.selection.guests, 'guest'), 'per visit'],
+      ];
   return (
-    <dl className={`${row ? 'grid gap-3 sm:grid-cols-3 sm:gap-4' : 'space-y-3'} ${className}`}>
+    <dl
+      className={`${row ? `grid gap-3 ${rows.length > 3 ? 'sm:grid-cols-2' : 'sm:grid-cols-3'} sm:gap-4` : 'space-y-3'} ${className}`}
+    >
       {rows.map(([Icon, label, value, detail]) => (
         <div key={label} className="flex items-start gap-3">
           <dt className="grid size-9 shrink-0 place-items-center rounded-lg bg-brand-50 text-brand-700">
@@ -197,7 +234,11 @@ export function PriceDetails({ quote, paid = false, titled = true }) {
       {titled ? <h3 className="mb-3 text-sm font-semibold text-ink-900">Price details</h3> : null}
       <dl className="space-y-2 text-sm text-ink-700">
         <Line
-          label={`Rent · ${plural(quote.visits.length, 'visit')}`}
+          label={
+            isHourly(quote)
+              ? `Court rent · ${hours(quote.selection.durationMinutes)}`
+              : `Rent · ${plural(quote.visits.length, 'visit')}`
+          }
           value={money(totals.rentMinor)}
         />
         <Line label="Platform fee" value={money(totals.feeMinor)} />
@@ -227,15 +268,17 @@ export function PriceDetails({ quote, paid = false, titled = true }) {
           </div>
         ) : null}
       </dl>
-      <p className="mt-3 flex items-start gap-2.5 text-sm text-ink-700">
-        <ShieldCheck className="mt-0.5 size-4 shrink-0 text-brand-700" aria-hidden="true" />
-        <span>
-          <strong className="font-semibold text-ink-900" data-money>
-            {money(totals.depositMinor)}
-          </strong>{' '}
-          refundable deposit, paid separately
-        </span>
-      </p>
+      {isHourly(quote) && !totals.depositMinor ? null : (
+        <p className="mt-3 flex items-start gap-2.5 text-sm text-ink-700">
+          <ShieldCheck className="mt-0.5 size-4 shrink-0 text-brand-700" aria-hidden="true" />
+          <span>
+            <strong className="font-semibold text-ink-900" data-money>
+              {money(totals.depositMinor)}
+            </strong>{' '}
+            refundable deposit, paid separately
+          </span>
+        </p>
+      )}
     </div>
   );
 }
@@ -363,9 +406,19 @@ export function VisitList({ quote }) {
 const REFUND_TONES = { full: 'bg-brand-600', partial: 'bg-brand-300', none: 'bg-ink-300' };
 
 export function CancellationPolicy({ quote, now }) {
-  const tier = CANCELLATION_TIERS[quote.policy.cancellationTier];
+  const hourly = quote.policy.cancellation?.bandUnit === 'hours';
+  const tier = (hourly ? CANCELLATION_TIERS_HOURLY : CANCELLATION_TIERS)[
+    quote.policy.cancellationTier
+  ];
   const first = quote.visits[0];
-  const steps = first ? cancellationSteps(quote.policy.cancellationTier, first.startsAt, now) : [];
+  const steps = first
+    ? cancellationSteps(
+        quote.policy.cancellationTier,
+        first.startsAt,
+        now,
+        quote.policy.cancellation,
+      )
+    : [];
   if (!tier) {
     return (
       <p className="text-sm text-ink-700">
@@ -404,7 +457,7 @@ export function CancellationPolicy({ quote, now }) {
                 </span>
                 <span className="block text-xs text-ink-600">
                   {last
-                    ? `Until arrival, ${shortDay(step.until, quote.timeZone)}`
+                    ? `Until ${hourly ? 'the start' : 'arrival'}, ${shortDay(step.until, quote.timeZone)}`
                     : `Before ${shortDay(step.until, quote.timeZone)}, ${clockTime(step.until, quote.timeZone)}`}
                 </span>
               </span>
@@ -416,6 +469,7 @@ export function CancellationPolicy({ quote, now }) {
         {quote.visits.length > 1 ? (
           <li>Shown for your first visit. Each visit’s deadlines count from its own arrival.</li>
         ) : null}
+        {hourly ? <li>Deadlines count in hours before your start time.</li> : null}
         <li>No-show: no rent refund.</li>
         <li>
           The platform fee is refunded only with a full refund under a flexible policy. Cancel
@@ -440,7 +494,8 @@ const RULE_ICONS = [
 const ruleIcon = (rule) => RULE_ICONS.find(([pattern]) => pattern.test(rule))?.[1] ?? CircleCheck;
 
 export function HouseRules({ rules }) {
-  const list = Array.isArray(rules) ? rules.filter(Boolean) : [];
+  // Farmhouse rules are a list; venue rules an object of choices.
+  const list = houseRuleLines(rules);
   if (!list.length)
     return <p className="text-sm text-ink-700">No house rules have been published.</p>;
   return (

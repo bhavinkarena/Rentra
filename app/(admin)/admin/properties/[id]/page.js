@@ -517,7 +517,9 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
               <ul className="mt-4 space-y-1 text-meta" aria-label="Upcoming confirmed visits">
                 {data.lifecycle.visits.map((v) => (
                   <li key={v.reference}>
-                    {v.reference} · {v.day} · {v.slot.replaceAll('_', ' ')} · {v.state}
+                    {v.reference} ·{' '}
+                    {v.slot === 'hourly' ? v.label : `${v.day} · ${v.slot.replaceAll('_', ' ')}`} ·{' '}
+                    {v.state}
                   </li>
                 ))}
               </ul>

@@ -1,6 +1,16 @@
 import Link from '@/components/navigation/NavigationLink';
 import { ArrowRight, Building2, Star } from 'lucide-react';
 import ListingStatusBadge from '@/components/partner/ListingStatusBadge';
+import { unitName } from '@/lib/domain/vertical-ui';
+
+/** "3 courts · 12 players" for a time-booked venue (entertainment plan, Phase 11). */
+function venueCapacity(listing) {
+  if (!listing.resourceCount) return 'No courts yet';
+  const unit = unitName(listing.mainActivityIcon).toLowerCase();
+  return `${listing.resourceCount} ${unit}${listing.resourceCount === 1 ? '' : 's'}${
+    listing.maxPlayers ? ` · ${listing.maxPlayers} players` : ''
+  }`;
+}
 
 function displayTitle(title) {
   return title === 'Untitled property' ? 'Untitled draft' : title;
@@ -147,7 +157,11 @@ export default function PropertyTable({
                 {!compact ? (
                   <>
                     <td className="px-4 py-3.5 text-tiny text-ink-600 tabular">
-                      {listing.capacity ? `${listing.capacity} guests` : '—'}
+                      {listing.rentalUnit === 'hour'
+                        ? venueCapacity(listing)
+                        : listing.capacity
+                          ? `${listing.capacity} guests`
+                          : '—'}
                     </td>
                     <td className="px-4 py-3.5 text-tiny text-ink-600 tabular">
                       {listing.ratingAvg ? (

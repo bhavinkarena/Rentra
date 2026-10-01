@@ -26,8 +26,10 @@ function queryHref(data, changes) {
     q: data.q,
     page: String(data.page),
     ...(data.property ? { property: data.property } : {}),
+    ...(data.vertical ? { vertical: data.vertical } : {}),
     ...changes,
   });
+  if (params.get('vertical') === '') params.delete('vertical');
   return `/admin/bookings?${params}`;
 }
 
@@ -166,6 +168,22 @@ export default function AdminBookingHistory({ data }) {
               );
             })}
           </nav>
+          {(data.verticals ?? []).length > 1 ? (
+            // Entertainment plan, Phase 11: farmhouse or venue bookings.
+            <nav aria-label="Kind of place" className="mt-3 flex flex-wrap gap-2">
+              {['', ...data.verticals].map((code) => (
+                <Link
+                  key={code || 'all'}
+                  href={queryHref(data, { vertical: code, page: '1' })}
+                  aria-current={(data.vertical ?? '') === code ? 'page' : undefined}
+                  className="inline-flex min-h-9 items-center rounded-full border border-border px-3 text-tiny font-semibold text-ink-600 hover:bg-ink-50 aria-[current=page]:border-brand-600 aria-[current=page]:bg-brand-50 aria-[current=page]:text-brand-800"
+                >
+                  {{ '': 'All kinds', farmhouse: 'Farmhouses', entertainment: 'Venues' }[code] ??
+                    code}
+                </Link>
+              ))}
+            </nav>
+          ) : null}
         </div>
 
         {data.items.length ? (
@@ -244,6 +262,12 @@ function BookingRow({ item, listHref }) {
       <td className="px-5 py-4">
         <p className="max-w-[300px] truncate text-meta font-semibold text-ink-900">{item.title}</p>
         <p className="mt-1 font-mono text-tiny text-ink-500">{item.reference}</p>
+        {item.firstVisitSlot === 'hourly' ? (
+          // Venue bookings: when and which court, from the list alone.
+          <p className="mt-1 text-tiny font-semibold text-ink-700 tabular">
+            {item.firstVisitLabel}
+          </p>
+        ) : null}
       </td>
       <td className="whitespace-nowrap px-4 py-4 text-tiny text-ink-600">
         {formatDate(item.createdAt)}

@@ -9,8 +9,21 @@ import {
   StateBadge,
 } from './BookingDisplay';
 function href(base, data, changes) {
-  return `${base}?${new URLSearchParams({ tab: data.tab, q: data.q, page: String(data.page), ...(data.property ? { property: data.property } : {}), ...changes })}`;
+  const query = {
+    tab: data.tab,
+    q: data.q,
+    page: String(data.page),
+    ...(data.property ? { property: data.property } : {}),
+    ...(data.resource ? { resource: data.resource } : {}),
+    ...(data.vertical ? { vertical: data.vertical } : {}),
+    ...changes,
+  };
+  // Optional filters drop out when cleared; tab, q and page keep their place.
+  for (const key of ['resource', 'vertical']) if (query[key] === '') delete query[key];
+  return `${base}?${new URLSearchParams(query)}`;
 }
+
+const VERTICAL_NAMES = { farmhouse: 'Farmhouses', entertainment: 'Venues' };
 
 function shortDate(value) {
   return value
@@ -23,7 +36,7 @@ function shortDate(value) {
     : 'Dates in booking details';
 }
 
-export function BookingHistory({ data, base = '/bookings', operational = false }) {
+export function BookingHistory({ data, base = '/bookings', operational = false, homes = [] }) {
   return (
     <div className="mx-auto max-w-5xl space-y-7">
       <header className="flex flex-wrap items-end justify-between gap-4">
@@ -49,6 +62,8 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
         <Form action={base} className="flex items-end gap-3">
           <input type="hidden" name="tab" value={data.tab} />
           {data.property && <input type="hidden" name="property" value={data.property} />}
+          {data.resource && <input type="hidden" name="resource" value={data.resource} />}
+          {data.vertical && <input type="hidden" name="vertical" value={data.vertical} />}
           <label className="min-w-0 flex-1">
             <span className="sr-only">Search property or booking reference</span>
             <span
@@ -89,6 +104,51 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
             </Link>
           ))}
         </nav>
+        {(data.verticals ?? []).length > 1 || (data.resources ?? []).length ? (
+          // Entertainment plan, Phase 11: optional, for owners with both kinds or many courts.
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {(data.verticals ?? []).length > 1
+              ? ['', ...data.verticals].map((code) => (
+                  <Link
+                    key={code || 'all'}
+                    aria-current={(data.vertical ?? '') === code ? 'page' : undefined}
+                    className="inline-flex min-h-10 items-center rounded-full border border-border px-3.5 text-sm text-ink-700 hover:bg-ink-50 aria-[current=page]:border-brand-600 aria-[current=page]:bg-brand-50 aria-[current=page]:font-semibold aria-[current=page]:text-brand-800"
+                    href={href(base, data, { vertical: code, page: '1' })}
+                  >
+                    {code ? (VERTICAL_NAMES[code] ?? code) : 'All kinds'}
+                  </Link>
+                ))
+              : null}
+            {(data.resources ?? []).length ? (
+              <Form action={base} className="flex items-center gap-2">
+                {['tab', 'q', 'property', 'vertical']
+                  .filter((k) => data[k])
+                  .map((k) => (
+                    <input key={k} type="hidden" name={k} value={data[k]} />
+                  ))}
+                <label htmlFor="booking-court" className="text-sm font-semibold text-ink-700">
+                  Court
+                </label>
+                <select
+                  id="booking-court"
+                  name="resource"
+                  defaultValue={data.resource ?? ''}
+                  className="min-h-10 rounded-full border border-border bg-card px-3 text-sm"
+                >
+                  <option value="">All courts</option>
+                  {data.resources.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.name}
+                    </option>
+                  ))}
+                </select>
+                <button className="min-h-10 rounded-full border border-border px-3.5 text-sm font-semibold text-brand-700 hover:bg-brand-50">
+                  Apply
+                </button>
+              </Form>
+            ) : null}
+          </div>
+        ) : null}
       </div>
       <p className="text-sm text-ink-500">
         {data.total} booking{data.total === 1 ? '' : 's'} found
@@ -115,7 +175,9 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
                 <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-600">
                   <span className="inline-flex items-center gap-2">
                     <CalendarDays className="size-4 text-brand-700" aria-hidden="true" />
-                    {shortDate(item.firstVisit)}
+                    {item.firstVisitSlot === 'hourly'
+                      ? item.firstVisitLabel
+                      : shortDate(item.firstVisit)}
                   </span>
                   <span>
                     {item.visitCount} visit{item.visitCount === 1 ? '' : 's'}
@@ -167,15 +229,27 @@ export function BookingHistory({ data, base = '/bookings', operational = false }
                 ? 'Try another property name or booking reference.'
                 : 'When you book a place, you’ll find your visit details and updates here.'}
           </p>
-          <Link
-            href={operational || data.q || data.tab !== 'all' ? base : '/search'}
-            className={linkClass}
-          >
-            {operational || data.q || data.tab !== 'all'
-              ? 'View all bookings'
-              : 'Explore farmhouses'}
-            <ArrowUpRight className="size-4" />
-          </Link>
+          {!operational && !data.q && data.tab === 'all' && homes.length > 1 ? (
+            // Two public homes: one link each, named by the vertical.
+            <div className="flex flex-wrap justify-center gap-3">
+              {homes.map((home) => (
+                <Link key={home.href} href={home.href} className={linkClass}>
+                  {home.label}
+                  <ArrowUpRight className="size-4" />
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <Link
+              href={operational || data.q || data.tab !== 'all' ? base : '/search'}
+              className={linkClass}
+            >
+              {operational || data.q || data.tab !== 'all'
+                ? 'View all bookings'
+                : 'Explore farmhouses'}
+              <ArrowUpRight className="size-4" />
+            </Link>
+          )}
         </div>
       )}
       {data.pages > 1 && (

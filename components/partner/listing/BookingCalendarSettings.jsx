@@ -355,6 +355,7 @@ export default function BookingCalendarSettings({ listing, blocks, resources = [
           </div>
         )}
         <ActionForm
+          id="block-form"
           action={blockDates}
           rentableId={listing.id}
           title="Block an exact period"

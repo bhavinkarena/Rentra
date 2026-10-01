@@ -47,6 +47,7 @@ const operationalVisits = (record) =>
     reference: v.reference,
     date: v.date,
     slot: v.slot,
+    label: v.label,
     state: v.state,
   }));
 

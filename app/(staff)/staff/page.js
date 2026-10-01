@@ -4,6 +4,7 @@ import { staffSession } from '@/lib/api/session';
 import { settle } from '@/lib/api/page-state';
 import PortalState from '@/components/portal/PortalState';
 import { StaffSignOut } from '@/components/staff/StaffForms';
+import { addLocalDays, formatLocalDate, propertyToday } from '@/lib/domain/booking-dates';
 
 export const metadata = { title: 'Visits' };
 
@@ -25,7 +26,10 @@ export default async function StaffHome({ searchParams }) {
   const { staff, failure: sessionFailure } = await staffSession();
   if (sessionFailure) return <PortalState kind={sessionFailure} />;
   const query = (await searchParams) ?? {};
-  const { data, failure } = await settle(staffApi.visits({ tab: query.tab }));
+  const { data, failure } = await settle(
+    staffApi.visits({ tab: query.tab, ...(query.date ? { date: query.date } : {}) }),
+  );
+  const today = propertyToday();
 
   return (
     <div className="space-y-5">
@@ -65,6 +69,26 @@ export default async function StaffHome({ searchParams }) {
               </Link>
             ))}
           </nav>
+          {data.tab === 'today' && data.date ? (
+            // One day at a time: a venue can have dozens of visits a day.
+            <nav aria-label="Choose a day" className="flex flex-wrap items-center gap-2 text-tiny">
+              <Link
+                className="inline-flex min-h-10 items-center rounded-full border border-border bg-card px-3 font-semibold"
+                href={`/staff?date=${addLocalDays(data.date, -1)}`}
+              >
+                Previous day
+              </Link>
+              <span className="font-semibold text-ink-900">
+                {data.date === today ? 'Today' : formatLocalDate(data.date)}
+              </span>
+              <Link
+                className="inline-flex min-h-10 items-center rounded-full border border-border bg-card px-3 font-semibold"
+                href={`/staff?date=${addLocalDays(data.date, 1)}`}
+              >
+                Next day
+              </Link>
+            </nav>
+          ) : null}
           {data.items.length ? (
             <ul className="divide-y divide-border rounded-lg border border-border bg-card">
               {data.items.map((visit) => (
@@ -74,13 +98,26 @@ export default async function StaffHome({ searchParams }) {
                     className="flex flex-wrap items-center justify-between gap-2 p-4 hover:bg-ink-50"
                   >
                     <span>
-                      <span className="block text-meta font-semibold text-ink-900">
+                      {visit.slot === 'hourly' ? (
+                        // Venue visits lead with the time and court, in tabular figures.
+                        <span className="block text-meta font-bold text-ink-900 tabular">
+                          {visit.label}
+                        </span>
+                      ) : null}
+                      <span
+                        className={
+                          visit.slot === 'hourly'
+                            ? 'block text-tiny font-semibold text-ink-700'
+                            : 'block text-meta font-semibold text-ink-900'
+                        }
+                      >
                         {visit.propertyTitle}
                       </span>
                       <span className="block text-tiny text-ink-600">
-                        {visit.startsAt ? `${ist(visit.startsAt)} IST` : visit.date} ·{' '}
-                        {visit.slot.replaceAll('_', ' ')} · {visit.guests} guest(s) ·{' '}
-                        {visit.reference}
+                        {visit.slot === 'hourly'
+                          ? `${visit.guests} player(s)`
+                          : `${visit.startsAt ? `${ist(visit.startsAt)} IST` : visit.date} · ${visit.slot.replaceAll('_', ' ')} · ${visit.guests} guest(s)`}{' '}
+                        · {visit.reference}
                       </span>
                     </span>
                     <span className="rounded-full bg-ink-100 px-2.5 py-0.5 text-tiny font-semibold text-ink-800">

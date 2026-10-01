@@ -41,7 +41,8 @@ export function CustomerReviewForm({ visits }) {
         <select name="visitId" required className={field}>
           {visits.map((v) => (
             <option value={v.id} key={v.id}>
-              {v.date} · {v.slot.replaceAll('_', ' ')} · {v.reference}
+              {v.slot === 'hourly' ? v.label : `${v.date} · ${v.slot.replaceAll('_', ' ')}`} ·{' '}
+              {v.reference}
             </option>
           ))}
         </select>
@@ -61,7 +62,10 @@ export function CustomerReviewForm({ visits }) {
         </summary>
         <div className="space-y-3">
           <Score name="cleanliness" label="Cleanliness" />
-          <Score name="accuracy" label="Listing accuracy" />
+          <Score
+            name="accuracy"
+            label={visits[0]?.slot === 'hourly' ? 'Court condition' : 'Listing accuracy'}
+          />
           <Score name="valueForMoney" label="Value for money" />
         </div>
       </details>

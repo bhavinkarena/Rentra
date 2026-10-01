@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { ImageResponse } from 'next/og';
 import { discoveryApi } from '@/lib/api/endpoints';
 import { cheapestSlot, formatINR, SLOTS } from '@/lib/domain/pricing';
+import { listingFacts } from '@/lib/domain/vertical-ui';
 
 /**
  * The real storefront. A forwarded WhatsApp card is seen by more people than
@@ -10,7 +11,7 @@ import { cheapestSlot, formatINR, SLOTS } from '@/lib/domain/pricing';
  * to say: "₹8,000 · Sat 14 Feb available" converts, "Rentra — book verified
  * farmhouses" does not. So this carries the price and the next open date.
  */
-export const alt = 'Rentra farmhouse listing';
+export const alt = 'Rentra listing';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -45,10 +46,16 @@ export default async function ListingOgImage({ params }) {
   }
 
   // Same helper the page uses, so the card cannot quote a different price.
+  // Venues (hour listings) quote the from-price per hour and the next open day.
+  const venue = listing.rentalUnit === 'hour';
   const slot = cheapestSlot(listing.prices) ?? 'night';
   const nextDates = await discoveryApi.nextDates(code).catch(() => null);
-  const nextDate = nextDates?.[slot]?.[0];
-  const rent = listing.prices?.[slot]?.weekday ?? listing.price;
+  const nextDate = venue ? nextDates?.hourly?.[0] : nextDates?.[slot]?.[0];
+  const rent = venue ? listing.price : (listing.prices?.[slot]?.weekday ?? listing.price);
+  const unit = venue ? 'hr' : (SLOTS[slot]?.label ?? '').toLowerCase();
+  const facts = venue
+    ? listingFacts(listing).slice(0, 2).join(' · ')
+    : `up to ${listing.capacity} guests${listing.bedrooms ? ` · ${listing.bedrooms} BR` : ''}`;
 
   const dateLabel = nextDate
     ? new Date(`${nextDate}T12:00:00`).toLocaleDateString('en-IN', {
@@ -79,8 +86,7 @@ export default async function ListingOgImage({ params }) {
         </div>
 
         <div style={{ display: 'flex', marginTop: 18, fontSize: 32, color: '#59655D' }}>
-          {listing.areaName}, {listing.cityName} · up to {listing.capacity} guests
-          {listing.bedrooms ? ` · ${listing.bedrooms} BR` : ''}
+          {listing.areaName}, {listing.cityName} · {facts}
         </div>
       </div>
 
@@ -98,10 +104,10 @@ export default async function ListingOgImage({ params }) {
             <span
               style={{ fontSize: 68, fontWeight: 700, color: '#1F2924', letterSpacing: '-0.03em' }}
             >
-              {formatINR(rent)}
+              {rent != null ? formatINR(rent) : 'See prices'}
             </span>
             <span style={{ fontSize: 30, color: '#59655D' }}>
-              / {(SLOTS[slot]?.label ?? '').toLowerCase()}
+              {rent != null ? `/ ${unit}` : ''}
             </span>
           </div>
           <div
@@ -113,7 +119,7 @@ export default async function ListingOgImage({ params }) {
               fontWeight: 700,
             }}
           >
-            {dateLabel ? `${dateLabel} available` : 'Check visit dates'}
+            {dateLabel ? `${dateLabel} available` : venue ? 'Check times' : 'Check visit dates'}
           </div>
         </div>
 

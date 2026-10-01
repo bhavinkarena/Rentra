@@ -1,4 +1,5 @@
 import Link from '@/components/navigation/NavigationLink';
+import SelectableLane from './SelectableLane';
 import { operatingWindows } from '@/lib/domain/hourly';
 import { addLocalDays, formatLocalDate, propertyToday } from '@/lib/domain/booking-dates';
 
@@ -33,7 +34,7 @@ const kindOf = (r) =>
  * holds striped, blocks dashed; buffers show as a light extension. Phones get the
  * same items as a time-sorted list.
  *
- * ponytail: no drag-to-select an empty range into the block form; add when owners ask.
+ * Dragging across empty time on a court pre-fills the block form (SelectableLane).
  */
 export default function ResourceDayTimeline({ property, config, date, basePath }) {
   const items = (property?.intervals ?? [])
@@ -146,6 +147,7 @@ export default function ResourceDayTimeline({ property, config, date, basePath }
           ? `Open ${windows.map((w) => span(date, w.startMin, w.endMin)).join(' and ')}. India time.`
           : 'Closed on this day by the weekly hours. India time.'}{' '}
         Solid: booking · Striped: temporary hold · Dashed: blocked · Pale edge: changeover buffer.
+        Drag across free time on a court to block it.
       </p>
 
       {!rows.length ? (
@@ -189,7 +191,11 @@ export default function ResourceDayTimeline({ property, config, date, basePath }
                           <span className="ml-1 font-normal text-ink-500">(removed)</span>
                         ) : null}
                       </div>
-                      <div
+                      <SelectableLane
+                        courtId={row.id}
+                        date={date}
+                        from={from}
+                        total={total}
                         className="relative h-16 flex-1"
                         style={{
                           backgroundImage: `repeating-linear-gradient(90deg, var(--color-border) 0 1px, transparent 1px ${100 / (total / STEP)}%)`,
@@ -228,7 +234,7 @@ export default function ResourceDayTimeline({ property, config, date, basePath }
                             })}
                           </span>
                         ))}
-                      </div>
+                      </SelectableLane>
                     </li>
                   );
                 })}
