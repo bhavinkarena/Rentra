@@ -5,8 +5,8 @@ import { getCurrentUser } from '@/lib/api/session';
 import LoginForm from '@/components/partner/LoginForm';
 
 export const metadata = {
-  title: 'Partner log in',
-  description: 'List your farmhouse on Rentra and take bookings directly.',
+  title: 'Owner sign in or create account',
+  description: 'List your farmhouse or venue on Rentra and take bookings directly.',
   robots: { index: false, follow: false },
 };
 
@@ -31,15 +31,18 @@ export default async function PartnerLoginPage({ searchParams }) {
 
   return (
     <AuthLayout partner>
-      <h1 className="text-h1">Earn from your farmhouse</h1>
+      <h1 className="text-h1">Earn from your farmhouse or venue</h1>
       <p className="mt-2 text-body text-ink-600">
-        Sign in to manage your property, welcome guests and make room for more bookings.
+        Sign in or create your owner account — it’s free.
       </p>
 
       {params?.blocked ? (
         <p className="mt-5 rounded-md border border-danger/30 bg-danger-bg p-3 text-meta text-danger">
           This account is restricted. Contact Rentra for account review and help with existing
-          bookings.
+          bookings.{' '}
+          <Link href="/help" className="underline">
+            Contact support
+          </Link>
         </p>
       ) : null}
 
@@ -56,6 +59,11 @@ export default async function PartnerLoginPage({ searchParams }) {
         </p>
       ) : null}
 
+      <ul className="mt-5 space-y-2 text-meta text-ink-600">
+        <li>List in about 15 minutes</li>
+        <li>Rentra checks every guest payment</li>
+        <li>Save your UPI or bank details for when payouts are live</li>
+      </ul>
       <div className="mt-8">
         <LoginForm />
       </div>

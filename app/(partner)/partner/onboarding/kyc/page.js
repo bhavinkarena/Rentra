@@ -17,7 +17,7 @@ export default async function Page() {
 
   return (
     <OnboardingShell
-      step={4}
+      current="kyc"
       title="Identity check"
       intro="Photos of one ID, and the name printed on it. We verify it during review, then you can publish."
     >

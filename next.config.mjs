@@ -12,14 +12,14 @@ const nextConfig = {
         : '.next',
   experimental: {
     /**
-     * KYC document uploads: front + back of an ID, up to 2MB each, plus the
+     * KYC document uploads: front + back of an ID, up to 5MB each, plus the
      * bytes multipart/form-data adds for boundaries and part headers. The
      * default is 1MB, which a single phone photo already exceeds.
      *
      * Per-file size and MIME type are enforced again inside the action — this
      * limit only stops an oversized request being parsed at all.
      */
-    serverActions: { bodySizeLimit: '8mb' },
+    serverActions: { bodySizeLimit: '12mb' },
   },
 
   images: {

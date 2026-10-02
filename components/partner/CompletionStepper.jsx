@@ -45,14 +45,14 @@ export default function CompletionStepper({ completion }) {
         />
       </div>
 
-      <Phase label="Phase 1 — yours to complete" first />
+      <Phase label="Your verification" first />
       <ul className="mt-1">
         {steps.map((step, i) => (
           <StepRow key={step.id} step={step} index={i + 1} />
         ))}
       </ul>
 
-      <Phase label="Phase 2 — ours" />
+      <Phase label="Rentra’s review" />
       <ul className="mt-1">
         <li className="flex items-start gap-3 py-2 text-meta">
           <span
@@ -130,7 +130,7 @@ function StepRow({ step, index }) {
       </span>
       {open && step.href ? (
         <span className="mt-0.5 shrink-0 text-tiny font-semibold text-brand-700">
-          {step.failed ? 'Fix' : 'Start'} →
+          {step.failed ? 'Fix' : 'Continue'} →
         </span>
       ) : null}
     </>

@@ -10,12 +10,18 @@ export const metadata = {
   robots: { index: false, follow: false, nocache: true },
 };
 
-export default async function SettingsPage() {
+export default async function SettingsPage({ searchParams }) {
+  const params = await searchParams;
   const user = await requireClient();
   const application = await partnerApi.application();
 
   return (
     <div className="mx-auto w-full max-w-[1240px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      {params?.notice === 'verified' ? (
+        <p role="status" className="mb-4 rounded-md bg-brand-50 p-4">
+          You’re already verified. Update your account details here.
+        </p>
+      ) : null}
       <PartnerPageHeader
         eyebrow="Account"
         title="Settings & payouts"

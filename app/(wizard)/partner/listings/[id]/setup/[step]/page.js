@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { requireActiveClient } from '@/lib/api/session';
+import { requireClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
 import PortalState from '@/components/portal/PortalState';
@@ -51,7 +51,7 @@ export const metadata = {
  * see components/partner/listing/chrome.jsx.
  */
 export default async function SetupStepPage({ params }) {
-  const user = await requireActiveClient();
+  const user = await requireClient();
   const { id, step: stepId } = await params;
 
   /* Scoped to this Client on the API — another Client's id answers 404. */
@@ -72,7 +72,7 @@ export default async function SetupStepPage({ params }) {
         : stepId === 'location'
           ? partnerApi.places()
           : stepId === 'hours'
-            ? partnerApi.calendar(id)
+            ? partnerApi.listingHours(id)
             : Promise.resolve(null),
   );
   if (referenceResult.failure)
@@ -159,6 +159,7 @@ export default async function SetupStepPage({ params }) {
           listing={listing}
           completion={completion}
           submitAction={submitListing}
+          ownerApproved={user.accountStatus === 'active'}
         />
       ) : null}
     </WizardShell>

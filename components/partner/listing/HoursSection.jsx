@@ -2,7 +2,7 @@
 import { cn } from 'cn';
 import { useActionState, useMemo, useState, useTransition } from 'react';
 import { Plus, X } from 'lucide-react';
-import { saveSchedule } from '@/lib/actions/partner';
+import { saveListingHours } from '@/lib/actions/partner';
 import { hourlyBookingConfigSchema } from '@/lib/validation/zod/booking-config';
 import { WEEKDAYS } from '@/lib/domain/hourly';
 import { useStepFormId } from './chrome';
@@ -56,7 +56,7 @@ function initialConfig(stored) {
  * is sent, so the owner sees the exact problem next to the day.
  */
 export function HoursSection({ listing, calendar }) {
-  const [state, dispatch, pending] = useActionState(saveSchedule, {});
+  const [state, dispatch, pending] = useActionState(saveListingHours, {});
   const [, startTransition] = useTransition();
   const [config, setConfig] = useState(() => initialConfig(calendar?.listing?.booking_config));
   const [edited, setEdited] = useState(false);

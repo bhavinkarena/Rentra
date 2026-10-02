@@ -1,6 +1,6 @@
 import Link from '@/components/navigation/NavigationLink';
 import { Check, CircleCheck, Users, Wand2 } from 'lucide-react';
-import { requireActiveClient } from '@/lib/api/session';
+import { requireClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
 import { safeReturnPath } from '@/lib/domain/portal-state';
@@ -55,7 +55,7 @@ export const metadata = {
  *     create.
  */
 export default async function ListingBuilderPage({ params, searchParams }) {
-  const user = await requireActiveClient();
+  const user = await requireClient();
   const { id } = await params; // Next 16: params is a Promise
   const query = (await searchParams) ?? {};
   const listHref = safeReturnPath(query.from, '/partner/listings');
@@ -227,7 +227,12 @@ export default async function ListingBuilderPage({ params, searchParams }) {
               : 'Manage booking hours, dates and prices'}
           </Link>
         </div>
-        <SubmitBar listing={listing} completion={completion} submitAction={submitListing} />
+        <SubmitBar
+          listing={listing}
+          completion={completion}
+          submitAction={submitListing}
+          ownerApproved={user.accountStatus === 'active'}
+        />
       </div>
 
       <ListingChrome variant="card">

@@ -1,19 +1,26 @@
 'use client';
+import Link from '@/components/navigation/NavigationLink';
 import { Field } from '@/components/ui/field';
 import Loader2 from '@/components/ui/rentra-loader';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useState, useRef } from 'react';
 import FormError from '@/components/portal/FormError';
 import { Landmark, Smartphone } from 'lucide-react';
 import { saveDetails, savePayout, saveConsent } from '@/lib/actions/partner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
+// Keep entered values when a Server Action returns an inline error. Navigation clears saved forms.
 /* --------------------------- shared field bits --------------------------- */
 
 function Submit({ pending, children, icon: Icon }) {
   return (
-    <Button type="submit" size="lg" className="w-full" disabled={pending}>
+    <Button
+      type="submit"
+      size="lg"
+      className="sticky bottom-4 z-10 w-full shadow-sm"
+      disabled={pending}
+    >
       {pending ? <Loader2 className="size-4 " /> : Icon ? <Icon className="size-4" /> : null}
       {pending ? <span className="sr-only">Saving…</span> : children}
     </Button>
@@ -51,11 +58,11 @@ export function DetailsForm({ user, application }) {
   const e = state.errors ?? {};
 
   return (
-    <form action={action} className="space-y-5">
+    <form onReset={(event) => event.preventDefault()} action={action} className="space-y-5">
       <Field
         id="legalName"
         label="Full name, as printed on your ID"
-        hint="This is name-matched against your ownership document later, so it has to match exactly."
+        hint="Use the same name as your ID and ownership document."
         error={e.legalName}
       >
         <Input id="legalName" name="legalName" defaultValue={user.name ?? ''} required />
@@ -167,11 +174,39 @@ export function DetailsForm({ user, application }) {
 
 export function PayoutForm({ application }) {
   const [state, action, pending] = useActionState(savePayout, {});
+  const [bankHint, setBankHint] = useState('');
+  const lookupRef = useRef(0);
+  async function lookupIfsc(event) {
+    const code = event.target.value.trim().toUpperCase();
+    const request = ++lookupRef.current;
+    if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(code)) {
+      setBankHint('');
+      return;
+    }
+    setBankHint('Looking up bank and branch…');
+    try {
+      const response = await fetch(`https://ifsc.razorpay.com/${code}`, {
+        signal: AbortSignal.timeout(5000),
+      });
+      const bank = response.ok ? await response.json() : null;
+      if (request === lookupRef.current)
+        setBankHint(
+          bank?.BANK && bank?.BRANCH
+            ? `${bank.BANK} · ${bank.BRANCH}`
+            : 'Bank could not be found. Check the IFSC on your bank statement.',
+        );
+    } catch {
+      if (request === lookupRef.current)
+        setBankHint(
+          'Bank lookup is unavailable. You can still save the IFSC from your bank statement.',
+        );
+    }
+  }
   const [method, setMethod] = useState(application?.payoutAccountRef ? 'bank' : 'upi');
   const e = state.errors ?? {};
 
   return (
-    <form action={action} className="space-y-5">
+    <form onReset={(event) => event.preventDefault()} action={action} className="space-y-5">
       <fieldset>
         <legend className="mb-2 text-meta font-semibold text-ink-700">
           How should we pay you?
@@ -211,27 +246,51 @@ export function PayoutForm({ application }) {
             <Input
               id="accountNumber"
               name="accountNumber"
+              required
+              autoComplete="off"
               inputMode="numeric"
               className="font-mono"
+            />
+          </Field>
+          <Field
+            id="confirmAccountNumber"
+            label="Confirm account number"
+            hint="Enter it again to avoid a payout mistake."
+            error={e.confirmAccountNumber}
+          >
+            <Input
+              id="confirmAccountNumber"
+              name="confirmAccountNumber"
+              inputMode="numeric"
+              autoComplete="off"
+              required
             />
           </Field>
           <Field id="ifsc" label="IFSC" hint="Like SBIN0001234." error={e.ifsc}>
             <Input
               id="ifsc"
               name="ifsc"
+              onBlur={lookupIfsc}
+              onChange={() => {
+                lookupRef.current++;
+                setBankHint('');
+              }}
               maxLength={11}
               placeholder="SBIN0001234"
               defaultValue={application?.payoutIfsc ?? ''}
               className="font-mono uppercase"
             />
           </Field>
+          <p role="status" className="text-tiny text-ink-600 sm:col-span-2">
+            {bankHint}
+          </p>
         </div>
       )}
 
       <Field
         id="holderName"
         label="Account holder name"
-        hint="Use the name the bank holds for this account. Rentra compares it with your ID name at review — a comparison, not bank verification."
+        hint="Use the name on your bank account. It should match your ID."
         error={e.holderName}
       >
         <Input
@@ -251,7 +310,7 @@ export function PayoutForm({ application }) {
 
       <FormError state={state} />
       <Submit pending={pending} icon={method === 'upi' ? Smartphone : Landmark}>
-        Save payout details
+        Save and continue
       </Submit>
     </form>
   );
@@ -259,12 +318,36 @@ export function PayoutForm({ application }) {
 
 /* -------------------------------- consent -------------------------------- */
 
-export function ConsentForm() {
+export function ConsentForm({ application }) {
   const [state, action, pending] = useActionState(saveConsent, {});
   const e = state.errors ?? {};
 
   return (
-    <form action={action} className="space-y-5">
+    <form onReset={(event) => event.preventDefault()} action={action} className="space-y-5">
+      {application?.consentAt ? (
+        <p className="text-meta text-ink-600">
+          Previously agreed on{' '}
+          {new Date(application.consentAt).toLocaleDateString('en-IN', {
+            timeZone: 'Asia/Kolkata',
+          })}
+          .
+        </p>
+      ) : null}
+      <p className="text-meta">
+        Read our{' '}
+        <Link href="/policies/owner-terms" className="text-brand-700 underline">
+          Owner terms
+        </Link>
+        ,{' '}
+        <Link href="/policies/privacy" className="text-brand-700 underline">
+          Privacy policy
+        </Link>{' '}
+        and{' '}
+        <Link href="/policies/cancellation" className="text-brand-700 underline">
+          Cancellation policy
+        </Link>
+        .
+      </p>
       <label className="flex cursor-pointer gap-3 rounded-md border border-input p-3 hover:bg-ink-50">
         <input
           type="checkbox"

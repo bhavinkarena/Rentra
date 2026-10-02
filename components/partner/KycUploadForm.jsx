@@ -1,10 +1,13 @@
 'use client';
+import Image from 'next/image';
 import Loader2 from '@/components/ui/rentra-loader';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useState, useRef } from 'react';
 import { Upload, ShieldCheck, Check, Trash2, FileText } from 'lucide-react';
 import { uploadKycDocuments, deleteKycDocument } from '@/lib/actions/partner';
-import { ID_DOCUMENT_TYPES, ID_DOCUMENT_BY_ID, MAX_DOC_BYTES } from '@/lib/constants';
+import FormError from '@/components/portal/FormError';
+import { prepareIdentityFile } from '@/lib/domain/identity-upload';
+import { ID_DOCUMENT_TYPES, ID_DOCUMENT_BY_ID } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -18,10 +21,19 @@ import { Input } from '@/components/ui/input';
  * ID into a page.
  */
 export default function KycUploadForm({ application, documents = [] }) {
-  const [state, action, pending] = useActionState(uploadKycDocuments, {});
+  const [picked, setPicked] = useState({});
+  const picks = useRef({});
+  const [state, action, pending] = useActionState(async (previous, form) => {
+    for (const side of ID_DOCUMENT_BY_ID[form.get('docType')].sides) {
+      const choice = picked[side];
+      if (choice?.busy || choice?.error)
+        return { error: choice.error ?? 'Wait for the photo to finish preparing.' };
+      if (choice?.file) form.set(side, choice.file);
+    }
+    return uploadKycDocuments(previous, form);
+  }, {});
   const [deleteState, deleteAction, deleting] = useActionState(deleteKycDocument, {});
   const [docType, setDocType] = useState(application?.kycDocType ?? 'pan_card');
-  const [picked, setPicked] = useState({});
 
   const e = state.errors ?? {};
   const spec = ID_DOCUMENT_BY_ID[docType];
@@ -30,28 +42,32 @@ export default function KycUploadForm({ application, documents = [] }) {
     documents.filter((d) => d.docType === docType).map((d) => [d.side, d]),
   );
 
-  function onPick(side, event) {
+  async function onPick(side, event) {
     const file = event.target.files?.[0];
-    setPicked((p) => ({
-      ...p,
-      [side]: file ? { name: file.name, size: file.size, tooBig: file.size > MAX_DOC_BYTES } : null,
-    }));
+    picks.current[side] = file;
+    if (!file) {
+      setPicked((p) => ({ ...p, [side]: null }));
+      return;
+    }
+    setPicked((p) => ({ ...p, [side]: { name: file.name, busy: true } }));
+    try {
+      const prepared = await prepareIdentityFile(file);
+      if (picks.current[side] === file)
+        setPicked((p) => ({
+          ...p,
+          [side]: { ...prepared, name: prepared.file.name, size: prepared.file.size },
+        }));
+    } catch (error) {
+      if (picks.current[side] === file)
+        setPicked((p) => ({ ...p, [side]: { name: file.name, error: error.message } }));
+    }
   }
 
   return (
     <div className="space-y-6">
-      {e._ ? (
-        <p className="rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger">
-          {e._}
-        </p>
-      ) : null}
-      {deleteState.errors?._ ? (
-        <p className="rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger">
-          {deleteState.errors._}
-        </p>
-      ) : null}
-
-      <form action={action} className="space-y-6">
+      <FormError state={state} />
+      <FormError state={deleteState} />
+      <form onReset={(event) => event.preventDefault()} action={action} className="space-y-6">
         <fieldset>
           <legend className="mb-2 text-meta font-semibold text-ink-700">
             Which ID will you use?
@@ -72,6 +88,7 @@ export default function KycUploadForm({ application, documents = [] }) {
                   onChange={() => {
                     setDocType(d.id);
                     setPicked({});
+                    picks.current = {};
                   }}
                   className="mt-1 size-4 shrink-0 accent-brand-600"
                 />
@@ -109,7 +126,7 @@ export default function KycUploadForm({ application, documents = [] }) {
         <div className="grid gap-4 sm:grid-cols-2">
           {spec?.sides.map((side) => (
             <SlotField
-              key={side}
+              key={`${docType}-${side}`}
               side={side}
               error={e[side]}
               picked={picked[side]}
@@ -143,6 +160,10 @@ export default function KycUploadForm({ application, documents = [] }) {
           )}
         </div>
 
+        <p className="text-meta text-ink-600">
+          Looks clear? Check that all four corners are visible, there is no glare, and the text is
+          readable.
+        </p>
         <p className="rounded-md border-l-4 border-info bg-info-bg p-3 text-tiny text-ink-700">
           <strong className="font-semibold">How these are stored:</strong> in private storage that
           has no public web address. Only a Rentra reviewer can open one, through a link that
@@ -150,7 +171,12 @@ export default function KycUploadForm({ application, documents = [] }) {
           your document number.
         </p>
 
-        <Button type="submit" size="lg" className="w-full" disabled={pending || deleting}>
+        <Button
+          type="submit"
+          size="lg"
+          className="sticky bottom-4 z-10 w-full"
+          disabled={pending || deleting || Object.values(picked).some((p) => p?.busy || p?.error)}
+        >
           {pending ? <Loader2 className="size-4 " /> : <ShieldCheck className="size-4" />}
           {pending ? <span className="sr-only">Uploading…</span> : 'Upload and continue'}
         </Button>
@@ -185,7 +211,11 @@ export default function KycUploadForm({ application, documents = [] }) {
                 >
                   {d.status}
                 </span>
-                <form action={deleteAction} className="shrink-0">
+                <form
+                  onReset={(event) => event.preventDefault()}
+                  action={deleteAction}
+                  className="shrink-0"
+                >
                   <input type="hidden" name="documentId" value={d.id} />
                   <button
                     type="submit"
@@ -225,7 +255,7 @@ function SlotField({ side, error, picked, existing, onPick }) {
       <label
         htmlFor={`file-${side}`}
         className={`flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-md border-2 border-dashed p-5 text-center transition-colors ${
-          error || picked?.tooBig
+          error || picked?.error
             ? 'border-danger/50 bg-danger-bg'
             : picked || existing
               ? 'border-brand-300 bg-brand-50'
@@ -237,9 +267,12 @@ function SlotField({ side, error, picked, existing, onPick }) {
           {picked ? picked.name : existing ? 'Replace photo' : 'Choose a photo'}
         </span>
         <span className="text-tiny text-ink-500">
-          {picked
-            ? `${(picked.size / 1024 / 1024).toFixed(1)}MB${picked.tooBig ? ' — too large' : ''}`
-            : 'JPG, PNG, WEBP or PDF · up to 2MB'}
+          {picked?.busy
+            ? 'Preparing photo…'
+            : (picked?.error ??
+              (picked?.size
+                ? `${(picked.size / 1024 / 1024).toFixed(1)}MB ready to upload`
+                : 'Photos resize automatically · PDF up to 5MB'))}
         </span>
       </label>
 
@@ -248,14 +281,28 @@ function SlotField({ side, error, picked, existing, onPick }) {
         name={side}
         type="file"
         accept="image/jpeg,image/png,image/webp,application/pdf"
-        capture="environment"
         onChange={(ev) => onPick(side, ev)}
         className="sr-only"
         // Required only when nothing is on file yet — a re-upload can change
         // one side without re-picking the other.
-        required={!existing}
+        required={!existing || existing.status === 'rejected'}
       />
 
+      {picked?.preview ? (
+        <Image
+          unoptimized
+          width={1600}
+          height={1000}
+          src={picked.preview}
+          alt={`${label} preview — check that the text is readable`}
+          className="mt-3 max-h-80 w-full rounded-md object-contain"
+        />
+      ) : null}
+      {picked?.error ? (
+        <p role="alert" className="mt-2 text-meta text-danger">
+          {picked.error}
+        </p>
+      ) : null}
       {error ? <p className="mt-1.5 text-tiny font-medium text-danger">{error}</p> : null}
     </div>
   );

@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { requireActiveClient } from '@/lib/api/session';
+import { requireClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
 import PortalState from '@/components/portal/PortalState';
@@ -22,7 +22,7 @@ export const metadata = {
  * finished.
  */
 export default async function SetupEntryPage({ params }) {
-  await requireActiveClient();
+  await requireClient();
   const { id } = await params; // Next 16: params is a Promise
 
   const { data, failure } = await settle(partnerApi.listing(id));

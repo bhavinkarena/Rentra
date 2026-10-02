@@ -45,6 +45,7 @@ const VERTICAL_COPY = {
 
 export default function NewListingStart({
   categories,
+  intendedVertical,
   cities,
   verticals = [],
   progress: slotProgress,
@@ -55,7 +56,13 @@ export default function NewListingStart({
   const choices = verticals.filter((v) =>
     categories.some((c) => (c.vertical ?? 'farmhouse') === v.code),
   );
-  const [vertical, setVertical] = useState(choices.length === 1 ? choices[0].code : null);
+  const [vertical, setVertical] = useState(
+    choices.some((v) => v.code === intendedVertical)
+      ? intendedVertical
+      : choices.length === 1
+        ? choices[0].code
+        : null,
+  );
   const venue = vertical === 'entertainment';
   const progress = venue ? venueProgress : slotProgress;
   const shown =

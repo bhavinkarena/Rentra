@@ -1,4 +1,4 @@
-import { requireActiveClient } from '@/lib/api/session';
+import { requireClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
 import PartnerListingsView from '@/components/partner/PartnerListingsView';
 import PartnerListingsScreen from '@/components/partner/PartnerListingsScreen';
@@ -9,7 +9,7 @@ export const metadata = {
   robots: { index: false, follow: false, nocache: true },
 };
 export default async function ListingsPage({ searchParams }) {
-  const user = await requireActiveClient();
+  const user = await requireClient();
   const params = await searchParams;
   const args = normalizeListings(params);
   if (partnerCacheEnabled() && user.cacheScope)

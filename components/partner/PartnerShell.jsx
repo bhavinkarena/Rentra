@@ -15,6 +15,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import PortalShell from '@/components/portal/PortalShell';
 import NavDrawer from '@/components/portal/NavDrawer';
+import OwnerTour from './OwnerTour';
 import LegacyPartnerShell from './LegacyPartnerShell';
 import { ownerRouteLabel, ownerNavMatch } from '@/lib/domain/owner-navigation';
 
@@ -78,6 +79,7 @@ function OwnerShell({ children, user, logoutAction, counts = {}, completion }) {
             label: 'Get verified',
             badge: completion ? `${completion.done} of ${completion.total}` : undefined,
           },
+          primary[3],
         ],
   );
   const secondary = decorate(more);
@@ -123,6 +125,7 @@ function OwnerShell({ children, user, logoutAction, counts = {}, completion }) {
   return (
     <>
       <PortalShell config={config}>{children}</PortalShell>
+      <OwnerTour guide={user.ownerGuide ?? {}} />
       <NavDrawer
         open={lockedOpen}
         onClose={() => setLockedOpen(false)}

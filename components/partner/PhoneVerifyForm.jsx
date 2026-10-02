@@ -21,7 +21,7 @@ export default function PhoneVerifyForm({ defaultPhone = '' }) {
 
   if (phase === 'phone') {
     return (
-      <form action={issueAction} className="space-y-4">
+      <form onReset={(event) => event.preventDefault()} action={issueAction} className="space-y-4">
         <div>
           <label htmlFor="phone" className="mb-1.5 block text-meta font-semibold text-ink-700">
             Mobile number
@@ -68,7 +68,11 @@ export default function PhoneVerifyForm({ defaultPhone = '' }) {
         Code sent to <strong className="font-semibold">+91 {phone}</strong>.
       </p>
 
-      <form action={confirmAction} className="space-y-4">
+      <form
+        onReset={(event) => event.preventDefault()}
+        action={confirmAction}
+        className="space-y-4"
+      >
         <input type="hidden" name="phone" value={phone} />
         <div>
           <label htmlFor="pcode" className="mb-1.5 block text-meta font-semibold text-ink-700">
@@ -98,7 +102,7 @@ export default function PhoneVerifyForm({ defaultPhone = '' }) {
         </Button>
       </form>
 
-      <form action={issueAction}>
+      <form onReset={(event) => event.preventDefault()} action={issueAction}>
         <input type="hidden" name="phone" value={phone} />
         <button
           type="submit"

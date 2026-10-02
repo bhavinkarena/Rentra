@@ -6,7 +6,7 @@
 | Scope | Everything an owner (client/host/partner) touches: `/partner/**`, `/partner/listings/**` wizard, owner-facing backend routes in `rentra-backend/src/routes/partner.route.js`, related services, triggers and migrations |
 | Code audited | Frontend `Rentra` `main` @ `ced7a00`; backend `rentra-backend` `master` @ `22c1950`. Both trees clean at audit time |
 | Method | Read-only trace of every owner screen: page → component → server action (`lib/actions/*`) → `lib/api/endpoints.js` → Express route → controller → service → SQL/trigger. The highest-impact claims were re-checked by hand (marked **Verified**). No servers were run and no database was queried. Integration tests that need `PORTAL_TEST_DATABASE_URL` were not run. |
-| Status | **R0 (hotfixes) and Phase 2 (Information architecture and navigation / R1 Navigation) complete on branch `feat/owner-experience`, 2 October 2026.** See §15.4 and §15.6. |
+| Status | **R0 (hotfixes), Phase 2 (navigation / R1) and Phase 3 (first-time owner onboarding) complete on branch `feat/owner-experience`, 2 October 2026.** See §15.4, §15.6 and §15.7. |
 
 > **The question behind every recommendation:** *If a completely new owner opens this screen, do they immediately understand what is happening and what to do next?* Wherever the answer is "no", this document proposes a change.
 
@@ -46,7 +46,7 @@ The codebase mixes **partner / owner / client / host** for the person and **prop
 |---|---|---|---|---|---|
 | 1 | Codebase and current UX audit | — | ✅ Complete | 2 Oct 2026 | Audit delivered (§1). Critical/High bugs fixed in R0 (§15.5) |
 | 2 | Information architecture and navigation | R1 | ✅ Complete | 2 Oct 2026 | Five-destination nav (Today, Calendar, Bookings, Properties, Earnings) + More, mobile bottom bar, collapsed locks, unified earnings & help hubs (NAV-01..05) |
-| 3 | First-time owner onboarding | R2 | ⏳ Not started | — | R0 fixed silent form errors and false promises (BUG-26/27, EARN-03) |
+| 3 | First-time owner onboarding | R2 | ✅ Complete | 2 Oct 2026 | ONB-01..07 implemented; migration 0057 required before deployment. See §15.7 |
 | 4 | Dashboard ("Today") | R2 / R4 | ⏳ Not started | — | — |
 | 5 | Add Property / listing creation | R3 | ⏳ Not started | — | R0 fixed the ownership upload and ₹0 pricing (LIST-01, BUG-05) |
 | 6 | Property management | R3 / R6 | ⏳ Not started | — | R0 delivered PROP-03 part 1 (no review on unchanged saves) |
@@ -512,6 +512,8 @@ Sources: Airbnb host 2025 release notes and help centre; Booking.com Pulse; Vrbo
 ---
 
 # Phase 3 — First-time owner onboarding
+
+> **Status: Complete on branch — 2 October 2026.** ONB-01..07 delivered. See [§15.7](#157-completion-record--phase-3--first-time-owner-onboarding) and the [Phase 3 runbook](OWNER-EXPERIENCE-PHASE3.md). Migration 0057 has not been applied to the live database.
 
 ## 3.1 Target journey
 
@@ -2593,7 +2595,7 @@ D8 (commission/tax) blocks any "You earn" number beyond "Booked rent".
 | Phase 1 Audit | **Complete — 2 Oct 2026** | §1 (this document) |
 | R0 Hotfixes | **Complete — 2 Oct 2026** (branch `feat/owner-experience`, not merged or deployed) | [§15.5](#155-completion-record--r0-hotfixes) |
 | R1 Shell and foundations (Navigation & IA) | **Complete — 2 Oct 2026** (branch `feat/owner-experience`) | [§15.6](#156-completion-record--phase-2--r1-navigation-and-ia) |
-| R2 First run | Not started | — |
+| R2 First run | **In progress — Phase 3 complete, 2 Oct 2026** | [§15.7](#157-completion-record--phase-3--first-time-owner-onboarding); dashboard and notification work remains in Phases 4/9 |
 | R3 Add property | Not started | — |
 | R4 Today and bookings | Not started | — |
 | R5 Calendar | Not started | — |
@@ -2694,6 +2696,29 @@ D8 (commission/tax) blocks any "You earn" number beyond "Booked rent".
   - All legacy routes continue to resolve and map to the correct navigation destinations.
   - Graceful fallback when badge count service is unavailable.
 - **Rollback safety:** Feature flag `NEXT_PUBLIC_OWNER_V2_NAV=false` cleanly renders `LegacyPartnerShell` without regression.
+
+---
+
+## 15.7 Completion record — Phase 3 / First-time owner onboarding
+
+**Done:** 2 October 2026. **Branches:** `feat/owner-experience` in both repositories. Changes are local; not deployed. [Detailed runbook and repeatable checks](OWNER-EXPERIENCE-PHASE3.md).
+
+| IDs | Delivered |
+|---|---|
+| ONB-01/02 | Email/mobile login and new-account routing; persisted Welcome, property preference and optional five-stop accessible tour with one resume and Help restart. |
+| ONB-03 | Four auto-advancing verification steps and review summary, inline mobile verification, local image compression/previews, 5 MB PDFs, normalized bank confirmation, optional IFSC bank/branch lookup and published policy links. Submitted forms are read-only and approved owners go to Settings. Error replies retain inputs. |
+| ONB-04 | Review, corrections, rejection reasons/attempts, submitted confirmation and one-time approval notice. Decision messages say check back here until notification delivery ships. |
+| ONB-05 | Owner-scoped pending drafts, including ownership and hours; submission/calendar operations remain approval-gated. |
+| ONB-06/07 | Derived seven-item setup guide, actual guest-bookability tick, collapse/dismiss/Help restore, visible hints and contextual verification guides. |
+
+### Evidence and release requirements
+
+- **Frontend:** 67 tests pass; production build passes; changed-file lint and whitespace checks pass.
+- **Backend:** 194 distinct tests have passing evidence: 193 passed in the full no-skip run; its one stale session fixture was updated to apply migration 0057 and passed in the 4-test focused rerun. The onboarding integration covers owner isolation, draft permissions, review locks, real availability and guide dismissal/restoration.
+- **Browser:** [Recorded gate](evidence/owner-phase3/browser-checks.json) and [360 px screenshot](evidence/owner-phase3/details-360.png); Welcome/tour, four-step flow, phone code retry, 6 MB JPEG/3 MB PDF, bank retry/restore, submission locks, rejection, pending drafts and approval checked. Audited pages have no serious/critical axe violations or horizontal overflow at 360/390/768/1440 px.
+- **Migration:** `0057_owner_onboarding.sql` adds `user.owner_guide`; 58 journal entries verified and migrations exercised in disposable localhost databases. Apply through 0057 **before** deploying the new backend actor reader, then frontend. No live migration was performed.
+- **Limits:** Private uploads used a fixture provider, IFSC was stubbed, and OTP used the development bypass. Live provider delivery and hosted smoke checks remain. Whole-repository lint has unrelated existing failures.
+- **R2 remains in progress:** Phase 4 dashboard and Phase 9 application notifications are outside this completed phase.
 
 ---
 

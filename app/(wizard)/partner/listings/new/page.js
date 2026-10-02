@@ -1,4 +1,4 @@
-import { requireActiveClient } from '@/lib/api/session';
+import { requireClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
 import { listingCompletion } from '@/lib/domain/listing-completion';
 import { wizardProgress } from '@/lib/domain/listing-steps';
@@ -11,7 +11,7 @@ export const metadata = {
 
 /** A read-only first step. The form action performs the first database write. */
 export default async function NewListingPage() {
-  await requireActiveClient();
+  const user = await requireClient();
 
   // Verticals came with the entertainment plan; an older API answers 404, so fall back to none.
   const [categories, cities, verticals] = await Promise.all([
@@ -25,6 +25,7 @@ export default async function NewListingPage() {
 
   return (
     <NewListingStart
+      intendedVertical={user.ownerGuide?.intendedVertical}
       categories={categories}
       cities={cities}
       verticals={verticals}

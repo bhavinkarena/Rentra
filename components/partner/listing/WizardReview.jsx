@@ -19,6 +19,7 @@ export default function WizardReview({
   listing,
   completion,
   submitAction,
+  ownerApproved = true,
 }) {
   const bySection = new Map(completion.sections.map((s) => [s.id, s]));
 
@@ -95,7 +96,12 @@ export default function WizardReview({
       </div>
 
       <div className="mt-6">
-        <SubmitBar listing={listing} completion={completion} submitAction={submitAction} />
+        <SubmitBar
+          listing={listing}
+          completion={completion}
+          submitAction={submitAction}
+          ownerApproved={ownerApproved}
+        />
       </div>
 
       <p className="mt-5 text-center text-tiny text-ink-500">

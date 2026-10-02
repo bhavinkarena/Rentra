@@ -50,3 +50,4 @@ next-env.d.ts
 # redesign QA screenshots (local evidence only)
 /.impeccable/redesign/
 .playwright-cli
+.playwright-cli/

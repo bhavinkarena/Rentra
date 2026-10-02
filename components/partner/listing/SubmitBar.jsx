@@ -38,7 +38,7 @@ function PauseControl({ listing }) {
   );
 }
 
-export function SubmitBar({ listing, completion, submitAction }) {
+export function SubmitBar({ listing, completion, submitAction, ownerApproved = true }) {
   const [state, action, pending] = useActionState(submitAction, {});
 
   if (completion.isLive) {
@@ -175,12 +175,14 @@ export function SubmitBar({ listing, completion, submitAction }) {
       {completion.canSubmit ? (
         <form action={action}>
           <input type="hidden" name="id" value={listing.id} />
-          <Button type="submit" size="lg" className="w-full" disabled={pending}>
+          <Button type="submit" size="lg" className="w-full" disabled={pending || !ownerApproved}>
             {pending ? <Loader2 className="size-4 " /> : null}
             Submit for review
           </Button>
           <p className="mt-2 text-center text-tiny text-ink-500">
-            Every property is checked before it goes live. 2 working days.
+            {ownerApproved
+              ? 'Every property is checked before it goes live. 2 working days.'
+              : 'You can submit once your account is approved.'}
           </p>
         </form>
       ) : (
@@ -197,6 +199,16 @@ export function SubmitBar({ listing, completion, submitAction }) {
           </p>
         </div>
       )}
+      {!ownerApproved && !completion.canSubmit ? (
+        <div className="mt-4">
+          <Button type="button" size="lg" className="w-full" disabled>
+            Submit for review
+          </Button>
+          <p className="mt-2 text-center text-tiny text-ink-500">
+            You can submit once your account is approved.
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 }

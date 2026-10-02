@@ -9,7 +9,7 @@ import {
   Users,
   Wand2,
 } from 'lucide-react';
-import { requireActiveClient } from '@/lib/api/session';
+import { requireClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
 import { safeReturnPath } from '@/lib/domain/portal-state';
@@ -101,7 +101,7 @@ const yesNo = (value) => (value ? 'Yes' : 'No');
  * `from` keeps the filtered directory the owner came from on every link.
  */
 export default async function PropertyOverviewPage({ params, searchParams }) {
-  await requireActiveClient();
+  const user = await requireClient();
   const { id } = await params;
   const query = (await searchParams) ?? {};
   const listHref = safeReturnPath(query.from, '/partner/listings');
@@ -246,7 +246,12 @@ export default async function PropertyOverviewPage({ params, searchParams }) {
             title="Status and next step"
             description="What is happening now and what you can do."
           >
-            <SubmitBar listing={listing} completion={completion} submitAction={submitListing} />
+            <SubmitBar
+              listing={listing}
+              completion={completion}
+              submitAction={submitListing}
+              ownerApproved={user.accountStatus === 'active'}
+            />
           </SectionCard>
 
           {needsChanges ? (
