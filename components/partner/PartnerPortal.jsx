@@ -9,7 +9,14 @@ import { disposePortalStore, partnerTags, tagsForRevision } from '@/lib/partner/
 import PartnerShell from './PartnerShell';
 import { runIdentityAction } from '@/lib/auth/identity-signal';
 
-export default function PartnerPortal({ user, revision, logoutAction, counts, children }) {
+export default function PartnerPortal({
+  user,
+  revision,
+  logoutAction,
+  counts,
+  completion,
+  children,
+}) {
   const [store] = useState(() => makePortalStore(user.cacheScope));
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -167,7 +174,7 @@ export default function PartnerPortal({ user, revision, logoutAction, counts, ch
   }
   return (
     <Provider store={store}>
-      <PartnerShell user={user} logoutAction={logout} counts={counts}>
+      <PartnerShell user={user} logoutAction={logout} counts={counts} completion={completion}>
         {mounted && (
           <div hidden={!ready} inert={!ready}>
             {children}

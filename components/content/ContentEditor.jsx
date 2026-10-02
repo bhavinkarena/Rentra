@@ -165,6 +165,12 @@ export function ContentEditor({ data }) {
                       (v) => change({ ...body, whatsapp: v }),
                       15,
                     )}
+                    {field(
+                      'Support phone (country code and digits)',
+                      body.phone || '',
+                      (v) => change({ ...body, phone: v }),
+                      16,
+                    )}
                     {field('Staffed hours', body.hours, (v) => change({ ...body, hours: v }), 200)}
                     <p>
                       Timezone: Asia/Kolkata. Leave unavailable channels blank. Review confirms that

@@ -1,0 +1,133 @@
+'use client';
+
+import {
+  Bell,
+  Building2,
+  CalendarDays,
+  LayoutDashboard,
+  LifeBuoy,
+  Settings2,
+  Star,
+  Users,
+} from 'lucide-react';
+import PortalShell from '@/components/portal/PortalShell';
+
+const NAV_GROUPS = [
+  { label: 'Help', items: [{ href: '/partner/help', label: 'Owner guide', icon: LifeBuoy }] },
+  {
+    label: 'Workspace',
+    items: [
+      { href: '/partner', label: 'Overview', icon: LayoutDashboard, exact: true },
+      {
+        href: '/partner/listings',
+        label: 'Properties',
+        icon: Building2,
+        capability: 'client.listings.write',
+      },
+      {
+        href: '/partner/calendar',
+        label: 'Portfolio calendar',
+        icon: CalendarDays,
+        capability: 'client.calendar.read',
+      },
+      {
+        href: '/partner/bookings',
+        label: 'Bookings',
+        icon: CalendarDays,
+        capability: 'client.records.read',
+      },
+      { href: '/partner/reviews', label: 'Reviews', icon: Star, capability: 'client.reviews.read' },
+      {
+        href: '/partner/updates',
+        label: 'Updates',
+        icon: Bell,
+        capability: 'client.updates.read',
+        badgeKey: 'unreadUpdates',
+      },
+    ],
+  },
+  {
+    label: 'Account',
+    items: [
+      {
+        href: '/partner/disputes',
+        label: 'Disputes',
+        icon: Bell,
+        capability: 'client.disputes.read',
+      },
+      { href: '/partner/support', label: 'Support', icon: Bell, capability: 'client.support.read' },
+      {
+        href: '/partner/finance',
+        label: 'Finance',
+        icon: Settings2,
+        capability: 'client.finance.read',
+      },
+      { href: '/partner/team', label: 'Team', icon: Users, capability: 'client.team.read' },
+      { href: '/partner/settings', label: 'Settings & payouts', icon: Settings2 },
+    ],
+  },
+];
+
+function routeLabel(pathname) {
+  if (pathname === '/partner/help') return 'Owner guide';
+  if (
+    ['/partner/finance', '/partner/statements', '/partner/allocations', '/partner/payouts'].some(
+      (p) => pathname.startsWith(p),
+    )
+  )
+    return 'Finance';
+  if (pathname.startsWith('/partner/calendar')) return 'Portfolio calendar';
+  if (pathname.startsWith('/partner/bookings')) return 'Bookings';
+  if (pathname.startsWith('/partner/listings/')) return 'Property workspace';
+  if (pathname === '/partner/listings') return 'Properties';
+  if (pathname.startsWith('/partner/reviews')) return 'Reviews';
+  if (pathname.startsWith('/partner/updates')) return 'Updates';
+  if (pathname.startsWith('/partner/support')) return 'Support';
+  if (pathname.startsWith('/partner/team')) return 'Team';
+  if (pathname.startsWith('/partner/settings')) return 'Settings & payouts';
+  if (pathname.startsWith('/partner/onboarding')) return 'Partner verification';
+  return 'Overview';
+}
+
+export default function LegacyPartnerShell({ children, user, logoutAction, counts = {} }) {
+  const displayName = user.name || user.email || 'Rentra partner';
+  const initials = displayName
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase();
+  const groups = NAV_GROUPS.map((group) => ({
+    ...group,
+    items: group.items.map((item) => ({
+      ...item,
+      // Not a link: the required step is stated in text, not only a hover title.
+      locked: Boolean(item.capability && !user.capabilities?.includes(item.capability)),
+      lockedNote: 'After your partner profile is approved',
+      // The server streams a positive count (or null) after the shell is ready.
+      badge: item.badgeKey ? counts[item.badgeKey] : undefined,
+    })),
+  }));
+
+  return (
+    <PortalShell
+      config={{
+        home: '/partner',
+        product: 'Owners',
+        workspace: 'Owner workspace',
+        navLabel: 'Owner navigation',
+        groups,
+        routeLabel,
+        logoutAction,
+        profileHref: '/partner/settings',
+        user: {
+          name: displayName,
+          initials,
+          note: user.accountStatus === 'active' ? 'Approved partner' : 'Verification in progress',
+        },
+      }}
+    >
+      {children}
+    </PortalShell>
+  );
+}

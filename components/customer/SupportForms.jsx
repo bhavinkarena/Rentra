@@ -29,11 +29,19 @@ export function OpenSupportForm({
   privacyRequestId = '',
   category = 'other',
   owner = false,
+  pendingOwner = false,
   propertyId = '',
 }) {
   const [state, action, pending] = useActionState(owner ? openOwnerSupport : openSupport, {});
   const categories = Object.entries(supportCategories).filter(([key]) =>
-    privacyRequestId ? key === 'privacy' : orderId || ['privacy', 'other'].includes(key),
+    !owner && ['verification', 'account'].includes(key)
+      ? false
+      : pendingOwner
+        ? ['verification', 'account', 'other'].includes(key)
+        : privacyRequestId
+          ? key === 'privacy'
+          : orderId ||
+            ['privacy', 'other', ...(owner ? ['verification', 'account'] : [])].includes(key),
   );
   const [key] = useState(requestKey),
     [subject, setSubject] = useState(''),
