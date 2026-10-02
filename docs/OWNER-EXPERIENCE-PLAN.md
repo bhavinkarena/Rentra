@@ -6,7 +6,7 @@
 | Scope | Everything an owner (client/host/partner) touches: `/partner/**`, `/partner/listings/**` wizard, owner-facing backend routes in `rentra-backend/src/routes/partner.route.js`, related services, triggers and migrations |
 | Code audited | Frontend `Rentra` `main` @ `ced7a00`; backend `rentra-backend` `master` @ `22c1950`. Both trees clean at audit time |
 | Method | Read-only trace of every owner screen: page → component → server action (`lib/actions/*`) → `lib/api/endpoints.js` → Express route → controller → service → SQL/trigger. The highest-impact claims were re-checked by hand (marked **Verified**). No servers were run and no database was queried. Integration tests that need `PORTAL_TEST_DATABASE_URL` were not run. |
-| Status | **R0 (hotfixes) complete on branch `feat/owner-experience`, 2 October 2026.** R1–R6 not started. See §15.4. |
+| Status | **R0 (hotfixes) and Phase 2 (Information architecture and navigation / R1 Navigation) complete on branch `feat/owner-experience`, 2 October 2026.** See §15.4 and §15.6. |
 
 > **The question behind every recommendation:** *If a completely new owner opens this screen, do they immediately understand what is happening and what to do next?* Wherever the answer is "no", this document proposes a change.
 
@@ -45,7 +45,7 @@ The codebase mixes **partner / owner / client / host** for the person and **prop
 | Phase | Title | Ships in release | Status | Completed | Notes |
 |---|---|---|---|---|---|
 | 1 | Codebase and current UX audit | — | ✅ Complete | 2 Oct 2026 | Audit delivered (§1). Critical/High bugs fixed in R0 (§15.5) |
-| 2 | Information architecture and navigation | R1 | ⏳ Not started | — | — |
+| 2 | Information architecture and navigation | R1 | ✅ Complete | 2 Oct 2026 | Five-destination nav (Today, Calendar, Bookings, Properties, Earnings) + More, mobile bottom bar, collapsed locks, unified earnings & help hubs (NAV-01..05) |
 | 3 | First-time owner onboarding | R2 | ⏳ Not started | — | R0 fixed silent form errors and false promises (BUG-26/27, EARN-03) |
 | 4 | Dashboard ("Today") | R2 / R4 | ⏳ Not started | — | — |
 | 5 | Add Property / listing creation | R3 | ⏳ Not started | — | R0 fixed the ownership upload and ₹0 pricing (LIST-01, BUG-05) |
@@ -2592,7 +2592,7 @@ D8 (commission/tax) blocks any "You earn" number beyond "Booked rent".
 |---|---|---|
 | Phase 1 Audit | **Complete — 2 Oct 2026** | §1 (this document) |
 | R0 Hotfixes | **Complete — 2 Oct 2026** (branch `feat/owner-experience`, not merged or deployed) | [§15.5](#155-completion-record--r0-hotfixes) |
-| R1 Shell and foundations | Not started | — |
+| R1 Shell and foundations (Navigation & IA) | **Complete — 2 Oct 2026** (branch `feat/owner-experience`) | [§15.6](#156-completion-record--phase-2--r1-navigation-and-ia) |
 | R2 First run | Not started | — |
 | R3 Add property | Not started | — |
 | R4 Today and bookings | Not started | — |
@@ -2663,6 +2663,37 @@ D8 (commission/tax) blocks any "You earn" number beyond "Booked rent".
 - The payout form defaults to bank when both bank and UPI details exist.
 - Caretaker sign-in now reveals a delivery failure only for numbers that are on a team. Before R0 this case was a 500.
 - Booking cards still clip long references at 360 px (BOOK-01, R4). The pricing table still scrolls sideways (LIST-11, R3).
+
+---
+
+## 15.6 Completion record — Phase 2 / R1 Navigation and IA
+
+**Done:** 2 October 2026. **Branches:** `feat/owner-experience` in both repositories (`Rentra` and `rentra-backend`).
+
+### What changed
+
+| ID | Feature / Fix | Backend | Frontend |
+|---|---|---|---|
+| NAV-01 | **Five-destination navigation:** Sidebar redesigned with 5 primary items (Today, Calendar, Bookings, Properties, Earnings), a "More" divider leading to Reviews, Caretakers, Help & support, Settings. Unique lucide icons for every item. Numeric badges (max "9+") with sr-only announcements. Mobile sticky bottom bar (`PortalBottomBar`) with Today · Calendar · Bookings · Properties · More, auto-hiding on virtual keyboard (`visualViewport`) and wizard suppression | `src/routes/partner.route.js`, `src/services/auth/client-inbox.js` (`navigationCounts` & `/partner/nav-counts` route alias) | `components/partner/PartnerShell.jsx`, `components/portal/PortalShell.jsx`, `components/portal/PortalBottomBar.jsx`, `components/portal/NavDrawer.jsx`, `lib/domain/owner-navigation.js` |
+| NAV-02 | **Collapse locked items before approval:** Replaced 8 locked navigation rows for applicants/pending owners with a single interactive row ("Calendar, bookings, earnings and more unlock after approval") that opens a dialog detailing unlocked tools with a direct "Continue verification" CTA (keeping ≤5 total nav rows) | — | `components/partner/PartnerShell.jsx`, `components/portal/PortalShell.jsx` |
+| NAV-03 | **Earnings as one money destination:** Unified `/partner/earnings` destination with subtabs (Overview, Statements, Payouts, Payout method). Added re-export routes for `/partner/earnings/payouts` and `/partner/earnings/payout` while preserving backwards-compatibility with legacy routes `/partner/finance`, `/partner/payouts`, `/partner/settings/payout`, and `/partner/statements` | — | `app/(partner)/partner/earnings/**`, `components/partner/OwnerDestinationTabs.jsx`, `lib/domain/owner-navigation.js` |
+| NAV-04 | **Help & support hub:** Replaced 3 disconnected channels with unified `/partner/help` containing persistent contact banner (WhatsApp, phone, email, operating hours) and segmented tabs (Guides, My requests, Disputes). Enabled applicant support access (`client.support.read`/`write` in base capabilities) scoped strictly to Verification, Account, and Other topics | `src/services/auth/capabilities.js`, `src/services/support/service.js`, `src/services/support/actions.js`, `drizzle/0056_owner_navigation_support.sql` | `app/(partner)/partner/help/**`, `app/(partner)/partner/support/**`, `app/(partner)/partner/disputes/**`, `components/partner/OwnerHelpHeader.jsx`, `components/customer/SupportForms.jsx` |
+| NAV-05 | **Global header cleanup:** Rentra logo with "for owners", current section name, desktop "+ Add" button, header inbox bell with unread badge, and avatar menu drawer housing Settings, View Rentra, and Sign out (removing duplicate public links from header) | — | `components/portal/PortalShell.jsx` |
+| BUG-31 | **Disputes header label:** Fixed header route label resolving to "Overview" on `/partner/disputes` and subpaths, now correctly showing "Disputes" | — | `lib/domain/owner-navigation.js`, `components/partner/PartnerShell.jsx` |
+| Copy | **Terminology alignment:** Updated `OperatorHelp` and navigation labels to replace "Portfolio calendar" → "Calendar", "Statements" → "Earnings", and "Team access" → "Caretakers" | — | `components/portal/OperatorHelp.jsx` |
+
+### Evidence
+- **Backend tests:** 191 tests (137 pass, 54 skipped integration, 0 fail). `owner-navigation.integration.test.js` verifies applicant support permissions and category restrictions.
+- **Frontend tests:** 66 unit tests pass (`test/owner-navigation.test.js` covers route matching, deep link mappings, and label resolution for all primary and subpaths).
+- **Next.js build:** Production build passes without error (`npm run build`).
+- **Playwright accessibility & responsive audit:** `scripts/portal-gate/owner-navigation.mjs` verifies:
+  - Mobile bottom bar at 360px and 390px, keyboard hiding via `visualViewport`.
+  - Focus trap and Escape key dismissal on "More" sheet and "What unlocks after approval" dialog.
+  - No horizontal scrolling/overflow across 360px, 390px, 768px, 1024px, 1440px viewports.
+  - Zero critical/serious axe-core accessibility violations.
+  - All legacy routes continue to resolve and map to the correct navigation destinations.
+  - Graceful fallback when badge count service is unavailable.
+- **Rollback safety:** Feature flag `NEXT_PUBLIC_OWNER_V2_NAV=false` cleanly renders `LegacyPartnerShell` without regression.
 
 ---
 

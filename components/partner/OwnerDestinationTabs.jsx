@@ -15,7 +15,9 @@ export default function OwnerDestinationTabs({ kind, disputes = false }) {
       : [
           ['/partner/help', 'Guides'],
           ['/partner/support', 'My requests'],
-          ...(disputes ? [['/partner/disputes', 'Disputes']] : []),
+          ...(disputes || path.startsWith('/partner/disputes')
+            ? [['/partner/disputes', 'Disputes']]
+            : []),
         ];
   return (
     <nav
@@ -25,10 +27,22 @@ export default function OwnerDestinationTabs({ kind, disputes = false }) {
       {items.map(([href, label]) => {
         const active =
           path === href ||
-          (href !== '/partner/earnings' && path.startsWith(href + '/')) ||
+          (label === 'Overview' &&
+            (path === '/partner/earnings' || path === '/partner/finance')) ||
           (label === 'Statements' &&
-            (path.startsWith('/partner/statements') || path.startsWith('/partner/allocations'))) ||
-          (href === '/partner/earnings' && path === '/partner/finance');
+            (path === '/partner/earnings/statements' ||
+              path.startsWith('/partner/statements') ||
+              path.startsWith('/partner/allocations'))) ||
+          (label === 'Payouts' &&
+            (path === '/partner/earnings/payouts' || path.startsWith('/partner/payouts'))) ||
+          (label === 'Payout method' &&
+            (path === '/partner/earnings/payout' ||
+              path.startsWith('/partner/settings/payout'))) ||
+          (label === 'Guides' && path === '/partner/help') ||
+          (label === 'My requests' &&
+            (path === '/partner/support' || path.startsWith('/partner/support/'))) ||
+          (label === 'Disputes' &&
+            (path === '/partner/disputes' || path.startsWith('/partner/disputes/')));
         return (
           <Link
             key={href}

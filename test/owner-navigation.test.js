@@ -15,6 +15,9 @@ test('old money and help deep links select exactly one destination', () => {
   ];
   for (const [path, expected] of [
     ['/partner/settings/payout', '/partner/earnings'],
+    ['/partner/earnings/payouts', '/partner/earnings'],
+    ['/partner/earnings/payout', '/partner/earnings'],
+    ['/partner/earnings/statements', '/partner/earnings'],
     ['/partner/payouts/123', '/partner/earnings'],
     ['/partner/allocations/123', '/partner/earnings'],
     ['/partner/support/new', '/partner/help'],
@@ -29,6 +32,8 @@ test('old money and help deep links select exactly one destination', () => {
   }
   assert.equal(ownerRouteLabel('/partner/disputes/123'), 'Disputes');
   assert.equal(ownerRouteLabel('/partner/settings/payout'), 'Earnings');
+  assert.equal(ownerRouteLabel('/partner/earnings/payouts'), 'Earnings');
+  assert.equal(ownerRouteLabel('/partner/earnings/payout'), 'Earnings');
   assert.equal(ownerRouteLabel('/partner', false), 'Get verified');
   assert.equal(ownerNavMatch('/partner/listings-unrelated', '/partner/listings'), false);
 });

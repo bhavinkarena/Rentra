@@ -89,7 +89,7 @@ const owner = [
     title: 'Plan availability',
     capability: 'client.calendar.read',
     href: '/partner/calendar',
-    link: 'Portfolio calendar',
+    link: 'Calendar',
     steps: [
       'Review open dates, scheduled hours, buffers and existing reservations before changing availability.',
       'Read the impact preview before confirming a bulk change. A conflict means the current inventory changed; reload and prepare a fresh preview.',
@@ -108,8 +108,8 @@ const owner = [
   {
     title: 'Understand your statement',
     capability: 'client.finance.read',
-    href: '/partner/finance',
-    link: 'Statements',
+    href: '/partner/earnings',
+    link: 'Earnings',
     steps: [
       'Check the currency, environment and reporting period. Test, simulated and legacy records are shown separately from eligible Live earnings.',
       'A recorded obligation is not proof of money received. Open its payment or payout evidence and contact support if an amount needs investigation.',
@@ -119,7 +119,7 @@ const owner = [
     title: 'Manage caretakers',
     capability: 'client.team.read',
     href: '/partner/team',
-    link: 'Team access',
+    link: 'Caretakers',
     steps: [
       'Assign only the properties a caretaker operates. Grant evidence recording only when needed.',
       'Reassign or revoke access when responsibilities change. Caretaker access does not include owner pricing, earnings, identity documents or team management.',
