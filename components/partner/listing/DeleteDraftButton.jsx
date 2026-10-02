@@ -18,7 +18,7 @@ export default function DeleteDraftButton({ listing }) {
           onClick={() => setAsking(true)}
           className="min-h-11 px-3 text-meta text-danger underline"
         >
-          Delete draft
+          {pending ? 'Deleting…' : 'Delete draft'}
         </button>
         {state.error && <p role="alert">{state.error}</p>}
       </form>

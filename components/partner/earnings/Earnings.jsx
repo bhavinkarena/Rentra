@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/ui/empty-state';
 import Link from '@/components/navigation/NavigationLink';
 import { displayMoney } from '@/lib/domain/display-money';
 import { formatLocalDate } from '@/lib/domain/booking-dates';
@@ -183,6 +184,9 @@ export function EarningRows({ data }) {
 export default function Earnings({ data, statement = false, print = false }) {
   const f = data.filters,
     q = earningsQuery({ ...f, page: undefined });
+  const previous = new Date(`${f.month}-01T00:00:00Z`);
+  previous.setUTCMonth(previous.getUTCMonth() - 1);
+  const previousMonth = previous.toISOString().slice(0, 7);
   return (
     <section className={`owner-earnings space-y-5 ${print ? 'owner-statement-print' : ''}`}>
       <header>
@@ -223,19 +227,34 @@ export default function Earnings({ data, statement = false, print = false }) {
           <EarningRows data={data} />
         </>
       ) : (
-        <div className="rounded-lg border border-border bg-card p-6">
-          <h2 className="text-h3">No earnings yet this month</h2>
-          <p className="mt-2 text-meta text-ink-600">
-            Booked rent appears here after a guest pays for a booking. You can see each visit’s rent
-            and refunds.
-          </p>
-          <Link className={link} href="/partner/calendar">
-            Open calendar
-          </Link>
-          <Link className={link} href="/partner/payouts">
-            How payouts work
-          </Link>
-        </div>
+        <EmptyState
+          title={
+            statement || print
+              ? `Nothing in ${f.month}`
+              : f.propertyId
+                ? 'No earnings match these filters'
+                : 'No earnings yet this month'
+          }
+          description={
+            statement || print
+              ? "Statements list every booking's rent and refunds for the month."
+              : 'Each booking shows what you earn and when it is paid.'
+          }
+          actionHref={
+            statement || print
+              ? `?${earningsQuery({ ...f, month: previousMonth, page: undefined })}`
+              : f.propertyId
+                ? `?${earningsQuery({ ...f, propertyId: undefined, page: undefined })}`
+                : '/partner/payouts'
+          }
+          actionLabel={
+            statement || print
+              ? 'Previous month'
+              : f.propertyId
+                ? 'Clear filters'
+                : 'How payouts work'
+          }
+        />
       )}
       {!print && data.pages > 1 && (
         <nav aria-label="Earnings pages" className="flex flex-wrap items-center gap-3">
@@ -262,6 +281,10 @@ export function PayoutExplainer({ data }) {
     <section className="space-y-5">
       <h1 className="text-h1">Payouts</h1>
       <PayoutStatus status={data.payoutStatus} />
+      <EmptyState
+        title="No payouts yet"
+        description="Payouts start once Rentra switches them on. We will notify you first."
+      />
       <div className="rounded-lg border border-border bg-card p-5">
         <h2 className="text-h3">How payouts will work</h2>
         <p className="mt-3 text-meta">

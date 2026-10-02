@@ -1,4 +1,5 @@
 'use client';
+import toast from 'react-hot-toast';
 /* eslint-disable @next/next/no-img-element -- Cloudinary thumbnails and local blob previews. */
 import { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -138,7 +139,8 @@ export function PhotosSection({ listing, photos = [] }) {
       }),
     );
   }
-  async function mutate(action, input) {
+  async function mutate(action, input, offerUndo = true) {
+    const previousPosition = photos.findIndex((photo) => photoId(photo) === input.key);
     setBusy(true);
     setError('');
     const form = new FormData();
@@ -152,6 +154,30 @@ export function PhotosSection({ listing, photos = [] }) {
       if (message(result)) setError(message(result));
       else {
         version.current = result.contentVersion || version.current;
+        if (action === reorderListingPhotos && offerUndo && previousPosition >= 0)
+          toast.success(
+            (t) => (
+              <span>
+                Photo order saved.{' '}
+                <button
+                  type="button"
+                  className="min-h-11 underline"
+                  onClick={() => {
+                    toast.dismiss(t.id);
+                    void mutate(
+                      reorderListingPhotos,
+                      { key: input.key, move: String(previousPosition) },
+                      false,
+                    );
+                  }}
+                >
+                  Undo
+                </button>
+              </span>
+            ),
+            { duration: 10000 },
+          );
+        else toast.success(action === removeListingPhoto ? 'Photo removed.' : 'Photo order saved.');
         router.refresh();
       }
     } catch {

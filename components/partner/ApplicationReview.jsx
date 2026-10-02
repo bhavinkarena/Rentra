@@ -49,6 +49,7 @@ export default function ApplicationReview({ user, application, completion, readO
             here for the decision.
           </p>
           <ApplicationCommand
+            confirm
             action={withdrawApplication}
             pendingLabel="Withdrawing…"
             className="min-h-11 text-brand-700 underline"

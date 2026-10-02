@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/ui/empty-state';
 import OwnerToday from '@/components/partner/OwnerToday';
 import OwnerHelpHeader from '@/components/partner/OwnerHelpHeader';
 import Link from '@/components/navigation/NavigationLink';
@@ -179,7 +180,11 @@ function LatestUpdates({ updates }) {
           ))}
         </ul>
       ) : (
-        <p className="mt-2 text-meta text-ink-600">No updates yet.</p>
+        <EmptyState
+          variant="compact"
+          title="You're all caught up"
+          description="Bookings, review results and Rentra messages appear here."
+        />
       )}
     </section>
   );
@@ -205,6 +210,7 @@ function OnboardingDashboard({ completion }) {
           ) : null}
           {completion.submitted ? (
             <ApplicationCommand
+              confirm
               action={withdrawApplication}
               pendingLabel="Withdrawing…"
               className="mt-3 min-h-11 font-semibold text-brand-700 underline"

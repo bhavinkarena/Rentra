@@ -1,3 +1,6 @@
+import { EmptyState } from '@/components/ui/empty-state';
+import InlineAlert from '@/components/portal/InlineAlert';
+import RetryButton from '@/components/portal/RetryButton';
 import PortalState from '@/components/portal/PortalState';
 import { SectionCard } from '@/components/portal/DetailLayout';
 import PropertyHub from '@/components/partner/property/PropertyHub';
@@ -66,10 +69,16 @@ export default async function PropertyActivityPage(props) {
                 </li>
               ))}
             </ol>
+          ) : overview ? (
+            <EmptyState
+              variant="compact"
+              title="No activity yet"
+              description="Property edits and review decisions appear here."
+            />
           ) : (
-            <p className="text-meta text-ink-600">
-              {overview ? 'No activity yet.' : 'Activity is unavailable right now.'}
-            </p>
+            <InlineAlert action={<RetryButton />}>
+              This section could not load. Try again.
+            </InlineAlert>
           )}
         </SectionCard>
         <SectionCard id="policy" title="Prices and policies">

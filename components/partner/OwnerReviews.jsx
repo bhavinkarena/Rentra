@@ -1,3 +1,5 @@
+import { EmptyState } from '@/components/ui/empty-state';
+import { Star } from 'lucide-react';
 import Link from '@/components/navigation/NavigationLink';
 import OwnerReviewReply from './OwnerReviewReply';
 import { ReviewControl } from '@/components/customer/ReviewForms';
@@ -27,15 +29,13 @@ export default function OwnerReviews({ data, embedded = false }) {
         ))}
       </nav>
       {!data.rows.length && (
-        <div className="rounded-lg border p-6">
-          <Heading className="text-h3">
-            {data.tab === 'needs_reply' ? 'No reviews need a reply' : '⭐ No reviews yet'}
-          </Heading>
-          <p>
-            Guests can review after their visit is completed. Replying to reviews helps future
-            guests trust you.
-          </p>
-        </div>
+        <EmptyState
+          icon={Star}
+          title={data.tab === 'needs_reply' ? 'No reviews need a reply' : 'No reviews yet'}
+          description="Guests can review after a completed visit. Replying builds trust."
+          actionHref={data.tab === 'needs_reply' ? '?tab=all' : undefined}
+          actionLabel="Show all reviews"
+        />
       )}
       <ul className="space-y-5">
         {data.rows.map((r) => (

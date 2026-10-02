@@ -1,4 +1,5 @@
 'use client';
+import { EmptyState } from '@/components/ui/empty-state';
 import PolicyValues from './PolicyValues';
 import { useActionState, useState, useTransition } from 'react';
 
@@ -115,7 +116,11 @@ export function PolicyHistory({ listing }) {
           ))}
         </ol>
       ) : (
-        <p className="mt-3 text-meta text-ink-600">No price or policy changes yet.</p>
+        <EmptyState
+          variant="compact"
+          title="No price or policy changes yet"
+          description="Saved pricing and policy changes appear here."
+        />
       )}
     </div>
   );

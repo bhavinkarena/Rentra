@@ -1,4 +1,5 @@
 'use client';
+import { EmptyState } from '@/components/ui/empty-state';
 import { OfflineBooking } from './CalendarTools';
 import { displayMoney as money } from '@/lib/domain/display-money';
 import { EARNINGS_NOTICE } from '@/lib/domain/owner-earnings';
@@ -410,9 +411,30 @@ export default function PortfolioCalendar({
       <p className="text-meta text-ink-600">
         India time. Tap a date for details. Hold or Shift-select dates for a bulk change.
       </p>
+      {!data.items.length && (
+        <EmptyState
+          title="Add a property to see your calendar"
+          description="Your dates, bookings and prices will appear here."
+          actionHref="/partner/listings"
+          actionLabel="Add property"
+        />
+      )}
       {data.items.map((property) => (
         <article key={property.id} className="space-y-3">
           {view !== 'multi' && <h2 className="text-h3">{property.title || 'Untitled draft'}</h2>}
+          {property.rentalUnit !== 'hour' &&
+            property.cells?.some((c) => c.date >= propertyToday()) &&
+            property.cells
+              .filter((c) => c.date >= propertyToday())
+              .every((c) => c.state === 'closed' || c.state === 'beyond') && (
+              <EmptyState
+                variant="compact"
+                title="No dates open"
+                description="Guests cannot book until dates are open."
+                actionHref={`/partner/listings/${property.id}/booking-rules`}
+                actionLabel="Set up auto-open"
+              />
+            )}
           <div className="flex flex-wrap gap-2">
             {['Weekends', 'Every Friday', 'Next 30 days'].map((choice) => (
               <button

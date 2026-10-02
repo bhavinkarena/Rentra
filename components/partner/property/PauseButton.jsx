@@ -1,4 +1,5 @@
 'use client';
+import toast from 'react-hot-toast';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Pause, Play } from 'lucide-react';
@@ -32,6 +33,7 @@ export default function PauseButton({ listing, upcoming = 0 }) {
       else {
         setOpen(false);
         setError('');
+        toast.success(paused ? 'Bookings resumed.' : 'Bookings paused.');
         router.refresh();
       }
     });
@@ -45,7 +47,7 @@ export default function PauseButton({ listing, upcoming = 0 }) {
         className={`inline-flex min-h-11 items-center gap-1.5 rounded-md border border-border bg-card px-3 text-tiny font-semibold text-ink-800 hover:bg-ink-50 disabled:opacity-60`}
       >
         <Icon className="size-4" aria-hidden="true" />
-        {paused ? 'Resume bookings' : 'Pause bookings'}
+        {pending ? 'Saving…' : paused ? 'Resume bookings' : 'Pause bookings'}
       </button>
       {paused && error ? (
         <p role="alert" className="mt-1 text-tiny text-danger">

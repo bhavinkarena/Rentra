@@ -1,4 +1,6 @@
 'use client';
+import ConfirmedForm from '@/components/portal/ConfirmedForm';
+import { EmptyState } from '@/components/ui/empty-state';
 
 import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
@@ -86,7 +88,15 @@ function LinkBox({ token, expiresAt, deliveryState }) {
       <button
         type="button"
         className={quiet}
-        onClick={() => navigator.clipboard?.writeText(url).then(() => setCopied(true))}
+        onClick={async () => {
+          try {
+            await navigator.clipboard.writeText(url);
+            setCopied(true);
+            toast.success('Invitation link copied.');
+          } catch {
+            toast.error('Could not copy. Select the link and copy it manually.');
+          }
+        }}
       >
         {copied ? 'Copied' : 'Copy link'}
       </button>
@@ -286,7 +296,14 @@ function RevokeForm({ member }) {
   const [reason, setReason] = useState('');
   const [sure, setSure] = useState(false);
   return (
-    <form onSubmit={submit()} className="space-y-2">
+    <ConfirmedForm
+      title="Revoke caretaker access?"
+      description="Their signed-in sessions and unused invitation links will stop working."
+      confirmLabel="Revoke access"
+      danger
+      onSubmit={submit()}
+      className="space-y-2"
+    >
       <input type="hidden" name="staffId" value={member.id} />
       <input type="hidden" name="expectedVersion" value={member.version} />
       <Failure state={state} />
@@ -321,7 +338,7 @@ function RevokeForm({ member }) {
       <button type="submit" disabled={pending} className={`${quiet} border-danger text-danger`}>
         Revoke access
       </button>
-    </form>
+    </ConfirmedForm>
   );
 }
 
@@ -348,7 +365,13 @@ export default function TeamPanel({ team }) {
         {team.properties.length ? (
           <InviteForm properties={team.properties} />
         ) : (
-          <p className="text-meta text-ink-600">Add a property before inviting a caretaker.</p>
+          <EmptyState
+            variant="compact"
+            title="Add a property first"
+            description="Choose a property for your caretaker to operate."
+            actionHref="/partner/listings"
+            actionLabel="Add property"
+          />
         )}
       </section>
 
@@ -357,19 +380,13 @@ export default function TeamPanel({ team }) {
           Caretakers ({team.members.length})
         </h2>
         {team.members.length ? null : (
-          <div className="rounded-lg border border-border bg-card p-5">
-            <h3 className="font-semibold text-ink-900">👷 No caretakers yet</h3>
-            <p className="mt-1 text-meta text-ink-600">
-              Invite the person who opens the gate. They’ll see today’s arrivals and can record
-              check-in — never your earnings.
-            </p>
-            <a
-              className="mt-3 inline-flex min-h-11 items-center font-semibold underline"
-              href="#invite-title"
-            >
-              Invite caretaker
-            </a>
-          </div>
+          <EmptyState
+            variant="compact"
+            title="No caretakers yet"
+            description="Invite the person who opens the gate. They will see arrivals, never your earnings."
+            actionHref="#invite-title"
+            actionLabel="Invite a caretaker"
+          />
         )}
         {team.members.map((member) => {
           const [originalLabel, tone] = STATE[member.state];
@@ -465,7 +482,11 @@ export default function TeamPanel({ team }) {
             ))}
           </ol>
         ) : (
-          <p className="mt-2 text-meta text-ink-600">No team changes yet.</p>
+          <EmptyState
+            variant="compact"
+            title="No team changes yet"
+            description="Invitations and changes to caretaker access appear here."
+          />
         )}
       </section>
     </div>

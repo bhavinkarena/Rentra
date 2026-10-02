@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/ui/empty-state';
 import Link from '@/components/navigation/NavigationLink';
 import SelectableLane from './SelectableLane';
 import { operatingWindows } from '@/lib/domain/hourly';
@@ -173,9 +174,11 @@ export default function ResourceDayTimeline({ property, config, date, basePath }
       </p>
 
       {!rows.length ? (
-        <p className="rounded-md border border-dashed border-border p-4 text-meta">
-          No courts yet. Add courts on the property page.
-        </p>
+        <EmptyState
+          variant="compact"
+          title="No courts yet"
+          description="Add courts to manage their bookings and availability."
+        />
       ) : (
         <>
           <div
@@ -295,7 +298,13 @@ export default function ResourceDayTimeline({ property, config, date, basePath }
                     {own.length ? (
                       own.map((r) => <li key={r.id}>{item(r, 'block min-h-11')}</li>)
                     ) : (
-                      <li className="text-meta text-ink-600">Nothing booked or blocked.</li>
+                      <li>
+                        <EmptyState
+                          variant="compact"
+                          title="Nothing booked or blocked"
+                          description="Bookings and blocks for this court appear here."
+                        />
+                      </li>
                     )}
                   </ul>
                 </section>

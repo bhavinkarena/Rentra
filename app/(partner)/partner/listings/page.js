@@ -17,6 +17,7 @@ export default async function ListingsPage({ searchParams }) {
       <PartnerListingsScreen
         scope={user.cacheScope}
         args={args}
+        deleted={Boolean(params?.deleted)}
         submitted={Boolean(params?.submitted)}
       />
     );
@@ -26,6 +27,7 @@ export default async function ListingsPage({ searchParams }) {
       summary={summary}
       result={result}
       args={args}
+      deleted={Boolean(params?.deleted)}
       submitted={Boolean(params?.submitted)}
     />
   );

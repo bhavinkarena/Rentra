@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/ui/empty-state';
 import Link from '@/components/navigation/NavigationLink';
 import { requireClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
@@ -74,17 +75,17 @@ export default async function Page({ searchParams }) {
           ))}
         </ul>
       ) : (
-        <div className="rounded-lg border border-border bg-card p-6">
-          <h2 className="text-h3">
-            {filter === 'all' && category === 'all'
-              ? '🔔 You’re all caught up'
-              : 'No updates match these filters'}
-          </h2>
-          <p className="mt-2 text-meta">
-            Bookings, review results and messages from Rentra will appear here. We’ll also message
-            you about important ones on the channels you choose in notification settings.
-          </p>
-        </div>
+        <EmptyState
+          title={
+            filter === 'all' && category === 'all'
+              ? "You're all caught up"
+              : 'No updates match these filters'
+          }
+          description="Bookings, review results and Rentra messages appear here."
+          variant={filter === 'all' && category === 'all' ? 'first-use' : 'no-results'}
+          actionHref={filter === 'all' && category === 'all' ? undefined : '/partner/updates'}
+          actionLabel="Clear filters"
+        />
       )}
       {pages > 1 && (
         <nav aria-label="Update pages" className="flex flex-wrap items-center gap-4">

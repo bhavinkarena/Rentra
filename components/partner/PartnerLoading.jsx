@@ -112,14 +112,14 @@ export function DashboardSkeleton() {
   );
 }
 
-export function PropertiesSkeleton() {
+export function PropertiesSkeleton({ label = 'Loading your properties' } = {}) {
   return (
     <div
       className="mx-auto w-full max-w-(--container-workspace) px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
       aria-busy="true"
     >
       <span className="sr-only" role="status">
-        Loading your properties
+        {label}
       </span>
       <LoadingHeader />
       <KpiSkeletons />

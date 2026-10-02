@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/ui/empty-state';
 import { randomUUID } from 'node:crypto';
 import Link from '@/components/navigation/NavigationLink';
 import { History, ShieldAlert, ShieldCheck, WalletCards } from 'lucide-react';
@@ -90,7 +91,17 @@ export default function PayoutDestinations({ data }) {
           </span>
         </p>
         <Card title="Current payout method" icon={WalletCards}>
-          {data.current ? <Version d={data.current} /> : <p>No payout method on file.</p>}
+          {data.current ? (
+            <Version d={data.current} />
+          ) : (
+            <EmptyState
+              variant="compact"
+              title="No payout method on file"
+              description="Add a bank account or UPI destination to prepare for payouts."
+              actionHref="#destination-form"
+              actionLabel="Add payout method"
+            />
+          )}
         </Card>
         {data.draft ? (
           <Card title="Draft waiting for confirmation" icon={History}>
@@ -112,23 +123,25 @@ export default function PayoutDestinations({ data }) {
             )}
           </Card>
         ) : null}
-        <Card title="Change payout method" icon={WalletCards}>
-          <p className="text-ink-600">
-            {auth.required
-              ? auth.fresh
-                ? `Identity last confirmed at ${ist(auth.authenticatedAt)} — changes can be submitted until ${ist(auth.freshUntil)}.`
-                : `You signed in at ${ist(auth.authenticatedAt)}. A change will be saved as a draft until you confirm your identity.`
-              : 'Your application is still under review; Rentra checks these details at review.'}{' '}
-            Payouts already scheduled keep the version they were created with.
-          </p>
-          {auth.required && !auth.fresh && !data.draft && <ConfirmPayoutIdentityForm />}
-          <ChangeDestinationForm
-            key={`change-${data.latestVersion}`}
-            latestVersion={data.latestVersion}
-            requestKey={randomUUID()}
-            current={data.current}
-          />
-        </Card>
+        <div id="destination-form" className="scroll-mt-24">
+          <Card title="Change payout method" icon={WalletCards}>
+            <p className="text-ink-600">
+              {auth.required
+                ? auth.fresh
+                  ? `Identity last confirmed at ${ist(auth.authenticatedAt)} — changes can be submitted until ${ist(auth.freshUntil)}.`
+                  : `You signed in at ${ist(auth.authenticatedAt)}. A change will be saved as a draft until you confirm your identity.`
+                : 'Your application is still under review; Rentra checks these details at review.'}{' '}
+              Payouts already scheduled keep the version they were created with.
+            </p>
+            {auth.required && !auth.fresh && !data.draft && <ConfirmPayoutIdentityForm />}
+            <ChangeDestinationForm
+              key={`change-${data.latestVersion}`}
+              latestVersion={data.latestVersion}
+              requestKey={randomUUID()}
+              current={data.current}
+            />
+          </Card>
+        </div>
         <Card title="History" icon={History}>
           {data.history.length ? (
             <ol className="space-y-3">
@@ -139,7 +152,11 @@ export default function PayoutDestinations({ data }) {
               ))}
             </ol>
           ) : (
-            <p>No destination versions yet.</p>
+            <EmptyState
+              variant="compact"
+              title="No payout changes yet"
+              description="Changes to your payout destination appear here."
+            />
           )}
         </Card>
       </div>

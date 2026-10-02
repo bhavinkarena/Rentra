@@ -96,7 +96,25 @@ export function DisputeList({ data, kind }) {
           ))}
         </ul>
       ) : (
-        <EmptyState icon={Scale} title="No cases match these filters." />
+        <EmptyState
+          icon={Scale}
+          title={
+            kind === 'owner' && f.kind === 'all' && f.state === 'open'
+              ? 'No disputes'
+              : 'No cases match these filters'
+          }
+          description="If something goes wrong with a booking, start from the booking page."
+          actionHref={
+            kind === 'owner' && f.kind === 'all' && f.state === 'open'
+              ? '/partner/bookings'
+              : `${base}?state=all&kind=all`
+          }
+          actionLabel={
+            kind === 'owner' && f.kind === 'all' && f.state === 'open'
+              ? 'Go to bookings'
+              : 'Clear filters'
+          }
+        />
       )}
       {f.page > 1 || data.hasNext ? (
         <nav aria-label="Dispute pages" className="mt-6 flex justify-center gap-3">

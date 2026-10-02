@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/ui/empty-state';
 import { requireClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
@@ -49,7 +50,13 @@ export default async function Page() {
           </li>
         ))}
       </ul>
-      {!data.requests.length && <p>No privacy requests yet.</p>}
+      {!data.requests.length && (
+        <EmptyState
+          variant="compact"
+          title="No privacy requests yet"
+          description="Your account export and deletion requests appear here."
+        />
+      )}
     </section>
   );
 }

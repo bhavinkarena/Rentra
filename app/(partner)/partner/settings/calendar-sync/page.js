@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/ui/empty-state';
 import { requireClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
@@ -36,7 +37,14 @@ export default async function Page() {
           </li>
         ))}
       </ul>
-      {!rows.length && <p>Add a property to create its feed.</p>}
+      {!rows.length && (
+        <EmptyState
+          title="Add a property to sync your calendar"
+          description="Share occupied dates with your calendar app using a private feed."
+          actionHref="/partner/listings"
+          actionLabel="Add property"
+        />
+      )}
     </section>
   );
 }

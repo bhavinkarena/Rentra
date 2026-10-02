@@ -1,3 +1,5 @@
+import { EmptyState } from '@/components/ui/empty-state';
+import InlineAlert from '@/components/portal/InlineAlert';
 import Link from '@/components/navigation/NavigationLink';
 import { CircleAlert, CircleCheck, Eye } from 'lucide-react';
 import { requireClient } from '@/lib/api/session';
@@ -406,10 +408,16 @@ export default async function PropertyOverviewPage({ params, searchParams }) {
                   </li>
                 ))}
               </ul>
+            ) : overview ? (
+              <EmptyState
+                variant="compact"
+                title="No upcoming visits"
+                description="Keep your calendar open and prices current to get booked."
+              />
             ) : (
-              <p className="p-5 text-meta text-ink-600">
-                {overview ? 'No upcoming visits.' : 'Visits are unavailable right now.'}
-              </p>
+              <InlineAlert action={<RetryButton />}>
+                This section could not load. Try again.
+              </InlineAlert>
             )}
             {overview && overview.upcomingVisits.total > visits.length ? (
               <p className="border-t border-border px-5 py-3 text-tiny text-ink-500">

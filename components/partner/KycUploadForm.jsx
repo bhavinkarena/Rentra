@@ -1,4 +1,6 @@
 'use client';
+import toast from 'react-hot-toast';
+import ConfirmedForm from '@/components/portal/ConfirmedForm';
 import Image from 'next/image';
 import Loader2 from '@/components/ui/rentra-loader';
 
@@ -32,7 +34,11 @@ export default function KycUploadForm({ application, documents = [] }) {
     }
     return uploadKycDocuments(previous, form);
   }, {});
-  const [deleteState, deleteAction, deleting] = useActionState(deleteKycDocument, {});
+  const [deleteState, deleteAction, deleting] = useActionState(async (previous, form) => {
+    const result = await deleteKycDocument(previous, form);
+    if (!result?.error && !result?.errors) toast.success('Document deleted.');
+    return result;
+  }, {});
   const [docType, setDocType] = useState(application?.kycDocType ?? 'pan_card');
 
   const e = state.errors ?? {};
@@ -211,7 +217,11 @@ export default function KycUploadForm({ application, documents = [] }) {
                 >
                   {d.status}
                 </span>
-                <form
+                <ConfirmedForm
+                  title="Delete this document?"
+                  description="This permanently removes the uploaded file. You can upload a replacement."
+                  confirmLabel="Delete document"
+                  danger
                   onReset={(event) => event.preventDefault()}
                   action={deleteAction}
                   className="shrink-0"
@@ -225,7 +235,7 @@ export default function KycUploadForm({ application, documents = [] }) {
                   >
                     <Trash2 className="size-4" aria-hidden="true" />
                   </button>
-                </form>
+                </ConfirmedForm>
               </li>
             ))}
           </ul>

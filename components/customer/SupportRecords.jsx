@@ -108,7 +108,17 @@ export function SupportList({ data, admin = false, owner = false }) {
           ))}
         </ul>
       ) : (
-        <EmptyState icon={MessageSquare} title="No requests match this view." />
+        <EmptyState
+          icon={MessageSquare}
+          title={owner && data.state === 'all' ? 'No requests yet' : 'No requests match this view'}
+          description={
+            owner
+              ? 'Questions about verification, bookings or payouts? We usually reply within 1 working day.'
+              : 'Your requests and replies appear here.'
+          }
+          actionHref={data.state === 'all' ? `${base}/new` : base}
+          actionLabel={data.state === 'all' ? 'New request' : 'Clear filters'}
+        />
       )}
       {data.page > 1 || data.hasNext ? (
         <nav

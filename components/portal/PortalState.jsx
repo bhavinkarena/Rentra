@@ -50,7 +50,7 @@ export default function PortalState({
       role={kind === 'unavailable' ? 'alert' : undefined}
       className={`mx-auto max-w-xl text-center ${compact ? 'px-4 py-10' : 'px-4 py-16 sm:py-20'}`}
     >
-      <span className="mx-auto grid size-12 place-items-center rounded-full bg-ink-50 text-ink-500 ring-1 ring-border">
+      <span className="mx-auto grid size-12 place-items-center rounded-full bg-brand-50 text-brand-700 ring-1 ring-brand-100">
         <Icon className="size-6" aria-hidden="true" />
       </span>
       <Heading className="mt-4 text-h3 font-bold text-ink-900">{title ?? state.title}</Heading>

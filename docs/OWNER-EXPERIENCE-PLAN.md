@@ -53,7 +53,7 @@ The codebase mixes **partner / owner / client / host** for the person and **prop
 | 7 | Booking and calendar | R4 / R5 | ✅ Complete | 2 Oct 2026 | CAL-01..08 and BOOK-01..08 delivered; migrations 0060 and 0063 required. See §15.11 |
 | 8 | Earnings and payments | R6 | ✅ Complete (UI) | 2 Oct 2026 | EARN-01..06 delivered; migration 0061 required. EARN-07 payout engine remains separate. See §15.12 |
 | 9 | Notifications, messages and support | R2 / R4 / R6 | ✅ Complete | 2 Oct 2026 | NOTIF-01..03, SUP-01..03, DISP-01, REV-01, TEAM-01, SET-01 delivered; migration 0062 required. Profile photo and "Payout sent" deferred. See §15.13 |
-| 10 | Empty, loading, error and success states | R1 | ⏳ Not started | — | — |
+| 10 | Empty, loading, error and success states | R1 | 🚧 Implemented; follow-up QA | 2 Oct 2026 | Shared states, confirmations, feedback and background session checks delivered; 75 tests and 31 browser checks. See §15.14 |
 | 11 | Responsive and mobile UX | R1 | ⏳ Not started | — | R0 fixed page gutters (MOB-01 / BUG-46) |
 | 12 | Accessibility and design system | R1 | ⏳ Not started | — | — |
 | 13 | Frontend, API and database changes | all | ⏳ Not started | — | Reference list; done as each release lands |
@@ -2847,6 +2847,21 @@ D8 (commission/tax) blocks any "You earn" number beyond "Booked rent".
 - **Owner actions before deploy:** WhatsApp templates approved (Gupshup or Twilio), TRAI DLT SMS templates, `OWNER_NOTIFICATION_DELIVERY=enabled` and the provider keys on Render.
 
 ---
+
+## 15.14 Delivery record — Phase 10 / State feedback
+
+**Implemented locally:** 2 October 2026. Not deployed. [Phase 10 runbook](OWNER-EXPERIENCE-PHASE10.md) records delivered behaviour, repeatable gates and remaining QA. This phase is not labelled complete while the full mutation walkthrough and DS-07 dependency remain outstanding.
+
+| ID | Delivered |
+|---|---|
+| STATE-01 | Shared empty states and inline alerts, native form confirmations, polite toast feedback, inline save timestamps and a draft-deletion success banner. No new dependency. |
+| STATE-02 | Layout skeleton loading boundaries, explicit query labels, visible pending button text, and background identity verification that retains verified content. Expiry and identity changes still clear protected content. |
+| STATE-03 | Owner error-copy mapping with preserved validation fields/status/codes and return-path sign-in links. Uncertain network writes advise checking the saved state before retrying. |
+
+**Verified:** 75 frontend tests, frontend lint, production build and [31 browser checks](evidence/owner-phase10/results.json). Twelve empty-account screenshots have zero WCAG axe violations; nine list APIs and five Today sections were faulted. Confirmation cancellation and a real confirmed mark-all-read mutation passed. No backend migration or live provider call was required.
+
+**Remaining:** individual provider-backed deletion/application/caretaker mutation walkthroughs, a restore-unread API if mark-read Undo is required, and the Phase 12 / DS-07 shell-wide unsaved guard. See the runbook for precise limits; existing version checks and calendar Undo remain intact.
+
 
 ## Appendix A — Key files by area
 

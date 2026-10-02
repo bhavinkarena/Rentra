@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/ui/empty-state';
 import Form from '@/components/navigation/NavigationForm';
 import Link from '@/components/navigation/NavigationLink';
 import { ArrowUpRight, CalendarDays, Search } from 'lucide-react';
@@ -367,46 +368,82 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
           </li>
         ))}
       </ul>
-      {!data.items.length && (
-        <div className="rounded-xl border border-dashed border-border bg-card px-6 py-14 text-center">
-          <CalendarDays className="mx-auto mb-5 size-10 text-brand-600" />
-          <h2 className="text-xl font-semibold">
-            {operational
-              ? 'No bookings in this queue'
-              : data.q
-                ? 'No matching bookings'
-                : 'Your next memory starts here'}
-          </h2>
-          <p className="mx-auto mt-3 mb-6 max-w-sm text-sm leading-relaxed text-ink-500">
-            {operational
-              ? 'Change your filters to view other bookings.'
-              : data.q
-                ? 'Try another property name or booking reference.'
-                : 'When you book a place, you’ll find your visit details and updates here.'}
-          </p>
-          {!operational && !data.q && data.tab === 'all' && homes.length > 1 ? (
-            // Two public homes: one link each, named by the vertical.
-            <div className="flex flex-wrap justify-center gap-3">
-              {homes.map((home) => (
-                <Link key={home.href} href={home.href} className={linkClass}>
-                  {home.label}
-                  <ArrowUpRight className="size-4" />
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <Link
-              href={operational || data.q || data.tab !== 'all' ? base : '/search'}
-              className={linkClass}
-            >
-              {operational || data.q || data.tab !== 'all'
-                ? 'View all bookings'
-                : 'Explore farmhouses'}
-              <ArrowUpRight className="size-4" />
-            </Link>
-          )}
-        </div>
-      )}
+      {!data.items.length &&
+        (base === '/partner/bookings' ? (
+          <EmptyState
+            icon={CalendarDays}
+            variant={
+              data.q || data.property || data.from || data.to || data.resource || data.vertical
+                ? 'no-results'
+                : 'first-use'
+            }
+            title={
+              data.q || data.property || data.from || data.to || data.resource || data.vertical
+                ? 'No bookings match these filters'
+                : data.tab === 'action_needed'
+                  ? 'Nothing needs you'
+                  : data.tab === 'upcoming'
+                    ? 'No upcoming bookings'
+                    : 'No bookings in this queue'
+            }
+            description={
+              data.tab === 'action_needed'
+                ? 'Check-ins and check-outs to record will appear here.'
+                : 'Keep your calendar open and prices current to get booked.'
+            }
+            actionHref={
+              data.q || data.property || data.from || data.to || data.resource || data.vertical
+                ? `${base}?tab=${data.tab}`
+                : data.tab === 'action_needed'
+                  ? undefined
+                  : '/partner/calendar'
+            }
+            actionLabel={
+              data.q || data.property || data.from || data.to || data.resource || data.vertical
+                ? 'Clear filters'
+                : 'Open calendar'
+            }
+          />
+        ) : (
+          <div className="rounded-xl border border-dashed border-border bg-card px-6 py-14 text-center">
+            <CalendarDays className="mx-auto mb-5 size-10 text-brand-600" />
+            <h2 className="text-xl font-semibold">
+              {operational
+                ? 'No bookings in this queue'
+                : data.q
+                  ? 'No matching bookings'
+                  : 'Your next memory starts here'}
+            </h2>
+            <p className="mx-auto mt-3 mb-6 max-w-sm text-sm leading-relaxed text-ink-500">
+              {operational
+                ? 'Change your filters to view other bookings.'
+                : data.q
+                  ? 'Try another property name or booking reference.'
+                  : 'When you book a place, you’ll find your visit details and updates here.'}
+            </p>
+            {!operational && !data.q && data.tab === 'all' && homes.length > 1 ? (
+              // Two public homes: one link each, named by the vertical.
+              <div className="flex flex-wrap justify-center gap-3">
+                {homes.map((home) => (
+                  <Link key={home.href} href={home.href} className={linkClass}>
+                    {home.label}
+                    <ArrowUpRight className="size-4" />
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <Link
+                href={operational || data.q || data.tab !== 'all' ? base : '/search'}
+                className={linkClass}
+              >
+                {operational || data.q || data.tab !== 'all'
+                  ? 'View all bookings'
+                  : 'Explore farmhouses'}
+                <ArrowUpRight className="size-4" />
+              </Link>
+            )}
+          </div>
+        ))}
       {data.pages > 1 && (
         <nav
           aria-label="Booking pages"

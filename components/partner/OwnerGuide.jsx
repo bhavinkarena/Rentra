@@ -1,4 +1,5 @@
 'use client';
+import { EmptyState } from '@/components/ui/empty-state';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from '@/components/navigation/NavigationLink';
@@ -75,7 +76,21 @@ export default function OwnerGuide({ body }) {
           </section>
         );
       })}
-      {!rows.length && <p>No guide articles match your search. Try a different word.</p>}
+      {!rows.length && (
+        <EmptyState
+          variant="no-results"
+          title="No guide articles match your search"
+          description="Try a different word or show all articles."
+        >
+          <button
+            type="button"
+            className="min-h-11 rounded-md bg-primary px-4 text-white"
+            onClick={() => setQuery('')}
+          >
+            Clear search
+          </button>
+        </EmptyState>
+      )}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/ui/empty-state';
 import Link from '@/components/navigation/NavigationLink';
 import { ArrowRight, Building2, Star } from 'lucide-react';
 import ListingStatusBadge from '@/components/partner/ListingStatusBadge';
@@ -88,15 +89,14 @@ export default function PropertyTable({
 }) {
   if (!listings.length) {
     return (
-      <div className="grid min-h-56 place-items-center px-6 py-10 text-center">
-        <div>
-          <span className="mx-auto grid size-11 place-items-center rounded-full bg-ink-100 text-ink-500">
-            <Building2 className="size-5" aria-hidden="true" />
-          </span>
-          <p className="mt-3 text-meta font-semibold text-ink-900">{emptyTitle}</p>
-          <p className="mt-1 text-tiny text-ink-500">{emptyDescription}</p>
-        </div>
-      </div>
+      <EmptyState
+        icon={Building2}
+        variant="no-results"
+        title={emptyTitle}
+        description={emptyDescription}
+        actionHref="/partner/listings"
+        actionLabel="Clear filters"
+      />
     );
   }
 

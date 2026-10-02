@@ -1,3 +1,5 @@
+import { EmptyState } from '@/components/ui/empty-state';
+import InlineAlert from '@/components/portal/InlineAlert';
 import Link from '@/components/navigation/NavigationLink';
 import { PropertyPhoto, displayMoney } from '@/components/customer/BookingDisplay';
 import ListingStatusBadge from './ListingStatusBadge';
@@ -19,12 +21,9 @@ function Section({ title, result, children, action }) {
         {action}
       </div>
       {result?.failure ? (
-        <div className="mt-3">
-          <p role="alert" className="text-meta text-danger">
-            {title} could not load.
-          </p>
-          <RetryButton label={`Retry ${title}`} />
-        </div>
+        <InlineAlert className="mt-3" action={<RetryButton label={`Retry ${title}`} />}>
+          {title} could not load. Try again to refresh this section.
+        </InlineAlert>
       ) : (
         children
       )}
@@ -114,7 +113,11 @@ export default function OwnerToday({ needs, visits, week, earnings, properties }
             ))}
           </ul>
         ) : (
-          <p className="mt-3 text-meta text-ink-600">Nothing needs your action right now.</p>
+          <EmptyState
+            variant="compact"
+            title="Nothing needs you"
+            description="Check-ins and check-outs to record will appear here."
+          />
         )}
         {info.length ? (
           <details className="mt-3 border-t border-border pt-3">
@@ -177,27 +180,29 @@ export default function OwnerToday({ needs, visits, week, earnings, properties }
             </div>
           )}
           {!today?.arrivalCount && !today?.departureCount && !today?.onSiteCount ? (
-            <div className="mt-4 space-y-2 text-meta text-ink-600">
-              <p>
-                {today?.total
-                  ? 'Visit hours need Rentra’s attention. See Bookings for details.'
-                  : 'No guests today.'}
-              </p>
-              {today?.next ? (
-                <Link href={today.next.href} className={link}>
-                  Next booking:{' '}
-                  {local(today.next.startsAt, { weekday: 'short', day: 'numeric', month: 'short' })}
-                  , {today.next.label} at {today.next.title}
-                </Link>
-              ) : (
-                <>
-                  <p>No upcoming bookings yet.</p>
-                  <Link href="/partner/calendar" className={link}>
-                    Open calendar
-                  </Link>
-                </>
-              )}
-            </div>
+            <EmptyState
+              variant="compact"
+              title={
+                today?.total
+                  ? 'Visit hours need attention'
+                  : today?.next
+                    ? 'No guests today'
+                    : 'No bookings yet'
+              }
+              description={
+                today?.total
+                  ? 'Open your bookings to check visit details.'
+                  : today?.next
+                    ? `Next booking: ${local(today.next.startsAt, { day: 'numeric', month: 'short' })} · ${today.next.label} · ${today.next.title}.`
+                    : 'Once your property is live and your dates are open, bookings show up here.'
+              }
+              actionHref={
+                today?.total ? '/partner/bookings' : today?.next?.href || '/partner/calendar'
+              }
+              actionLabel={
+                today?.total ? 'View bookings' : today?.next ? 'View booking' : 'Open calendar'
+              }
+            />
           ) : null}
         </Section>
         <Section
@@ -300,9 +305,13 @@ export default function OwnerToday({ needs, visits, week, earnings, properties }
             ))}
           </ul>
         ) : (
-          <p className="mt-3 text-meta text-ink-600">
-            Add your first property to start getting ready for bookings.
-          </p>
+          <EmptyState
+            variant="compact"
+            title="You haven't added a property yet"
+            description="Add your farmhouse or venue in about 15 minutes. You'll need 6 photos and your prices."
+            actionHref="/partner/listings"
+            actionLabel="Add your first property"
+          />
         )}
       </Section>
     </div>

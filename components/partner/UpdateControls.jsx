@@ -1,5 +1,7 @@
 'use client';
 
+import toast from 'react-hot-toast';
+import ConfirmedForm from '@/components/portal/ConfirmedForm';
 import { useActionState, useState, useTransition } from 'react';
 import LoaderCircle from '@/components/ui/rentra-loader';
 import { markUpdatesRead, openUpdate, saveUpdatePreferences } from '@/lib/actions/partner';
@@ -11,7 +13,7 @@ const quiet =
 function Failure({ state }) {
   return state?.error ? (
     <p role="alert" className="mt-1 text-tiny font-medium text-danger">
-      {state.error} Nothing was changed; try again.
+      {state.error}
     </p>
   ) : null;
 }
@@ -33,12 +35,18 @@ export function OpenUpdate({ id, href, title }) {
 }
 
 export function MarkRead({ id, title }) {
-  const [state, action, pending] = useActionState(markUpdatesRead, {});
+  const [state, action, pending] = useActionState(async (previous, form) => {
+    const result = await markUpdatesRead(previous, form);
+    if (!result?.error && !result?.errors)
+      toast.success(form.get('all') ? 'All updates marked read.' : 'Update marked read.');
+    return result;
+  }, {});
   return (
     <form action={action}>
       <input type="hidden" name="id" value={id} />
       <button type="submit" disabled={pending} className={quiet}>
-        Mark read<span className="sr-only">: {title}</span>
+        {pending ? 'Marking read…' : 'Mark read'}
+        <span className="sr-only">: {title}</span>
       </button>
       <Failure state={state} />
     </form>
@@ -46,28 +54,28 @@ export function MarkRead({ id, title }) {
 }
 
 export function MarkAllRead({ disabled, needsAction = false }) {
-  const [state, action, pending] = useActionState(markUpdatesRead, {});
+  const [state, action, pending] = useActionState(async (previous, form) => {
+    const result = await markUpdatesRead(previous, form);
+    if (!result?.error && !result?.errors)
+      toast.success(form.get('all') ? 'All updates marked read.' : 'Update marked read.');
+    return result;
+  }, {});
   return (
-    <form
+    <ConfirmedForm
+      when={needsAction}
+      title="Mark all updates read?"
+      description="Some updates still need you. Their tasks will stay pinned."
+      confirmLabel="Mark all read"
       action={action}
-      onSubmit={(event) => {
-        if (
-          needsAction &&
-          !window.confirm(
-            'Some updates still need you. Mark them read? Their tasks will stay pinned.',
-          )
-        )
-          event.preventDefault();
-      }}
     >
       <input type="hidden" name="all" value="1" />
       <input type="hidden" name="confirm" value="1" />
       <button type="submit" disabled={pending || disabled} className={quiet}>
         {pending ? <LoaderCircle className="size-3.5" aria-hidden="true" /> : null}
-        Mark all as read
+        {pending ? 'Marking read…' : 'Mark all as read'}
       </button>
       <Failure state={state} />
-    </form>
+    </ConfirmedForm>
   );
 }
 
@@ -139,7 +147,7 @@ export function UpdatePreferences({ preferences }) {
         className="inline-flex min-h-10 items-center gap-2 rounded-md bg-primary px-4 text-tiny font-semibold text-white hover:bg-primary-hover disabled:cursor-wait disabled:bg-muted disabled:text-muted-foreground active:bg-primary-active"
       >
         {pending ? <LoaderCircle className="size-4" aria-hidden="true" /> : null}
-        Save preferences
+        {pending ? 'Saving…' : 'Save preferences'}
       </button>
     </form>
   );

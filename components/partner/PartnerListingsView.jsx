@@ -1,3 +1,5 @@
+import InlineAlert from '@/components/portal/InlineAlert';
+import { EmptyState } from '@/components/ui/empty-state';
 import Link from '@/components/navigation/NavigationLink';
 import { Building2 } from 'lucide-react';
 import CreateListingButton from '@/components/partner/CreateListingButton';
@@ -15,15 +17,23 @@ function pageHref({ query, status, vertical, page }) {
   return suffix ? `/partner/listings?${suffix}` : '/partner/listings';
 }
 
-export default function PartnerListingsView({ summary, result, args, submitted }) {
+export default function PartnerListingsView({ summary, result, args, submitted, deleted }) {
   const { query, status, vertical } = args;
   const first = result.total ? (result.page - 1) * result.pageSize + 1 : 0;
   const last = Math.min(result.page * result.pageSize, result.total);
 
   return (
     <div className="mx-auto w-full max-w-(--container-workspace) px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      {deleted && (
+        <InlineAlert tone="success" className="mb-6">
+          Draft deleted. It has been removed from your properties.
+        </InlineAlert>
+      )}
       {submitted ? (
-        <div className="mb-6 flex items-start gap-3 rounded-lg border border-brand-200 bg-success-bg p-4 text-meta text-brand-900">
+        <div
+          role="status"
+          className="mb-6 flex items-start gap-3 rounded-lg border border-brand-200 bg-success-bg p-4 text-meta text-brand-900"
+        >
           <span className="mt-0.5 size-2 shrink-0 rounded-full bg-success" aria-hidden="true" />
           <p>
             <strong className="font-bold">Property submitted.</strong> Rentra checks every property
@@ -40,26 +50,17 @@ export default function PartnerListingsView({ summary, result, args, submitted }
       />
 
       {summary.total === 0 ? (
-        <section className="mt-7 rounded-lg border border-border bg-card p-8 text-center">
-          <span className="mx-auto grid size-12 place-items-center rounded-full bg-brand-50 text-brand-700">
-            <Building2 className="size-6" aria-hidden="true" />
-          </span>
-          <h2 className="mt-4 text-h3 font-bold text-ink-900">
-            You haven&apos;t added a property yet
-          </h2>
-          <p className="mx-auto mt-2 max-w-prose text-meta text-ink-600">
-            Add your farmhouse or venue in about 15 minutes. You&apos;ll need 6 photos and your
-            prices.
-          </p>
-          <div className="mt-5 flex flex-wrap justify-center gap-3">
+        <section className="mt-7 rounded-lg border border-border bg-card p-4">
+          <EmptyState
+            icon={Building2}
+            title="You haven't added a property yet"
+            description="Add your farmhouse or venue in about 15 minutes. You'll need 6 photos and your prices."
+          >
             <CreateListingButton label="Add your first property" />
-            <Link
-              href="/partner/help"
-              className="inline-flex min-h-11 items-center rounded-md border border-border px-4 text-meta font-semibold text-brand-700 hover:bg-ink-50"
-            >
-              What you&apos;ll need
+            <Link href="/partner/help" className="underline">
+              What you need
             </Link>
-          </div>
+          </EmptyState>
         </section>
       ) : (
         <section
@@ -94,9 +95,14 @@ export default function PartnerListingsView({ summary, result, args, submitted }
               from={pageHref({ query, status, vertical, page: result.page })}
             />
           ) : (
-            <p className="p-8 text-center text-meta text-ink-600">
-              No properties match. Try another search or choose All.
-            </p>
+            <EmptyState
+              variant="no-results"
+              icon={Building2}
+              title="No properties match these filters"
+              description="Try another search or show all your properties."
+              actionHref="/partner/listings"
+              actionLabel="Clear filters"
+            />
           )}
 
           <div className="flex flex-col gap-3 border-t border-border bg-ink-25/70 px-4 py-3 text-tiny text-ink-500 sm:flex-row sm:items-center sm:justify-between sm:px-5">

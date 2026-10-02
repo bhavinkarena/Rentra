@@ -244,8 +244,8 @@ export function Section({ id, title, intro, state, pending, children }) {
         >
           <p>{formError}</p>
           <p className="mt-1 text-tiny text-ink-700">
-            Nothing was saved. Your typed changes are still in the form; copy anything you need,
-            because reloading shows the latest saved version.
+            Your typed changes are still in the form; copy anything you need, because reloading
+            shows the latest saved version.
           </p>
           <button
             type="button"
@@ -325,7 +325,13 @@ export function Section({ id, title, intro, state, pending, children }) {
           role="status"
           className="mt-3 inline-flex items-center gap-1.5 text-meta font-semibold text-brand-700"
         >
-          <Check className="size-4" aria-hidden="true" /> Saved
+          <Check className="size-4" aria-hidden="true" /> Saved{' '}
+          {state.savedAt
+            ? new Date(state.savedAt).toLocaleTimeString('en-IN', {
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+            : ''}
         </p>
       ) : null}
 
