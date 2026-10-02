@@ -6,7 +6,7 @@
 | Scope | Everything an owner (client/host/partner) touches: `/partner/**`, `/partner/listings/**` wizard, owner-facing backend routes in `rentra-backend/src/routes/partner.route.js`, related services, triggers and migrations |
 | Code audited | Frontend `Rentra` `main` @ `ced7a00`; backend `rentra-backend` `master` @ `22c1950`. Both trees clean at audit time |
 | Method | Read-only trace of every owner screen: page → component → server action (`lib/actions/*`) → `lib/api/endpoints.js` → Express route → controller → service → SQL/trigger. The highest-impact claims were re-checked by hand (marked **Verified**). No servers were run and no database was queried. Integration tests that need `PORTAL_TEST_DATABASE_URL` were not run. |
-| Status | **R0 (hotfixes), Phase 2 (navigation / R1), Phase 3 (onboarding), Phase 4 (Today), Phase 5 (Add property) and Phase 6 (Property management) complete on branch `feat/owner-experience`, 2 October 2026.** Phase 7 is in progress; see §15.11. See §15.4 and §15.6 to §15.10. |
+| Status | **R0 (hotfixes), Phase 2 (navigation / R1), Phase 3 (onboarding), Phase 4 (Today), Phase 5 (Add property), Phase 6 (Property management) and Phase 8 (Earnings and payments UI) complete on branch `feat/owner-experience`, 2 October 2026.** Phase 7 is in progress; see §15.11. See §15.4, §15.6 to §15.10 and §15.12. |
 
 > **The question behind every recommendation:** *If a completely new owner opens this screen, do they immediately understand what is happening and what to do next?* Wherever the answer is "no", this document proposes a change.
 
@@ -51,7 +51,7 @@ The codebase mixes **partner / owner / client / host** for the person and **prop
 | 5 | Add Property / listing creation | R3 | ✅ Complete | 2 Oct 2026 | LIST-01..11 implemented; migration 0058 required before deployment. See §15.9 |
 | 6 | Property management | R3 / R6 | ✅ Complete | 2 Oct 2026 | PROP-01..06 and 08 implemented (PROP-07 stays backlog); migration 0059 required. See §15.10 |
 | 7 | Booking and calendar | R4 / R5 | ⏳ Not started | — | R0 fixed the bookings sort/scope and guest checkouts breaking (BUG-08/09, CAL-07) |
-| 8 | Earnings and payments | R6 | ⏳ Not started | — | R0 fixed the Finance defaults and fee, and payout drafts (BUG-07/18/19) |
+| 8 | Earnings and payments | R6 | ✅ Complete (UI) | 2 Oct 2026 | EARN-01..06 delivered; migration 0061 required. EARN-07 payout engine remains separate. See §15.12 |
 | 9 | Notifications, messages and support | R2 / R4 / R6 | ⏳ Not started | — | R0 delivered owner sign-in code delivery (NOTIF-01, OTP part) |
 | 10 | Empty, loading, error and success states | R1 | ⏳ Not started | — | — |
 | 11 | Responsive and mobile UX | R1 | ⏳ Not started | — | R0 fixed page gutters (MOB-01 / BUG-46) |
@@ -2599,7 +2599,7 @@ D8 (commission/tax) blocks any "You earn" number beyond "Booked rent".
 | R3 Add property | **Complete — 2 Oct 2026** (Phases 5 and 6; branch `feat/owner-experience`, not deployed) | [§15.9](#159-completion-record--phase-5--add-property-wizard), [§15.10](#1510-completion-record--phase-6--property-management) |
 | R4 Today and bookings | In progress — Today complete | Phase 7 bookings and Phase 9 notifications remain |
 | R5 Calendar | Not started | — |
-| R6 Earnings, support, settings | Not started | — |
+| R6 Earnings, support, settings | In progress — Phase 8 UI complete | §15.12; support/settings and the payout engine remain |
 
 
 ## 15.5 Completion record — R0 hotfixes
@@ -2800,6 +2800,26 @@ D8 (commission/tax) blocks any "You earn" number beyond "Booked rent".
 - Migration 0060 adds private notes, offline details, feed tokens, arrival-guide storage and the `no_show` state. An admin case is required for no-show resolution; captured amounts bound supported partial refunds. Contact remains available to owners for seven days after completion; caretakers get a visit-day contact toggle and incident reporting.
 - Verified: 200 backend tests passed, three skipped; 70 frontend tests passed; changed-file lint and production build passed. 61 migration files and journal entries verified; migration applied only to disposable databases. Browser evidence covers zero calendar axe violations, keyboard navigation, price preview/confirm/Undo, private-note saving and mobile overflow.
 - Remaining acceptance gates and unfinished details are listed in the runbook. This record does **not** mark Phase 7 complete.
+
+---
+
+## 15.12 Completion record — Phase 8 / Earnings and payments
+
+**Done:** 2 October 2026. Local changes in both repositories on `feat/owner-experience`; not deployed. [Runbook, calculation contract and repeatable checks](OWNER-EXPERIENCE-PHASE8.md).
+
+| IDs | Delivered |
+|---|---|
+| EARN-01 | Three gross rent/refund figures, one row per visit, IST receipt months, rent-only historical owner scoping, active gateway default, environment badge/filter, 30-row server pages and state-driven payout-method actions. |
+| EARN-02/03 | Booking-to-earning links, corrected quoted-rent key, Earning line name, fee-detail isolation, exact money formatting and Booked rent labels while D8 is unresolved. Honest future-payout copy remains conditional. |
+| EARN-04 | Full IST CSV with two-decimal rupees and readable columns, audited period filename, full HTML print/PDF view, no UUID columns or 1,000-row export ceiling. |
+| EARN-05 | Payout explainer while the rail is absent; legacy Test/practice environment classification and exact quote display. Unfunded records remain excluded from verified funded totals. |
+| EARN-06 | Confirmed/normalized bank inputs, all field errors once, retained switched-method inputs, advisory IFSC lookup, versioned drafts and OTP identity confirmation in the same session. Only last four account digits persist; provider re-collection is explained. |
+
+- **Backend:** 206 tests passed, zero failures/skips; final focused earnings rerun passed. Tests cover 1,200 visits, IST boundary, rent/refunds, historical ownership, method status, draft supersession and session/purpose-bound confirmation with delivery failures, rate limits, wrong codes and replay.
+- **Frontend:** 71 tests and production build passed; changed-file lint and whitespace checks passed. Whole-frontend lint reports two unrelated pre-existing unused directives; see the runbook.
+- **Browser:** [Evidence](evidence/owner-phase8/browser-checks.json) records six views with zero axe violations, zero page errors, five responsive earnings widths, CSV/print, earning links, form validation, lookup outage and stale-session draft → OTP → submit. [Rollback flag](evidence/owner-phase8/rollback-checks.json) restores the legacy overview, period statement and payouts.
+- **Migration:** 0061 adds session reauthentication and payout-confirm OTP purpose; 62 migration files/journal entries verified. Apply before the backend rollout. Only disposable databases were changed.
+- **Limits:** Live code delivery/IFSC and hosted smoke checks remain. **EARN-07 is out of scope:** payout rail, commission/tax policy D8, scheduling and refund recovery still need a separate implementation. R6 support/settings work and Phase 7’s remaining gates are not marked complete.
 
 ---
 

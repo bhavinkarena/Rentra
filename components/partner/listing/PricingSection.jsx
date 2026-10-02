@@ -1,12 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { displayMoney as money } from '@/lib/domain/display-money';
+import { EARNINGS_NOTICE } from '@/lib/domain/owner-earnings';
 import { usePolicyAction, PolicyPreview } from './PolicyPreview';
 import { savePricing, previewListingPrice } from '@/lib/actions/partner';
 import { useStepFormId } from './chrome';
 import { VersionField, Input, Field, Section, SaveButton } from './SectionPrimitives';
 const amount = (value) => Number(String(value).replace(/[₹,\s]/g, ''));
-const money = (value) =>
-  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(value / 100);
 export function PriceLine({ listingId, value }) {
   const [quote, setQuote] = useState(null);
   useEffect(() => {
@@ -30,7 +30,7 @@ export function PriceLine({ listingId, value }) {
   return quote?.input === value && amount(value) >= 500 && quote?.totalMinor != null ? (
     <p className="text-tiny text-ink-600">
       Guest pays {money(quote.totalMinor)} (includes Rentra’s guest fee {money(quote.feeMinor)}) ·
-      You earn {money(quote.rentMinor)} rent. Owner commission is not charged yet.
+      Booked rent {money(quote.rentMinor)}. {EARNINGS_NOTICE}
     </p>
   ) : (
     <p className="text-tiny text-ink-600">Enter a price to see the guest total.</p>

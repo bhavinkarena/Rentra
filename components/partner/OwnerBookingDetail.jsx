@@ -4,8 +4,8 @@ import { VisitLifecycle } from '@/components/customer/VisitLifecycle';
 import { VisitEvidence } from '@/components/booking/VisitEvidence';
 import { OwnerCases } from '@/components/booking/CasePanels';
 import BookingNote from './BookingNote';
-const money = (v) =>
-  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(v / 100);
+import { displayMoney as money } from '@/lib/domain/display-money';
+import { EARNINGS_NOTICE } from '@/lib/domain/owner-earnings';
 const time = (value) =>
   value
     ? new Date(value).toLocaleString('en-IN', {
@@ -108,12 +108,18 @@ export default function OwnerBookingDetail({ record, listHref = '/partner/bookin
         </ul>
       </section>
       <section className={card}>
-        <h2 className="text-h3">Rent for this booking</h2>
+        <h2 className="text-h3">Booked rent for this booking</h2>
         <p className="text-h2">{money(record.rentMinor)}</p>
-        <p className="text-meta text-ink-600">
-          Cancelled visits are excluded. Rentra&apos;s guest fee is separate. Owner commission is
-          not charged yet.
-        </p>
+        <p className="text-meta text-ink-600">Cancelled visits are excluded. {EARNINGS_NOTICE}</p>
+        {record.earningLines?.map((line, i) => (
+          <Link
+            key={line.id}
+            className="flex min-h-11 items-center text-meta font-semibold text-brand-800 underline"
+            href={`/partner/allocations/${line.id}`}
+          >
+            {record.earningLines.length === 1 ? 'View earning line' : `View earning line ${i + 1}`}
+          </Link>
+        ))}
         <Link className="inline-flex min-h-11 underline" href="/partner/earnings">
           Open earnings
         </Link>
@@ -122,7 +128,8 @@ export default function OwnerBookingDetail({ record, listHref = '/partner/bookin
       <details className={card}>
         <summary className="cursor-pointer font-semibold min-h-11">Guest payment details</summary>
         <p>
-          Rent {money(record.rentMinor)} · Guest fee {money(record.feeMinor)}
+          Rent {money(record.rentMinor)} · Rentra guest fee (not your earning){' '}
+          {money(record.feeMinor)}
         </p>
         {record.payments.map((p) => (
           <div key={p.id}>

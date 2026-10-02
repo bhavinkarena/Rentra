@@ -1,11 +1,8 @@
 import Link from '@/components/navigation/NavigationLink';
 
-export function money(value) {
-  const minor = BigInt(value ?? 0),
-    sign = minor < 0n ? '-' : '',
-    n = minor < 0n ? -minor : minor;
-  return `${sign}₹${(n / 100n).toLocaleString('en-IN')}.${String(n % 100n).padStart(2, '0')}`;
-}
+import { displayMoney } from '@/lib/domain/display-money';
+import { earningsTime } from '@/lib/domain/owner-earnings';
+
 const labels = {
   quotedRentMinor: 'Quoted rent for contributing visits',
   collectedMinor: 'Verified receipts',
@@ -22,6 +19,7 @@ const query = (f) =>
   new URLSearchParams(Object.entries(f).filter(([, v]) => v !== '' && v != null)).toString();
 const baseFor = (admin) => (admin ? '/admin/finance' : '/partner');
 function Navigation({ admin }) {
+  if (!admin) return null;
   const b = baseFor(admin);
   return (
     <nav aria-label="Finance pages" className="flex flex-wrap gap-4">
@@ -38,10 +36,10 @@ function Filters({ filters, admin, properties = [], action }) {
       className="flex flex-wrap items-end gap-4 rounded-md border border-border p-4"
     >
       <label className="grid gap-1">
-        UTC month
+        {admin ? 'UTC month' : 'Month (IST)'}
         <input
           type="month"
-          aria-label="UTC month"
+          aria-label={admin ? 'UTC month' : 'Month (IST)'}
           name="period"
           defaultValue={filters.period}
           required
@@ -171,7 +169,7 @@ export function Statement({ data, admin = false, detail = false }) {
         {Object.entries(data.totals).map(([k, v]) => (
           <div key={k} className="rounded-md border border-border p-4">
             <dt>{labels[k]}</dt>
-            <dd className="text-h3">{money(v)}</dd>
+            <dd className="text-h3">{displayMoney(v)}</dd>
           </div>
         ))}
       </dl>
@@ -200,8 +198,8 @@ export function Statement({ data, admin = false, detail = false }) {
             </h3>
             <BookingLink row={r} admin={admin} />
             <p>
-              Receipts {money(r.collectedMinor)} · Refunds {money(r.refundedMinor)} · Eligible{' '}
-              {money(r.eligibleMinor)} · Held {money(r.heldMinor)}
+              Receipts {displayMoney(r.collectedMinor)} · Refunds {displayMoney(r.refundedMinor)} ·
+              Eligible {displayMoney(r.eligibleMinor)} · Held {displayMoney(r.heldMinor)}
             </p>
             {!r.ownerId && <p>Owner attribution unresolved — excluded from owner statements.</p>}
             {r.payout && (
@@ -219,12 +217,19 @@ export function Allocation({ row, admin = false }) {
   return (
     <div className="space-y-5">
       <Navigation admin={admin} />
-      <h1 className="text-h1">Allocation detail</h1>
+      <h1 className="text-h1">{admin ? 'Allocation detail' : 'Earning line'}</h1>
       <h2 className="text-h2">
         {row.title} · {row.component}
       </h2>
       <p>
-        {row.environment} · {row.attribution} owner attribution · {row.bookingState}
+        {admin
+          ? `${row.environment} · ${row.attribution} owner attribution · ${row.bookingState}`
+          : `${row.environment === 'live' ? 'Live booking' : 'Test or older booking'} · ${row.bookingState.replaceAll('_', ' ')}`}
+        {!admin && (
+          <span className="block mt-2">
+            Commission and tax deductions are not applied yet. Payouts are not switched on yet.
+          </span>
+        )}
       </p>
       <BookingLink row={row} admin={admin} />
       <dl className="grid gap-4 sm:grid-cols-2">
@@ -233,7 +238,7 @@ export function Allocation({ row, admin = false }) {
           .map(([k, label]) => (
             <div key={k}>
               <dt>{label}</dt>
-              <dd>{money(row[k])}</dd>
+              <dd>{displayMoney(row[k])}</dd>
             </div>
           ))}
       </dl>
@@ -245,7 +250,8 @@ export function Allocation({ row, admin = false }) {
       {row.refunds.map((r) => (
         <article className="rounded-md border p-4" key={r.id}>
           <p>
-            {r.state} · Requested {money(r.expectedMinor)} · Completed {money(r.actualMinor)}
+            {r.state} · Requested {displayMoney(r.expectedMinor)} · Completed{' '}
+            {displayMoney(r.actualMinor)}
           </p>
           {admin && <Link href={`/admin/finance/refunds/${r.id}`}>Refund detail</Link>}
         </article>
@@ -274,8 +280,8 @@ export function PayoutList({ data, admin = false }) {
         Obligations created in this UTC month · {data.filters.environment} · {data.count} records
       </p>
       <p>
-        Total verified funded amount: {money(data.totalMinor)}. Legacy quotes do not contribute to
-        this total.
+        Total verified funded amount: {displayMoney(data.totalMinor)}. Legacy quotes do not
+        contribute to this total.
       </p>
       <p>Live payout execution is unavailable. Recorded status does not initiate a transfer.</p>
       {!data.count && <p>No payout records match these filters.</p>}
@@ -287,7 +293,7 @@ export function PayoutList({ data, admin = false }) {
             </Link>
           </h2>
           <p>
-            {money(p.amountMinor)} · {p.environment}
+            {displayMoney(p.amountMinor)} · {p.environment}
           </p>
           <Destination value={p.destination} />
         </article>
@@ -305,21 +311,23 @@ export function PayoutDetail({ row, admin = false }) {
       <h2 className="text-h2">{row.title}</h2>
       <BookingLink row={row} admin={admin} />
       <p>
-        Environment: {row.environment} · Verified funded amount: {money(row.amountMinor)}
+        Environment: {row.environment} · Verified funded amount: {displayMoney(row.amountMinor)}
       </p>
       <Destination value={row.destination} />
       <p>Provider reference: {row.utr || 'Not recorded'}</p>
-      <p>Settlement time: {row.settledAt || 'Not recorded'}</p>
+      <p>Settlement time: {earningsTime(row.settledAt)}</p>
       {row.allocationId && (
-        <Link href={`${b}/allocations/${row.allocationId}`}>Funding allocation</Link>
+        <Link href={`${b}/allocations/${row.allocationId}`}>
+          {admin ? 'Funding allocation' : 'Earning line'}
+        </Link>
       )}
       <h2 className="text-h2">Recorded quote and deductions</h2>
       <p>{row.deductionNotice}</p>
       <dl>
-        {Object.entries(row.legacyQuote).map(([k, v]) => (
+        {Object.entries(row.legacyQuoteMinor).map(([k, v]) => (
           <div key={k}>
-            <dt>{k.replace('Rupees', '').replace('gstTcs', 'GST TCS').replace('tds', 'TDS')}</dt>
-            <dd>₹{v} (quoted)</dd>
+            <dt>{k.replace('Minor', '').replace('gstTcs', 'GST TCS').replace('tds', 'TDS')}</dt>
+            <dd>{displayMoney(v)} (quoted)</dd>
           </div>
         ))}
       </dl>
@@ -337,13 +345,13 @@ export function FinanceFilterError({ message, admin = false }) {
     <div className="space-y-4">
       <h1 className="text-h1">Check the statement filters</h1>
       <p role="alert">{message}</p>
-      <Link href={admin ? '/admin/finance/statements' : '/partner/finance'}>Reset filters</Link>
+      <Link href={admin ? '/admin/finance/statements' : '/partner/earnings'}>Reset filters</Link>
       <form className="flex flex-wrap gap-3">
         <label className="grid gap-1">
-          UTC month
+          {admin ? 'UTC month' : 'Month (IST)'}
           <input
             type="month"
-            aria-label="UTC month"
+            aria-label={admin ? 'UTC month' : 'Month (IST)'}
             name="period"
             required
             className="min-h-11 rounded-md border p-2 text-base md:text-sm bg-card text-foreground"

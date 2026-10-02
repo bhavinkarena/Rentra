@@ -1,5 +1,7 @@
 'use client';
 import { OfflineBooking } from './CalendarTools';
+import { displayMoney as money } from '@/lib/domain/display-money';
+import { EARNINGS_NOTICE } from '@/lib/domain/owner-earnings';
 import { ActionForm } from './listing/BookingCalendarSettings';
 import { blockDates, unblockDates } from '@/lib/actions/partner';
 import { useEffect, useRef, useState } from 'react';
@@ -23,14 +25,6 @@ const states = {
   past: ['Past', Clock, 'bg-secondary text-ink-700'],
   problem: ['Check', AlertTriangle, 'border-danger border-2'],
 };
-const money = (v) =>
-  v == null
-    ? '—'
-    : new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-        maximumFractionDigits: 0,
-      }).format(v / 100);
 const label = (s) => ({ day: 'Day picnic', night: 'Night stay', full_day: 'Full day' })[s] || s;
 const field = 'min-h-11 rounded-md border bg-card p-2';
 const dayText = (date) =>
@@ -596,7 +590,11 @@ export default function PortfolioCalendar({
                         ? `– ${new Date(r.ends_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}`
                         : ''}
                     </p>
-                    {r.rent_minor != null && <p>You earn {money(Number(r.rent_minor))} rent.</p>}{' '}
+                    {r.rent_minor != null && (
+                      <p>
+                        Booked rent {money(r.rent_minor)}. {EARNINGS_NOTICE}
+                      </p>
+                    )}{' '}
                     {r.guest_phone && (
                       <div className="flex gap-3">
                         <a className="min-h-11 underline" href={`tel:${r.guest_phone}`}>

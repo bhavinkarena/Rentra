@@ -2,7 +2,11 @@ import { randomUUID } from 'node:crypto';
 import Link from '@/components/navigation/NavigationLink';
 import { History, ShieldAlert, ShieldCheck, WalletCards } from 'lucide-react';
 import { PartnerPageHeader } from './PortalPrimitives';
-import { ChangeDestinationForm, SignInAgain, SubmitDraftForm } from './PayoutDestinationForms';
+import {
+  ChangeDestinationForm,
+  ConfirmPayoutIdentityForm,
+  SubmitDraftForm,
+} from './PayoutDestinationForms';
 
 const ist = (value) =>
   value
@@ -58,15 +62,15 @@ export default function PayoutDestinations({ data }) {
   return (
     <div className="mx-auto w-full max-w-[980px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       <Link
-        href="/partner/settings"
+        href="/partner/earnings"
         className="mb-3 inline-flex min-h-9 items-center text-tiny font-semibold text-brand-700 hover:underline"
       >
-        ← Settings
+        ← Earnings
       </Link>
       <PartnerPageHeader
         eyebrow="Account"
-        title="Payout destination"
-        description="Where Rentra will send your money once payouts are enabled. Every change is kept as a version."
+        title="Payout method"
+        description="Where Rentra will send earnings once payouts are switched on. We’ll ask you to confirm these details with our payment partner before your first payout."
       />
       <div className="mt-6 space-y-5">
         <p
@@ -79,12 +83,14 @@ export default function PayoutDestinations({ data }) {
             <ShieldAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           )}
           <span>
-            <strong>{data.readiness.ready ? 'Ready for payouts.' : 'Payouts disabled.'}</strong>{' '}
-            {data.readiness.reason}
+            <strong>{'Payouts are not switched on yet.'}</strong>{' '}
+            {data.current?.masked
+              ? `Your payout method is recorded: ${data.current.masked}.`
+              : data.readiness.reason}
           </span>
         </p>
-        <Card title="Current destination" icon={WalletCards}>
-          {data.current ? <Version d={data.current} /> : <p>No current destination.</p>}
+        <Card title="Current payout method" icon={WalletCards}>
+          {data.current ? <Version d={data.current} /> : <p>No payout method on file.</p>}
         </Card>
         {data.draft ? (
           <Card title="Draft waiting for confirmation" icon={History}>
@@ -92,10 +98,10 @@ export default function PayoutDestinations({ data }) {
             {auth.required && !auth.fresh ? (
               <>
                 <p>
-                  Changes to where money goes need a sign-in within the last {auth.minutes} minutes.
-                  Your draft is kept.
+                  Changes to where money goes need identity confirmation within the last{' '}
+                  {auth.minutes} minutes. Your draft is kept.
                 </p>
-                <SignInAgain />
+                <ConfirmPayoutIdentityForm />
               </>
             ) : (
               <SubmitDraftForm
@@ -106,15 +112,16 @@ export default function PayoutDestinations({ data }) {
             )}
           </Card>
         ) : null}
-        <Card title="Change destination" icon={WalletCards}>
+        <Card title="Change payout method" icon={WalletCards}>
           <p className="text-ink-600">
             {auth.required
               ? auth.fresh
-                ? `Signed in at ${ist(auth.authenticatedAt)} — changes can be submitted until ${ist(auth.freshUntil)}.`
-                : `You signed in at ${ist(auth.authenticatedAt)}. A change will be saved as a draft until you sign in again.`
+                ? `Identity last confirmed at ${ist(auth.authenticatedAt)} — changes can be submitted until ${ist(auth.freshUntil)}.`
+                : `You signed in at ${ist(auth.authenticatedAt)}. A change will be saved as a draft until you confirm your identity.`
               : 'Your application is still under review; Rentra checks these details at review.'}{' '}
             Payouts already scheduled keep the version they were created with.
           </p>
+          {auth.required && !auth.fresh && !data.draft && <ConfirmPayoutIdentityForm />}
           <ChangeDestinationForm
             key={`change-${data.latestVersion}`}
             latestVersion={data.latestVersion}

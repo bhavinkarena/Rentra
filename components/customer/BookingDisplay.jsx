@@ -1,16 +1,10 @@
 import Image from 'next/image';
 import { ImageOff } from 'lucide-react';
-import { formatINRMinor } from '@/lib/domain/booking-money';
+export { displayMoney } from '@/lib/domain/display-money';
 export const linkClass =
   'inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold text-brand-700 transition hover:border-brand-300 hover:bg-brand-50';
 export const badge =
   'inline-block rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-800 first-letter:uppercase';
-/** Whole rupees without ".00"; paise only when present. */
-// Some APIs send bigint amounts as strings; anything non-integer reads as missing.
-export const displayMoney = (minor) =>
-  minor == null || minor === '' || !Number.isSafeInteger(Number(minor))
-    ? 'Not recorded'
-    : formatINRMinor(Number(minor));
 const STATE_TONES = {
   confirmed: 'bg-success-bg text-success',
   completed: 'bg-success-bg text-success',

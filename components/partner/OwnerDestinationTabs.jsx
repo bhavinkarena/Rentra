@@ -30,6 +30,7 @@ export default function OwnerDestinationTabs({ kind, disputes = false }) {
           (label === 'Overview' && (path === '/partner/earnings' || path === '/partner/finance')) ||
           (label === 'Statements' &&
             (path === '/partner/earnings/statements' ||
+              path === '/partner/earnings/print' ||
               path.startsWith('/partner/statements') ||
               path.startsWith('/partner/allocations'))) ||
           (label === 'Payouts' &&

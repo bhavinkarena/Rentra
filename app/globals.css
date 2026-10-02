@@ -1040,3 +1040,33 @@
 .group:focus-within .card-photo-arrow {
   transition: none;
 }
+
+/* Owner statements use the browser's native print/PDF flow. */
+@media print {
+  body:has(.owner-statement-print) .portal-ui > aside,
+  body:has(.owner-statement-print) .portal-ui header:not(.owner-earnings header),
+  body:has(.owner-statement-print) .portal-ui nav,
+  body:has(.owner-statement-print) .portal-ui dialog,
+  body:has(.owner-statement-print) .portal-ui a[href='#portal-main'] {
+    display: none !important;
+  }
+  body:has(.owner-statement-print) .portal-ui {
+    display: block;
+    background: white;
+  }
+  body:has(.owner-statement-print) main {
+    padding: 0;
+    min-height: 0;
+  }
+  .owner-statement-print {
+    color: black;
+    font-size: 10pt;
+  }
+  .owner-statement-print li {
+    break-inside: avoid;
+  }
+  .owner-statement-print a {
+    color: black;
+    text-decoration: none;
+  }
+}

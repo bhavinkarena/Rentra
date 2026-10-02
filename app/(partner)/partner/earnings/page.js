@@ -1,2 +1,2 @@
-export { default } from '@/app/(partner)/partner/finance/page';
+export { default } from '@/components/partner/earnings/EarningsPage';
 export const metadata = { title: 'Earnings' };
