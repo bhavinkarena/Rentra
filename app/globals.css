@@ -1070,3 +1070,44 @@
     text-decoration: none;
   }
 }
+
+/* Owner mobile geometry applies to shared controls without affecting public pages. */
+:is(.owner-portal, .owner-wizard) :is(button, a, summary, [role='button']) {
+  touch-action: manipulation;
+  min-height: 44px;
+  min-width: 44px;
+}
+:is(.owner-portal, .owner-wizard) :is(a, summary) {
+  overflow-wrap: anywhere;
+}
+:is(.owner-portal, .owner-wizard)
+  a:not(.sr-only):not([class*='block']):not([class*='flex']):not([class*='grid']) {
+  display: inline-flex;
+  align-items: center;
+}
+:is(.owner-portal, .owner-wizard)
+  :is(input:not([type='checkbox']):not([type='radio']):not([type='hidden']), select, textarea) {
+  font-size: 16px;
+  max-width: 100%;
+}
+:is(.owner-portal, .owner-wizard) label:has(> input:is([type='checkbox'], [type='radio'])) {
+  min-height: 44px;
+}
+:is(.owner-portal, .owner-wizard) dialog {
+  overscroll-behavior: contain;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+}
+.owner-portal > header,
+.owner-portal > div > header,
+.owner-wizard > header {
+  padding-top: max(0.5rem, env(safe-area-inset-top, 0px));
+}
+@media (max-width: 767px) {
+  :is(.owner-portal, .owner-wizard)[data-keyboard-open='true'] [data-mobile-actions] {
+    display: none;
+  }
+  :is(.owner-portal, .owner-wizard) [data-mobile-actions] {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+  }
+}

@@ -71,7 +71,7 @@ export default async function PartnerLayout({ children }) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="owner-portal flex min-h-dvh flex-col">
       <header className="border-b border-border bg-background">
         <div className="mx-auto flex w-full max-w-(--container-page) items-center gap-4 px-4 py-3 sm:px-6">
           {/* Same lockup as the public site, with a product suffix — this is

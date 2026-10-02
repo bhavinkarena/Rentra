@@ -1,3 +1,4 @@
+import PortalPage from '@/components/portal/PortalPage';
 import SettingsTabs from '@/components/partner/SettingsTabs';
 import Link from '@/components/navigation/NavigationLink';
 import { Mail, Phone, ShieldCheck, WalletCards } from 'lucide-react';
@@ -17,7 +18,7 @@ export default async function SettingsPage({ searchParams }) {
   const application = await partnerApi.application();
 
   return (
-    <div className="mx-auto w-full max-w-[1240px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+    <PortalPage width="settings">
       {params?.notice === 'verified' ? (
         <p role="status" className="mb-4 rounded-md bg-brand-50 p-4">
           You’re already verified. Update your account details here.
@@ -155,6 +156,6 @@ export default async function SettingsPage({ searchParams }) {
           </ul>
         </aside>
       </div>
-    </div>
+    </PortalPage>
   );
 }

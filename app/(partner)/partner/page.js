@@ -1,3 +1,4 @@
+import PortalPage from '@/components/portal/PortalPage';
 import { EmptyState } from '@/components/ui/empty-state';
 import OwnerToday from '@/components/partner/OwnerToday';
 import OwnerHelpHeader from '@/components/partner/OwnerHelpHeader';
@@ -52,7 +53,7 @@ export default async function PartnerDashboard({ searchParams }) {
   const firstName = user.name?.trim().split(/\s+/)[0];
 
   return (
-    <div className="mx-auto w-full max-w-(--container-workspace) px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+    <PortalPage>
       <div id="owner-today-card">
         <PartnerPageHeader
           eyebrow={completion.approved ? 'Verified owner' : 'Getting set up'}
@@ -125,7 +126,7 @@ export default async function PartnerDashboard({ searchParams }) {
           ) : null}
         </>
       )}
-    </div>
+    </PortalPage>
   );
 }
 

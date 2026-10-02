@@ -10,7 +10,13 @@ import { recordOwnerVisit } from '@/lib/actions/partner';
 import { recordAdminVisit } from '@/lib/actions/admin';
 import { Outcome, PhotoField, useKeptInputAction } from '@/components/booking/EvidenceForms';
 
-export function VisitLifecycle({ visit, requestKey, admin = false, action = null }) {
+export function VisitLifecycle({
+  visit,
+  requestKey,
+  admin = false,
+  action = null,
+  sticky = false,
+}) {
   const phase = visit.operation
     ? visit.operation.action
     : { confirmed: 'handover', handed_over: 'return', returned: 'complete' }[visit.state];
@@ -63,7 +69,11 @@ export function VisitLifecycle({ visit, requestKey, admin = false, action = null
         </label>
         <PhotoField error={state.errors?.photos} />
         <input type="hidden" name="attested" value="on" />
-        <button disabled={pending} className="min-h-11 rounded-md bg-primary px-4 text-white">
+        <button
+          data-mobile-actions={sticky || undefined}
+          disabled={pending}
+          className={`min-h-11 rounded-md bg-primary px-4 text-white ${sticky ? 'owner-visit-action fixed inset-x-4 bottom-[calc(4rem+env(safe-area-inset-bottom,0px))] z-30 shadow-md md:static md:shadow-none' : ''}`}
+        >
           {pending ? (
             <RentraLoader label="Recording…" />
           ) : phase === 'handover' ? (

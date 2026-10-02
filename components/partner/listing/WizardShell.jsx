@@ -1,4 +1,5 @@
 'use client';
+import useMobileKeyboard from '@/components/portal/useMobileKeyboard';
 import NavigationProgress from '@/components/navigation/NavigationProgress';
 import Loader2 from '@/components/ui/rentra-loader';
 
@@ -25,6 +26,7 @@ export default function WizardShell({
   correction = null,
   children,
 }) {
+  const keyboard = useMobileKeyboard();
   const router = useRouter();
   // PROP-02: a Fix link (#field-name) lands on the field, focused and ringed for 2 s.
   useEffect(() => {
@@ -89,7 +91,10 @@ export default function WizardShell({
     <ListingChrome version={version} variant="wizard" onSaved={handleSaved} onPending={setPending}>
       <UnsavedChangesGuard browserBack />
       <NavigationProgress active={advancing} />
-      <div className="flex h-dvh flex-col overflow-hidden bg-background">
+      <div
+        data-keyboard-open={keyboard}
+        className="owner-wizard flex h-dvh flex-col overflow-hidden bg-background"
+      >
         <header className="z-30 shrink-0 border-b border-border bg-card">
           <div className="flex items-center gap-3 px-4 py-2.5 sm:px-6">
             <RentraLogo className="h-6 w-auto shrink-0" />
@@ -161,6 +166,7 @@ export default function WizardShell({
         </main>
 
         <footer
+          data-mobile-actions
           data-wizard-actions
           className="z-30 shrink-0 border-t border-border bg-card"
           style={{ paddingBottom: 'max(0px, env(safe-area-inset-bottom))' }}
@@ -200,14 +206,14 @@ export default function WizardShell({
                 form={isSubmitStep ? STEP_FORM_ID : undefined}
                 onClick={isSubmitStep ? undefined : () => handleSaved({ manual: true })}
                 disabled={busy || (step.id === 'ownership' && !step.done)}
-                className="ml-auto inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-6 py-3 text-meta font-semibold text-white shadow-sm transition-[background-color,color,border-color,box-shadow,transform] hover:bg-primary-hover hover:shadow disabled:bg-ink-200 disabled:text-ink-500 disabled:shadow-none"
+                className="ml-auto inline-flex min-w-0 items-center gap-2 rounded-full bg-primary px-6 py-3 text-meta font-semibold text-white shadow-sm transition-[background-color,color,border-color,box-shadow,transform] hover:bg-primary-hover hover:shadow disabled:bg-ink-200 disabled:text-ink-500 disabled:shadow-none"
               >
                 {busy ? <Loader2 className="size-4 " aria-hidden="true" /> : null}
                 {busy ? (
                   pending ? (
-                    <span className="sr-only">Saving…</span>
+                    <span>Saving…</span>
                   ) : (
-                    <span className="sr-only">Opening next step…</span>
+                    <span>Opening next step…</span>
                   )
                 ) : (
                   continueLabel

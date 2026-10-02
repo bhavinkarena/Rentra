@@ -51,7 +51,7 @@ export function ChapterBar({ chapters, hrefs = {} }) {
                 <Link
                   href={href}
                   aria-current={chapter.isCurrent ? 'step' : undefined}
-                  className="block min-h-6 rounded-md sm:min-h-11"
+                  className="block min-h-11 rounded-md"
                   title={`${chapter.label} — ${chapter.done} of ${chapter.total} done`}
                 >
                   {track}

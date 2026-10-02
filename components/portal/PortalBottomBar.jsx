@@ -1,17 +1,14 @@
 'use client';
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { MoreHorizontal } from 'lucide-react';
-export default function PortalBottomBar({ items, pathname, onMore, open, moreActive }) {
-  const [keyboard, setKeyboard] = useState(false);
-  useEffect(() => {
-    const viewport = window.visualViewport;
-    if (!viewport) return;
-    const update = () => setKeyboard(window.innerHeight - viewport.height > 150);
-    update();
-    viewport.addEventListener('resize', update);
-    return () => viewport.removeEventListener('resize', update);
-  }, []);
+export default function PortalBottomBar({
+  items,
+  pathname,
+  onMore,
+  open,
+  moreActive,
+  keyboard = false,
+}) {
   if (keyboard || pathname.includes('/setup') || pathname === '/partner/listings/new') return null;
   return (
     <nav

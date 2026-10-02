@@ -1,0 +1,270 @@
+{
+  "budgetBytes": 184320,
+  "routes": [
+    {
+      "route": "/partner/listings/[id]/preview",
+      "rawBytes": 1382723,
+      "gzipBytes": 409960
+    },
+    {
+      "route": "/partner/listings/[id]",
+      "rawBytes": 1343636,
+      "gzipBytes": 397019
+    },
+    {
+      "route": "/partner/listings/[id]/photos",
+      "rawBytes": 1343636,
+      "gzipBytes": 397019
+    },
+    {
+      "route": "/partner/bookings",
+      "rawBytes": 1282126,
+      "gzipBytes": 375214
+    },
+    {
+      "route": "/partner/listings/[id]/calendar",
+      "rawBytes": 1278751,
+      "gzipBytes": 377462
+    },
+    {
+      "route": "/partner/listings",
+      "rawBytes": 1277223,
+      "gzipBytes": 373400
+    },
+    {
+      "route": "/partner/calendar",
+      "rawBytes": 1262685,
+      "gzipBytes": 370965
+    },
+    {
+      "route": "/partner/bookings/[orderId]",
+      "rawBytes": 1254030,
+      "gzipBytes": 367964
+    },
+    {
+      "route": "/partner/support",
+      "rawBytes": 1252122,
+      "gzipBytes": 369184
+    },
+    {
+      "route": "/partner/support/[id]",
+      "rawBytes": 1252122,
+      "gzipBytes": 369184
+    },
+    {
+      "route": "/partner/onboarding/kyc",
+      "rawBytes": 1250035,
+      "gzipBytes": 368568
+    },
+    {
+      "route": "/partner/login",
+      "rawBytes": 1247773,
+      "gzipBytes": 367296
+    },
+    {
+      "route": "/partner",
+      "rawBytes": 1243591,
+      "gzipBytes": 365692
+    },
+    {
+      "route": "/partner/listings/[id]/setup/[step]",
+      "rawBytes": 1242896,
+      "gzipBytes": 362326
+    },
+    {
+      "route": "/partner/disputes",
+      "rawBytes": 1242833,
+      "gzipBytes": 365705
+    },
+    {
+      "route": "/partner/disputes/[id]",
+      "rawBytes": 1242833,
+      "gzipBytes": 365705
+    },
+    {
+      "route": "/partner/disputes/new",
+      "rawBytes": 1242833,
+      "gzipBytes": 365705
+    },
+    {
+      "route": "/partner/help",
+      "rawBytes": 1241891,
+      "gzipBytes": 365600
+    },
+    {
+      "route": "/partner/listings/[id]/reviews",
+      "rawBytes": 1241388,
+      "gzipBytes": 364978
+    },
+    {
+      "route": "/partner/earnings/payout",
+      "rawBytes": 1240077,
+      "gzipBytes": 363976
+    },
+    {
+      "route": "/partner/settings/payout",
+      "rawBytes": 1240077,
+      "gzipBytes": 363976
+    },
+    {
+      "route": "/partner/listings/[id]/activity",
+      "rawBytes": 1237877,
+      "gzipBytes": 364158
+    },
+    {
+      "route": "/partner/onboarding/details",
+      "rawBytes": 1237162,
+      "gzipBytes": 363138
+    },
+    {
+      "route": "/partner/listings/[id]/booking-rules",
+      "rawBytes": 1236778,
+      "gzipBytes": 362852
+    },
+    {
+      "route": "/partner/team",
+      "rawBytes": 1236418,
+      "gzipBytes": 362475
+    },
+    {
+      "route": "/partner/listings/[id]/arrival-guide",
+      "rawBytes": 1233879,
+      "gzipBytes": 362804
+    },
+    {
+      "route": "/partner/onboarding/consent",
+      "rawBytes": 1233755,
+      "gzipBytes": 362357
+    },
+    {
+      "route": "/partner/onboarding/payout",
+      "rawBytes": 1233755,
+      "gzipBytes": 362357
+    },
+    {
+      "route": "/partner/support/new",
+      "rawBytes": 1233682,
+      "gzipBytes": 362781
+    },
+    {
+      "route": "/partner/listings/[id]/overview",
+      "rawBytes": 1233515,
+      "gzipBytes": 362761
+    },
+    {
+      "route": "/partner/reviews",
+      "rawBytes": 1230069,
+      "gzipBytes": 360885
+    },
+    {
+      "route": "/partner/reviews/[id]",
+      "rawBytes": 1230069,
+      "gzipBytes": 360885
+    },
+    {
+      "route": "/partner/updates",
+      "rawBytes": 1225228,
+      "gzipBytes": 359289
+    },
+    {
+      "route": "/partner/settings/security",
+      "rawBytes": 1223768,
+      "gzipBytes": 358992
+    },
+    {
+      "route": "/partner/settings",
+      "rawBytes": 1223040,
+      "gzipBytes": 358762
+    },
+    {
+      "route": "/partner/settings/notifications",
+      "rawBytes": 1222737,
+      "gzipBytes": 358749
+    },
+    {
+      "route": "/partner/welcome",
+      "rawBytes": 1221656,
+      "gzipBytes": 358351
+    },
+    {
+      "route": "/partner/onboarding/phone",
+      "rawBytes": 1221400,
+      "gzipBytes": 358115
+    },
+    {
+      "route": "/partner/onboarding/review",
+      "rawBytes": 1221400,
+      "gzipBytes": 358115
+    },
+    {
+      "route": "/partner/settings/privacy",
+      "rawBytes": 1220553,
+      "gzipBytes": 357896
+    },
+    {
+      "route": "/partner/earnings",
+      "rawBytes": 1220368,
+      "gzipBytes": 357840
+    },
+    {
+      "route": "/partner/earnings/payouts",
+      "rawBytes": 1220368,
+      "gzipBytes": 357840
+    },
+    {
+      "route": "/partner/earnings/print",
+      "rawBytes": 1220368,
+      "gzipBytes": 357840
+    },
+    {
+      "route": "/partner/earnings/statements",
+      "rawBytes": 1220368,
+      "gzipBytes": 357840
+    },
+    {
+      "route": "/partner/finance",
+      "rawBytes": 1220368,
+      "gzipBytes": 357840
+    },
+    {
+      "route": "/partner/payouts",
+      "rawBytes": 1220368,
+      "gzipBytes": 357840
+    },
+    {
+      "route": "/partner/statements/[id]",
+      "rawBytes": 1220368,
+      "gzipBytes": 357840
+    },
+    {
+      "route": "/partner/allocations/[id]",
+      "rawBytes": 1219988,
+      "gzipBytes": 357541
+    },
+    {
+      "route": "/partner/payouts/[id]",
+      "rawBytes": 1219988,
+      "gzipBytes": 357541
+    },
+    {
+      "route": "/partner/settings/calendar-sync",
+      "rawBytes": 1219193,
+      "gzipBytes": 357281
+    },
+    {
+      "route": "/partner/listings/new",
+      "rawBytes": 1119661,
+      "gzipBytes": 324175
+    },
+    {
+      "route": "/partner/listings/[id]/submitted",
+      "rawBytes": 1080242,
+      "gzipBytes": 310415
+    },
+    {
+      "route": "/partner/listings/[id]/setup",
+      "rawBytes": 1079251,
+      "gzipBytes": 309968
+    }
+  ]
+}

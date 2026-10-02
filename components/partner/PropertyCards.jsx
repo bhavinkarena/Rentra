@@ -82,7 +82,7 @@ export default function PropertyCards({ listings, from }) {
               <img
                 src={cover.replace(
                   '/image/upload/',
-                  '/image/upload/c_fill,w_480,h_270,f_auto,q_auto/',
+                  '/image/upload/c_fill,w_400,h_225,f_auto,q_auto/',
                 )}
                 alt=""
                 className="aspect-video w-full object-cover"

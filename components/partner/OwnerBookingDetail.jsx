@@ -25,7 +25,7 @@ export default function OwnerBookingDetail({ record, listHref = '/partner/bookin
   const phone = record.contact?.phone,
     digits = phone?.replace(/\D/g, '');
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6 pb-16 md:pb-0">
       <Link className="inline-flex min-h-11 underline" href={listHref}>
         Back to bookings
       </Link>
@@ -38,6 +38,7 @@ export default function OwnerBookingDetail({ record, listHref = '/partner/bookin
         {next?.operation?.action && (
           <VisitLifecycle
             key={next.id + '-' + next.version}
+            sticky
             visit={next}
             requestKey={randomUUID()}
           />

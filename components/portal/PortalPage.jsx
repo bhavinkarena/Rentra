@@ -1,8 +1,17 @@
-/**
- * Page gutters for owner screens that reuse customer, finance or dispute
- * components. Those expect the customer layout's padded wrapper; the owner
- * shell's main area has none, so on phones they ran to the screen edge.
- */
-export default function PortalPage({ children }) {
-  return <div className="w-full px-4 py-6 sm:px-6 sm:py-8 lg:px-8">{children}</div>;
+import { cn } from 'cn';
+import { pageWidths } from '@/lib/ui/layout';
+/** Shared owner page geometry; wrappers choose a named width. */
+export default function PortalPage({ children, width = 'portal', className, ...props }) {
+  return (
+    <div
+      {...props}
+      className={cn(
+        'mx-auto w-full min-w-0 px-4 py-6 sm:px-6 sm:py-8 lg:px-8',
+        pageWidths[width] || pageWidths.portal,
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
 }

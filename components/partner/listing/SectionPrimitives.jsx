@@ -73,7 +73,13 @@ export function VersionField({ listing, states = [] }) {
 export const inputCls = `${sharedFieldClass} min-h-12`;
 
 export function Input({ className = '', ...props }) {
-  return <BaseInput className={`min-h-12 rounded-md px-3.5 py-3 ${className}`} {...props} />;
+  return (
+    <BaseInput
+      enterKeyHint="next"
+      className={`min-h-12 rounded-md px-3.5 py-3 ${className}`}
+      {...props}
+    />
+  );
 }
 
 /** Wraps a section: heading, save state, and the "sent back for review" note. */

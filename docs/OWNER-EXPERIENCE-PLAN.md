@@ -54,7 +54,7 @@ The codebase mixes **partner / owner / client / host** for the person and **prop
 | 8 | Earnings and payments | R6 | ✅ Complete (UI) | 2 Oct 2026 | EARN-01..06 delivered; migration 0061 required. EARN-07 payout engine remains separate. See §15.12 |
 | 9 | Notifications, messages and support | R2 / R4 / R6 | ✅ Complete | 2 Oct 2026 | NOTIF-01..03, SUP-01..03, DISP-01, REV-01, TEAM-01, SET-01 delivered; migration 0062 required. Profile photo and "Payout sent" deferred. See §15.13 |
 | 10 | Empty, loading, error and success states | R1 | 🚧 Implemented; follow-up QA | 2 Oct 2026 | Shared states, confirmations, feedback and background session checks delivered; 75 tests and 31 browser checks. See §15.14 |
-| 11 | Responsive and mobile UX | R1 | ⏳ Not started | — | R0 fixed page gutters (MOB-01 / BUG-46) |
+| 11 | Responsive and mobile UX | R1 | 🚧 Implemented; performance and device QA open | 2 Oct 2026 | Shared mobile controls and keyboard-aware actions; 76 tests, 230 viewport checks. See §15.15 |
 | 12 | Accessibility and design system | R1 | ⏳ Not started | — | — |
 | 13 | Frontend, API and database changes | all | ⏳ Not started | — | Reference list; done as each release lands |
 | 14 | QA and edge cases | all | ⏳ Not started | — | Reference list; checked per release |
@@ -2862,6 +2862,16 @@ D8 (commission/tax) blocks any "You earn" number beyond "Booked rent".
 
 **Remaining:** individual provider-backed deletion/application/caretaker mutation walkthroughs, a restore-unread API if mark-read Undo is required, and the Phase 12 / DS-07 shell-wide unsaved guard. See the runbook for precise limits; existing version checks and calendar Undo remain intact.
 
+
+## 15.15 Delivery record — Phase 11 / Responsive and mobile UX
+
+**Implemented locally:** 2 October 2026. Not deployed. [Phase 11 runbook](OWNER-EXPERIENCE-PHASE11.md) records the shared mobile changes and repeatable viewport gate. This phase is not labelled complete while MOB-06 and real-device acceptance checks remain outstanding.
+
+**Delivered:** named `PortalPage` widths on additional page roots, dynamic viewport geometry, owner-scoped 44 px targets and 16 px input text, keyboard-aware navigation/primary actions, safe-area padding, a mobile booking submit action and 400 px Cloudinary thumbnails. Existing mobile list/pricing cards, native inputs and range-based calendar loading are reused.
+
+**Verified:** 76 frontend tests, lint and production build. The browser gate checks 40 principal owner/property/wizard routes at five widths, plus six onboarding URLs, simulated keyboard/pinch behaviour and the eligible booking action. The [recorded results](evidence/owner-phase11/results.json) contain 43 checks, 230 viewport checks and zero uncaught page errors.
+
+**Remaining:** all 53 owner routes exceed the 180 KiB cold-load JS budget (roughly 303–400 KiB); 4G content/interaction timings and physical Android/iPhone behaviour are not verified. Full route/detail/drawer coverage and complete page-width consolidation remain open. No backend migration or live database change was required.
 
 ## Appendix A — Key files by area
 

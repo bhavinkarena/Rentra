@@ -1,3 +1,4 @@
+import PortalPage from '@/components/portal/PortalPage';
 import InlineAlert from '@/components/portal/InlineAlert';
 import { EmptyState } from '@/components/ui/empty-state';
 import Link from '@/components/navigation/NavigationLink';
@@ -23,7 +24,7 @@ export default function PartnerListingsView({ summary, result, args, submitted, 
   const last = Math.min(result.page * result.pageSize, result.total);
 
   return (
-    <div className="mx-auto w-full max-w-(--container-workspace) px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+    <PortalPage>
       {deleted && (
         <InlineAlert tone="success" className="mb-6">
           Draft deleted. It has been removed from your properties.
@@ -147,6 +148,6 @@ export default function PartnerListingsView({ summary, result, args, submitted, 
           </div>
         </section>
       )}
-    </div>
+    </PortalPage>
   );
 }

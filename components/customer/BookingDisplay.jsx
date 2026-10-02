@@ -31,7 +31,11 @@ export function PropertyPhoto({ photo, title, hero = false }) {
     >
       {photo ? (
         <Image
-          src={photo.url}
+          src={
+            hero
+              ? photo.url
+              : photo.url.replace('/image/upload/', '/image/upload/f_auto,q_auto,w_400/')
+          }
           alt={photo.alt || title}
           fill
           sizes={hero ? '(max-width: 768px) 100vw, 900px' : '(max-width: 640px) 112px, 200px'}

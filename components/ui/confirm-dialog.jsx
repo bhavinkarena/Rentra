@@ -47,7 +47,10 @@ export default function ConfirmDialog({
           {title}
         </h2>
         <div className="mt-2 space-y-3 text-meta text-ink-700">{children}</div>
-        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <div
+          data-mobile-actions
+          className="sticky bottom-0 mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end"
+        >
           <button
             type="button"
             onClick={onCancel}

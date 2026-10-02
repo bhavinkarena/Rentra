@@ -1,4 +1,5 @@
 'use client';
+import useMobileKeyboard from './useMobileKeyboard';
 import NavigationProgress from '@/components/navigation/NavigationProgress';
 import { ownerHelpHref } from '@/lib/domain/owner-help';
 
@@ -308,6 +309,7 @@ function Sidebar({ config, pathname, rail, onNavigate, onToggleRail }) {
 }
 
 export default function PortalShell({ config, children }) {
+  const keyboard = useMobileKeyboard();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const rail = useSyncExternalStore(
@@ -320,7 +322,10 @@ export default function PortalShell({ config, children }) {
   const [accountOpen, setAccountOpen] = useState(false);
 
   return (
-    <div className={`portal-ui min-h-screen bg-ink-25 ${owner ? 'md:flex' : 'lg:flex'}`}>
+    <div
+      data-keyboard-open={keyboard}
+      className={`portal-ui min-h-dvh bg-ink-25 ${owner ? 'owner-portal md:flex' : 'lg:flex'}`}
+    >
       <a
         href="#portal-main"
         className="sr-only fixed top-2 left-2 z-50 rounded-md bg-white p-3 font-semibold text-brand-800 shadow-lg focus:not-sr-only"
@@ -331,7 +336,7 @@ export default function PortalShell({ config, children }) {
           rail stays unclipped so its tooltips can extend past it. */}
       <aside
         data-surface="inverse"
-        className={`sticky top-0 hidden h-screen shrink-0 bg-sidebar transition-[width] duration-200 ease-out motion-reduce:transition-none ${owner ? 'md:block' : 'lg:block'} ${
+        className={`sticky top-0 hidden h-dvh shrink-0 bg-sidebar transition-[width] duration-200 ease-out motion-reduce:transition-none ${owner ? 'md:block' : 'lg:block'} ${
           rail ? 'w-16 overflow-visible' : 'w-[236px] overflow-hidden'
         }`}
       >
@@ -450,7 +455,7 @@ export default function PortalShell({ config, children }) {
         <main
           id="portal-main"
           tabIndex={-1}
-          className={`min-h-[calc(100vh-3.5rem)] scroll-mt-16 ${owner ? 'pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0' : ''}`}
+          className={`min-h-[calc(100dvh-3.5rem)] scroll-mt-16 ${owner ? 'pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0' : ''}`}
         >
           {children}
         </main>
@@ -458,6 +463,7 @@ export default function PortalShell({ config, children }) {
 
       {owner && (
         <PortalBottomBar
+          keyboard={keyboard}
           items={config.bottomItems}
           pathname={pathname}
           open={mobileOpen}
