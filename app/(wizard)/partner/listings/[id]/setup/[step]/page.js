@@ -126,6 +126,12 @@ export default async function SetupStepPage({ params }) {
       prevHref={prev ? stepHref(id, prev) : null}
       chapterHrefs={chapterHrefs}
       stepHrefs={stepHrefs}
+      correction={
+        ['draft', 'rejected'].includes(listing.status) &&
+        listing.reviewFlags?.some((flag) => flag.step === stepId)
+          ? { reason: listing.rejectionReason }
+          : null
+      }
     >
       {stepId === 'type' ? <TypeSection listing={listing} categories={categories} /> : null}
       {stepId === 'story' ? <BasicsSection listing={listing} storyOnly /> : null}

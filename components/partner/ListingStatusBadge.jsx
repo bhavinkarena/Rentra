@@ -1,3 +1,4 @@
+/** One status vocabulary for every owner surface (PROP-01, DS-02). */
 const STATUS_META = {
   live: {
     label: 'Live',
@@ -12,19 +13,19 @@ const STATUS_META = {
     dot: 'bg-warning',
   },
   pending_verification: {
-    label: 'Verification',
-    hint: 'Visit is being arranged',
+    label: 'Verification scheduled',
+    hint: 'A call or visit is being arranged',
     className: 'bg-warning-bg text-warning ring-warning/15',
     dot: 'bg-warning',
   },
   rejected: {
-    label: 'Needs changes',
-    hint: 'Update and resubmit',
+    label: 'Not approved',
+    hint: 'Read why, fix it and resubmit',
     className: 'bg-danger-bg text-danger ring-danger/15',
     dot: 'bg-danger',
   },
   paused: {
-    label: 'Paused',
+    label: 'Paused by you',
     hint: 'Not taking new bookings',
     className: 'bg-info-bg text-info ring-info/15',
     dot: 'bg-info',
@@ -35,6 +36,12 @@ const STATUS_META = {
     className: 'bg-ink-100 text-ink-700 ring-ink-700/10',
     dot: 'bg-ink-500',
   },
+  changes_requested: {
+    label: 'Needs changes',
+    hint: 'Sent back by Rentra',
+    className: 'bg-warning-bg text-warning ring-warning/15',
+    dot: 'bg-warning',
+  },
   draft: {
     label: 'Draft',
     hint: 'Not submitted yet',
@@ -43,9 +50,12 @@ const STATUS_META = {
   },
 };
 
-export function listingStatusMeta(status) {
+/** A draft Rentra sent back is "Needs changes", not a plain draft. */
+export function listingStatusMeta(status, reviewOutcome = null) {
+  const key =
+    status === 'draft' && reviewOutcome === 'changes_requested' ? 'changes_requested' : status;
   return (
-    STATUS_META[status] ?? {
+    STATUS_META[key] ?? {
       label: status?.replace(/_/g, ' ') || 'Unknown',
       hint: 'Status unavailable',
       className: 'bg-ink-100 text-ink-700 ring-ink-700/10',
@@ -54,8 +64,8 @@ export function listingStatusMeta(status) {
   );
 }
 
-export default function ListingStatusBadge({ status, showHint = false }) {
-  const meta = listingStatusMeta(status);
+export default function ListingStatusBadge({ status, reviewOutcome = null, showHint = false }) {
+  const meta = listingStatusMeta(status, reviewOutcome);
 
   if (showHint) {
     return (
@@ -71,7 +81,7 @@ export default function ListingStatusBadge({ status, showHint = false }) {
 
   return (
     <span
-      className={`inline-flex min-h-6 items-center gap-1.5 rounded-full px-2.5 py-1 text-tiny font-bold capitalize ring-1 ring-inset ${meta.className}`}
+      className={`inline-flex min-h-6 items-center gap-1.5 rounded-full px-2.5 py-1 text-tiny font-bold ring-1 ring-inset ${meta.className}`}
     >
       <span className={`size-1.5 rounded-full ${meta.dot}`} aria-hidden="true" />
       {meta.label}

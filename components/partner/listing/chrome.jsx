@@ -35,6 +35,7 @@ const ChromeContext = createContext({
 export const STEP_FORM_ID = 'listing-step-form';
 
 export function ListingChrome({
+  listing = null,
   version = 0,
   variant = 'card',
   onSaved = null,
@@ -47,8 +48,8 @@ export function ListingChrome({
    * not available to it — the section has to hand the state up.
    */
   const value = useMemo(
-    () => ({ version, variant, onSaved, onPending }),
-    [version, variant, onSaved, onPending],
+    () => ({ listing, version, variant, onSaved, onPending }),
+    [listing, version, variant, onSaved, onPending],
   );
 
   return <ChromeContext.Provider value={value}>{children}</ChromeContext.Provider>;

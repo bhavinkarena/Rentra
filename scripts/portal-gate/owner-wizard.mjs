@@ -229,6 +229,7 @@ try {
       assert.match(await resume.getAttribute('href'), new RegExp(`${draft}/setup/location`));
       await page.goto(web + `/partner/listings/${draft}/setup/preview`);
       await page.getByRole('button', { name: 'Delete draft' }).click();
+      await page.locator('dialog[open]').getByRole('button', { name: 'Delete draft' }).click();
       await page.waitForURL(/\/partner\/listings$/);
     },
   );

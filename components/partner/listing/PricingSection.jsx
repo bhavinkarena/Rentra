@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { usePolicyAction, PolicyPreview, PolicyHistory } from './PolicyPreview';
+import { usePolicyAction, PolicyPreview } from './PolicyPreview';
 import { savePricing, previewListingPrice } from '@/lib/actions/partner';
 import { useStepFormId } from './chrome';
 import { VersionField, Input, Field, Section, SaveButton } from './SectionPrimitives';
@@ -179,7 +179,6 @@ export function PricingSection({ listing, prices }) {
                 : 'Preview pricing'
           }
         />
-        <PolicyHistory listing={listing} />
       </form>
     </Section>
   );

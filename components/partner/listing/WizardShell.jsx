@@ -4,7 +4,7 @@ import Loader2 from '@/components/ui/rentra-loader';
 
 import DraftSave from './DraftSave';
 import UnsavedChangesGuard from '@/components/portal/UnsavedChangesGuard';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from '@/components/navigation/NavigationLink';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, X } from 'lucide-react';
@@ -22,9 +22,25 @@ export default function WizardShell({
   prevHref,
   chapterHrefs = {},
   stepHrefs = {},
+  correction = null,
   children,
 }) {
   const router = useRouter();
+  // PROP-02: a Fix link (#field-name) lands on the field, focused and ringed for 2 s.
+  useEffect(() => {
+    const name = decodeURIComponent(window.location.hash.replace(/^#field-/, ''));
+    if (!window.location.hash.startsWith('#field-')) return;
+    const form = document.getElementById(STEP_FORM_ID);
+    const field =
+      document.getElementById(name) ||
+      form?.querySelector('input:not([type=hidden]),select,textarea');
+    if (!field) return;
+    field.scrollIntoView({ block: 'center' });
+    field.focus({ preventScroll: true });
+    field.classList.add('ring-4', 'ring-warning/60');
+    const timer = setTimeout(() => field.classList.remove('ring-4', 'ring-warning/60'), 2000);
+    return () => clearTimeout(timer);
+  }, []);
   const [pending, setPending] = useState(false);
   const [advancing, setAdvancing] = useState(false);
   const [heldBack, setHeldBack] = useState(false);
@@ -127,6 +143,17 @@ export default function WizardShell({
                   pending={pending}
                   onVersion={onVersion}
                 />
+                {correction ? (
+                  <div
+                    role="note"
+                    className="mb-6 rounded-md border-l-4 border-warning bg-warning-bg p-3 text-meta text-ink-800"
+                  >
+                    <strong className="font-semibold text-warning">
+                      Rentra asked you to change this step.
+                    </strong>
+                    {correction.reason ? ` ${correction.reason}` : ''}
+                  </div>
+                ) : null}
                 {children}
               </div>
             </div>

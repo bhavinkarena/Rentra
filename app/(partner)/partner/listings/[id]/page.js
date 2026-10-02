@@ -1,14 +1,12 @@
 import Link from '@/components/navigation/NavigationLink';
-import { Check, CircleCheck, Users, Wand2 } from 'lucide-react';
-import { requireClient } from '@/lib/api/session';
+import { Check, Wand2 } from 'lucide-react';
 import { partnerApi } from '@/lib/api/endpoints';
-import { settle } from '@/lib/api/page-state';
-import { safeReturnPath } from '@/lib/domain/portal-state';
 import PortalState from '@/components/portal/PortalState';
-import { DetailHeader } from '@/components/portal/DetailLayout';
+import PropertyHub from '@/components/partner/property/PropertyHub';
+import { loadPropertyHub } from '@/lib/partner/property-hub';
+import { trustFieldSentence } from '@/lib/domain/listing-trust';
 import UnsavedChangesGuard from '@/components/portal/UnsavedChangesGuard';
 import { listingCompletion } from '@/lib/domain/listing-completion';
-import { submitListing } from '@/lib/actions/partner';
 import {
   BasicsSection,
   LocationSection,
@@ -33,6 +31,14 @@ import {
   stepHref,
 } from '@/lib/domain/listing-steps';
 
+/** Completion step → the editor section that holds it. */
+const SECTION_OF_STEP = {
+  type: 'basics',
+  story: 'basics',
+  space: 'capacity',
+  availability: 'hours',
+};
+
 export const metadata = {
   title: 'Edit property',
   robots: { index: false, follow: false, nocache: true },
@@ -54,15 +60,10 @@ export const metadata = {
  *     hostile, and a Client with three farmhouses edits far more than they
  *     create.
  */
-export default async function ListingBuilderPage({ params, searchParams }) {
-  const user = await requireClient();
-  const { id } = await params; // Next 16: params is a Promise
-  const query = (await searchParams) ?? {};
-  const listHref = safeReturnPath(query.from, '/partner/listings');
-
+export default async function ListingBuilderPage(props) {
+  const { user, id, query, listHref, failure, data, hub } = await loadPropertyHub(props);
   // Scoped to this Client on the API — another Client's listing id returns
   // 404, not their property. An outage is shown as an outage, not as a missing listing.
-  const { data, failure } = await settle(partnerApi.listing(id));
   if (failure) return <PortalState kind={failure} backHref={listHref} backLabel="All properties" />;
 
   const venue = data.listing.rentalUnit === 'hour';
@@ -84,8 +85,6 @@ export default async function ListingBuilderPage({ params, searchParams }) {
     resources,
     hourlyRates,
   });
-  const title = listing.title === 'Untitled property' ? 'New property' : listing.title;
-  const overviewHref = `/partner/listings/${id}/overview?from=${encodeURIComponent(listHref)}`;
   // Review corrections are actionable only while the owner is fixing them.
   const needsChanges =
     ['draft', 'rejected'].includes(listing.status) &&
@@ -102,44 +101,18 @@ export default async function ListingBuilderPage({ params, searchParams }) {
           version. The decision appears here; if you edit the property first, submit it again.
         </p>
       ) : null}
-      <DetailHeader
-        breadcrumbs={[
-          { href: listHref, label: 'Properties' },
-          { href: overviewHref, label: title },
-          { label: 'Edit' },
-        ]}
-        title={title}
-        badges={[
-          {
-            label: listing.status.replace(/_/g, ' '),
-            tone:
-              listing.status === 'live'
-                ? 'success'
-                : listing.status === 'rejected'
-                  ? 'danger'
-                  : 'warning',
-          },
-        ]}
-        id={
-          listing.publicCode
-            ? { label: 'Property reference', value: listing.publicCode }
-            : undefined
-        }
-        chips={[
-          venue
-            ? {
-                icon: Users,
-                label: 'Courts',
-                value: `${resources.filter((r) => r.isActive !== false).length} · up to ${listing.capacity ?? '—'} players`,
-              }
-            : { icon: Users, label: 'Up to', value: `${listing.capacity ?? '—'} guests` },
-          {
-            icon: CircleCheck,
-            label: 'Setup',
-            value: `${completion.done} of ${completion.total} sections`,
-          },
-        ]}
-      />
+      <PropertyHub {...hub} active="edit" />
+
+      {listing.trustFields?.length ? (
+        <p className="mt-5 rounded-lg border border-border bg-card p-4 text-meta text-ink-700">
+          <strong className="font-semibold text-ink-900">You can change these any time:</strong>{' '}
+          prices, the calendar, the description, the highlight, deposit and cancellation, check-in
+          times and photo order.{' '}
+          <strong className="font-semibold text-ink-900">Rentra reviews changes to</strong>{' '}
+          {trustFieldSentence(listing.trustFields)}
+          {venue ? ' or courts' : ''} before guests see them.
+        </p>
+      ) : null}
 
       {/* Progress rail: the same two-phase honesty as onboarding — the review
           step is visible from the first visit, so a full bar never sits next
@@ -171,7 +144,9 @@ export default async function ListingBuilderPage({ params, searchParams }) {
           {completion.sections.map((s) => (
             <li key={s.id}>
               <a
-                href={`#${sectionAnchorId(s.id)}`}
+                href={`#${sectionAnchorId(
+                  s.id === 'space' && venue ? 'venue' : (SECTION_OF_STEP[s.id] ?? s.id),
+                )}`}
                 className={`inline-flex items-center gap-1 text-tiny font-medium ${
                   s.failed
                     ? 'text-danger'
@@ -211,31 +186,14 @@ export default async function ListingBuilderPage({ params, searchParams }) {
       ) : null}
 
       <div className="mt-5">
-        <div className="mb-4 flex flex-wrap gap-2">
-          <Link
-            href={overviewHref}
-            className="inline-flex min-h-11 items-center rounded-md border border-border px-4 text-meta font-semibold text-brand-700"
-          >
-            Property overview
-          </Link>
-          <Link
-            href={`/partner/listings/${id}/calendar?from=${encodeURIComponent(listHref)}`}
-            className="inline-flex min-h-11 items-center rounded-md border border-border px-4 text-meta font-semibold text-brand-700"
-          >
-            {venue
-              ? 'Manage blocks and the court calendar'
-              : 'Manage booking hours, dates and prices'}
-          </Link>
-        </div>
         <SubmitBar
           listing={listing}
           completion={completion}
-          submitAction={submitListing}
           ownerApproved={user.accountStatus === 'active'}
         />
       </div>
 
-      <ListingChrome variant="card">
+      <ListingChrome variant="card" listing={listing}>
         <UnsavedChangesGuard />
         <ReviewFlags
           sections={needsChanges ? (listing.reviewFlaggedFields ?? []) : []}

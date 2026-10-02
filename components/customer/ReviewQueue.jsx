@@ -1,9 +1,12 @@
 import Link from '@/components/navigation/NavigationLink';
 import { ReviewControl } from './ReviewForms';
-export default function ReviewQueue({ data, admin = false }) {
+export default function ReviewQueue({ data, admin = false, embedded = false }) {
+  const Heading = embedded ? 'h2' : 'h1';
   return (
-    <section className="mx-auto max-w-4xl space-y-5 p-4">
-      <h1 className="text-h1">{admin ? 'Customer review moderation' : 'Property reviews'}</h1>
+    <section className={embedded ? 'space-y-5' : 'mx-auto max-w-4xl space-y-5 p-4'}>
+      <Heading className={embedded ? 'text-h3' : 'text-h1'}>
+        {admin ? 'Customer review moderation' : 'Guest reviews'}
+      </Heading>
       <p>
         {admin
           ? 'Apply the same rules to every score. Negative experiences and low ratings are not grounds for rejection. Remove only policy violations such as private information, harassment, spam or unrelated content. Record a specific reason; authors can see it.'

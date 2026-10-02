@@ -1,111 +1,302 @@
 import Link from '@/components/navigation/NavigationLink';
-import {
-  CalendarDays,
-  CircleAlert,
-  CircleCheck,
-  ExternalLink,
-  Images,
-  PencilLine,
-  Users,
-  Wand2,
-} from 'lucide-react';
+import { CircleAlert, CircleCheck, Eye } from 'lucide-react';
 import { requireClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
 import { safeReturnPath } from '@/lib/domain/portal-state';
 import { listingCompletion } from '@/lib/domain/listing-completion';
-import {
-  firstIncompleteStepId,
-  listingModel,
-  sectionAnchorId,
-  stepHref,
-} from '@/lib/domain/listing-steps';
-import { formatINR } from '@/lib/domain/pricing';
+import { firstIncompleteStepId, listingModel, stepHref } from '@/lib/domain/listing-steps';
 import PortalState from '@/components/portal/PortalState';
 import RetryButton from '@/components/portal/RetryButton';
-import {
-  DetailHeader,
-  FieldGrid,
-  MetricStrip,
-  SectionCard,
-} from '@/components/portal/DetailLayout';
-import { listingStatusMeta } from '@/components/partner/ListingStatusBadge';
-import { SubmitBar } from '@/components/partner/listing/ListingSections';
-import { submitListing } from '@/lib/actions/partner';
+import { MetricStrip, SectionCard } from '@/components/portal/DetailLayout';
+import PropertyHub from '@/components/partner/property/PropertyHub';
+import SubmitForReview from '@/components/partner/property/SubmitForReview';
 
 export const metadata = {
   title: 'Property overview',
   robots: { index: false, follow: false, nocache: true },
 };
 
-const TONE = {
-  live: 'success',
-  pending_review: 'warning',
-  pending_verification: 'warning',
-  rejected: 'danger',
-  hidden: 'danger',
+/** The field a Fix link focuses on each wizard step (PROP-02); unknown → first field. */
+const FIX_FIELD = {
+  type: 'categoryId',
+  location: 'cityId',
+  space: 'capacity',
+  story: 'title',
+  pricing: 'day_weekday',
+  rules: 'checkInFrom',
+  ownership: 'docType',
 };
-const SECTION_LABEL = {
-  basics: 'Basics',
-  location: 'Location',
-  capacity: 'Capacity',
-  amenities: 'Amenities',
-  rules: 'House rules',
-  pricing: 'Pricing',
-  terms: 'Deposit & cancellation',
-  photos: 'Photos',
-  ownership: 'Ownership proof',
+const STEP_LABEL = {
+  type: 'type',
+  location: 'location',
+  space: 'space',
+  amenities: 'amenities',
+  photos: 'photos',
+  story: 'title and description',
+  pricing: 'pricing',
+  availability: 'availability',
+  rules: 'rules and cancellation',
+  ownership: 'ownership proof',
 };
-const ACTIVITY = {
-  listing_draft_created: 'You created the draft',
-  listing_submitted: 'You submitted it for review',
-  listing_review_decided: 'Rentra recorded a review decision',
-  verification_scheduled: 'Rentra scheduled verification',
-  verification_rescheduled: 'Rentra moved the verification',
-  verification_cancelled: 'Rentra cancelled the verification',
-  verification_recorded: 'Verification completed',
-  listing_published: 'Rentra published it',
-  listing_hidden: 'Rentra hid it',
-  listing_restored: 'Rentra restored it',
-  listing_corrected: 'Rentra corrected it',
-  listing_paused: 'You paused bookings',
-  listing_resumed: 'You resumed bookings',
-  listing_photos_added: 'You added photos',
-  listing_photos_reordered: 'You reordered photos',
-  ownership_document_uploaded: 'You uploaded ownership proof',
-  calendar_dates_added: 'You opened calendar dates',
-  booking_price_override_changed: 'You changed a date price',
-};
-const OUTCOME = {
-  changes_requested: 'changes requested',
-  rejected: 'rejected',
-  approved_for_visit: 'approved for verification',
-  passed: 'passed',
-  failed: 'did not pass',
-  no_show: 'missed',
-};
-const ist = (value, withTime = true) =>
+const ist = (value, withTime = false) =>
   value
     ? new Date(value).toLocaleString('en-IN', {
         timeZone: 'Asia/Kolkata',
         dateStyle: 'medium',
         ...(withTime ? { timeStyle: 'short' } : {}),
       })
-    : '—';
-const day = (value) => (value ? ist(`${value}T12:00:00+05:30`, false) : '—');
-const yesNo = (value) => (value ? 'Yes' : 'No');
+    : null;
+const day = (value) => (value ? ist(`${value}T12:00:00+05:30`) : '—');
 
-/**
- * The property operations hub (CP09): where the owner sees what state the
- * property is in and what to do next, before opening the editor or calendar.
- * `from` keeps the filtered directory the owner came from on every link.
- */
+/** Draft → In review → Verification → Live, with the date each stage last happened. */
+function Timeline({ listing, timeline }) {
+  const at = {
+    draft: 0,
+    rejected: 0,
+    pending_review: 1,
+    pending_verification: 2,
+    live: 3,
+    paused: 3,
+    hidden: 3,
+  }[listing.status];
+  const stages = [
+    ['Draft', timeline?.draft],
+    ['In review', timeline?.submitted],
+    ['Verification', timeline?.visit ?? timeline?.approved],
+    ['Live', timeline?.live],
+  ];
+  return (
+    <ol className="grid grid-cols-4 gap-2" aria-label="Property progress">
+      {stages.map(([label, date], index) => {
+        const done = index < at || (index === at && index === 3);
+        const current = index === at && index !== 3;
+        return (
+          <li key={label} className="min-w-0">
+            <span
+              aria-hidden="true"
+              className={`block h-1.5 rounded-full ${done ? 'bg-brand-600' : current ? 'bg-warning' : 'bg-ink-100'}`}
+            />
+            <p
+              className={`mt-2 text-tiny font-semibold ${done || current ? 'text-ink-900' : 'text-ink-500'}`}
+            >
+              {label}
+              <span className="sr-only">
+                {done ? ' — done' : current ? ' — current stage' : ' — not yet'}
+              </span>
+            </p>
+            {date && index <= at ? <p className="text-tiny text-ink-500">{ist(date)}</p> : null}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+/** One sentence and at most one button: what happens now, and the next thing to do. */
+function NextStep({ listing, completion, overview, ownerApproved, keep }) {
+  const id = listing.id;
+  const btn =
+    'inline-flex min-h-11 items-center rounded-md bg-primary px-4 text-meta font-semibold text-white hover:bg-primary-hover';
+  const flags = listing.reviewFlags ?? [];
+  const sentBack =
+    ['draft', 'rejected'].includes(listing.status) &&
+    ['changes_requested', 'rejected'].includes(listing.reviewOutcome);
+  if (sentBack && flags.length) {
+    const first = flags[0];
+    return (
+      <>
+        <p className="text-body text-ink-800">
+          Rentra asked for {flags.length} change{flags.length === 1 ? '' : 's'}:{' '}
+          {flags.map((flag) => STEP_LABEL[flag.step] ?? flag.step).join('; ')}.
+          {listing.rejectionReason ? ` “${listing.rejectionReason}”` : ''}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href={`${stepHref(id, first.step)}#field-${FIX_FIELD[first.step] ?? 'first'}`}
+            className={btn}
+          >
+            Fix now
+          </Link>
+          {completion.canSubmit ? (
+            <SubmitForReview listing={listing} ownerApproved={ownerApproved} label="Submit again" />
+          ) : null}
+        </div>
+        {flags.length > 1 ? (
+          <ul className="flex flex-wrap gap-2" aria-label="Sections to correct">
+            {flags.map((flag) => (
+              <li key={flag.section}>
+                <Link
+                  href={`${stepHref(id, flag.step)}#field-${FIX_FIELD[flag.step] ?? 'first'}`}
+                  className="inline-flex min-h-11 items-center gap-1.5 rounded-md border border-warning/30 bg-warning-bg px-3 text-tiny font-semibold text-warning"
+                >
+                  <CircleAlert className="size-4" aria-hidden="true" />
+                  Fix {STEP_LABEL[flag.step] ?? flag.step}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </>
+    );
+  }
+  if (['draft', 'rejected'].includes(listing.status)) {
+    if (completion.canSubmit)
+      return (
+        <>
+          <p className="text-body text-ink-800">
+            {listing.status === 'rejected'
+              ? `Rentra did not approve it${listing.rejectionReason ? `: “${listing.rejectionReason}”` : '.'} Fix it, then submit again.`
+              : 'Every step is done. Submit it and Rentra checks it within 2 working days.'}
+          </p>
+          <SubmitForReview listing={listing} ownerApproved={ownerApproved} />
+        </>
+      );
+    const step = firstIncompleteStepId(completion, listingModel(listing));
+    return (
+      <>
+        <p className="text-body text-ink-800">
+          {completion.remaining.length} step{completion.remaining.length === 1 ? '' : 's'} left
+          before you can submit — about {completion.minutesLeft} minutes.
+        </p>
+        <Link href={stepHref(id, step)} className={btn}>
+          Continue setup
+        </Link>
+      </>
+    );
+  }
+  if (listing.status === 'pending_review') {
+    if (listing.reviewNeedsResubmission)
+      return (
+        <>
+          <p className="text-body text-ink-800">
+            You changed it after submitting. Submit again so Rentra reviews this version.
+          </p>
+          <SubmitForReview listing={listing} ownerApproved={ownerApproved} label="Submit again" />
+        </>
+      );
+    return (
+      <p className="text-body text-ink-800">
+        Rentra is reviewing it, usually within 2 working days. Nothing to do until then.
+      </p>
+    );
+  }
+  if (listing.status === 'pending_verification') {
+    const visit = listing.reviewVerification;
+    return (
+      <p className="text-body text-ink-800">
+        {visit
+          ? `${visit.mode === 'physical' ? 'Site visit' : 'Video call'} on ${new Date(visit.scheduledAt).toLocaleString('en-IN', { timeZone: visit.timeZone, dateStyle: 'medium', timeStyle: 'short' })}. Rentra publishes it after the check.`
+          : 'Approved. Rentra will arrange a short video call or site visit with you.'}
+      </p>
+    );
+  }
+  if (listing.status === 'hidden') {
+    const reason = listing.restriction?.reason ?? listing.restrictionReason;
+    return (
+      <>
+        <p className="text-body text-ink-800">
+          Rentra has hidden it{reason ? `: “${reason}”` : ''}. Only Rentra can restore it.
+        </p>
+        <Link href={`/partner/support/new?propertyId=${id}`} className={btn}>
+          Contact support
+        </Link>
+      </>
+    );
+  }
+  const inventory = overview?.inventory;
+  if (listing.status === 'live' && inventory && !inventory.bookable)
+    return (
+      <>
+        <p className="text-body text-ink-800">Live, no open dates — guests can&apos;t book yet.</p>
+        <Link href={`/partner/listings/${id}/calendar${keep}`} className={btn}>
+          Open calendar
+        </Link>
+      </>
+    );
+  if (listing.status === 'live')
+    return (
+      <>
+        <p className="text-body text-ink-800">
+          Guests can book it
+          {inventory?.nextOpenDate ? `. Next open date: ${day(inventory.nextOpenDate)}` : ''}.
+        </p>
+        <Link href={`/partner/listings/${id}/calendar${keep}`} className={btn}>
+          Open calendar
+        </Link>
+      </>
+    );
+  return (
+    <p className="text-body text-ink-800">Guests can&apos;t book new dates while it is paused.</p>
+  );
+}
+
+/** Where each strength item is fixed. */
+function strengthHref(target, id, keep) {
+  return {
+    photos: `/partner/listings/${id}/photos${keep}`,
+    story: `/partner/listings/${id}${keep}#section-basics`,
+    pricing: `/partner/listings/${id}${keep}#section-pricing`,
+    calendar: `/partner/listings/${id}/calendar${keep}`,
+    reviews: `/partner/listings/${id}/reviews${keep}`,
+    team: '/partner/team',
+  }[target];
+}
+
+function Strength({ strength, id, keep }) {
+  const angle = Math.round((strength.percent / 100) * 360);
+  return (
+    <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+      <div
+        role="img"
+        aria-label={`Property strength ${strength.percent}%`}
+        className="grid size-24 shrink-0 place-items-center rounded-full"
+        style={{
+          background: `conic-gradient(var(--color-brand-600) ${angle}deg, var(--color-ink-100) 0)`,
+        }}
+      >
+        <span className="grid size-18 place-items-center rounded-full bg-card text-h4 font-bold tabular">
+          {strength.percent}%
+        </span>
+      </div>
+      <ul className="min-w-0 flex-1 space-y-1">
+        {strength.items.map((item) => (
+          <li key={item.key} className="flex items-center gap-2 text-meta">
+            {item.done ? (
+              <CircleCheck className="size-4 shrink-0 text-brand-700" aria-hidden="true" />
+            ) : (
+              <span
+                className="size-4 shrink-0 rounded-full border-2 border-ink-300"
+                aria-hidden="true"
+              />
+            )}
+            {item.done ? (
+              <span className="text-ink-600">
+                {item.label}
+                <span className="sr-only"> — done</span>
+              </span>
+            ) : (
+              <Link
+                href={strengthHref(item.target, id, keep)}
+                className="inline-flex min-h-11 items-center font-semibold text-brand-700 underline"
+              >
+                {item.label}
+              </Link>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/** The property hub's default tab (PROP-01, PROP-06, PROP-08). */
 export default async function PropertyOverviewPage({ params, searchParams }) {
   const user = await requireClient();
   const { id } = await params;
   const query = (await searchParams) ?? {};
   const listHref = safeReturnPath(query.from, '/partner/listings');
-  const keep = `from=${encodeURIComponent(listHref)}`;
+  const keep = listHref === '/partner/listings' ? '' : `?from=${encodeURIComponent(listHref)}`;
 
   const [{ data, failure }, ops] = await Promise.all([
     settle(partnerApi.listing(id)),
@@ -113,120 +304,24 @@ export default async function PropertyOverviewPage({ params, searchParams }) {
   ]);
   if (failure) return <PortalState kind={failure} backHref={listHref} backLabel="All properties" />;
 
-  const { listing, prices, amenities, photos, documents, resources, hourlyRates } = data;
-  const completion = listingCompletion(listing, {
-    prices,
-    amenities,
-    photos,
-    documents,
-    resources,
-    hourlyRates,
-  });
-  const title = listing.title === 'Untitled property' ? 'New property' : listing.title;
-  const status = listingStatusMeta(listing.status);
-  const editHref = `/partner/listings/${id}?${keep}`;
-  const calendarHref = `/partner/listings/${id}/calendar?${keep}`;
+  const { listing, photos } = data;
+  const completion = listingCompletion(listing);
   const overview = ops.data;
-  const inventory = overview?.inventory;
-  const needsChanges =
-    ['draft', 'rejected'].includes(listing.status) &&
-    ['changes_requested', 'rejected'].includes(listing.reviewOutcome);
-  const flagged = needsChanges ? (listing.reviewFlaggedFields ?? []) : [];
-  const rules = listing.houseRules && !Array.isArray(listing.houseRules) ? listing.houseRules : {};
-  const unfinished = !completion.isLive && !completion.inReview && completion.remaining.length > 0;
+  const published = ['live', 'paused'].includes(listing.status);
+  const ownerApproved = user.accountStatus === 'active';
+  const visits = overview?.upcomingVisits.items.slice(0, 3) ?? [];
 
   return (
     <div className="mx-auto w-full max-w-[1200px] px-4 py-6 sm:px-6 sm:py-8">
-      <DetailHeader
-        breadcrumbs={[{ href: listHref, label: 'Properties' }, { label: title }]}
-        title={title}
-        badges={[{ label: status.label, tone: TONE[listing.status] ?? 'neutral' }]}
-        id={
-          listing.publicCode
-            ? { label: 'Property reference', value: listing.publicCode }
-            : undefined
-        }
-        chips={[
-          listing.rentalUnit === 'hour'
-            ? {
-                icon: Users,
-                label: 'Courts',
-                value: `${(resources ?? []).filter((r) => r.isActive !== false).length}`,
-              }
-            : { icon: Users, label: 'Up to', value: `${listing.capacity ?? '—'} guests` },
-          {
-            icon: CircleCheck,
-            label: 'Setup',
-            value: `${completion.done} of ${completion.total} sections`,
-          },
-        ]}
-        actions={
-          <div className="flex flex-wrap gap-2">
-            {unfinished ? (
-              <Link
-                href={stepHref(id, firstIncompleteStepId(completion, listingModel(listing)))}
-                className="inline-flex min-h-10 items-center gap-1.5 rounded-md bg-primary px-3 text-tiny font-semibold text-white hover:bg-primary-hover active:bg-primary-active"
-              >
-                <Wand2 className="size-4" aria-hidden="true" /> Continue setup
-              </Link>
-            ) : null}
-            <Link
-              href={editHref}
-              className="inline-flex min-h-10 items-center gap-1.5 rounded-md border border-border bg-card px-3 text-tiny font-semibold text-ink-800 hover:bg-ink-50"
-            >
-              <PencilLine className="size-4" aria-hidden="true" /> Edit property
-            </Link>
-            <Link
-              href={calendarHref}
-              className="inline-flex min-h-10 items-center gap-1.5 rounded-md border border-border bg-card px-3 text-tiny font-semibold text-ink-800 hover:bg-ink-50"
-            >
-              <CalendarDays className="size-4" aria-hidden="true" /> Booking calendar
-            </Link>
-            {overview?.publicPath ? (
-              <Link
-                href={overview.publicPath}
-                target="_blank"
-                className="inline-flex min-h-10 items-center gap-1.5 rounded-md border border-border bg-card px-3 text-tiny font-semibold text-ink-800 hover:bg-ink-50"
-              >
-                <ExternalLink className="size-4" aria-hidden="true" /> Public page
-                <span className="sr-only">(opens in a new tab)</span>
-              </Link>
-            ) : null}
-          </div>
-        }
-      />
-
-      <MetricStrip
-        items={[
-          { label: 'Status', value: status.label, hint: status.hint },
-          {
-            label: 'Bookable now',
-            value: inventory ? yesNo(inventory.bookable) : '—',
-            hint: inventory
-              ? inventory.bookable
-                ? 'Guests can book open dates'
-                : 'See what is missing below'
-              : 'Unavailable',
-            tone: inventory?.bookable ? 'success' : 'warning',
-          },
-          {
-            label: 'Open dates',
-            value: inventory ? inventory.openDates : '—',
-            hint: 'Future dates on the calendar',
-          },
-          {
-            label: 'Upcoming visits',
-            value: overview ? overview.upcomingVisits.total : '—',
-            hint: 'Confirmed or in progress',
-          },
-          { label: 'Photos', value: photos.length, hint: 'First photo is the cover' },
-          {
-            label: 'Setup',
-            value: `${completion.done}/${completion.total}`,
-            hint: completion.remaining.length ? `${completion.remaining.length} left` : 'Complete',
-            tone: completion.remaining.length ? 'warning' : 'success',
-          },
-        ]}
+      <PropertyHub
+        listing={listing}
+        photos={photos}
+        active="overview"
+        listHref={listHref}
+        publicPath={overview?.publicPath}
+        upcoming={overview?.upcomingVisits.total ?? 0}
+        pausedUntil={overview?.pausedUntil}
+        ownerApproved={ownerApproved}
       />
 
       {ops.failure ? (
@@ -234,108 +329,57 @@ export default async function PropertyOverviewPage({ params, searchParams }) {
           role="alert"
           className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-danger/30 bg-danger-bg p-4 text-meta text-danger"
         >
-          <p>Bookability, visits and activity could not load. The property itself is unchanged.</p>
+          <p>Bookability, visits and strength could not load. The property itself is unchanged.</p>
           <RetryButton label="Try again" />
         </div>
       ) : null}
 
-      <div className="mt-6 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="mt-6 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="min-w-0 space-y-5">
-          <SectionCard
-            id="status"
-            title="Status and next step"
-            description="What is happening now and what you can do."
-          >
-            <SubmitBar
-              listing={listing}
-              completion={completion}
-              submitAction={submitListing}
-              ownerApproved={user.accountStatus === 'active'}
-            />
+          <SectionCard id="status" title="Status">
+            <div className="space-y-4">
+              <Timeline listing={listing} timeline={overview?.timeline} />
+              <NextStep
+                listing={listing}
+                completion={completion}
+                overview={overview}
+                ownerApproved={ownerApproved}
+                keep={keep}
+              />
+            </div>
           </SectionCard>
 
-          {needsChanges ? (
-            <SectionCard
-              id="corrections"
-              title="Changes Rentra asked for"
-              description="Fix these sections in the editor, then submit again."
-            >
-              {listing.rejectionReason ? (
-                <p className="rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger">
-                  {listing.rejectionReason}
-                </p>
-              ) : null}
-              {flagged.length ? (
-                <ul className="mt-3 flex flex-wrap gap-2" aria-label="Sections to correct">
-                  {flagged.map((section) => (
-                    <li key={section}>
-                      <Link
-                        href={`${editHref}#${sectionAnchorId(section)}`}
-                        className="inline-flex min-h-10 items-center gap-1.5 rounded-md border border-warning/30 bg-warning-bg px-3 text-tiny font-semibold text-warning hover:bg-warning/15"
-                      >
-                        <CircleAlert className="size-4" aria-hidden="true" />
-                        Correct {SECTION_LABEL[section] ?? section}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </SectionCard>
+          {published && overview ? (
+            <MetricStrip
+              label="This property at a glance"
+              items={[
+                { label: 'Bookings this month', value: overview.stats.bookingsThisMonth },
+                {
+                  label: 'Rating',
+                  value: overview.stats.rating ? overview.stats.rating.toFixed(1) : '—',
+                  hint: overview.stats.reviewCount
+                    ? `${overview.stats.reviewCount} review${overview.stats.reviewCount === 1 ? '' : 's'}`
+                    : 'No reviews yet',
+                },
+                { label: 'Upcoming visits', value: overview.upcomingVisits.total },
+                {
+                  label: 'Open dates',
+                  value:
+                    listing.rentalUnit === 'hour' ? 'Weekly hours' : overview.inventory.openDates,
+                },
+              ]}
+            />
           ) : null}
 
           <SectionCard
-            id="bookability"
-            title="Bookability"
-            description="Live means guests can see it. Bookable also needs confirmed hours and open dates."
-            action={
-              <Link
-                href={calendarHref}
-                className="text-tiny font-semibold text-brand-700 underline"
-              >
-                Open calendar
-              </Link>
-            }
-          >
-            {inventory ? (
-              <>
-                <Link
-                  className="inline-flex min-h-11 items-center underline"
-                  href={`/partner/support/new?propertyId=${id}`}
-                >
-                  Contact support
-                </Link>
-                <FieldGrid
-                  fields={[
-                    { label: 'Live on Rentra', value: yesNo(listing.status === 'live') },
-                    { label: 'Booking hours confirmed', value: yesNo(inventory.scheduleReady) },
-                    listing.rentalUnit === 'hour'
-                      ? { label: 'Open future dates', value: 'By weekly opening hours' }
-                      : { label: 'Open future dates', value: String(inventory.openDates) },
-                    { label: 'Next open date', value: day(inventory.nextOpenDate) },
-                  ]}
-                />
-                <p
-                  className={`mt-4 rounded-md p-3 text-meta ${inventory.bookable && listing.status === 'live' ? 'bg-success-bg text-brand-900' : 'bg-warning-bg text-warning'}`}
-                >
-                  {listing.status === 'live'
-                    ? inventory.note
-                    : `Not bookable: the property is ${status.label.toLowerCase()}. ${inventory.note}`}
-                </p>
-              </>
-            ) : (
-              <p className="text-meta text-ink-600">Bookability is unavailable right now.</p>
-            )}
-          </SectionCard>
-
-          <SectionCard
             id="visits"
-            title="Upcoming visits"
+            title="Next visits"
             description="Confirmed visits keep the terms the guest accepted, whatever you edit."
             flush
           >
-            {overview?.upcomingVisits.items.length ? (
+            {visits.length ? (
               <ul className="divide-y divide-border">
-                {overview.upcomingVisits.items.map((visit) => (
+                {visits.map((visit) => (
                   <li
                     key={visit.id}
                     className="flex flex-wrap items-center justify-between gap-2 px-5 py-3"
@@ -348,15 +392,13 @@ export default async function PropertyOverviewPage({ params, searchParams }) {
                       </p>
                       <p className="text-tiny text-ink-500">
                         {visit.reference} · {visit.guests}{' '}
-                        {visit.slot === 'hourly' ? 'player(s)' : 'guest(s)'} ·{' '}
-                        {visit.state.replaceAll('_', ' ')}
-                        {visit.startsAt ? ` · arrives ${ist(visit.startsAt)} IST` : ''}
+                        {visit.slot === 'hourly' ? 'player(s)' : 'guest(s)'}
                       </p>
                     </div>
                     {visit.orderId ? (
                       <Link
                         href={`/partner/bookings/${visit.orderId}`}
-                        className="text-tiny font-semibold text-brand-700 underline"
+                        className="inline-flex min-h-11 items-center text-tiny font-semibold text-brand-700 underline"
                       >
                         Open booking<span className="sr-only"> {visit.reference}</span>
                       </Link>
@@ -369,142 +411,41 @@ export default async function PropertyOverviewPage({ params, searchParams }) {
                 {overview ? 'No upcoming visits.' : 'Visits are unavailable right now.'}
               </p>
             )}
-            {overview && overview.upcomingVisits.total > overview.upcomingVisits.items.length ? (
+            {overview && overview.upcomingVisits.total > visits.length ? (
               <p className="border-t border-border px-5 py-3 text-tiny text-ink-500">
-                Showing the next {overview.upcomingVisits.items.length} of{' '}
-                {overview.upcomingVisits.total}.{' '}
-                <Link href="/partner/bookings" className="font-semibold text-brand-700 underline">
+                Showing the next {visits.length} of {overview.upcomingVisits.total}.{' '}
+                <Link
+                  href={`/partner/bookings?property=${id}`}
+                  className="font-semibold text-brand-700 underline"
+                >
                   All bookings
                 </Link>
               </p>
             ) : null}
           </SectionCard>
-
-          <SectionCard
-            id="content"
-            title="What guests see"
-            description="A summary of the saved property. Change it in the editor."
-            action={
-              <Link href={editHref} className="text-tiny font-semibold text-brand-700 underline">
-                Edit property
-              </Link>
-            }
-          >
-            <FieldGrid
-              fields={[
-                {
-                  label: 'Prices (weekday / weekend)',
-                  value: prices.length
-                    ? prices
-                        .map(
-                          (p) =>
-                            `${p.slot.replaceAll('_', ' ')} ${formatINR(p.weekday)} / ${formatINR(p.weekend)}`,
-                        )
-                        .join(' · ')
-                    : 'Not set',
-                },
-                {
-                  label: 'Check-in window',
-                  value:
-                    listing.checkInFrom && listing.checkOutBy
-                      ? `${listing.checkInFrom} to ${listing.checkOutBy}`
-                      : 'Not set',
-                },
-                {
-                  label: 'House rules',
-                  value:
-                    [
-                      rules.petsAllowed ? 'Pets allowed' : 'No pets',
-                      rules.alcoholAllowed ? 'Alcohol allowed' : 'No alcohol',
-                      rules.musicCutoff ? `Music until ${rules.musicCutoff}` : null,
-                    ]
-                      .filter(Boolean)
-                      .join(' · ') || 'Not set',
-                },
-                {
-                  label: 'Amenities',
-                  value: amenities.length
-                    ? amenities.map((a) => a.labelEn).join(', ')
-                    : 'None selected',
-                },
-                {
-                  label: 'Photos',
-                  value: `${photos.length} uploaded`,
-                },
-                {
-                  label: 'Deposit',
-                  value: listing.depositAmount ? formatINR(listing.depositAmount) : 'None',
-                },
-              ]}
-            />
-            <p className="mt-4 flex items-center gap-1.5 text-tiny text-ink-500">
-              <Images className="size-4" aria-hidden="true" />
-              Photo previews appear on the public page once it is live.
-            </p>
-          </SectionCard>
         </div>
 
         <aside className="min-w-0 space-y-5">
-          <SectionCard id="setup" title="Setup">
-            <ul className="space-y-2 text-meta">
-              {completion.sections.map((section) => (
-                <li key={section.id} className="flex items-start gap-2">
-                  {flagged.includes(section.id) || section.failed ? (
-                    <CircleAlert
-                      className="mt-0.5 size-4 shrink-0 text-danger"
-                      aria-hidden="true"
-                    />
-                  ) : section.done ? (
-                    <CircleCheck
-                      className="mt-0.5 size-4 shrink-0 text-brand-700"
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    <span
-                      className="mt-1 size-3 shrink-0 rounded-full border border-ink-300"
-                      aria-hidden="true"
-                    />
-                  )}
-                  <Link
-                    href={`${editHref}#${sectionAnchorId(section.id)}`}
-                    className="hover:underline"
-                  >
-                    {section.label}
-                    <span className="sr-only">
-                      {flagged.includes(section.id) || section.failed
-                        ? ': needs changes'
-                        : section.done
-                          ? ': complete'
-                          : ': not done'}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </SectionCard>
-
-          <SectionCard id="activity" title="Activity" description="Newest first.">
-            {overview?.activity.length ? (
-              <ol className="space-y-3">
-                {overview.activity.map((entry) => (
-                  <li key={entry.id} className="border-l-2 border-border pl-3 text-meta">
-                    <p className="font-semibold text-ink-900">
-                      {ACTIVITY[entry.action] ?? entry.action.replaceAll('_', ' ')}
-                      {entry.outcome ? `: ${OUTCOME[entry.outcome] ?? entry.outcome}` : ''}
-                    </p>
-                    <p className="text-tiny text-ink-500">{ist(entry.at)} IST</p>
-                    {entry.fields?.length ? (
-                      <p className="text-tiny text-ink-600">Changed: {entry.fields.join(', ')}</p>
-                    ) : null}
-                    {entry.reason ? <p className="mt-1 text-tiny">{entry.reason}</p> : null}
-                  </li>
-                ))}
-              </ol>
-            ) : (
-              <p className="text-meta text-ink-600">
-                {overview ? 'No activity yet.' : 'Activity is unavailable right now.'}
-              </p>
-            )}
+          {published && overview ? (
+            <SectionCard
+              id="strength"
+              title="Property strength"
+              description="Things guests look for. Each one links to where you add it."
+            >
+              <Strength strength={overview.strength} id={id} keep={keep} />
+            </SectionCard>
+          ) : null}
+          <SectionCard
+            id="guest-view"
+            title="What guests see"
+            description="Your saved property, exactly as the public page shows it."
+          >
+            <Link
+              href={`/partner/listings/${id}/preview`}
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-md border border-border px-4 text-meta font-semibold text-brand-700 hover:bg-ink-50"
+            >
+              <Eye className="size-4" aria-hidden="true" /> Preview as a guest
+            </Link>
           </SectionCard>
         </aside>
       </div>

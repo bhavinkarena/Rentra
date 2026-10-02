@@ -12,6 +12,8 @@ import { prepareIdentityFile } from '@/lib/domain/identity-upload';
 import { publicPhotoUrl } from '@/lib/domain/listing-content';
 import { photoId } from '@/lib/domain/listing-photos';
 import { Section } from './SectionPrimitives';
+import ConfirmDialog from '@/components/ui/confirm-dialog';
+import { REVIEWED_STATUSES } from '@/lib/domain/listing-trust';
 import { useChrome } from './chrome';
 const message = (result) =>
   result.error ||
@@ -25,6 +27,9 @@ export function PhotosSection({ listing, photos = [] }) {
     requests = useRef(new Set()),
     urls = useRef(new Set()),
     drag = useRef(null);
+  // PROP-03 / LIST-05: removing asks first; adding to a published property warns about review.
+  const [ask, setAsk] = useState(null);
+  const reviewed = REVIEWED_STATUSES.includes(listing.status);
   const [tiles, setTiles] = useState([]),
     [error, setError] = useState(''),
     [busy, setBusy] = useState(false),
@@ -247,10 +252,7 @@ export function PhotosSection({ listing, photos = [] }) {
                 <button
                   className="min-h-11 underline"
                   disabled={busy || uploading}
-                  onClick={() => {
-                    if (window.confirm('Remove this photo? You need at least six to submit.'))
-                      mutate(removeListingPhoto, { key: photoId(photo) });
-                  }}
+                  onClick={() => setAsk({ kind: 'remove', key: photoId(photo) })}
                 >
                   Remove
                 </button>
@@ -315,13 +317,36 @@ export function PhotosSection({ listing, photos = [] }) {
           accept="image/jpeg,image/png,image/webp,image/heic"
           disabled={uploading || photos.length >= 15}
           onChange={(e) => {
-            accept(e.target.files);
+            const files = Array.from(e.target.files ?? []);
             e.target.value = '';
+            if (reviewed && files.length) setAsk({ kind: 'add', files });
+            else accept(files);
           }}
           className="mt-2 block w-full"
         />
       </label>
       {photos.length >= 15 && <p>15 of 15 — remove one to add another.</p>}
+      <ConfirmDialog
+        open={Boolean(ask)}
+        title={ask?.kind === 'add' ? 'New photos need a quick review' : 'Remove this photo?'}
+        confirmLabel={ask?.kind === 'add' ? 'Add and send for review' : 'Remove photo'}
+        danger={ask?.kind === 'remove'}
+        onCancel={() => setAsk(null)}
+        onConfirm={() => {
+          const current = ask;
+          setAsk(null);
+          if (current?.kind === 'add') accept(current.files);
+          else if (current) mutate(removeListingPhoto, { key: current.key });
+        }}
+      >
+        <p>
+          {ask?.kind === 'add'
+            ? 'Rentra checks new photos before guests see them. Your property is hidden until then, usually within 1 working day.'
+            : photos.length <= 6
+              ? 'You need at least six photos to submit. Removing a photo never sends a live property for review.'
+              : 'Removing a photo never sends a live property for review.'}
+        </p>
+      </ConfirmDialog>
     </Section>
   );
 }

@@ -1,6 +1,5 @@
 'use client';
 import PolicyValues from './PolicyValues';
-import { useIsWizard } from './chrome';
 import { useActionState, useState, useTransition } from 'react';
 
 export function usePolicyAction(action, listing) {
@@ -75,34 +74,49 @@ export function PolicyPreview({ preview, state }) {
     </>
   );
 }
+const POLICY_ACTION = {
+  property_pricing_changed: 'Prices changed',
+  property_terms_changed: 'Deposit or cancellation changed',
+  property_hourly_rates_changed: 'Hourly prices changed',
+  booking_configuration_changed: 'Booking hours changed',
+};
+
+/** Pricing and policy changes in plain words (Activity tab). */
 export function PolicyHistory({ listing }) {
-  const wizard = useIsWizard();
-  if (wizard) return null;
+  const entries = listing.policyHistory || [];
   return (
-    <details className="rounded-md border border-border p-4">
-      <summary className="min-h-11 cursor-pointer font-semibold">
-        Pricing and policy history
-      </summary>
-      <p className="text-sm">
-        Current content version {listing.contentVersion}. Changes apply immediately to new quotes;
-        accepted bookings keep their snapshot.
+    <div>
+      <p className="text-meta text-ink-600">
+        Changes apply to new bookings straight away. Bookings already made keep the price and terms
+        the guest accepted.
       </p>
-      <ol className="mt-3 space-y-3">
-        {(listing.policyHistory || []).map((entry, index) => (
-          <li key={index} className="text-sm">
-            <p>
-              {entry.action.replaceAll('_', ' ')} ·{' '}
-              {new Date(entry.at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} India
-              {entry.effectiveVersion ? ` · Version ${entry.effectiveVersion}` : ''}
-            </p>
-            <details>
-              <summary className="min-h-11 cursor-pointer">Recorded values</summary>
-              <PolicyValues values={entry.values} />
-            </details>
-          </li>
-        ))}
-      </ol>
-      {!listing.policyHistory?.length && <p>No recorded pricing or policy changes yet.</p>}
-    </details>
+      {entries.length ? (
+        <ol className="mt-3 space-y-3">
+          {entries.map((entry, index) => (
+            <li key={index} className="border-l-2 border-border pl-3 text-meta">
+              <p className="font-semibold text-ink-900">
+                {POLICY_ACTION[entry.action] ?? entry.action.replaceAll('_', ' ')}
+              </p>
+              <p className="text-tiny text-ink-500">
+                {new Date(entry.at).toLocaleString('en-IN', {
+                  timeZone: 'Asia/Kolkata',
+                  dateStyle: 'medium',
+                  timeStyle: 'short',
+                })}{' '}
+                IST
+              </p>
+              <details>
+                <summary className="min-h-11 cursor-pointer text-tiny font-semibold text-brand-700">
+                  What was saved
+                </summary>
+                <PolicyValues values={entry.values} />
+              </details>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <p className="mt-3 text-meta text-ink-600">No price or policy changes yet.</p>
+      )}
+    </div>
   );
 }

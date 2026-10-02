@@ -9,7 +9,14 @@ import {
 export { Field } from '@/components/ui/field';
 import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import Loader2 from '@/components/ui/rentra-loader';
-import { createContext, useContext, useEffect, useRef } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import ConfirmDialog from '@/components/ui/confirm-dialog';
+import {
+  IN_REVIEW_STATUSES,
+  REVIEWED_STATUSES,
+  trustFieldSentence,
+  trustFieldsTouched,
+} from '@/lib/domain/listing-trust';
 import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input as BaseInput } from '@/components/ui/input';
@@ -70,8 +77,78 @@ export function Input({ className = '', ...props }) {
 }
 
 /** Wraps a section: heading, save state, and the "sent back for review" note. */
+/**
+ * PROP-03: before a save Rentra must review again, say so and let the owner
+ * cancel. Live/paused/hidden: only when an edited input is a trust field.
+ * In review: any save means submitting again (the content version moves).
+ */
+function useReviewWarning(listing) {
+  const edited = useRef(new Set());
+  const confirmed = useRef(false);
+  const [warning, setWarning] = useState(null);
+  const status = listing?.status;
+  const onEdit = (event) => {
+    if (event.target?.name && !event.target.closest('dialog'))
+      edited.current.add(event.target.name);
+  };
+  const intercept = (event) => {
+    // The dialog's own form submits through this section too; it is not a save.
+    if (!(event.target instanceof HTMLFormElement) || event.target.closest('dialog')) return true;
+    if (!listing) return false;
+    if (confirmed.current) {
+      confirmed.current = false;
+      edited.current.clear();
+      return false;
+    }
+    const touched = trustFieldsTouched([...edited.current], listing.trustFields);
+    const kind =
+      IN_REVIEW_STATUSES.includes(status) && edited.current.size
+        ? 'in_review'
+        : REVIEWED_STATUSES.includes(status) && touched.length
+          ? status
+          : null;
+    if (!kind) return false;
+    event.preventDefault();
+    event.stopPropagation();
+    setWarning({ kind, touched, form: event.target });
+    return true;
+  };
+  const dialog = warning ? (
+    <ConfirmDialog
+      open
+      title={
+        warning.kind === 'in_review'
+          ? 'Rentra is reviewing this property'
+          : 'This change needs a quick review'
+      }
+      confirmLabel={warning.kind === 'in_review' ? 'Save changes' : 'Save and send for review'}
+      onCancel={() => setWarning(null)}
+      onConfirm={() => {
+        const { form } = warning;
+        setWarning(null);
+        confirmed.current = true;
+        form.requestSubmit();
+      }}
+    >
+      {warning.kind === 'in_review' ? (
+        <p>Saving now means you submit the property again, and Rentra reviews the new version.</p>
+      ) : (
+        <p>
+          Changing {trustFieldSentence(warning.touched)} needs a quick Rentra review.{' '}
+          {warning.kind === 'hidden'
+            ? 'Rentra reviews it before the property can be restored.'
+            : 'Your property is hidden from guests until then, usually within 1 working day.'}{' '}
+          Bookings already confirmed are not affected.
+        </p>
+      )}
+    </ConfirmDialog>
+  ) : null;
+  return { onEdit, intercept, dialog };
+}
+
 export function Section({ id, title, intro, state, pending, children }) {
-  const { variant, onSaved, onPending } = useChrome();
+  const { variant, onSaved, onPending, listing } = useChrome();
+  const review = useReviewWarning(variant === 'wizard' ? null : listing);
   const flags = useContext(ReviewFlagsContext);
   const flagged = flags.sections.includes(id);
   const wizard = variant === 'wizard';
@@ -93,6 +170,7 @@ export function Section({ id, title, intro, state, pending, children }) {
   }, [state, failed]);
 
   const onSubmitCapture = (event) => {
+    if (review.intercept(event)) return;
     if (event.target instanceof HTMLFormElement)
       submitted.current = { form: event.target, data: new FormData(event.target) };
   };
@@ -230,8 +308,11 @@ export function Section({ id, title, intro, state, pending, children }) {
       ref={sectionRef}
       onSubmitCapture={onSubmitCapture}
       onBlurCapture={validateBlur}
+      onInputCapture={review.onEdit}
+      onChangeCapture={review.onEdit}
       className="scroll-mt-24 rounded-lg border border-border bg-card p-5"
     >
+      {review.dialog}
       <h2 className="text-h3">{title}</h2>
       {intro ? <p className="mt-1 text-meta text-ink-600">{intro}</p> : null}
 
