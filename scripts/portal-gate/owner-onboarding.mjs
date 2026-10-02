@@ -98,7 +98,7 @@ try {
         .tourResumedAt,
     );
     await page.reload();
-    await page.getByRole('heading', { name: /Welcome back/ }).waitFor();
+    await page.getByRole('heading', { name: 'Get verified' }).waitFor();
     assert.equal(await page.getByRole('dialog').count(), 0);
     await page.goto(web + '/partner?tour=1');
     await page.getByRole('dialog').waitFor();

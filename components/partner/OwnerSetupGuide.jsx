@@ -4,11 +4,11 @@ import { Check, Circle } from 'lucide-react';
 import { useActionState } from 'react';
 import { saveOwnerGuide } from '@/lib/actions/partner';
 import FormError from '@/components/portal/FormError';
-export default function OwnerSetupGuide({ guide }) {
+export default function OwnerSetupGuide({ guide, expanded = true }) {
   const [state, action, pending] = useActionState(saveOwnerGuide, {});
   if (guide.dismissed) return null;
   return (
-    <details open className="mt-6 rounded-lg border border-brand-200 bg-card p-5">
+    <details open={expanded} className="mt-6 rounded-lg border border-brand-200 bg-card p-5">
       <summary className="cursor-pointer text-h3 font-bold">
         Get ready for bookings{' '}
         <span className="block text-meta font-normal text-ink-600">

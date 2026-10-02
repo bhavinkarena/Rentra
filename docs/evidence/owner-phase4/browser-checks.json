@@ -1,0 +1,11 @@
+{
+  "checks": [
+    "40 visits render next five arrivals/departures and canonical Bookings count",
+    "approved dashboard fits 360,390,768,1024,1440 and passes axe",
+    "each Today section fails independently and Retry restores it",
+    "zero-data owner has setup guidance and no portfolio KPI tiles",
+    "pending home has verification, requirements, draft CTA and contact strip"
+  ],
+  "errors": [],
+  "fixture": "disposable localhost API/database; 40 bookings"
+}

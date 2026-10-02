@@ -6,7 +6,7 @@
 | Scope | Everything an owner (client/host/partner) touches: `/partner/**`, `/partner/listings/**` wizard, owner-facing backend routes in `rentra-backend/src/routes/partner.route.js`, related services, triggers and migrations |
 | Code audited | Frontend `Rentra` `main` @ `ced7a00`; backend `rentra-backend` `master` @ `22c1950`. Both trees clean at audit time |
 | Method | Read-only trace of every owner screen: page → component → server action (`lib/actions/*`) → `lib/api/endpoints.js` → Express route → controller → service → SQL/trigger. The highest-impact claims were re-checked by hand (marked **Verified**). No servers were run and no database was queried. Integration tests that need `PORTAL_TEST_DATABASE_URL` were not run. |
-| Status | **R0 (hotfixes), Phase 2 (navigation / R1) and Phase 3 (first-time owner onboarding) complete on branch `feat/owner-experience`, 2 October 2026.** See §15.4, §15.6 and §15.7. |
+| Status | **R0 (hotfixes), Phase 2 (navigation / R1), Phase 3 (onboarding) and Phase 4 (Today) complete on branch `feat/owner-experience`, 2 October 2026.** See §15.4, §15.6, §15.7 and §15.8. |
 
 > **The question behind every recommendation:** *If a completely new owner opens this screen, do they immediately understand what is happening and what to do next?* Wherever the answer is "no", this document proposes a change.
 
@@ -47,7 +47,7 @@ The codebase mixes **partner / owner / client / host** for the person and **prop
 | 1 | Codebase and current UX audit | — | ✅ Complete | 2 Oct 2026 | Audit delivered (§1). Critical/High bugs fixed in R0 (§15.5) |
 | 2 | Information architecture and navigation | R1 | ✅ Complete | 2 Oct 2026 | Five-destination nav (Today, Calendar, Bookings, Properties, Earnings) + More, mobile bottom bar, collapsed locks, unified earnings & help hubs (NAV-01..05) |
 | 3 | First-time owner onboarding | R2 | ✅ Complete | 2 Oct 2026 | ONB-01..07 implemented; migration 0057 required before deployment. See §15.7 |
-| 4 | Dashboard ("Today") | R2 / R4 | ⏳ Not started | — | — |
+| 4 | Dashboard ("Today") | R2 / R4 | ✅ Complete | 2 Oct 2026 | HOME-01..03 implemented; see §15.8 |
 | 5 | Add Property / listing creation | R3 | ⏳ Not started | — | R0 fixed the ownership upload and ₹0 pricing (LIST-01, BUG-05) |
 | 6 | Property management | R3 / R6 | ⏳ Not started | — | R0 delivered PROP-03 part 1 (no review on unchanged saves) |
 | 7 | Booking and calendar | R4 / R5 | ⏳ Not started | — | R0 fixed the bookings sort/scope and guest checkouts breaking (BUG-08/09, CAL-07) |
@@ -2595,9 +2595,9 @@ D8 (commission/tax) blocks any "You earn" number beyond "Booked rent".
 | Phase 1 Audit | **Complete — 2 Oct 2026** | §1 (this document) |
 | R0 Hotfixes | **Complete — 2 Oct 2026** (branch `feat/owner-experience`, not merged or deployed) | [§15.5](#155-completion-record--r0-hotfixes) |
 | R1 Shell and foundations (Navigation & IA) | **Complete — 2 Oct 2026** (branch `feat/owner-experience`) | [§15.6](#156-completion-record--phase-2--r1-navigation-and-ia) |
-| R2 First run | **In progress — Phase 3 complete, 2 Oct 2026** | [§15.7](#157-completion-record--phase-3--first-time-owner-onboarding); dashboard and notification work remains in Phases 4/9 |
+| R2 First run | **In progress — Phases 3/4 complete** | Phase 9 application notifications remain; see §15.8 |
 | R3 Add property | Not started | — |
-| R4 Today and bookings | Not started | — |
+| R4 Today and bookings | In progress — Today complete | Phase 7 bookings and Phase 9 notifications remain |
 | R5 Calendar | Not started | — |
 | R6 Earnings, support, settings | Not started | — |
 
@@ -2718,7 +2718,27 @@ D8 (commission/tax) blocks any "You earn" number beyond "Booked rent".
 - **Browser:** [Recorded gate](evidence/owner-phase3/browser-checks.json) and [360 px screenshot](evidence/owner-phase3/details-360.png); Welcome/tour, four-step flow, phone code retry, 6 MB JPEG/3 MB PDF, bank retry/restore, submission locks, rejection, pending drafts and approval checked. Audited pages have no serious/critical axe violations or horizontal overflow at 360/390/768/1440 px.
 - **Migration:** `0057_owner_onboarding.sql` adds `user.owner_guide`; 58 journal entries verified and migrations exercised in disposable localhost databases. Apply through 0057 **before** deploying the new backend actor reader, then frontend. No live migration was performed.
 - **Limits:** Private uploads used a fixture provider, IFSC was stubbed, and OTP used the development bypass. Live provider delivery and hosted smoke checks remain. Whole-repository lint has unrelated existing failures.
-- **R2 remains in progress:** Phase 4 dashboard and Phase 9 application notifications are outside this completed phase.
+- **At Phase 3 completion, R2 remained in progress:** dashboard and application notifications were outside that phase. Phase 4 completion is recorded below; Phase 9 notifications remain.
+
+---
+
+## 15.8 Completion record — Phase 4 / Today dashboard
+
+**Done:** 2 October 2026. Local changes in both repositories; not deployed. [Runbook and repeatable checks](OWNER-EXPERIENCE-PHASE4.md).
+
+| IDs | Delivered |
+|---|---|
+| HOME-01 | Operational Today replaces KPI tiles: setup, actionable tasks, With Rentra information, arrivals/departures, seven days, rent-only earnings, property cards and five linked updates. Independent section reads and Retry; next five plus more for busy owners. |
+| HOME-02 | Get verified state, vertical steps with estimates, requirements, draft CTA and support contacts. Empty updates are omitted. |
+| HOME-03 | Consistent Add property label; native locked dialog with Escape and computed remaining steps; zero-step fallback and accurate audit comment. |
+| Visit consistency | Today and Bookings › Today share owner-scoped visit rows, overnight boundaries and pagination. Action queues exclude disputed/unknown-hours visits. Existing booking records provide evidence-aware check-in/out actions. |
+
+- **Backend:** 195 tests pass with zero skips/failures against disposable localhost databases. Final focused Today integration rerun passes after payment metadata, filter and next-booking fixes. Covers zero/one/40 visits, overnight departure, multi-visit orders, owner isolation, pagination and action queues.
+- **Frontend:** 68 tests pass; production build and changed-file lint pass.
+- **Browser:** [Recorded gate](evidence/owner-phase4/browser-checks.json) and [360 px screenshot](evidence/owner-phase4/today-360.png). Five check groups cover busy/empty/pending owners, section failures and retries, 360/390/768/1024/1440 px layouts, zero serious/critical axe violations and zero page errors.
+- **Database:** No Phase 4 migration. Existing Phase 3 migration 0057 remains required; 58 migration files/journal entries verified. No live database changes or deployment.
+- **Limits:** Property cards reuse current completion percentage, labelled Setup strength; Phase 6 owns the richer post-publish score. Payout status remains explicitly unavailable until settlement integration. Browser data and failure injection are local fixtures. Existing whole-repository lint failures remain outside this change.
+- **Release scope:** R2 needs Phase 9 application notifications; R4 needs Phase 7 booking redesign and Phase 9 booking notifications.
 
 ---
 
@@ -2728,7 +2748,7 @@ D8 (commission/tax) blocks any "You earn" number beyond "Booked rent".
 |---|---|---|
 | Shell / nav | `components/partner/PartnerShell.jsx`, `PartnerPortal.jsx`, `components/portal/PortalShell.jsx`, `NavDrawer.jsx`, `app/(partner)/partner/layout.js` | `src/services/auth/capabilities.js`, `client-inbox.js` |
 | Login / onboarding | `app/(partner)/partner/login`, `onboarding/*`, `components/partner/{LoginForm, OnboardingShell, onboarding-forms, KycUploadForm, PhoneVerifyForm, CompletionStepper}.jsx`, `lib/domain/profile-completion.js` | `src/services/auth/{otp, actions, application, profile, documents}.js`, `services/admin/applications.js` |
-| Dashboard | `app/(partner)/partner/page.js`, `components/partner/{PortalPrimitives, PropertyTable, GatedAddPlaceButton}.jsx` | `src/services/db/listing-queries.js`, `services/auth/client-inbox.js` |
+| Dashboard | `app/(partner)/partner/page.js`, `components/partner/{OwnerToday, PortalPrimitives, GatedAddPlaceButton}.jsx` | `services/auth/owner-today.js`, `services/booking/owner-visits.js`, `services/auth/client-inbox.js` |
 | Wizard / editor | `app/(wizard)/**`, `app/(partner)/partner/listings/**`, `components/partner/listing/*`, `lib/domain/{listing-steps, listing-completion}.js` | `src/services/auth/listings.js`, `services/booking/{property-policy, venue, hourly-rates}.js`, `services/uploads/cloudinary.js`, `middlewares/upload.middleware.js`, `drizzle/0025*, 0026*, 0027*` |
 | Calendar | `components/partner/{PortfolioCalendar, ResourceDayTimeline, SelectableLane}.jsx`, `listing/{BookingCalendarSettings, HoursSection}.jsx` | `src/services/booking/{owner-calendar, calendar-actions, calendar-page, inventory, owner-settings, quotes}.js`, `services/domain/{booking-dates, booking-money}.js`, `drizzle/0053_time_booking.sql` |
 | Bookings | `app/(partner)/partner/bookings/**`, `components/customer/{BookingHistory, BookingRecords, BookingDisplay, VisitLifecycle}.jsx`, `components/booking/*` | `src/services/booking/{records, visit-lifecycle, lifecycle-actions, booking-cases, cancellation, staff-visits}.js` |

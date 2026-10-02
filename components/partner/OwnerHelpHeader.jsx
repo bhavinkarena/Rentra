@@ -3,12 +3,12 @@ import { publicContent } from '@/lib/api/content';
 import { requireClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
 import OwnerDestinationTabs from './OwnerDestinationTabs';
-export default async function OwnerHelpHeader() {
-  if (process.env.NEXT_PUBLIC_OWNER_V2_NAV === 'false') return null;
+export default async function OwnerHelpHeader({ tabs = true }) {
+  if (tabs && process.env.NEXT_PUBLIC_OWNER_V2_NAV === 'false') return null;
   const user = await requireClient();
   const [contact, records] = await Promise.all([
     publicContent('contact').catch(() => null),
-    user.capabilities?.includes('client.records.read')
+    tabs && user.capabilities?.includes('client.records.read')
       ? partnerApi.records({}).catch(() => null)
       : null,
   ]);
@@ -49,10 +49,12 @@ export default async function OwnerHelpHeader() {
             : 'Support hours have not been published. Check My requests for replies.'}
         </p>
       </div>
-      <OwnerDestinationTabs
-        kind="help"
-        disputes={Boolean(records?.total || records?.items?.length)}
-      />
+      {tabs ? (
+        <OwnerDestinationTabs
+          kind="help"
+          disputes={Boolean(records?.total || records?.items?.length)}
+        />
+      ) : null}
     </>
   );
 }

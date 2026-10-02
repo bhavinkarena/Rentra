@@ -264,7 +264,7 @@ export function BookingDetail({
           </p>
           <ul className="mt-4 divide-y divide-border rounded-lg border border-border">
             {record.visits.map((v) => (
-              <li key={v.id} className="space-y-3 p-4">
+              <li key={v.id} id={`visit-${v.id}`} className="scroll-mt-24 space-y-3 p-4">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
                     <h3 className="font-semibold">

@@ -86,7 +86,15 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
         </Form>
         <nav aria-label="Booking history filters" className="mt-5 flex gap-2 overflow-x-auto pb-1">
           {(operational
-            ? ['all', 'today', 'upcoming', 'action_needed', 'past', 'cancelled']
+            ? [
+                'all',
+                'today',
+                'upcoming',
+                'action_needed',
+                ...(base === '/partner/bookings' ? ['with_rentra'] : []),
+                'past',
+                'cancelled',
+              ]
             : ['all', 'upcoming', 'past', 'cancelled']
           ).map((tab) => (
             <Link
@@ -95,7 +103,11 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
               className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm text-ink-600 hover:bg-ink-50 aria-[current=page]:bg-primary aria-[current=page]:font-semibold aria-[current=page]:text-white"
               href={href(base, data, { tab, page: '1' })}
             >
-              {tab === 'action_needed' ? 'Action needed' : tab[0].toUpperCase() + tab.slice(1)}
+              {tab === 'action_needed'
+                ? 'Action needed'
+                : tab === 'with_rentra'
+                  ? 'With Rentra'
+                  : tab[0].toUpperCase() + tab.slice(1)}
               {data.summary && (
                 <span className="text-xs">
                   {tab === 'all' ? data.summary.total : data.summary[tab]}
@@ -151,13 +163,14 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
         ) : null}
       </div>
       <p className="text-sm text-ink-500">
-        {data.total} booking{data.total === 1 ? '' : 's'} found
+        {data.total} {data.tab === 'today' && base === '/partner/bookings' ? 'visit' : 'booking'}
+        {data.total === 1 ? '' : 's'} found
       </p>
       <ul className="space-y-4">
         {data.items.map((item) => (
-          <li key={item.id}>
+          <li key={item.visitId ?? item.id}>
             <Link
-              href={`${base}/${item.id}${operational ? `?from=${encodeURIComponent(href(base, data, {}))}` : ''}`}
+              href={`${base}/${item.id}${operational ? `?from=${encodeURIComponent(href(base, data, {}))}` : ''}${item.visitId ? `#visit-${item.visitId}` : ''}`}
               className="group grid overflow-hidden rounded-xl border border-border bg-card transition hover:border-brand-300 hover:shadow-md grid-cols-[112px_1fr] sm:grid-cols-[200px_1fr]"
             >
               <PropertyPhoto photo={item.photo} title={item.title} />
@@ -185,7 +198,11 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
                 </div>
                 <div className="mt-auto flex flex-wrap items-end justify-between gap-3 border-t border-border pt-3">
                   <div>
-                    <p className="text-xs text-ink-500">Accepted total · separate deposit</p>
+                    <p className="text-xs text-ink-500">
+                      {item.visitId
+                        ? 'Booking total · separate deposit'
+                        : 'Accepted total · separate deposit'}
+                    </p>
                     <p className="mt-0.5 text-h4 font-bold tabular">{money(totalPrice(item))}</p>
                   </div>
                 </div>
