@@ -4,7 +4,7 @@ import { savePricing } from '@/lib/actions/partner';
 import { useStepFormId } from './chrome';
 import { VersionField, Input, Field, Section, SaveButton } from './SectionPrimitives';
 const SLOTS = [
-  ['day', 'Day picnic', '9 AM – 6 PM, the 12-hour slot'],
+  ['day', 'Day picnic', 'Daytime, 9 AM – 6 PM by default'],
   ['night', 'Overnight', '6 PM – 10 AM'],
   ['full_day', 'Full day', '24 hours'],
 ];
@@ -18,7 +18,7 @@ export function PricingSection({ listing, prices }) {
     <Section
       id="pricing"
       title="Slots and pricing"
-      intro="Leave a slot at zero if you do not offer it. Price is a free field — changing it never sends a live listing back for review."
+      intro="Enter both prices for every slot you offer. Leave both at 0 for a slot you don't offer. Changing a price on a live property never sends it back for review."
       state={state}
       pending={pending}
     >
@@ -64,9 +64,15 @@ export function PricingSection({ listing, prices }) {
             </tbody>
           </table>
         </div>
-        {e.day_weekday ? (
-          <p className="text-tiny font-medium text-danger">{e.day_weekday}</p>
-        ) : null}
+        {SLOTS.flatMap(([slot, label]) =>
+          ['weekday', 'weekend']
+            .filter((day) => e[`${slot}_${day}`])
+            .map((day) => (
+              <p key={`${slot}_${day}`} className="text-tiny font-medium text-danger">
+                {label}: {e[`${slot}_${day}`]}
+              </p>
+            )),
+        )}
         <div className="grid gap-4 sm:grid-cols-2">
           <Field id="extraGuestCharge" label="Extra guest, per head" error={e.extraGuestCharge}>
             <Input
