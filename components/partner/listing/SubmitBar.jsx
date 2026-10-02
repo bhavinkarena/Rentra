@@ -4,7 +4,7 @@ import { useActionState } from 'react';
 import { Check, AlertTriangle, Pause, Play } from 'lucide-react';
 import { toggleListingPause } from '@/lib/actions/partner';
 import { Button } from '@/components/ui/button';
-import { sectionAnchorId } from '@/lib/domain/listing-steps';
+import { stepHref } from '@/lib/domain/listing-steps';
 function PauseControl({ listing }) {
   const [state, action, pending] = useActionState(toggleListingPause, {});
   const paused = listing.status === 'paused';
@@ -157,7 +157,7 @@ export function SubmitBar({ listing, completion, submitAction, ownerApproved = t
           {listing.reviewFlaggedFields.map((section, index) => (
             <span key={section}>
               {index ? ', ' : ''}
-              <a className="underline" href={`#${sectionAnchorId(section)}`}>
+              <a className="underline" href={stepHref(listing.id, section)}>
                 {section}
               </a>
             </span>

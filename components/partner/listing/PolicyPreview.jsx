@@ -1,8 +1,9 @@
 'use client';
 import PolicyValues from './PolicyValues';
+import { useIsWizard } from './chrome';
 import { useActionState, useState, useTransition } from 'react';
 
-export function usePolicyAction(action) {
+export function usePolicyAction(action, listing) {
   const [state, dispatch, pending] = useActionState(action, {});
   const [edited, setEdited] = useState(false);
   const [, startTransition] = useTransition();
@@ -17,6 +18,8 @@ export function usePolicyAction(action) {
       onSubmit: (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
+        if (['draft', 'rejected'].includes(listing?.status) && !listing?.hasBookings)
+          data.set('direct', 'true');
         data.set('mode', preview ? 'apply' : 'preview');
         if (preview) data.set('previewToken', preview.token);
         setEdited(false);
@@ -73,6 +76,8 @@ export function PolicyPreview({ preview, state }) {
   );
 }
 export function PolicyHistory({ listing }) {
+  const wizard = useIsWizard();
+  if (wizard) return null;
   return (
     <details className="rounded-md border border-border p-4">
       <summary className="min-h-11 cursor-pointer font-semibold">

@@ -65,7 +65,7 @@ export default async function PartnerLoginPage({ searchParams }) {
         <li>Save your UPI or bank details for when payouts are live</li>
       </ul>
       <div className="mt-8">
-        <LoginForm />
+        <LoginForm next={params?.next || ''} />
       </div>
 
       <p className="mt-8 border-t border-border pt-6 text-meta text-ink-600">

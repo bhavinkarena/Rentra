@@ -2,6 +2,8 @@
 import NavigationProgress from '@/components/navigation/NavigationProgress';
 import Loader2 from '@/components/ui/rentra-loader';
 
+import DraftSave from './DraftSave';
+import UnsavedChangesGuard from '@/components/portal/UnsavedChangesGuard';
 import { useCallback, useState } from 'react';
 import Link from '@/components/navigation/NavigationLink';
 import { useRouter } from 'next/navigation';
@@ -12,6 +14,7 @@ import { ChapterBar, MobileStepDisclosure, StepRail } from './WizardProgress';
 
 /** Full-screen, one-question-at-a-time property setup. */
 export default function WizardShell({
+  listing,
   listingId,
   step,
   progress,
@@ -33,7 +36,8 @@ export default function WizardShell({
    */
   const handleSaved = useCallback(
     (state) => {
-      if (!nextHref) return;
+      // Only submit steps advance on a section save; photo or document saves stay on the step.
+      if (!nextHref || (step.advance !== 'submit' && !state?.manual)) return;
       if (state?.sentBack) {
         setHeldBack(true);
         return;
@@ -41,9 +45,17 @@ export default function WizardShell({
       setAdvancing(true);
       router.push(nextHref);
     },
-    [nextHref, router],
+    [nextHref, router, step.advance],
   );
 
+  const [version, setVersion] = useState(listing.contentVersion);
+  const onVersion = useCallback((v, configVersion) => {
+    if (v) setVersion((current) => Math.max(current || 0, v));
+    const form = document.getElementById(STEP_FORM_ID);
+    if (form?.elements.contentVersion && v) form.elements.contentVersion.value = v;
+    if (form?.elements.expectedVersion && configVersion != null)
+      form.elements.expectedVersion.value = configVersion;
+  }, []);
   const busy = pending || advancing;
   const isSubmitStep = step.advance === 'submit' && !heldBack;
   const isLastStep = !nextHref;
@@ -58,7 +70,8 @@ export default function WizardShell({
           : 'Continue';
 
   return (
-    <ListingChrome variant="wizard" onSaved={handleSaved} onPending={setPending}>
+    <ListingChrome version={version} variant="wizard" onSaved={handleSaved} onPending={setPending}>
+      <UnsavedChangesGuard browserBack />
       <NavigationProgress active={advancing} />
       <div className="flex h-dvh flex-col overflow-hidden bg-background">
         <header className="z-30 shrink-0 border-b border-border bg-card">
@@ -108,6 +121,12 @@ export default function WizardShell({
             <div className="min-w-0">
               <MobileStepDisclosure progress={progress} stepHrefs={stepHrefs} />
               <div className="rounded-xl border border-border bg-card p-5 shadow-xs sm:p-8 lg:p-10">
+                <DraftSave
+                  listing={listing}
+                  step={step.id}
+                  pending={pending}
+                  onVersion={onVersion}
+                />
                 {children}
               </div>
             </div>
@@ -144,7 +163,7 @@ export default function WizardShell({
 
             {isSubmitStep && !busy ? (
               <p className="hidden text-tiny text-ink-600 md:block">
-                Changes save when you continue
+                Draft changes save automatically
               </p>
             ) : null}
 
@@ -152,8 +171,8 @@ export default function WizardShell({
               <button
                 type={isSubmitStep ? 'submit' : 'button'}
                 form={isSubmitStep ? STEP_FORM_ID : undefined}
-                onClick={isSubmitStep ? undefined : () => handleSaved()}
-                disabled={busy}
+                onClick={isSubmitStep ? undefined : () => handleSaved({ manual: true })}
+                disabled={busy || (step.id === 'ownership' && !step.done)}
                 className="ml-auto inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-6 py-3 text-meta font-semibold text-white shadow-sm transition-[background-color,color,border-color,box-shadow,transform] hover:bg-primary-hover hover:shadow disabled:bg-ink-200 disabled:text-ink-500 disabled:shadow-none"
               >
                 {busy ? <Loader2 className="size-4 " aria-hidden="true" /> : null}

@@ -1,4 +1,6 @@
-import { notFound } from 'next/navigation';
+import { TypeSection } from '@/components/partner/listing/TypeSection';
+import { AvailabilitySection } from '@/components/partner/listing/AvailabilitySection';
+import { notFound, redirect } from 'next/navigation';
 import { requireClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
@@ -6,6 +8,7 @@ import PortalState from '@/components/portal/PortalState';
 import { listingCompletion } from '@/lib/domain/listing-completion';
 import {
   chaptersFor,
+  legacyStep,
   getStep,
   isListingStep,
   listingModel,
@@ -52,7 +55,9 @@ export const metadata = {
  */
 export default async function SetupStepPage({ params }) {
   const user = await requireClient();
-  const { id, step: stepId } = await params;
+  const { id, step: requestedStep } = await params;
+  const stepId = legacyStep(requestedStep);
+  if (stepId !== requestedStep) redirect(stepHref(id, stepId));
 
   /* Scoped to this Client on the API — another Client's id answers 404. */
   const listingResult = await settle(partnerApi.listing(id));
@@ -67,11 +72,11 @@ export default async function SetupStepPage({ params }) {
   const referenceResult = await settle(
     stepId === 'amenities'
       ? partnerApi.amenityCatalogue(vertical)
-      : ['basics', 'venue', 'pricing'].includes(stepId)
+      : ['type', 'space', 'pricing'].includes(stepId)
         ? partnerApi.categories(vertical)
         : stepId === 'location'
           ? partnerApi.places()
-          : stepId === 'hours'
+          : stepId === 'availability'
             ? partnerApi.listingHours(id)
             : Promise.resolve(null),
   );
@@ -92,9 +97,9 @@ export default async function SetupStepPage({ params }) {
   // Only fetch what this step actually renders. The amenity catalogue has no
   // business being queried on the pricing step.
   const catalogue = stepId === 'amenities' ? referenceResult.data : null;
-  const categories = ['basics', 'venue', 'pricing'].includes(stepId) ? referenceResult.data : null;
+  const categories = ['type', 'space', 'pricing'].includes(stepId) ? referenceResult.data : null;
   const cities = stepId === 'location' ? referenceResult.data : null;
-  const calendar = stepId === 'hours' ? referenceResult.data : null;
+  const calendar = stepId === 'availability' ? referenceResult.data : null;
 
   const next = nextStepId(stepId, model);
   const prev = prevStepId(stepId, model);
@@ -112,24 +117,29 @@ export default async function SetupStepPage({ params }) {
 
   return (
     <WizardShell
+      key={`${id}:${stepId}`}
+      listing={listing}
       listingId={id}
-      step={step}
+      step={{ ...step, done: completion.sections.find((s) => s.id === step.id)?.done }}
       progress={progress}
       nextHref={next ? stepHref(id, next) : null}
       prevHref={prev ? stepHref(id, prev) : null}
       chapterHrefs={chapterHrefs}
       stepHrefs={stepHrefs}
     >
-      {stepId === 'basics' ? <BasicsSection listing={listing} categories={categories} /> : null}
+      {stepId === 'type' ? <TypeSection listing={listing} categories={categories} /> : null}
+      {stepId === 'story' ? <BasicsSection listing={listing} storyOnly /> : null}
       {stepId === 'location' ? <LocationSection listing={listing} cities={cities} /> : null}
-      {stepId === 'capacity' ? <CapacitySection listing={listing} /> : null}
+      {stepId === 'space' && model !== 'hour' ? <CapacitySection listing={listing} /> : null}
       {stepId === 'amenities' ? (
         <AmenitiesSection listing={listing} catalogue={catalogue} selected={amenities} />
       ) : null}
-      {stepId === 'venue' ? (
+      {stepId === 'space' && model === 'hour' ? (
         <VenueSection listing={listing} resources={resources} activities={categories} />
       ) : null}
-      {stepId === 'hours' ? <HoursSection listing={listing} calendar={calendar} /> : null}
+      {stepId === 'availability' ? (
+        <AvailabilitySection listing={listing} calendar={calendar} prices={prices} />
+      ) : null}
       {stepId === 'rules' ? <RulesSection listing={listing} /> : null}
       {stepId === 'pricing' && model === 'hour' ? (
         <HourlyPricingSection
@@ -152,7 +162,7 @@ export default async function SetupStepPage({ params }) {
           kycName={user.name}
         />
       ) : null}
-      {stepId === 'review' ? (
+      {stepId === 'preview' ? (
         <WizardReview
           listingId={id}
           model={model}

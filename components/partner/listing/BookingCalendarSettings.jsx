@@ -284,24 +284,23 @@ export default function BookingCalendarSettings({ listing, blocks, resources = [
                       max={listing.capacity}
                       defaultValue={value?.capacity ?? listing.capacity}
                     />
-                    <Field
-                      label="Included guests"
+                    <input
+                      type="hidden"
                       name={`${slot}_includedGuests`}
-                      type="number"
-                      min="1"
-                      max={listing.capacity}
-                      defaultValue={value?.includedGuests ?? listing.capacity}
-                    />
-                    <Field
-                      label="Extra guest charge (₹ per visit)"
-                      name={`${slot}_extraGuestCharge`}
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      defaultValue={
-                        value ? value.extraGuestChargeMinor / 100 || 0 : listing.extra_guest_charge
+                      value={
+                        listing.booking_config?.pricingIncludedGuests ??
+                        value?.includedGuests ??
+                        listing.capacity
                       }
                     />
+                    <input
+                      type="hidden"
+                      name={`${slot}_extraGuestCharge`}
+                      value={listing.extra_guest_charge ?? 0}
+                    />
+                    <p className="text-meta text-ink-600">
+                      Guests included and extra-guest charges are set in Pricing.
+                    </p>
                   </div>
                 </fieldset>
               );

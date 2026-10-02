@@ -2,13 +2,29 @@
 import { useActionState } from 'react';
 import { Check } from 'lucide-react';
 import { saveRules } from '@/lib/actions/partner';
-import { useStepFormId } from './chrome';
+import { TermsFields } from './TermsSection';
+import { useStepFormId, useIsWizard } from './chrome';
 import { VersionField, Input, Field, Section, SaveButton, inputCls } from './SectionPrimitives';
+const clock = (time) => {
+  const [h, m] = time.split(':').map(Number);
+  return `${h % 12 || 12}${m ? `:${String(m).padStart(2, '0')}` : ''} ${h < 12 ? 'AM' : 'PM'}`;
+};
+/** The guest-facing window, from the slot times already set in Availability. */
+function slotWindow(listing, key) {
+  const times = Object.values(listing.bookingConfig?.slots ?? {})
+    .filter((slot) => slot.enabled && slot[key])
+    .map((slot) => slot[key])
+    .sort();
+  if (!times.length) return '';
+  const [first, last] = [times[0], times.at(-1)];
+  return first === last ? clock(first) : `${clock(first)} to ${clock(last)}`;
+}
 export function RulesSection({ listing }) {
   const [state, action, pending] = useActionState(saveRules, {});
   const e = state.errors ?? {};
   const r = listing.houseRules ?? {};
   const formId = useStepFormId();
+  const wizard = useIsWizard();
   if (listing.rentalUnit === 'hour')
     return (
       <VenueRules
@@ -17,13 +33,14 @@ export function RulesSection({ listing }) {
         action={action}
         pending={pending}
         formId={formId}
+        wizard={wizard}
       />
     );
 
   return (
     <Section
       id="rules"
-      title="House rules"
+      title={wizard ? 'Rules and cancellation' : 'House rules'}
       intro="Structured, so guests can filter and we can translate them."
       state={state}
       pending={pending}
@@ -35,13 +52,13 @@ export function RulesSection({ listing }) {
           <Field
             id="checkInFrom"
             label="Check-in window"
-            hint="A window, not a fixed time."
+            hint="Filled from your Availability times. Widen it if guests can arrive earlier or later."
             error={e.checkInFrom}
           >
             <Input
               id="checkInFrom"
               name="checkInFrom"
-              defaultValue={listing.checkInFrom ?? ''}
+              defaultValue={listing.checkInFrom || slotWindow(listing, 'startTime')}
               placeholder="9 AM to 7 PM"
             />
           </Field>
@@ -49,7 +66,7 @@ export function RulesSection({ listing }) {
             <Input
               id="checkOutBy"
               name="checkOutBy"
-              defaultValue={listing.checkOutBy ?? ''}
+              defaultValue={listing.checkOutBy || slotWindow(listing, 'endTime')}
               placeholder="8 AM to 6 PM"
             />
           </Field>
@@ -118,6 +135,7 @@ export function RulesSection({ listing }) {
             className={inputCls}
           />
         </Field>
+        {wizard && <TermsFields listing={listing} e={e} />}
         <SaveButton pending={pending} />
       </form>
     </Section>
@@ -125,14 +143,14 @@ export function RulesSection({ listing }) {
 }
 
 /** Venue rules for time-booked listings: what players wear, age, food, smoking, alcohol. */
-function VenueRules({ listing, state, action, pending, formId }) {
+function VenueRules({ listing, state, action, pending, formId, wizard }) {
   const e = state.errors ?? {};
   const r = listing.houseRules && !Array.isArray(listing.houseRules) ? listing.houseRules : {};
   const yesNo = (value) => (value ? 'yes' : 'no');
   return (
     <Section
       id="rules"
-      title="Venue rules"
+      title={wizard ? 'Rules and cancellation' : 'Venue rules'}
       intro="Short, structured rules players see before they book."
       state={state}
       pending={pending}
@@ -220,6 +238,7 @@ function VenueRules({ listing, state, action, pending, formId }) {
             className={inputCls}
           />
         </Field>
+        {wizard && <TermsFields listing={listing} e={e} />}
         <SaveButton pending={pending} />
       </form>
     </Section>

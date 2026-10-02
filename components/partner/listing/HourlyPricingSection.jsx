@@ -1,6 +1,6 @@
 'use client';
 import { cn } from 'cn';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import { savePricing } from '@/lib/actions/partner';
 import { hhmmToMinute, minuteToHhmm, priceGaps } from '@/lib/domain/hourly';
@@ -66,7 +66,10 @@ export function HourlyPricingSection({
   resources = [],
   activities = [],
 }) {
-  const { state, pending, preview, form, invalidatePreview } = usePolicyAction(savePricing);
+  const { state, pending, preview, form, invalidatePreview } = usePolicyAction(
+    savePricing,
+    listing,
+  );
   const formId = useStepFormId();
   const config = listing.bookingConfig?.model === 'hourly' ? listing.bookingConfig : null;
   const offered = activities.filter((a) =>
@@ -84,6 +87,22 @@ export function HourlyPricingSection({
       }),
     );
   });
+  useEffect(() => {
+    const restore = (e) => {
+      try {
+        if (e.detail?.rates) {
+          const saved = JSON.parse(e.detail.rates);
+          setStoredRows(
+            saved.map
+              ? saved.map((row, i) => ({ ...row, key: row.key || `restored-${i}` }))
+              : saved,
+          );
+        }
+      } catch {}
+    };
+    document.addEventListener('rentra:restore', restore);
+    return () => document.removeEventListener('rentra:restore', restore);
+  }, []);
   const setRows = (update) => {
     invalidatePreview();
     setStoredRows(update);

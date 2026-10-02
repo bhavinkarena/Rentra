@@ -1,4 +1,11 @@
 'use client';
+import {
+  basicsSchema,
+  locationSchema,
+  capacitySchema,
+  pricingSchema,
+  rulesSchema,
+} from '@/lib/validation/zod/listing';
 export { Field } from '@/components/ui/field';
 import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import Loader2 from '@/components/ui/rentra-loader';
@@ -47,7 +54,9 @@ export function ReviewFlags({ sections = [], reason = null, children }) {
  * section's own last save may be newer than the page props, so take the max.
  */
 export function VersionField({ listing, states = [] }) {
+  const chrome = useChrome();
   const version = Math.max(
+    chrome.version || 0,
     Number(listing.contentVersion) || 0,
     ...states.map((state) => Number(state?.contentVersion) || 0),
   );
@@ -98,6 +107,11 @@ export function Section({ id, title, intro, state, pending, children }) {
   const wasOk = useRef(false);
   useEffect(() => {
     const ok = Boolean(state?.ok);
+    if (ok) {
+      sectionRef.current
+        ?.querySelectorAll('form')
+        .forEach((form) => form.dispatchEvent(new Event('rentra:form-saved', { bubbles: true })));
+    }
     if (ok && !wasOk.current && onSaved) onSaved(state);
     wasOk.current = ok;
   }, [state, onSaved]);
@@ -107,6 +121,34 @@ export function Section({ id, title, intro, state, pending, children }) {
     onPending?.(Boolean(pending));
   }, [pending, onPending]);
 
+  const validateBlur = (event) => {
+    const control = event.target,
+      form = control.form;
+    if (!form || !control.name) return;
+    const schema = {
+      basics: basicsSchema,
+      location: locationSchema,
+      capacity: capacitySchema,
+      pricing: pricingSchema,
+      rules: rulesSchema,
+    }[id];
+    if (!schema) return;
+    const parsed = schema.safeParse(Object.fromEntries(new FormData(form)));
+    const issue = parsed.success
+      ? null
+      : parsed.error.issues.find((issue) => issue.path[0] === control.name);
+    let feedback = form.querySelector(`[data-blur-field="${CSS.escape(control.name)}"]`);
+    if (!feedback) {
+      feedback = document.createElement('p');
+      feedback.dataset.blurField = control.name;
+      feedback.className = 'mt-1 text-tiny text-danger';
+      feedback.id = `${control.id || control.name}-blur`;
+      control.insertAdjacentElement('afterend', feedback);
+    }
+    feedback.textContent = issue?.message || '';
+    control.setAttribute('aria-invalid', Boolean(issue));
+    if (issue) control.setAttribute('aria-describedby', feedback.id);
+  };
   const notices = (
     <>
       {flagged ? (
@@ -168,7 +210,12 @@ export function Section({ id, title, intro, state, pending, children }) {
      * progress, Back, Next — and nothing that is about this step's content.
      */
     return (
-      <section id={sectionAnchorId(id)} ref={sectionRef} onSubmitCapture={onSubmitCapture}>
+      <section
+        id={sectionAnchorId(id)}
+        ref={sectionRef}
+        onSubmitCapture={onSubmitCapture}
+        onBlurCapture={validateBlur}
+      >
         <h1 className="text-h1">{title}</h1>
         {intro ? <p className="mt-2 max-w-prose text-body text-ink-600">{intro}</p> : null}
         {notices}
@@ -182,6 +229,7 @@ export function Section({ id, title, intro, state, pending, children }) {
       id={sectionAnchorId(id)}
       ref={sectionRef}
       onSubmitCapture={onSubmitCapture}
+      onBlurCapture={validateBlur}
       className="scroll-mt-24 rounded-lg border border-border bg-card p-5"
     >
       <h2 className="text-h3">{title}</h2>

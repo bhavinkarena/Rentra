@@ -1,6 +1,6 @@
 import Link from '@/components/navigation/NavigationLink';
-import { notFound } from 'next/navigation';
-import { Clock, Home, Search, Video } from 'lucide-react';
+import { notFound, redirect } from 'next/navigation';
+import { Check, Clock, Home, Search, Video } from 'lucide-react';
 import { requireActiveClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
 import { RentraLogo } from '@/components/rentra/Logo';
@@ -34,8 +34,16 @@ export default async function SubmittedPage({ params }) {
   if (!data) notFound();
 
   const { listing } = data;
+  if (listing.status === 'draft' || listing.status === 'rejected')
+    redirect(`/partner/listings/${id}/setup`);
 
   const steps = [
+    {
+      Icon: Check,
+      title: 'Submitted',
+      body: 'Rentra has every section of your property.',
+      when: 'Done',
+    },
     {
       Icon: Search,
       title: 'We check it',
@@ -140,10 +148,10 @@ export default async function SubmittedPage({ params }) {
             style={{ animationDelay: '680ms', animationFillMode: 'backwards' }}
           >
             <Link
-              href="/partner/listings"
+              href="/partner"
               className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-meta font-semibold text-white transition-[background-color,color,border-color,box-shadow,transform] hover:bg-primary-hover"
             >
-              See your properties
+              Go to Today
             </Link>
             <CreateListingButton
               label="Add another property"

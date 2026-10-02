@@ -39,7 +39,7 @@ export function CapacitySection({ listing }) {
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
             id="farmSize"
-            label="Land size"
+            label="Land size (optional)"
             hint="Whatever unit you normally quote."
             error={e.farmSize}
           >
@@ -67,7 +67,7 @@ export function CapacitySection({ listing }) {
         </div>
         <Field
           id="poolSize"
-          label="Pool size"
+          label="Pool size (optional)"
           hint="As you would advertise it, e.g. 15x25. Leave blank if there is no pool."
           error={e.poolSize}
         >

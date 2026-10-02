@@ -13,7 +13,7 @@ function venueCapacity(listing) {
 }
 
 function displayTitle(title) {
-  return title === 'Untitled property' ? 'Untitled draft' : title;
+  return !title || title === 'Untitled property' ? 'Untitled draft' : title;
 }
 
 function displayLocation(listing) {
@@ -30,8 +30,11 @@ function displayDate(value) {
   }).format(new Date(value));
 }
 
-function actionLabel(status) {
-  if (status === 'draft') return 'Continue setup';
+function actionLabel({ status, resumeNumber, stepTotal }) {
+  if (status === 'draft')
+    return resumeNumber
+      ? `Continue setup — step ${resumeNumber} of ${stepTotal}`
+      : 'Continue setup';
   if (status === 'rejected') return 'Fix listing';
   return 'Manage';
 }
@@ -42,14 +45,17 @@ function actionLabel(status) {
  * so every breadcrumb onward returns to it.
  */
 function actionHref(listing, from) {
-  const base = `/partner/listings/${listing.id}/overview`;
+  const base =
+    listing.status === 'draft'
+      ? `/partner/listings/${listing.id}/setup${listing.resumeStep ? `/${listing.resumeStep}` : ''}`
+      : `/partner/listings/${listing.id}/overview`;
   return from ? `${base}?from=${encodeURIComponent(from)}` : base;
 }
 
 function ActionText({ listing }) {
   return (
     <>
-      {actionLabel(listing.status)}
+      {actionLabel(listing)}
       <span className="sr-only">: {displayTitle(listing.title)}</span>
     </>
   );

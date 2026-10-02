@@ -1,5 +1,5 @@
 'use client';
-import { useActionState, useState } from 'react';
+import { useEffect, useActionState, useState } from 'react';
 import { ArrowDown, ArrowUp, Copy, Plus, RotateCcw, Trash2 } from 'lucide-react';
 import { saveVenue } from '@/lib/actions/partner';
 import { ActivityIcon } from '@/components/rentra/icons/activity-icons';
@@ -62,6 +62,22 @@ export function VenueSection({ listing, resources = [], activities = [] }) {
   const [courts, setCourts] = useState(() =>
     resources.length ? resources.map(fromApi) : [blank(primary, 0, 'new-0')],
   );
+  useEffect(() => {
+    const restore = (e) => {
+      try {
+        if (e.detail?.resources) {
+          const saved = JSON.parse(e.detail.resources);
+          setCourts(
+            saved.map
+              ? saved.map((row, i) => ({ ...row, key: row.key || `restored-${i}` }))
+              : saved,
+          );
+        }
+      } catch {}
+    };
+    document.addEventListener('rentra:restore', restore);
+    return () => document.removeEventListener('rentra:restore', restore);
+  }, []);
   const e = state.errors ?? {};
   const active = courts.filter((c) => c.isActive);
   const removed = courts.filter((c) => !c.isActive);

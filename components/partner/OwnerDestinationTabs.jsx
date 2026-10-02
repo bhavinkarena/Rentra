@@ -27,8 +27,7 @@ export default function OwnerDestinationTabs({ kind, disputes = false }) {
       {items.map(([href, label]) => {
         const active =
           path === href ||
-          (label === 'Overview' &&
-            (path === '/partner/earnings' || path === '/partner/finance')) ||
+          (label === 'Overview' && (path === '/partner/earnings' || path === '/partner/finance')) ||
           (label === 'Statements' &&
             (path === '/partner/earnings/statements' ||
               path.startsWith('/partner/statements') ||
@@ -36,8 +35,7 @@ export default function OwnerDestinationTabs({ kind, disputes = false }) {
           (label === 'Payouts' &&
             (path === '/partner/earnings/payouts' || path.startsWith('/partner/payouts'))) ||
           (label === 'Payout method' &&
-            (path === '/partner/earnings/payout' ||
-              path.startsWith('/partner/settings/payout'))) ||
+            (path === '/partner/earnings/payout' || path.startsWith('/partner/settings/payout'))) ||
           (label === 'Guides' && path === '/partner/help') ||
           (label === 'My requests' &&
             (path === '/partner/support' || path.startsWith('/partner/support/'))) ||

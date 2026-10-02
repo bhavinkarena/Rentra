@@ -1,6 +1,7 @@
 import Link from '@/components/navigation/NavigationLink';
 import { Check, AlertTriangle, Circle } from 'lucide-react';
 import { chaptersFor, stepHref } from '@/lib/domain/listing-steps';
+import DeleteDraftButton from './DeleteDraftButton';
 import { SubmitBar } from './ListingSections';
 
 /**
@@ -32,6 +33,13 @@ export default function WizardReview({
           : 'A few things still need finishing. Tap any of them to go straight there.'}
       </p>
 
+      <Link
+        href={`/partner/listings/${listingId}/preview`}
+        className="mt-5 inline-flex min-h-11 items-center rounded-md border px-4 font-semibold"
+      >
+        Preview as a guest
+      </Link>
+      <DeleteDraftButton listing={listing} />
       <div className="mt-7 space-y-4">
         {chaptersFor(model).map((chapter) => {
           const rows = chapter.steps.filter((s) => bySection.has(s.id));

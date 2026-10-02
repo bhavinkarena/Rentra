@@ -131,6 +131,10 @@ export function OwnershipSection({ listing, documents, clientType, kycName }) {
           <input
             id="file"
             name="file"
+            onChange={(event) => {
+              const form = event.currentTarget.form;
+              if (form?.checkValidity()) form.requestSubmit();
+            }}
             type="file"
             accept="image/jpeg,image/png,image/webp,application/pdf"
             className={inputCls}

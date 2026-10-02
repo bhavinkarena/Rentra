@@ -19,9 +19,9 @@ export default async function NewListingPage() {
     partnerApi.places(),
     partnerApi.verticals().catch(() => []),
   ]);
-  const progress = wizardProgress(listingCompletion(null), 'basics');
+  const progress = wizardProgress(listingCompletion(null), 'type');
   // The rail follows the "What are you listing?" choice.
-  const venueProgress = wizardProgress(listingCompletion({ rentalUnit: 'hour' }), 'basics', 'hour');
+  const venueProgress = wizardProgress(listingCompletion({ rentalUnit: 'hour' }), 'type', 'hour');
 
   return (
     <NewListingStart

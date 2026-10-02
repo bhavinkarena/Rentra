@@ -76,7 +76,9 @@ try {
           await dialog.getByRole('link', { name: 'Continue verification' }).getAttribute('href'),
           /^\/partner/,
         );
-        const next = await dialog.getByRole('link', { name: 'Continue verification' }).getAttribute('href');
+        const next = await dialog
+          .getByRole('link', { name: 'Continue verification' })
+          .getAttribute('href');
         await dialog.getByRole('link', { name: 'Continue verification' }).click();
         await page.waitForURL(web + next);
       });

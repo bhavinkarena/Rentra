@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import RentraLoader from '@/components/ui/rentra-loader';
 import OtpDialog, { OtpInput } from '@/components/auth/OtpDialog';
 
-export default function LoginForm() {
+export default function LoginForm({ next = '' }) {
   const [channel, setChannel] = useState('email');
   const [open, setOpen] = useState(false);
   const [issueState, issueAction, issuing] = useActionState(
@@ -54,6 +54,7 @@ export default function LoginForm() {
         className="space-y-4"
         key={channel}
       >
+        <input type="hidden" name="next" value={next} />
         <input type="hidden" name="channel" value={channel} />
         <label htmlFor="email" className="block text-sm font-semibold">
           {mobile ? 'Mobile number' : 'Email address'}
@@ -111,6 +112,7 @@ export default function LoginForm() {
           className="space-y-5"
           key={email}
         >
+          <input type="hidden" name="next" value={next} />
           <input type="hidden" name="channel" value={channel} />
           <input type="hidden" name={mobile ? 'phone' : 'email'} value={email} />
           <OtpInput
@@ -136,6 +138,7 @@ export default function LoginForm() {
             {mobile ? 'Change mobile' : 'Change email'}
           </button>
           <form onReset={(event) => event.preventDefault()} action={issueAction}>
+            <input type="hidden" name="next" value={next} />
             <input type="hidden" name="channel" value={channel} />
             <input type="hidden" name={mobile ? 'phone' : 'email'} value={email} />
             <button

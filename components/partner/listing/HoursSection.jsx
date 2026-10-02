@@ -1,8 +1,8 @@
 'use client';
 import { cn } from 'cn';
-import { useActionState, useMemo, useState, useTransition } from 'react';
+import { useEffect, useActionState, useMemo, useState, useTransition } from 'react';
 import { Plus, X } from 'lucide-react';
-import { saveListingHours } from '@/lib/actions/partner';
+import { saveListingHours, saveAvailability } from '@/lib/actions/partner';
 import { hourlyBookingConfigSchema } from '@/lib/validation/zod/booking-config';
 import { WEEKDAYS } from '@/lib/domain/hourly';
 import { useStepFormId } from './chrome';
@@ -56,9 +56,30 @@ function initialConfig(stored) {
  * is sent, so the owner sees the exact problem next to the day.
  */
 export function HoursSection({ listing, calendar }) {
-  const [state, dispatch, pending] = useActionState(saveListingHours, {});
+  const [state, dispatch, pending] = useActionState(
+    ['draft', 'rejected'].includes(listing.status) && !listing.hasBookings
+      ? saveAvailability
+      : saveListingHours,
+    {},
+  );
   const [, startTransition] = useTransition();
   const [config, setConfig] = useState(() => initialConfig(calendar?.listing?.booking_config));
+  useEffect(() => {
+    const restore = (e) => {
+      try {
+        if (e.detail?.configuration) {
+          const saved = JSON.parse(e.detail.configuration);
+          setConfig(
+            saved.map
+              ? saved.map((row, i) => ({ ...row, key: row.key || `restored-${i}` }))
+              : saved,
+          );
+        }
+      } catch {}
+    };
+    document.addEventListener('rentra:restore', restore);
+    return () => document.removeEventListener('rentra:restore', restore);
+  }, []);
   const [edited, setEdited] = useState(false);
   const preview = edited ? null : state.preview;
   const check = useMemo(() => hourlyBookingConfigSchema.safeParse(config), [config]);
@@ -80,6 +101,7 @@ export function HoursSection({ listing, calendar }) {
     event.preventDefault();
     if (!check.success) return;
     const data = new FormData(event.currentTarget);
+    data.set('id', listing.id);
     data.set('mode', preview ? 'apply' : 'preview');
     if (preview) data.set('previewToken', preview.token);
     setEdited(false);
@@ -102,7 +124,13 @@ export function HoursSection({ listing, calendar }) {
         <input
           type="hidden"
           name="expectedVersion"
-          value={calendar?.listing?.booking_config_version ?? listing.bookingConfigVersion ?? 0}
+          value={
+            state.version ??
+            state.result?.version ??
+            calendar?.listing?.booking_config_version ??
+            listing.bookingConfigVersion ??
+            0
+          }
         />
         <input
           type="hidden"

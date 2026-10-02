@@ -6,7 +6,7 @@
 | Scope | Everything an owner (client/host/partner) touches: `/partner/**`, `/partner/listings/**` wizard, owner-facing backend routes in `rentra-backend/src/routes/partner.route.js`, related services, triggers and migrations |
 | Code audited | Frontend `Rentra` `main` @ `ced7a00`; backend `rentra-backend` `master` @ `22c1950`. Both trees clean at audit time |
 | Method | Read-only trace of every owner screen: page → component → server action (`lib/actions/*`) → `lib/api/endpoints.js` → Express route → controller → service → SQL/trigger. The highest-impact claims were re-checked by hand (marked **Verified**). No servers were run and no database was queried. Integration tests that need `PORTAL_TEST_DATABASE_URL` were not run. |
-| Status | **R0 (hotfixes), Phase 2 (navigation / R1), Phase 3 (onboarding) and Phase 4 (Today) complete on branch `feat/owner-experience`, 2 October 2026.** See §15.4, §15.6, §15.7 and §15.8. |
+| Status | **R0 (hotfixes), Phase 2 (navigation / R1), Phase 3 (onboarding), Phase 4 (Today) and Phase 5 (Add property) complete on branch `feat/owner-experience`, 2 October 2026.** See §15.4 and §15.6 to §15.9. |
 
 > **The question behind every recommendation:** *If a completely new owner opens this screen, do they immediately understand what is happening and what to do next?* Wherever the answer is "no", this document proposes a change.
 
@@ -48,7 +48,7 @@ The codebase mixes **partner / owner / client / host** for the person and **prop
 | 2 | Information architecture and navigation | R1 | ✅ Complete | 2 Oct 2026 | Five-destination nav (Today, Calendar, Bookings, Properties, Earnings) + More, mobile bottom bar, collapsed locks, unified earnings & help hubs (NAV-01..05) |
 | 3 | First-time owner onboarding | R2 | ✅ Complete | 2 Oct 2026 | ONB-01..07 implemented; migration 0057 required before deployment. See §15.7 |
 | 4 | Dashboard ("Today") | R2 / R4 | ✅ Complete | 2 Oct 2026 | HOME-01..03 implemented; see §15.8 |
-| 5 | Add Property / listing creation | R3 | ⏳ Not started | — | R0 fixed the ownership upload and ₹0 pricing (LIST-01, BUG-05) |
+| 5 | Add Property / listing creation | R3 | ✅ Complete | 2 Oct 2026 | LIST-01..11 implemented; migration 0058 required before deployment. See §15.9 |
 | 6 | Property management | R3 / R6 | ⏳ Not started | — | R0 delivered PROP-03 part 1 (no review on unchanged saves) |
 | 7 | Booking and calendar | R4 / R5 | ⏳ Not started | — | R0 fixed the bookings sort/scope and guest checkouts breaking (BUG-08/09, CAL-07) |
 | 8 | Earnings and payments | R6 | ⏳ Not started | — | R0 fixed the Finance defaults and fee, and payout drafts (BUG-07/18/19) |
@@ -2596,7 +2596,7 @@ D8 (commission/tax) blocks any "You earn" number beyond "Booked rent".
 | R0 Hotfixes | **Complete — 2 Oct 2026** (branch `feat/owner-experience`, not merged or deployed) | [§15.5](#155-completion-record--r0-hotfixes) |
 | R1 Shell and foundations (Navigation & IA) | **Complete — 2 Oct 2026** (branch `feat/owner-experience`) | [§15.6](#156-completion-record--phase-2--r1-navigation-and-ia) |
 | R2 First run | **In progress — Phases 3/4 complete** | Phase 9 application notifications remain; see §15.8 |
-| R3 Add property | Not started | — |
+| R3 Add property | **Complete — 2 Oct 2026** (Phase 5; branch `feat/owner-experience`, not deployed) | [§15.9](#159-completion-record--phase-5--add-property-wizard) |
 | R4 Today and bookings | In progress — Today complete | Phase 7 bookings and Phase 9 notifications remain |
 | R5 Calendar | Not started | — |
 | R6 Earnings, support, settings | Not started | — |
@@ -2739,6 +2739,32 @@ D8 (commission/tax) blocks any "You earn" number beyond "Booked rent".
 - **Database:** No Phase 4 migration. Existing Phase 3 migration 0057 remains required; 58 migration files/journal entries verified. No live database changes or deployment.
 - **Limits:** Property cards reuse current completion percentage, labelled Setup strength; Phase 6 owns the richer post-publish score. Payout status remains explicitly unavailable until settlement integration. Browser data and failure injection are local fixtures. Existing whole-repository lint failures remain outside this change.
 - **Release scope:** R2 needs Phase 9 application notifications; R4 needs Phase 7 booking redesign and Phase 9 booking notifications.
+
+
+## 15.9 Completion record — Phase 5 / Add property wizard
+
+**Done:** 2 October 2026. Local changes in both repositories; not deployed. [Runbook, deviations and repeatable checks](OWNER-EXPERIENCE-PHASE5.md).
+
+| IDs | Delivered |
+|---|---|
+| LIST-01 | Ownership uploads on file pick; Continue needs a valid document; electricity bill within 3 months enforced on the server; a rejected document followed by a valid one is no longer failed (BUG-16). |
+| LIST-02 | 3 chapters and 11 steps for both property models. The draft is created at Type with no title, and a repeat within 10 minutes reuses it. Completion is calculated once on the backend. Legacy step links redirect. Migration 0058 lets drafts have no city or area. |
+| LIST-03 | Draft autosave (debounce, blur, link), session-storage restore, conflict "Load latest", offline retry, session-expiry sign-in with `next`. One-press policy saves on drafts; preview then "Confirm changes" on live properties. Guard covers browser Back and uploads. |
+| LIST-04 | Map tile pin picker with current location and coordinate fallback; the area must belong to the city. |
+| LIST-05 | Thumbnails; client compression; signed direct Cloudinary upload one file per request, three at a time, with progress and Retry; tags, reorder, cover, confirm delete, duplicates, 15 cap; EXIF profile stripped; daily orphan clean-up; removal does not trigger review. |
+| LIST-06 | Blur validation and plain-language messages; `₹`/comma prices parse. |
+| LIST-07 | Per-slot cards, both prices required (≥ ₹500), "Same on weekends", Guest pays / You earn line, one extra-guest charge (migration copies the highest per-slot value). One-sided legacy prices are logged for the owner instead of being copied. |
+| LIST-08 | Availability step with auto-open (default on), immediate open dates and a daily idempotent `auto-open-dates` job that keeps closed dates closed. |
+| LIST-09 | Guest-view preview with a banner and booking disabled; checklist Fix links use step URLs; `/submitted` timeline with Go to Today / Add another property. |
+| LIST-10 | Delete never-submitted drafts; Properties list says "Continue setup — step N of 11" and links to that step. |
+| LIST-11 | `interactive-widget=resizes-content`, 44 px targets, stacked pricing cards, no sideways scroll at 360 px. |
+
+- **Backend:** 199 tests, 196 passed, 0 failed, 3 skipped (they are behind their own environment flags). They ran against disposable localhost databases.
+- **Frontend:** 68 tests passed; production build and whole-repository lint pass.
+- **Browser:** [14 checks](evidence/owner-phase5/browser-checks.json) take a new farmhouse from Type to Submitted at 360 px, with zero page errors and zero serious or critical axe findings.
+- **Fixed during verification:** the first tap on Continue was lost to the autosave, Continue did nothing on the Photos and Ownership steps, the guest preview crashed (structured house rules and the Save button), Delete draft failed, and an autosave error message pointed at fields it had not highlighted. The house-rules crash also affected the public page of owner-edited farmhouses.
+- **Database:** Migration 0058 (nullable draft location, a CHECK constraint for every other status, normalised extra-guest charges, one-sided price audit, area-city guard). 59 migration files and journal entries verified. No live database changes.
+- **Not verified:** real Cloudinary upload and EXIF on a delivered URL, HEIC from iOS, 15 full-size photos on real 4G, the venue wizard in a browser, and widths above 360 px.
 
 ---
 
