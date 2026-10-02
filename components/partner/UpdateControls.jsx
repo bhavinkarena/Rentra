@@ -45,11 +45,23 @@ export function MarkRead({ id, title }) {
   );
 }
 
-export function MarkAllRead({ disabled }) {
+export function MarkAllRead({ disabled, needsAction = false }) {
   const [state, action, pending] = useActionState(markUpdatesRead, {});
   return (
-    <form action={action}>
+    <form
+      action={action}
+      onSubmit={(event) => {
+        if (
+          needsAction &&
+          !window.confirm(
+            'Some updates still need you. Mark them read? Their tasks will stay pinned.',
+          )
+        )
+          event.preventDefault();
+      }}
+    >
       <input type="hidden" name="all" value="1" />
+      <input type="hidden" name="confirm" value="1" />
       <button type="submit" disabled={pending || disabled} className={quiet}>
         {pending ? <LoaderCircle className="size-3.5" aria-hidden="true" /> : null}
         Mark all as read

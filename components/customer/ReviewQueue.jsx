@@ -1,6 +1,8 @@
+import OwnerReviews from '@/components/partner/OwnerReviews';
 import Link from '@/components/navigation/NavigationLink';
 import { ReviewControl } from './ReviewForms';
 export default function ReviewQueue({ data, admin = false, embedded = false }) {
+  if (!admin) return <OwnerReviews data={data} embedded={embedded} />;
   const Heading = embedded ? 'h2' : 'h1';
   return (
     <section className={embedded ? 'space-y-5' : 'mx-auto max-w-4xl space-y-5 p-4'}>

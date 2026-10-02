@@ -2,7 +2,8 @@
 
 import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
-import { useActionState, useRef, useState, useTransition } from 'react';
+import { useActionState, useRef, useState, useTransition, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import LoaderCircle from '@/components/ui/rentra-loader';
 import ValidationSummary from '@/components/portal/ValidationSummary';
 import {
@@ -27,8 +28,15 @@ const ist = (value) =>
  * Submitted from a transition so a refused save keeps the chosen checkboxes
  * (React resets `<form action>` fields, and controlled checkboxes with them).
  */
-function useCommand(command) {
-  const [state, action, pending] = useActionState(command, {});
+function useCommand(command, onSuccess) {
+  const [state, action, pending] = useActionState(async (previous, form) => {
+    const result = await command(previous, form);
+    if (result?.message || result?.version) {
+      toast.success(result.message || 'Saved.');
+      onSuccess?.(result);
+    }
+    return result;
+  }, {});
   const [, startTransition] = useTransition();
   const submit = (build) => (event) => {
     event.preventDefault();
@@ -51,8 +59,8 @@ function Failure({ state }) {
   ) : null;
 }
 
-/** The link is shown once: Rentra stores only its hash and does not send it. */
-function LinkBox({ token, expiresAt }) {
+/** The token is shown once; delivery state distinguishes a send from a copy-link fallback. */
+function LinkBox({ token, expiresAt, deliveryState }) {
   const [copied, setCopied] = useState(false);
   const url = `${window.location.origin}/staff/join/${token}`;
   return (
@@ -60,10 +68,14 @@ function LinkBox({ token, expiresAt }) {
       role="status"
       className="space-y-2 rounded-md border border-brand-200 bg-brand-50 p-3 text-meta"
     >
-      <p className="font-semibold text-brand-900">Send this link to the caretaker yourself</p>
+      <p className="font-semibold text-brand-900">
+        {['accepted', 'delivered'].includes(deliveryState)
+          ? 'Invite sent'
+          : 'Link created — not used'}
+      </p>
       <p className="text-tiny text-brand-800">
-        For example on WhatsApp. Rentra does not send it. It works once, needs a code sent to their
-        phone, and expires {ist(expiresAt)} IST. It is shown only now.
+        Copy this link as a fallback. It works once, needs a code sent to their phone, and expires{' '}
+        {ist(expiresAt)} IST. It is shown only now.
       </p>
       <input
         readOnly
@@ -83,29 +95,36 @@ function LinkBox({ token, expiresAt }) {
 }
 
 function PropertyChoices({ properties, selected, setSelected, error }) {
+  const [drafts, setDrafts] = useState(false);
   return (
     <fieldset>
       <legend className="text-meta font-semibold text-ink-800">Properties they may operate</legend>
+      <label className="flex min-h-11 items-center gap-2">
+        <input type="checkbox" checked={drafts} onChange={(e) => setDrafts(e.target.checked)} />{' '}
+        Show draft and other properties
+      </label>
       <div className="mt-2 grid gap-2 sm:grid-cols-2">
-        {properties.map((property) => (
-          <label key={property.id} className="flex items-start gap-2 text-meta">
-            <input
-              type="checkbox"
-              name="propertyIds"
-              value={property.id}
-              checked={selected.includes(property.id)}
-              onChange={(event) =>
-                setSelected(
-                  event.target.checked
-                    ? [...selected, property.id]
-                    : selected.filter((id) => id !== property.id),
-                )
-              }
-              className="mt-0.5 size-4 accent-brand-700"
-            />
-            <span>{property.title}</span>
-          </label>
-        ))}
+        {properties
+          .filter((p) => drafts || p.status === 'live' || selected.includes(p.id))
+          .map((property) => (
+            <label key={property.id} className="flex items-start gap-2 text-meta">
+              <input
+                type="checkbox"
+                name="propertyIds"
+                value={property.id}
+                checked={selected.includes(property.id)}
+                onChange={(event) =>
+                  setSelected(
+                    event.target.checked
+                      ? [...selected, property.id]
+                      : selected.filter((id) => id !== property.id),
+                  )
+                }
+                className="mt-0.5 size-4 accent-brand-700"
+              />
+              <span>{property.title}</span>
+            </label>
+          ))}
       </div>
       {error ? <p className="mt-1 text-tiny font-medium text-danger">{error}</p> : null}
     </fieldset>
@@ -134,12 +153,20 @@ function EvidenceChoice({ checked, onChange }) {
 }
 
 function InviteForm({ properties }) {
-  const { state, pending, submit } = useCommand(inviteCaretaker);
   const formRef = useRef(null);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [selected, setSelected] = useState([]);
   const [evidence, setEvidence] = useState(true);
+  const { state, pending, submit } = useCommand(inviteCaretaker, (result) => {
+    if (result.token) {
+      setName('');
+      setPhone('');
+      setSelected([]);
+      setEvidence(true);
+      formRef.current?.reset();
+    }
+  });
   const e = state?.errors ?? {};
   return (
     <form ref={formRef} onSubmit={submit()} className="space-y-4">
@@ -184,9 +211,15 @@ function InviteForm({ properties }) {
       </label>
       <button type="submit" disabled={pending} className={primary}>
         {pending ? <LoaderCircle className="size-4" aria-hidden="true" /> : null}
-        Create invitation link
+        Invite caretaker
       </button>
-      {state?.token ? <LinkBox token={state.token} expiresAt={state.expiresAt} /> : null}
+      {state?.token ? (
+        <LinkBox
+          token={state.token}
+          expiresAt={state.expiresAt}
+          deliveryState={state.deliveryState}
+        />
+      ) : null}
     </form>
   );
 }
@@ -237,7 +270,13 @@ function LinkForm({ member }) {
       <button type="submit" disabled={pending} className={quiet}>
         {member.state === 'active' ? 'New sign-in link' : 'New invitation link'}
       </button>
-      {state?.token ? <LinkBox token={state.token} expiresAt={state.expiresAt} /> : null}
+      {state?.token ? (
+        <LinkBox
+          token={state.token}
+          expiresAt={state.expiresAt}
+          deliveryState={state.deliveryState}
+        />
+      ) : null}
     </form>
   );
 }
@@ -288,9 +327,9 @@ function RevokeForm({ member }) {
 
 const STATE = {
   active: ['Active', 'bg-success-bg text-brand-800'],
-  invited: ['Invitation sent', 'bg-warning-bg text-warning'],
+  invited: ['Link created — not used', 'bg-warning-bg text-warning'],
   invite_expired: ['Invitation expired', 'bg-ink-100 text-ink-700'],
-  revoked: ['Revoked', 'bg-danger-bg text-danger'],
+  revoked: ['Removed', 'bg-danger-bg text-danger'],
 };
 
 export default function TeamPanel({ team }) {
@@ -317,9 +356,28 @@ export default function TeamPanel({ team }) {
         <h2 id="members-title" className="text-h4 font-bold text-ink-900">
           Caretakers ({team.members.length})
         </h2>
-        {team.members.length ? null : <p className="text-meta text-ink-600">No caretakers yet.</p>}
+        {team.members.length ? null : (
+          <div className="rounded-lg border border-border bg-card p-5">
+            <h3 className="font-semibold text-ink-900">👷 No caretakers yet</h3>
+            <p className="mt-1 text-meta text-ink-600">
+              Invite the person who opens the gate. They’ll see today’s arrivals and can record
+              check-in — never your earnings.
+            </p>
+            <a
+              className="mt-3 inline-flex min-h-11 items-center font-semibold underline"
+              href="#invite-title"
+            >
+              Invite caretaker
+            </a>
+          </div>
+        )}
         {team.members.map((member) => {
-          const [label, tone] = STATE[member.state];
+          const [originalLabel, tone] = STATE[member.state];
+          const label =
+            member.state === 'invited' &&
+            ['accepted', 'delivered'].includes(member.pendingInvite?.deliveryState)
+              ? 'Invite sent'
+              : originalLabel;
           return (
             <article
               key={member.id}

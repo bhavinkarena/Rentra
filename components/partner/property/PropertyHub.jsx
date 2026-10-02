@@ -14,6 +14,7 @@ const TABS = [
   ['edit', 'Edit', (id) => `/partner/listings/${id}`],
   ['calendar', 'Calendar', (id) => `/partner/listings/${id}/calendar`],
   ['photos', 'Photos', (id) => `/partner/listings/${id}/photos`],
+  ['arrival', 'Arrival guide', (id) => `/partner/listings/${id}/arrival-guide`],
   ['reviews', 'Reviews', (id) => `/partner/listings/${id}/reviews`],
   ['activity', 'Activity', (id) => `/partner/listings/${id}/activity`],
 ];
@@ -45,7 +46,7 @@ export default function PropertyHub({
   const keep = listHref === '/partner/listings' ? '' : `?from=${encodeURIComponent(listHref)}`;
   const cover = photos[0] ? publicPhotoUrl(photos[0]) : null;
   const title = propertyTitle(listing.title);
-  const tabs = TABS.filter(([key]) => key !== 'calendar' || ownerApproved);
+  const tabs = TABS.filter(([key]) => !['calendar', 'arrival'].includes(key) || ownerApproved);
   return (
     <header className="border-b border-border">
       <Breadcrumbs items={[{ href: listHref, label: 'Properties' }, { label: title }]} />

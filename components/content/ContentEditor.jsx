@@ -21,6 +21,7 @@ const title = {
   privacy: 'Privacy',
   cancellation: 'Cancellation explanations',
   help: 'Help answers',
+  owner_help: 'Owner guide',
   contact: 'Support contact',
 };
 export function ContentList({ data }) {
@@ -107,16 +108,18 @@ export function ContentEditor({ data }) {
       </label>
     );
   };
-  const rows = kind === 'help' ? body.faqs : body.sections;
+  const rows = ['help', 'owner_help'].includes(kind) ? body.faqs : body.sections;
   const updateRow = (i, value) =>
     change({
       ...body,
-      [kind === 'help' ? 'faqs' : 'sections']: rows.map((r, n) => (n === i ? value : r)),
+      [['help', 'owner_help'].includes(kind) ? 'faqs' : 'sections']: rows.map((r, n) =>
+        n === i ? value : r,
+      ),
     });
   const move = (i, d) => {
     const values = [...rows];
     [values[i], values[i + d]] = [values[i + d], values[i]];
-    change({ ...body, [kind === 'help' ? 'faqs' : 'sections']: values });
+    change({ ...body, [['help', 'owner_help'].includes(kind) ? 'faqs' : 'sections']: values });
   };
   return (
     <AdminPage width="max-w-4xl">
@@ -148,7 +151,7 @@ export function ContentEditor({ data }) {
               <fieldset disabled={pending} className="space-y-5">
                 <legend className="font-semibold">Working copy</legend>
                 {field('Title', body.title, (v) => change({ ...body, title: v }), 160)}
-                {kind === 'help' &&
+                {['help', 'owner_help'].includes(kind) &&
                   field(
                     'Introduction',
                     body.intro,
@@ -183,10 +186,58 @@ export function ContentEditor({ data }) {
                     {rows.map((row, i) => (
                       <fieldset key={i} className="space-y-3 rounded-md border border-ink-200 p-4">
                         <legend>
-                          {kind === 'help' ? 'Answer' : 'Section'} {i + 1}
+                          {['help', 'owner_help'].includes(kind) ? 'Answer' : 'Section'} {i + 1}
                         </legend>
-                        {kind === 'help' ? (
+                        {['help', 'owner_help'].includes(kind) ? (
                           <>
+                            {kind === 'owner_help' && (
+                              <>
+                                {field(
+                                  'Article ID',
+                                  row.id || '',
+                                  (v) => updateRow(i, { ...row, id: v }),
+                                  61,
+                                )}
+                                <label className="block">
+                                  Group
+                                  <select
+                                    className={input}
+                                    value={row.group}
+                                    onChange={(e) =>
+                                      updateRow(i, { ...row, group: e.target.value })
+                                    }
+                                  >
+                                    {[
+                                      'Getting verified',
+                                      'Adding a property',
+                                      'Getting bookable',
+                                      'Managing bookings',
+                                      'Getting paid',
+                                      'Caretakers',
+                                      'Reviews',
+                                    ].map((g) => (
+                                      <option key={g}>{g}</option>
+                                    ))}
+                                  </select>
+                                </label>
+                                <label className="block">
+                                  Screenshot
+                                  <select
+                                    className={input}
+                                    value={row.screenshot || ''}
+                                    onChange={(e) =>
+                                      updateRow(i, { ...row, screenshot: e.target.value })
+                                    }
+                                  >
+                                    <option value="">None</option>
+                                    <option value="/help/owner/properties.png">
+                                      Properties example
+                                    </option>
+                                    <option value="/help/owner/pricing.png">Pricing example</option>
+                                  </select>
+                                </label>
+                              </>
+                            )}
                             {field(
                               `Question ${i + 1}`,
                               row.question,
@@ -254,9 +305,8 @@ export function ContentEditor({ data }) {
                             onClick={() =>
                               change({
                                 ...body,
-                                [kind === 'help' ? 'faqs' : 'sections']: rows.filter(
-                                  (_, n) => n !== i,
-                                ),
+                                [['help', 'owner_help'].includes(kind) ? 'faqs' : 'sections']:
+                                  rows.filter((_, n) => n !== i),
                               })
                             }
                           >
@@ -268,20 +318,32 @@ export function ContentEditor({ data }) {
                     <button
                       className="min-h-11 underline"
                       type="button"
-                      disabled={rows.length >= (kind === 'help' ? 40 : 30)}
+                      disabled={rows.length >= (['help', 'owner_help'].includes(kind) ? 40 : 30)}
                       onClick={() =>
                         change({
                           ...body,
-                          [kind === 'help' ? 'faqs' : 'sections']: [
+                          [['help', 'owner_help'].includes(kind) ? 'faqs' : 'sections']: [
                             ...rows,
-                            kind === 'help'
-                              ? { question: '', answer: '', href: '', link: '' }
+                            ['help', 'owner_help'].includes(kind)
+                              ? {
+                                  question: '',
+                                  answer: '',
+                                  href: '',
+                                  link: '',
+                                  ...(kind === 'owner_help'
+                                    ? {
+                                        id: `article-${Date.now()}`,
+                                        group: 'Getting verified',
+                                        screenshot: '',
+                                      }
+                                    : {}),
+                                }
                               : ['', ''],
                           ],
                         })
                       }
                     >
-                      Add {kind === 'help' ? 'answer' : 'section'}
+                      Add {['help', 'owner_help'].includes(kind) ? 'answer' : 'section'}
                     </button>
                   </div>
                 )}
@@ -338,7 +400,7 @@ export function ContentEditor({ data }) {
             <p>You have read-only content access.</p>
             <h2 className="text-xl font-semibold">Saved working copy</h2>
             <h3 className="text-lg font-semibold">{draft.body.title}</h3>
-            {kind === 'help' && <p>{draft.body.intro}</p>}
+            {['help', 'owner_help'].includes(kind) && <p>{draft.body.intro}</p>}
             <ContentBody kind={kind} body={draft.body} />
           </div>
         )}
@@ -364,7 +426,7 @@ export function ContentEditor({ data }) {
             <h2 className="text-xl font-bold">Publication preview</h2>
             <p>{result.notice}</p>
             <h3 className="text-lg font-semibold">{result.body.title}</h3>
-            {kind === 'help' && <p>{result.body.intro}</p>}
+            {['help', 'owner_help'].includes(kind) && <p>{result.body.intro}</p>}
             <ContentBody kind={kind} body={result.body} />
             <button
               className={button}
@@ -380,7 +442,7 @@ export function ContentEditor({ data }) {
         <details className="rounded-md border border-ink-200 p-4">
           <summary className="min-h-11 cursor-pointer font-semibold">Current public copy</summary>
           <h2 className="my-3 text-xl font-semibold">{live.body.title}</h2>
-          {kind === 'help' && <p>{live.body.intro}</p>}
+          {['help', 'owner_help'].includes(kind) && <p>{live.body.intro}</p>}
           <ContentBody kind={kind} body={live.body} />
         </details>
         <section className="space-y-4">

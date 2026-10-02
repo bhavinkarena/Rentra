@@ -1,11 +1,13 @@
 import Link from '@/components/navigation/NavigationLink';
 import ApplicationCommand from '@/components/partner/ApplicationCommand';
 import { saveOwnerGuide } from '@/lib/actions/partner';
-import OperatorHelp from '@/components/portal/OperatorHelp';
+import OwnerGuide from '@/components/partner/OwnerGuide';
+import { publicContent } from '@/lib/api/content';
 import { requireClient } from '@/lib/api/session';
 export const metadata = { title: 'Owner guide', robots: { index: false, follow: false } };
 export default async function HelpPage() {
   const owner = await requireClient();
+  const guide = await publicContent('owner_help');
   return (
     <>
       <div className="mx-auto max-w-3xl space-y-4 px-4 py-6">
@@ -29,44 +31,10 @@ export default async function HelpPage() {
             </ApplicationCommand>
           ) : null}
         </div>
-        {[
-          [
-            'details',
-            'About you and mobile',
-            'Use your legal name and address. Save your details, then verify your Indian mobile with the SMS code.',
-          ],
-          [
-            'kyc',
-            'Identity check',
-            'Choose a PAN, driving licence or masked Aadhaar. Photos resize automatically; PDFs must be under 5MB. Check all corners are visible, with no glare and readable text.',
-          ],
-          [
-            'payout',
-            'Payout method',
-            'Use your own UPI ID or bank details. Enter a bank account twice; spaces and dashes are removed. An IFSC lookup helps identify your branch. Payouts are not available yet.',
-          ],
-          [
-            'consent',
-            'Agree to the terms',
-            'Read the owner terms, privacy and cancellation policies. Save your consent, then review and submit.',
-          ],
-          [
-            'review',
-            'Review and submit',
-            'Check your saved details. Rentra reviews within 2 working days. Submitted applications are read-only; withdraw to edit. Check Today for the decision.',
-          ],
-        ].map(([id, title, body]) => (
-          <details
-            key={id}
-            id={`verification-${id}`}
-            className="rounded-md border border-border p-4"
-          >
-            <summary className="min-h-11 cursor-pointer font-semibold">{title}</summary>
-            <p className="mt-2 text-meta text-ink-600">{body}</p>
-          </details>
-        ))}
+        <h1 className="text-h1">{guide.body.title}</h1>
+        <p>{guide.body.intro}</p>
+        <OwnerGuide body={guide.body} />
       </div>
-      <OperatorHelp role="owner" capabilities={owner.capabilities} />
     </>
   );
 }

@@ -81,7 +81,9 @@ export function DisputeList({ data, kind }) {
                   </span>
                   {c.requested_party && (
                     <span className="mt-1 block text-meta text-warning">
-                      Response requested from {c.requested_party} by {time(c.response_due)}
+                      {kind === c.requested_party
+                        ? `Rentra needs your reply by ${time(c.response_due)}`
+                        : `Response requested from ${c.requested_party} by ${time(c.response_due)}`}
                     </span>
                   )}
                 </div>
@@ -113,37 +115,91 @@ export function DisputeList({ data, kind }) {
     </div>
   );
 }
-export function NewDispute({ context, kind }) {
+export function NewDispute({ context, kind, bookings = [], bookingPages, defaultVisitId }) {
   return (
     <div className="mx-auto max-w-2xl">
       <PageHeader
         back={{ href: disputeBase(kind), label: 'All disputes' }}
         title="Open a dispute"
       />
+      {!context && kind === 'owner' && (
+        <form className="mb-4 flex gap-3">
+          <label className="flex-1">
+            Find a booking
+            <input
+              type="search"
+              name="q"
+              defaultValue={bookingPages?.q || ''}
+              className="block min-h-11 w-full rounded-lg border p-3"
+              placeholder="Booking reference or property"
+            />
+          </label>
+          <button className={pill}>Search</button>
+        </form>
+      )}
+      {!context && kind === 'owner' && !bookings.length && (
+        <p>No bookings match. Try another reference or open a booking from your bookings list.</p>
+      )}
       {context ? (
         <div className={card}>
           <h2 className="mb-4 text-h4 wrap-break-word">
             {context.reference} · {context.title}
           </h2>
-          <DisputeForm kind={kind} command="create" context={context} />
+          <DisputeForm
+            kind={kind}
+            command="create"
+            context={context}
+            defaultVisitId={defaultVisitId}
+          />
         </div>
       ) : (
         <form className={`${card} space-y-3`}>
           <label className="block text-meta font-medium">
-            Booking order ID
-            <input
-              aria-label="Booking order ID"
-              name="order"
-              required
-              className="mt-1 block min-h-11 w-full rounded-lg border border-input bg-card p-3 text-base sm:text-sm"
-            />
+            Booking
+            {kind === 'owner' ? (
+              <select name="order" required className="mt-1 min-h-11 w-full rounded-lg border p-3">
+                <option value="">Choose a booking</option>
+                {bookings.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.reference} · {b.title || b.propertyTitle || 'Booked property'}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                aria-label="Booking order ID"
+                name="order"
+                required
+                className="mt-1 min-h-11 w-full rounded-lg border p-3"
+              />
+            )}
           </label>
           <p className="text-meta text-ink-600">
-            Use the booking detail’s Disputes link or enter its order ID. Only your permitted
-            booking can be loaded.
+            Choose the booking for this dispute. You can also start from its booking detail.
           </p>
           <button className={primary}>Load booking</button>
         </form>
+      )}
+      {bookingPages && (bookingPages.page > 1 || bookingPages.pages > bookingPages.page) && (
+        <nav className="mt-4 flex gap-4" aria-label="Booking picker pages">
+          {bookingPages.page > 1 && (
+            <Link
+              className={pill}
+              href={`?page=${bookingPages.page - 1}&q=${encodeURIComponent(bookingPages.q || '')}`}
+            >
+              Previous bookings
+            </Link>
+          )}
+          <span>Page {bookingPages.page}</span>
+          {bookingPages.pages > bookingPages.page && (
+            <Link
+              className={pill}
+              href={`?page=${bookingPages.page + 1}&q=${encodeURIComponent(bookingPages.q || '')}`}
+            >
+              More bookings
+            </Link>
+          )}
+        </nav>
       )}
     </div>
   );
@@ -225,10 +281,24 @@ export function DisputeDetail({ data: d, kind }) {
           </Link>
         )}
       </section>
+      {d.claimSummary && (
+        <section className={card}>
+          <h2 className="text-h3">Rentra’s summary of the claim</h2>
+          <p className="whitespace-pre-wrap">{d.claimSummary}</p>
+        </section>
+      )}
       {d.requestedParty && (
         <p role="status" className="rounded-lg bg-warning-bg p-4 text-meta text-ink-800">
-          Response requested from {d.requestedParty} by {time(d.responseDue)}. A missed deadline
-          does not automatically assign liability.
+          {kind === d.requestedParty
+            ? `Rentra needs your reply by ${time(d.responseDue)}.`
+            : `Response requested from ${d.requestedParty} by ${time(d.responseDue)}.`}{' '}
+          A missed deadline does not automatically assign liability.
+        </p>
+      )}
+      {!admin && d.state !== 'resolved' && (
+        <p className="text-meta text-ink-600">
+          Disputes record what happened and Rentra’s decision. They do not move money yet; any
+          refund or payment is handled separately.
         </p>
       )}
       {d.state === 'resolved' && (

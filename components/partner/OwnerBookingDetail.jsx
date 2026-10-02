@@ -2,8 +2,10 @@ import { randomUUID } from 'node:crypto';
 import Link from '@/components/navigation/NavigationLink';
 import { VisitLifecycle } from '@/components/customer/VisitLifecycle';
 import { VisitEvidence } from '@/components/booking/VisitEvidence';
+import BookingHelp from './BookingHelp';
 import { OwnerCases } from '@/components/booking/CasePanels';
 import BookingNote from './BookingNote';
+import { CreateCaseForm } from '@/components/booking/CaseForms';
 import { displayMoney as money } from '@/lib/domain/display-money';
 import { EARNINGS_NOTICE } from '@/lib/domain/owner-earnings';
 const time = (value) =>
@@ -47,7 +49,7 @@ export default function OwnerBookingDetail({ record, listHref = '/partner/bookin
       <section className={card}>
         <h2 className="text-h3">Your guest</h2>
         <p>
-          {record.contact?.name || 'Guest contact hidden'} ?{' '}
+          {record.contact?.name || 'Guest contact hidden'} ·{' '}
           {Math.max(0, ...record.visits.map((v) => v.guests || 0))} guests
         </p>
         {phone ? (
@@ -94,6 +96,18 @@ export default function OwnerBookingDetail({ record, listHref = '/partner/bookin
                   disputed: 'With Rentra',
                 }[v.state] || v.state}
               </p>
+              {v.noShowEligible && (
+                // BOOK-05/08: an overdue arrival with no check-in opens a pre-filled no-show request.
+                <CreateCaseForm
+                  orderId={record.id}
+                  visits={[v]}
+                  requestKey={randomUUID()}
+                  defaultType="no_show"
+                  defaultVisitId={v.id}
+                  defaultReason={`The guest did not arrive for ${v.label || v.date} (${v.reference}) and no check-in was recorded.`}
+                  summary="Guest didn’t arrive"
+                />
+              )}
               {v.id !== next?.id && v.operation?.action && (
                 <VisitLifecycle key={v.id + '-' + v.version} visit={v} requestKey={randomUUID()} />
               )}
@@ -124,6 +138,7 @@ export default function OwnerBookingDetail({ record, listHref = '/partner/bookin
           Open earnings
         </Link>
       </section>
+      <BookingHelp record={record} />
       <OwnerCases record={record} />
       <details className={card}>
         <summary className="cursor-pointer font-semibold min-h-11">Guest payment details</summary>

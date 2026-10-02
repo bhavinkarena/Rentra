@@ -1,3 +1,4 @@
+import SettingsTabs from '@/components/partner/SettingsTabs';
 import Link from '@/components/navigation/NavigationLink';
 import { Mail, Phone, ShieldCheck, WalletCards } from 'lucide-react';
 import { requireClient } from '@/lib/api/session';
@@ -24,10 +25,11 @@ export default async function SettingsPage({ searchParams }) {
       ) : null}
       <PartnerPageHeader
         eyebrow="Account"
-        title="Settings & payouts"
+        title="Profile settings"
         description="Keep your partner profile, contact details and payout destination accurate."
       />
 
+      <SettingsTabs />
       <div className="mt-7 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-5">
           <section className="rounded-lg border border-border bg-card p-5 shadow-xs sm:p-6">
@@ -43,7 +45,20 @@ export default async function SettingsPage({ searchParams }) {
               </div>
             </div>
             <div className="mt-5 max-w-2xl">
-              <AccountForm user={user} />
+              <AccountForm
+                user={user}
+                nameLocked={['submitted', 'approved'].includes(application?.status)}
+              />
+              <div className="mt-4 text-sm">
+                <strong>Legal name:</strong>{' '}
+                {application?.legalName || application?.kycNameOnDoc || 'Not added yet'}
+                <p>
+                  Legal details are kept separately for verification.{' '}
+                  <Link href="/partner/support/new?category=account" className="underline">
+                    Contact support to change submitted details.
+                  </Link>
+                </p>
+              </div>
             </div>
           </section>
 
@@ -91,7 +106,8 @@ export default async function SettingsPage({ searchParams }) {
                   {user.email}
                 </span>
                 <span className="mt-1 block text-tiny leading-4 text-ink-500">
-                  Your verified sign-in address. Contact Rentra to move the account to a new email.
+                  Your verified sign-in address. Change your email using a verification code in
+                  Login & security.
                 </span>
               </span>
             </li>
@@ -103,11 +119,11 @@ export default async function SettingsPage({ searchParams }) {
                   {user.phone ?? 'No mobile number yet'}
                 </span>
                 <span className="mt-1 block text-tiny leading-4 text-ink-500">
-                  Guests call this number on the day. Rentra does not send owner updates by SMS yet;
-                  they appear in Updates.
+                  Guests call this number on the visit day. Choose your update channels in
+                  Notifications.
                 </span>
                 <Link
-                  href="/partner/onboarding/phone"
+                  href="/partner/settings/security"
                   className="mt-2 inline-flex text-tiny font-bold text-brand-700 hover:underline"
                 >
                   {user.phone ? 'Change number' : 'Add number'} →
@@ -125,7 +141,9 @@ export default async function SettingsPage({ searchParams }) {
                   Identity{' '}
                   {user.kycStatus === 'verified'
                     ? 'documents reviewed by Rentra'
-                    : user.kycStatus.replace(/_/g, ' ')}
+                    : user.kycStatus === 'none'
+                      ? 'check not submitted yet'
+                      : (user.kycStatus || 'pending').replace(/_/g, ' ')}
                 </span>
                 <span className="mt-1 block text-tiny leading-4 text-ink-500">
                   {user.kycStatus === 'verified'

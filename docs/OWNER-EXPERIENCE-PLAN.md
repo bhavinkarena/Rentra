@@ -6,7 +6,7 @@
 | Scope | Everything an owner (client/host/partner) touches: `/partner/**`, `/partner/listings/**` wizard, owner-facing backend routes in `rentra-backend/src/routes/partner.route.js`, related services, triggers and migrations |
 | Code audited | Frontend `Rentra` `main` @ `ced7a00`; backend `rentra-backend` `master` @ `22c1950`. Both trees clean at audit time |
 | Method | Read-only trace of every owner screen: page → component → server action (`lib/actions/*`) → `lib/api/endpoints.js` → Express route → controller → service → SQL/trigger. The highest-impact claims were re-checked by hand (marked **Verified**). No servers were run and no database was queried. Integration tests that need `PORTAL_TEST_DATABASE_URL` were not run. |
-| Status | **R0 (hotfixes), Phase 2 (navigation / R1), Phase 3 (onboarding), Phase 4 (Today), Phase 5 (Add property), Phase 6 (Property management) and Phase 8 (Earnings and payments UI) complete on branch `feat/owner-experience`, 2 October 2026.** Phase 7 is in progress; see §15.11. See §15.4, §15.6 to §15.10 and §15.12. |
+| Status | **R0 (hotfixes), Phase 2 (navigation / R1), Phase 3 (onboarding), Phase 4 (Today), Phase 5 (Add property), Phase 6 (Property management), Phase 7 (Calendar and bookings), Phase 8 (Earnings and payments UI) and Phase 9 (Notifications, messages and support) complete on branch `feat/owner-experience`, 2 October 2026.** See §15.4 and §15.6 to §15.13. |
 
 > **The question behind every recommendation:** *If a completely new owner opens this screen, do they immediately understand what is happening and what to do next?* Wherever the answer is "no", this document proposes a change.
 
@@ -50,9 +50,9 @@ The codebase mixes **partner / owner / client / host** for the person and **prop
 | 4 | Dashboard ("Today") | R2 / R4 | ✅ Complete | 2 Oct 2026 | HOME-01..03 implemented; see §15.8 |
 | 5 | Add Property / listing creation | R3 | ✅ Complete | 2 Oct 2026 | LIST-01..11 implemented; migration 0058 required before deployment. See §15.9 |
 | 6 | Property management | R3 / R6 | ✅ Complete | 2 Oct 2026 | PROP-01..06 and 08 implemented (PROP-07 stays backlog); migration 0059 required. See §15.10 |
-| 7 | Booking and calendar | R4 / R5 | ⏳ Not started | — | R0 fixed the bookings sort/scope and guest checkouts breaking (BUG-08/09, CAL-07) |
+| 7 | Booking and calendar | R4 / R5 | ✅ Complete | 2 Oct 2026 | CAL-01..08 and BOOK-01..08 delivered; migrations 0060 and 0063 required. See §15.11 |
 | 8 | Earnings and payments | R6 | ✅ Complete (UI) | 2 Oct 2026 | EARN-01..06 delivered; migration 0061 required. EARN-07 payout engine remains separate. See §15.12 |
-| 9 | Notifications, messages and support | R2 / R4 / R6 | ⏳ Not started | — | R0 delivered owner sign-in code delivery (NOTIF-01, OTP part) |
+| 9 | Notifications, messages and support | R2 / R4 / R6 | ✅ Complete | 2 Oct 2026 | NOTIF-01..03, SUP-01..03, DISP-01, REV-01, TEAM-01, SET-01 delivered; migration 0062 required. Profile photo and "Payout sent" deferred. See §15.13 |
 | 10 | Empty, loading, error and success states | R1 | ⏳ Not started | — | — |
 | 11 | Responsive and mobile UX | R1 | ⏳ Not started | — | R0 fixed page gutters (MOB-01 / BUG-46) |
 | 12 | Accessibility and design system | R1 | ⏳ Not started | — | — |
@@ -2595,11 +2595,11 @@ D8 (commission/tax) blocks any "You earn" number beyond "Booked rent".
 | Phase 1 Audit | **Complete — 2 Oct 2026** | §1 (this document) |
 | R0 Hotfixes | **Complete — 2 Oct 2026** (branch `feat/owner-experience`, not merged or deployed) | [§15.5](#155-completion-record--r0-hotfixes) |
 | R1 Shell and foundations (Navigation & IA) | **Complete — 2 Oct 2026** (branch `feat/owner-experience`) | [§15.6](#156-completion-record--phase-2--r1-navigation-and-ia) |
-| R2 First run | **In progress — Phases 3/4 complete** | Phase 9 application notifications remain; see §15.8 |
+| R2 First run | **Complete — 2 Oct 2026** (Phases 3, 4 and 9 application notifications; not deployed) | §15.7, §15.8, [§15.13](#1513-completion-record--phase-9--notifications-messages-and-support) |
 | R3 Add property | **Complete — 2 Oct 2026** (Phases 5 and 6; branch `feat/owner-experience`, not deployed) | [§15.9](#159-completion-record--phase-5--add-property-wizard), [§15.10](#1510-completion-record--phase-6--property-management) |
-| R4 Today and bookings | In progress — Today complete | Phase 7 bookings and Phase 9 notifications remain |
-| R5 Calendar | Not started | — |
-| R6 Earnings, support, settings | In progress — Phase 8 UI complete | §15.12; support/settings and the payout engine remain |
+| R4 Today and bookings | **Complete — 2 Oct 2026** (Today, Phase 7 bookings, Phase 9 notifications; not deployed) | §15.8, [§15.11](#1511-completion-record--phase-7--calendar-and-bookings), §15.13 |
+| R5 Calendar | **Complete — 2 Oct 2026** (Phase 7 calendar; not deployed) | [§15.11](#1511-completion-record--phase-7--calendar-and-bookings) |
+| R6 Earnings, support, settings | In progress — Phase 8 UI and Phase 9 support/settings complete | §15.12, §15.13; the payout engine (EARN-07) remains |
 
 
 ## 15.5 Completion record — R0 hotfixes
@@ -2790,16 +2790,18 @@ D8 (commission/tax) blocks any "You earn" number beyond "Booked rent".
 
 ---
 
-## 15.11 Implementation record — Phase 7 / Calendar and bookings
+## 15.11 Completion record — Phase 7 / Calendar and bookings
 
-**Started:** 2 October 2026. **Status: in progress**, local changes in both repositories; not deployed. [Implementation, verification and remaining gates](OWNER-EXPERIENCE-PHASE7.md).
+**Done:** 2 October 2026. Local changes in both repositories on `feat/owner-experience`; not deployed. [Implementation, verification and completion record](OWNER-EXPERIENCE-PHASE7.md).
 
 - Server-derived calendar states and prices, month/week/agenda/portfolio views, lazy date drawer, selection, atomic close/reopen and absolute/percentage/reset price previews, conditional 10-second Undo, exact blocks and court-aware conflicts.
 - Booking rules moved to their own page; auto-open, weekend pricing and early-arrival settings share the quote and inventory services. Offline bookings are owner blocks, shown in Today and assigned caretaker views, without a financial ledger entry. Secret per-property iCalendar links are hashed and revocable.
 - Owner booking queues have guest search, property/date filters and Today arrival/departure controls. Owner detail leads with the next visit action, contact links and a private note. Check-in/out use an optional note and default current time. Completion after 24 hours requires recorded check-out and no open incident or booking case.
 - Migration 0060 adds private notes, offline details, feed tokens, arrival-guide storage and the `no_show` state. An admin case is required for no-show resolution; captured amounts bound supported partial refunds. Contact remains available to owners for seven days after completion; caretakers get a visit-day contact toggle and incident reporting.
 - Verified: 200 backend tests passed, three skipped; 70 frontend tests passed; changed-file lint and production build passed. 61 migration files and journal entries verified; migration applied only to disposable databases. Browser evidence covers zero calendar axe violations, keyboard navigation, price preview/confirm/Undo, private-note saving and mobile overflow.
-- Remaining acceptance gates and unfinished details are listed in the runbook. This record does **not** mark Phase 7 complete.
+- **Finished 2 Oct 2026:** batched portfolio read (10 properties × 30 days in 5–21 ms vs the 1.5 s gate), arrival/departure markers, cross-month night bars, hold countdown, phone mini-month, sticky column, venue swipe columns, now line and weekly court occupancy (CAL-01/05); blocks paging, slot prefill and block-release Undo (CAL-03); one-click Full-day alignment and multi-lane selection (CAL-04); one-time auto-open opt-in with daily worker test (CAL-02); booking list cards with guest/action/contact and multi-visit expansion (BOOK-01); caretaker contact with WhatsApp under the visit-day toggle (BOOK-06); prefilled no-show case, provider-verified partial-refund limits, arrival guide editing and T−24h/07:00 IST guest delivery (BOOK-08).
+- **Final verification (combined with Phase 9):** backend 216/216, 0 skipped; 64 migration files verified; frontend 74/74; eslint 0 errors; production build passed; calendar and bookings browser gates passed with axe 0. Migration 0063 adds the `arrival_guide` template.
+- **Not built:** CAL-05 "often empty" time hint and drag across lanes (checkbox selection instead). Arrival-guide SMS text needs DLT registration before live sending.
 
 ---
 
@@ -2820,6 +2822,29 @@ D8 (commission/tax) blocks any "You earn" number beyond "Booked rent".
 - **Browser:** [Evidence](evidence/owner-phase8/browser-checks.json) records six views with zero axe violations, zero page errors, five responsive earnings widths, CSV/print, earning links, form validation, lookup outage and stale-session draft → OTP → submit. [Rollback flag](evidence/owner-phase8/rollback-checks.json) restores the legacy overview, period statement and payouts.
 - **Migration:** 0061 adds session reauthentication and payout-confirm OTP purpose; 62 migration files/journal entries verified. Apply before the backend rollout. Only disposable databases were changed.
 - **Limits:** Live code delivery/IFSC and hosted smoke checks remain. **EARN-07 is out of scope:** payout rail, commission/tax policy D8, scheduling and refund recovery still need a separate implementation. R6 support/settings work and Phase 7’s remaining gates are not marked complete.
+
+## 15.13 Completion record — Phase 9 / Notifications, messages and support
+
+**Done:** 2 October 2026. Local, uncommitted changes in both repositories on `feat/owner-experience`; not deployed. Screenshots at 360 px: [evidence/owner-phase9/](evidence/owner-phase9/).
+
+| IDs | Delivered |
+|---|---|
+| NOTIF-01 | `owner_notification` outbox filled by a trigger on every `client_update` (mobile + email row each), deduped per user, event and channel. Worker in `services/notifications/owner-jobs.js`: WhatsApp first with SMS fallback, email; retry with backoff (30 s × 2ⁿ, max 1 h, 5 attempts); quiet hours 22:00–07:00 IST except same-day arrivals; arrival-tomorrow 18:00, arrival-today 08:00, check-out-not-recorded +2 h and dates-running-out events. Templates in code; every message deep-links. `user.notification_prefs` with Settings → Notifications (per category mobile/email; booking and action categories keep one channel). The delivery-failure banner names the channel and the fix (verify number/email, number not reachable). Live sending needs `OWNER_NOTIFICATION_DELIVERY=enabled`. |
+| NOTIF-02 | Header bell with unread badge; each inbox row is a link that marks read and opens its target; category icon, relative time with full IST time on hover; All · Unread · Needs you plus category filter; "Needs you" pinned by task state (`owner_update_needs_action`); preferences moved to Settings; confirmation before marking all read with open tasks; spec empty state. |
+| NOTIF-03 | In-app events for review published, review report closed, dispute opened/response requested/resolved, caretaker evidence, caretaker revoked mid-visit and dates running out. Booking updates can no longer be muted. |
+| SUP-01 | Applicants can open support (verification/account/other). Seven owner categories, up to 3 photos at create, viewer-dependent states ("Waiting for your reply" / "Rentra is looking into it"), unread dot, contact strip (WhatsApp, phone, email, hours), owner help link. |
+| SUP-02 | Task-based owner guide (7 groups) in the CMS (`owner_help` kind), client-side search, "Show me around again" / "Show setup guide", page-header `?` deep links. |
+| SUP-03 | "Get help with this booking" chooser on booking detail with the five routes, pre-filled with order and visit; the dispute form picks bookings by reference, not UUID. |
+| DISP-01 | Photos at create; "Rentra needs your reply by {date}" on detail and list; staff-written claim summary visible to the owner; file extensions on downloads (BUG-38); plain copy that disputes do not move money yet. |
+| REV-01 | Newest first (BUG-23), Needs reply · All tabs, average and count, row with stars/date/guest first name/visit/property and a 4-line excerpt, inline reply 10–2000 characters with counter and no preview (BUG-24), edit/delete, field errors, toast, "Already reported on {date}" (BUG-39), report-outcome notice, spec empty state. |
+| TEAM-01 | Page renamed Caretakers; invite sent by SMS/WhatsApp with Copy-link fallback; delivery-aware badges; form reset; live-only property picker with drafts toggle; "Can see guest contact on visit day"; toast (BUG-44); empty state with an Invite caretaker link. |
+| SET-01 | Tabs Profile · Login & security · Notifications · Calendar sync · Privacy (current tab marked). Legal name separate and read-only; display name locked after submission (BUG-30); email and mobile change by OTP to the new contact (BUG-12); active sessions with device and last seen; sign out other devices; data export and deletion request, blocked while bookings are upcoming or money is pending. |
+
+- **Backend:** `npm test` 210 passed, 0 failed, 3 skipped (need `CP01_TEST_DATABASE_URL`). Rerun with it: `portal-access` and the 7 `owner-communications` integration tests pass (8/8). They cover outbox dedupe, task pinning, preferences, quiet hours, fallback/retry/unknown outcomes, support photos and topics, dispute summary, review replies and reports, session-bound contact codes, CMS guide, caretaker delivery and owner privacy.
+- **Frontend:** `npm test` 74/74, `next build` passes. eslint on `components`, `lib`, `app`: 0 errors (2 pre-existing unused-directive warnings).
+- **Migration:** 0062 (`owner_communications`): outbox table and triggers, `notification_prefs`, owner support categories, `dispute_case.claim_summary`, session device/last seen, contact-change OTP purposes, caretaker invite delivery state, `owner_help` content kind. Apply before the backend rollout. Only disposable databases were changed.
+- **Deferred:** profile photo (spec: "if product wants"), "Payout sent" event (needs EARN-07), incident option in the damage route (goes to a dispute for now), screenshots for 5 of 7 guide articles (CMS content, editable without a deploy).
+- **Owner actions before deploy:** WhatsApp templates approved (Gupshup or Twilio), TRAI DLT SMS templates, `OWNER_NOTIFICATION_DELIVERY=enabled` and the provider keys on Render.
 
 ---
 

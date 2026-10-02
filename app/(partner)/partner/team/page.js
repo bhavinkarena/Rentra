@@ -5,7 +5,10 @@ import PortalState from '@/components/portal/PortalState';
 import { PartnerPageHeader } from '@/components/partner/PortalPrimitives';
 import TeamPanel from '@/components/partner/TeamPanel';
 
-export const metadata = { title: 'Team', robots: { index: false, follow: false, nocache: true } };
+export const metadata = {
+  title: 'Caretakers',
+  robots: { index: false, follow: false, nocache: true },
+};
 
 /**
  * Owner-managed caretakers (CP16): invite with a one-time link, choose
@@ -20,7 +23,7 @@ export default async function TeamPage() {
     <div className="mx-auto w-full max-w-[1000px] px-4 py-6 sm:px-6 sm:py-8">
       <PartnerPageHeader
         eyebrow="Account"
-        title="Team"
+        title="Caretakers"
         description="Caretakers who run visits at your properties. They never see prices, earnings, your documents or your team."
       />
       <div className="mt-6">

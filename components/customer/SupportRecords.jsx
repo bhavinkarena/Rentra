@@ -2,9 +2,15 @@ import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import Form from '@/components/navigation/NavigationForm';
 import Link from '@/components/navigation/NavigationLink';
 import { randomUUID } from 'node:crypto';
-import { supportCategories, supportStates } from '@/lib/domain/help';
+import {
+  supportCategories,
+  supportStates,
+  ownerSupportCategories,
+  ownerSupportStates,
+} from '@/lib/domain/help';
 import { SupportReplyForm } from './SupportForms';
 import { ChevronRight, MessageSquare, Plus } from 'lucide-react';
+import OwnerContactStrip from '@/components/partner/OwnerContactStrip';
 import { BackLink, PageHeader } from '@/components/ui/page-header';
 import { EmptyState } from '@/components/ui/empty-state';
 import { StateBadge } from './BookingDisplay';
@@ -19,6 +25,8 @@ const time = (value) =>
     timeStyle: 'short',
   });
 export function SupportList({ data, admin = false, owner = false }) {
+  const states = owner ? ownerSupportStates : supportStates;
+  const categories = owner ? ownerSupportCategories : supportCategories;
   const base = admin ? '/admin/support' : owner ? '/partner/support' : '/support';
   return (
     <section className="mx-auto max-w-3xl">
@@ -28,7 +36,7 @@ export function SupportList({ data, admin = false, owner = false }) {
         actions={
           !admin ? (
             <>
-              <Link className={secondary} href="/help">
+              <Link className={secondary} href={owner ? '/partner/help' : '/help'}>
                 Help and contact details
               </Link>
               <Link className={primary} href={`${base}/new`}>
@@ -39,6 +47,7 @@ export function SupportList({ data, admin = false, owner = false }) {
           ) : null
         }
       />
+      {owner && <OwnerContactStrip />}
       <Form className="flex flex-wrap items-center justify-between gap-3" action={base}>
         <p className="text-meta text-ink-600">{data.total} request(s)</p>
         <div className="flex flex-wrap items-center gap-2">
@@ -50,7 +59,7 @@ export function SupportList({ data, admin = false, owner = false }) {
               defaultValue={data.state}
             >
               <option value="all">All</option>
-              {Object.entries(supportStates).map(([value, label]) => (
+              {Object.entries(states).map(([value, label]) => (
                 <option key={value} value={value}>
                   {label}
                 </option>
@@ -74,10 +83,17 @@ export function SupportList({ data, admin = false, owner = false }) {
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-center gap-2">
                     <span className="font-semibold text-ink-900">{r.subject}</span>
-                    <StateBadge state={r.state}>{supportStates[r.state]}</StateBadge>
+                    {r.unread && (
+                      <span
+                        className="size-2 rounded-full bg-brand-600"
+                        aria-label="Unread reply"
+                      />
+                    )}
+                    <StateBadge state={r.state}>{states[r.state]}</StateBadge>
                   </span>
                   <span className="mt-1 block text-meta text-ink-600">
-                    {supportCategories[r.category]} · Updated {time(r.updatedAt)} India time
+                    {categories[r.category] || supportCategories[r.category]} · Updated{' '}
+                    {time(r.updatedAt)} India time
                   </span>
                   <span className="mt-0.5 block truncate font-mono text-tiny text-ink-500">
                     {r.reference}
@@ -116,6 +132,8 @@ export function SupportList({ data, admin = false, owner = false }) {
   );
 }
 export function SupportDetail({ record, admin = false, owner = false }) {
+  const states = owner ? ownerSupportStates : supportStates;
+  const categories = owner ? ownerSupportCategories : supportCategories;
   const base = admin ? '/admin/support' : owner ? '/partner/support' : '/support';
   return (
     <article className="mx-auto max-w-3xl space-y-6 wrap-break-word">
@@ -123,14 +141,16 @@ export function SupportDetail({ record, admin = false, owner = false }) {
         <BackLink href={base}>Back to support requests</BackLink>
         <div className="mt-1 flex flex-wrap items-center gap-3">
           <h1 className="text-h2">{record.subject}</h1>
-          <StateBadge state={record.state}>{supportStates[record.state]}</StateBadge>
+          <StateBadge state={record.state}>{states[record.state]}</StateBadge>
         </div>
         <p className="mt-2 font-mono text-tiny break-all text-ink-500">{record.reference}</p>
       </header>
+      {owner && <OwnerContactStrip />}
       <section className="space-y-1 rounded-lg border border-border bg-card p-4 text-meta text-ink-700 sm:p-5">
         <h2 className="mb-2 font-semibold text-ink-900">Request context</h2>
         <p>
-          {supportCategories[record.category]} · Created {time(record.createdAt)} India time
+          {categories[record.category] || supportCategories[record.category]} · Created{' '}
+          {time(record.createdAt)} India time
         </p>
         {record.orderId ? (
           <>
@@ -150,6 +170,12 @@ export function SupportDetail({ record, admin = false, owner = false }) {
             </p>
           </>
         ) : null}
+        {record.context.visitReference && (
+          <p>
+            Visit {record.context.visitReference} · {record.context.visitDate} ·{' '}
+            {record.context.slot?.replaceAll('_', ' ')}
+          </p>
+        )}
         {record.privacy ? (
           <>
             <Link className={link} href={admin ? '/admin/privacy' : '/account/privacy'}>
@@ -169,7 +195,7 @@ export function SupportDetail({ record, admin = false, owner = false }) {
         </p>
       </section>
       <p className="text-meta text-ink-600">
-        Participants: {record.participant === 'client' ? 'You (client)' : 'You (customer)'} and
+        Participants: {record.participant === 'client' ? 'You (owner)' : 'You (customer)'} and
         Rentra support. Other cases linked by admins keep their own private conversations.
       </p>
       {record.propertyId && (
@@ -185,7 +211,7 @@ export function SupportDetail({ record, admin = false, owner = false }) {
               <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                 <p className="font-semibold">{m.author}</p>
                 <p className="text-tiny text-ink-500">
-                  {time(m.at)} India time · {supportStates[m.state]}
+                  {time(m.at)} India time · {states[m.state]}
                 </p>
               </div>
               <p className="mt-2 whitespace-pre-wrap wrap-break-word text-ink-800">{m.body}</p>

@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import PartnerPortal from '@/components/partner/PartnerPortal';
+import OwnerToaster from '@/components/partner/OwnerToaster';
 import { partnerCacheEnabled } from '@/lib/partner/flags';
 import Link from '@/components/navigation/NavigationLink';
 import { Suspense, cache } from 'react';
@@ -54,6 +55,7 @@ export default async function PartnerLayout({ children }) {
     const revision = (await cookies()).get('rentra_partner_revision')?.value ?? '';
     return (
       <div className={portalFont.variable}>
+        <OwnerToaster />
         <Shell
           key={user.cacheScope ?? user.id}
           user={user}

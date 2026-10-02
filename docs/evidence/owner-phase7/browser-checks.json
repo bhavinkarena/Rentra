@@ -4,5 +4,28 @@
   "pricePreviewConfirmUndo": true,
   "ownerDetail": true,
   "mobileNoOverflow": true,
+  "stickyPropertyColumn": true,
+  "greyscaleStates": [
+    "blocked",
+    "booked",
+    "closed",
+    "open",
+    "past",
+    "too_soon"
+  ],
+  "crossMonthNightBars": true,
+  "holdCountdownExpires": true,
+  "blockPrefill": true,
+  "multiLaneFullDayAlignment": true,
+  "blockReleaseUndo": true,
+  "autoOpenOptIn": true,
+  "venueNowLine": true,
+  "venueOccupancy": [
+    "2%",
+    "0%"
+  ],
+  "venueAxe": 0,
+  "venueSwipeColumns": true,
+  "phoneMiniMonth": true,
   "errors": []
 }

@@ -8,6 +8,82 @@ import {
   displayMoney as money,
   StateBadge,
 } from './BookingDisplay';
+import GuestContactLinks from '@/components/booking/GuestContactLinks';
+
+const OWNER_STATE = {
+  confirmed: 'Upcoming',
+  handed_over: 'Checked in',
+  returned: 'Checked out',
+  completed: 'Completed',
+  cancelled: 'Cancelled',
+  no_show: 'No show',
+  disputed: 'With Rentra',
+};
+const ACTION = {
+  handover: 'Record check-in',
+  return: 'Record check-out',
+  complete: 'Finish inspection',
+};
+
+/** BOOK-01: who is coming, what to do next and how to reach them, under each owner card. */
+function OwnerCardWork({ item, detailHref }) {
+  const visits = item.visits ?? [];
+  const next = item.visitId
+    ? { id: item.visitId, operation: item.operation }
+    : visits.find((v) => v.operation?.action) ||
+      visits.find((v) => v.state === 'confirmed') ||
+      visits[0];
+  const name = item.contact?.name || 'Guest';
+  return (
+    <div className="flex flex-col gap-3 border-t border-border p-4 sm:px-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-meta">
+          <strong>{name}</strong>
+          {item.guests ? ` · ${item.guests} guests` : ''}
+          {next?.operation?.label ? (
+            <span className="block text-tiny text-ink-600">{next.operation.label}</span>
+          ) : null}
+        </p>
+        <span className="flex flex-wrap items-center gap-2">
+          {next?.operation?.action ? (
+            <Link
+              href={`${detailHref}#visit-${next.id}`}
+              className="inline-flex min-h-11 items-center rounded-md bg-primary px-4 text-meta font-semibold text-white"
+            >
+              {ACTION[next.operation.action]}
+            </Link>
+          ) : null}
+          <GuestContactLinks phone={item.contact?.phone} name={name} />
+        </span>
+      </div>
+      {visits.length > 1 ? (
+        <details>
+          <summary className="min-h-11 cursor-pointer content-center text-meta font-semibold">
+            {visits.length} visits
+            {next?.label ? ` · next ${next.label}` : ''}
+          </summary>
+          <ul className="divide-y divide-border">
+            {visits.map((v) => (
+              <li key={v.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                <span className="text-meta">
+                  {v.label} · {v.guests} guests ·{' '}
+                  <span className="text-ink-600">{OWNER_STATE[v.state] || 'With Rentra'}</span>
+                </span>
+                <Link
+                  href={`${detailHref}#visit-${v.id}`}
+                  className="inline-flex min-h-11 items-center text-meta font-semibold text-brand-800 underline"
+                >
+                  {ACTION[v.operation?.action] ?? 'View visit'}
+                  <span className="sr-only"> {v.reference}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
+    </div>
+  );
+}
 function href(base, data, changes) {
   const query = {
     tab: data.tab,
@@ -217,10 +293,17 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
       )}
       <ul className="space-y-4">
         {data.items.map((item) => (
-          <li key={item.visitId ?? item.id}>
+          <li
+            key={item.visitId ?? item.id}
+            className={
+              base === '/partner/bookings'
+                ? 'overflow-hidden rounded-xl border border-border bg-card'
+                : undefined
+            }
+          >
             <Link
               href={`${base}/${item.id}${operational ? `?from=${encodeURIComponent(href(base, data, {}))}` : ''}${item.visitId ? `#visit-${item.visitId}` : ''}`}
-              className="group grid overflow-hidden rounded-xl border border-border bg-card transition hover:border-brand-300 hover:shadow-md grid-cols-[112px_1fr] sm:grid-cols-[200px_1fr]"
+              className={`group grid overflow-hidden bg-card transition grid-cols-[112px_1fr] sm:grid-cols-[200px_1fr] ${base === '/partner/bookings' ? 'hover:bg-ink-50' : 'rounded-xl border border-border hover:border-brand-300 hover:shadow-md'}`}
             >
               <PropertyPhoto photo={item.photo} title={item.title} />
               <div className="flex flex-col gap-3 p-4 sm:p-5">
@@ -261,20 +344,8 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
                   </span>
                   {operational && (
                     <span>
-                      {item.visitStates
-                        .map(
-                          (s) =>
-                            ({
-                              confirmed: 'Upcoming',
-                              handed_over: 'Checked in',
-                              returned: 'Checked out',
-                              completed: 'Completed',
-                              cancelled: 'Cancelled',
-                              disputed: 'With Rentra',
-                            })[s] || 'With Rentra',
-                        )
-                        .join(', ')}
-                      . Payment below applies to the booking.
+                      {item.visitStates.map((s) => OWNER_STATE[s] || 'With Rentra').join(', ')}.
+                      Payment below applies to the booking.
                     </span>
                   )}
                   {item.payments.map((payment, index) => (
@@ -287,6 +358,12 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
                 </div>
               </div>
             </Link>
+            {base === '/partner/bookings' ? (
+              <OwnerCardWork
+                item={item}
+                detailHref={`${base}/${item.id}?from=${encodeURIComponent(href(base, data, {}))}`}
+              />
+            ) : null}
           </li>
         ))}
       </ul>

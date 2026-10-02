@@ -1,5 +1,6 @@
 'use client';
 import NavigationProgress from '@/components/navigation/NavigationProgress';
+import { ownerHelpHref } from '@/lib/domain/owner-help';
 
 import { useState, useSyncExternalStore } from 'react';
 import Link, { useLinkStatus } from 'next/link';
@@ -386,6 +387,13 @@ export default function PortalShell({ config, children }) {
             )}
             {owner ? (
               <>
+                <Link
+                  href={ownerHelpHref(pathname)}
+                  aria-label="Help with this page"
+                  className="grid size-11 place-items-center rounded-md text-lg font-semibold text-ink-700 hover:bg-ink-50"
+                >
+                  ?
+                </Link>
                 {config.addHref && (
                   <Link
                     href={config.addHref}

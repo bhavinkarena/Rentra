@@ -4,10 +4,21 @@ import { displayMoney as money } from '@/lib/domain/display-money';
 import { EARNINGS_NOTICE } from '@/lib/domain/owner-earnings';
 import { ActionForm } from './listing/BookingCalendarSettings';
 import { blockDates, unblockDates } from '@/lib/actions/partner';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from '@/components/navigation/NavigationLink';
-import { CalendarCheck, Timer, Lock, Ban, Clock, AlertTriangle, Tag, X } from 'lucide-react';
+import {
+  CalendarCheck,
+  Timer,
+  Lock,
+  Ban,
+  Clock,
+  AlertTriangle,
+  Tag,
+  X,
+  LogIn,
+  LogOut,
+} from 'lucide-react';
 import { addLocalDays, propertyToday } from '@/lib/domain/booking-dates';
 import {
   loadCalendarDay,
@@ -25,6 +36,19 @@ const states = {
   past: ['Past', Clock, 'bg-secondary text-ink-700'],
   problem: ['Check', AlertTriangle, 'border-danger border-2'],
 };
+const time = (iso) =>
+  new Intl.DateTimeFormat('en-IN', {
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone: 'Asia/Kolkata',
+  }).format(new Date(iso));
+/** Phone mini-month dots: colour plus a spoken summary. */
+const dots = [
+  ['booked', 'bg-brand-600', 'booked'],
+  ['hold', 'bg-warning', 'on hold'],
+  ['closed', 'bg-ink-400', 'closed'],
+  ['override', 'bg-purple-600', 'custom price'],
+];
 const label = (s) => ({ day: 'Day picnic', night: 'Night stay', full_day: 'Full day' })[s] || s;
 const field = 'min-h-11 rounded-md border bg-card p-2';
 const dayText = (date) =>
@@ -66,7 +90,7 @@ export default function PortfolioCalendar({
     [busy, setBusy] = useState(false),
     [legend, setLegend] = useState(false),
     [kind, setKind] = useState('slots'),
-    [slot, setSlot] = useState('day'),
+    [slots, setSlots] = useState(['day']),
     [price, setPrice] = useState(''),
     [percent, setPercent] = useState(false);
   const monthMove = (n) => {
@@ -100,20 +124,21 @@ export default function PortfolioCalendar({
     const next = await loadCalendarDay(property.id, date);
     setDetail(next);
   }
+  const refresh = useCallback(() => router.refresh(), [router]);
   const close = () => {
     dialog.current?.close();
     setOpened(null);
     setSelected([]);
     setResult({});
   };
-  async function save(openValue, confirm = false, reset = false) {
+  async function save(openValue, confirm = false, reset = false, align = false) {
     const rows = selected.length ? selected : [{ id: opened.property.id, date: opened.date }];
     if (new Set(rows.map((r) => r.id)).size !== 1) {
       setResult({ error: 'Choose dates in one property to apply changes together.' });
       return;
     }
     const property = data.items.find((p) => p.id === rows[0].id),
-      cells = rows.map((r) => ({ date: r.date, slot }));
+      cells = rows.flatMap((r) => slots.map((slot) => ({ date: r.date, slot })));
     const change = {
       cells,
       command: kind,
@@ -124,6 +149,7 @@ export default function PortfolioCalendar({
           : percent
             ? { deltaBps: Math.round(Number(price) * 100) }
             : { rentMinor: Math.round(Number(price.replace(/[₹,\s]/g, '')) * 100) }),
+      ...(align && { alignFullDay: true }),
     };
     const form = new FormData();
     Object.entries({
@@ -149,25 +175,27 @@ export default function PortfolioCalendar({
       setBusy(false);
     }
   }
+  // CAL-03: an exact block starts from the first chosen slot's own hours.
+  const blockSchedule = detail?.cells?.find((c) => c.slot === slots[0])?.schedule;
   const commands = (
     <div className="space-y-3">
-      <label className="block">
-        Slot{' '}
-        <select
-          className={field}
-          value={slot}
-          onChange={(e) => {
-            setSlot(e.target.value);
-            setResult({});
-          }}
-        >
-          {['day', 'night', 'full_day'].map((s) => (
-            <option key={s} value={s}>
-              {label(s)}
-            </option>
-          ))}
-        </select>
-      </label>
+      <fieldset className="flex flex-wrap gap-3">
+        <legend className="font-semibold">Slots</legend>
+        {['day', 'night', 'full_day'].map((s) => (
+          <label key={s} className="flex min-h-11 items-center gap-2">
+            <input
+              type="checkbox"
+              checked={slots.includes(s)}
+              onChange={(e) => {
+                const next = e.target.checked ? [...slots, s] : slots.filter((x) => x !== s);
+                if (next.length) setSlots(next);
+                setResult({});
+              }}
+            />
+            {label(s)}
+          </label>
+        ))}
+      </fieldset>
       <div className="flex flex-wrap gap-2">
         <button
           className={field}
@@ -242,8 +270,8 @@ export default function PortfolioCalendar({
           <p className="font-semibold">Review changes</p>
           {(result.preview.result?.affected || result.preview.affected || []).map((c, i) => (
             <p key={i} className="text-meta">
-              {c.date} ? {label(c.slot)} ·{' '}
-              {kind === 'prices' ? money(c.before) : c.before ? 'Open' : 'Closed'} ?{' '}
+              {c.date} · {label(c.slot)} ·{' '}
+              {kind === 'prices' ? money(c.before) : c.before ? 'Open' : 'Closed'} →{' '}
               {kind === 'prices' ? money(c.after) : c.after ? 'Open' : 'Closed'}
             </p>
           ))}
@@ -252,9 +280,18 @@ export default function PortfolioCalendar({
               {w}
             </p>
           ))}
+          {result.preview.result?.warnings?.length > 0 && (
+            <button
+              className={field}
+              disabled={busy}
+              onClick={() => save(false, false, false, true)}
+            >
+              Update Full day to Day + Night
+            </button>
+          )}
           {result.preview.result?.conflicts?.map((c) => (
             <p key={c.date + c.slot} className="text-danger">
-              {c.date} ? {label(c.slot)} is reserved.
+              {c.date} · {label(c.slot)} is reserved.
               {c.reservations.map((r) =>
                 r.orderId ? (
                   <Link
@@ -273,7 +310,7 @@ export default function PortfolioCalendar({
             disabled={busy || !!result.preview.result?.conflicts?.length}
             onClick={() => {
               const change = JSON.parse(result.preview.values.change);
-              save(change.open, true, change.reset);
+              save(change.open, true, change.reset, change.alignFullDay);
             }}
           >
             Confirm changes
@@ -375,7 +412,7 @@ export default function PortfolioCalendar({
       </p>
       {data.items.map((property) => (
         <article key={property.id} className="space-y-3">
-          <h2 className="text-h3">{property.title || 'Untitled draft'}</h2>
+          {view !== 'multi' && <h2 className="text-h3">{property.title || 'Untitled draft'}</h2>}
           <div className="flex flex-wrap gap-2">
             {['Weekends', 'Every Friday', 'Next 30 days'].map((choice) => (
               <button
@@ -409,15 +446,66 @@ export default function PortfolioCalendar({
               Booking rules
             </Link>
           </div>
+          {view === 'month' && property.rentalUnit !== 'hour' && (
+            <div className="grid grid-cols-7 gap-1 md:hidden" aria-label="Month at a glance">
+              {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
+                <p key={i} aria-hidden="true" className="text-center text-tiny font-semibold">
+                  {d}
+                </p>
+              ))}
+              {days.map((day) => {
+                const lanes = property.cells?.filter((c) => c.date === day) || [];
+                const on = dots.filter(([key]) =>
+                  key === 'override'
+                    ? lanes.some((c) => c.priceSource === 'override')
+                    : key === 'closed'
+                      ? lanes.some((c) => ['closed', 'blocked'].includes(c.state))
+                      : lanes.some((c) => c.state === key),
+                );
+                return (
+                  <button
+                    key={day}
+                    type="button"
+                    data-mini-day={day}
+                    className={`min-h-11 rounded border p-1 text-tiny ${day.slice(0, 7) !== anchor.slice(0, 7) ? 'text-ink-500 border-dashed' : ''}`}
+                    aria-label={`${dayText(day)}${on.length ? ': ' + on.map((d) => d[2]).join(', ') : ''}`}
+                    onClick={() => open(property, day)}
+                  >
+                    {Number(day.slice(-2))}
+                    <span className="flex justify-center gap-0.5">
+                      {on.map(([key, tone]) => (
+                        <span key={key} className={`size-1.5 rounded-full ${tone}`} />
+                      ))}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
           <div
             className={
               view === 'multi'
                 ? 'flex overflow-x-auto gap-2'
                 : view === 'agenda'
                   ? 'space-y-2'
-                  : 'grid grid-cols-1 gap-2 md:grid-cols-7 md:gap-1'
+                  : `grid-cols-1 gap-2 md:grid md:grid-cols-7 md:gap-1 ${view === 'month' && property.rentalUnit !== 'hour' ? 'hidden' : 'grid'}`
             }
           >
+            {view === 'multi' && (
+              <div className="sticky left-0 z-10 flex w-28 shrink-0 flex-col gap-1 bg-background pr-1 sm:w-36">
+                {property.photo && (
+                  // eslint-disable-next-line @next/next/no-img-element -- small owner thumbnail from the API
+                  <img
+                    src={property.photo.url}
+                    alt=""
+                    className="aspect-[4/3] w-full rounded-md object-cover"
+                  />
+                )}
+                <h2 className="text-meta font-semibold line-clamp-2">
+                  {property.title || 'Untitled draft'}
+                </h2>
+              </div>
+            )}
             {view === 'month' &&
               ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
                 <p key={day} className="hidden md:block text-center text-tiny font-semibold">
@@ -496,17 +584,53 @@ export default function PortfolioCalendar({
                     ['day', 'night'].map((s) => {
                       const c = property.cells?.find((c) => c.date === day && c.slot === s),
                         [text, Icon, tone] = states[c?.state || 'closed'];
+                      const own = property.intervals.filter((r) => c?.intervals?.includes(r.id));
+                      const visit = own.find((r) => r.source === 'booking' || r.kind);
+                      const hold = own.find((r) => r.state === 'held');
+                      // A stay ending this morning: its departure shows on the day lane.
+                      const leaving =
+                        s === 'day' &&
+                        property.intervals.find(
+                          (r) => r.departure_day === day && r.arrival_day < day,
+                        );
+                      const arriving = visit?.arrival_day === day;
+                      const overnight = c?.state === 'booked' && visit?.departure_day > day;
                       return (
                         <span
                           key={s}
-                          className={`mt-1 flex min-h-9 items-center gap-1 rounded border p-1 text-[10px] sm:text-tiny ${tone}`}
+                          data-state={c?.state || 'closed'}
+                          data-continues={overnight || undefined}
+                          className={`mt-1 flex min-h-9 items-center gap-1 rounded border p-1 text-[10px] sm:text-tiny ${tone} ${c?.priceSource === 'override' ? 'border-l-4 border-l-purple-600' : ''} ${overnight ? 'rounded-r-none border-r-0 md:-mr-2' : ''}`}
                         >
-                          <Icon className="size-3 shrink-0" />
+                          {c?.state === 'booked' && arriving ? (
+                            <LogIn className="size-3 shrink-0" aria-hidden="true" />
+                          ) : (
+                            <Icon className="size-3 shrink-0" aria-hidden="true" />
+                          )}
                           <span className="truncate">
                             {s === 'day' ? 'Day' : 'Night'} ·{' '}
-                            {c?.state === 'open' ? money(c.effectivePriceMinor) : text}
+                            {c?.state === 'open' ? (
+                              money(c.effectivePriceMinor)
+                            ) : c?.state === 'hold' && hold ? (
+                              <Hold expires={hold.hold_expires_at} onExpire={refresh} />
+                            ) : c?.state === 'booked' && visit ? (
+                              `${arriving ? `In ${time(visit.starts_at)} · ` : ''}${visit.guest_name?.split(' ')[0] || visit.reference || text}${visit.guests ? ` · ${visit.guests}` : ''}`
+                            ) : c?.state === 'blocked' && own[0]?.reason ? (
+                              own[0].reason.slice(0, 12)
+                            ) : (
+                              text
+                            )}
                             {c?.priceSource === 'override' ? ' *' : ''}
                           </span>
+                          {leaving && (
+                            <span
+                              className="ml-auto flex shrink-0 items-center gap-0.5"
+                              data-leaving
+                            >
+                              <LogOut className="size-3" aria-hidden="true" />
+                              Out {time(leaving.ends_at)}
+                            </span>
+                          )}
                         </span>
                       );
                     })
@@ -647,10 +771,11 @@ export default function PortfolioCalendar({
                         Block an exact period
                       </summary>
                       <ActionForm
+                        key={slots[0]}
                         action={blockDates}
                         rentableId={opened.property.id}
                         calendarVersion={detail.version}
-                        title="Block hours"
+                        title={`Block hours · prefilled from ${label(slots[0])}`}
                         button="Block period"
                       >
                         {['from', 'to'].map((name) => (
@@ -659,7 +784,11 @@ export default function PortfolioCalendar({
                             <input
                               name={name}
                               type="date"
-                              defaultValue={opened.date}
+                              defaultValue={
+                                name === 'to' && blockSchedule?.endDayOffset
+                                  ? addLocalDays(opened.date, blockSchedule.endDayOffset)
+                                  : opened.date
+                              }
                               className={field}
                               required
                             />
@@ -668,7 +797,13 @@ export default function PortfolioCalendar({
                         {['startTime', 'endTime'].map((name) => (
                           <label key={name}>
                             {name === 'startTime' ? 'From time (India)' : 'To time (India)'}
-                            <input name={name} type="time" className={field} required />
+                            <input
+                              name={name}
+                              type="time"
+                              defaultValue={blockSchedule?.[name]}
+                              className={field}
+                              required
+                            />
                           </label>
                         ))}
                         <label>

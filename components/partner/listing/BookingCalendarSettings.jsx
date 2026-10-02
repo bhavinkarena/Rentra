@@ -10,6 +10,7 @@ import {
   useTransition,
   useRef,
   useEffect,
+  useCallback,
 } from 'react';
 import { useRouter } from 'next/navigation';
 const CalendarVersion = createContext(null);
@@ -19,7 +20,10 @@ import {
   addOpenDates,
   blockDates,
   unblockDates,
+  undoCalendarChange,
+  turnOnAutoOpen,
 } from '@/lib/actions/partner';
+import Link from '@/components/navigation/NavigationLink';
 
 const inputClass = `${sharedFieldClass} mt-1 min-h-11`;
 const labels = { day: 'Day picnic', night: 'Overnight', full_day: 'Full day' };
@@ -114,6 +118,14 @@ export function ActionForm({
               : ''}
           </p>
         )}
+        {state.undoToken && (
+          <UndoButton
+            key={state.undoToken}
+            rentableId={rentableId}
+            token={state.undoToken}
+            until={state.undoUntil}
+          />
+        )}
         {preview && (
           <section
             className="space-y-2 rounded-md border border-border p-4"
@@ -181,11 +193,95 @@ export function ActionForm({
   );
 }
 
-export default function BookingCalendarSettings({ listing, blocks, resources = [] }) {
+/** Guarded Undo (block release): the server refuses it once the dates changed. */
+export function UndoButton({ rentableId, token, until }) {
+  const router = useRouter();
+  const [state, setState] = useState({});
+  useEffect(() => {
+    const timer = setTimeout(
+      () => setState((s) => (s.ok || s.error ? s : { expired: true })),
+      Math.max(0, until - Date.now()),
+    );
+    return () => clearTimeout(timer);
+  }, [until]);
+  if (state.expired) return null;
+  if (state.ok)
+    return (
+      <p role="status" className="text-meta">
+        Undone. The block is back.
+      </p>
+    );
+  return (
+    <p role="status" className="flex flex-wrap items-center gap-3 text-meta">
+      Block released.
+      <button
+        type="button"
+        className="min-h-11 rounded-md border border-border px-3"
+        onClick={async () => {
+          const result = await undoCalendarChange(rentableId, token);
+          setState(result.error ? result : { ok: true });
+          router.refresh();
+        }}
+      >
+        Undo (10 seconds)
+      </button>
+      {state.error && <span className="text-danger">{state.error}</span>}
+    </p>
+  );
+}
+
+function AutoOpenOffer({ id }) {
+  const router = useRouter();
+  const [state, setState] = useState({});
+  const [pending, startTransition] = useTransition();
+  return (
+    <section id="auto-open" className="space-y-2 rounded-lg border border-border bg-card p-5">
+      <h2 className="text-h3">Keep this property open automatically?</h2>
+      <p className="text-meta text-ink-600">
+        Rentra opens new dates as your booking window moves. Dates you closed stay closed.
+      </p>
+      <button
+        type="button"
+        disabled={pending}
+        className="min-h-11 rounded-md bg-primary px-5 py-2 font-semibold text-white disabled:bg-muted"
+        onClick={() =>
+          startTransition(async () => {
+            const result = await turnOnAutoOpen(id);
+            setState(result);
+            if (!result.error) router.refresh();
+          })
+        }
+      >
+        Turn on
+      </button>
+      {state.error && (
+        <p role="alert" className="text-meta text-danger">
+          {state.error}
+        </p>
+      )}
+    </section>
+  );
+}
+
+export default function BookingCalendarSettings({
+  listing,
+  blocks,
+  resources = [],
+  blocksPage = 1,
+  blocksHasMore = false,
+}) {
   const config = listing.booking_config;
   // Time-booked venues open by weekly hours and price by the hour (set on the property page);
   // here they only block a court or the whole venue.
   const venue = listing.rental_unit === 'hour';
+  // The released block leaves the list on refresh, so its Undo lives here.
+  const [released, setReleased] = useState(null);
+  // Kept outside the form: the refresh that removes the block also unmounts its form.
+  const release = useCallback(async (previous, form) => {
+    const result = await unblockDates(previous, form);
+    if (result.undoToken) setReleased(result);
+    return result;
+  }, []);
   return (
     <CalendarVersion.Provider value={listing.calendar_version}>
       <div id="calendar-settings" className="space-y-6">
@@ -200,6 +296,9 @@ export default function BookingCalendarSettings({ listing, blocks, resources = [
             </a>
             . Use a block below to close one court or the whole venue for a period.
           </p>
+        ) : null}
+        {!venue && config?.inventoryReady && config.autoOpen === undefined ? (
+          <AutoOpenOffer id={listing.id} />
         ) : null}
         {venue ? null : (
           <ActionForm
@@ -427,14 +526,22 @@ export default function BookingCalendarSettings({ listing, blocks, resources = [
             required
           />
         </ActionForm>
-        {blocks.length ? (
-          <section className="space-y-3">
+        {released && (
+          <UndoButton
+            key={released.undoToken}
+            rentableId={listing.id}
+            token={released.undoToken}
+            until={released.undoUntil}
+          />
+        )}
+        {blocks.length || blocksPage > 1 ? (
+          <section className="space-y-3" id="active-blocks">
             <h2 className="text-h3">Active owner blocks</h2>
             {blocks.map((block) => (
               <ActionForm
                 id={`block-${block.id}`}
                 key={block.id}
-                action={unblockDates}
+                action={release}
                 rentableId={listing.id}
                 title={block.resource ? `${block.resource.name} · ${block.label}` : block.label}
                 button="Release block"
@@ -443,6 +550,24 @@ export default function BookingCalendarSettings({ listing, blocks, resources = [
                 <p className="text-meta">{block.reason}</p>
               </ActionForm>
             ))}
+            <nav aria-label="Active block pages" className="flex gap-3">
+              {blocksPage > 1 && (
+                <Link
+                  className="inline-flex min-h-11 items-center underline"
+                  href={`?blocksPage=${blocksPage - 1}#active-blocks`}
+                >
+                  Earlier blocks
+                </Link>
+              )}
+              {blocksHasMore && (
+                <Link
+                  className="inline-flex min-h-11 items-center underline"
+                  href={`?blocksPage=${blocksPage + 1}#active-blocks`}
+                >
+                  Later blocks
+                </Link>
+              )}
+            </nav>
           </section>
         ) : null}
       </div>

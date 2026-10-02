@@ -8,7 +8,7 @@ import { openOwnerSupport, replyOwnerSupport } from '@/lib/actions/partner';
 import { useRouter } from 'next/navigation';
 import { openSupport, replyCustomerSupport } from '@/lib/actions/customer';
 import { replyAdminSupport } from '@/lib/actions/admin';
-import { supportCategories, supportStates } from '@/lib/domain/help';
+import { supportCategories, supportStates, ownerSupportCategories } from '@/lib/domain/help';
 const field = `${sharedFieldClass} mt-1 min-h-11`;
 const button = `${sharedButtonVariants({ shape: 'pill', size: 'default' })} `;
 function Result({ state }) {
@@ -19,6 +19,11 @@ function Result({ state }) {
           {state.error}
         </p>
       ) : null}
+      {Object.entries(state.errors || {}).map(([field, messages]) => (
+        <p key={field} role="alert">
+          {field}: {Array.isArray(messages) ? messages.join(' ') : messages}
+        </p>
+      ))}
       {state.message ? <p role="status">{state.message}</p> : null}
     </>
   );
@@ -31,20 +36,25 @@ export function OpenSupportForm({
   owner = false,
   pendingOwner = false,
   propertyId = '',
+  visitId = '',
+  initialSubject = '',
 }) {
   const [state, action, pending] = useActionState(owner ? openOwnerSupport : openSupport, {});
-  const categories = Object.entries(supportCategories).filter(([key]) =>
-    !owner && ['verification', 'account'].includes(key)
-      ? false
-      : pendingOwner
-        ? ['verification', 'account', 'other'].includes(key)
-        : privacyRequestId
-          ? key === 'privacy'
-          : orderId ||
-            ['privacy', 'other', ...(owner ? ['verification', 'account'] : [])].includes(key),
+  const categories = Object.entries(owner ? ownerSupportCategories : supportCategories).filter(
+    ([key]) =>
+      !owner && ['verification', 'account'].includes(key)
+        ? false
+        : pendingOwner
+          ? ['verification', 'account', 'other'].includes(key)
+          : owner
+            ? true
+            : privacyRequestId
+              ? key === 'privacy'
+              : orderId ||
+                ['privacy', 'other', ...(owner ? ['verification', 'account'] : [])].includes(key),
   );
   const [key] = useState(requestKey),
-    [subject, setSubject] = useState(''),
+    [subject, setSubject] = useState(initialSubject),
     [body, setBody] = useState('');
   const [topic, setTopic] = useState(
     categories.some(([k]) => k === category) ? category : categories[0][0],
@@ -52,6 +62,7 @@ export function OpenSupportForm({
   return (
     <form action={action} className="space-y-5">
       <input type="hidden" name="requestKey" value={key} />
+      {owner && <input type="hidden" name="visitId" value={visitId} />}
       <input type="hidden" name="orderId" value={orderId} />
       <input type="hidden" name="privacyRequestId" value={privacyRequestId} />
       {owner && <input type="hidden" name="propertyId" value={propertyId} />}
@@ -100,6 +111,18 @@ export function OpenSupportForm({
         Include the visit date and what happened. Do not send OTPs, identity documents, access
         codes, card details or bank credentials.
       </p>
+      {owner && (
+        <label className="block">
+          Private photos (up to 3, 2MB each)
+          <input
+            className={field}
+            type="file"
+            name="photos"
+            multiple
+            accept="image/jpeg,image/png,image/webp"
+          />
+        </label>
+      )}
       <button className={button} disabled={pending}>
         {pending ? <RentraLoader label="Saving…" /> : 'Send support request'}
       </button>
@@ -108,6 +131,10 @@ export function OpenSupportForm({
   );
 }
 export function SupportReplyForm({ record, requestKey, admin = false, owner = false }) {
+  const participant =
+    record.participant === 'client'
+      ? 'owner'
+      : record.participant || (owner ? 'owner' : 'customer');
   const [state, action, pending] = useActionState(
     admin ? replyAdminSupport : owner ? replyOwnerSupport : replyCustomerSupport,
     {},
@@ -139,7 +166,7 @@ export function SupportReplyForm({ record, requestKey, admin = false, owner = fa
             value={String(internal)}
             onChange={(e) => setInternal(e.target.value === 'true')}
           >
-            <option value="false">Reply to {record.participant || 'customer'}</option>
+            <option value="false">Reply to {participant}</option>
             <option value="true">Internal note — admins only</option>
           </select>
         </label>
@@ -194,7 +221,7 @@ export function SupportReplyForm({ record, requestKey, admin = false, owner = fa
       <p className="text-meta">
         {internal
           ? 'This note and its photos are visible only to authorized Rentra admins.'
-          : `Replies and photos are visible to this ${record.participant || (owner ? 'client' : 'customer')} and authorized Rentra staff.`}{' '}
+          : `Replies and photos are visible to this ${participant} and authorized Rentra staff.`}{' '}
         Resolving this conversation does not cancel, refund or change a booking, or complete a
         privacy request.
       </p>

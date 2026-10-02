@@ -6,10 +6,11 @@ import BookingCalendarSettings from '@/components/partner/listing/BookingCalenda
 import { CalendarFeed } from '@/components/partner/CalendarTools';
 import Link from '@/components/navigation/NavigationLink';
 export const metadata = { title: 'Booking rules', robots: { index: false, follow: false } };
-export default async function BookingRules({ params }) {
+export default async function BookingRules({ params, searchParams }) {
   await requireActiveClient();
   const { id } = await params;
-  const { data, failure } = await settle(partnerApi.calendar(id));
+  const { blocksPage } = await searchParams;
+  const { data, failure } = await settle(partnerApi.calendar(id, { blocksPage }));
   if (failure)
     return <PortalState kind={failure} backHref="/partner/calendar" backLabel="Calendar" />;
   return (
@@ -21,6 +22,8 @@ export default async function BookingRules({ params }) {
       <BookingCalendarSettings
         listing={data.listing}
         blocks={data.blocks}
+        blocksPage={data.blocksPage}
+        blocksHasMore={data.blocksHasMore}
         resources={data.resources}
       />
       <CalendarFeed listingId={id} />

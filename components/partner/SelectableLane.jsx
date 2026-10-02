@@ -1,9 +1,33 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useRef, useState, useSyncExternalStore } from 'react';
 import { addLocalDays } from '@/lib/domain/booking-dates';
 import { minuteToHhmm } from '@/lib/domain/hourly';
 import { ActionForm } from './listing/BookingCalendarSettings';
 import { blockDates } from '@/lib/actions/partner';
+
+const everyHalfMinute = (tick) => {
+  const timer = setInterval(tick, 30000);
+  return () => clearInterval(timer);
+};
+/** Live "now" marker; rendered only in the browser so server and client markup agree. */
+export function NowLine({ date, from, total }) {
+  const now = useSyncExternalStore(
+    everyHalfMinute,
+    () => Math.floor(Date.now() / 60000),
+    () => null,
+  );
+  if (now == null) return null;
+  const minute = now - Date.parse(`${date}T00:00:00+05:30`) / 60000;
+  if (minute < from || minute > from + total) return null;
+  return (
+    <span
+      data-now-line
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-y-0 z-20 w-0.5 bg-danger"
+      style={{ left: `${((minute - from) / total) * 100}%` }}
+    />
+  );
+}
 
 /** Native dialog keeps the same guarded block command for drag, keyboard and mobile. */
 export default function SelectableLane({
@@ -65,6 +89,7 @@ export default function SelectableLane({
         onPointerCancel={() => setDrag(null)}
       >
         {children}
+        <NowLine date={date} from={from} total={total} />
         <button
           type="button"
           className="absolute right-1 top-1 z-10 rounded border bg-card px-2 text-tiny min-h-11"

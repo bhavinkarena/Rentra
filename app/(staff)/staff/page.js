@@ -5,6 +5,7 @@ import { settle } from '@/lib/api/page-state';
 import PortalState from '@/components/portal/PortalState';
 import { StaffSignOut } from '@/components/staff/StaffForms';
 import { addLocalDays, formatLocalDate, propertyToday } from '@/lib/domain/booking-dates';
+import GuestContactLinks from '@/components/booking/GuestContactLinks';
 
 export const metadata = { title: 'Visits' };
 
@@ -101,11 +102,7 @@ export default async function StaffHome({ searchParams }) {
                     {new Date(r.startsAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' })}
                     –{new Date(r.endsAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' })}
                   </p>
-                  {r.phone && (
-                    <a className="min-h-11 inline-flex underline" href={`tel:${r.phone}`}>
-                      Call guest
-                    </a>
-                  )}
+                  <GuestContactLinks phone={r.phone} name={r.name || 'guest'} />
                   {r.note && <p>{r.note}</p>}
                 </article>
               ))}
@@ -146,6 +143,19 @@ export default async function StaffHome({ searchParams }) {
                       {visit.state.replaceAll('_', ' ')}
                     </span>
                   </Link>
+                  {visit.guest ? (
+                    // BOOK-06: visit day only, and only while the owner allows guest contact.
+                    <div className="flex flex-wrap items-center justify-between gap-2 px-4 pb-4">
+                      <span className="text-meta">
+                        Guest: <strong>{visit.guest.name || 'Guest'}</strong> · {visit.guest.guests}{' '}
+                        {visit.slot === 'hourly' ? 'player(s)' : 'guest(s)'}
+                      </span>
+                      <GuestContactLinks
+                        phone={visit.guest.phone}
+                        name={visit.guest.name || 'guest'}
+                      />
+                    </div>
+                  ) : null}
                 </li>
               ))}
             </ul>

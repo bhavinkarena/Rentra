@@ -33,12 +33,23 @@ function Problem({ message }) {
   ) : null;
 }
 
-export function CreateCaseForm({ orderId, visits, requestKey, admin = false }) {
+export function CreateCaseForm({
+  orderId,
+  visits,
+  requestKey,
+  admin = false,
+  defaultType = null,
+  defaultVisitId = null,
+  defaultReason = '',
+  summary = null,
+}) {
   const { state, pending, onSubmit } = useKeptInputAction(
     admin ? createAdminCase : createOwnerCase,
   );
   const [key] = useState(requestKey);
-  const [type, setType] = useState(admin ? 'customer_cancellation' : 'owner_cancellation');
+  const [type, setType] = useState(
+    defaultType || (admin ? 'customer_cancellation' : 'owner_cancellation'),
+  );
   const e = state.errors ?? {};
   const id = useId();
   const types = CASE_TYPES.filter(([value]) => admin || OWNER_CASE_TYPES.includes(value));
@@ -46,7 +57,7 @@ export function CreateCaseForm({ orderId, visits, requestKey, admin = false }) {
     <details className="rounded-md border border-border p-3">
       <summary className="flex min-h-11 cursor-pointer items-center gap-2 font-semibold">
         <ClipboardList className="size-4" aria-hidden="true" />
-        {admin ? 'Open a booking case' : 'Ask Rentra to cancel or report a problem'}
+        {summary ?? (admin ? 'Open a booking case' : 'Ask Rentra to cancel or report a problem')}
       </summary>
       <form onSubmit={onSubmit} className="mt-3 space-y-3">
         <input type="hidden" name="orderId" value={orderId} />
@@ -77,7 +88,13 @@ export function CreateCaseForm({ orderId, visits, requestKey, admin = false }) {
           <legend className="font-medium">Visits this concerns</legend>
           {visits.map((visit) => (
             <label key={visit.id} className="mt-1 flex min-h-11 items-center gap-2">
-              <input type="checkbox" name="visitId" value={visit.id} className="size-5" />
+              <input
+                type="checkbox"
+                name="visitId"
+                value={visit.id}
+                defaultChecked={visit.id === defaultVisitId}
+                className="size-5"
+              />
               {visit.slot === 'hourly'
                 ? visit.label
                 : `${visit.date} · ${visit.slot.replaceAll('_', ' ')}`}{' '}
@@ -144,6 +161,7 @@ export function CreateCaseForm({ orderId, visits, requestKey, admin = false }) {
         <textarea
           id={`${id}-reason`}
           name="reason"
+          defaultValue={defaultReason}
           required
           minLength={10}
           maxLength={1000}
