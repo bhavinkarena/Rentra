@@ -3,6 +3,7 @@ import { Field } from '@/components/ui/field';
 import Loader2 from '@/components/ui/rentra-loader';
 
 import { useActionState, useState } from 'react';
+import FormError from '@/components/portal/FormError';
 import { Landmark, Smartphone } from 'lucide-react';
 import { saveDetails, savePayout, saveConsent } from '@/lib/actions/partner';
 import { Button } from '@/components/ui/button';
@@ -156,6 +157,7 @@ export function DetailsForm({ user, application }) {
         />
       </Field>
 
+      <FormError state={state} />
       <Submit pending={pending}>Save and continue</Submit>
     </form>
   );
@@ -165,7 +167,7 @@ export function DetailsForm({ user, application }) {
 
 export function PayoutForm({ application }) {
   const [state, action, pending] = useActionState(savePayout, {});
-  const [method, setMethod] = useState(application?.payoutUpiId ? 'upi' : 'upi');
+  const [method, setMethod] = useState(application?.payoutAccountRef ? 'bank' : 'upi');
   const e = state.errors ?? {};
 
   return (
@@ -247,6 +249,7 @@ export function PayoutForm({ application }) {
         </p>
       ) : null}
 
+      <FormError state={state} />
       <Submit pending={pending} icon={method === 'upi' ? Smartphone : Landmark}>
         Save payout details
       </Submit>
@@ -294,6 +297,7 @@ export function ConsentForm() {
         We record the time and IP address of this consent, as evidence in any dispute.
       </p>
 
+      <FormError state={state} />
       <Submit pending={pending}>Agree and continue</Submit>
     </form>
   );

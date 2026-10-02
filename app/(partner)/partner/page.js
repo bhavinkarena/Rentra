@@ -7,7 +7,7 @@ import { submitApplication, withdrawApplication } from '@/lib/actions/partner';
 import { partnerApi } from '@/lib/api/endpoints';
 import CompletionStepper from '@/components/partner/CompletionStepper';
 import GatedAddPlaceButton from '@/components/partner/GatedAddPlaceButton';
-import PendingSubmitButton from '@/components/partner/PendingSubmitButton';
+import ApplicationCommand from '@/components/partner/ApplicationCommand';
 import PropertyTable from '@/components/partner/PropertyTable';
 import { KpiCard, PartnerPageHeader } from '@/components/partner/PortalPrimitives';
 import RetryButton from '@/components/portal/RetryButton';
@@ -301,17 +301,18 @@ function OnboardingDashboard({ completion, application }) {
         <CompletionStepper completion={completion} />
 
         {completion.canSubmit ? (
-          <form action={submitApplication}>
-            <PendingSubmitButton
+          <div>
+            <ApplicationCommand
+              action={submitApplication}
               pendingLabel="Submitting for review…"
               className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-primary px-5 text-meta font-semibold text-white hover:bg-primary-hover disabled:cursor-wait disabled:bg-muted disabled:text-muted-foreground"
             >
               Submit for review
-            </PendingSubmitButton>
+            </ApplicationCommand>
             <p className="mt-2 text-center text-tiny text-ink-500">
               A person reviews it within 2 working days. The decision appears here.
             </p>
-          </form>
+          </div>
         ) : null}
 
         {completion.submitted ? (
@@ -321,14 +322,15 @@ function OnboardingDashboard({ completion, application }) {
               Nothing more to do. We reply within 2 working days either way. Need to change
               something first?
             </p>
-            <form action={withdrawApplication} className="mt-3">
-              <PendingSubmitButton
+            <div className="mt-3">
+              <ApplicationCommand
+                action={withdrawApplication}
                 pendingLabel="Withdrawing…"
                 className="inline-flex items-center gap-2 text-meta font-semibold text-brand-700 hover:underline disabled:cursor-wait"
               >
                 Withdraw and edit
-              </PendingSubmitButton>
-            </form>
+              </ApplicationCommand>
+            </div>
           </div>
         ) : null}
 

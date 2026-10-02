@@ -122,7 +122,9 @@ export function OwnershipSection({ listing, documents, clientType, kycName }) {
 
         <Field
           id="file"
-          label={documents.some((d) => d.status !== 'rejected') ? 'Replace it (optional)' : 'Upload it'}
+          label={
+            documents.some((d) => d.status !== 'rejected') ? 'Replace it (optional)' : 'Upload it'
+          }
           hint="JPG, PNG, WEBP or PDF · up to 2MB"
           error={e.file}
         >

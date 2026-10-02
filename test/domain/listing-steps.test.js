@@ -142,7 +142,9 @@ test('venue resumes at the first unfinished venue step', () => {
 test('the ownership step submits its upload form when the owner continues', () => {
   for (const model of ['slot', 'hour'])
     assert.equal(
-      chaptersFor(model).flatMap((c) => c.steps).find((s) => s.id === 'ownership').advance,
+      chaptersFor(model)
+        .flatMap((c) => c.steps)
+        .find((s) => s.id === 'ownership').advance,
       'submit',
     );
 });

@@ -7,6 +7,7 @@ import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input as BaseInput } from '@/components/ui/input';
 import { sectionAnchorId } from '@/lib/domain/listing-steps';
+import { formError as generalFormError } from '@/lib/domain/portal-state';
 import { useChrome, useIsWizard } from './chrome';
 import ValidationSummary from '@/components/portal/ValidationSummary';
 import { DIRTY_EVENT } from '@/components/portal/UnsavedChangesGuard';
@@ -72,7 +73,7 @@ export function Section({ id, title, intro, state, pending, children }) {
   const fieldErrors = Object.keys(state?.errors ?? {}).some((key) => key !== '_');
   // Validation failures list their fields; any other failure (network, conflict,
   // permission) must still be said out loud rather than leave a silent form.
-  const formError = state?.errors?._ ?? (!fieldErrors && !state?.ok ? state?.error : null);
+  const formError = generalFormError(state);
   const failed = Boolean(formError || fieldErrors);
 
   useEffect(() => {

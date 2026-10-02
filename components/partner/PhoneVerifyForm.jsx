@@ -2,6 +2,7 @@
 import Loader2 from '@/components/ui/rentra-loader';
 
 import { useActionState } from 'react';
+import FormError from '@/components/portal/FormError';
 import { Smartphone } from 'lucide-react';
 import { requestPhoneVerification, confirmPhoneVerification } from '@/lib/actions/auth';
 import { Button } from '@/components/ui/button';
@@ -52,6 +53,7 @@ export default function PhoneVerifyForm({ defaultPhone = '' }) {
           )}
         </div>
 
+        <FormError state={issueState} />
         <Button type="submit" size="lg" className="w-full" disabled={issuing}>
           {issuing ? <Loader2 className="size-4 " /> : <Smartphone className="size-4" />}
           {issuing ? <span className="sr-only">Sending code…</span> : 'Send code by SMS'}
@@ -89,6 +91,7 @@ export default function PhoneVerifyForm({ defaultPhone = '' }) {
           ) : null}
         </div>
 
+        <FormError state={confirmState} />
         <Button type="submit" size="lg" className="w-full" disabled={confirming}>
           {confirming ? <Loader2 className="size-4 " /> : null}
           {confirming ? <span className="sr-only">Checking…</span> : 'Verify mobile'}
