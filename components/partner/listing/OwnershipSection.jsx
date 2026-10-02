@@ -3,6 +3,7 @@ import { useActionState, useState } from 'react';
 import { Upload, Pause } from 'lucide-react';
 import { uploadOwnershipDocument } from '@/lib/actions/partner';
 import { ownershipDocTypesFor } from '@/lib/domain/listing-completion';
+import { useStepFormId } from './chrome';
 import { Input, Field, Section, SaveButton, inputCls } from './SectionPrimitives';
 export function OwnershipSection({ listing, documents, clientType, kycName }) {
   const [state, action, pending] = useActionState(uploadOwnershipDocument, {});
@@ -62,7 +63,7 @@ export function OwnershipSection({ listing, documents, clientType, kycName }) {
         </ul>
       ) : null}
 
-      <form action={action} className="space-y-4">
+      <form id={useStepFormId()} action={action} className="space-y-4">
         <input type="hidden" name="id" value={listing.id} />
         <fieldset>
           <legend className="mb-2 text-meta font-semibold text-ink-700">Which document?</legend>
@@ -119,7 +120,12 @@ export function OwnershipSection({ listing, documents, clientType, kycName }) {
           </Field>
         ) : null}
 
-        <Field id="file" label="Upload it" hint="JPG, PNG, WEBP or PDF · up to 2MB" error={e.file}>
+        <Field
+          id="file"
+          label={documents.some((d) => d.status !== 'rejected') ? 'Replace it (optional)' : 'Upload it'}
+          hint="JPG, PNG, WEBP or PDF · up to 2MB"
+          error={e.file}
+        >
           <input
             id="file"
             name="file"
