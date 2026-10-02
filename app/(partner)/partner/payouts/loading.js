@@ -1,5 +1,5 @@
 import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
 
 export default function Loading() {
-  return <ScreenSkeleton screen="finance" label="Loading partner payouts" />;
+  return <ScreenSkeleton inset screen="finance" label="Loading partner payouts" />;
 }

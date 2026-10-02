@@ -10,7 +10,7 @@ export default async function Page({ searchParams }) {
   await requireActiveClient();
   const query = await searchParams;
   return (
-    <section className="mx-auto max-w-3xl space-y-5 p-4">
+    <section className="mx-auto max-w-3xl space-y-5">
       <Link className="inline-flex min-h-11 items-center underline" href="/partner/support">
         Back to support
       </Link>
