@@ -6,7 +6,7 @@
 | Scope | Everything an owner (client/host/partner) touches: `/partner/**`, `/partner/listings/**` wizard, owner-facing backend routes in `rentra-backend/src/routes/partner.route.js`, related services, triggers and migrations |
 | Code audited | Frontend `Rentra` `main` @ `ced7a00`; backend `rentra-backend` `master` @ `22c1950`. Both trees clean at audit time |
 | Method | Read-only trace of every owner screen: page → component → server action (`lib/actions/*`) → `lib/api/endpoints.js` → Express route → controller → service → SQL/trigger. The highest-impact claims were re-checked by hand (marked **Verified**). No servers were run and no database was queried. Integration tests that need `PORTAL_TEST_DATABASE_URL` were not run. |
-| Status | Proposal for owner review. Nothing in this document is implemented. |
+| Status | **R0 (hotfixes) complete on branch `feat/owner-experience`, 2 October 2026.** R1–R6 not started. See §15.4. |
 
 > **The question behind every recommendation:** *If a completely new owner opens this screen, do they immediately understand what is happening and what to do next?* Wherever the answer is "no", this document proposes a change.
 
@@ -185,15 +185,15 @@ Every row was traced end to end. "Working correctly" means the logic does what i
 
 | ID | Bug | Location | Severity |
 |---|---|---|---|
-| BUG-01 | Owner OTP (email and phone) throws in production. **Verified** | `BE services/auth/otp.js:142-153` | Critical |
-| BUG-02 | Ownership proof cannot be uploaded inside the wizard. **Verified** | `components/partner/listing/OwnershipSection.jsx:65,137`; `lib/domain/listing-steps.js:64,117` | Critical |
-| BUG-03 | Any save of a trust section sends a live property to review, even with no change. **Verified** | `BE services/auth/listings.js:241-347` | Critical |
-| BUG-04 | Owner price or schedule save invalidates every in-flight guest checkout on that property. **Verified** | `BE services/booking/quotes.js:104,154`; `payments/checkout-service.js:36` | Critical |
-| BUG-05 | Weekday price stored as ₹0 when only weekend is filled. **Verified** | `BE services/booking/property-policy.js:60-62` | Critical |
+| BUG-01 | Owner OTP (email and phone) throws in production. **Verified** | `BE services/auth/otp.js:142-153` | Critical · ✅ Fixed in R0 |
+| BUG-02 | Ownership proof cannot be uploaded inside the wizard. **Verified** | `components/partner/listing/OwnershipSection.jsx:65,137`; `lib/domain/listing-steps.js:64,117` | Critical · ✅ Fixed in R0 |
+| BUG-03 | Any save of a trust section sends a live property to review, even with no change. **Verified** | `BE services/auth/listings.js:241-347` | Critical · ✅ Fixed in R0 |
+| BUG-04 | Owner price or schedule save invalidates every in-flight guest checkout on that property. **Verified** | `BE services/booking/quotes.js:104,154`; `payments/checkout-service.js:36` | Critical · ✅ Fixed in R0 |
+| BUG-05 | Weekday price stored as ₹0 when only weekend is filled. **Verified** | `BE services/booking/property-policy.js:60-62` | Critical · ✅ Fixed in R0 |
 | BUG-06 | Saving Pricing overwrites per-slot extra-guest charges set in calendar settings. **Verified** | `BE services/booking/property-policy.js:63-68` | High |
-| BUG-07 | Replacing a draft payout destination violates `payout_destination_valid_chk` (`(state='draft') = (submitted_at IS NULL)`) and returns a 500. **Verified** | `BE services/payouts/destinations.js:88-91,188`; `drizzle/0033_payout_destinations.sql:30` | High |
-| BUG-08 | Bookings "All"/"Past" tabs sort oldest first. **Verified** | `BE services/booking/records.js:97` | High |
-| BUG-09 | Owner bookings include unpaid `held` and expired checkouts | `BE services/booking/records.js:39-41,52` | High |
+| BUG-07 | Replacing a draft payout destination violates `payout_destination_valid_chk` (`(state='draft') = (submitted_at IS NULL)`) and returns a 500. **Verified** | `BE services/payouts/destinations.js:88-91,188`; `drizzle/0033_payout_destinations.sql:30` | High · ✅ Fixed in R0 |
+| BUG-08 | Bookings "All"/"Past" tabs sort oldest first. **Verified** | `BE services/booking/records.js:97` | High · ✅ Fixed in R0 |
+| BUG-09 | Owner bookings include unpaid `held` and expired checkouts | `BE services/booking/records.js:39-41,52` | High · ✅ Fixed in R0 |
 | BUG-10 | No-show visits can never be resolved or paid, and stay in "Action needed" forever | `BE services/booking/booking-cases.js:285,327-329`; `finance/statements.js:108` | High |
 | BUG-11 | Rejected application is shown as an unsubmitted draft; the reason appears only in Updates; the third rejection blocks silently | `BE services/auth/profile.js:145-171`; `app/(partner)/partner/page.js:297-346` | High |
 | BUG-12 | "Change number" leads to a read-only "Mobile already verified" card | `app/(partner)/partner/settings/page.js:103-108` → `onboarding/phone/page.js:16-37` | High |
@@ -202,16 +202,16 @@ Every row was traced end to end. "Working correctly" means the logic does what i
 | BUG-15 | "Deposit and cancellation" shows done at creation (DB defaults satisfy the check) | `BE db/schema/index.js:762-763`; `lib/domain/listing-completion.js:200` | Medium |
 | BUG-16 | A rejected ownership document keeps the chapter red even after a valid document of another type is uploaded | `lib/domain/listing-completion.js:139-140,223-227` | Medium |
 | BUG-17 | Any host edit during review silently blocks the admin decision (`SUBMISSION_CHANGED`); during verification it flips status back to `pending_review` | `drizzle/0027_property_restrictions.sql:19-38`; `BE admin/listings.js:251-260` | High |
-| BUG-18 | Finance defaults to `live`, so Test-mode owners see ₹0 everywhere | `BE services/finance/statements.js:16` | High |
-| BUG-19 | Owner finance totals include the guest-paid platform fee | `BE services/finance/statements.js:191-192` | Medium |
+| BUG-18 | Finance defaults to `live`, so Test-mode owners see ₹0 everywhere | `BE services/finance/statements.js:16` | High · ✅ Fixed in R0 |
+| BUG-19 | Owner finance totals include the guest-paid platform fee | `BE services/finance/statements.js:191-192` | Medium · ✅ Fixed in R0 |
 | BUG-20 | "Open date" shown on slots that are booked or blocked | `components/partner/PortfolioCalendar.jsx:249-261` | High |
 | BUG-21 | Past owner blocks listed as "Active" forever | `BE services/booking/calendar-page.js:24-28` | Medium |
 | BUG-22 | Court-block conflict preview lists bookings on other courts | `BE services/booking/owner-calendar.js:78-85` | Medium |
 | BUG-23 | Reviews sorted oldest first. **Verified** | `BE services/reviews/service.js:247` | Medium |
 | BUG-24 | Review reply button reads "Preview publication change"; field errors never rendered; "Saved" lost on remount | `components/customer/ReviewForms.jsx:12-18,100,173-180` | Medium |
 | BUG-25 | Owner sees "Awaiting customer reply" when Rentra is waiting for the owner | `lib/domain/help.js:13` | Medium |
-| BUG-26 | Onboarding payout form always opens on UPI (`useState(x ? 'upi' : 'upi')`) | `components/partner/onboarding-forms.jsx:168` | Low |
-| BUG-27 | General (non-field) errors swallowed in Details, Payout, Consent, Phone and dashboard submit/withdraw forms | `components/partner/onboarding-forms.jsx`; `PhoneVerifyForm.jsx:45,87`; `app/(partner)/partner/page.js:304,324` | High |
+| BUG-26 | Onboarding payout form always opens on UPI (`useState(x ? 'upi' : 'upi')`) | `components/partner/onboarding-forms.jsx:168` | Low · ✅ Fixed in R0 |
+| BUG-27 | General (non-field) errors swallowed in Details, Payout, Consent, Phone and dashboard submit/withdraw forms | `components/partner/onboarding-forms.jsx`; `PhoneVerifyForm.jsx:45,87`; `app/(partner)/partner/page.js:304,324` | High · ✅ Fixed in R0 |
 | BUG-28 | `?submitted=1` and `?locked=in_review` redirects ignored by the dashboard | `BE services/auth/application.js:73,245`; `documents.js:99` | Medium |
 | BUG-29 | Onboarding saves after approval are silent no-ops (redirect without saving) | `BE services/auth/application.js:72-75` | Medium |
 | BUG-30 | Name editable in Settings while the application is under review | `BE services/auth/settings.js:33-60` | Medium |
@@ -230,7 +230,7 @@ Every row was traced end to end. "Working correctly" means the logic does what i
 | BUG-43 | With the RTK flag on, switching browser tabs blanks the page to "Checking your session…" | `components/partner/PartnerPortal.jsx:80-83` | Medium |
 | BUG-44 | Team "Invitation sent" badge, although Rentra sends nothing; save confirmation disappears on remount | `components/partner/TeamPanel.jsx:277,345-350` | Low |
 | BUG-45 | Possible EXIF GPS in publicly served original photos (served with no transformation). **Check one real upload** | `BE uploads/cloudinary.js:134-157`; `lib/domain/listing-content.js:5-26` | High if confirmed |
-| BUG-46 | Reused customer, finance and dispute screens render flush to the screen edge on phones. The partner `main` adds no padding, and these components expect the customer layout's wrapper (12 routes: bookings, support, disputes, finance) | `components/portal/PortalShell.jsx:364`; `components/customer/BookingHistory.jsx`, `SupportRecords.jsx`, `components/disputes/Disputes.jsx`, `components/finance/Statements.jsx` | High |
+| BUG-46 | Reused customer, finance and dispute screens render flush to the screen edge on phones. The partner `main` adds no padding, and these components expect the customer layout's wrapper (12 routes: bookings, support, disputes, finance) | `components/portal/PortalShell.jsx:364`; `components/customer/BookingHistory.jsx`, `SupportRecords.jsx`, `components/disputes/Disputes.jsx`, `components/finance/Statements.jsx` | High · ✅ Fixed in R0 |
 | BUG-47 | The wizard renders at the customer type scale, not the portal scale: `(wizard)/layout.js` applies neither `portalFont.variable` nor `.portal-ui`, so type jumps in size between the editor and the wizard | `app/(wizard)/layout.js:19` | Medium |
 | BUG-48 | Photo controls are hidden until hover (`sm:opacity-0`), so they are invisible on touch tablets ≥640 px | `components/partner/listing/PhotosSection.jsx:140,160` | Medium |
 
@@ -2566,13 +2566,78 @@ D8 (commission/tax) blocks any "You earn" number beyond "Booked rent".
 
 | Release | Status | Completion record |
 |---|---|---|
-| R0 Hotfixes | Not started | — |
+| R0 Hotfixes | **Complete — 2 Oct 2026** (branch `feat/owner-experience`, not merged or deployed) | [§15.5](#155-completion-record--r0-hotfixes) |
 | R1 Shell and foundations | Not started | — |
 | R2 First run | Not started | — |
 | R3 Add property | Not started | — |
 | R4 Today and bookings | Not started | — |
 | R5 Calendar | Not started | — |
 | R6 Earnings, support, settings | Not started | — |
+
+
+## 15.5 Completion record — R0 hotfixes
+
+**Done:** 2 October 2026. **Branches:** `feat/owner-experience` in both repositories. Each is a local git worktree under `Rentra-Project/.worktrees/owner-r0/`. Nothing is pushed, merged or deployed.
+
+### What changed
+
+| ID | Fix | Backend commit | Frontend commit |
+|---|---|---|---|
+| BUG-07 | Replacing an unsubmitted payout draft no longer returns a 500. A superseded draft records `submitted_at`, because the row CHECK requires it | `197fd69` | — |
+| BUG-05 | An offered slot must have both a weekday and a weekend price, and every slot's price error is shown. Older rows with one side at 0 are now "not offered" for that day instead of being quoted at ₹0 | `21e8f42`, `b927f12` | `0689607` |
+| BUG-04 / CAL-07 | Owner price and schedule saves no longer void guests' accepted quotes for other dates or slots. The hash leaves out `listingConfigVersion` (it stays in the snapshot) and covers only the chosen slot's price and overrides | `97e1830` | — |
+| BUG-03 / PROP-03 (part 1) | Saving a section without changing it, or changing only the description, no longer takes a live property out of search. Trust fields are compared with the stored row under the edit lock, and amenities with the stored set | `16528f5` | — |
+| BUG-08 / BUG-09 | Owner booking lists sort by visit: upcoming soonest first, past newest first, and All shows upcoming before past. Held and expired checkouts are hidden from owner lists and counts | `5ac0884` | — |
+| BUG-18 / BUG-19 | Statements with no environment chosen follow the current gateway mode (Test today), falling back to live. Owners no longer see the guest's platform fee as their money | `1ba94ed` | — |
+| BUG-01 / NOTIF-01 (OTP part) | Owner and caretaker sign-in codes are sent in production: email through Resend, SMS through the existing Twilio adapter. A failed send shows "We could not send the code just now" instead of crashing, and does not block a retry | `363304d`, `4099e2a` | — |
+| BUG-02 / LIST-01 | Continue on the wizard's ownership step uploads the document. With a matching document already on file, it moves on without a new upload | `98254fd`, `4099e2a` | `c44f5bf` |
+| EARN-03 | Removed the false promises: "minus our fee", "usually same day", "T+1 or T+2", and "by email and WhatsApp" for alerts and decisions | `e23407a` | `ec9bc2c` |
+| BUG-46 / MOB-01 | Reused booking, support, dispute and finance screens get 16 px page gutters on phones (`PortalPage` plus segment layouts; skeletons use `inset`) | — | `e854c04` |
+| BUG-27 / BUG-26 | Onboarding, phone-code and submit/withdraw forms show the reason a request failed when no single field is at fault (`formError`, `FormError`, `ApplicationCommand`). The payout step reopens on the bank form when bank details were saved | — | `ffff6e3` |
+
+### Evidence
+- **Backend `npm test`: 187 pass, 0 fail.** This run includes the integration suites against a disposable local Postgres. The baseline before R0 was 172 pass.
+- **New tests:**
+  - `payout-draft-replace`, `pricing-schema`, the two new cases in `pricing-policy`, `trustChanges` in `listing-lifecycle`
+  - `owner-noop-save`, `owner-booking-list`, `owner-earnings-defaults`, `portal-delivery`, `owner-ownership-continue`, `owner-otp-delivery-failure`
+  - Every new test was run and seen to fail before its fix.
+- **Frontend `npm test`: 65 pass.** New tests: the ownership step in `listing-steps` and `formError` in `portal-state`. `next build` succeeds.
+- **Browser check at 360 px** (local build against a seeded throwaway API and database):
+  - The bookings page has a 16 px gutter and no horizontal page scroll.
+  - Past bookings list newest first.
+  - The abandoned checkout is hidden.
+  - A weekend-only price shows "Enter both weekday and weekend prices…".
+  - "Check and send" on the ownership step moves on to the review step.
+- **Independent whole-branch review:** no Critical findings. Two Important findings were fixed (the ownership shortcut counted deleted documents and dropped type or name edits). One Minor finding was raised to Important and fixed (a provider outage crashed the sign-in screen).
+
+### Decisions taken during R0
+- **BUG-07 is fixed in code only; no migration.** Migrations must wait until Neon has 0040–0051. Relax the CHECK later and remove the `coalesce`.
+- **BUG-06 is deferred to R3 (`LIST-07`).** BUG-06 is the pricing form overwriting the per-slot extra-guest charge. Fixing it needs one source of truth plus a data migration.
+- **No data migration for existing one-sided price rows.** The quote treats a 0 side as not offered on that day.
+- **The admin finance statement follows the gateway mode too.** It shares the same reader. Admins choose Live explicitly. The payouts list stays on live.
+- **Copy-only changes have no tests.**
+
+### Owner actions before deploying
+1. Set these on Render:
+   - `RESEND_API_KEY`
+   - `OTP_EMAIL_FROM` (a verified Resend sender, e.g. `Rentra <codes@yourdomain>`)
+   - `CUSTOMER_OTP_DELIVERY=twilio`
+   - `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER`
+
+   Indian SMS also needs DLT template registration.
+2. Deploy when traffic is quiet. Quotes accepted before the deploy get one `QUOTE_CHANGED` and are reviewed again.
+3. These fixes need no new migration and run on the current Neon schema. Any route that already depends on 0041–0051 still needs that migration run first (DATABASE-REVIEW.md §20).
+4. Review, then merge `feat/owner-experience` in both repositories.
+
+### Deferred minor findings (not fixed in R0)
+- Owners can still open a fee allocation by its id. The 1,000-row statement limit counts fee rows.
+- The owner/caretaker SMS says the code expires in 5 minutes; it actually lasts 10.
+- `trustChanges` treats `''`/`null` (and a missing vs `null` house-rules key) as a change. This errs toward review, which is the safe direction.
+- The amenities comparison reads outside the row lock.
+- The ownership "Replace it (optional)" label uses a looser rule than the backend shortcut.
+- The payout form defaults to bank when both bank and UPI details exist.
+- Caretaker sign-in now reveals a delivery failure only for numbers that are on a team. Before R0 this case was a 500.
+- Booking cards still clip long references at 360 px (BOOK-01, R4). The pricing table still scrolls sideways (LIST-11, R3).
 
 ---
 
