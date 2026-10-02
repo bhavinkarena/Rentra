@@ -337,6 +337,10 @@ export function ResolveCaseForm({ bookingCase, requestKey }) {
           ['visits_cancelled', 'Cancel the listed visits (previewed)'],
           ['declined', 'Decline the request'],
           ['no_change', 'Resolve without changing the booking'],
+          ...(bookingCase.type === 'no_show'
+            ? [['no_show', 'Guest did not arrive (accepted no-show policy)']]
+            : []),
+          ['partial_refund', 'Record a partial refund after check-in'],
         ].map(([value, text]) => (
           <label key={value} className="mt-1 flex min-h-11 items-center gap-2">
             <input
@@ -352,6 +356,19 @@ export function ResolveCaseForm({ bookingCase, requestKey }) {
           </label>
         ))}
         <Problem message={state.errors?.outcome} />
+        {outcome === 'partial_refund' && (
+          <label className="block">
+            Refund amount (paise)
+            <input
+              required
+              type="number"
+              min="1"
+              max="50000000"
+              name="refundMinor"
+              className={field}
+            />
+          </label>
+        )}
       </fieldset>
       {cancel ? (
         <fieldset className="space-y-2 rounded-md border border-border p-3">

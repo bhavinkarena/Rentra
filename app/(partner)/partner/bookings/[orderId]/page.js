@@ -1,4 +1,4 @@
-import { BookingDetail } from '@/components/customer/BookingRecords';
+import OwnerBookingDetail from '@/components/partner/OwnerBookingDetail';
 import { partnerApi } from '@/lib/api/endpoints';
 import { requireActiveClient } from '@/lib/api/session';
 import { settle } from '@/lib/api/page-state';
@@ -10,5 +10,5 @@ export default async function BookingPage({ params, searchParams }) {
   const listHref = safeReturnPath((await searchParams)?.from, '/partner/bookings');
   const { data, failure } = await settle(partnerApi.record((await params).orderId));
   if (failure) return <PortalState kind={failure} backHref={listHref} backLabel="Bookings" />;
-  return <BookingDetail operational base="/partner/bookings" record={data} listHref={listHref} />;
+  return <OwnerBookingDetail record={data} listHref={listHref} />;
 }

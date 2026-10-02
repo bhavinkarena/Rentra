@@ -69,10 +69,7 @@ export default function ResourceDayTimeline({ property, config, date, basePath }
   const courts = (property?.resources ?? []).filter(
     (c) => c.isActive || items.some((r) => r.resource_id === c.id),
   );
-  const rows = [
-    ...(items.some((r) => !r.resource_id) ? [{ id: null, name: 'Whole venue' }] : []),
-    ...courts,
-  ];
+  const rows = [{ id: null, name: 'Whole venue' }, ...courts];
   const hours = [];
   for (let m = Math.ceil(from / 60) * 60; m < to; m += 60) hours.push(m);
   const today = propertyToday();
@@ -192,6 +189,8 @@ export default function ResourceDayTimeline({ property, config, date, basePath }
                         ) : null}
                       </div>
                       <SelectableLane
+                        property={property}
+                        items={items}
                         courtId={row.id}
                         date={date}
                         from={from}
@@ -242,6 +241,17 @@ export default function ResourceDayTimeline({ property, config, date, basePath }
             </div>
           </div>
 
+          <div className="md:hidden">
+            <SelectableLane
+              courtId={null}
+              property={property}
+              items={items}
+              date={date}
+              from={from}
+              total={total}
+              className="relative h-14"
+            />
+          </div>
           <ul className="space-y-2 md:hidden" aria-label="Bookings and blocks on this day">
             {items.length ? (
               items.map((r) => (

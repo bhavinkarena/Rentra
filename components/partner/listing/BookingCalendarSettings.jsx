@@ -31,8 +31,17 @@ function Field({ label, ...props }) {
     </label>
   );
 }
-function ActionForm({ action, rentableId, title, children, button = 'Save', id }) {
-  const version = useContext(CalendarVersion);
+export function ActionForm({
+  action,
+  rentableId,
+  title,
+  children,
+  button = 'Save',
+  id,
+  calendarVersion,
+}) {
+  const contextVersion = useContext(CalendarVersion);
+  const version = calendarVersion ?? contextVersion;
   const guarded = true;
   const router = useRouter();
   const [state, formAction, pending] = useActionState(action, {});
@@ -223,6 +232,31 @@ export default function BookingCalendarSettings({ listing, blocks, resources = [
                 required
               />
             </div>
+            <label className="flex min-h-11 gap-2 items-center">
+              <input type="checkbox" name="autoOpen" defaultChecked={config?.autoOpen === true} />
+              Automatically open new dates as the booking window moves
+            </label>
+            <Field
+              label="Allow early check-in (minutes)"
+              type="number"
+              name="earlyArrivalMinutes"
+              min="0"
+              max="240"
+              defaultValue={config?.earlyArrivalMinutes ?? 120}
+              required
+            />
+            <label className="block">
+              Weekend prices apply on
+              <select
+                name="weekendDays"
+                defaultValue={(config?.weekendDays || [6, 0]).join(',')}
+                className={inputClass}
+              >
+                <option value="6,0">Saturday and Sunday</option>
+                <option value="5,6,0">Friday, Saturday and Sunday</option>
+                <option value="5,6">Friday and Saturday</option>
+              </select>
+            </label>
             {Object.entries(labels).map(([slot, label]) => {
               const value = config?.slots?.[slot];
               return (

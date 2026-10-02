@@ -151,6 +151,31 @@ export default function OwnerToday({ needs, visits, week, earnings, properties }
             departure
           />
           <VisitRows title="On site" rows={today?.onSite} count={today?.onSiteCount} />
+          {today?.offline?.length > 0 && (
+            <div className="mt-5">
+              <h3 className="font-semibold">Offline bookings · {today.offline.length}</h3>
+              <ul className="divide-y">
+                {today.offline.map((r) => (
+                  <li key={r.id} className="py-3 space-y-2">
+                    <p>
+                      {r.name} · {r.guests} guests · {r.title}
+                    </p>
+                    <p>
+                      {time(r.startsAt)}–{time(r.endsAt)}
+                    </p>
+                    {r.phone && (
+                      <a className={link} href={`tel:${r.phone}`}>
+                        Call guest
+                      </a>
+                    )}
+                    <Link className={link} href={`/partner/listings/${r.propertyId}/calendar`}>
+                      Open calendar
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           {!today?.arrivalCount && !today?.departureCount && !today?.onSiteCount ? (
             <div className="mt-4 space-y-2 text-meta text-ink-600">
               <p>

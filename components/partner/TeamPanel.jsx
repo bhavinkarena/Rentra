@@ -177,6 +177,11 @@ function InviteForm({ properties }) {
         error={e.propertyIds}
       />
       <EvidenceChoice checked={evidence} onChange={setEvidence} />
+      <label className="flex min-h-11 items-center gap-2">
+        <input type="hidden" name="guestContact" value="false" />
+        <input type="checkbox" name="guestContact" defaultChecked={true} />
+        Can see guest contact on visit day
+      </label>
       <button type="submit" disabled={pending} className={primary}>
         {pending ? <LoaderCircle className="size-4" aria-hidden="true" /> : null}
         Create invitation link
@@ -202,6 +207,15 @@ function AccessForm({ member, properties }) {
         error={state?.errors?.propertyIds}
       />
       <EvidenceChoice checked={evidence} onChange={setEvidence} />
+      <label className="flex min-h-11 items-center gap-2">
+        <input type="hidden" name="guestContact" value="false" />
+        <input
+          type="checkbox"
+          name="guestContact"
+          defaultChecked={member.permissions.guestContact !== false}
+        />
+        Can see guest contact on visit day
+      </label>
       <button type="submit" disabled={pending} className={quiet}>
         Save access
       </button>

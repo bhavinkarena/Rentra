@@ -6,7 +6,7 @@
 | Scope | Everything an owner (client/host/partner) touches: `/partner/**`, `/partner/listings/**` wizard, owner-facing backend routes in `rentra-backend/src/routes/partner.route.js`, related services, triggers and migrations |
 | Code audited | Frontend `Rentra` `main` @ `ced7a00`; backend `rentra-backend` `master` @ `22c1950`. Both trees clean at audit time |
 | Method | Read-only trace of every owner screen: page → component → server action (`lib/actions/*`) → `lib/api/endpoints.js` → Express route → controller → service → SQL/trigger. The highest-impact claims were re-checked by hand (marked **Verified**). No servers were run and no database was queried. Integration tests that need `PORTAL_TEST_DATABASE_URL` were not run. |
-| Status | **R0 (hotfixes), Phase 2 (navigation / R1), Phase 3 (onboarding), Phase 4 (Today), Phase 5 (Add property) and Phase 6 (Property management) complete on branch `feat/owner-experience`, 2 October 2026.** See §15.4 and §15.6 to §15.10. |
+| Status | **R0 (hotfixes), Phase 2 (navigation / R1), Phase 3 (onboarding), Phase 4 (Today), Phase 5 (Add property) and Phase 6 (Property management) complete on branch `feat/owner-experience`, 2 October 2026.** Phase 7 is in progress; see §15.11. See §15.4 and §15.6 to §15.10. |
 
 > **The question behind every recommendation:** *If a completely new owner opens this screen, do they immediately understand what is happening and what to do next?* Wherever the answer is "no", this document proposes a change.
 
@@ -2787,6 +2787,19 @@ D8 (commission/tax) blocks any "You earn" number beyond "Booked rent".
 - **Browser:** [9 checks](evidence/owner-phase6/browser-checks.json) at 360 and 1440 px with zero page errors and zero serious or critical axe findings. The Phase 5 wizard gate still passes all 14 checks.
 - **Database:** Migration 0059 (`paused_until`, excluded from content versioning and cleared outside `paused`). 60 migration files and journal entries verified. No live database changes.
 - **Not verified:** cover photos on real Cloudinary assets, the pause-resume job on the real worker schedule, and the venue hub in a browser.
+
+---
+
+## 15.11 Implementation record — Phase 7 / Calendar and bookings
+
+**Started:** 2 October 2026. **Status: in progress**, local changes in both repositories; not deployed. [Implementation, verification and remaining gates](OWNER-EXPERIENCE-PHASE7.md).
+
+- Server-derived calendar states and prices, month/week/agenda/portfolio views, lazy date drawer, selection, atomic close/reopen and absolute/percentage/reset price previews, conditional 10-second Undo, exact blocks and court-aware conflicts.
+- Booking rules moved to their own page; auto-open, weekend pricing and early-arrival settings share the quote and inventory services. Offline bookings are owner blocks, shown in Today and assigned caretaker views, without a financial ledger entry. Secret per-property iCalendar links are hashed and revocable.
+- Owner booking queues have guest search, property/date filters and Today arrival/departure controls. Owner detail leads with the next visit action, contact links and a private note. Check-in/out use an optional note and default current time. Completion after 24 hours requires recorded check-out and no open incident or booking case.
+- Migration 0060 adds private notes, offline details, feed tokens, arrival-guide storage and the `no_show` state. An admin case is required for no-show resolution; captured amounts bound supported partial refunds. Contact remains available to owners for seven days after completion; caretakers get a visit-day contact toggle and incident reporting.
+- Verified: 200 backend tests passed, three skipped; 70 frontend tests passed; changed-file lint and production build passed. 61 migration files and journal entries verified; migration applied only to disposable databases. Browser evidence covers zero calendar axe violations, keyboard navigation, price preview/confirm/Undo, private-note saving and mobile overflow.
+- Remaining acceptance gates and unfinished details are listed in the runbook. This record does **not** mark Phase 7 complete.
 
 ---
 

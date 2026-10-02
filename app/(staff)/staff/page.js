@@ -89,6 +89,28 @@ export default async function StaffHome({ searchParams }) {
               </Link>
             </nav>
           ) : null}
+          {data.offline?.length > 0 && (
+            <section className="space-y-3">
+              <h2 className="text-h3">Offline bookings today</h2>
+              {data.offline.map((r) => (
+                <article key={r.id} className="rounded-lg border p-4">
+                  <p>
+                    {r.name} · {r.guests} guests · {r.title}
+                  </p>
+                  <p>
+                    {new Date(r.startsAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' })}
+                    –{new Date(r.endsAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' })}
+                  </p>
+                  {r.phone && (
+                    <a className="min-h-11 inline-flex underline" href={`tel:${r.phone}`}>
+                      Call guest
+                    </a>
+                  )}
+                  {r.note && <p>{r.note}</p>}
+                </article>
+              ))}
+            </section>
+          )}
           {data.items.length ? (
             <ul className="divide-y divide-border rounded-lg border border-border bg-card">
               {data.items.map((visit) => (

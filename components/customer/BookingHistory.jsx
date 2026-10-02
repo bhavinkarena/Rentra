@@ -16,6 +16,9 @@ function href(base, data, changes) {
     ...(data.property ? { property: data.property } : {}),
     ...(data.resource ? { resource: data.resource } : {}),
     ...(data.vertical ? { vertical: data.vertical } : {}),
+    ...(data.from ? { from: data.from } : {}),
+    ...(data.to ? { to: data.to } : {}),
+    ...(data.event ? { event: data.event } : {}),
     ...changes,
   };
   // Optional filters drop out when cleared; tab, q and page keep their place.
@@ -42,7 +45,7 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="mb-2 text-xs font-semibold tracking-widest text-brand-700 uppercase">
-            Time well spent
+            {operational ? 'Your guest visits' : 'Time well spent'}
           </p>
           <h1 className="text-h1">{operational ? 'Booking records' : 'Your bookings'}</h1>
           <p className="mt-2 text-ink-600">
@@ -59,9 +62,37 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
         )}
       </header>
       <div className="rounded-xl border border-border bg-card p-4 sm:p-5">
-        <Form action={base} className="flex items-end gap-3">
+        <Form action={base} className="flex flex-wrap items-end gap-3">
           <input type="hidden" name="tab" value={data.tab} />
-          {data.property && <input type="hidden" name="property" value={data.property} />}
+          {operational && (
+            <label>
+              Property
+              <select
+                name="property"
+                defaultValue={data.property || ''}
+                className="min-h-11 rounded-md border p-2"
+              >
+                <option value="">All properties</option>
+                {(data.properties || []).map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          {operational &&
+            ['from', 'to'].map((k) => (
+              <label key={k}>
+                {k === 'from' ? 'From' : 'To'}
+                <input
+                  type="date"
+                  name={k}
+                  defaultValue={data[k] || ''}
+                  className="min-h-11 rounded-md border p-2"
+                />
+              </label>
+            ))}
           {data.resource && <input type="hidden" name="resource" value={data.resource} />}
           {data.vertical && <input type="hidden" name="vertical" value={data.vertical} />}
           <label className="min-w-0 flex-1">
@@ -76,7 +107,11 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
                 name="q"
                 maxLength={100}
                 defaultValue={data.q}
-                placeholder="Search property or booking reference"
+                placeholder={
+                  operational
+                    ? 'Guest name, phone, property or reference'
+                    : 'Property or booking reference'
+                }
               />
             </span>
           </label>
@@ -87,7 +122,7 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
         <nav aria-label="Booking history filters" className="mt-5 flex gap-2 overflow-x-auto pb-1">
           {(operational
             ? [
-                'all',
+                ...(base === '/partner/bookings' ? [] : ['all']),
                 'today',
                 'upcoming',
                 'action_needed',
@@ -104,7 +139,7 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
               href={href(base, data, { tab, page: '1' })}
             >
               {tab === 'action_needed'
-                ? 'Action needed'
+                ? 'Needs action'
                 : tab === 'with_rentra'
                   ? 'With Rentra'
                   : tab[0].toUpperCase() + tab.slice(1)}
@@ -166,6 +201,20 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
         {data.total} {data.tab === 'today' && base === '/partner/bookings' ? 'visit' : 'booking'}
         {data.total === 1 ? '' : 's'} found
       </p>
+      {operational && data.tab === 'today' && (
+        <nav aria-label="Today arrivals and departures" className="flex gap-3">
+          {['all', 'arriving', 'leaving'].map((event) => (
+            <Link
+              key={event}
+              className="min-h-11 rounded-md border p-3"
+              aria-current={(data.event || 'all') === event ? 'page' : undefined}
+              href={href(base, data, { event, page: '1' })}
+            >
+              {event === 'all' ? 'All today' : event === 'arriving' ? 'Arriving' : 'Leaving'}
+            </Link>
+          ))}
+        </nav>
+      )}
       <ul className="space-y-4">
         {data.items.map((item) => (
           <li key={item.visitId ?? item.id}>
@@ -212,8 +261,20 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
                   </span>
                   {operational && (
                     <span>
-                      Visit states: {item.visitStates.join(', ').replaceAll('_', ' ')}. Payment
-                      below applies to the booking.
+                      {item.visitStates
+                        .map(
+                          (s) =>
+                            ({
+                              confirmed: 'Upcoming',
+                              handed_over: 'Checked in',
+                              returned: 'Checked out',
+                              completed: 'Completed',
+                              cancelled: 'Cancelled',
+                              disputed: 'With Rentra',
+                            })[s] || 'With Rentra',
+                        )
+                        .join(', ')}
+                      . Payment below applies to the booking.
                     </span>
                   )}
                   {item.payments.map((payment, index) => (
