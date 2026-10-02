@@ -181,7 +181,7 @@ export function PayoutForm({ application }) {
             checked={method === 'upi'}
             onChange={() => setMethod('upi')}
             title="UPI"
-            body="Fastest — usually same day"
+            body="Your UPI ID, e.g. name@okhdfc"
           />
           <Radio
             name="method"
@@ -189,7 +189,7 @@ export function PayoutForm({ application }) {
             checked={method === 'bank'}
             onChange={() => setMethod('bank')}
             title="Bank account"
-            body="Settles on T+1 or T+2"
+            body="Account number and IFSC"
           />
         </div>
       </fieldset>

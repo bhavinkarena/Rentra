@@ -46,8 +46,8 @@ export default function PhoneVerifyForm({ defaultPhone = '' }) {
             <p className="mt-1.5 text-tiny font-medium text-danger">{issueState.errors.phone}</p>
           ) : (
             <p className="mt-1.5 text-tiny text-ink-500">
-              Booking requests, the 12-hour accept reminder and payout notices all come here on
-              WhatsApp. This is the number guests will call on the day.
+              Rentra uses this number to reach you about your properties and bookings. Guests may
+              call it on the day of their visit.
             </p>
           )}
         </div>

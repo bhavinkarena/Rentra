@@ -28,7 +28,7 @@ export default async function VerifyPhonePage() {
           <div>
             <p className="text-h4 font-bold text-brand-900">Mobile already verified</p>
             <p className="mt-1 text-meta text-brand-800">
-              +91 {user.phone} will receive your booking alerts.
+              +91 {user.phone} is how Rentra and your guests reach you.
             </p>
           </div>
         </div>

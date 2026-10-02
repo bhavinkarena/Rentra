@@ -98,8 +98,8 @@ export default async function SubmittedPage({ params }) {
           </h1>
           <p className="mx-auto mt-3 max-w-prose animate-in text-body text-ink-600 delay-150 duration-500 fade-in slide-in-from-bottom-3">
             <strong className="font-semibold text-ink-900">{listing.title}</strong> is in the queue.
-            We reply within 2 working days either way, by email and WhatsApp — there is nothing else
-            for you to do right now.
+            We reply within 2 working days either way, and the decision appears on your dashboard —
+            there is nothing else for you to do right now.
           </p>
 
           {/* ---------------------- what happens next ---------------------- */}
