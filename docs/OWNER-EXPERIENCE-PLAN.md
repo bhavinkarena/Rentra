@@ -90,7 +90,9 @@ The recommendations below assume these defaults. Each can be changed before its 
 
 ---
 
-# Phase 1 — Codebase and current UX audit
+# Phase 1 — Codebase and current UX audit ✅ Complete
+
+> **Status: Complete — 2 October 2026.** The audit was delivered as this document. The Critical and High bugs it found were then fixed in release R0 (see §15.5).
 
 ## 1.1 Owner surface inventory
 
@@ -2566,6 +2568,7 @@ D8 (commission/tax) blocks any "You earn" number beyond "Booked rent".
 
 | Release | Status | Completion record |
 |---|---|---|
+| Phase 1 Audit | **Complete — 2 Oct 2026** | §1 (this document) |
 | R0 Hotfixes | **Complete — 2 Oct 2026** (branch `feat/owner-experience`, not merged or deployed) | [§15.5](#155-completion-record--r0-hotfixes) |
 | R1 Shell and foundations | Not started | — |
 | R2 First run | Not started | — |
