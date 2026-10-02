@@ -54,7 +54,7 @@ export function DetailHeader({ breadcrumbs, avatar, title, badges = [], id, chip
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="mr-1 text-h2 font-bold break-words text-ink-900">{title}</h1>
+            <h1 className="mr-1 text-h1 font-bold break-words text-ink-900">{title}</h1>
             {badges.map((badge) => (
               <span
                 key={badge.label}
@@ -181,7 +181,7 @@ export function SectionCard({ id, title, description, action, children, flush = 
     <section
       id={id}
       aria-labelledby={id ? `${id}-title` : undefined}
-      className="scroll-mt-24 overflow-hidden rounded-lg border border-border bg-card shadow-xs"
+      className="scroll-mt-24 overflow-hidden rounded-lg border border-border bg-card"
     >
       {title ? (
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border px-5 py-4">

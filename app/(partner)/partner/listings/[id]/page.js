@@ -5,7 +5,6 @@ import PortalState from '@/components/portal/PortalState';
 import PropertyHub from '@/components/partner/property/PropertyHub';
 import { loadPropertyHub } from '@/lib/partner/property-hub';
 import { trustFieldSentence } from '@/lib/domain/listing-trust';
-import UnsavedChangesGuard from '@/components/portal/UnsavedChangesGuard';
 import { listingCompletion } from '@/lib/domain/listing-completion';
 import {
   BasicsSection,
@@ -194,7 +193,6 @@ export default async function ListingBuilderPage(props) {
       </div>
 
       <ListingChrome variant="card" listing={listing}>
-        <UnsavedChangesGuard />
         <ReviewFlags
           sections={needsChanges ? (listing.reviewFlaggedFields ?? []) : []}
           reason={needsChanges ? listing.rejectionReason : null}

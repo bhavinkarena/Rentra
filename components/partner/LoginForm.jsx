@@ -61,7 +61,7 @@ export default function LoginForm({ next = '' }) {
         </label>
         <div
           data-field-shell
-          className="flex h-14 items-center gap-3 rounded-xl border border-input bg-card px-4"
+          className="flex h-14 items-center gap-3 rounded-lg border border-input bg-card px-4"
         >
           <Mail className="size-5 shrink-0 text-ink-500" aria-hidden="true" />
           <Input
@@ -80,7 +80,7 @@ export default function LoginForm({ next = '' }) {
             {issueState.errors?.email || issueState.errors?.phone || issueState.error}
           </p>
         )}
-        <Button type="submit" className="h-12 w-full rounded-xl" disabled={issuing || verifying}>
+        <Button type="submit" className="h-12 w-full rounded-lg" disabled={issuing || verifying}>
           {issuing ? (
             <RentraLoader label="Sending code…" />
           ) : (
@@ -124,7 +124,7 @@ export default function LoginForm({ next = '' }) {
               {verifyState.errors?.code || verifyState.error}
             </p>
           )}
-          <Button type="submit" className="h-12 w-full rounded-xl" disabled={verifying || issuing}>
+          <Button type="submit" className="h-12 w-full rounded-lg" disabled={verifying || issuing}>
             {verifying ? <RentraLoader label="Checking code…" /> : 'Verify & continue'}
           </Button>
         </form>

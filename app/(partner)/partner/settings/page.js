@@ -33,7 +33,7 @@ export default async function SettingsPage({ searchParams }) {
       <SettingsTabs />
       <div className="mt-7 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-5">
-          <section className="rounded-lg border border-border bg-card p-5 shadow-xs sm:p-6">
+          <section className="rounded-lg border border-border bg-card p-5 sm:p-6">
             <div className="flex items-start gap-3 border-b border-border pb-4">
               <span className="grid size-10 shrink-0 place-items-center rounded-md bg-brand-50 text-brand-700 ring-1 ring-brand-100">
                 <ShieldCheck className="size-[18px]" aria-hidden="true" />
@@ -63,7 +63,7 @@ export default async function SettingsPage({ searchParams }) {
             </div>
           </section>
 
-          <section className="rounded-lg border border-border bg-card p-5 shadow-xs sm:p-6">
+          <section className="rounded-lg border border-border bg-card p-5 sm:p-6">
             <div className="flex items-start gap-3 border-b border-border pb-4">
               <span className="grid size-10 shrink-0 place-items-center rounded-md bg-brand-50 text-brand-700 ring-1 ring-brand-100">
                 <WalletCards className="size-[18px]" aria-hidden="true" />
@@ -95,7 +95,7 @@ export default async function SettingsPage({ searchParams }) {
           </section>
         </div>
 
-        <aside className="rounded-lg border border-border bg-card p-5 shadow-xs lg:sticky lg:top-20">
+        <aside className="rounded-lg border border-border bg-card p-5 lg:sticky lg:top-20">
           <p className="text-tiny font-bold tracking-[0.1em] text-ink-500 uppercase">
             Sign-in & identity
           </p>

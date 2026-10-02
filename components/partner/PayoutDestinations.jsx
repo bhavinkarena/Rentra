@@ -33,7 +33,7 @@ const NAME = {
 
 function Card({ title, icon: Icon, children }) {
   return (
-    <section className="rounded-lg border border-border bg-card p-5 shadow-xs sm:p-6">
+    <section className="rounded-lg border border-border bg-card p-5 sm:p-6">
       <h2 className="flex items-center gap-2 text-h4 font-bold text-ink-900">
         <Icon className="size-[18px] text-brand-700" aria-hidden="true" /> {title}
       </h2>

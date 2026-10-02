@@ -25,7 +25,7 @@ const admin = [
     title: 'Resolve a booking incident',
     capability: 'admin.records.read',
     href: '/admin/bookings',
-    link: 'Booking records',
+    link: 'Bookings',
     steps: [
       'Open the booking and inspect each affected visit, its status, evidence and accepted rules. Preserve the recorded evidence; use a correction with a reason when needed.',
       'Create or assign a case, select exact visits and review the impact preview before confirming a resolution. A change check does not reserve replacement dates.',
@@ -81,7 +81,7 @@ const owner = [
     href: '/partner/listings',
     link: 'Your properties',
     steps: [
-      'Complete the property details and required evidence, then submit for review. Open the returned revision to see the exact corrections requested.',
+      'Complete the property details and required evidence, then submit for review. Open the property to see the exact changes Rentra asked for.',
       'Correct and resubmit, then follow the verification appointment. Material changes may require another review. Pausing or resuming cannot remove an administrator restriction.',
     ],
   },
@@ -91,7 +91,7 @@ const owner = [
     href: '/partner/calendar',
     link: 'Calendar',
     steps: [
-      'Review open dates, scheduled hours, buffers and existing reservations before changing availability.',
+      'Review open dates, scheduled hours, buffers and existing bookings before changing availability.',
       'Read the impact preview before confirming a bulk change. A conflict means the current inventory changed; reload and prepare a fresh preview.',
     ],
   },
@@ -99,9 +99,9 @@ const owner = [
     title: 'Record visits and get help',
     capability: 'client.records.read',
     href: '/partner/bookings',
-    link: 'Booking records',
+    link: 'Bookings',
     steps: [
-      'Open the booking and check each visit separately. Record handover, return and completion in order with the actual time and required evidence.',
+      'Open the booking and check each visit separately. Record check-in, check-out and completion in order with the actual time and required evidence.',
       'Use a booking case or support request for a cancellation, amendment or incident. Explain the affected visits and preserve evidence; a support acknowledgement does not change a booking.',
     ],
   },

@@ -5,7 +5,7 @@ export function CalendarFeed({ listingId }) {
   const [state, setState] = useState({}),
     [busy, setBusy] = useState(false);
   return (
-    <section className="space-y-3 rounded-xl border bg-card p-5">
+    <section className="space-y-3 rounded-lg border bg-card p-5">
       <h2 className="text-h3">Calendar sync</h2>
       <p className="text-meta">
         Subscribe in Google Calendar or another calendar app. This secret link shares occupied times

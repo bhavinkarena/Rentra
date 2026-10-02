@@ -138,7 +138,7 @@ export default function AdminBookingHistory({ data }) {
                   placeholder="Search bookings..."
                 />
               </label>
-              <button className="min-h-11 rounded-md bg-primary px-4 text-meta font-semibold text-white transition hover:bg-primary-hover active:bg-primary-active">
+              <button className="min-h-11 rounded-md bg-primary px-4 text-meta font-semibold text-white transition hover:bg-primary-hover active:bg-brand-900">
                 Search
               </button>
             </Form>

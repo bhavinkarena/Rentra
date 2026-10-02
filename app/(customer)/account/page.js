@@ -40,7 +40,7 @@ export default async function AccountPage() {
         </div>
         <Link
           href="/search"
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-white hover:bg-primary-hover active:bg-primary-active"
+          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-white hover:bg-primary-hover active:bg-brand-900"
         >
           Find your next getaway
           <ArrowUpRight className="size-4" />

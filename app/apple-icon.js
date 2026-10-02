@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element -- ImageResponse renders images with Satori, outside the browser. */
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ImageResponse } from 'next/og';

@@ -22,7 +22,7 @@ export default function RetryButton({ onRetry, label = 'Try again' }) {
           onRetry?.();
         })
       }
-      className="inline-flex min-h-11 items-center gap-2 rounded-md bg-primary px-4 text-meta font-semibold text-white hover:bg-primary-hover disabled:cursor-wait disabled:bg-muted disabled:text-muted-foreground active:bg-primary-active"
+      className="inline-flex min-h-11 items-center gap-2 rounded-md bg-primary px-4 text-meta font-semibold text-white hover:bg-primary-hover disabled:cursor-wait disabled:bg-muted disabled:text-muted-foreground active:bg-brand-900"
     >
       {pending ? <LoaderCircle className="size-4" aria-hidden="true" /> : null}
       {pending ? 'Retrying…' : label}

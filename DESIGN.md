@@ -366,3 +366,50 @@ Empty states: `EmptyState` (`components/ui/empty-state.jsx`) — icon in a brand
 - Show raw IDs, enums or ISO timestamps to customers.
 - Use champagne for warning/success text or a full-page dashboard background; add competing action greens.
 - Change APIs, routes, validation or money formatting as part of visual work.
+
+## Owner portal
+
+Rules for `/partner/**` and the full-screen wizard (OWNER-EXPERIENCE-PLAN Phase 12). Both render inside `.portal-ui` with `portalFont`.
+
+### Tokens
+- `:root` surface tokens point at the `--color-ink-*` scale; do not add new hex literals there. `brand-900` is the deep green (sidebar, footer, pressed buttons); `forest-deep` and `primary-active` are gone.
+- Portal type: `text-body` 15 px, `text-meta` 14 px, `text-tiny` 12 px, `text-stat` 28 px/1 for KPI figures, `eyebrow` utility for the small uppercase label above a heading.
+- Radius: `rounded-md` for controls and fields, `rounded-full` for chips, pills and badges, `rounded-lg` for cards. No `rounded-sm` or `rounded-xl`.
+- Cards have no resting shadow. `shadow-md` only for sticky bars and popovers; dialogs may use `shadow-xl`.
+
+### Status
+- Every state renders through `StatusBadge` (`components/ui/status-badge.jsx`) with labels and tones from `lib/domain/status.js`. Always a dot plus text, never colour alone, never a raw enum.
+- Tones: success = live or done; warning = the owner must act; info = with Rentra; neutral = stopped by the owner or ended; danger = Rentra stopped it or it failed.
+- Brand colour is for actions and selection only, never status. Calendar "Booked" uses the success tone.
+
+### Components
+- Page: `PortalPage` (named widths) and `PageHeader`. States: `EmptyState`, `InlineAlert`, `PortalState`, `ConfirmDialog`. Mobile: `PortalBottomBar`.
+- Fields: `ui/field` with the label above, a one-line hint, then the error linked by `aria-describedby`. Inputs are 44 px high. Mark "(optional)"; required fields carry `aria-required`. Failed submits show `ValidationSummary`.
+- Buttons: `Button`/`buttonVariants`. Pending shows a spinner plus text; disabled says why.
+- `UnsavedChangesGuard` is mounted once by `PortalShell` and `WizardShell`. Forms are tracked from first input until submit (or until `rentra:form-saved` for forms marked `data-unsaved-until-saved`, such as policy previews). GET/search forms and `data-unsaved-guard="off"` are ignored.
+
+### Icons (lucide)
+Today `Sun` · Calendar `CalendarDays` · Bookings `ClipboardList` · Properties `Building2` · Earnings `Wallet` · Reviews `Star` · Caretakers `Users` · Help `LifeBuoy` · Settings `Settings2` · Inbox `Bell` · Disputes `Scale` · Warning `CircleAlert` only. Sizes: 16 px inline, 20 px in navigation, 24 px in empty-state wells.
+
+### Accessibility
+- After a client navigation, focus moves to the page h1 (or `#portal-main`).
+- Locked navigation rows are focusable buttons with `aria-disabled` and the reason in `aria-describedby`.
+- h1 per page, h2 per section. Essential content is never in 12 px text.
+- Motion respects `prefers-reduced-motion`.
+
+### Money, dates and copy
+- Money: `displayMoney` ("₹1,200"; paise only when non-zero). Never divide by 100 in the UI.
+- Dates: "Sat 4 Oct" in lists, "Sat 4 Oct 2026, 10:45 IST" in detail views, relative time in the inbox. Owner screens say "IST", not "India time".
+- A page description is one sentence; longer explanations go behind "How this works". Buttons are verb plus object. No customer copy on owner screens.
+
+| Use | Instead of |
+|---|---|
+| Owner | partner, client, host |
+| Property · Add property | listing, place, rentable · Add place for rent |
+| Live / Paused / In review / Needs changes / Not approved / Hidden by Rentra | bookable, pending review, rejected, revision |
+| Calendar | Portfolio calendar, booking calendar |
+| Bookings · Visit | booking records · interval, reservation |
+| Check-in / Check-out | handover / return |
+| Earnings, Earning line, Payout, Payout method | allocation, obligation, destination, eligible, settled |
+| Caretaker | staff, team member |
+| Test booking | environment, simulated, legacy |

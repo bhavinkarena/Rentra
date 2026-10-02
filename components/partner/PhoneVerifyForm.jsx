@@ -27,7 +27,7 @@ export default function PhoneVerifyForm({ defaultPhone = '' }) {
             Mobile number
           </label>
           <div className="flex items-stretch gap-2">
-            <span className="grid shrink-0 place-items-center rounded-sm border border-input bg-ink-50 px-3 text-meta font-medium text-ink-600">
+            <span className="grid shrink-0 place-items-center rounded-md border border-input bg-ink-50 px-3 text-meta font-medium text-ink-600">
               +91
             </span>
             <Input

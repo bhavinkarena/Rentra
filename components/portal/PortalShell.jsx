@@ -3,7 +3,7 @@ import useMobileKeyboard from './useMobileKeyboard';
 import NavigationProgress from '@/components/navigation/NavigationProgress';
 import { ownerHelpHref } from '@/lib/domain/owner-help';
 
-import { useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import Link, { useLinkStatus } from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useFormStatus } from 'react-dom';
@@ -21,6 +21,7 @@ import {
 import LoaderCircle from '@/components/ui/rentra-loader';
 import { RentraLogo, RentraMark } from '@/components/rentra/Logo';
 import NavDrawer from './NavDrawer';
+import UnsavedChangesGuard from './UnsavedChangesGuard';
 import PortalBottomBar from './PortalBottomBar';
 
 /**
@@ -105,33 +106,41 @@ function NavItem({ item, pathname, rail, onNavigate }) {
         }}
         className={`${base} text-on-dark-muted`}
       >
-        <Icon className="size-4 shrink-0" aria-hidden="true" />
+        <Icon className="size-5 shrink-0" aria-hidden="true" />
         {rail ? <RailTip>{item.label}</RailTip> : <span>{item.label}</span>}
       </button>
     );
   if (item.locked) {
+    // DS-06: one focusable row; the reason is announced with the label.
+    const noteId = `locked-${item.href.replace(/\W+/g, '-')}`;
     return (
-      <div
-        className={`${base} cursor-not-allowed text-on-dark-muted`}
-        tabIndex={rail ? 0 : undefined}
+      <button
+        type="button"
+        aria-disabled="true"
+        aria-describedby={noteId}
+        className={`${base} cursor-not-allowed text-left text-on-dark-muted`}
       >
-        <Icon className="size-4 shrink-0" aria-hidden="true" />
+        <Icon className="size-5 shrink-0" aria-hidden="true" />
         {rail ? (
           <RailTip>
-            {item.label} — {item.lockedNote}
+            {item.label}
+            <span id={noteId}> — {item.lockedNote}</span>
           </RailTip>
         ) : (
           <>
             <span className="min-w-0">
               {item.label}
-              <span className="block text-tiny leading-4 font-normal text-on-dark-muted">
+              <span
+                id={noteId}
+                className="block text-meta leading-4 font-normal text-on-dark-muted"
+              >
                 {item.lockedNote}
               </span>
             </span>
-            <Lock className="ml-auto size-3 shrink-0" aria-hidden="true" />
+            <Lock className="ml-auto size-4 shrink-0" aria-hidden="true" />
           </>
         )}
-      </div>
+      </button>
     );
   }
 
@@ -155,7 +164,7 @@ function NavItem({ item, pathname, rail, onNavigate }) {
       <Icon
         fill={active ? 'currentColor' : 'none'}
         fillOpacity={active ? 0.15 : 1}
-        className={`size-4 shrink-0 ${active ? 'text-brand-200' : 'text-on-dark-muted group-hover:text-on-dark-muted'}`}
+        className={`size-5 shrink-0 ${active ? 'text-brand-200' : 'text-on-dark-muted group-hover:text-on-dark-muted'}`}
         aria-hidden="true"
       />
       {rail ? <RailTip>{item.label}</RailTip> : <span className="truncate">{item.label}</span>}
@@ -320,12 +329,45 @@ export default function PortalShell({ config, children }) {
   const toggleRail = () => writeRail(!rail);
   const owner = config.ownerNavigation;
   const [accountOpen, setAccountOpen] = useState(false);
+  // DS-06: after a client navigation, start keyboard and screen-reader users at
+  // the new page (the h1 when there is one), not at the link they pressed.
+  const main = useRef(null);
+  const firstPath = useRef(pathname);
+  useEffect(() => {
+    if (pathname === firstPath.current) return;
+    firstPath.current = null;
+    if (main.current?.contains(document.activeElement) && document.activeElement !== document.body)
+      return; // The page already placed focus itself (a dialog, an error summary).
+    const node = main.current;
+    if (!node) return;
+    const toHeading = () => {
+      const heading = node.querySelector('h1');
+      if (!heading) return false;
+      heading.tabIndex = -1;
+      heading.focus({ preventScroll: true });
+      return true;
+    };
+    if (toHeading()) return;
+    // A loading skeleton has no h1 yet: hold focus on main, then move to the
+    // h1 when the page streams in, unless the user has moved on meanwhile.
+    node.focus({ preventScroll: true });
+    const observer = new MutationObserver(() => {
+      if (document.activeElement !== node || toHeading()) observer.disconnect();
+    });
+    observer.observe(node, { childList: true, subtree: true });
+    const stop = setTimeout(() => observer.disconnect(), 10000);
+    return () => {
+      observer.disconnect();
+      clearTimeout(stop);
+    };
+  }, [pathname]);
 
   return (
     <div
       data-keyboard-open={keyboard}
       className={`portal-ui min-h-dvh bg-ink-25 ${owner ? 'owner-portal md:flex' : 'lg:flex'}`}
     >
+      <UnsavedChangesGuard />
       <a
         href="#portal-main"
         className="sr-only fixed top-2 left-2 z-50 rounded-md bg-white p-3 font-semibold text-brand-800 shadow-lg focus:not-sr-only"
@@ -454,6 +496,7 @@ export default function PortalShell({ config, children }) {
 
         <main
           id="portal-main"
+          ref={main}
           tabIndex={-1}
           className={`min-h-[calc(100dvh-3.5rem)] scroll-mt-16 ${owner ? 'pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0' : ''}`}
         >

@@ -28,7 +28,7 @@ export default async function CalendarPage({ searchParams }) {
   return (
     <div className="space-y-6 p-4 sm:p-6">
       <header>
-        <h1 className="text-h1">Portfolio calendar</h1>
+        <h1 className="text-h1">Calendar</h1>
         <p className="mt-2 text-ink-600">
           Visits, holds, owner blocks and date prices across your properties.
         </p>

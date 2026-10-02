@@ -36,7 +36,7 @@ function actionLabel({ status, resumeNumber, stepTotal }) {
     return resumeNumber
       ? `Continue setup — step ${resumeNumber} of ${stepTotal}`
       : 'Continue setup';
-  if (status === 'rejected') return 'Fix listing';
+  if (status === 'rejected') return 'Fix property';
   return 'Manage';
 }
 
@@ -195,7 +195,7 @@ export default function PropertyTable({
                 <td className="px-5 py-3.5 text-right">
                   <Link
                     href={actionHref(listing, from)}
-                    className="inline-flex items-center gap-1.5 rounded-sm border border-border bg-card px-3 py-2 text-tiny font-semibold text-ink-700 transition-colors group-hover:border-ink-300 hover:bg-ink-50 hover:text-ink-900"
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-2 text-tiny font-semibold text-ink-700 transition-colors group-hover:border-ink-300 hover:bg-ink-50 hover:text-ink-900"
                   >
                     <ActionText listing={listing} />
                     <ArrowRight className="size-3.5" aria-hidden="true" />

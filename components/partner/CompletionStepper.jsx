@@ -1,5 +1,5 @@
 import Link from '@/components/navigation/NavigationLink';
-import { Check, AlertTriangle, Clock } from 'lucide-react';
+import { Check, CircleAlert, Clock } from 'lucide-react';
 
 /**
  * The Client dashboard until they are approved.
@@ -109,7 +109,7 @@ function StepRow({ step, index }) {
         {step.done && !step.flagged ? (
           <Check className="size-3" aria-hidden="true" />
         ) : step.failed ? (
-          <AlertTriangle className="size-3" aria-hidden="true" />
+          <CircleAlert className="size-3" aria-hidden="true" />
         ) : (
           index
         )}

@@ -65,7 +65,7 @@ export default function PartnerListingsView({ summary, result, args, submitted, 
         </section>
       ) : (
         <section
-          className="mt-6 overflow-hidden rounded-lg border border-border bg-card shadow-xs"
+          className="mt-6 overflow-hidden rounded-lg border border-border bg-card"
           aria-labelledby="property-list-title"
         >
           <div className="flex flex-col gap-1 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
@@ -117,17 +117,17 @@ export default function PartnerListingsView({ summary, result, args, submitted, 
                 <Link
                   href={pageHref({ query, status, vertical, page: result.page - 1 })}
                   scroll={false}
-                  className="rounded-sm border border-border bg-card px-3 py-2 font-semibold text-ink-700 hover:bg-ink-50"
+                  className="rounded-md border border-border bg-card px-3 py-2 font-semibold text-ink-700 hover:bg-ink-50"
                 >
                   ← Previous
                 </Link>
               ) : (
-                <span className="cursor-not-allowed rounded-sm border border-border px-3 py-2 text-ink-500">
+                <span className="cursor-not-allowed rounded-md border border-border px-3 py-2 text-ink-500">
                   ← Previous
                 </span>
               )}
 
-              <span className="grid min-h-8 min-w-8 place-items-center rounded-sm bg-primary px-2 font-bold text-white tabular">
+              <span className="grid min-h-8 min-w-8 place-items-center rounded-md bg-primary px-2 font-bold text-white tabular">
                 {result.page}
               </span>
 
@@ -135,12 +135,12 @@ export default function PartnerListingsView({ summary, result, args, submitted, 
                 <Link
                   href={pageHref({ query, status, vertical, page: result.page + 1 })}
                   scroll={false}
-                  className="rounded-sm border border-border bg-card px-3 py-2 font-semibold text-ink-700 hover:bg-ink-50"
+                  className="rounded-md border border-border bg-card px-3 py-2 font-semibold text-ink-700 hover:bg-ink-50"
                 >
                   Next →
                 </Link>
               ) : (
-                <span className="cursor-not-allowed rounded-sm border border-border px-3 py-2 text-ink-500">
+                <span className="cursor-not-allowed rounded-md border border-border px-3 py-2 text-ink-500">
                   Next →
                 </span>
               )}

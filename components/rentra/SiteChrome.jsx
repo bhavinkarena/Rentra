@@ -71,9 +71,7 @@ export default function SiteChrome({
         </main>
 
         <Suspense
-          fallback={
-            <footer className="mt-20 min-h-80 bg-forest-deep" aria-label="Explore places" />
-          }
+          fallback={<footer className="mt-20 min-h-80 bg-brand-900" aria-label="Explore places" />}
         >
           <MarketingFooter />
         </Suspense>
@@ -123,7 +121,7 @@ async function MarketingFooter() {
   const heading = 'text-tiny font-semibold tracking-wider text-champagne uppercase';
   const link = 'text-meta text-on-dark-muted transition-colors hover:text-white';
   return (
-    <footer data-surface="inverse" className="mt-16 bg-forest-deep text-paper">
+    <footer data-surface="inverse" className="mt-16 bg-brand-900 text-paper">
       <div className="mx-auto max-w-(--container-page) px-4 pt-12 sm:px-6 pb-6">
         <div
           className={`grid grid-cols-2 gap-x-6 gap-y-8 lg:gap-10 ${
@@ -172,7 +170,7 @@ async function MarketingFooter() {
             </p>
             <Link
               href="/partner/login"
-              className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-champagne px-4 text-meta font-semibold text-forest-deep transition-colors hover:bg-champagne-hover"
+              className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-champagne px-4 text-meta font-semibold text-brand-900 transition-colors hover:bg-champagne-hover"
             >
               List your place
               <ArrowUpRight className="size-4" aria-hidden="true" />

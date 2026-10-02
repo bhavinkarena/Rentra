@@ -27,7 +27,7 @@ export default function NewListingStart({
         <ChapterBar chapters={current.chapters} />
       </header>
       <main className="mx-auto w-full max-w-2xl flex-1 p-5 sm:p-8">
-        <h1 className="text-h1">What are you listing?</h1>
+        <h1 className="text-h1">What would you like to add?</h1>
         <p className="mt-2 text-body text-ink-600">
           Choose the kind of property. Add its location, photos and story next.
         </p>

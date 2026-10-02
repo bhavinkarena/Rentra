@@ -60,7 +60,7 @@ export default async function PartnerDashboard({ searchParams }) {
           title={approved ? 'Today' : 'Get verified'}
           description={
             approved
-              ? `Hello${firstName ? `, ${firstName}` : ''}. Your visits and next actions, all in India time.`
+              ? `Hello${firstName ? `, ${firstName}` : ''}. Your visits and next actions, all in IST.`
               : 'Finish verification to publish. You can start a property draft now.'
           }
           action={
@@ -135,7 +135,7 @@ function LatestUpdates({ updates }) {
   return (
     <section
       aria-labelledby="latest-updates-title"
-      className="rounded-lg border border-border bg-card p-5 shadow-xs"
+      className="rounded-lg border border-border bg-card p-5"
     >
       <div className="flex items-center justify-between gap-3">
         <h2

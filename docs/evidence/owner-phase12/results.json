@@ -1,0 +1,62 @@
+{
+  "axe": [
+    {
+      "route": "",
+      "serious": []
+    },
+    {
+      "route": "calendar",
+      "serious": []
+    },
+    {
+      "route": "bookings",
+      "serious": []
+    },
+    {
+      "route": "listings",
+      "serious": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/overview",
+      "serious": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/calendar",
+      "serious": []
+    },
+    {
+      "route": "earnings",
+      "serious": []
+    },
+    {
+      "route": "updates",
+      "serious": []
+    },
+    {
+      "route": "reviews",
+      "serious": []
+    },
+    {
+      "route": "team",
+      "serious": []
+    },
+    {
+      "route": "help",
+      "serious": []
+    },
+    {
+      "route": "support/new",
+      "serious": []
+    },
+    {
+      "route": "settings",
+      "serious": []
+    },
+    {
+      "route": "settings/payout",
+      "serious": []
+    }
+  ],
+  "focus": "Bookings",
+  "errors": []
+}

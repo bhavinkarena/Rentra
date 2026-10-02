@@ -1,5 +1,5 @@
 import Link from '@/components/navigation/NavigationLink';
-import { Check, AlertTriangle, Circle } from 'lucide-react';
+import { Check, CircleAlert, Circle } from 'lucide-react';
 import { chaptersFor, stepHref } from '@/lib/domain/listing-steps';
 import DeleteDraftButton from './DeleteDraftButton';
 import { SubmitBar } from './ListingSections';
@@ -69,7 +69,7 @@ export default function WizardReview({
                           }`}
                         >
                           {section.failed ? (
-                            <AlertTriangle className="size-3" aria-hidden="true" />
+                            <CircleAlert className="size-3" aria-hidden="true" />
                           ) : section.done ? (
                             <Check className="size-3" aria-hidden="true" />
                           ) : (

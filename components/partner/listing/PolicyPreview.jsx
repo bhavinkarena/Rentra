@@ -14,6 +14,7 @@ export function usePolicyAction(action, listing) {
     preview,
     invalidatePreview: () => setEdited(true),
     form: {
+      'data-unsaved-until-saved': '',
       onChange: () => setEdited(true),
       onSubmit: (event) => {
         event.preventDefault();

@@ -10,7 +10,7 @@ export default function ArrivalGuideForm({ data }) {
   const [state, action, pending] = useActionState(saveArrivalGuide, {});
   const guide = data.guide;
   return (
-    <form action={action} className="space-y-4 rounded-xl border border-border bg-card p-5 sm:p-6">
+    <form action={action} className="space-y-4 rounded-lg border border-border bg-card p-5 sm:p-6">
       <h1 className="text-h2">Arrival guide</h1>
       <p className="text-meta text-ink-600">
         Guests with a confirmed visit get this by SMS 24 hours before and on the morning of arrival,

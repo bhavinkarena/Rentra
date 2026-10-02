@@ -1,5 +1,5 @@
 'use client';
-import { AlertTriangle } from 'lucide-react';
+import { CircleAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { stepHref } from '@/lib/domain/listing-steps';
 import { trustFieldSentence } from '@/lib/domain/listing-trust';
@@ -87,8 +87,8 @@ export function SubmitBar({ listing, completion, ownerApproved = true }) {
         </p>
         <p className="mt-1 text-meta text-ink-700">
           {listing.status === 'pending_verification'
-            ? 'Your submitted revision is approved for verification. It is not published yet.'
-            : 'Your submitted revision is waiting for review. If you edit it, resubmit the updated version. Check this workspace for the decision.'}
+            ? 'Your property passed review and is waiting for verification. It is not live yet.'
+            : 'Your property is in review. If you edit it, send it again. We will tell you the decision here.'}
         </p>
         {listing.status === 'pending_verification' ? (
           <p className="mt-2 text-meta font-semibold text-ink-800">
@@ -147,7 +147,7 @@ export function SubmitBar({ listing, completion, ownerApproved = true }) {
         </div>
       ) : (
         <div className="flex items-start gap-2.5">
-          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-ink-500" aria-hidden="true" />
+          <CircleAlert className="mt-0.5 size-4 shrink-0 text-ink-500" aria-hidden="true" />
           <p className="text-meta text-ink-600">
             <strong className="text-ink-900">
               {completion.remaining.length} section

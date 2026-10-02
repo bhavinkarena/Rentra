@@ -6,7 +6,7 @@ import Link from '@/components/navigation/NavigationLink';
 const groups = [
   'Getting verified',
   'Adding a property',
-  'Getting bookable',
+  'Getting ready for bookings',
   'Managing bookings',
   'Getting paid',
   'Caretakers',

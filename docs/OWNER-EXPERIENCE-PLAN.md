@@ -55,9 +55,9 @@ The codebase mixes **partner / owner / client / host** for the person and **prop
 | 9 | Notifications, messages and support | R2 / R4 / R6 | ✅ Complete | 2 Oct 2026 | NOTIF-01..03, SUP-01..03, DISP-01, REV-01, TEAM-01, SET-01 delivered; migration 0062 required. Profile photo and "Payout sent" deferred. See §15.13 |
 | 10 | Empty, loading, error and success states | R1 | 🚧 Implemented; follow-up QA | 2 Oct 2026 | Shared states, confirmations, feedback and background session checks delivered; 75 tests and 31 browser checks. See §15.14 |
 | 11 | Responsive and mobile UX | R1 | 🚧 Implemented; performance and device QA open | 2 Oct 2026 | Shared mobile controls and keyboard-aware actions; 76 tests, 230 viewport checks. See §15.15 |
-| 12 | Accessibility and design system | R1 | ⏳ Not started | — | — |
-| 13 | Frontend, API and database changes | all | ⏳ Not started | — | Reference list; done as each release lands |
-| 14 | QA and edge cases | all | ⏳ Not started | — | Reference list; checked per release |
+| 12 | Accessibility and design system | R1 | 🚧 Implemented; DS-03 merges open | 2 Oct 2026 | Tokens, one status map/badge, shell-wide unsaved guard, route-change focus, glossary and DESIGN.md delivered; browser gate passes (Phase 14). DS-03 merges and DS-05 sweep open. See §15.16 |
+| 13 | Frontend, API and database changes | all | ✅ Complete (reference) | 2 Oct 2026 | Every §13.1 endpoint, §13.2 migration (as 0056–0063) and §13.3 job delivered by Phases 2–12, except backlog items. See §15.17 |
+| 14 | QA and edge cases | all | 🚧 Gates run; coverage gaps open | 2 Oct 2026 | Backend 219/219 with integration DB, axe 0 serious on 14 routes, viewport gate rerun; 2 guard/focus defects fixed; §14.2 coverage map with open cases. See §15.18 |
 | 15 | Implementation roadmap | — | ✅ Complete (plan) | 2 Oct 2026 | Release R0 done. R1–R6 pending (§15.4) |
 
 Status key: ✅ Complete · 🔄 In progress · ⏳ Not started.
@@ -2872,6 +2872,72 @@ D8 (commission/tax) blocks any "You earn" number beyond "Booked rent".
 **Verified:** 76 frontend tests, lint and production build. The browser gate checks 40 principal owner/property/wizard routes at five widths, plus six onboarding URLs, simulated keyboard/pinch behaviour and the eligible booking action. The [recorded results](evidence/owner-phase11/results.json) contain 43 checks, 230 viewport checks and zero uncaught page errors.
 
 **Remaining:** all 53 owner routes exceed the 180 KiB cold-load JS budget (roughly 303–400 KiB); 4G content/interaction timings and physical Android/iPhone behaviour are not verified. Full route/detail/drawer coverage and complete page-width consolidation remain open. No backend migration or live database change was required.
+
+## 15.16 Delivery record — Phase 12 / Accessibility and design system
+
+**Implemented locally:** 2 October 2026. Not deployed. [Phase 12 runbook](OWNER-EXPERIENCE-PHASE12.md) records delivered behaviour and open items. This phase is not labelled complete while the DS-03 component merges and the extended axe/focus gate remain outstanding.
+
+| ID | Delivered |
+|---|---|
+| DS-01 | `:root` tokens on the ink scale; `forest-deep`/`primary-active` removed for `brand-900`; portal body 15 px; `text-stat` and `eyebrow`; owner radius and no resting card shadow; wizard on the portal font (BUG-47). |
+| DS-02 | `lib/domain/status.js` + `StatusBadge` (dot plus text); `ListingStatusBadge` and `StateBadge` use it; booked calendar state is success. |
+| DS-04 | 20 px navigation icons; `CircleAlert` for owner warnings. |
+| DS-06 | Focus moves to the h1 after navigation; locked nav row is a focusable button; `DetailHeader` h1 size; calendar cell labels include slot state and price. |
+| DS-07 | One guard in `PortalShell`/`WizardShell`; Back intercepted only while dirty; policy previews stay dirty until applied. Closes the Phase 10 dependency. |
+| DS-08 | `bookingMoney` uses `displayMoney`; owner screens say IST. |
+| DS-10 / DS-11 | Owner copy glossary fixes; "Owner portal" section in `DESIGN.md`. |
+
+**Verified:** 79 frontend tests, lint and production build. No backend migration.
+
+**Browser gate (added in Phase 14):** `scripts/portal-gate/owner-phase12.mjs` shows axe 0 serious/critical on 14 owner routes, focus on the h1 after navigation, and the guard holding Back and links only for dirty in-place forms. It found two defects, both fixed (§15.18).
+
+**Remaining:** DS-03 merges (headers, fields, empty states, pagers, buttons, remaining badges), DS-05 per-form sweep, axe on the remaining owner routes, DS-08 date formats, DS-12 backlog.
+
+## 15.17 Delivery record — Phase 13 / Consolidated changes
+
+**Audited:** 2 October 2026 against both repositories (branch `feat/owner-experience`). Phase 13 is a reference list; this record maps it to what shipped. Not deployed.
+
+**13.1 API.** Every listed endpoint exists in `rentra-backend/src/routes/partner.route.js` (or `routes/index.js` for `GET /ical/:token.ics`). Delivered names that differ from the spec: offline booking is `POST /listings/:id/calendar/offline`; notification preferences are `/settings/notifications` and `/updates/preferences`.
+
+**13.2 Migrations.** The spec's M-numbers shipped as:
+
+| Spec | Shipped in | Note |
+|---|---|---|
+| M1 | 0057 (`owner_guide`), 0062 (`notification_prefs`) | — |
+| M2 | Code-only fix in R0 (`197fd69`) | CHECK kept; superseded drafts record `submitted_at` |
+| M3 | 0061 (`reauthenticated_at`) | — |
+| M4 | 0058 logs one-sided prices for owner review | Deliberately **not** copied: Rentra must not invent a price the owner never chose. R0 makes the zero side unsellable |
+| M5 | 0058 (extra-guest charge normalised, audited) | — |
+| M6 | 0058 (`city_id`/`area_id` nullable for drafts + CHECK) | Drafts start with an empty `title` and an `untitled-<code>` slug; `description` may be null |
+| M7 | Photo `tag` in jsonb, no DDL | — |
+| M8–M11, M14 | 0060 (`no_show`, `owner_note`, offline block, `calendar_feed`, `arrival_guide`), 0059 (`paused_until`), 0063 (arrival-guide template) | — |
+| M12, M13 | 0062 (owner outbox, `dates_running_out` and other `client_update` events) | — |
+| M15 | Existing application `legalName` (read-only in settings) | No new column |
+| M16 | Not started | Backlog (CAL-04 seasonal rules, PROP-03 option 2) |
+
+**13.3 Jobs.** `src/cron/jobs.js` registers auto-open dates, resume paused, auto-complete returned visits, photo orphan sweep and the owner notification sender. Arrival reminders (T−1 18:00, same day) and dates-running-out tasks run inside `notifications/owner-jobs.js`. iCal import pull remains backlog.
+
+**13.4 Frontend.** Shared components, routes and `lib/domain/{status, error-copy}.js` exist. Listing completion is computed once by the backend (`listing.completion` on the listing GET); `lib/domain/listing-completion.js` keeps only display constants and an empty fallback for when the field is missing. **Feature flags** (`NEXT_PUBLIC_OWNER_V2_*`) were not added: phases shipped directly on the branch. The owner reviews the branch before merge instead. Add flags only if a phase must go live separately.
+
+**Verified:** backend `npm test` 145 passed, 0 failed, 71 skipped (integration tests need `CP01_TEST_DATABASE_URL`/`PORTAL_TEST_DATABASE_URL`; not rerun here). Frontend 79/79 (Phase 12).
+
+**Deploy prerequisites unchanged:** Neon needs 0040–0051 first, then 0056–0063, following `DATABASE-REVIEW.md` §20 (restore point, stop worker, `db:migrate`, deploy, start worker).
+
+## 15.18 Delivery record — Phase 14 / QA and edge cases
+
+**Run locally:** 2 October 2026, disposable databases only. [Phase 14 runbook](OWNER-EXPERIENCE-PHASE14.md) holds the full §14.2 coverage map and how to repeat the gates. Not labelled complete while the open cases and the owner journey script remain.
+
+**Gates:** backend 219/219 with the integration database (0 skipped); frontend 79/79, lint and build; Phase 11 viewport gate rerun (43 checks, 230 viewports, 0 errors); new Phase 12 browser gate (axe 0 serious/critical on 14 routes, focus, unsaved guard); owner glossary check clean.
+
+**Defects fixed:** the unsaved guard skipped every React Server Action form, because those forms report `form.method === "get"`. Filter forms now opt out by URL action or `method="get"`. Focus after navigation now waits for the streamed h1. The electricity-bill age rule is extracted (`billIsFresh`) and unit-tested.
+
+**New tests:** `owner-edge-cases.integration.test.js` (phone search, 7-day contact masking, `CONTACT_IN_USE` sends no code) and `bill-freshness.test.js`.
+
+**Open:**
+- `owner-journey.mjs` end-to-end script.
+- 1440 px screenshot set.
+- Untested cases: `isNew` routing, withdraw under review, approved owner on onboarding URLs, legacy step ids, session expiry mid-step, offline autosave, large uploads on 3G, HEIC, document type swap, pause warning, hold countdown, unoffered-slot bulk price, IFSC failure, invalid-number banner, greyscale calendar, keyboard-only wizard.
+- Physical-device checks.
 
 ## Appendix A — Key files by area
 

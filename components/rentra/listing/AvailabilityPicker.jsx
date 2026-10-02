@@ -395,7 +395,7 @@ export default function AvailabilityPicker({ code, prices, nextDates }) {
             ) : null}
             <div className="sticky -bottom-4 mt-4 flex items-center justify-between border-t border-border bg-card py-3 sm:-bottom-8">
               <p className="text-xs text-ink-500">{dates.length} of 10 visits selected</p>
-              <Dialog.Close className="min-h-11 rounded-lg bg-primary px-7 text-sm font-semibold text-white hover:bg-primary-hover active:bg-primary-active">
+              <Dialog.Close className="min-h-11 rounded-lg bg-primary px-7 text-sm font-semibold text-white hover:bg-primary-hover active:bg-brand-900">
                 Done
               </Dialog.Close>
             </div>

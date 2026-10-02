@@ -167,8 +167,8 @@ export default function ResourceDayTimeline({ property, config, date, basePath }
       </div>
       <p className="text-meta text-ink-600">
         {windows.length
-          ? `Open ${windows.map((w) => span(date, w.startMin, w.endMin)).join(' and ')}. India time.`
-          : 'Closed on this day by the weekly hours. India time.'}{' '}
+          ? `Open ${windows.map((w) => span(date, w.startMin, w.endMin)).join(' and ')}. Times in IST.`
+          : 'Closed on this day by the weekly hours. Times in IST.'}{' '}
         Solid: booking · Striped: temporary hold · Dashed: blocked · Pale edge: changeover buffer.
         Drag across free time on a court to block it.
       </p>

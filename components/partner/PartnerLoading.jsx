@@ -238,7 +238,7 @@ export function WizardSkeleton() {
 
       <main className="min-h-0 flex-1 overflow-hidden">
         <div className="mx-auto grid h-full w-full max-w-[1180px] gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:px-8">
-          <aside className="hidden rounded-xl border border-border bg-card p-4 shadow-xs lg:block">
+          <aside className="hidden rounded-lg border border-border bg-card p-4 lg:block">
             <div className="flex items-center justify-between">
               <Skeleton className="h-4 w-28" />
               <Skeleton className="h-5 w-10" />
@@ -253,7 +253,7 @@ export function WizardSkeleton() {
             ))}
           </aside>
 
-          <div className="overflow-hidden rounded-xl border border-border bg-card p-5 shadow-xs sm:p-8 lg:p-10">
+          <div className="overflow-hidden rounded-lg border border-border bg-card p-5 sm:p-8 lg:p-10">
             <Skeleton className="h-3 w-36" />
             <Skeleton className="mt-3 h-9 w-80 max-w-full" />
             <Skeleton className="mt-3 h-4 w-full max-w-xl" />

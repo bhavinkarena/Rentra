@@ -18,7 +18,7 @@ function Submit({ pending, children, icon: Icon }) {
     <Button
       type="submit"
       size="lg"
-      className="sticky bottom-4 z-10 w-full shadow-sm"
+      className="sticky bottom-4 z-10 w-full shadow-md"
       disabled={pending}
     >
       {pending ? <Loader2 className="size-4 " /> : Icon ? <Icon className="size-4" /> : null}

@@ -144,8 +144,14 @@ export function BookingDetail({
               <StateBadge state={record.state} />
               <h1 className="mt-3 text-h1">{record.title}</h1>
               <p className="mt-2 font-mono text-tiny break-all text-ink-500">
-                {confirmed ? (test ? 'Test booking' : 'Your reservation') : 'Booking status'} ·{' '}
-                {record.reference}
+                {confirmed
+                  ? test
+                    ? 'Test booking'
+                    : operational
+                      ? 'Booking'
+                      : 'Your reservation'
+                  : 'Booking status'}{' '}
+                · {record.reference}
               </p>
             </div>
             <div className="rounded-lg bg-brand-50 px-5 py-4">
@@ -364,7 +370,9 @@ export function BookingDetail({
             <div className="space-y-2 rounded-lg bg-brand-50 p-4 text-ink-800">
               <p>
                 {record.arrival.address ||
-                  'Exact address has not been provided. Contact the host before travelling.'}
+                  (operational
+                    ? 'Exact address has not been provided. Add it to the arrival guide.'
+                    : 'Exact address has not been provided. Contact the host before travelling.')}
               </p>
               <p>
                 Host: {record.arrival.hostName || 'Not recorded'} ·{' '}

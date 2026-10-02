@@ -58,7 +58,7 @@ export function AccountForm({ user, nameLocked = false }) {
         hint={
           nameLocked
             ? 'Contact support to change your name after submission.'
-            : 'Shown to guests on your listings.'
+            : 'Shown to guests on your properties.'
         }
       >
         <Input

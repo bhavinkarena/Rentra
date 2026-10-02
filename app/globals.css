@@ -13,6 +13,14 @@
    works immediately) and at the END of a hide (so the fade-out still plays).
    Pair with invisible/visible: `reveal invisible` hidden, add `visible
    revealed` to show, `invisible concealed` to hide again under a variant. */
+/* Small uppercase label above a heading (DS-01). */
+@utility eyebrow {
+  font-size: var(--text-tiny);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink-500);
+}
 @utility reveal {
   transition-property: opacity, translate, scale, visibility;
   transition-duration: 250ms, 250ms, 250ms, 0s;
@@ -65,7 +73,6 @@
   --color-foreground: var(--foreground);
   --color-background: var(--background);
   --color-primary-hover: var(--primary-hover);
-  --color-primary-active: var(--primary-active);
   --color-ring-inverse: var(--ring-inverse);
   --color-skeleton-base: var(--skeleton-base);
   --color-skeleton-highlight: var(--skeleton-highlight);
@@ -126,7 +133,6 @@
   --color-whatsapp: #1fa855; /* the ONE permitted second accent */
 
   /* --- Inverse brand surfaces. Champagne is an accent, never status. --- */
-  --color-forest-deep: #032d23;
   --color-forest-line: #386054;
   --color-paper: #f8f5ee;
 
@@ -174,6 +180,8 @@
 
   --text-meta: 0.875rem;
   --text-meta--line-height: 1.5;
+  --text-stat: 1.75rem; /* KPI figures (DS-01) */
+  --text-stat--line-height: 1;
 
   --text-tiny: 0.75rem;
   --text-tiny--line-height: 1.4;
@@ -224,25 +232,24 @@
      */
   --float-bottom: calc(var(--spacing) * 5 + env(safe-area-inset-bottom, 0px));
 
-  --background: #faf9f6;
-  --foreground: #1f2924;
-  --card: #ffffff;
+  --background: var(--color-ink-25);
+  --foreground: var(--color-ink-900);
+  --card: var(--color-ink-0);
   --card-foreground: var(--foreground);
   --popover: var(--card);
   --popover-foreground: var(--foreground);
   --primary: var(--color-brand-600);
   --primary-foreground: #ffffff;
   --primary-hover: var(--color-brand-700);
-  --primary-active: #032e23;
-  --secondary: #f3f4ef;
+  --secondary: var(--color-ink-50);
   --secondary-foreground: var(--foreground);
-  --muted: #eceee8;
-  --muted-foreground: #59655d;
+  --muted: var(--color-ink-100);
+  --muted-foreground: var(--color-ink-500);
   --accent: #ecf4ef;
   --accent-foreground: var(--primary);
   --destructive: var(--color-danger);
-  --border: #e1e5de;
-  --input: #7c8780;
+  --border: var(--color-ink-200);
+  --input: var(--color-ink-400);
   --ring: var(--primary);
   --ring-inverse: var(--color-champagne);
   --skeleton-base: #e7ebe5;
@@ -253,7 +260,7 @@
   --chart-4: var(--color-event-adjustment);
   --chart-5: #414d45;
   --radius: 1rem;
-  --sidebar: var(--color-forest-deep);
+  --sidebar: var(--color-brand-900);
   --sidebar-foreground: var(--color-paper);
   --sidebar-primary: var(--color-champagne);
   --sidebar-primary-foreground: var(--primary);
@@ -294,7 +301,6 @@
   --primary: #629b7d; /* lifted so it reads on dark ground */
   --primary-foreground: #0d1d16;
   --primary-hover: #8dbca4;
-  --primary-active: #bbd8c8;
   --skeleton-base: #2b3931;
   --skeleton-highlight: #38463e;
   --secondary: #2a2f2b;
@@ -888,7 +894,8 @@
   --text-h3: 1.0625rem;
   --text-h4: 0.9375rem;
   --text-body-lg: 0.9375rem;
-  --text-body: 0.875rem;
+  /* DS-01: body is one step above meta, so the two read differently. */
+  --text-body: 0.9375rem;
   --text-meta: 0.875rem;
   --text-tiny: 0.75rem;
   font-family: var(--font-portal), var(--font-sans);

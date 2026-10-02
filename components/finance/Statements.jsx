@@ -32,6 +32,7 @@ function Navigation({ admin }) {
 function Filters({ filters, admin, properties = [], action }) {
   return (
     <form
+      method="get"
       action={action}
       className="flex flex-wrap items-end gap-4 rounded-md border border-border p-4"
     >
@@ -182,11 +183,11 @@ export function Statement({ data, admin = false, detail = false }) {
         <Link href={`${b}/statements/${f.period}?${query(f)}`}>Open period statement</Link>
         <a href={`${b}/statements/${f.period}/download?${query(f)}`}>Download statement CSV</a>
       </div>
-      <h2 className="text-h2">Receipt allocations and adjustments</h2>
+      <h2 className="text-h2">
+        {admin ? 'Receipt allocations and adjustments' : 'Earning lines and adjustments'}
+      </h2>
       {!data.count && (
-        <p>
-          No allocations match this period and scope. This is not a confirmation of a bank balance.
-        </p>
+        <p>No earning lines match this period. This is not a confirmation of a bank balance.</p>
       )}
       <div className="space-y-4">
         {data.items.slice((f.page - 1) * 30, f.page * 30).map((r) => (

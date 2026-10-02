@@ -77,7 +77,7 @@ export function CustomerReviewForm({ visits }) {
       </p>
       <button
         disabled={pending}
-        className="min-h-11 rounded-full bg-primary px-5 font-semibold text-white transition-colors hover:bg-primary-hover disabled:bg-muted disabled:text-muted-foreground active:bg-primary-active"
+        className="min-h-11 rounded-full bg-primary px-5 font-semibold text-white transition-colors hover:bg-primary-hover disabled:bg-muted disabled:text-muted-foreground active:bg-brand-900"
       >
         {pending ? <RentraLoader label="Submitting…" /> : 'Submit review'}
       </button>

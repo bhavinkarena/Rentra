@@ -42,6 +42,7 @@ export function EarningsFilters({ data, statement = false }) {
   const f = data.filters;
   return (
     <form
+      method="get"
       action={statement ? '/partner/earnings/statements' : '/partner/earnings'}
       className="print:hidden flex flex-wrap items-end gap-3 rounded-lg border border-border bg-card p-4"
     >

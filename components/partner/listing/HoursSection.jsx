@@ -322,7 +322,7 @@ export function HoursSection({ listing, calendar }) {
             hint={
               config.bufferAfterMinutes % config.stepMinutes
                 ? `Not a multiple of ${config.stepMinutes} minutes: the next start waits for the following slot.`
-                : 'Minutes kept free for cleaning or handover.'
+                : 'Minutes kept free for cleaning or check-in.'
             }
           >
             <select

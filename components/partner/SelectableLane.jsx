@@ -111,7 +111,7 @@ export default function SelectableLane({
       </div>
       <dialog
         ref={dialog}
-        className="m-auto w-[calc(100%-2rem)] max-w-lg max-h-[90dvh] overflow-auto rounded-xl border bg-card p-4 text-foreground backdrop:bg-black/30"
+        className="m-auto w-[calc(100%-2rem)] max-w-lg max-h-[90dvh] overflow-auto rounded-lg border bg-card p-4 text-foreground backdrop:bg-black/30"
       >
         <button
           type="button"
@@ -148,7 +148,7 @@ export default function SelectableLane({
                   />
                 </label>
                 <label>
-                  {i ? 'To time (India)' : 'From time (India)'}
+                  {i ? 'To time (IST)' : 'From time (IST)'}
                   <input
                     className="block min-h-11 border rounded p-2"
                     name={i ? 'endTime' : 'startTime'}

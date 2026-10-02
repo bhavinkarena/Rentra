@@ -14,7 +14,7 @@ import {
   Lock,
   Ban,
   Clock,
-  AlertTriangle,
+  CircleAlert,
   Tag,
   X,
   LogIn,
@@ -28,14 +28,14 @@ import {
 } from '@/lib/actions/partner';
 const states = {
   open: ['Open', Tag, 'bg-card'],
-  booked: ['Booked', CalendarCheck, 'bg-brand-100 border-brand-600'],
+  booked: ['Booked', CalendarCheck, 'bg-success-bg border-success'],
   hold: ['Hold', Timer, 'bg-warning-bg border-warning border-dashed'],
   blocked: ['Blocked', Lock, 'bg-secondary border-dashed'],
   closed: ['Closed', Ban, 'bg-secondary'],
   too_soon: ['Too soon', Clock, 'bg-secondary text-ink-700'],
   beyond: ['Not open yet', Clock, 'bg-secondary text-ink-700'],
   past: ['Past', Clock, 'bg-secondary text-ink-700'],
-  problem: ['Check', AlertTriangle, 'border-danger border-2'],
+  problem: ['Check', CircleAlert, 'border-danger border-2'],
 };
 const time = (iso) =>
   new Intl.DateTimeFormat('en-IN', {
@@ -45,7 +45,7 @@ const time = (iso) =>
   }).format(new Date(iso));
 /** Phone mini-month dots: colour plus a spoken summary. */
 const dots = [
-  ['booked', 'bg-brand-600', 'booked'],
+  ['booked', 'bg-success', 'booked'],
   ['hold', 'bg-warning', 'on hold'],
   ['closed', 'bg-ink-400', 'closed'],
   ['override', 'bg-purple-600', 'custom price'],
@@ -409,7 +409,7 @@ export default function PortfolioCalendar({
         </ul>
       )}
       <p className="text-meta text-ink-600">
-        India time. Tap a date for details. Hold or Shift-select dates for a bulk change.
+        Times in IST. Tap a date for details. Hold or Shift-select dates for a bulk change.
       </p>
       {!data.items.length && (
         <EmptyState
@@ -542,7 +542,22 @@ export default function PortfolioCalendar({
                   data-calendar-day={day}
                   type="button"
                   className={`min-h-24 min-w-0 rounded-md border p-1 text-left ${view === 'multi' ? 'min-w-28' : ''} ${view === 'month' && day.slice(0, 7) !== anchor.slice(0, 7) ? 'bg-secondary border-dashed' : ''} ${picked ? 'ring-2 ring-brand-600' : ''}`}
-                  aria-label={`${property.title}, ${dayText(day)}`}
+                  aria-label={`${property.title}, ${dayText(day)}${
+                    property.rentalUnit === 'hour'
+                      ? ''
+                      : ['day', 'night']
+                          .map((slot) => {
+                            const c = property.cells?.find(
+                              (x) => x.date === day && x.slot === slot,
+                            );
+                            const price =
+                              c?.state === 'open' && c?.effectivePriceMinor != null
+                                ? ` ${money(c.effectivePriceMinor)}`
+                                : '';
+                            return `, ${label(slot)} ${states[c?.state || 'closed'][0].toLowerCase()}${price}`;
+                          })
+                          .join('')
+                  }`}
                   aria-pressed={picked}
                   onPointerDown={(e) => {
                     drag.current = { id: property.id, index: i, time: Date.now() };
@@ -664,7 +679,7 @@ export default function PortfolioCalendar({
         </article>
       ))}
       {selected.length > 0 && !opened && (
-        <aside className="sticky bottom-4 z-20 rounded-xl border bg-card p-4 shadow-lg">
+        <aside className="sticky bottom-4 z-20 rounded-lg border bg-card p-4 shadow-md">
           <div className="flex justify-between">
             <p>{selected.length} dates selected</p>
             <button className={field} onClick={() => setSelected([])}>
@@ -818,7 +833,7 @@ export default function PortfolioCalendar({
                         ))}
                         {['startTime', 'endTime'].map((name) => (
                           <label key={name}>
-                            {name === 'startTime' ? 'From time (India)' : 'To time (India)'}
+                            {name === 'startTime' ? 'From time (IST)' : 'To time (IST)'}
                             <input
                               name={name}
                               type="time"

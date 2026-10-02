@@ -16,7 +16,7 @@ const time = (value) =>
         timeStyle: 'short',
       })
     : 'Visit hours need Rentra';
-const card = 'rounded-xl border bg-card p-5 sm:p-6 space-y-4';
+const card = 'rounded-lg border bg-card p-5 sm:p-6 space-y-4';
 export default function OwnerBookingDetail({ record, listHref = '/partner/bookings' }) {
   const next =
     record.visits.find((v) => v.operation?.action) ||

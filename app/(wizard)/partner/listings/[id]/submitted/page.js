@@ -115,7 +115,7 @@ export default async function SubmittedPage({ params }) {
             {steps.map((s, i) => (
               <li
                 key={s.title}
-                className="flex animate-in items-start gap-4 rounded-xl border border-border bg-card p-4 duration-500 fade-in slide-in-from-bottom-4"
+                className="flex animate-in items-start gap-4 rounded-lg border border-border bg-card p-4 duration-500 fade-in slide-in-from-bottom-4"
                 style={{ animationDelay: `${250 + i * 110}ms`, animationFillMode: 'backwards' }}
               >
                 <span className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-700">

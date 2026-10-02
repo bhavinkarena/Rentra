@@ -1,3 +1,5 @@
+import { portalFont } from '@/lib/portal-font';
+
 /**
  * The full-screen surfaces.
  *
@@ -16,6 +18,7 @@ export const metadata = {
   robots: { index: false, follow: false, nocache: true },
 };
 
+/** Same face and type scale as the owner portal (DS-01, BUG-47). */
 export default function WizardGroupLayout({ children }) {
-  return children;
+  return <div className={`${portalFont.variable} portal-ui`}>{children}</div>;
 }

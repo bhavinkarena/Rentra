@@ -101,7 +101,7 @@ export default function OwnerTour({ guide = {} }) {
       aria-labelledby="owner-tour-title"
       aria-describedby="owner-tour-body"
       aria-modal="true"
-      className="fixed w-[calc(100%_-_2rem)] max-w-sm rounded-xl border border-border bg-card p-6 text-ink-900 shadow-xl backdrop:bg-black/30"
+      className="fixed w-[calc(100%_-_2rem)] max-w-sm rounded-lg border border-border bg-card p-6 text-ink-900 shadow-xl backdrop:bg-black/30"
       onKeyDown={(event) => {
         if (event.key !== 'Tab') return;
         const buttons = [...dialog.current.querySelectorAll('button:not(:disabled)')];

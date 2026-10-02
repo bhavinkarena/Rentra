@@ -124,7 +124,7 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
           <p className="mb-2 text-xs font-semibold tracking-widest text-brand-700 uppercase">
             {operational ? 'Your guest visits' : 'Time well spent'}
           </p>
-          <h1 className="text-h1">{operational ? 'Booking records' : 'Your bookings'}</h1>
+          <h1 className="text-h1">{operational ? 'Bookings' : 'Your bookings'}</h1>
           <p className="mt-2 text-ink-600">
             {operational
               ? 'Manage reservations and individual visits.'
@@ -192,7 +192,7 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
               />
             </span>
           </label>
-          <button className="min-h-12 rounded-full bg-primary px-5 text-sm font-semibold text-white hover:bg-primary-hover active:bg-primary-active">
+          <button className="min-h-12 rounded-full bg-primary px-5 text-sm font-semibold text-white hover:bg-primary-hover active:bg-brand-900">
             Search
           </button>
         </Form>

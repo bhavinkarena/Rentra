@@ -176,6 +176,8 @@ export function Section({ id, title, intro, state, pending, children }) {
   }, [state, failed]);
 
   const onSubmitCapture = (event) => {
+    // Section forms stay dirty until `rentra:form-saved` (below), not on submit.
+    if (event.target instanceof HTMLFormElement) event.target.dataset.unsavedUntilSaved = '';
     if (review.intercept(event)) return;
     if (event.target instanceof HTMLFormElement)
       submitted.current = { form: event.target, data: new FormData(event.target) };
@@ -191,7 +193,8 @@ export function Section({ id, title, intro, state, pending, children }) {
   const wasOk = useRef(false);
   useEffect(() => {
     const ok = Boolean(state?.ok);
-    if (ok) {
+    // A policy preview is not applied yet, so its form stays dirty (DS-07).
+    if (ok && !state.preview) {
       sectionRef.current
         ?.querySelectorAll('form')
         .forEach((form) => form.dispatchEvent(new Event('rentra:form-saved', { bubbles: true })));

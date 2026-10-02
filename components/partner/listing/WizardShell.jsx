@@ -89,7 +89,7 @@ export default function WizardShell({
 
   return (
     <ListingChrome version={version} variant="wizard" onSaved={handleSaved} onPending={setPending}>
-      <UnsavedChangesGuard browserBack />
+      <UnsavedChangesGuard />
       <NavigationProgress active={advancing} />
       <div
         data-keyboard-open={keyboard}
@@ -141,7 +141,7 @@ export default function WizardShell({
             <StepRail progress={progress} stepHrefs={stepHrefs} />
             <div className="min-w-0">
               <MobileStepDisclosure progress={progress} stepHrefs={stepHrefs} />
-              <div className="rounded-xl border border-border bg-card p-5 shadow-xs sm:p-8 lg:p-10">
+              <div className="rounded-lg border border-border bg-card p-5 sm:p-8 lg:p-10">
                 <DraftSave
                   listing={listing}
                   step={step.id}

@@ -90,7 +90,7 @@ export function ActionForm({
               <li key={i}>
                 {c.source === 'owner_block' ? 'Owner block' : 'Booking reservation'}:{' '}
                 {new Date(c.from).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} –{' '}
-                {new Date(c.to).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} (India)
+                {new Date(c.to).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} (IST)
               </li>
             ))}
           </ul>
@@ -141,8 +141,8 @@ export function ActionForm({
                     {{
                       from: 'From date',
                       to: 'To date',
-                      startTime: 'Start time (India)',
-                      endTime: 'End time (India)',
+                      startTime: 'Start time (IST)',
+                      endTime: 'End time (IST)',
                       reason: 'Reason',
                       leadTimeMinutes: 'Minimum notice (minutes)',
                       bookingHorizonDays: 'Booking horizon (days)',
@@ -308,8 +308,8 @@ export default function BookingCalendarSettings({
           >
             <input type="hidden" name="expectedVersion" value={listing.booking_config_version} />
             <p className="text-meta text-ink-600">
-              All hours are in India time. Choose exact hours for each offered slot. Existing
-              bookings retain their original hours.
+              All hours are in IST. Choose exact hours for each offered slot. Existing bookings
+              retain their original hours.
             </p>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field
@@ -514,9 +514,9 @@ export default function BookingCalendarSettings({
           ) : null}
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="From date" name="from" type="date" required />
-            <Field label="From time (India)" name="startTime" type="time" required />
+            <Field label="From time (IST)" name="startTime" type="time" required />
             <Field label="To date" name="to" type="date" required />
-            <Field label="To time (India)" name="endTime" type="time" required />
+            <Field label="To time (IST)" name="endTime" type="time" required />
           </div>
           <Field
             label="Reason (visible to your team)"

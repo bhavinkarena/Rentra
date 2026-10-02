@@ -2,7 +2,6 @@ import PortalState from '@/components/portal/PortalState';
 import PropertyHub from '@/components/partner/property/PropertyHub';
 import { PhotosSection } from '@/components/partner/listing/ListingSections';
 import { ListingChrome } from '@/components/partner/listing/chrome';
-import UnsavedChangesGuard from '@/components/portal/UnsavedChangesGuard';
 import { loadPropertyHub } from '@/lib/partner/property-hub';
 
 export const metadata = { title: 'Property photos', robots: { index: false, follow: false } };
@@ -16,7 +15,6 @@ export default async function PropertyPhotosPage(props) {
       <PropertyHub {...hub} active="photos" />
       <div className="mt-6">
         <ListingChrome variant="card" listing={data.listing}>
-          <UnsavedChangesGuard />
           <PhotosSection listing={data.listing} photos={data.photos} />
         </ListingChrome>
       </div>
