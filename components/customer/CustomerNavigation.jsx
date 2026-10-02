@@ -1,7 +1,7 @@
 'use client';
 import Link from '@/components/navigation/NavigationLink';
 import { usePathname } from 'next/navigation';
-import { Compass, Heart, CalendarDays, CircleUserRound } from 'lucide-react';
+import { Heart, CalendarDays, CircleUserRound } from 'lucide-react';
 import { useSavedPlaces } from './SavedPlacesProvider';
 import ProfileAvatar from './ProfileAvatar';
 
@@ -11,7 +11,6 @@ export default function CustomerNavigation({ authenticated = false, compact = fa
   const customer = authenticated || saved?.mode === 'customer';
   const identity = saved?.profile ?? profile;
   const items = [
-    ['/', 'Explore', Compass],
     ['/saved', 'Saved', Heart],
     ...(customer ? [['/bookings', 'Bookings', CalendarDays]] : []),
   ];
@@ -25,13 +24,7 @@ export default function CustomerNavigation({ authenticated = false, compact = fa
         <Link
           key={href}
           href={href}
-          aria-current={
-            pathname === href ||
-            (href === '/' && ['/entertainment', '/search'].includes(pathname)) ||
-            (href !== '/' && pathname.startsWith(href + '/'))
-              ? 'page'
-              : undefined
-          }
+          aria-current={pathname === href || pathname.startsWith(href + '/') ? 'page' : undefined}
           aria-label={label}
           className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full transition-colors duration-150 hover:bg-ink-200 hover:text-brand-800 aria-[current=page]:bg-brand-600 aria-[current=page]:text-white aria-[current=page]:hover:bg-brand-700 motion-reduce:transition-none sm:px-3"
         >
