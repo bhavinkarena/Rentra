@@ -40,6 +40,28 @@ The codebase mixes **partner / owner / client / host** for the person and **prop
 
 ---
 
+## Phase progress
+
+| Phase | Title | Ships in release | Status | Completed | Notes |
+|---|---|---|---|---|---|
+| 1 | Codebase and current UX audit | — | ✅ Complete | 2 Oct 2026 | Audit delivered (§1). Critical/High bugs fixed in R0 (§15.5) |
+| 2 | Information architecture and navigation | R1 | ⏳ Not started | — | — |
+| 3 | First-time owner onboarding | R2 | ⏳ Not started | — | R0 fixed silent form errors and false promises (BUG-26/27, EARN-03) |
+| 4 | Dashboard ("Today") | R2 / R4 | ⏳ Not started | — | — |
+| 5 | Add Property / listing creation | R3 | ⏳ Not started | — | R0 fixed the ownership upload and ₹0 pricing (LIST-01, BUG-05) |
+| 6 | Property management | R3 / R6 | ⏳ Not started | — | R0 delivered PROP-03 part 1 (no review on unchanged saves) |
+| 7 | Booking and calendar | R4 / R5 | ⏳ Not started | — | R0 fixed the bookings sort/scope and guest checkouts breaking (BUG-08/09, CAL-07) |
+| 8 | Earnings and payments | R6 | ⏳ Not started | — | R0 fixed the Finance defaults and fee, and payout drafts (BUG-07/18/19) |
+| 9 | Notifications, messages and support | R2 / R4 / R6 | ⏳ Not started | — | R0 delivered owner sign-in code delivery (NOTIF-01, OTP part) |
+| 10 | Empty, loading, error and success states | R1 | ⏳ Not started | — | — |
+| 11 | Responsive and mobile UX | R1 | ⏳ Not started | — | R0 fixed page gutters (MOB-01 / BUG-46) |
+| 12 | Accessibility and design system | R1 | ⏳ Not started | — | — |
+| 13 | Frontend, API and database changes | all | ⏳ Not started | — | Reference list; done as each release lands |
+| 14 | QA and edge cases | all | ⏳ Not started | — | Reference list; checked per release |
+| 15 | Implementation roadmap | — | ✅ Complete (plan) | 2 Oct 2026 | Release R0 done. R1–R6 pending (§15.4) |
+
+Status key: ✅ Complete · 🔄 In progress · ⏳ Not started.
+
 ## Executive summary
 
 The owner side is **unusually deep**. Thirty-one delivery parts (CP01–CP31) produced versioned edits, preview-and-confirm commands, audited evidence, caretaker access, disputes and statements. The foundations (authorization scoping, inventory locking, GiST exclusion, idempotency, audit) are strong and should be kept.
