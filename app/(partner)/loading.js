@@ -1,4 +1,5 @@
-import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
+import PartnerShellSkeleton from '@/components/partner/PartnerShellSkeleton';
+
 export default function Loading() {
-  return <ScreenSkeleton screen="properties" label="Loading your workspace" />;
+  return <PartnerShellSkeleton />;
 }

@@ -378,6 +378,20 @@ Rules for `/partner/**` and the full-screen wizard (OWNER-EXPERIENCE-PLAN Phase 
 - Radius: `rounded-md` for controls and fields, `rounded-full` for chips, pills and badges, `rounded-lg` for cards. No `rounded-sm` or `rounded-xl`.
 - Cards have no resting shadow. `shadow-md` only for sticky bars and popovers; dialogs may use `shadow-xl`.
 
+### Dashboard (`/partner`, approved owners)
+
+- Bento grid, `lg:grid-cols-12`, one column on phones. Row 1: the **Today** tile (7/12) is the page's only inverse surface (`bg-brand-900`, paper text, champagne verb buttons, `data-surface="inverse"`), with Arriving / On site / Leaving counts and guest rows sorted by time; **Needs you** (5/12). Row 2: **Booked rent** (8/12) and **Next 7 days** (4/12). Row 3: Properties and Latest updates. Row 4: Upcoming & recent bookings and Booking outcomes (top-aligned).
+- Every other tile is a white `rounded-lg` bordered card with no inner cards. Rows inside tiles use `divide-y` or hover washes, never nested borders.
+- No duplicate actions: Needs you drops tasks already on a Today row, and Recent bookings drops today's visits.
+- Booked rent chart: a single area series (`brand-600` line, 10% wash) plus the previous period as an `ink-300` line with a two-item legend. The crosshair drives the headline figure and sub-line (no floating tooltip); arrow keys do the same. Range control: 7D / 30D / 90D / 12M segmented `h-11`, CSV export as a `size-11` icon button. All zero values show a dashed placeholder, not a zero axis.
+- Figures use `text-stat`; the rent headline uses `text-h1`.
+
+### Setup checklist (header)
+
+- "Get ready for bookings" lives in the owner header, left of Add, as a pill containing a progress ring (`done/total`, `brand-600` arc on an `ink-200` track) and "Finish setup" from `md`. On phones only the ring shows.
+- The pill opens a native `popover` panel: a 56px ring with the percentage, then numbered steps. Done steps show a filled check, and the next step is highlighted with a primary action. The panel ends with "Hide this checklist" when the API allows it.
+- The control renders nothing once every step is done or the owner dismissed it. It is streamed from the partner layout (`SetupProgress`) and never shown on the dashboard body.
+
 ### Status
 
 - Every state renders through `StatusBadge` (`components/ui/status-badge.jsx`) with labels and tones from `lib/domain/status.js`. Always a dot plus text, never colour alone, never a raw enum.

@@ -9,7 +9,6 @@ import { Bell } from 'lucide-react';
 import { requireClient, getCurrentUserWithCompletion } from '@/lib/api/session';
 import { verificationOutcome } from '@/lib/domain/owner-onboarding';
 import OwnerApprovalNotice from '@/components/partner/OwnerApprovalNotice';
-import OwnerSetupGuide from '@/components/partner/OwnerSetupGuide';
 import { lockedCtaMessage } from '@/lib/domain/profile-completion';
 import { recordLockedCtaClick } from '@/lib/actions/auth';
 import { withdrawApplication } from '@/lib/actions/partner';
@@ -51,7 +50,6 @@ export default async function PartnerDashboard({ searchParams }) {
     earnings,
     properties,
     updates,
-    setup,
     records,
     portfolio,
     analytics,
@@ -61,7 +59,6 @@ export default async function PartnerDashboard({ searchParams }) {
       approved ? settle(partnerApi.today({ section })) : null,
     ),
     settle(partnerApi.updates({ page: 1 })),
-    approved ? settle(partnerApi.setupGuide()) : null,
     approved
       ? settle(partnerApi.records(normalizeBookings({ ...params, tab: params.tab || 'all' })))
       : null,
@@ -70,16 +67,31 @@ export default async function PartnerDashboard({ searchParams }) {
   ]);
 
   const firstName = user.name?.trim().split(/\s+/)[0];
+  const now = new Date();
+  const hour = Number(
+    new Intl.DateTimeFormat('en-IN', {
+      hour: 'numeric',
+      hourCycle: 'h23',
+      timeZone: 'Asia/Kolkata',
+    }).format(now),
+  );
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const today = now.toLocaleDateString('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
 
   return (
     <PortalPage>
       <div id="owner-today-card">
         <PartnerPageHeader
           eyebrow={completion.approved ? 'Verified owner' : 'Getting set up'}
-          title={approved ? 'Dashboard' : 'Get verified'}
+          title={approved ? `${greeting}${firstName ? `, ${firstName}` : ''}` : 'Get verified'}
           description={
             approved
-              ? `Hello${firstName ? `, ${firstName}` : ''}. Your visits and next actions, all in IST.`
+              ? `${today} · here is your day across every property.`
               : 'Finish verification to publish. You can start a property draft now.'
           }
           action={
@@ -104,27 +116,17 @@ export default async function PartnerDashboard({ searchParams }) {
       {completion.approved ? (
         <>
           {!user.ownerGuide?.approvalSeenAt ? <OwnerApprovalNotice /> : null}
-          {setup?.failure ? (
-            <div role="alert" className="mt-5 rounded-md border border-danger/30 p-4">
-              Setup guide could not load. <RetryButton label="Try again" />
-            </div>
-          ) : setup?.data ? (
-            <OwnerSetupGuide guide={setup.data} expanded={!properties?.data?.length} />
-          ) : null}
           <OwnerToday
             analytics={analytics}
             records={records}
             portfolio={portfolio}
-            filters={params}
+            updates={updates}
             needs={needs}
             visits={visits}
             week={week}
             earnings={earnings}
             properties={properties}
           />
-          <div className="mt-5">
-            <LatestUpdates updates={updates} />
-          </div>
         </>
       ) : (
         <>

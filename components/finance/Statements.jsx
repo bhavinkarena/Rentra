@@ -72,7 +72,7 @@ function Filters({ filters, admin, properties = [], action }) {
           <option value="">All properties</option>
           {properties.map((p) => (
             <option key={p.id} value={p.id}>
-              {p.title}
+              {p.title || 'Untitled draft'}
             </option>
           ))}
           {filters.propertyId && !properties.some((p) => p.id === filters.propertyId) && (

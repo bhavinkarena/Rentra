@@ -440,6 +440,7 @@ export default function PortalShell({ config, children }) {
             )}
             {owner ? (
               <>
+                {config.headerAction}
                 {config.addHref && (
                   <Link
                     href={config.addHref}

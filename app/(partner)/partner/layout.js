@@ -10,6 +10,7 @@ import { partnerApi } from '@/lib/api/endpoints';
 import { logout } from '@/lib/actions/auth';
 import PartnerShell from '@/components/partner/PartnerShell';
 import { portalFont } from '@/lib/portal-font';
+import OwnerSetupGuide from '@/components/partner/OwnerSetupGuide';
 
 const readNavigationCounts = cache(() => partnerApi.unreadUpdates().catch(() => null));
 
@@ -38,6 +39,13 @@ export default async function PartnerLayout({ children }) {
       </Suspense>
     ) : null;
     const counts = { unreadUpdates: unread };
+    // The setup checklist lives in the header until every step is done.
+    if (completion?.approved)
+      counts.setup = (
+        <Suspense fallback={null}>
+          <SetupProgress />
+        </Suspense>
+      );
     for (const key of [
       'bookingsAction',
       'reviewsUnreplied',
@@ -93,6 +101,11 @@ export default async function PartnerLayout({ children }) {
       <main className="flex-1">{children}</main>
     </div>
   );
+}
+
+async function SetupProgress() {
+  const guide = await partnerApi.setupGuide().catch(() => null);
+  return <OwnerSetupGuide guide={guide} />;
 }
 
 async function UnreadUpdatesCount() {

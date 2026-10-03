@@ -855,6 +855,11 @@
   select:not([multiple]):is(:not([size]), [size='1'])::picker(select) {
     appearance: base-select;
   }
+  /* A `block` utility would turn the button into a text block and wrap the
+     picker icon onto its own line; keep it a full-width flex row instead. */
+  select.block:not([multiple]):is(:not([size]), [size='1']) {
+    display: flex;
+  }
 }
 
 @media (forced-colors: active) {

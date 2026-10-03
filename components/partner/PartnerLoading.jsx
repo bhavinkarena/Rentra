@@ -80,6 +80,48 @@ function TableSkeleton({ rows = 6 }) {
   );
 }
 
+/* Dashboard skeleton mirrors the bento in OwnerToday: same grid, spans, tile padding and heights. */
+const onDark = { background: 'rgb(255 255 255 / 0.1)' };
+const darkSweep = { '--skeleton-highlight': 'rgb(255 255 255 / 0.06)' };
+
+function TileSkeleton({ className = '', action = true, children }) {
+  return (
+    <div
+      className={`flex min-w-0 flex-col rounded-lg border border-border bg-card p-5 sm:p-6 ${className}`}
+    >
+      <div className="mb-4 flex min-h-11 items-center justify-between gap-3">
+        <Skeleton className="h-5 w-32" />
+        {action ? <Skeleton className="h-4 w-16" /> : null}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function RowSkeletons({ rows, lead = 'size-9 rounded-md', trail = 'h-11 w-20', stack = false }) {
+  return (
+    <div className="divide-y divide-border">
+      {Array.from({ length: rows }, (_, index) => (
+        <div
+          key={index}
+          className={`flex gap-3 py-3 ${stack ? 'items-start sm:items-center' : 'items-center'}`}
+        >
+          <Skeleton className={`shrink-0 ${lead}`} />
+          <div className="min-w-0 flex-1">
+            <Skeleton className="h-3.5 w-4/5" />
+            {stack ? <Skeleton className="mt-2 h-3.5 w-3/5 sm:hidden" /> : null}
+            <Skeleton className="mt-2 h-3 w-2/5" />
+            {stack && trail ? <Skeleton className={`mt-2 sm:hidden ${trail}`} /> : null}
+          </div>
+          {trail ? (
+            <Skeleton className={`shrink-0 ${stack ? 'hidden sm:block' : ''} ${trail}`} />
+          ) : null}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function DashboardSkeleton() {
   return (
     <div
@@ -89,24 +131,170 @@ export function DashboardSkeleton() {
       <span className="sr-only" role="status">
         Loading your dashboard
       </span>
-      <LoadingHeader />
-      <KpiSkeletons />
-      <div className="mt-6 grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <TableSkeleton rows={5} />
-        <div className="hidden space-y-5 xl:block">
-          <div className="rounded-lg border border-border bg-card p-5">
-            <Skeleton className="h-3 w-28" />
-            <Skeleton className="mt-3 h-6 w-20" />
-            <Skeleton className="mt-6 h-2 w-full rounded-full" />
-            <Skeleton className="mt-4 h-2 w-5/6 rounded-full" />
-            <Skeleton className="mt-4 h-2 w-4/6 rounded-full" />
+      {/* Greeting header */}
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-end gap-x-3 gap-y-3">
+            <Skeleton className="h-9 w-72 max-w-full sm:w-80" />
+            <Skeleton className="h-4 w-28" />
           </div>
-          <div className="rounded-lg border border-border bg-card p-5">
-            <Skeleton className="size-9 rounded-md" />
-            <Skeleton className="mt-4 h-4 w-4/5" />
-            <Skeleton className="mt-3 h-3 w-full" />
+          <Skeleton className="mt-3 h-4 w-full max-w-sm" />
+          <Skeleton className="mt-2 h-4 w-40 sm:hidden" />
+        </div>
+        <Skeleton className="h-11 w-36" />
+      </div>
+
+      <div className="mt-6 grid min-w-0 gap-5 lg:grid-cols-12">
+        {/* Today */}
+        <div
+          className="flex min-w-0 flex-col rounded-lg bg-brand-900 p-5 sm:p-6 lg:col-span-7"
+          style={darkSweep}
+        >
+          <div className="flex min-h-11 items-center justify-between gap-3">
+            <div>
+              <Skeleton className="h-6 w-20" style={onDark} />
+              <Skeleton className="mt-2 h-3.5 w-44" style={onDark} />
+            </div>
+            <Skeleton className="h-4 w-24" style={onDark} />
+          </div>
+          <div className="mt-5 grid grid-cols-3 divide-x divide-forest-line rounded-md border border-forest-line">
+            {[0, 1, 2].map((item) => (
+              <div key={item} className="px-4 py-3 sm:px-5">
+                <Skeleton className="h-3.5 w-16" style={onDark} />
+                <Skeleton className="mt-2 h-7 w-8" style={onDark} />
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 divide-y divide-forest-line">
+            {[0, 1, 2].map((item) => (
+              <div key={item} className="flex items-center gap-3 py-3">
+                <Skeleton className="hidden h-4 w-16 shrink-0 sm:block" style={onDark} />
+                <div className="min-w-0 flex-1">
+                  <Skeleton className="h-4 w-40 max-w-full" style={onDark} />
+                  <Skeleton className="mt-2 h-3.5 w-28 sm:hidden" style={onDark} />
+                  <Skeleton className="mt-2 h-3.5 w-56 max-w-full" style={onDark} />
+                </div>
+                <Skeleton className="h-11 w-24 shrink-0" style={onDark} />
+              </div>
+            ))}
+          </div>
+          <div className="mt-auto border-t border-forest-line pt-4">
+            <Skeleton className="h-3.5 w-64 max-w-full" style={onDark} />
+            <Skeleton className="mt-2 h-3.5 w-36 sm:hidden" style={onDark} />
           </div>
         </div>
+
+        {/* Needs you */}
+        <TileSkeleton className="lg:col-span-5">
+          <RowSkeletons rows={3} stack />
+        </TileSkeleton>
+
+        {/* Booked rent */}
+        <div className="min-w-0 rounded-lg border border-border bg-card p-5 sm:p-6 lg:col-span-8">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <Skeleton className="h-5 w-28" />
+              <Skeleton className="mt-3 h-9 w-48" />
+              <Skeleton className="mt-2 h-4 w-64 max-w-full" />
+            </div>
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-11 w-48" />
+              <Skeleton className="size-11" />
+            </div>
+          </div>
+          <div className="mt-5 flex justify-end gap-4">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-3 w-24" />
+          </div>
+          <div className="relative mt-3 pb-7 pl-11">
+            <div className="h-52 border-b border-ink-200 sm:h-60">
+              <Skeleton className="h-full w-full rounded-sm opacity-60" />
+            </div>
+            <div className="absolute right-0 bottom-0 left-11 flex justify-between">
+              {[0, 1, 2, 3, 4, 5].map((item) => (
+                <Skeleton key={item} className="h-3 w-9" />
+              ))}
+            </div>
+          </div>
+          <div className="mt-5 grid grid-cols-2 gap-y-4 border-t border-border pt-5 sm:grid-cols-4">
+            {[0, 1, 2, 3].map((item) => (
+              <div key={item}>
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="mt-2 h-5 w-16" />
+              </div>
+            ))}
+          </div>
+          <Skeleton className="mt-7 h-4 w-28" />
+          <Skeleton className="mt-6 h-3 w-64 max-w-full" />
+        </div>
+
+        {/* Next 7 days */}
+        <TileSkeleton className="lg:col-span-4">
+          <Skeleton className="h-7 w-40" />
+          <div className="mt-4 grid grid-cols-7 gap-1">
+            {[60, 30, 8, 45, 30, 80, 100].map((height, index) => (
+              <div key={index} className="flex flex-col items-center px-0.5 pt-1 pb-2">
+                <div className="mt-5 flex h-32 w-full items-end justify-center">
+                  <Skeleton
+                    className="w-full max-w-6 rounded-t-[4px] rounded-b-none"
+                    style={{ height: `${height}%` }}
+                  />
+                </div>
+                <Skeleton className="mt-2 h-3 w-7" />
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 divide-y divide-border border-t border-border">
+            {[0, 1, 2].map((item) => (
+              <div key={item} className="flex items-center gap-3 py-3">
+                <Skeleton className="h-3.5 w-20" />
+                <Skeleton className="h-3.5 flex-1" />
+                <Skeleton className="h-3.5 w-4" />
+              </div>
+            ))}
+          </div>
+        </TileSkeleton>
+
+        {/* Properties */}
+        <TileSkeleton className="lg:col-span-8">
+          <div className="grid gap-x-4 gap-y-1 sm:grid-cols-2">
+            {[0, 1, 2, 3, 4, 5].map((item) => (
+              <div key={item} className="flex items-center gap-3 p-2">
+                <Skeleton className="size-16 shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <Skeleton className="h-4 w-4/5" />
+                  <Skeleton className="mt-2 h-6 w-28 rounded-full" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </TileSkeleton>
+
+        {/* Latest updates */}
+        <TileSkeleton className="lg:col-span-4">
+          <RowSkeletons rows={3} lead="size-2 rounded-full" trail={null} />
+        </TileSkeleton>
+
+        {/* Upcoming & recent bookings */}
+        <TileSkeleton className="lg:col-span-8 lg:self-start">
+          <RowSkeletons rows={3} lead="size-10 rounded-full" trail="h-4 w-16" />
+        </TileSkeleton>
+
+        {/* Booking outcomes */}
+        <TileSkeleton className="lg:col-span-4 lg:self-start" action={false}>
+          <Skeleton className="h-7 w-44" />
+          <div className="mt-5 space-y-4">
+            {[0, 1, 2].map((item) => (
+              <div key={item}>
+                <div className="flex justify-between">
+                  <Skeleton className="h-3.5 w-20" />
+                  <Skeleton className="h-3.5 w-14" />
+                </div>
+                <Skeleton className="mt-1.5 h-2 w-full rounded-full" />
+              </div>
+            ))}
+          </div>
+        </TileSkeleton>
       </div>
     </div>
   );

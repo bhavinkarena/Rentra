@@ -67,7 +67,7 @@ export function EarningsFilters({ data, statement = false }) {
           <option value="">All properties</option>
           {data.properties.map((p) => (
             <option key={p.id} value={p.id}>
-              {p.title}
+              {p.title || 'Untitled draft'}
             </option>
           ))}
           {f.propertyId && !data.properties.some((p) => p.id === f.propertyId) && (
