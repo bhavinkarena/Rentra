@@ -1,5 +1,1 @@
-import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
-
-export default function Loading() {
-  return <ScreenSkeleton screen="team" label="Loading partner team" />;
-}
+export { default } from '@/components/partner/team/TeamSkeleton';
