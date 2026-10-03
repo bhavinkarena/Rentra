@@ -386,6 +386,17 @@ Rules for `/partner/**` and the full-screen wizard (OWNER-EXPERIENCE-PLAN Phase 
 - Booked rent chart: a single area series (`brand-600` line, 10% wash) plus the previous period as an `ink-300` line with a two-item legend. The crosshair drives the headline figure and sub-line (no floating tooltip); arrow keys do the same. Range control: 7D / 30D / 90D / 12M segmented `h-11`, CSV export as a `size-11` icon button. All zero values show a dashed placeholder, not a zero axis.
 - Figures use `text-stat`; the rent headline uses `text-h1`.
 
+### Calendar (`/partner/calendar`)
+
+- Split view from `lg`: a 19rem **property rail** (search, status chips, rows with thumbnail, location and status, compact `Pagination` with `listPage` / `listSize`), then the **workspace**: a property header card (photo, title, status, Booking rules, Property) and `PortfolioCalendar`. Desktop opens the first property. Phones show the rail until a property is chosen, then the calendar with an "All properties" back link.
+- Toolbar: Previous / Today / Next group and a fixed-width period title, then a Month / Week / 30 days / Agenda segmented control (links, not a select). Row 2 holds the full legend (every mark in the grid, including check-in, check-out and the custom-price dot) and "Jump to".
+- Day cells on a 1px hairline grid. Today is a filled brand circle. Lanes use a Sun or Moon icon for the slot: open is the price in ink, booked is solid `bg-success` with the guest's first name and guest count, hold is dashed warning, blocked is hatched ink, closed is muted, and "Needs attention" is danger. Past dates show no lanes.
+- Bulk selection docks sticky under the grid in the page flow, never over dates. The date detail is a right-hand drawer (a bottom sheet on phones). It shows slots with price and state, booking cards with Call / WhatsApp / Open booking, a "Change this date" panel with a before→after preview, then "Block exact hours" and "Add offline booking" disclosures.
+
+### Pagination
+
+`components/ui/pagination.jsx` is the one pagination control for every list. It shows "1–10 of 57", a "Rows per page" select (10 / 20 / 50) and Previous / numbered pages (with ellipsis) / Next. It is URL-driven: it keeps every other query parameter and resets to page 1 when the page size changes. `pageParam` and `sizeParam` name the query keys. `compact` is for narrow rails. Disabled Previous and Next keep the bordered shape.
+
 ### Setup checklist (header)
 
 - "Get ready for bookings" lives in the owner header, left of Add, as a pill containing a progress ring (`done/total`, `brand-600` arc on an `ink-200` track) and "Finish setup" from `md`. On phones only the ring shows.

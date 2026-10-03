@@ -1,5 +1,7 @@
 'use client';
 import { useActionState, useState } from 'react';
+import { ChevronDown } from 'lucide-react';
+import { fieldClass } from '@/components/ui/field';
 import { newCalendarFeed, createOfflineBooking } from '@/lib/actions/partner';
 export function CalendarFeed({ listingId }) {
   const [state, setState] = useState({}),
@@ -59,63 +61,91 @@ export function OfflineBooking({ property, date }) {
       }),
     {},
   );
+  const label = 'block text-tiny font-semibold text-ink-600';
   return (
-    <details className="rounded-lg border p-3">
-      <summary className="min-h-11 cursor-pointer font-semibold">Add offline booking</summary>
-      <form action={action} className="space-y-3">
-        <p className="text-meta">
-          Phone or WhatsApp booking, outside Rentra. This blocks inventory and never enters Rentra
-          earnings.
+    <details className="group rounded-lg border border-border bg-card">
+      <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
+        <span>
+          <span className="block text-meta font-semibold text-ink-900">Add offline booking</span>
+          <span className="block text-tiny text-ink-500">Phone or WhatsApp guests</span>
+        </span>
+        <ChevronDown
+          className="size-4 shrink-0 text-ink-500 transition-transform duration-150 group-open:rotate-180"
+          aria-hidden="true"
+        />
+      </summary>
+      <form action={action} className="space-y-4 border-t border-border p-4">
+        <p className="text-meta text-ink-600">
+          A booking made outside Rentra. It blocks the date and never enters Rentra earnings.
         </p>
-        <label className="block">
-          Date
-          <input
-            name="date"
-            type="date"
-            required
-            defaultValue={date}
-            className="block min-h-11 rounded-md border p-2"
-          />
-        </label>
-        <label className="block">
-          Slot
-          <select name="slot" className="block min-h-11 rounded-md border p-2">
-            {['day', 'night', 'full_day']
-              .filter((s) => property.config?.slots?.[s]?.enabled)
-              .map((s) => (
-                <option key={s} value={s}>
-                  {s.replace('_', ' ')}
-                </option>
-              ))}
-          </select>
-        </label>
-        {[
-          ['name', 'Guest name', 'text', true],
-          ['phone', 'Phone (optional)', 'tel', false],
-          ['guests', 'Number of guests', 'number', true],
-          ['collected', 'Amount collected (₹, optional)', 'number', false],
-        ].map(([name, label, type, required]) => (
-          <label key={name} className="block">
-            {label}
+        <div className="grid grid-cols-2 gap-3">
+          <label className={label}>
+            Date
             <input
-              name={name}
-              type={type}
-              required={required}
-              min={name === 'guests' ? 1 : 0}
-              maxLength={name === 'name' ? 100 : name === 'phone' ? 20 : undefined}
-              className="block min-h-11 w-full rounded-md border p-2"
+              name="date"
+              type="date"
+              required
+              defaultValue={date}
+              className={`${fieldClass} mt-1.5`}
             />
           </label>
-        ))}
-        <label className="block">
-          Note (optional)
-          <textarea name="note" maxLength={500} className="block w-full rounded-md border p-2" />
-        </label>
-        <button disabled={pending} className="min-h-11 rounded-md bg-primary px-4 text-white">
+          <label className={label}>
+            Slot
+            <select name="slot" className={`${fieldClass} mt-1.5`}>
+              {['day', 'night', 'full_day']
+                .filter((s) => property.config?.slots?.[s]?.enabled)
+                .map((s) => (
+                  <option key={s} value={s}>
+                    {{ day: 'Day picnic', night: 'Night stay', full_day: 'Full day' }[s]}
+                  </option>
+                ))}
+            </select>
+          </label>
+          {[
+            ['name', 'Guest name', 'text', true, 'col-span-2'],
+            ['phone', 'Phone (optional)', 'tel', false, ''],
+            ['guests', 'Guests', 'number', true, ''],
+            ['collected', 'Amount collected (₹, optional)', 'number', false, 'col-span-2'],
+          ].map(([name, text, type, required, span]) => (
+            <label key={name} className={`${label} ${span}`}>
+              {text}
+              <input
+                name={name}
+                type={type}
+                required={required}
+                min={name === 'guests' ? 1 : 0}
+                maxLength={name === 'name' ? 100 : name === 'phone' ? 20 : undefined}
+                inputMode={type === 'number' ? 'numeric' : undefined}
+                className={`${fieldClass} mt-1.5`}
+              />
+            </label>
+          ))}
+          <label className={`${label} col-span-2`}>
+            Note (optional)
+            <textarea
+              name="note"
+              maxLength={500}
+              rows={2}
+              className={`${fieldClass} mt-1.5 py-2`}
+            />
+          </label>
+        </div>
+        <button
+          disabled={pending}
+          className="inline-flex min-h-11 items-center rounded-md bg-primary px-4 text-meta font-semibold text-white hover:bg-primary-hover disabled:opacity-50"
+        >
           {pending ? 'Saving…' : 'Add offline booking'}
         </button>
-        {state.error && <p role="alert">{state.error}</p>}
-        {state.ok && <p role="status">Offline booking added.</p>}
+        {state.error && (
+          <p role="alert" className="text-meta text-danger">
+            {state.error}
+          </p>
+        )}
+        {state.ok && (
+          <p role="status" className="text-meta font-semibold text-success">
+            Offline booking added.
+          </p>
+        )}
       </form>
     </details>
   );

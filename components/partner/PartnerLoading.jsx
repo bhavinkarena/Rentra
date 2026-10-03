@@ -476,3 +476,99 @@ export function PreparingWorkspaceLoader() {
     </div>
   );
 }
+
+/* Mirrors app/(partner)/partner/calendar: property rail + calendar workspace. */
+export function CalendarSkeleton() {
+  return (
+    <div
+      className="mx-auto w-full max-w-(--container-workspace) space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
+      aria-busy="true"
+    >
+      <span className="sr-only" role="status">
+        Loading your calendar
+      </span>
+      <div>
+        <Skeleton className="h-9 w-40" />
+        <Skeleton className="mt-3 h-4 w-full max-w-lg" />
+      </div>
+      <div className="grid items-start gap-5 lg:grid-cols-[19rem_minmax(0,1fr)]">
+        <div className="rounded-lg border border-border bg-card">
+          <div className="space-y-3 border-b border-border p-4">
+            <div className="flex justify-between">
+              <Skeleton className="h-5 w-24" />
+              <Skeleton className="h-4 w-6" />
+            </div>
+            <Skeleton className="h-11 w-full" />
+            <div className="flex flex-wrap gap-1.5">
+              {[11, 13, 14, 19, 17, 24].map((w, i) => (
+                <Skeleton key={i} className="h-9 rounded-full" style={{ width: `${w * 4}px` }} />
+              ))}
+            </div>
+          </div>
+          <div className="divide-y divide-border">
+            {[0, 1, 2, 3, 4, 5].map((item) => (
+              <div key={item} className="flex items-center gap-3 px-4 py-3">
+                <Skeleton className="size-12 shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <Skeleton className="h-4 w-4/5" />
+                  <Skeleton className="mt-1.5 h-3 w-1/2" />
+                  <Skeleton className="mt-2 h-5 w-14 rounded-full" />
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="flex items-center justify-between border-t border-border px-4 py-3">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-9 w-24" />
+          </div>
+        </div>
+        <div className="hidden min-w-0 space-y-4 lg:block">
+          <div className="flex items-center gap-4 rounded-lg border border-border bg-card p-4">
+            <Skeleton className="size-14 shrink-0" />
+            <div className="flex-1">
+              <Skeleton className="h-6 w-56" />
+              <Skeleton className="mt-2 h-5 w-32 rounded-full" />
+            </div>
+            <Skeleton className="h-11 w-36" />
+            <Skeleton className="h-11 w-28" />
+          </div>
+          <div className="space-y-3 rounded-lg border border-border bg-card p-4">
+            <div className="flex justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-10 w-36" />
+                <Skeleton className="h-7 w-40" />
+              </div>
+              <div className="flex gap-2">
+                <Skeleton className="h-11 w-72" />
+                <Skeleton className="h-11 w-36" />
+              </div>
+            </div>
+            <div className="flex justify-between border-t border-border pt-3">
+              <Skeleton className="h-3 w-96" />
+              <Skeleton className="h-3 w-64" />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            {[0, 1, 2, 3].map((item) => (
+              <Skeleton key={item} className="h-9 w-24 rounded-full" />
+            ))}
+          </div>
+          <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-border bg-border">
+            {Array.from({ length: 7 }, (_, i) => (
+              <div key={`h${i}`} className="bg-ink-25 py-2">
+                <Skeleton className="mx-auto h-3 w-8" />
+              </div>
+            ))}
+            {Array.from({ length: 42 }, (_, i) => (
+              <div key={i} className="min-h-28 bg-card p-1.5">
+                <Skeleton className="size-6 rounded-full" />
+                <Skeleton className="mt-1.5 h-7 w-full" />
+                <Skeleton className="mt-1 h-7 w-full" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
