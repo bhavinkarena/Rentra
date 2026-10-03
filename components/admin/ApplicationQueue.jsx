@@ -1,7 +1,8 @@
 import Form from '@/components/navigation/NavigationForm';
 import Link from '@/components/navigation/NavigationLink';
 import { AlertTriangle, Clock, Inbox, MousePointerClick, RotateCcw, UserCheck } from 'lucide-react';
-import { AdminEmpty, Pager, StatusBadge } from './AdminPrimitives';
+import { AdminEmpty, StatusBadge } from './AdminPrimitives';
+import Pagination from '@/components/ui/pagination';
 
 const STATUS = {
   submitted: 'Waiting',
@@ -175,17 +176,16 @@ export default function ApplicationQueue({ data }) {
         />
       )}
 
-      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-5 py-4">
-        <p className="text-tiny text-ink-500">
-          {data.total} application{data.total === 1 ? '' : 's'} · page {data.page} of {data.pages}
-        </p>
-        <Pager
-          page={data.page}
-          hasNext={data.page < data.pages}
-          previousHref={queueHref({ ...data, page: data.page - 1 })}
-          nextHref={queueHref({ ...data, page: data.page + 1 })}
-        />
-      </footer>
+      <Pagination
+        page={data.page}
+        pageSize={data.pageSize}
+        total={data.total}
+        pages={data.pages}
+        pageSizes={null}
+        label="Application pages"
+        noun="applications"
+        className="border-t border-border px-5 py-4"
+      />
     </section>
   );
 }

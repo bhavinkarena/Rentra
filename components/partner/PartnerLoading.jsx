@@ -572,3 +572,132 @@ export function CalendarSkeleton() {
     </div>
   );
 }
+
+/* Mirrors OwnerBookings. Rendered inside the bookings layout's PortalPage, so it adds no page padding. */
+export function BookingsSkeleton() {
+  return (
+    <div className="mx-auto w-full max-w-7xl min-w-0 space-y-6" aria-busy="true">
+      <span className="sr-only" role="status">
+        Loading your bookings
+      </span>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <Skeleton className="h-9 w-40" />
+          <Skeleton className="mt-3 h-4 w-80 max-w-full" />
+        </div>
+        <Skeleton className="h-11 w-36" />
+      </div>
+      <div className="overflow-hidden rounded-lg border border-border bg-card">
+        <div className="flex gap-5 overflow-hidden border-b border-border px-4 py-4">
+          {[16, 22, 26, 24, 12, 22].map((w, i) => (
+            <Skeleton key={i} className="h-5 shrink-0" style={{ width: `${w * 4}px` }} />
+          ))}
+        </div>
+        <div className="grid gap-3 border-b border-border bg-ink-25 p-3 sm:p-4 md:grid-cols-[minmax(0,1fr)_14rem_auto] xl:grid-cols-[minmax(0,1fr)_16rem_auto_auto]">
+          <Skeleton className="h-11 w-full" />
+          <Skeleton className="h-11 w-full" />
+          <div className="flex gap-2 md:col-span-2 xl:col-span-1">
+            <Skeleton className="h-11 flex-1 xl:w-40" />
+            <Skeleton className="h-11 flex-1 xl:w-40" />
+          </div>
+          <Skeleton className="h-11 w-full md:col-start-3 md:row-start-1 md:w-24 xl:col-start-4" />
+        </div>
+        <div className="hidden gap-4 border-b border-border px-4 py-3 lg:flex">
+          <Skeleton className="h-3 w-full" />
+        </div>
+        <div className="divide-y divide-border">
+          {[0, 1, 2, 3, 4, 5].map((item) => (
+            <div
+              key={item}
+              className="grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3.5 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1.5fr)_minmax(0,1fr)_9rem_8rem_1.25rem] lg:gap-4"
+            >
+              <div className="contents lg:flex lg:items-center lg:gap-3">
+                <Skeleton className="size-10 rounded-full" />
+                <div className="min-w-0 flex-1">
+                  <Skeleton className="h-4 w-28" />
+                  <Skeleton className="mt-1.5 h-3 w-40 max-w-full lg:w-16" />
+                </div>
+              </div>
+              <div className="hidden items-center gap-3 lg:flex">
+                <Skeleton className="size-10 shrink-0" />
+                <div className="flex-1">
+                  <Skeleton className="h-4 w-4/5" />
+                  <Skeleton className="mt-1.5 h-3 w-3/5" />
+                </div>
+              </div>
+              <div className="hidden lg:block">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="mt-1.5 h-3 w-12" />
+              </div>
+              <Skeleton className="hidden h-6 w-24 rounded-full lg:block" />
+              <div className="flex flex-col items-end">
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="mt-1.5 h-3 w-12" />
+              </div>
+              <span className="hidden lg:block" />
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center justify-between border-t border-border px-4 py-3">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-9 w-48" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* Mirrors OwnerBookingDetail on its own page. */
+export function BookingDetailSkeleton() {
+  const section = (rows) => (
+    <div className="rounded-lg border border-border bg-card">
+      <div className="border-b border-border px-5 py-4">
+        <Skeleton className="h-4 w-28" />
+      </div>
+      <div className="space-y-4 p-5">
+        {Array.from({ length: rows }, (_, i) => (
+          <div key={i} className="flex items-center gap-4">
+            <Skeleton className="h-12 w-12 shrink-0" />
+            <div className="flex-1">
+              <Skeleton className="h-4 w-1/2" />
+              <Skeleton className="mt-2 h-3 w-3/4" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+  return (
+    <div className="mx-auto max-w-6xl space-y-5" aria-busy="true">
+      <span className="sr-only" role="status">
+        Loading booking
+      </span>
+      <Skeleton className="h-5 w-24" />
+      <div className="rounded-lg border border-border bg-card">
+        <div className="flex gap-4 p-5">
+          <Skeleton className="size-16 shrink-0" />
+          <div className="flex-1">
+            <Skeleton className="h-6 w-24 rounded-full" />
+            <Skeleton className="mt-3 h-9 w-2/3" />
+            <Skeleton className="mt-3 h-6 w-64 max-w-full" />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-px border-t border-border bg-border sm:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="bg-card px-5 py-3">
+              <Skeleton className="h-3 w-12" />
+              <Skeleton className="mt-2 h-4 w-20" />
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        {section(3)}
+        <div className="space-y-5">
+          {section(1)}
+          {section(2)}
+        </div>
+      </div>
+    </div>
+  );
+}

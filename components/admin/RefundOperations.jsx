@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import Link from '@/components/navigation/NavigationLink';
 import { TriangleAlert } from 'lucide-react';
 import { AdminEmpty, AdminPage, AdminPageHeader, StatusBadge } from './AdminPrimitives';
+import Pagination from '@/components/ui/pagination';
 import { FieldGrid, SectionCard } from '@/components/portal/DetailLayout';
 import { bookingMoney as money, bookingTime as time } from '@/lib/domain/booking-record';
 import { RefundCommand } from './RefundCommands';
@@ -198,29 +199,16 @@ export function RefundList({ data }) {
           />
         )}
       </section>
-      <div className="mt-4 flex items-center justify-between text-meta">
-        <span>
-          Page {data.page} of {data.pages} · {data.total} total
-        </span>
-        <span className="flex gap-3">
-          {data.page > 1 ? (
-            <Link
-              className="font-semibold text-brand-700 underline"
-              href={href(data, { page: String(data.page - 1) })}
-            >
-              Previous
-            </Link>
-          ) : null}
-          {data.page < data.pages ? (
-            <Link
-              className="font-semibold text-brand-700 underline"
-              href={href(data, { page: String(data.page + 1) })}
-            >
-              Next
-            </Link>
-          ) : null}
-        </span>
-      </div>
+      <Pagination
+        page={data.page}
+        pageSize={25}
+        total={data.total}
+        pages={data.pages}
+        pageSizes={null}
+        label="Refund pages"
+        noun="refunds"
+        className="mt-4"
+      />
     </AdminPage>
   );
 }

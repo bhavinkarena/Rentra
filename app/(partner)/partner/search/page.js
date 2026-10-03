@@ -7,6 +7,7 @@ import OwnerTable from '@/components/partner/OwnerTable';
 import { PartnerPageHeader } from '@/components/partner/PortalPrimitives';
 import Form from '@/components/navigation/NavigationForm';
 import Link from '@/components/navigation/NavigationLink';
+import Pagination from '@/components/ui/pagination';
 const types = {
   all: 'Everything',
   property: 'Properties',
@@ -24,7 +25,6 @@ export default async function SearchPage({ searchParams }) {
     type = types[query.type] ? query.type : 'all';
   const page = /^\d{1,6}$/.test(query.page || '') ? Math.max(1, Number(query.page)) : 1;
   const result = q ? await settle(partnerApi.search({ q, type, page })) : null;
-  const href = (page) => `/partner/search?${new URLSearchParams({ q, type, page: String(page) })}`;
   return (
     <PortalPage className="space-y-6">
       <PartnerPageHeader
@@ -97,14 +97,16 @@ export default async function SearchPage({ searchParams }) {
               </tr>
             ))}
           </OwnerTable>
-          {result?.data?.pages > 1 && (
-            <nav aria-label="Search result pages" className="flex items-center gap-4">
-              {page > 1 && <Link href={href(page - 1)}>Previous</Link>}
-              <span>
-                Page {page} of {result.data.pages}
-              </span>
-              {page < result.data.pages && <Link href={href(page + 1)}>Next</Link>}
-            </nav>
+          {result?.data && (
+            <Pagination
+              page={page}
+              pageSize={20}
+              total={result.data.total}
+              pages={result.data.pages}
+              pageSizes={null}
+              label="Search result pages"
+              noun="results"
+            />
           )}
         </>
       )}

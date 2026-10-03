@@ -2,6 +2,7 @@ import OwnerTable from '@/components/partner/OwnerTable';
 import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import Form from '@/components/navigation/NavigationForm';
 import Link from '@/components/navigation/NavigationLink';
+import Pagination from '@/components/ui/pagination';
 import { randomUUID } from 'node:crypto';
 import {
   supportCategories,
@@ -155,24 +156,15 @@ export function SupportList({ data, admin = false, owner = false }) {
           actionLabel={data.state === 'all' ? 'New request' : 'Clear filters'}
         />
       )}
-      {data.page > 1 || data.hasNext ? (
-        <nav
-          aria-label="Support request pages"
-          className="mt-6 flex items-center justify-center gap-3"
-        >
-          {data.page > 1 ? (
-            <Link className={secondary} href={`?state=${data.state}&page=${data.page - 1}`}>
-              Previous
-            </Link>
-          ) : null}
-          <span className="text-meta text-ink-600">Page {data.page}</span>
-          {data.hasNext ? (
-            <Link className={secondary} href={`?state=${data.state}&page=${data.page + 1}`}>
-              Next
-            </Link>
-          ) : null}
-        </nav>
-      ) : null}
+      <Pagination
+        page={data.page}
+        pageSize={20}
+        total={data.total}
+        pageSizes={null}
+        label="Support request pages"
+        noun="requests"
+        className="mt-6"
+      />
     </section>
   );
 }

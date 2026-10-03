@@ -1,6 +1,7 @@
 import OwnerTable from '@/components/partner/OwnerTable';
 import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import Link from '@/components/navigation/NavigationLink';
+import Pagination from '@/components/ui/pagination';
 import { ChevronDown, ChevronRight, FileText, Plus, Scale } from 'lucide-react';
 import { DisputeForm } from './DisputeForms';
 import { BackLink, PageHeader } from '@/components/ui/page-header';
@@ -232,26 +233,17 @@ export function NewDispute({ context, kind, bookings = [], bookingPages, default
           <button className={primary}>Load booking</button>
         </form>
       )}
-      {bookingPages && (bookingPages.page > 1 || bookingPages.pages > bookingPages.page) && (
-        <nav className="mt-4 flex gap-4" aria-label="Booking picker pages">
-          {bookingPages.page > 1 && (
-            <Link
-              className={pill}
-              href={`?page=${bookingPages.page - 1}&q=${encodeURIComponent(bookingPages.q || '')}`}
-            >
-              Previous bookings
-            </Link>
-          )}
-          <span>Page {bookingPages.page}</span>
-          {bookingPages.pages > bookingPages.page && (
-            <Link
-              className={pill}
-              href={`?page=${bookingPages.page + 1}&q=${encodeURIComponent(bookingPages.q || '')}`}
-            >
-              More bookings
-            </Link>
-          )}
-        </nav>
+      {bookingPages && (
+        <Pagination
+          page={bookingPages.page}
+          pageSize={20}
+          total={bookingPages.total}
+          pages={bookingPages.pages}
+          pageSizes={null}
+          label="Booking picker pages"
+          noun="bookings"
+          className="mt-4"
+        />
       )}
     </div>
   );

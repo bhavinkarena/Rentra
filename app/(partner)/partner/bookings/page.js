@@ -4,7 +4,7 @@ import { z } from 'zod';
 import PartnerBookingsScreen from '@/components/partner/PartnerBookingsScreen';
 import { normalizeBookings } from '@/lib/partner/query-args';
 import { partnerCacheEnabled } from '@/lib/partner/flags';
-import { BookingHistory } from '@/components/customer/BookingHistory';
+import OwnerBookings from '@/components/partner/OwnerBookings';
 import { partnerApi } from '@/lib/api/endpoints';
 import { requireActiveClient } from '@/lib/api/session';
 import { settle } from '@/lib/api/page-state';
@@ -22,11 +22,19 @@ export default async function BookingsPage({ searchParams }) {
   const booking = z.string().uuid().safeParse(query.booking);
   const detail = booking.success ? await settle(partnerApi.record(booking.data)) : null;
   const modal = detail ? (
-    <OwnerModal title="Booking details" closeHref={closeHref}>
+    <OwnerModal
+      title={detail.data?.title || 'Booking details'}
+      closeHref={closeHref}
+      fullHref={
+        detail.data
+          ? `/partner/bookings/${detail.data.id}?${new URLSearchParams({ from: closeHref })}`
+          : null
+      }
+    >
       {detail.failure ? (
         <PortalState kind={detail.failure} backHref={closeHref} backLabel="Bookings" />
       ) : (
-        <OwnerBookingDetail record={detail.data} listHref={closeHref} />
+        <OwnerBookingDetail record={detail.data} listHref={closeHref} sheet />
       )}
     </OwnerModal>
   ) : null;
@@ -41,7 +49,7 @@ export default async function BookingsPage({ searchParams }) {
   if (failure) return <PortalState kind={failure} backHref="/partner" backLabel="Overview" />;
   return (
     <>
-      <BookingHistory operational base="/partner/bookings" data={data} />
+      <OwnerBookings data={data} />
       {modal}
     </>
   );

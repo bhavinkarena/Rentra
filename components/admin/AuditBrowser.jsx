@@ -4,6 +4,7 @@ import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from '@/components/navigation/NavigationLink';
+import Pagination from '@/components/ui/pagination';
 import { createAuditExport, retryAuditExport } from '@/lib/actions/audit';
 const card = 'space-y-4 rounded-lg border border-ink-200 bg-white p-4 sm:p-6';
 const input = `${sharedFieldClass} mt-1`;
@@ -17,7 +18,6 @@ const label = (d) =>
 const stamp = (v) => new Date(v).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 export function AuditDirectory({ data }) {
   const router = useRouter();
-  const pageLink = (page) => `/admin/audit?${new URLSearchParams({ ...data.filters, page })}`;
   return (
     <div className="space-y-6">
       <h1 className="text-h1">Audit history</h1>
@@ -110,10 +110,15 @@ export function AuditDirectory({ data }) {
       ) : (
         <p>No events match these filters.</p>
       )}
-      <nav className="flex gap-4" aria-label="Audit pages">
-        {data.page > 1 && <Link href={pageLink(data.page - 1)}>Previous</Link>}
-        {data.page < data.pages && <Link href={pageLink(data.page + 1)}>Next</Link>}
-      </nav>
+      <Pagination
+        page={data.page}
+        pageSize={25}
+        total={data.total}
+        pages={data.pages}
+        pageSizes={null}
+        label="Audit pages"
+        noun="events"
+      />
       {data.canExport && <ExportForm data={data} />}
     </div>
   );

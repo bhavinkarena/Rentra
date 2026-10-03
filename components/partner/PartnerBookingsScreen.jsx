@@ -1,7 +1,7 @@
 'use client';
 import { usePortalScope } from '@/lib/partner/use-portal-scope';
 import { useGetOwnerBookingsQuery } from '@/lib/services/partner.service';
-import { BookingHistory } from '@/components/customer/BookingHistory';
+import OwnerBookings from './OwnerBookings';
 import PartnerQueryState from './PartnerQueryState';
 export default function PartnerBookingsScreen({ args, scope }) {
   const matches = usePortalScope(scope);
@@ -14,9 +14,7 @@ export default function PartnerBookingsScreen({ args, scope }) {
   if (!matches) return <p role="status">Checking your session…</p>;
   return (
     <PartnerQueryState queries={[bookings]}>
-      {bookings.currentData?.data && (
-        <BookingHistory operational base="/partner/bookings" data={bookings.currentData.data} />
-      )}
+      {bookings.currentData?.data && <OwnerBookings data={bookings.currentData.data} />}
     </PartnerQueryState>
   );
 }

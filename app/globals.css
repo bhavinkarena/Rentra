@@ -518,6 +518,22 @@
         opacity: 0;
       }
     }
+    /* Record side sheets (OwnerModal, calendar date drawer) slide in from the right. */
+    :is(.owner-sheet, [data-calendar-detail])[open] {
+      transition:
+        translate 220ms cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 220ms ease-out;
+      @starting-style {
+        translate: 2.5rem 0;
+        opacity: 0;
+      }
+    }
+    :is(.owner-sheet, [data-calendar-detail])[open]::backdrop {
+      transition: opacity 220ms ease-out;
+      @starting-style {
+        opacity: 0;
+      }
+    }
     .sheet-dialog[open]::backdrop {
       transition: opacity 200ms ease-out;
       @starting-style {
@@ -1122,6 +1138,16 @@
   overscroll-behavior: contain;
   max-height: calc(100dvh - 2rem);
   overflow-y: auto;
+}
+/* Edge-to-edge side sheets own their full height. */
+@media (min-width: 768px) {
+  :is(.owner-portal, .owner-wizard) dialog:is(.owner-sheet, [data-calendar-detail]) {
+    max-height: 100dvh;
+  }
+}
+:is(.owner-portal, .owner-wizard) dialog.owner-sheet {
+  max-height: 100dvh;
+  overflow: hidden;
 }
 .owner-portal > header,
 .owner-portal > div > header,

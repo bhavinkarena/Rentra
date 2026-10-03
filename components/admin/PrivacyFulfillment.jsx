@@ -4,6 +4,7 @@ import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from '@/components/navigation/NavigationLink';
+import Pagination from '@/components/ui/pagination';
 import { privacyCommand } from '@/lib/actions/privacy';
 const card = 'space-y-4 rounded-lg border border-ink-200 bg-white p-4 sm:p-6';
 const input = `${sharedFieldClass} mt-1`;
@@ -66,14 +67,15 @@ export function PrivacyDirectory({ data }) {
       ) : (
         <p>No matching privacy requests.</p>
       )}
-      <nav aria-label="Privacy queue pages" className="flex gap-4">
-        {data.page > 1 && (
-          <Link href={`/admin/privacy?state=${data.state}&page=${data.page - 1}`}>Previous</Link>
-        )}
-        {data.page < data.pages && (
-          <Link href={`/admin/privacy?state=${data.state}&page=${data.page + 1}`}>Next</Link>
-        )}
-      </nav>
+      <Pagination
+        page={data.page}
+        pageSize={20}
+        total={data.total}
+        pages={data.pages}
+        pageSizes={null}
+        label="Privacy queue pages"
+        noun="requests"
+      />
     </div>
   );
 }

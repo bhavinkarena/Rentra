@@ -2,7 +2,8 @@ import Form from '@/components/navigation/NavigationForm';
 import { randomUUID } from 'node:crypto';
 import Link from '@/components/navigation/NavigationLink';
 import { ClipboardList, Search } from 'lucide-react';
-import { AdminEmpty, AdminPage, AdminPageHeader, Pager, StatusBadge } from './AdminPrimitives';
+import { AdminEmpty, AdminPage, AdminPageHeader, StatusBadge } from './AdminPrimitives';
+import Pagination from '@/components/ui/pagination';
 import { FieldGrid, SectionCard } from '@/components/portal/DetailLayout';
 import { bookingMoney as money, bookingTime as time } from '@/lib/domain/booking-record';
 import { AssignCaseForm, CaseMessageForm, ResolveCaseForm } from '@/components/booking/CaseForms';
@@ -151,15 +152,16 @@ export function BookingCaseList({ data }) {
           />
         )}
       </div>
-      <div className="mt-4">
-        <Pager
-          page={data.page}
-          hasNext={data.page < data.pages}
-          previousHref={listHref(data, { page: String(data.page - 1) })}
-          nextHref={listHref(data, { page: String(data.page + 1) })}
-          label="Cases page"
-        />
-      </div>
+      <Pagination
+        page={data.page}
+        pageSize={20}
+        total={data.total}
+        pages={data.pages}
+        pageSizes={null}
+        label="Case pages"
+        noun="cases"
+        className="mt-4"
+      />
     </AdminPage>
   );
 }

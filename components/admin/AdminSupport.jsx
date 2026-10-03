@@ -10,9 +10,9 @@ import {
   AdminKpiCard,
   AdminPage,
   AdminPageHeader,
-  Pager,
   StatusBadge,
 } from './AdminPrimitives';
+import Pagination from '@/components/ui/pagination';
 import { DetailHeader } from '@/components/portal/DetailLayout';
 
 const time = (value) =>
@@ -179,17 +179,15 @@ export function AdminSupportList({ data }) {
             description="Choose another status or check back when clients or customers contact support."
           />
         )}
-        <footer className="flex justify-between border-t border-border px-5 py-4">
-          <p className="text-tiny text-ink-500">
-            {data.total} request{data.total === 1 ? '' : 's'}
-          </p>
-          <Pager
-            page={data.page}
-            hasNext={data.hasNext}
-            previousHref={`?state=${data.state}&participant=${data.participant}&assignment=${data.assignment}&page=${data.page - 1}`}
-            nextHref={`?state=${data.state}&participant=${data.participant}&assignment=${data.assignment}&page=${data.page + 1}`}
-          />
-        </footer>
+        <Pagination
+          page={data.page}
+          pageSize={20}
+          total={data.total}
+          pageSizes={null}
+          label="Support request pages"
+          noun="requests"
+          className="border-t border-border px-5 py-4"
+        />
       </section>
     </AdminPage>
   );

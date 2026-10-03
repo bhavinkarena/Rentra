@@ -1,5 +1,5 @@
-import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
+import { BookingDetailSkeleton } from '@/components/partner/PartnerLoading';
 
 export default function Loading() {
-  return <ScreenSkeleton inset screen="booking-detail" label="Loading partner bookings booking" />;
+  return <BookingDetailSkeleton />;
 }

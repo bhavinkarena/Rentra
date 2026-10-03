@@ -34,6 +34,9 @@ const ROUTES = {
   updates: UpdatesLoading,
 };
 
+// These routes get their page padding from a nested PortalPage layout, which has not rendered yet.
+const PADDED = new Set(['bookings', 'disputes', 'finance', 'payouts', 'support']);
+
 const onDark = { background: 'rgb(255 255 255 / 0.1)' };
 const darkSweep = { '--skeleton-highlight': 'rgb(255 255 255 / 0.06)' };
 
@@ -95,7 +98,11 @@ export default function PartnerShellSkeleton() {
           </div>
         </div>
         <main className="pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
-          {Route ? (
+          {Route && PADDED.has(segment) ? (
+            <div className="mx-auto w-full max-w-(--container-workspace) min-w-0 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+              <Route />
+            </div>
+          ) : Route ? (
             <Route />
           ) : (
             <ScreenSkeleton layout="portal" screen="table" label="Loading your workspace" />
