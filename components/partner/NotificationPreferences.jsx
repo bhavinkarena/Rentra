@@ -1,6 +1,7 @@
 'use client';
 import { useActionState, useState, useTransition } from 'react';
 import { saveOwnerNotifications } from '@/lib/actions/partner';
+import { buttonVariants } from '@/components/ui/button';
 import { CATEGORY_LABEL } from '@/lib/domain/client-updates';
 const FAILURE_TEXT = {
   VERIFIED_PHONE_REQUIRED: 'Mobile: verify your number in Login & security.',
@@ -55,42 +56,47 @@ export default function NotificationPreferences({ data }) {
           </span>
         </p>
       )}
-      {data.categories.map((category) => (
-        <fieldset key={category} className="rounded-lg border border-border bg-card p-4">
-          <legend className="px-1 font-semibold">{CATEGORY_LABEL[category]}</legend>
-          {category === 'team' && (
-            <p className="text-meta">
-              You can turn off routine caretaker updates. If a caretaker is removed during a visit,
-              we still send an email when both switches are off.
-            </p>
-          )}
-          <div className="flex flex-wrap gap-6">
-            {[
-              ['mobile', 'WhatsApp / SMS'],
-              ['email', 'Email'],
-            ].map(([key, label]) => (
-              <label key={key} className="flex min-h-11 items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={prefs[category][key]}
-                  onChange={(event) =>
-                    setPrefs({
-                      ...prefs,
-                      [category]: { ...prefs[category], [key]: event.target.checked },
-                    })
-                  }
-                />
-                {label}
-              </label>
-            ))}
-          </div>
-          {state.errors?.[category] && (
-            <p role="alert" className="text-danger">
-              {state.errors[category]}
-            </p>
-          )}
-        </fieldset>
-      ))}
+      <div className="divide-y divide-border rounded-lg border border-border bg-card">
+        {data.categories.map((category) => (
+          <fieldset key={category} className="min-w-0 p-5 sm:p-6" disabled={pending}>
+            <legend className="sr-only">{CATEGORY_LABEL[category]}</legend>
+            <p className="mb-3 text-meta font-semibold">{CATEGORY_LABEL[category]}</p>
+            {category === 'team' && (
+              <p className="text-meta">
+                You can turn off routine caretaker updates. If a caretaker is removed during a
+                visit, we still send an email when both switches are off.
+              </p>
+            )}
+            <div className="flex flex-wrap gap-6">
+              {[
+                ['mobile', 'WhatsApp / SMS'],
+                ['email', 'Email'],
+              ].map(([key, label]) => (
+                <label key={key} className="flex min-h-11 items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="size-5 accent-brand-600"
+                    aria-label={`${CATEGORY_LABEL[category]} - ${label}`}
+                    checked={prefs[category][key]}
+                    onChange={(event) =>
+                      setPrefs({
+                        ...prefs,
+                        [category]: { ...prefs[category], [key]: event.target.checked },
+                      })
+                    }
+                  />
+                  {label}
+                </label>
+              ))}
+            </div>
+            {state.errors?.[category] && (
+              <p role="alert" className="text-danger">
+                {state.errors[category]}
+              </p>
+            )}
+          </fieldset>
+        ))}
+      </div>
       {state.error && (
         <p role="alert" className="text-danger">
           {state.error}
@@ -101,10 +107,7 @@ export default function NotificationPreferences({ data }) {
           {state.message}
         </p>
       )}
-      <button
-        disabled={pending}
-        className="min-h-11 rounded-md bg-brand-800 px-4 font-semibold text-white"
-      >
+      <button disabled={pending} className={buttonVariants()}>
         {pending ? 'Saving…' : 'Save notification settings'}
       </button>
     </form>

@@ -1,9 +1,6 @@
-import OwnerTable from './OwnerTable';
-import { EmptyState } from '@/components/ui/empty-state';
 import { randomUUID } from 'node:crypto';
 import Link from '@/components/navigation/NavigationLink';
-import { History, ShieldAlert, ShieldCheck, WalletCards } from 'lucide-react';
-import { PartnerPageHeader } from './PortalPrimitives';
+import SettingsHeading from './settings/SettingsHeading';
 import {
   ChangeDestinationForm,
   ConfirmPayoutIdentityForm,
@@ -18,7 +15,7 @@ const ist = (value) =>
         timeStyle: 'short',
       })
     : '—';
-const chip = 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold';
+const chip = 'inline-flex items-center rounded-full px-2.5 py-0.5 text-meta font-semibold';
 const TONE = {
   submitted: 'bg-warning-bg text-warning',
   verified: 'bg-success-bg text-success',
@@ -32,20 +29,9 @@ const NAME = {
   unknown: 'Name not compared',
 };
 
-function Card({ title, icon: Icon, children }) {
-  return (
-    <section className="rounded-lg border border-border bg-card p-5 sm:p-6">
-      <h2 className="flex items-center gap-2 text-h4 font-bold text-ink-900">
-        <Icon className="size-[18px] text-brand-700" aria-hidden="true" /> {title}
-      </h2>
-      <div className="mt-4 space-y-3 text-meta">{children}</div>
-    </section>
-  );
-}
-
 function Version({ d }) {
   return (
-    <div className="space-y-1">
+    <div className="space-y-2 text-meta">
       <p className="flex flex-wrap items-center gap-2 font-semibold">
         Version {d.version} · {d.masked}{' '}
         <span className={`${chip} ${TONE[d.state]}`}>{d.stateLabel}</span>
@@ -62,124 +48,105 @@ function Version({ d }) {
 export default function PayoutDestinations({ data }) {
   const auth = data.recentAuth;
   return (
-    <div className="mx-auto w-full max-w-[980px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-      <Link
-        href="/partner/earnings"
-        className="mb-3 inline-flex min-h-9 items-center text-tiny font-semibold text-brand-700 hover:underline"
-      >
-        ← Earnings
-      </Link>
-      <PartnerPageHeader
-        eyebrow="Account"
+    <section>
+      <SettingsHeading
         title="Payout method"
-        description="Where Rentra will send earnings once payouts are switched on. We’ll ask you to confirm these details with our payment partner before your first payout."
+        description="Manage where Rentra will send earnings once payouts are switched on."
       />
-      <div className="mt-6 space-y-5">
-        <p
-          role="status"
-          className={`flex items-start gap-2 rounded-md border-l-4 p-3 text-meta ${data.readiness.ready ? 'border-success bg-success-bg' : 'border-warning bg-warning-bg text-warning'}`}
-        >
-          {data.readiness.ready ? (
-            <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+      <p
+        role="status"
+        className="mb-6 rounded-md border border-border bg-card p-4 text-meta leading-6 text-ink-600"
+      >
+        <strong className="text-ink-900">Payouts are not switched on yet.</strong>{' '}
+        {data.current?.masked
+          ? `Your payout method is recorded: ${data.current.masked}.`
+          : data.readiness.reason}
+      </p>
+      <section className="rounded-lg border border-border bg-card p-5 sm:p-6">
+        <h2 className="mb-4 text-h3 font-semibold">Current method</h2>
+        {data.current ? (
+          <Version d={data.current} />
+        ) : (
+          <p className="text-meta text-ink-600">
+            No payout method on file. Add a bank account or UPI destination below.
+          </p>
+        )}
+      </section>
+      {data.draft && (
+        <section className="mt-7 border-t border-border pt-6">
+          <h2 className="mb-4 text-h3 font-semibold">Draft waiting for confirmation</h2>
+          <Version d={data.draft} />
+          {auth.required && !auth.fresh ? (
+            <div className="mt-4 space-y-4">
+              <p className="text-meta leading-6 text-ink-600">
+                Confirm your identity within the last {auth.minutes} minutes to submit this change.
+                Your draft is kept.
+              </p>
+              <ConfirmPayoutIdentityForm />
+            </div>
           ) : (
-            <ShieldAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-          )}
-          <span>
-            <strong>{'Payouts are not switched on yet.'}</strong>{' '}
-            {data.current?.masked
-              ? `Your payout method is recorded: ${data.current.masked}.`
-              : data.readiness.reason}
-          </span>
-        </p>
-        <Card title="Current payout method" icon={WalletCards}>
-          {data.current ? (
-            <Version d={data.current} />
-          ) : (
-            <EmptyState
-              variant="compact"
-              title="No payout method on file"
-              description="Add a bank account or UPI destination to prepare for payouts."
-              actionHref="#destination-form"
-              actionLabel="Add payout method"
-            />
-          )}
-        </Card>
-        {data.draft ? (
-          <Card title="Draft waiting for confirmation" icon={History}>
-            <Version d={data.draft} />
-            {auth.required && !auth.fresh ? (
-              <>
-                <p>
-                  Changes to where money goes need identity confirmation within the last{' '}
-                  {auth.minutes} minutes. Your draft is kept.
-                </p>
-                <ConfirmPayoutIdentityForm />
-              </>
-            ) : (
+            <div className="mt-4">
               <SubmitDraftForm
                 key={`draft-${data.latestVersion}`}
                 draft={data.draft}
                 latestVersion={data.latestVersion}
               />
-            )}
-          </Card>
-        ) : null}
-        <div id="destination-form" className="scroll-mt-24">
-          <Card title="Change payout method" icon={WalletCards}>
-            <p className="text-ink-600">
-              {auth.required
-                ? auth.fresh
-                  ? `Identity last confirmed at ${ist(auth.authenticatedAt)} — changes can be submitted until ${ist(auth.freshUntil)}.`
-                  : `You signed in at ${ist(auth.authenticatedAt)}. A change will be saved as a draft until you confirm your identity.`
-                : 'Your application is still under review; Rentra checks these details at review.'}{' '}
-              Payouts already scheduled keep the version they were created with.
-            </p>
-            {auth.required && !auth.fresh && !data.draft && <ConfirmPayoutIdentityForm />}
-            <ChangeDestinationForm
-              key={`change-${data.latestVersion}`}
-              latestVersion={data.latestVersion}
-              requestKey={randomUUID()}
-              current={data.current}
-            />
-          </Card>
-        </div>
-        <Card title="History" icon={History}>
-          {data.history.length ? (
-            <OwnerTable
-              label="Payout method history"
-              columns={['Version / method', 'Holder', 'Status', 'Submitted (IST)', 'Notes']}
-            >
-              {data.history.map((destination) => (
-                <tr key={destination.id}>
-                  <td>
-                    Version {destination.version}
-                    <strong className="block">{destination.masked}</strong>
-                  </td>
-                  <td>{destination.holderName}</td>
-                  <td>
-                    <span className={`${chip} ${TONE[destination.state]}`}>
-                      {destination.stateLabel}
-                    </span>
-                  </td>
-                  <td className="whitespace-nowrap">{ist(destination.submittedAt)}</td>
-                  <td>
-                    {NAME[destination.nameCheck]} (a comparison, not verification)
-                    {destination.state === 'failed' && (
-                      <p className="text-danger">Reason: {destination.failureReason}</p>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </OwnerTable>
-          ) : (
-            <EmptyState
-              variant="compact"
-              title="No payout changes yet"
-              description="Changes to your payout destination appear here."
-            />
+            </div>
           )}
-        </Card>
-      </div>
-    </div>
+        </section>
+      )}
+      <details
+        open={!data.current && !data.draft}
+        id="destination-form"
+        className="mt-7 rounded-lg border border-border bg-card p-5 sm:p-6"
+      >
+        <summary className="min-h-11 cursor-pointer text-h3 font-semibold">
+          {data.current ? 'Change payout method' : 'Add payout method'}
+        </summary>
+        <div className="mt-5 space-y-5">
+          <p className="max-w-[65ch] text-meta leading-6 text-ink-600">
+            {auth.required
+              ? auth.fresh
+                ? `Identity confirmed at ${ist(auth.authenticatedAt)}. Changes can be submitted until ${ist(auth.freshUntil)}.`
+                : `You signed in at ${ist(auth.authenticatedAt)}. A change is saved as a draft until you confirm your identity.`
+              : 'Your application is still under review; Rentra checks these details at review.'}{' '}
+            Payouts already scheduled keep the version they were created with.
+          </p>
+          {auth.required && !auth.fresh && !data.draft && <ConfirmPayoutIdentityForm />}
+          <ChangeDestinationForm
+            key={`change-${data.latestVersion}`}
+            latestVersion={data.latestVersion}
+            requestKey={randomUUID()}
+            current={data.current}
+          />
+        </div>
+      </details>
+      <details className="mt-7 border-t border-border pt-6">
+        <summary className="min-h-11 cursor-pointer text-h3 font-semibold">
+          Change history{' '}
+          <span className="text-meta font-normal text-ink-500">({data.history.length})</span>
+        </summary>
+        {data.history.length ? (
+          <ul className="mt-4 divide-y divide-border rounded-lg border border-border bg-card">
+            {data.history.map((d) => (
+              <li key={d.id} className="p-5 text-meta sm:p-6">
+                <Version d={d} />
+                <p className="mt-3 text-ink-600">Submitted {ist(d.submittedAt)} IST</p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-3 text-meta text-ink-600">
+            No payout changes yet. Your change history will appear here.
+          </p>
+        )}
+      </details>
+      <Link
+        href="/partner/earnings"
+        className="mt-6 inline-flex min-h-11 items-center text-meta font-semibold text-brand-800 hover:underline"
+      >
+        View earnings
+      </Link>
+    </section>
   );
 }

@@ -7,7 +7,7 @@ export default function OwnerPrivacyForm({ blocked }) {
   return (
     <form
       action={action}
-      className="space-y-3"
+      className="divide-y divide-border rounded-lg border border-border bg-card"
       onSubmit={(e) => {
         if (
           e.nativeEvent.submitter?.value === 'deletion' &&
@@ -18,31 +18,56 @@ export default function OwnerPrivacyForm({ blocked }) {
           e.preventDefault();
       }}
     >
-      <div className="flex flex-wrap gap-3">
-        <button className={buttonVariants()} name="kind" value="access" disabled={pending}>
-          {pending ? 'Saving…' : 'Download my data'}
-        </button>
+      <section className="p-5 sm:p-6">
+        <h2 className="text-h3 font-semibold">Get a copy of your data</h2>
+        <p className="mt-3 max-w-[65ch] text-meta leading-6 text-ink-600">
+          Request an account data copy. Rentra reviews your identity before making a download
+          available.
+        </p>
         <button
-          className={buttonVariants({ variant: 'outline' })}
+          className={`${buttonVariants()} mt-5`}
           name="kind"
-          value="deletion"
-          disabled={pending || blocked}
+          value="access"
+          disabled={pending}
         >
-          Request account deletion
+          {pending ? 'Saving...' : 'Request data copy'}
         </button>
-      </div>
-      <p>
-        Data copies and account deletion require Rentra’s identity and retention review. A saved
-        request is not a completed download or deletion.
-      </p>
-      {blocked && (
-        <p>
-          Deletion is blocked while bookings are upcoming or unfinished, disputes are open, or money
-          is pending. Resolve these first.
+      </section>
+      <section className="p-5 sm:p-6">
+        <details>
+          <summary className="min-h-11 cursor-pointer text-meta font-semibold text-ink-900">
+            Account deletion
+          </summary>
+          <p className="mt-3 max-w-[65ch] text-meta leading-6 text-ink-600">
+            Request deletion of your owner account. Rentra reviews identity and retention
+            requirements before closing it. A saved request is not a completed deletion.
+          </p>
+          {blocked && (
+            <p className="mt-4 text-meta leading-6 text-warning">
+              Deletion is blocked while bookings are upcoming or unfinished, disputes are open, or
+              money is pending. Resolve these first.
+            </p>
+          )}
+          <button
+            className={`${buttonVariants({ variant: 'outline' })} mt-5`}
+            name="kind"
+            value="deletion"
+            disabled={pending || blocked}
+          >
+            Request account deletion
+          </button>
+        </details>
+      </section>
+      {state.error && (
+        <p role="alert" className="p-5 text-meta text-danger">
+          {state.error}
         </p>
       )}
-      {state.error && <p role="alert">{state.error}</p>}
-      {state.message && <p role="status">{state.message}</p>}
+      {state.message && (
+        <p role="status" className="p-5 text-meta text-success">
+          {state.message}
+        </p>
+      )}
     </form>
   );
 }

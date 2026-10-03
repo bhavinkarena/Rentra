@@ -15,6 +15,7 @@ import ListingsLoading from '@/app/(partner)/partner/listings/loading';
 import OnboardingLoading from '@/app/(partner)/partner/onboarding/loading';
 import PayoutsLoading from '@/app/(partner)/partner/payouts/loading';
 import ReviewsLoading from '@/app/(partner)/partner/reviews/loading';
+import SettingsSkeleton from '@/components/partner/settings/SettingsSkeleton';
 import SettingsLoading from '@/app/(partner)/partner/settings/loading';
 import HelpLoading from '@/app/(partner)/partner/help/loading';
 import SupportLoading from '@/app/(partner)/partner/support/loading';
@@ -115,7 +116,9 @@ export default function PartnerShellSkeleton() {
           </div>
         </div>
         <main className="pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
-          {Route && PADDED.has(segment) ? (
+          {segment === 'settings' ? (
+            <SettingsSkeleton shell />
+          ) : Route && PADDED.has(segment) ? (
             <div className="mx-auto w-full max-w-(--container-workspace) min-w-0 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
               {segment === 'earnings' ? <OwnerDestinationTabs kind="earnings" /> : null}
               <Route />

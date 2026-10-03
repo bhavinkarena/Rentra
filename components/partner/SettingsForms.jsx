@@ -2,8 +2,9 @@
 import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import Loader2 from '@/components/ui/rentra-loader';
 
-import { useActionState, useState } from 'react';
-import { Check, Landmark, Smartphone } from 'lucide-react';
+import { useActionState, useState, useRef, useTransition } from 'react';
+import { Check } from 'lucide-react';
+import ValidationSummary from '@/components/portal/ValidationSummary';
 import { saveAccountSettings } from '@/lib/actions/partner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,9 +19,13 @@ function Field({ id, label, hint, error, children }) {
       </label>
       {children}
       {error ? (
-        <p className="mt-1.5 text-tiny font-medium text-danger">{error}</p>
+        <p id={`${id}-help`} className="mt-1.5 text-meta font-medium text-danger">
+          {error}
+        </p>
       ) : hint ? (
-        <p className="mt-1.5 text-tiny text-ink-500">{hint}</p>
+        <p id={`${id}-help`} className="mt-1.5 text-meta leading-6 text-ink-600">
+          {hint}
+        </p>
       ) : null}
     </div>
   );
@@ -48,9 +53,21 @@ function Saved({ state, pending }) {
 export function AccountForm({ user, nameLocked = false }) {
   const [state, action, pending] = useActionState(saveAccountSettings, {});
   const e = state.errors ?? {};
+  const form = useRef(null);
+  const [, start] = useTransition();
+  const [name, setName] = useState(user.name ?? '');
+  const [locale, setLocale] = useState(user.preferredLocale ?? 'en');
 
   return (
-    <form action={action} className="space-y-4">
+    <form
+      ref={form}
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        start(() => action(data));
+      }}
+      className="space-y-6"
+    >
       <Field
         id="name"
         label="Display name"
@@ -64,7 +81,13 @@ export function AccountForm({ user, nameLocked = false }) {
         <Input
           id="name"
           name="name"
-          defaultValue={user.name ?? ''}
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          aria-invalid={Boolean(e.name)}
+          aria-describedby="name-help"
+          required
+          minLength={3}
+          maxLength={160}
           readOnly={nameLocked}
           className="h-11"
         />
@@ -79,7 +102,10 @@ export function AccountForm({ user, nameLocked = false }) {
         <select
           id="preferredLocale"
           name="preferredLocale"
-          defaultValue={user.preferredLocale ?? 'en'}
+          value={locale}
+          onChange={(event) => setLocale(event.target.value)}
+          aria-invalid={Boolean(e.preferredLocale)}
+          aria-describedby="preferredLocale-help"
           className={inputCls}
         >
           <option value="en">English</option>
@@ -88,9 +114,15 @@ export function AccountForm({ user, nameLocked = false }) {
         </select>
       </Field>
 
+      <ValidationSummary errors={e} scope={form} />
+      {state.error && (
+        <p role="alert" className="text-meta text-danger">
+          {state.error}
+        </p>
+      )}
       <div className="flex items-center gap-3">
         <Button type="submit" size="lg" className="min-h-10 px-4" disabled={pending}>
-          Save
+          {pending ? 'Saving...' : 'Save profile'}
         </Button>
         <Saved state={state} pending={pending} />
       </div>

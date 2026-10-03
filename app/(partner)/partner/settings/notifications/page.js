@@ -3,15 +3,17 @@ import { partnerApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
 import PortalState from '@/components/portal/PortalState';
 import NotificationPreferences from '@/components/partner/NotificationPreferences';
-import SettingsTabs from '@/components/partner/SettingsTabs';
+import SettingsHeading from '@/components/partner/settings/SettingsHeading';
 export default async function Page() {
   await requireClient();
   const { data, failure } = await settle(partnerApi.ownerNotifications());
   if (failure) return <PortalState kind={failure} />;
   return (
-    <section className="mx-auto max-w-3xl space-y-5 px-4 py-6 sm:px-6">
-      <h1 className="text-h1">Notification settings</h1>
-      <SettingsTabs />
+    <section className="min-w-0">
+      <SettingsHeading
+        title="Notifications"
+        description="Choose where you receive updates from your owner workspace."
+      />
       <NotificationPreferences data={data} />
     </section>
   );

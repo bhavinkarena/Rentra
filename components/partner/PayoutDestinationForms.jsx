@@ -20,7 +20,7 @@ const secondary =
 
 function Problem({ message, id }) {
   return message ? (
-    <p id={id} role="alert" className="mt-1 text-tiny font-medium text-danger">
+    <p id={id} role="alert" className="mt-1 text-meta font-medium text-danger">
       {message}
     </p>
   ) : null;
@@ -150,7 +150,7 @@ export function ChangeDestinationForm({ latestVersion, requestKey, current }) {
               aria-describedby={`${id}-acct${e.accountNumber ? ` ${id}-acct-error` : ''}`}
               aria-invalid={Boolean(e.accountNumber)}
             />
-            <span id={`${id}-acct`} className="mt-1 block text-tiny text-ink-600">
+            <span id={`${id}-acct`} className="mt-1 block text-meta text-ink-600">
               Checked, then discarded — Rentra keeps only the last four digits.
             </span>
             <Problem id={`${id}-acct-error`} message={e.accountNumber} />
@@ -185,7 +185,7 @@ export function ChangeDestinationForm({ latestVersion, requestKey, current }) {
               aria-invalid={Boolean(e.ifsc)}
             />
             <Problem id={`${id}-ifsc-error`} message={e.ifsc} />
-            <span role="status" className="mt-1 block text-tiny text-ink-600">
+            <span role="status" className="mt-1 block text-meta text-ink-600">
               {bankHint}
             </span>
           </label>

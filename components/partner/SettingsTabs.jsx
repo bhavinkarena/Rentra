@@ -1,26 +1,42 @@
 'use client';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from '@/components/navigation/NavigationLink';
+import { settingsSections } from './settings/sections';
 export default function SettingsTabs() {
-  const path = usePathname();
+  const path = usePathname(),
+    router = useRouter();
   return (
-    <nav aria-label="Settings pages" className="flex flex-wrap gap-2">
-      {[
-        ['/partner/settings', 'Profile'],
-        ['/partner/settings/security', 'Login & security'],
-        ['/partner/settings/notifications', 'Notifications'],
-        ['/partner/settings/calendar-sync', 'Calendar sync'],
-        ['/partner/settings/privacy', 'Privacy'],
-      ].map(([href, label]) => (
-        <Link
-          key={href}
-          href={href}
-          aria-current={path === href ? 'page' : undefined}
-          className="inline-flex min-h-11 items-center rounded-md border border-border bg-card px-3 font-semibold underline aria-[current=page]:border-ink-900 aria-[current=page]:bg-ink-900 aria-[current=page]:text-white aria-[current=page]:no-underline"
+    <nav aria-label="Settings pages" className="lg:sticky lg:top-24">
+      <label className="block text-meta font-semibold lg:hidden">
+        Settings section
+        <select
+          className="mt-2 min-h-12 w-full rounded-md border border-input bg-card px-3 text-base"
+          value={
+            settingsSections.find((s) => path.startsWith(s.href))?.href ||
+            '/partner/settings/profile'
+          }
+          onChange={(e) => router.push(e.target.value)}
         >
-          {label}
-        </Link>
-      ))}
+          {settingsSections.map((s) => (
+            <option key={s.href} value={s.href}>
+              {s.title}
+            </option>
+          ))}
+        </select>
+      </label>
+      <ul className="hidden space-y-1 lg:block">
+        {settingsSections.map((s) => (
+          <li key={s.href}>
+            <Link
+              href={s.href}
+              aria-current={path.startsWith(s.href) ? 'page' : undefined}
+              className="flex min-h-12 items-center rounded-md px-3 text-meta font-semibold text-ink-600 hover:bg-ink-50 aria-[current=page]:bg-brand-50 aria-[current=page]:text-brand-800"
+            >
+              {s.title}
+            </Link>
+          </li>
+        ))}
+      </ul>
     </nav>
   );
 }

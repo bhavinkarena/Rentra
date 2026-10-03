@@ -1,5 +1,4 @@
-import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
-
+import SettingsSkeleton from '@/components/partner/settings/SettingsSkeleton';
 export default function Loading() {
-  return <ScreenSkeleton screen="form" label="Loading partner settings payout" />;
+  return <SettingsSkeleton />;
 }
