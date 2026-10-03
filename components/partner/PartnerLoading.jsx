@@ -1,6 +1,7 @@
 import BrandLoader from '@/components/ui/rentra-loader';
 
 import Skeleton from '@/components/ui/skeleton';
+import { PortfolioSkeleton } from '@/components/partner/PropertySkeletons';
 
 export function RentraLoader({ label = 'Opening your workspace', inverse = false }) {
   return <BrandLoader variant="page" label={label} inverse={inverse} />;
@@ -301,21 +302,7 @@ export function DashboardSkeleton() {
 }
 
 export function PropertiesSkeleton({ label = 'Loading your properties' } = {}) {
-  return (
-    <div
-      className="mx-auto w-full max-w-(--container-workspace) px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
-      aria-busy="true"
-    >
-      <span className="sr-only" role="status">
-        {label}
-      </span>
-      <LoadingHeader />
-      <KpiSkeletons />
-      <div className="mt-6">
-        <TableSkeleton rows={7} />
-      </div>
-    </div>
-  );
+  return <PortfolioSkeleton label={label} />;
 }
 
 export function SettingsSkeleton() {

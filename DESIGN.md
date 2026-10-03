@@ -195,6 +195,14 @@ components:
 
 # Design System: RENTRA
 
+## Owner properties portfolio and overview
+
+The Properties list uses a photo-led portfolio grid (one column on phones, two from `sm`, three from `xl`). The white filter surface retains URL-backed search and counted status chips; the existing global Pagination shows ranges, page sizes and page navigation. Cards show real photos or an explicit photo prompt, status, public code, location, available capacity and reviews, optional strength, updated date and the state-specific next action. Draft setup, corrections, next visits and live properties without open dates remain distinct. Unknown bookability is not presented as closed dates. Filtered list context travels into overview and setup links.
+
+The overview leads with the property's saved photography: one large photo and up to two supporting photos on desktop, one large photo on phones, with a direct Manage photos link. No stock photos are added to real listings. Identity, preview/pause/share controls and the existing horizontally scrollable section navigation remain below. Status and next action, four operational facts, upcoming visits, strength checklist and guest preview retain their API-backed behavior. Strength uses a labelled linear progress bar. Other property tabs retain their compact header.
+
+Portfolio and overview skeletons mirror these compositions, including the gallery, filter strip, photo cards, facts and operational panels. The list skeleton is reused by the route loader, cached query state and initial partner shell.
+
 ## Overview
 
 **Creative North Star: "A Clear Path to the Outdoors"**

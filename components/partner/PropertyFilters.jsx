@@ -65,7 +65,7 @@ export default function PropertyFilters({
   }
 
   return (
-    <div className="space-y-3 border-b border-border bg-ink-25/55 p-4">
+    <div className="space-y-4 rounded-lg border border-border bg-card p-4 sm:p-5">
       <NavigationProgress active={pending} />
       <div
         role="group"
@@ -82,7 +82,7 @@ export default function PropertyFilters({
             className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-tiny font-semibold ${
               status === segment.value
                 ? 'bg-primary text-white'
-                : 'bg-card text-ink-700 ring-1 ring-border hover:bg-ink-50'
+                : 'bg-ink-25 text-ink-700 hover:bg-ink-100'
             }`}
           >
             {segment.label}
@@ -95,55 +95,65 @@ export default function PropertyFilters({
           </span>
         ) : null}
       </div>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <form onSubmit={handleSubmit} className="relative min-w-0 flex-1">
-          <Search
-            className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground"
-            aria-hidden="true"
-          />
-          <label htmlFor="property-search" className="sr-only">
-            Search properties
-          </label>
-          <input
-            id="property-search"
-            ref={searchRef}
-            type="search"
-            name="q"
-            defaultValue={query}
-            placeholder="Search property, location or code"
-            className="h-14 w-full rounded-md border border-input bg-card pr-24 pl-10 text-base md:text-sm text-ink-900 placeholder:text-muted-foreground focus:border-brand-600"
-          />
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
+        <form onSubmit={handleSubmit} className="flex min-w-0 flex-1 items-center gap-2">
+          <div className="relative min-w-0 flex-1">
+            <Search
+              className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden="true"
+            />
+            <label htmlFor="property-search" className="sr-only">
+              Search properties
+            </label>
+            <input
+              id="property-search"
+              ref={searchRef}
+              type="search"
+              name="q"
+              defaultValue={query}
+              placeholder="Search property, location or code"
+              className="h-12 w-full rounded-full border border-input bg-card pr-3 pl-10 text-base text-ink-900 placeholder:text-muted-foreground focus:border-brand-600 md:text-sm"
+            />
+          </div>
           <button
             type="submit"
             disabled={pending}
-            className="absolute top-1.5 right-1.5 h-11 rounded-md bg-primary px-3 text-tiny font-semibold text-white transition-colors hover:bg-primary-hover disabled:cursor-wait"
+            className="inline-flex h-12 shrink-0 items-center justify-center rounded-full bg-primary px-5 text-meta font-semibold text-white transition-colors hover:bg-primary-hover disabled:cursor-wait disabled:opacity-60"
           >
             Search
           </button>
         </form>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {verticals.length > 1
-            ? // Only for owners who list both kinds.
-              [['', 'All kinds'], ...verticals.map((code) => [code, KINDS[code] ?? code])].map(
-                ([code, label]) => (
-                  <button
-                    key={code || 'all'}
-                    type="button"
-                    aria-pressed={vertical === code}
-                    onClick={() => choose(status, code)}
-                    disabled={pending}
-                    className={`min-h-11 rounded-full border px-3 text-tiny font-semibold ${
-                      vertical === code
-                        ? 'border-brand-600 bg-brand-50 text-brand-800'
-                        : 'border-border bg-card text-ink-700 hover:bg-ink-50'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ),
-              )
-            : null}
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          {verticals.length > 1 ? (
+            <div
+              role="group"
+              aria-label="Property type"
+              className="inline-flex max-w-full items-center gap-1 rounded-full border border-border bg-ink-50 p-1"
+            >
+              {verticals.length > 1
+                ? // Only for owners who list both kinds.
+                  [['', 'All kinds'], ...verticals.map((code) => [code, KINDS[code] ?? code])].map(
+                    ([code, label]) => (
+                      <button
+                        key={code || 'all'}
+                        type="button"
+                        aria-pressed={vertical === code}
+                        onClick={() => choose(status, code)}
+                        disabled={pending}
+                        className={`inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-full px-3 text-tiny font-semibold transition-colors disabled:cursor-wait ${
+                          vertical === code
+                            ? 'bg-card text-brand-800 shadow-xs'
+                            : 'text-ink-600 hover:bg-ink-100 hover:text-ink-900'
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ),
+                  )
+                : null}
+            </div>
+          ) : null}
 
           {query || status !== 'all' || vertical ? (
             <button
@@ -157,15 +167,15 @@ export default function PropertyFilters({
             </button>
           ) : null}
 
-          <span
-            className="grid size-5 shrink-0 place-items-center"
-            role="status"
-            aria-live="polite"
-          >
-            {pending ? (
+          {pending ? (
+            <span
+              className="grid size-5 shrink-0 place-items-center"
+              role="status"
+              aria-live="polite"
+            >
               <LoaderCircle className="size-4  text-brand-600" aria-label="Updating properties" />
-            ) : null}
-          </span>
+            </span>
+          ) : null}
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
-import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
+import { PropertyOverviewSkeleton } from '@/components/partner/PropertySkeletons';
 
 export default function Loading() {
-  return <ScreenSkeleton screen="detail" label="Loading partner listings details overview" />;
+  return <PropertyOverviewSkeleton />;
 }

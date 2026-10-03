@@ -6,7 +6,7 @@ import Pagination from '@/components/ui/pagination';
 import { Building2 } from 'lucide-react';
 import CreateListingButton from '@/components/partner/CreateListingButton';
 import PropertyFilters from '@/components/partner/PropertyFilters';
-import PropertyTable from '@/components/partner/PropertyTable';
+import PropertyCards from '@/components/partner/PropertyCards';
 import { PartnerPageHeader } from '@/components/partner/PortalPrimitives';
 
 function pageHref({ query, status, vertical, page, pageSize }) {
@@ -44,9 +44,8 @@ export default function PartnerListingsView({ summary, result, args, submitted, 
       ) : null}
 
       <PartnerPageHeader
-        eyebrow="Portfolio"
         title="Properties"
-        description="Search, review and manage every Rentra property from one place."
+        description="Your places, ready for their next guests. Manage dates, finish setup and keep every property at its best."
         action={<CreateListingButton />}
       />
 
@@ -64,14 +63,11 @@ export default function PartnerListingsView({ summary, result, args, submitted, 
           </EmptyState>
         </section>
       ) : (
-        <section
-          className="mt-6 overflow-hidden rounded-lg border border-border bg-card"
-          aria-labelledby="property-list-title"
-        >
-          <div className="flex flex-col gap-1 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+        <section className="mt-7" aria-labelledby="property-list-title">
+          <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 id="property-list-title" className="text-h4 font-bold text-ink-900">
-                All properties
+                Your portfolio
               </h2>
               <p className="mt-0.5 text-tiny text-ink-500">
                 {result.total === summary.total
@@ -91,7 +87,7 @@ export default function PartnerListingsView({ summary, result, args, submitted, 
             summary={summary}
           />
           {result.items.length ? (
-            <PropertyTable
+            <PropertyCards
               listings={result.items}
               from={pageHref({
                 query,
@@ -119,7 +115,7 @@ export default function PartnerListingsView({ summary, result, args, submitted, 
             pages={result.totalPages}
             label="Property pages"
             noun="properties"
-            className="border-t border-border bg-ink-25/70 px-4 py-3 sm:px-5"
+            className="mt-6 border-t border-border py-5"
           />
         </section>
       )}

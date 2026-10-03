@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import Skeleton from '@/components/ui/skeleton';
 import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
 import { DashboardSkeleton } from '@/components/partner/PartnerLoading';
+import { PropertyOverviewSkeleton } from '@/components/partner/PropertySkeletons';
 import BookingsLoading from '@/app/(partner)/partner/bookings/loading';
 import CalendarLoading from '@/app/(partner)/partner/calendar/loading';
 import DisputesLoading from '@/app/(partner)/partner/disputes/loading';
@@ -49,8 +50,11 @@ export default function PartnerShellSkeleton() {
   const pathname = usePathname() ?? '/partner';
   if (pathname.startsWith('/partner/login')) return <LoginLoading />;
   const segment = pathname.match(/^\/partner\/([^/]+)\/?$/)?.[1];
-  const Route =
-    pathname === '/partner' || pathname === '/partner/' ? DashboardSkeleton : ROUTES[segment];
+  const Route = /^\/partner\/listings\/[^/]+\/overview\/?$/.test(pathname)
+    ? PropertyOverviewSkeleton
+    : pathname === '/partner' || pathname === '/partner/'
+      ? DashboardSkeleton
+      : ROUTES[segment];
   return (
     <div className="portal-ui owner-portal min-h-dvh bg-ink-25 md:flex">
       <aside

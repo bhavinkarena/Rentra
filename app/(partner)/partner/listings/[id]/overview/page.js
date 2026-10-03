@@ -10,7 +10,7 @@ import { listingCompletion } from '@/lib/domain/listing-completion';
 import { firstIncompleteStepId, listingModel, stepHref } from '@/lib/domain/listing-steps';
 import PortalState from '@/components/portal/PortalState';
 import RetryButton from '@/components/portal/RetryButton';
-import { MetricStrip, SectionCard } from '@/components/portal/DetailLayout';
+import { SectionCard } from '@/components/portal/DetailLayout';
 import PropertyHub from '@/components/partner/property/PropertyHub';
 import SubmitForReview from '@/components/partner/property/SubmitForReview';
 
@@ -246,20 +246,26 @@ function strengthHref(target, id, keep) {
 }
 
 function Strength({ strength, id, keep }) {
-  const angle = Math.round((strength.percent / 100) * 360);
   return (
-    <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-      <div
-        role="img"
-        aria-label={`Property strength ${strength.percent}%`}
-        className="grid size-24 shrink-0 place-items-center rounded-full"
-        style={{
-          background: `conic-gradient(var(--color-brand-600) ${angle}deg, var(--color-ink-100) 0)`,
-        }}
-      >
-        <span className="grid size-18 place-items-center rounded-full bg-card text-h4 font-bold tabular">
-          {strength.percent}%
-        </span>
+    <div className="space-y-4">
+      <div className="border-b border-border pb-5">
+        <div className="flex items-baseline justify-between gap-3">
+          <span className="text-meta text-ink-600">Guest essentials</span>
+          <strong className="text-h2 text-brand-800 tabular">{strength.percent}%</strong>
+        </div>
+        <div
+          role="progressbar"
+          aria-label="Property strength"
+          aria-valuenow={strength.percent}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          className="mt-3 h-2 overflow-hidden rounded-full bg-ink-100"
+        >
+          <div
+            className="h-full rounded-full bg-brand-600"
+            style={{ width: `${Math.max(0, Math.min(100, strength.percent))}%` }}
+          />
+        </div>
       </div>
       <ul className="min-w-0 flex-1 space-y-1">
         {strength.items.map((item) => (
@@ -338,7 +344,7 @@ export default async function PropertyOverviewPage({ params, searchParams }) {
 
       <div className="mt-6 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="min-w-0 space-y-5">
-          <SectionCard id="status" title="Status">
+          <SectionCard id="status" title={published ? 'Availability & status' : 'Your next step'}>
             <div className="space-y-4">
               <Timeline listing={listing} timeline={overview?.timeline} />
               <NextStep
@@ -352,9 +358,11 @@ export default async function PropertyOverviewPage({ params, searchParams }) {
           </SectionCard>
 
           {published && overview ? (
-            <MetricStrip
-              label="This property at a glance"
-              items={[
+            <dl
+              aria-label="This property at a glance"
+              className="grid grid-cols-2 overflow-hidden rounded-lg border border-border bg-card sm:grid-cols-4"
+            >
+              {[
                 { label: 'Bookings this month', value: overview.stats.bookingsThisMonth },
                 {
                   label: 'Rating',
@@ -369,13 +377,22 @@ export default async function PropertyOverviewPage({ params, searchParams }) {
                   value:
                     listing.rentalUnit === 'hour' ? 'Weekly hours' : overview.inventory.openDates,
                 },
-              ]}
-            />
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="border-border p-5 odd:border-r max-sm:nth-[-n+2]:border-b sm:not-last:border-r"
+                >
+                  <dt className="text-tiny text-ink-500">{item.label}</dt>
+                  <dd className="mt-2 text-h3 font-semibold text-ink-900 tabular">{item.value}</dd>
+                  {item.hint ? <p className="mt-1 text-tiny text-ink-500">{item.hint}</p> : null}
+                </div>
+              ))}
+            </dl>
           ) : null}
 
           <SectionCard
             id="visits"
-            title="Next visits"
+            title="Upcoming visits"
             description="Confirmed visits keep the terms the guest accepted, whatever you edit."
             flush
           >
@@ -384,7 +401,7 @@ export default async function PropertyOverviewPage({ params, searchParams }) {
                 {visits.map((visit) => (
                   <li
                     key={visit.id}
-                    className="flex flex-wrap items-center justify-between gap-2 px-5 py-3"
+                    className="flex flex-wrap items-center justify-between gap-3 px-5 py-5"
                   >
                     <div className="min-w-0 text-meta">
                       <p className="font-semibold text-ink-900">
