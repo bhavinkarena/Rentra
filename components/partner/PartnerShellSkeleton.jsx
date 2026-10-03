@@ -9,6 +9,8 @@ import BookingsLoading from '@/app/(partner)/partner/bookings/loading';
 import CalendarLoading from '@/app/(partner)/partner/calendar/loading';
 import DisputesLoading from '@/app/(partner)/partner/disputes/loading';
 import FinanceLoading from '@/app/(partner)/partner/finance/loading';
+import EarningsLoading from '@/app/(partner)/partner/earnings/loading';
+import OwnerDestinationTabs from '@/components/partner/OwnerDestinationTabs';
 import ListingsLoading from '@/app/(partner)/partner/listings/loading';
 import OnboardingLoading from '@/app/(partner)/partner/onboarding/loading';
 import PayoutsLoading from '@/app/(partner)/partner/payouts/loading';
@@ -25,6 +27,7 @@ const ROUTES = {
   calendar: CalendarLoading,
   disputes: DisputesLoading,
   finance: FinanceLoading,
+  earnings: EarningsLoading,
   listings: ListingsLoading,
   onboarding: OnboardingLoading,
   payouts: PayoutsLoading,
@@ -36,7 +39,7 @@ const ROUTES = {
 };
 
 // These routes get their page padding from a nested PortalPage layout, which has not rendered yet.
-const PADDED = new Set(['bookings', 'disputes', 'finance', 'payouts', 'support']);
+const PADDED = new Set(['bookings', 'disputes', 'earnings', 'finance', 'payouts', 'support']);
 
 const onDark = { background: 'rgb(255 255 255 / 0.1)' };
 const darkSweep = { '--skeleton-highlight': 'rgb(255 255 255 / 0.06)' };
@@ -104,6 +107,7 @@ export default function PartnerShellSkeleton() {
         <main className="pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
           {Route && PADDED.has(segment) ? (
             <div className="mx-auto w-full max-w-(--container-workspace) min-w-0 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+              {segment === 'earnings' ? <OwnerDestinationTabs kind="earnings" /> : null}
               <Route />
             </div>
           ) : Route ? (

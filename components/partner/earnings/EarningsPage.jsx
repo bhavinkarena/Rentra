@@ -6,6 +6,7 @@ import { FinanceFilterError } from '@/components/finance/Statements';
 import { earningsEnabled } from '@/lib/domain/owner-earnings';
 import Earnings from './Earnings';
 import LegacyStatementPage from './LegacyStatementPage';
+import { earningsActivity } from '@/lib/domain/earnings-activity';
 export default async function EarningsPage({
   searchParams,
   params,
@@ -20,9 +21,19 @@ export default async function EarningsPage({
     const route = await params;
     if (route.id) query.month = route.id;
   }
-  const { data, failure, invalid } = await settleFinance(partnerApi.earnings(query, print));
+  const overview = !statement && !print;
+  const { data, failure, invalid } = await settleFinance(
+    partnerApi.earnings(query, print || overview),
+  );
   if (invalid) return <FinanceFilterError message={invalid} />;
   if (failure)
     return <PortalState kind={failure} backHref="/partner/earnings" backLabel="Earnings" />;
-  return <Earnings data={data} statement={statement} print={print} />;
+  const view = overview
+    ? {
+        ...data,
+        activity: earningsActivity(data.items, data.filters.month),
+        items: data.items.slice((data.filters.page - 1) * 30, data.filters.page * 30),
+      }
+    : data;
+  return <Earnings data={view} statement={statement} print={print} />;
 }

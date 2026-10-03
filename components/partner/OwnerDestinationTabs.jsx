@@ -22,7 +22,7 @@ export default function OwnerDestinationTabs({ kind, disputes = false }) {
   return (
     <nav
       aria-label={kind === 'earnings' ? 'Earnings sections' : 'Help and support sections'}
-      className="mb-5 flex flex-wrap gap-1 border-b border-border"
+      className={`mb-5 flex gap-1 border-b border-border ${kind === 'earnings' ? 'overflow-x-auto whitespace-nowrap' : 'flex-wrap'}`}
     >
       {items.map(([href, label]) => {
         const active =
@@ -47,7 +47,7 @@ export default function OwnerDestinationTabs({ kind, disputes = false }) {
             key={href}
             href={href}
             aria-current={active ? 'page' : undefined}
-            className={`flex min-h-11 items-center border-b-2 px-3 text-meta font-semibold ${active ? 'border-brand-700 text-brand-800' : 'border-transparent text-ink-600'}`}
+            className={`flex min-h-11 shrink-0 items-center border-b-2 px-3 text-meta font-semibold ${active ? 'border-brand-700 text-brand-800' : 'border-transparent text-ink-600'}`}
           >
             {label}
           </Link>

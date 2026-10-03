@@ -423,6 +423,9 @@ Rules for `/partner/**` and the full-screen wizard (OWNER-EXPERIENCE-PLAN Phase 
 - Fields: `ui/field` with the label above, a one-line hint, then the error linked by `aria-describedby`. Inputs are 44 px high. Mark "(optional)"; required fields carry `aria-required`. Failed submits show `ValidationSummary`.
 - Buttons: `Button`/`buttonVariants`. Pending shows a spinner plus text; disabled says why.
 - `UnsavedChangesGuard` is mounted once by `PortalShell` and `WizardShell`. Forms are tracked from first input until submit (or until `rentra:form-saved` for forms marked `data-unsaved-until-saved`, such as policy previews). GET/search forms and `data-unsaved-guard="off"` are ignored.
+- Earnings (`/partner/earnings`): monthly booked rent is the primary figure, with completed visits' rent and refunds alongside. White `rounded-lg` panels use ink dividers and no resting shadow. Its headline uses 36px type on phones and 48px from `sm`; this is a surface-specific hierarchy, not a replacement for portal KPI tokens. Payout readiness is a 300px secondary column from `xl` and a collapsed disclosure below the summary at smaller widths.
+- Earnings activity: one bar per day of the selected month, grouped by when rent was first recorded in IST. Bars use `brand-500`, `brand-800` for selection and ink for zero values; date ticks share the bars' day grid. Hover, focus and tap update the inline amount; arrow keys and Home / End move between days. Keep booked rent distinct from payout amounts and completed rent as a subset, not an additional balance.
+- Earnings records: a single bordered group, desktop table and compact phone rows, with details disclosed per booking. Keep the amount visible before expanded evidence. Month navigation stays visible on phones; property and booking-type filters sit behind Filters. CSV and print actions share Export, and loading uses a matching in-flow skeleton shell.
 
 ### Icons (lucide)
 
