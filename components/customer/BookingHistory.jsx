@@ -2,6 +2,7 @@ import OwnerTable from '@/components/partner/OwnerTable';
 import { EmptyState } from '@/components/ui/empty-state';
 import Form from '@/components/navigation/NavigationForm';
 import Link from '@/components/navigation/NavigationLink';
+import Pagination from '@/components/ui/pagination';
 import { ArrowUpRight, CalendarDays, Search } from 'lucide-react';
 import {
   linkClass,
@@ -439,26 +440,15 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
             )}
           </div>
         ))}
-      {data.pages > 1 && (
-        <nav
-          aria-label="Booking pages"
-          className="flex flex-wrap items-center justify-center gap-5"
-        >
-          {data.page > 1 && (
-            <Link className={linkClass} href={href(base, data, { page: String(data.page - 1) })}>
-              Previous
-            </Link>
-          )}
-          <span className="text-sm text-ink-500">
-            Page {data.page} of {data.pages}
-          </span>
-          {data.page < data.pages && (
-            <Link className={linkClass} href={href(base, data, { page: String(data.page + 1) })}>
-              Next
-            </Link>
-          )}
-        </nav>
-      )}
+      <Pagination
+        page={data.page}
+        pageSize={20}
+        total={data.total}
+        pages={data.pages}
+        pageSizes={null}
+        label="Booking pages"
+        noun="bookings"
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import OwnerTable from '../OwnerTable';
 import { EmptyState } from '@/components/ui/empty-state';
 import Link from '@/components/navigation/NavigationLink';
+import Pagination from '@/components/ui/pagination';
 import { displayMoney } from '@/lib/domain/display-money';
 import { formatLocalDate } from '@/lib/domain/booking-dates';
 import {
@@ -67,7 +68,7 @@ export function EarningsFilters({ data, statement = false }) {
           <option value="">All properties</option>
           {data.properties.map((p) => (
             <option key={p.id} value={p.id}>
-              {p.title}
+              {p.title || 'Untitled draft'}
             </option>
           ))}
           {f.propertyId && !data.properties.some((p) => p.id === f.propertyId) && (
@@ -257,22 +258,16 @@ export default function Earnings({ data, statement = false, print = false }) {
           }
         />
       )}
-      {!print && data.pages > 1 && (
-        <nav aria-label="Earnings pages" className="flex flex-wrap items-center gap-3">
-          {f.page > 1 && (
-            <Link className={link} href={`?${earningsQuery({ ...f, page: f.page - 1 })}`}>
-              Previous
-            </Link>
-          )}
-          <span className="text-meta">
-            Page {f.page} of {data.pages}
-          </span>
-          {f.page < data.pages && (
-            <Link className={link} href={`?${earningsQuery({ ...f, page: f.page + 1 })}`}>
-              Next
-            </Link>
-          )}
-        </nav>
+      {!print && (
+        <Pagination
+          page={f.page}
+          pageSize={30}
+          total={data.count}
+          pages={data.pages}
+          pageSizes={null}
+          label="Earnings pages"
+          noun="bookings"
+        />
       )}
     </section>
   );

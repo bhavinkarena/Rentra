@@ -3,7 +3,8 @@ import Form from '@/components/navigation/NavigationForm';
 import { randomUUID } from 'node:crypto';
 import Link from '@/components/navigation/NavigationLink';
 import { ReceiptText, Search, TriangleAlert } from 'lucide-react';
-import { AdminEmpty, AdminPage, AdminPageHeader, Pager, StatusBadge } from './AdminPrimitives';
+import { AdminEmpty, AdminPage, AdminPageHeader, StatusBadge } from './AdminPrimitives';
+import Pagination from '@/components/ui/pagination';
 import { FieldGrid, SectionCard } from '@/components/portal/DetailLayout';
 import { bookingMoney as money, bookingTime as time } from '@/lib/domain/booking-record';
 import ReconcilePayment from './ReconcilePayment';
@@ -233,15 +234,16 @@ export function PaymentList({ data }) {
           />
         )}
       </div>
-      <div className="mt-4">
-        <Pager
-          page={data.page}
-          hasNext={data.page < data.pages}
-          previousHref={href(data, { page: String(data.page - 1) })}
-          nextHref={href(data, { page: String(data.page + 1) })}
-          label="Payments page"
-        />
-      </div>
+      <Pagination
+        page={data.page}
+        pageSize={25}
+        total={data.total}
+        pages={data.pages}
+        pageSizes={null}
+        label="Payment pages"
+        noun="payments"
+        className="mt-4"
+      />
     </AdminPage>
   );
 }

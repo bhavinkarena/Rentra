@@ -43,6 +43,8 @@ export function ActionForm({
   button = 'Save',
   id,
   calendarVersion,
+  className = 'space-y-4 rounded-lg border border-border bg-card p-5',
+  titleClassName = 'text-h3',
 }) {
   const contextVersion = useContext(CalendarVersion);
   const version = calendarVersion ?? contextVersion;
@@ -70,11 +72,11 @@ export function ActionForm({
         setEdited(false);
         startTransition(() => formAction(data));
       }}
-      className="space-y-4 rounded-lg border border-border bg-card p-5"
+      className={className}
     >
       <input type="hidden" name="rentableId" value={rentableId} />
       {guarded && <input type="hidden" name="expectedCalendarVersion" value={version} />}
-      <h2 className="text-h3">{title}</h2>
+      {title ? <h2 className={titleClassName}>{title}</h2> : null}
       <fieldset disabled={pending} className="space-y-4">
         {children}
       </fieldset>

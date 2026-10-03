@@ -13,7 +13,8 @@ import {
   intentsFor,
 } from '@/lib/domain/discovery';
 import { discoveryApi } from '@/lib/api/endpoints';
-import { ArrowLeft, ArrowRight, CalendarX, MapPin, RefreshCw, SearchX, X } from 'lucide-react';
+import { CalendarX, MapPin, RefreshCw, SearchX, X } from 'lucide-react';
+import Pagination from '@/components/ui/pagination';
 import SortSelect from './SortSelect';
 import { EmptyState } from '@/components/ui/empty-state';
 import { buttonVariants } from '@/components/ui/button';
@@ -320,28 +321,16 @@ export default async function DiscoveryResults({ query, registry: registryInput,
                 {sharedPriceNote}
               </p>
             ) : null}
-            {result.totalPages > 1 && (
-              <nav
-                aria-label="Search pagination"
-                className="mt-8 flex flex-wrap items-center justify-center gap-3"
-              >
-                {result.page > 1 && (
-                  <Link className={pill} href={href({ page: result.page - 1 })}>
-                    <ArrowLeft aria-hidden="true" />
-                    Previous
-                  </Link>
-                )}
-                <span className="px-2 text-meta text-ink-600 tabular">
-                  Page {result.page} of {result.totalPages}
-                </span>
-                {result.page < result.totalPages && (
-                  <Link className={pill} href={href({ page: result.page + 1 })}>
-                    Next
-                    <ArrowRight aria-hidden="true" />
-                  </Link>
-                )}
-              </nav>
-            )}
+            <Pagination
+              page={result.page}
+              pageSize={12}
+              total={result.total}
+              pages={result.totalPages}
+              pageSizes={null}
+              label="Search pagination"
+              noun="places"
+              className="mt-8"
+            />
           </>
         )
       )}

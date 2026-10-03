@@ -4,6 +4,7 @@ import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from '@/components/navigation/NavigationLink';
+import Pagination from '@/components/ui/pagination';
 import { operatorCommand, enrollOperator } from '@/lib/actions/operators';
 const input = `${sharedFieldClass} mt-1`;
 const button = `${sharedButtonVariants({ shape: 'default', size: 'default' })} `;
@@ -216,22 +217,15 @@ export function OperatorDirectory({ data }) {
         ))}
       </ul>
       {!data.items.length && <p>No operators match these filters.</p>}
-      <nav aria-label="Operator pages" className="flex gap-4">
-        {data.page > 1 && (
-          <Link
-            href={`?${new URLSearchParams({ q: data.q, status: data.status, page: data.page - 1 })}`}
-          >
-            Previous page
-          </Link>
-        )}
-        {data.page < data.pages && (
-          <Link
-            href={`?${new URLSearchParams({ q: data.q, status: data.status, page: data.page + 1 })}`}
-          >
-            Next page
-          </Link>
-        )}
-      </nav>
+      <Pagination
+        page={data.page}
+        pageSize={20}
+        total={data.total}
+        pages={data.pages}
+        pageSizes={null}
+        label="Operator pages"
+        noun="operators"
+      />
       {data.canWrite && <CommandForm data={data} create />}
     </section>
   );

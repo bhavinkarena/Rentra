@@ -1,8 +1,6 @@
 import Form from '@/components/navigation/NavigationForm';
 import Link from '@/components/navigation/NavigationLink';
 import {
-  ArrowLeft,
-  ArrowRight,
   CalendarCheck2,
   CalendarClock,
   CalendarX2,
@@ -10,6 +8,7 @@ import {
   CircleDollarSign,
   Search,
 } from 'lucide-react';
+import Pagination from '@/components/ui/pagination';
 
 const TABS = [
   { value: 'all', label: 'All bookings' },
@@ -225,30 +224,16 @@ export default function AdminBookingHistory({ data }) {
           </div>
         )}
 
-        <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-4 text-tiny text-ink-500 sm:px-5">
-          <p>
-            <span className="font-semibold text-ink-800">{data.total}</span> booking
-            {data.total === 1 ? '' : 's'} · Page {data.page} of {data.pages}
-          </p>
-          <nav className="flex items-center gap-2" aria-label="Booking pages">
-            {data.page > 1 ? (
-              <Link
-                href={queryHref(data, { page: String(data.page - 1) })}
-                className="inline-flex min-h-9 items-center gap-1 rounded-md border border-border px-3 font-semibold text-ink-700 hover:bg-ink-50"
-              >
-                <ArrowLeft className="size-3.5" aria-hidden="true" /> Previous
-              </Link>
-            ) : null}
-            {data.page < data.pages ? (
-              <Link
-                href={queryHref(data, { page: String(data.page + 1) })}
-                className="inline-flex min-h-9 items-center gap-1 rounded-md border border-border px-3 font-semibold text-ink-700 hover:bg-ink-50"
-              >
-                Next <ArrowRight className="size-3.5" aria-hidden="true" />
-              </Link>
-            ) : null}
-          </nav>
-        </footer>
+        <Pagination
+          page={data.page}
+          pageSize={20}
+          total={data.total}
+          pages={data.pages}
+          pageSizes={null}
+          label="Booking pages"
+          noun="bookings"
+          className="border-t border-border px-4 py-4 sm:px-5"
+        />
       </section>
     </div>
   );

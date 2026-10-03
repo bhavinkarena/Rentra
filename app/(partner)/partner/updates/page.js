@@ -2,6 +2,7 @@ import PortalPage from '@/components/portal/PortalPage';
 import OwnerTable from '@/components/partner/OwnerTable';
 import { EmptyState } from '@/components/ui/empty-state';
 import Link from '@/components/navigation/NavigationLink';
+import Pagination from '@/components/ui/pagination';
 import { requireClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
@@ -92,23 +93,15 @@ export default async function Page({ searchParams }) {
           actionLabel="Clear filters"
         />
       )}
-      {pages > 1 && (
-        <nav aria-label="Update pages" className="flex flex-wrap items-center gap-4">
-          {page > 1 && (
-            <Link className="min-h-11 underline" href={query({ page: page - 1 })}>
-              Previous
-            </Link>
-          )}
-          <span>
-            Page {page} of {pages}
-          </span>
-          {page < pages && (
-            <Link className="min-h-11 underline" href={query({ page: page + 1 })}>
-              Next
-            </Link>
-          )}
-        </nav>
-      )}
+      <Pagination
+        page={page}
+        pageSize={20}
+        total={data.total}
+        pages={pages}
+        pageSizes={null}
+        label="Update pages"
+        noun="updates"
+      />
     </PortalPage>
   );
 }

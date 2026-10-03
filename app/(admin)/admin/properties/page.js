@@ -8,9 +8,9 @@ import {
   AdminPage,
   AdminPageHeader,
   AdminEmpty,
-  Pager,
   StatusBadge,
 } from '@/components/admin/AdminPrimitives';
+import Pagination from '@/components/ui/pagination';
 
 const statuses = [
   'pending_review',
@@ -172,14 +172,16 @@ export default async function PropertyReviewQueue({ searchParams }) {
           description="Try another status or clear the search."
         />
       ) : null}
-      <div className="mt-5">
-        <Pager
-          page={data.page}
-          hasNext={data.page < data.pages}
-          previousHref={href(data.page - 1)}
-          nextHref={href(data.page + 1)}
-        />
-      </div>
+      <Pagination
+        page={data.page}
+        pageSize={20}
+        total={data.total}
+        pages={data.pages}
+        pageSizes={null}
+        label="Property pages"
+        noun="properties"
+        className="mt-5"
+      />
     </AdminPage>
   );
 }

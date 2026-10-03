@@ -2,26 +2,26 @@ import PortalPage from '@/components/portal/PortalPage';
 import InlineAlert from '@/components/portal/InlineAlert';
 import { EmptyState } from '@/components/ui/empty-state';
 import Link from '@/components/navigation/NavigationLink';
+import Pagination from '@/components/ui/pagination';
 import { Building2 } from 'lucide-react';
 import CreateListingButton from '@/components/partner/CreateListingButton';
 import PropertyFilters from '@/components/partner/PropertyFilters';
 import PropertyTable from '@/components/partner/PropertyTable';
 import { PartnerPageHeader } from '@/components/partner/PortalPrimitives';
 
-function pageHref({ query, status, vertical, page }) {
+function pageHref({ query, status, vertical, page, pageSize }) {
   const params = new URLSearchParams();
   if (query) params.set('q', query);
   if (status !== 'all') params.set('status', status);
   if (vertical) params.set('vertical', vertical);
   if (page > 1) params.set('page', String(page));
+  if (pageSize !== 10) params.set('pageSize', String(pageSize));
   const suffix = params.toString();
   return suffix ? `/partner/listings?${suffix}` : '/partner/listings';
 }
 
 export default function PartnerListingsView({ summary, result, args, submitted, deleted }) {
   const { query, status, vertical } = args;
-  const first = result.total ? (result.page - 1) * result.pageSize + 1 : 0;
-  const last = Math.min(result.page * result.pageSize, result.total);
 
   return (
     <PortalPage>
@@ -93,7 +93,13 @@ export default function PartnerListingsView({ summary, result, args, submitted, 
           {result.items.length ? (
             <PropertyTable
               listings={result.items}
-              from={pageHref({ query, status, vertical, page: result.page })}
+              from={pageHref({
+                query,
+                status,
+                vertical,
+                page: result.page,
+                pageSize: result.pageSize,
+              })}
             />
           ) : (
             <EmptyState
@@ -106,46 +112,15 @@ export default function PartnerListingsView({ summary, result, args, submitted, 
             />
           )}
 
-          <div className="flex flex-col gap-3 border-t border-border bg-ink-25/70 px-4 py-3 text-tiny text-ink-500 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-            <p>
-              Showing <strong className="font-semibold text-ink-800 tabular">{first}</strong> to{' '}
-              <strong className="font-semibold text-ink-800 tabular">{last}</strong> of{' '}
-              <strong className="font-semibold text-ink-800 tabular">{result.total}</strong>
-            </p>
-            <div className="flex items-center gap-2">
-              {result.page > 1 ? (
-                <Link
-                  href={pageHref({ query, status, vertical, page: result.page - 1 })}
-                  scroll={false}
-                  className="rounded-md border border-border bg-card px-3 py-2 font-semibold text-ink-700 hover:bg-ink-50"
-                >
-                  ← Previous
-                </Link>
-              ) : (
-                <span className="cursor-not-allowed rounded-md border border-border px-3 py-2 text-ink-500">
-                  ← Previous
-                </span>
-              )}
-
-              <span className="grid min-h-8 min-w-8 place-items-center rounded-md bg-primary px-2 font-bold text-white tabular">
-                {result.page}
-              </span>
-
-              {result.page < result.totalPages ? (
-                <Link
-                  href={pageHref({ query, status, vertical, page: result.page + 1 })}
-                  scroll={false}
-                  className="rounded-md border border-border bg-card px-3 py-2 font-semibold text-ink-700 hover:bg-ink-50"
-                >
-                  Next →
-                </Link>
-              ) : (
-                <span className="cursor-not-allowed rounded-md border border-border px-3 py-2 text-ink-500">
-                  Next →
-                </span>
-              )}
-            </div>
-          </div>
+          <Pagination
+            page={result.page}
+            pageSize={result.pageSize}
+            total={result.total}
+            pages={result.totalPages}
+            label="Property pages"
+            noun="properties"
+            className="border-t border-border bg-ink-25/70 px-4 py-3 sm:px-5"
+          />
         </section>
       )}
     </PortalPage>

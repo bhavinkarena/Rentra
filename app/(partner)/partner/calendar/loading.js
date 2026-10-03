@@ -1,5 +1,5 @@
-import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
+import { CalendarSkeleton } from '@/components/partner/PartnerLoading';
 
 export default function Loading() {
-  return <ScreenSkeleton screen="calendar" label="Loading partner calendar" />;
+  return <CalendarSkeleton />;
 }

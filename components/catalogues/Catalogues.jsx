@@ -4,6 +4,7 @@ import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from '@/components/navigation/NavigationLink';
+import Pagination from '@/components/ui/pagination';
 import { catalogueCommand } from '@/lib/actions/catalogues';
 import { ActivityIcon } from '@/components/rentra/icons/activity-icons';
 import { VerticalIcon } from '@/components/rentra/icons/vertical-icons';
@@ -125,19 +126,15 @@ export function CatalogueList({ data }) {
         </table>
       </div>
       {!data.items.length && <p>No matching records. Try another label or status.</p>}
-      <nav aria-label="Catalogue pages" className="flex gap-4">
-        {data.page > 1 && (
-          <Link href={`?${new URLSearchParams({ ...data.query, page: data.page - 1 })}`}>
-            Previous
-          </Link>
-        )}
-        <span>
-          Page {data.page} of {data.totalPages}
-        </span>
-        {data.page < data.totalPages && (
-          <Link href={`?${new URLSearchParams({ ...data.query, page: data.page + 1 })}`}>Next</Link>
-        )}
-      </nav>
+      <Pagination
+        page={data.page}
+        pageSize={25}
+        total={data.total}
+        pages={data.totalPages}
+        pageSizes={null}
+        label="Catalogue pages"
+        noun="records"
+      />
     </section>
   );
 }

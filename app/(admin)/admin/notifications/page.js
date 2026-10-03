@@ -8,9 +8,9 @@ import {
   AdminKpiCard,
   AdminPage,
   AdminPageHeader,
-  Pager,
   StatusBadge,
 } from '@/components/admin/AdminPrimitives';
+import Pagination from '@/components/ui/pagination';
 
 export const metadata = { title: 'Notification delivery', robots: { index: false, follow: false } };
 const date = (value) =>
@@ -141,14 +141,15 @@ export default async function Monitor({ searchParams }) {
             description="Delivery attempts will appear here as messages are queued."
           />
         )}
-        <footer className="flex justify-end border-t border-border px-5 py-4">
-          <Pager
-            page={data.page}
-            hasNext={data.hasNext}
-            previousHref={`?page=${data.page - 1}`}
-            nextHref={`?page=${data.page + 1}`}
-          />
-        </footer>
+        <Pagination
+          page={data.page}
+          pageSize={30}
+          total={total}
+          pageSizes={null}
+          label="Notification pages"
+          noun="notifications"
+          className="border-t border-border px-5 py-4"
+        />
       </section>
     </AdminPage>
   );

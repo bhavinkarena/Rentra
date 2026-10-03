@@ -1,4 +1,5 @@
 import Link from '@/components/navigation/NavigationLink';
+import Pagination from '@/components/ui/pagination';
 
 import { displayMoney } from '@/lib/domain/display-money';
 import { earningsTime } from '@/lib/domain/owner-earnings';
@@ -72,7 +73,7 @@ function Filters({ filters, admin, properties = [], action }) {
           <option value="">All properties</option>
           {properties.map((p) => (
             <option key={p.id} value={p.id}>
-              {p.title}
+              {p.title || 'Untitled draft'}
             </option>
           ))}
           {filters.propertyId && !properties.some((p) => p.id === filters.propertyId) && (
@@ -120,19 +121,16 @@ function Destination({ value }) {
     </p>
   );
 }
-function Pager({ data }) {
-  const page = data.filters.page,
-    total = Math.ceil(data.count / 30);
+function Pager({ data, noun }) {
   return (
-    total > 1 && (
-      <nav aria-label="Finance pagination" className="flex gap-4">
-        {page > 1 && <Link href={`?${query({ ...data.filters, page: page - 1 })}`}>Previous</Link>}
-        <span>
-          Page {page} of {total}
-        </span>
-        {page < total && <Link href={`?${query({ ...data.filters, page: page + 1 })}`}>Next</Link>}
-      </nav>
-    )
+    <Pagination
+      page={data.filters.page}
+      pageSize={30}
+      total={data.count}
+      pageSizes={null}
+      label="Finance pagination"
+      noun={noun}
+    />
   );
 }
 export function Statement({ data, admin = false, detail = false }) {
@@ -209,7 +207,7 @@ export function Statement({ data, admin = false, detail = false }) {
           </article>
         ))}
       </div>
-      <Pager data={data} />
+      <Pager data={data} noun="allocations" />
     </div>
   );
 }
@@ -299,7 +297,7 @@ export function PayoutList({ data, admin = false }) {
           <Destination value={p.destination} />
         </article>
       ))}
-      <Pager data={data} />
+      <Pager data={data} noun="payouts" />
     </div>
   );
 }

@@ -14,7 +14,8 @@ import {
   SectionCard,
   pickTab,
 } from '@/components/portal/DetailLayout';
-import { AdminEmpty, AdminPage, AdminPageHeader, Pager, StatusBadge } from './AdminPrimitives';
+import { AdminEmpty, AdminPage, AdminPageHeader, StatusBadge } from './AdminPrimitives';
+import Pagination from '@/components/ui/pagination';
 import { customerAccountCommand } from '@/lib/actions/admin';
 
 const STATUS = {
@@ -168,17 +169,16 @@ export function AdminCustomerList({ data }) {
           />
         )}
 
-        <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-5 py-4">
-          <p className="text-tiny text-ink-500">
-            {data.total} customer{data.total === 1 ? '' : 's'} · page {data.page} of {data.pages}
-          </p>
-          <Pager
-            page={data.page}
-            hasNext={data.page < data.pages}
-            previousHref={listHref({ ...data, page: data.page - 1 })}
-            nextHref={listHref({ ...data, page: data.page + 1 })}
-          />
-        </footer>
+        <Pagination
+          page={data.page}
+          pageSize={data.pageSize}
+          total={data.total}
+          pages={data.pages}
+          pageSizes={null}
+          label="Customer pages"
+          noun="customers"
+          className="border-t border-border px-5 py-4"
+        />
       </section>
     </AdminPage>
   );
