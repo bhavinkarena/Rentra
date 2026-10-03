@@ -1,18 +1,31 @@
 import Link from '@/components/navigation/NavigationLink';
 import ApplicationCommand from '@/components/partner/ApplicationCommand';
 import { saveOwnerGuide } from '@/lib/actions/partner';
-import OwnerGuide from '@/components/partner/OwnerGuide';
+import HelpHub from '@/components/partner/help/HelpHub';
 import { publicContent } from '@/lib/api/content';
 import { requireClient } from '@/lib/api/session';
-export const metadata = { title: 'Owner guide', robots: { index: false, follow: false } };
+import { settle } from '@/lib/api/page-state';
+import PortalState from '@/components/portal/PortalState';
+export const metadata = { title: 'Help & support', robots: { index: false, follow: false } };
 export default async function HelpPage() {
   const owner = await requireClient();
-  const guide = await publicContent('owner_help');
+  const { data: guide, failure } = await settle(publicContent('owner_help'));
+  if (failure)
+    return (
+      <PortalState kind={failure} backHref="/partner/support/new" backLabel="Contact support" />
+    );
   return (
     <>
-      <div className="mx-auto max-w-3xl space-y-4 px-4 py-6">
-        <div className="flex flex-wrap items-center gap-5">
-          <Link href="/partner?tour=1" className="min-h-11 py-3 font-semibold text-brand-700">
+      <HelpHub body={guide.body} />
+      <section className="mt-9 border-t border-border pt-6" aria-labelledby="workspace-help-title">
+        <h2 id="workspace-help-title" className="text-h4 font-semibold text-ink-900">
+          Get familiar with your workspace
+        </h2>
+        <div className="mt-2 flex flex-wrap gap-x-6">
+          <Link
+            href="/partner?tour=1"
+            className="inline-flex min-h-11 items-center text-meta font-medium text-brand-800 hover:underline"
+          >
             Show me around again
           </Link>
           {owner.accountStatus === 'active' ? (
@@ -24,17 +37,14 @@ export default async function HelpPage() {
                 form.set('next', '/partner');
                 return saveOwnerGuide({}, form);
               }}
-              pendingLabel="Opening guide…"
-              className="min-h-11 font-semibold text-brand-700"
+              pendingLabel="Opening guide..."
+              className="min-h-11 text-meta font-medium text-brand-800 hover:underline"
             >
               Show setup guide
             </ApplicationCommand>
           ) : null}
         </div>
-        <h1 className="text-h1">{guide.body.title}</h1>
-        <p>{guide.body.intro}</p>
-        <OwnerGuide body={guide.body} />
-      </div>
+      </section>
     </>
   );
 }

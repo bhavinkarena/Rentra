@@ -1,5 +1,4 @@
-import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
-
+import HelpSkeleton from '@/components/partner/help/HelpSkeleton';
 export default function Loading() {
-  return <ScreenSkeleton inset screen="support" label="Loading partner support" />;
+  return <HelpSkeleton screen="inbox" />;
 }

@@ -16,6 +16,7 @@ import OnboardingLoading from '@/app/(partner)/partner/onboarding/loading';
 import PayoutsLoading from '@/app/(partner)/partner/payouts/loading';
 import ReviewsLoading from '@/app/(partner)/partner/reviews/loading';
 import SettingsLoading from '@/app/(partner)/partner/settings/loading';
+import HelpLoading from '@/app/(partner)/partner/help/loading';
 import SupportLoading from '@/app/(partner)/partner/support/loading';
 import TeamLoading from '@/app/(partner)/partner/team/loading';
 import UpdatesLoading from '@/app/(partner)/partner/updates/loading';
@@ -33,13 +34,22 @@ const ROUTES = {
   payouts: PayoutsLoading,
   reviews: ReviewsLoading,
   settings: SettingsLoading,
+  help: HelpLoading,
   support: SupportLoading,
   team: TeamLoading,
   updates: UpdatesLoading,
 };
 
 // These routes get their page padding from a nested PortalPage layout, which has not rendered yet.
-const PADDED = new Set(['bookings', 'disputes', 'earnings', 'finance', 'payouts', 'support']);
+const PADDED = new Set([
+  'bookings',
+  'disputes',
+  'earnings',
+  'finance',
+  'payouts',
+  'support',
+  'help',
+]);
 
 const onDark = { background: 'rgb(255 255 255 / 0.1)' };
 const darkSweep = { '--skeleton-highlight': 'rgb(255 255 255 / 0.06)' };

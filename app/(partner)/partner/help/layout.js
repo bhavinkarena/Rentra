@@ -1,9 +1,9 @@
 import PortalPage from '@/components/portal/PortalPage';
-import OwnerHelpHeader from '@/components/partner/OwnerHelpHeader';
+import HelpNav from '@/components/partner/help/HelpNav';
 export default function Layout({ children }) {
   return (
     <PortalPage>
-      <OwnerHelpHeader />
+      <HelpNav />
       {children}
     </PortalPage>
   );
