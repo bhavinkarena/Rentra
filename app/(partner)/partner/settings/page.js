@@ -1,3 +1,5 @@
+import PortalPage from '@/components/portal/PortalPage';
+import SettingsTabs from '@/components/partner/SettingsTabs';
 import Link from '@/components/navigation/NavigationLink';
 import { Mail, Phone, ShieldCheck, WalletCards } from 'lucide-react';
 import { requireClient } from '@/lib/api/session';
@@ -10,21 +12,28 @@ export const metadata = {
   robots: { index: false, follow: false, nocache: true },
 };
 
-export default async function SettingsPage() {
+export default async function SettingsPage({ searchParams }) {
+  const params = await searchParams;
   const user = await requireClient();
   const application = await partnerApi.application();
 
   return (
-    <div className="mx-auto w-full max-w-[1240px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+    <PortalPage width="settings">
+      {params?.notice === 'verified' ? (
+        <p role="status" className="mb-4 rounded-md bg-brand-50 p-4">
+          You’re already verified. Update your account details here.
+        </p>
+      ) : null}
       <PartnerPageHeader
         eyebrow="Account"
-        title="Settings & payouts"
+        title="Profile settings"
         description="Keep your partner profile, contact details and payout destination accurate."
       />
 
+      <SettingsTabs />
       <div className="mt-7 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-5">
-          <section className="rounded-lg border border-border bg-card p-5 shadow-xs sm:p-6">
+          <section className="rounded-lg border border-border bg-card p-5 sm:p-6">
             <div className="flex items-start gap-3 border-b border-border pb-4">
               <span className="grid size-10 shrink-0 place-items-center rounded-md bg-brand-50 text-brand-700 ring-1 ring-brand-100">
                 <ShieldCheck className="size-[18px]" aria-hidden="true" />
@@ -37,11 +46,24 @@ export default async function SettingsPage() {
               </div>
             </div>
             <div className="mt-5 max-w-2xl">
-              <AccountForm user={user} />
+              <AccountForm
+                user={user}
+                nameLocked={['submitted', 'approved'].includes(application?.status)}
+              />
+              <div className="mt-4 text-sm">
+                <strong>Legal name:</strong>{' '}
+                {application?.legalName || application?.kycNameOnDoc || 'Not added yet'}
+                <p>
+                  Legal details are kept separately for verification.{' '}
+                  <Link href="/partner/support/new?category=account" className="underline">
+                    Contact support to change submitted details.
+                  </Link>
+                </p>
+              </div>
             </div>
           </section>
 
-          <section className="rounded-lg border border-border bg-card p-5 shadow-xs sm:p-6">
+          <section className="rounded-lg border border-border bg-card p-5 sm:p-6">
             <div className="flex items-start gap-3 border-b border-border pb-4">
               <span className="grid size-10 shrink-0 place-items-center rounded-md bg-brand-50 text-brand-700 ring-1 ring-brand-100">
                 <WalletCards className="size-[18px]" aria-hidden="true" />
@@ -73,7 +95,7 @@ export default async function SettingsPage() {
           </section>
         </div>
 
-        <aside className="rounded-lg border border-border bg-card p-5 shadow-xs lg:sticky lg:top-20">
+        <aside className="rounded-lg border border-border bg-card p-5 lg:sticky lg:top-20">
           <p className="text-tiny font-bold tracking-[0.1em] text-ink-500 uppercase">
             Sign-in & identity
           </p>
@@ -85,7 +107,8 @@ export default async function SettingsPage() {
                   {user.email}
                 </span>
                 <span className="mt-1 block text-tiny leading-4 text-ink-500">
-                  Your verified sign-in address. Contact Rentra to move the account to a new email.
+                  Your verified sign-in address. Change your email using a verification code in
+                  Login & security.
                 </span>
               </span>
             </li>
@@ -97,11 +120,11 @@ export default async function SettingsPage() {
                   {user.phone ?? 'No mobile number yet'}
                 </span>
                 <span className="mt-1 block text-tiny leading-4 text-ink-500">
-                  Guests call this number on the day. Rentra does not send owner updates by SMS yet;
-                  they appear in Updates.
+                  Guests call this number on the visit day. Choose your update channels in
+                  Notifications.
                 </span>
                 <Link
-                  href="/partner/onboarding/phone"
+                  href="/partner/settings/security"
                   className="mt-2 inline-flex text-tiny font-bold text-brand-700 hover:underline"
                 >
                   {user.phone ? 'Change number' : 'Add number'} →
@@ -119,7 +142,9 @@ export default async function SettingsPage() {
                   Identity{' '}
                   {user.kycStatus === 'verified'
                     ? 'documents reviewed by Rentra'
-                    : user.kycStatus.replace(/_/g, ' ')}
+                    : user.kycStatus === 'none'
+                      ? 'check not submitted yet'
+                      : (user.kycStatus || 'pending').replace(/_/g, ' ')}
                 </span>
                 <span className="mt-1 block text-tiny leading-4 text-ink-500">
                   {user.kycStatus === 'verified'
@@ -131,6 +156,6 @@ export default async function SettingsPage() {
           </ul>
         </aside>
       </div>
-    </div>
+    </PortalPage>
   );
 }

@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/ui/empty-state';
 import Link from '@/components/navigation/NavigationLink';
 import SelectableLane from './SelectableLane';
 import { operatingWindows } from '@/lib/domain/hourly';
@@ -69,13 +70,35 @@ export default function ResourceDayTimeline({ property, config, date, basePath }
   const courts = (property?.resources ?? []).filter(
     (c) => c.isActive || items.some((r) => r.resource_id === c.id),
   );
-  const rows = [
-    ...(items.some((r) => !r.resource_id) ? [{ id: null, name: 'Whole venue' }] : []),
-    ...courts,
-  ];
+  const rows = [{ id: null, name: 'Whole venue' }, ...courts];
   const hours = [];
   for (let m = Math.ceil(from / 60) * 60; m < to; m += 60) hours.push(m);
   const today = propertyToday();
+  // Court × week occupancy: booked minutes over opening minutes, from the 7 days the page loads.
+  const week = Array.from({ length: 7 }, (_, i) => addLocalDays(date, i));
+  const occupancy = courts.map((court) => {
+    const perDay = week.map((d) => {
+      const open = config?.model === 'hourly' ? operatingWindows(config, d) : [];
+      let busy = 0;
+      for (const r of property?.intervals ?? []) {
+        if (r.source !== 'booking' || (r.resource_id && r.resource_id !== court.id)) continue;
+        const start = minuteOf(r.starts_at ?? r.blocked_start_at, d),
+          end = minuteOf(r.ends_at ?? r.blocked_end_at, d);
+        for (const w of open)
+          busy += Math.max(0, Math.min(end, w.endMin) - Math.max(start, w.startMin));
+      }
+      return { d, busy, open: open.reduce((n, w) => n + w.endMin - w.startMin, 0) };
+    });
+    const share = (busy, open) => (open ? Math.round((busy / open) * 100) : null);
+    return {
+      court,
+      days: perDay.map((x) => ({ ...x, pct: share(x.busy, x.open) })),
+      week: share(
+        perDay.reduce((n, x) => n + x.busy, 0),
+        perDay.reduce((n, x) => n + x.open, 0),
+      ),
+    };
+  });
   const day = (d) => `${basePath}?${new URLSearchParams({ date: d })}`;
   const label = (r) =>
     [
@@ -144,16 +167,18 @@ export default function ResourceDayTimeline({ property, config, date, basePath }
       </div>
       <p className="text-meta text-ink-600">
         {windows.length
-          ? `Open ${windows.map((w) => span(date, w.startMin, w.endMin)).join(' and ')}. India time.`
-          : 'Closed on this day by the weekly hours. India time.'}{' '}
+          ? `Open ${windows.map((w) => span(date, w.startMin, w.endMin)).join(' and ')}. Times in IST.`
+          : 'Closed on this day by the weekly hours. Times in IST.'}{' '}
         Solid: booking · Striped: temporary hold · Dashed: blocked · Pale edge: changeover buffer.
         Drag across free time on a court to block it.
       </p>
 
       {!rows.length ? (
-        <p className="rounded-md border border-dashed border-border p-4 text-meta">
-          No courts yet. Add courts on the property page.
-        </p>
+        <EmptyState
+          variant="compact"
+          title="No courts yet"
+          description="Add courts to manage their bookings and availability."
+        />
       ) : (
         <>
           <div
@@ -192,6 +217,8 @@ export default function ResourceDayTimeline({ property, config, date, basePath }
                         ) : null}
                       </div>
                       <SelectableLane
+                        property={property}
+                        items={items}
                         courtId={row.id}
                         date={date}
                         from={from}
@@ -242,23 +269,98 @@ export default function ResourceDayTimeline({ property, config, date, basePath }
             </div>
           </div>
 
-          <ul className="space-y-2 md:hidden" aria-label="Bookings and blocks on this day">
-            {items.length ? (
-              items.map((r) => (
-                <li key={r.id} className="space-y-1">
-                  <p className="text-tiny font-semibold text-ink-700">
-                    {r.resource_name ?? 'Whole venue'}
-                  </p>
-                  {item(r, 'block min-h-11')}
-                </li>
-              ))
-            ) : (
-              <li className="rounded-md border border-dashed border-border p-4 text-meta">
-                Nothing booked or blocked on this day.
-              </li>
-            )}
-          </ul>
+          <div
+            className="flex snap-x snap-mandatory gap-3 overflow-x-auto md:hidden"
+            role="region"
+            aria-label="Courts, swipe for more"
+            tabIndex={0}
+          >
+            {rows.map((row) => {
+              const own = items.filter((r) => (r.resource_id ?? null) === row.id);
+              return (
+                <section
+                  key={row.id ?? 'venue'}
+                  data-court-column
+                  aria-label={row.name}
+                  className="w-[85%] shrink-0 snap-start space-y-2 rounded-lg border border-border p-2"
+                >
+                  <h3 className="text-meta font-semibold">{row.name}</h3>
+                  <SelectableLane
+                    courtId={row.id}
+                    property={property}
+                    items={items}
+                    date={date}
+                    from={from}
+                    total={total}
+                    className="relative h-14 rounded border border-border"
+                  />
+                  <ul className="space-y-2">
+                    {own.length ? (
+                      own.map((r) => <li key={r.id}>{item(r, 'block min-h-11')}</li>)
+                    ) : (
+                      <li>
+                        <EmptyState
+                          variant="compact"
+                          title="Nothing booked or blocked"
+                          description="Bookings and blocks for this court appear here."
+                        />
+                      </li>
+                    )}
+                  </ul>
+                </section>
+              );
+            })}
+          </div>
         </>
+      )}
+      {occupancy.length > 0 && (
+        <section aria-labelledby="occupancy-heading" className="space-y-2">
+          <h3 id="occupancy-heading" className="text-h3">
+            Occupancy this week
+          </h3>
+          <div className="overflow-x-auto" role="region" aria-label="Court occupancy" tabIndex={0}>
+            <table className="w-full text-meta tabular">
+              <thead>
+                <tr>
+                  <th scope="col" className="p-2 text-left">
+                    Court
+                  </th>
+                  {week.map((d) => (
+                    <th key={d} scope="col" className="p-2">
+                      {formatLocalDate(d, { weekday: 'short' }).split(',')[0]}
+                    </th>
+                  ))}
+                  <th scope="col" className="p-2">
+                    Week
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {occupancy.map((o) => (
+                  <tr key={o.court.id} className="border-t border-border">
+                    <th scope="row" className="p-2 text-left">
+                      {o.court.name}
+                    </th>
+                    {o.days.map((x) => (
+                      <td key={x.d} className="p-1 text-center">
+                        <Link
+                          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded underline"
+                          href={day(x.d)}
+                          aria-label={`${o.court.name}, ${formatLocalDate(x.d, { weekday: 'long' })}: ${x.pct == null ? 'closed' : x.pct + '% booked'}`}
+                        >
+                          {x.pct == null ? '–' : `${x.pct}%`}
+                        </Link>
+                      </td>
+                    ))}
+                    <td className="p-2 text-center font-semibold" data-week-occupancy>
+                      {o.week == null ? '–' : `${o.week}%`}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
       )}
     </section>
   );

@@ -1,3 +1,4 @@
+import OwnerGuide from '@/components/partner/OwnerGuide';
 import Link from '@/components/navigation/NavigationLink';
 import {
   ArrowRight,
@@ -45,6 +46,7 @@ export const sectionId = (i) => `section-${i + 1}`;
 
 /** Public rendering and the publication preview share this plain-text renderer. */
 export default function ContentBody({ kind, body }) {
+  if (kind === 'owner_help') return <OwnerGuide body={body} />;
   if (kind === 'contact')
     return (
       <section className="space-y-4">

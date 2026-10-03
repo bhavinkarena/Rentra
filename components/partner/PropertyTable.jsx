@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/ui/empty-state';
 import Link from '@/components/navigation/NavigationLink';
 import { ArrowRight, Building2, Star } from 'lucide-react';
 import ListingStatusBadge from '@/components/partner/ListingStatusBadge';
@@ -13,7 +14,7 @@ function venueCapacity(listing) {
 }
 
 function displayTitle(title) {
-  return title === 'Untitled property' ? 'Untitled draft' : title;
+  return !title || title === 'Untitled property' ? 'Untitled draft' : title;
 }
 
 function displayLocation(listing) {
@@ -30,9 +31,12 @@ function displayDate(value) {
   }).format(new Date(value));
 }
 
-function actionLabel(status) {
-  if (status === 'draft') return 'Continue setup';
-  if (status === 'rejected') return 'Fix listing';
+function actionLabel({ status, resumeNumber, stepTotal }) {
+  if (status === 'draft')
+    return resumeNumber
+      ? `Continue setup — step ${resumeNumber} of ${stepTotal}`
+      : 'Continue setup';
+  if (status === 'rejected') return 'Fix property';
   return 'Manage';
 }
 
@@ -42,14 +46,17 @@ function actionLabel(status) {
  * so every breadcrumb onward returns to it.
  */
 function actionHref(listing, from) {
-  const base = `/partner/listings/${listing.id}/overview`;
+  const base =
+    listing.status === 'draft'
+      ? `/partner/listings/${listing.id}/setup${listing.resumeStep ? `/${listing.resumeStep}` : ''}`
+      : `/partner/listings/${listing.id}/overview`;
   return from ? `${base}?from=${encodeURIComponent(from)}` : base;
 }
 
 function ActionText({ listing }) {
   return (
     <>
-      {actionLabel(listing.status)}
+      {actionLabel(listing)}
       <span className="sr-only">: {displayTitle(listing.title)}</span>
     </>
   );
@@ -82,22 +89,21 @@ export default function PropertyTable({
 }) {
   if (!listings.length) {
     return (
-      <div className="grid min-h-56 place-items-center px-6 py-10 text-center">
-        <div>
-          <span className="mx-auto grid size-11 place-items-center rounded-full bg-ink-100 text-ink-500">
-            <Building2 className="size-5" aria-hidden="true" />
-          </span>
-          <p className="mt-3 text-meta font-semibold text-ink-900">{emptyTitle}</p>
-          <p className="mt-1 text-tiny text-ink-500">{emptyDescription}</p>
-        </div>
-      </div>
+      <EmptyState
+        icon={Building2}
+        variant="no-results"
+        title={emptyTitle}
+        description={emptyDescription}
+        actionHref="/partner/listings"
+        actionLabel="Clear filters"
+      />
     );
   }
 
   return (
     <>
       <div
-        className="relative hidden overflow-x-auto md:block"
+        className="relative overflow-x-auto"
         tabIndex={0}
         role="region"
         aria-label="Properties table"
@@ -189,7 +195,7 @@ export default function PropertyTable({
                 <td className="px-5 py-3.5 text-right">
                   <Link
                     href={actionHref(listing, from)}
-                    className="inline-flex items-center gap-1.5 rounded-sm border border-border bg-card px-3 py-2 text-tiny font-semibold text-ink-700 transition-colors group-hover:border-ink-300 hover:bg-ink-50 hover:text-ink-900"
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-2 text-tiny font-semibold text-ink-700 transition-colors group-hover:border-ink-300 hover:bg-ink-50 hover:text-ink-900"
                   >
                     <ActionText listing={listing} />
                     <ArrowRight className="size-3.5" aria-hidden="true" />
@@ -200,38 +206,6 @@ export default function PropertyTable({
           </tbody>
         </table>
       </div>
-
-      <ul className="divide-y divide-border md:hidden">
-        {listings.map((listing) => (
-          <li key={listing.id} className="p-4">
-            <div className="flex items-start justify-between gap-3">
-              <PropertyIdentity listing={listing} />
-              <ListingStatusBadge status={listing.status} />
-            </div>
-            <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-dashed border-border pt-3 text-tiny">
-              <div>
-                <dt className="text-ink-500">Location</dt>
-                <dd className="mt-0.5 truncate font-medium text-ink-700">
-                  {displayLocation(listing)}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-ink-500">Updated</dt>
-                <dd className="mt-0.5 font-medium text-ink-700">
-                  {displayDate(listing.updatedAt)}
-                </dd>
-              </div>
-            </dl>
-            <Link
-              href={actionHref(listing, from)}
-              className="mt-4 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-md border border-border bg-card text-tiny font-semibold text-ink-800"
-            >
-              <ActionText listing={listing} />
-              <ArrowRight className="size-3.5" aria-hidden="true" />
-            </Link>
-          </li>
-        ))}
-      </ul>
     </>
   );
 }

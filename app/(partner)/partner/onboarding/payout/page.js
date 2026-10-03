@@ -14,9 +14,9 @@ export default async function Page() {
 
   return (
     <OnboardingShell
-      step={5}
+      current="payout"
       title="Where we should pay you"
-      intro="Guests pay Rentra. We pass it to you after check-in, minus our fee."
+      intro="Guests pay Rentra. Your earnings go here once Rentra switches payouts on — we will tell you before the first one."
     >
       <PayoutForm user={user} application={application} />
     </OnboardingShell>

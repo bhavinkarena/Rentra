@@ -7,10 +7,10 @@ import { X } from 'lucide-react';
  * Mobile navigation drawer on the native modal <dialog>.
  *
  * `showModal()` makes the rest of the page inert (focus stays inside), Escape
- * closes it, and the browser returns focus to the menu button on close. No
- * hand-written focus trap to drift out of date.
+ * closes it, and the browser returns focus to the menu button on close.
+ * Tab wrapping keeps keyboard navigation inside the sheet at both ends.
  */
-export default function NavDrawer({ open, onClose, label, children }) {
+export default function NavDrawer({ open, onClose, label, children, desktop = false }) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -21,15 +21,15 @@ export default function NavDrawer({ open, onClose, label, children }) {
   }, [open]);
 
   useEffect(() => {
-    if (!open) return;
-    const desktop = window.matchMedia('(min-width: 1024px)');
+    if (!open || desktop) return;
+    const desktopQuery = window.matchMedia('(min-width: 1024px)');
     const release = () => {
-      if (desktop.matches) onClose();
+      if (desktopQuery.matches) onClose();
     };
     release();
-    desktop.addEventListener('change', release);
-    return () => desktop.removeEventListener('change', release);
-  }, [open, onClose]);
+    desktopQuery.addEventListener('change', release);
+    return () => desktopQuery.removeEventListener('change', release);
+  }, [open, onClose, desktop]);
 
   return (
     <dialog
@@ -37,11 +37,28 @@ export default function NavDrawer({ open, onClose, label, children }) {
       data-surface="inverse"
       aria-label={label}
       onClose={onClose}
+      onKeyDown={(event) => {
+        if (event.key !== 'Tab') return;
+        const controls = [
+          ...event.currentTarget.querySelectorAll(
+            'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex="0"]',
+          ),
+        ].filter((node) => node.getClientRects().length);
+        const first = controls[0],
+          last = controls.at(-1);
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first?.focus();
+        }
+      }}
       // A click on the dialog element itself is a click on the backdrop; the panel fills the box.
       onClick={(event) => {
         if (event.target === ref.current) onClose();
       }}
-      className="fixed inset-y-0 right-auto left-0 m-0 h-dvh max-h-dvh w-[min(86vw,320px)] max-w-none -translate-x-full overflow-y-auto overscroll-contain bg-sidebar p-0 shadow-xl transition-[transform,display,overlay] transition-discrete duration-200 ease-out backdrop:bg-ink-900/0 backdrop:transition-[background-color,display,overlay] backdrop:transition-discrete backdrop:duration-200 open:translate-x-0 open:backdrop:bg-ink-900/55 starting:open:-translate-x-full starting:open:backdrop:bg-ink-900/0 motion-reduce:transition-none lg:hidden"
+      className={`fixed inset-y-0 right-auto left-0 m-0 h-dvh max-h-dvh w-[min(86vw,320px)] max-w-none -translate-x-full overflow-y-auto overscroll-contain bg-sidebar p-0 shadow-xl transition-[transform,display,overlay] transition-discrete duration-200 ease-out backdrop:bg-ink-900/0 backdrop:transition-[background-color,display,overlay] backdrop:transition-discrete backdrop:duration-200 open:translate-x-0 open:backdrop:bg-ink-900/55 starting:open:-translate-x-full starting:open:backdrop:bg-ink-900/0 motion-reduce:transition-none ${desktop ? '' : 'lg:hidden'}`}
     >
       {/* Always rendered: a closed <dialog> is not displayed, and the close
           animation needs its content. */}

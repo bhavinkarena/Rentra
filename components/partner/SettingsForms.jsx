@@ -45,7 +45,7 @@ function Saved({ state, pending }) {
 
 /* -------------------------------- account -------------------------------- */
 
-export function AccountForm({ user }) {
+export function AccountForm({ user, nameLocked = false }) {
   const [state, action, pending] = useActionState(saveAccountSettings, {});
   const e = state.errors ?? {};
 
@@ -53,11 +53,21 @@ export function AccountForm({ user }) {
     <form action={action} className="space-y-4">
       <Field
         id="name"
-        label="Your name"
+        label="Display name"
         error={e.name}
-        hint="Shown to guests on your listings, alongside your verified badge."
+        hint={
+          nameLocked
+            ? 'Contact support to change your name after submission.'
+            : 'Shown to guests on your properties.'
+        }
       >
-        <Input id="name" name="name" defaultValue={user.name ?? ''} className="h-11" />
+        <Input
+          id="name"
+          name="name"
+          defaultValue={user.name ?? ''}
+          readOnly={nameLocked}
+          className="h-11"
+        />
       </Field>
 
       <Field

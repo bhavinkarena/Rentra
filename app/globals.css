@@ -13,6 +13,14 @@
    works immediately) and at the END of a hide (so the fade-out still plays).
    Pair with invisible/visible: `reveal invisible` hidden, add `visible
    revealed` to show, `invisible concealed` to hide again under a variant. */
+/* Small uppercase label above a heading (DS-01). */
+@utility eyebrow {
+  font-size: var(--text-tiny);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink-500);
+}
 @utility reveal {
   transition-property: opacity, translate, scale, visibility;
   transition-duration: 250ms, 250ms, 250ms, 0s;
@@ -65,7 +73,6 @@
   --color-foreground: var(--foreground);
   --color-background: var(--background);
   --color-primary-hover: var(--primary-hover);
-  --color-primary-active: var(--primary-active);
   --color-ring-inverse: var(--ring-inverse);
   --color-skeleton-base: var(--skeleton-base);
   --color-skeleton-highlight: var(--skeleton-highlight);
@@ -126,7 +133,6 @@
   --color-whatsapp: #1fa855; /* the ONE permitted second accent */
 
   /* --- Inverse brand surfaces. Champagne is an accent, never status. --- */
-  --color-forest-deep: #032d23;
   --color-forest-line: #386054;
   --color-paper: #f8f5ee;
 
@@ -174,6 +180,8 @@
 
   --text-meta: 0.875rem;
   --text-meta--line-height: 1.5;
+  --text-stat: 1.75rem; /* KPI figures (DS-01) */
+  --text-stat--line-height: 1;
 
   --text-tiny: 0.75rem;
   --text-tiny--line-height: 1.4;
@@ -224,25 +232,24 @@
      */
   --float-bottom: calc(var(--spacing) * 5 + env(safe-area-inset-bottom, 0px));
 
-  --background: #faf9f6;
-  --foreground: #1f2924;
-  --card: #ffffff;
+  --background: var(--color-ink-25);
+  --foreground: var(--color-ink-900);
+  --card: var(--color-ink-0);
   --card-foreground: var(--foreground);
   --popover: var(--card);
   --popover-foreground: var(--foreground);
   --primary: var(--color-brand-600);
   --primary-foreground: #ffffff;
   --primary-hover: var(--color-brand-700);
-  --primary-active: #032e23;
-  --secondary: #f3f4ef;
+  --secondary: var(--color-ink-50);
   --secondary-foreground: var(--foreground);
-  --muted: #eceee8;
-  --muted-foreground: #59655d;
+  --muted: var(--color-ink-100);
+  --muted-foreground: var(--color-ink-500);
   --accent: #ecf4ef;
   --accent-foreground: var(--primary);
   --destructive: var(--color-danger);
-  --border: #e1e5de;
-  --input: #7c8780;
+  --border: var(--color-ink-200);
+  --input: var(--color-ink-400);
   --ring: var(--primary);
   --ring-inverse: var(--color-champagne);
   --skeleton-base: #e7ebe5;
@@ -253,7 +260,7 @@
   --chart-4: var(--color-event-adjustment);
   --chart-5: #414d45;
   --radius: 1rem;
-  --sidebar: var(--color-forest-deep);
+  --sidebar: var(--color-brand-900);
   --sidebar-foreground: var(--color-paper);
   --sidebar-primary: var(--color-champagne);
   --sidebar-primary-foreground: var(--primary);
@@ -294,7 +301,6 @@
   --primary: #629b7d; /* lifted so it reads on dark ground */
   --primary-foreground: #0d1d16;
   --primary-hover: #8dbca4;
-  --primary-active: #bbd8c8;
   --skeleton-base: #2b3931;
   --skeleton-highlight: #38463e;
   --secondary: #2a2f2b;
@@ -888,7 +894,8 @@
   --text-h3: 1.0625rem;
   --text-h4: 0.9375rem;
   --text-body-lg: 0.9375rem;
-  --text-body: 0.875rem;
+  /* DS-01: body is one step above meta, so the two read differently. */
+  --text-body: 0.9375rem;
   --text-meta: 0.875rem;
   --text-tiny: 0.75rem;
   font-family: var(--font-portal), var(--font-sans);
@@ -1039,4 +1046,100 @@
 
 .group:focus-within .card-photo-arrow {
   transition: none;
+}
+
+/* Owner statements use the browser's native print/PDF flow. */
+@media print {
+  body:has(.owner-statement-print) .portal-ui > aside,
+  body:has(.owner-statement-print) .portal-ui header:not(.owner-earnings header),
+  body:has(.owner-statement-print) .portal-ui nav,
+  body:has(.owner-statement-print) .portal-ui dialog,
+  body:has(.owner-statement-print) .portal-ui a[href='#portal-main'] {
+    display: none !important;
+  }
+  body:has(.owner-statement-print) .portal-ui {
+    display: block;
+    background: white;
+  }
+  body:has(.owner-statement-print) main {
+    padding: 0;
+    min-height: 0;
+  }
+  .owner-statement-print {
+    color: black;
+    font-size: 10pt;
+  }
+  .owner-statement-print :is(li, tr) {
+    break-inside: avoid;
+  }
+  .owner-statement-print .owner-table {
+    overflow: visible;
+  }
+  .owner-statement-print .owner-table table {
+    min-width: 0 !important;
+    table-layout: fixed;
+    font-size: 8pt;
+  }
+  .owner-statement-print .owner-table :is(th, td) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    padding: 6pt;
+  }
+  .owner-statement-print a {
+    color: black;
+    text-decoration: none;
+  }
+}
+
+/* Owner mobile geometry applies to shared controls without affecting public pages. */
+:is(.owner-portal, .owner-wizard) :is(button, a, summary, [role='button']) {
+  touch-action: manipulation;
+  min-height: 44px;
+  min-width: 44px;
+}
+:is(.owner-portal, .owner-wizard) :is(a, summary) {
+  overflow-wrap: anywhere;
+}
+:is(.owner-portal, .owner-wizard)
+  a:not(.sr-only):not([class*='block']):not([class*='flex']):not([class*='grid']) {
+  display: inline-flex;
+  align-items: center;
+}
+:is(.owner-portal, .owner-wizard)
+  :is(input:not([type='checkbox']):not([type='radio']):not([type='hidden']), select, textarea) {
+  font-size: 16px;
+  max-width: 100%;
+}
+:is(.owner-portal, .owner-wizard) label:has(> input:is([type='checkbox'], [type='radio'])) {
+  min-height: 44px;
+}
+:is(.owner-portal, .owner-wizard) dialog {
+  overscroll-behavior: contain;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+}
+.owner-portal > header,
+.owner-portal > div > header,
+.owner-wizard > header {
+  padding-top: max(0.5rem, env(safe-area-inset-top, 0px));
+}
+@media (max-width: 767px) {
+  :is(.owner-portal, .owner-wizard)[data-keyboard-open='true'] [data-mobile-actions] {
+    display: none;
+  }
+  :is(.owner-portal, .owner-wizard) [data-mobile-actions] {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Owner record lists share cell spacing and a quiet hover state. */
+.owner-table td {
+  padding: 0.875rem 1rem;
+  vertical-align: top;
+}
+.owner-table tbody tr:hover {
+  background: var(--color-ink-25, #f8faf9);
+}
+.owner-table a:focus-visible {
+  outline-offset: 3px;
 }

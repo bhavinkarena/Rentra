@@ -5,7 +5,7 @@ import { sectionAnchorId } from '@/lib/domain/listing-steps';
 import { useStepFormId } from './chrome';
 import { VersionField, Input, Field, Section, SaveButton, inputCls } from './SectionPrimitives';
 export function TermsSection({ listing }) {
-  const { state, pending, preview, form } = usePolicyAction(saveTerms);
+  const { state, pending, preview, form } = usePolicyAction(saveTerms, listing);
   const e = state.errors ?? {};
 
   return (
@@ -84,3 +84,59 @@ export function TermsSection({ listing }) {
  *     connection with nothing on screen
  *   · uploads on selection rather than waiting for a second deliberate press
  */
+
+export function TermsFields({ listing, e = {} }) {
+  return (
+    <>
+      <input type="hidden" name="wizardRules" value="1" />{' '}
+      <Field
+        id="depositAmount"
+        label="Separate deposit estimate"
+        hint="Displayed separately. This value does not authorize online collection or promise a refund."
+        error={e.depositAmount}
+      >
+        <Input
+          id="depositAmount"
+          name="depositAmount"
+          inputMode="numeric"
+          defaultValue={listing.depositAmount ?? 0}
+          className="w-32 tabular"
+        />
+      </Field>
+      <Field id="cancellationTier" label="Cancellation policy" error={e.cancellationTier}>
+        <select
+          id="cancellationTier"
+          name="cancellationTier"
+          defaultValue={listing.cancellationTier ?? 'moderate'}
+          className={inputCls}
+        >
+          {listing.rentalUnit === 'hour' ? (
+            <>
+              <option value="flexible">Flexible — full refund up to 4 hours before</option>
+              <option value="moderate">
+                Moderate — full refund up to 24 hours, half up to 6 hours
+              </option>
+              <option value="strict">Strict — half up to 48 hours, none after</option>
+            </>
+          ) : (
+            <>
+              <option value="flexible">Flexible — full refund up to 3 days before</option>
+              <option value="moderate">Moderate — full refund up to 7 days, half after</option>
+              <option value="strict">Strict — half up to 7 days, none after</option>
+            </>
+          )}
+        </select>
+      </Field>
+      <label className="flex min-h-11 items-center gap-2">
+        <input
+          type="checkbox"
+          name="cancellationConfirmed"
+          required
+          defaultChecked={listing.houseRules?.cancellationConfirmed === true}
+        />
+        I confirm this cancellation policy
+      </label>
+      {e.cancellationConfirmed ? <p className="text-danger">{e.cancellationConfirmed}</p> : null}
+    </>
+  );
+}

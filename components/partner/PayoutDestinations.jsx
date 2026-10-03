@@ -1,8 +1,14 @@
+import OwnerTable from './OwnerTable';
+import { EmptyState } from '@/components/ui/empty-state';
 import { randomUUID } from 'node:crypto';
 import Link from '@/components/navigation/NavigationLink';
 import { History, ShieldAlert, ShieldCheck, WalletCards } from 'lucide-react';
 import { PartnerPageHeader } from './PortalPrimitives';
-import { ChangeDestinationForm, SignInAgain, SubmitDraftForm } from './PayoutDestinationForms';
+import {
+  ChangeDestinationForm,
+  ConfirmPayoutIdentityForm,
+  SubmitDraftForm,
+} from './PayoutDestinationForms';
 
 const ist = (value) =>
   value
@@ -28,7 +34,7 @@ const NAME = {
 
 function Card({ title, icon: Icon, children }) {
   return (
-    <section className="rounded-lg border border-border bg-card p-5 shadow-xs sm:p-6">
+    <section className="rounded-lg border border-border bg-card p-5 sm:p-6">
       <h2 className="flex items-center gap-2 text-h4 font-bold text-ink-900">
         <Icon className="size-[18px] text-brand-700" aria-hidden="true" /> {title}
       </h2>
@@ -58,15 +64,15 @@ export default function PayoutDestinations({ data }) {
   return (
     <div className="mx-auto w-full max-w-[980px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       <Link
-        href="/partner/settings"
+        href="/partner/earnings"
         className="mb-3 inline-flex min-h-9 items-center text-tiny font-semibold text-brand-700 hover:underline"
       >
-        ← Settings
+        ← Earnings
       </Link>
       <PartnerPageHeader
         eyebrow="Account"
-        title="Payout destination"
-        description="Where Rentra will send your money once payouts are enabled. Every change is kept as a version."
+        title="Payout method"
+        description="Where Rentra will send earnings once payouts are switched on. We’ll ask you to confirm these details with our payment partner before your first payout."
       />
       <div className="mt-6 space-y-5">
         <p
@@ -79,12 +85,24 @@ export default function PayoutDestinations({ data }) {
             <ShieldAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           )}
           <span>
-            <strong>{data.readiness.ready ? 'Ready for payouts.' : 'Payouts disabled.'}</strong>{' '}
-            {data.readiness.reason}
+            <strong>{'Payouts are not switched on yet.'}</strong>{' '}
+            {data.current?.masked
+              ? `Your payout method is recorded: ${data.current.masked}.`
+              : data.readiness.reason}
           </span>
         </p>
-        <Card title="Current destination" icon={WalletCards}>
-          {data.current ? <Version d={data.current} /> : <p>No current destination.</p>}
+        <Card title="Current payout method" icon={WalletCards}>
+          {data.current ? (
+            <Version d={data.current} />
+          ) : (
+            <EmptyState
+              variant="compact"
+              title="No payout method on file"
+              description="Add a bank account or UPI destination to prepare for payouts."
+              actionHref="#destination-form"
+              actionLabel="Add payout method"
+            />
+          )}
         </Card>
         {data.draft ? (
           <Card title="Draft waiting for confirmation" icon={History}>
@@ -92,10 +110,10 @@ export default function PayoutDestinations({ data }) {
             {auth.required && !auth.fresh ? (
               <>
                 <p>
-                  Changes to where money goes need a sign-in within the last {auth.minutes} minutes.
-                  Your draft is kept.
+                  Changes to where money goes need identity confirmation within the last{' '}
+                  {auth.minutes} minutes. Your draft is kept.
                 </p>
-                <SignInAgain />
+                <ConfirmPayoutIdentityForm />
               </>
             ) : (
               <SubmitDraftForm
@@ -106,33 +124,59 @@ export default function PayoutDestinations({ data }) {
             )}
           </Card>
         ) : null}
-        <Card title="Change destination" icon={WalletCards}>
-          <p className="text-ink-600">
-            {auth.required
-              ? auth.fresh
-                ? `Signed in at ${ist(auth.authenticatedAt)} — changes can be submitted until ${ist(auth.freshUntil)}.`
-                : `You signed in at ${ist(auth.authenticatedAt)}. A change will be saved as a draft until you sign in again.`
-              : 'Your application is still under review; Rentra checks these details at review.'}{' '}
-            Payouts already scheduled keep the version they were created with.
-          </p>
-          <ChangeDestinationForm
-            key={`change-${data.latestVersion}`}
-            latestVersion={data.latestVersion}
-            requestKey={randomUUID()}
-            current={data.current}
-          />
-        </Card>
+        <div id="destination-form" className="scroll-mt-24">
+          <Card title="Change payout method" icon={WalletCards}>
+            <p className="text-ink-600">
+              {auth.required
+                ? auth.fresh
+                  ? `Identity last confirmed at ${ist(auth.authenticatedAt)} — changes can be submitted until ${ist(auth.freshUntil)}.`
+                  : `You signed in at ${ist(auth.authenticatedAt)}. A change will be saved as a draft until you confirm your identity.`
+                : 'Your application is still under review; Rentra checks these details at review.'}{' '}
+              Payouts already scheduled keep the version they were created with.
+            </p>
+            {auth.required && !auth.fresh && !data.draft && <ConfirmPayoutIdentityForm />}
+            <ChangeDestinationForm
+              key={`change-${data.latestVersion}`}
+              latestVersion={data.latestVersion}
+              requestKey={randomUUID()}
+              current={data.current}
+            />
+          </Card>
+        </div>
         <Card title="History" icon={History}>
           {data.history.length ? (
-            <ol className="space-y-3">
-              {data.history.map((d) => (
-                <li key={d.id} className="border-l-2 border-border pl-3">
-                  <Version d={d} />
-                </li>
+            <OwnerTable
+              label="Payout method history"
+              columns={['Version / method', 'Holder', 'Status', 'Submitted (IST)', 'Notes']}
+            >
+              {data.history.map((destination) => (
+                <tr key={destination.id}>
+                  <td>
+                    Version {destination.version}
+                    <strong className="block">{destination.masked}</strong>
+                  </td>
+                  <td>{destination.holderName}</td>
+                  <td>
+                    <span className={`${chip} ${TONE[destination.state]}`}>
+                      {destination.stateLabel}
+                    </span>
+                  </td>
+                  <td className="whitespace-nowrap">{ist(destination.submittedAt)}</td>
+                  <td>
+                    {NAME[destination.nameCheck]} (a comparison, not verification)
+                    {destination.state === 'failed' && (
+                      <p className="text-danger">Reason: {destination.failureReason}</p>
+                    )}
+                  </td>
+                </tr>
               ))}
-            </ol>
+            </OwnerTable>
           ) : (
-            <p>No destination versions yet.</p>
+            <EmptyState
+              variant="compact"
+              title="No payout changes yet"
+              description="Changes to your payout destination appear here."
+            />
           )}
         </Card>
       </div>

@@ -1,8 +1,11 @@
 'use client';
+import useMobileKeyboard from '@/components/portal/useMobileKeyboard';
 import NavigationProgress from '@/components/navigation/NavigationProgress';
 import Loader2 from '@/components/ui/rentra-loader';
 
-import { useCallback, useState } from 'react';
+import DraftSave from './DraftSave';
+import UnsavedChangesGuard from '@/components/portal/UnsavedChangesGuard';
+import { useCallback, useEffect, useState } from 'react';
 import Link from '@/components/navigation/NavigationLink';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, X } from 'lucide-react';
@@ -12,6 +15,7 @@ import { ChapterBar, MobileStepDisclosure, StepRail } from './WizardProgress';
 
 /** Full-screen, one-question-at-a-time property setup. */
 export default function WizardShell({
+  listing,
   listingId,
   step,
   progress,
@@ -19,9 +23,26 @@ export default function WizardShell({
   prevHref,
   chapterHrefs = {},
   stepHrefs = {},
+  correction = null,
   children,
 }) {
+  const keyboard = useMobileKeyboard();
   const router = useRouter();
+  // PROP-02: a Fix link (#field-name) lands on the field, focused and ringed for 2 s.
+  useEffect(() => {
+    const name = decodeURIComponent(window.location.hash.replace(/^#field-/, ''));
+    if (!window.location.hash.startsWith('#field-')) return;
+    const form = document.getElementById(STEP_FORM_ID);
+    const field =
+      document.getElementById(name) ||
+      form?.querySelector('input:not([type=hidden]),select,textarea');
+    if (!field) return;
+    field.scrollIntoView({ block: 'center' });
+    field.focus({ preventScroll: true });
+    field.classList.add('ring-4', 'ring-warning/60');
+    const timer = setTimeout(() => field.classList.remove('ring-4', 'ring-warning/60'), 2000);
+    return () => clearTimeout(timer);
+  }, []);
   const [pending, setPending] = useState(false);
   const [advancing, setAdvancing] = useState(false);
   const [heldBack, setHeldBack] = useState(false);
@@ -33,7 +54,8 @@ export default function WizardShell({
    */
   const handleSaved = useCallback(
     (state) => {
-      if (!nextHref) return;
+      // Only submit steps advance on a section save; photo or document saves stay on the step.
+      if (!nextHref || (step.advance !== 'submit' && !state?.manual)) return;
       if (state?.sentBack) {
         setHeldBack(true);
         return;
@@ -41,9 +63,17 @@ export default function WizardShell({
       setAdvancing(true);
       router.push(nextHref);
     },
-    [nextHref, router],
+    [nextHref, router, step.advance],
   );
 
+  const [version, setVersion] = useState(listing.contentVersion);
+  const onVersion = useCallback((v, configVersion) => {
+    if (v) setVersion((current) => Math.max(current || 0, v));
+    const form = document.getElementById(STEP_FORM_ID);
+    if (form?.elements.contentVersion && v) form.elements.contentVersion.value = v;
+    if (form?.elements.expectedVersion && configVersion != null)
+      form.elements.expectedVersion.value = configVersion;
+  }, []);
   const busy = pending || advancing;
   const isSubmitStep = step.advance === 'submit' && !heldBack;
   const isLastStep = !nextHref;
@@ -58,9 +88,13 @@ export default function WizardShell({
           : 'Continue';
 
   return (
-    <ListingChrome variant="wizard" onSaved={handleSaved} onPending={setPending}>
+    <ListingChrome version={version} variant="wizard" onSaved={handleSaved} onPending={setPending}>
+      <UnsavedChangesGuard />
       <NavigationProgress active={advancing} />
-      <div className="flex h-dvh flex-col overflow-hidden bg-background">
+      <div
+        data-keyboard-open={keyboard}
+        className="owner-wizard flex h-dvh flex-col overflow-hidden bg-background"
+      >
         <header className="z-30 shrink-0 border-b border-border bg-card">
           <div className="flex items-center gap-3 px-4 py-2.5 sm:px-6">
             <RentraLogo className="h-6 w-auto shrink-0" />
@@ -107,7 +141,24 @@ export default function WizardShell({
             <StepRail progress={progress} stepHrefs={stepHrefs} />
             <div className="min-w-0">
               <MobileStepDisclosure progress={progress} stepHrefs={stepHrefs} />
-              <div className="rounded-xl border border-border bg-card p-5 shadow-xs sm:p-8 lg:p-10">
+              <div className="rounded-lg border border-border bg-card p-5 sm:p-8 lg:p-10">
+                <DraftSave
+                  listing={listing}
+                  step={step.id}
+                  pending={pending}
+                  onVersion={onVersion}
+                />
+                {correction ? (
+                  <div
+                    role="note"
+                    className="mb-6 rounded-md border-l-4 border-warning bg-warning-bg p-3 text-meta text-ink-800"
+                  >
+                    <strong className="font-semibold text-warning">
+                      Rentra asked you to change this step.
+                    </strong>
+                    {correction.reason ? ` ${correction.reason}` : ''}
+                  </div>
+                ) : null}
                 {children}
               </div>
             </div>
@@ -115,6 +166,7 @@ export default function WizardShell({
         </main>
 
         <footer
+          data-mobile-actions
           data-wizard-actions
           className="z-30 shrink-0 border-t border-border bg-card"
           style={{ paddingBottom: 'max(0px, env(safe-area-inset-bottom))' }}
@@ -144,7 +196,7 @@ export default function WizardShell({
 
             {isSubmitStep && !busy ? (
               <p className="hidden text-tiny text-ink-600 md:block">
-                Changes save when you continue
+                Draft changes save automatically
               </p>
             ) : null}
 
@@ -152,16 +204,16 @@ export default function WizardShell({
               <button
                 type={isSubmitStep ? 'submit' : 'button'}
                 form={isSubmitStep ? STEP_FORM_ID : undefined}
-                onClick={isSubmitStep ? undefined : () => handleSaved()}
-                disabled={busy}
-                className="ml-auto inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-6 py-3 text-meta font-semibold text-white shadow-sm transition-[background-color,color,border-color,box-shadow,transform] hover:bg-primary-hover hover:shadow disabled:bg-ink-200 disabled:text-ink-500 disabled:shadow-none"
+                onClick={isSubmitStep ? undefined : () => handleSaved({ manual: true })}
+                disabled={busy || (step.id === 'ownership' && !step.done)}
+                className="ml-auto inline-flex min-w-0 items-center gap-2 rounded-full bg-primary px-6 py-3 text-meta font-semibold text-white shadow-sm transition-[background-color,color,border-color,box-shadow,transform] hover:bg-primary-hover hover:shadow disabled:bg-ink-200 disabled:text-ink-500 disabled:shadow-none"
               >
                 {busy ? <Loader2 className="size-4 " aria-hidden="true" /> : null}
                 {busy ? (
                   pending ? (
-                    <span className="sr-only">Saving…</span>
+                    <span>Saving…</span>
                   ) : (
-                    <span className="sr-only">Opening next step…</span>
+                    <span>Opening next step…</span>
                   )
                 ) : (
                   continueLabel

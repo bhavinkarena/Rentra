@@ -1,0 +1,20 @@
+{
+  "checks": [
+    "Type creates one draft and never asks a field twice",
+    "Location refuses nothing valid and saves the pin",
+    "Space needs guests and bedrooms only",
+    "Amenities save three picks",
+    "Photos upload one per request with thumbnails, reorder and cover",
+    "Story autosaves, restores after reload and saves on Continue",
+    "Pricing shows Guest pays and saves in one press",
+    "Availability opens dates automatically",
+    "Rules need the cancellation confirmed",
+    "Ownership uploads on file pick, then Continue",
+    "Preview as a guest renders the draft with booking disabled",
+    "Submit lands on the timeline page",
+    "legacy step links redirect to the new steps",
+    "Properties list resumes a draft at its step, and a draft can be deleted"
+  ],
+  "errors": [],
+  "violations": []
+}

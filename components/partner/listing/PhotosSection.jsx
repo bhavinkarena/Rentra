@@ -1,287 +1,378 @@
 'use client';
-import Loader2 from '@/components/ui/rentra-loader';
-import { useActionState, useEffect, useRef, useState } from 'react';
-import { Trash2, Upload, Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import toast from 'react-hot-toast';
+/* eslint-disable @next/next/no-img-element -- Cloudinary thumbnails and local blob previews. */
+import { useRef, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
-  uploadListingPhotos,
+  signPropertyPhoto,
+  attachPropertyPhoto,
   removeListingPhoto,
   reorderListingPhotos,
 } from '@/lib/actions/partner';
-import { MIN_PHOTOS, MAX_PHOTOS } from '@/lib/domain/listing-completion';
+import { prepareIdentityFile } from '@/lib/domain/identity-upload';
+import { publicPhotoUrl } from '@/lib/domain/listing-content';
 import { photoId } from '@/lib/domain/listing-photos';
-import { VersionField, Section, SaveButton } from './SectionPrimitives';
-export function PhotosSection({ listing, photos }) {
-  const [state, action, pending] = useActionState(uploadListingPhotos, {});
-  const [removeState, removeAction, removing] = useActionState(removeListingPhoto, {});
-  const [orderState, orderAction, ordering] = useActionState(reorderListingPhotos, {});
-  const e = state.errors ?? {};
-  const busy = removing || ordering;
-
-  const inputRef = useRef(null);
-  const formRef = useRef(null);
-  const [dragging, setDragging] = useState(false);
-  const [staged, setStaged] = useState([]);
-
-  const room = MAX_PHOTOS - photos.length;
-  const short = Math.max(0, MIN_PHOTOS - photos.length);
-
-  // Object URLs are a leak if they are not handed back. The cleanup revokes
-  // the previous batch whenever `staged` is replaced, and the last one on
-  // unmount.
-  useEffect(() => () => staged.forEach((f) => URL.revokeObjectURL(f.url)), [staged]);
-
-  /**
-   * Drop the previews the moment the upload settles — adjusting state during
-   * render, which is React's documented way to react to a changed prop
-   * without the cascading re-render an effect would cause here.
-   *
-   * Keyed on `pending` falling rather than on success, because a REJECTED
-   * upload (over 2MB, wrong type) also has to clear them. Keyed on success
-   * alone, a rejected batch would spin under its own thumbnails forever.
-   */
-  const [wasPending, setWasPending] = useState(false);
-  if (pending !== wasPending) {
-    setWasPending(pending);
-    if (!pending && staged.length) setStaged([]);
-  }
-
-  function accept(fileList) {
-    const files = Array.from(fileList ?? []).slice(0, room);
-    if (!files.length) return;
-
-    // Assigning to input.files needs a DataTransfer — it is the only way to
-    // put dropped files into a form control the Server Action can read.
-    const dt = new DataTransfer();
-    files.forEach((f) => dt.items.add(f));
-    if (inputRef.current) inputRef.current.files = dt.files;
-
-    setStaged(files.map((f) => ({ name: f.name, url: URL.createObjectURL(f) })));
-    formRef.current?.requestSubmit();
-  }
-
-  const Move = ({ photoKey, move, label, disabled, children }) => (
-    <form action={orderAction}>
-      <input type="hidden" name="id" value={listing.id} />
-      <input type="hidden" name="key" value={photoKey} />
-      <input type="hidden" name="move" value={move} />
-      <button
-        type="submit"
-        disabled={disabled || busy}
-        aria-label={label}
-        title={label}
-        className="grid size-11 place-items-center rounded-full bg-white md:size-8 text-ink-600 shadow-sm transition-colors hover:text-ink-900 disabled:cursor-not-allowed disabled:opacity-0"
-      >
-        {children}
-      </button>
-    </form>
+import { Section } from './SectionPrimitives';
+import ConfirmDialog from '@/components/ui/confirm-dialog';
+import { REVIEWED_STATUSES } from '@/lib/domain/listing-trust';
+import { useChrome } from './chrome';
+const message = (result) =>
+  result.error ||
+  Object.values(result.errors || {})
+    .flat()
+    .join(' ');
+export function PhotosSection({ listing, photos = [] }) {
+  const router = useRouter(),
+    version = useRef(listing.contentVersion),
+    attachQueue = useRef(Promise.resolve()),
+    requests = useRef(new Set()),
+    urls = useRef(new Set()),
+    drag = useRef(null);
+  // PROP-03 / LIST-05: removing asks first; adding to a published property warns about review.
+  const [ask, setAsk] = useState(null);
+  const reviewed = REVIEWED_STATUSES.includes(listing.status);
+  const [tiles, setTiles] = useState([]),
+    [error, setError] = useState(''),
+    [busy, setBusy] = useState(false),
+    [tag, setTag] = useState('Other');
+  const { onPending } = useChrome();
+  const uploading = tiles.some((t) => t.status === 'uploading' || t.status === 'queued');
+  useEffect(() => {
+    onPending?.(uploading || busy);
+    window.rentraUploadPending = uploading || busy;
+    return () => {
+      window.rentraUploadPending = false;
+    };
+  }, [onPending, uploading, busy]);
+  useEffect(
+    () => () => {
+      requests.current.forEach((x) => x.abort());
+      urls.current.forEach(URL.revokeObjectURL);
+    },
+    [],
   );
-
+  const update = (id, patch) =>
+    setTiles((current) => current.map((t) => (t.id === id ? { ...t, ...patch } : t)));
+  async function upload(tile) {
+    update(tile.id, { status: 'uploading', error: '' });
+    try {
+      const prepared = await prepareIdentityFile(tile.file, {
+        longEdge: 2000,
+        quality: 0.82,
+        allowPdf: false,
+      });
+      const digest = await crypto.subtle.digest('SHA-256', await prepared.file.arrayBuffer());
+      const hash = Array.from(new Uint8Array(digest), (v) => v.toString(16).padStart(2, '0')).join(
+        '',
+      );
+      const signed = await signPropertyPhoto(listing.id);
+      if (message(signed)) throw new Error(message(signed));
+      const data = new FormData();
+      Object.entries(signed)
+        .filter(([k]) => k !== 'cloudName')
+        .forEach(([k, v]) => data.append(k, String(v)));
+      data.append('file', prepared.file);
+      const asset = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        requests.current.add(xhr);
+        xhr.open('POST', `https://api.cloudinary.com/v1_1/${signed.cloudName}/image/upload`);
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable)
+            update(tile.id, { progress: Math.round((e.loaded / e.total) * 100) });
+        };
+        xhr.onload = () => {
+          requests.current.delete(xhr);
+          if (xhr.status >= 200 && xhr.status < 300) resolve(JSON.parse(xhr.responseText));
+          else reject(new Error('Upload failed. Retry this photo.'));
+        };
+        xhr.onerror = xhr.onabort = () => {
+          requests.current.delete(xhr);
+          reject(new Error('Connection lost. Retry when connected.'));
+        };
+        xhr.send(data);
+      });
+      const apply = attachQueue.current
+        .catch(() => {})
+        .then(async () => {
+          const result = await attachPropertyPhoto(listing.id, {
+            publicId: asset.public_id,
+            contentVersion: version.current,
+            hash,
+            tag: tile.tag,
+          });
+          if (message(result)) throw new Error(message(result));
+          version.current = result.contentVersion;
+          update(
+            tile.id,
+            result.duplicate
+              ? { status: 'duplicate', error: 'Already added' }
+              : { status: 'done', progress: 100 },
+          );
+          router.refresh();
+        });
+      attachQueue.current = apply;
+      await apply;
+    } catch (e) {
+      update(tile.id, {
+        status: 'error',
+        error: /heic/i.test(tile.file.type)
+          ? 'Change your iPhone camera to Most Compatible, then choose a JPG.'
+          : e.message,
+      });
+    }
+  }
+  async function accept(files) {
+    const available =
+      15 - photos.length - tiles.filter((t) => ['queued', 'uploading'].includes(t.status)).length;
+    const batch = Array.from(files)
+      .slice(0, Math.max(0, available))
+      .map((file) => {
+        const url = URL.createObjectURL(file);
+        urls.current.add(url);
+        return { id: crypto.randomUUID(), file, url, tag, status: 'queued', progress: 0 };
+      });
+    setTiles((current) => [...current, ...batch]);
+    const queue = [...batch];
+    await Promise.all(
+      [0, 1, 2].map(async () => {
+        while (queue.length) await upload(queue.shift());
+      }),
+    );
+  }
+  async function mutate(action, input, offerUndo = true) {
+    const previousPosition = photos.findIndex((photo) => photoId(photo) === input.key);
+    setBusy(true);
+    setError('');
+    const form = new FormData();
+    Object.entries({
+      id: listing.id,
+      contentVersion: Math.max(version.current || 0, listing.contentVersion || 0),
+      ...input,
+    }).forEach(([k, v]) => form.set(k, String(v)));
+    try {
+      const result = await action({}, form);
+      if (message(result)) setError(message(result));
+      else {
+        version.current = result.contentVersion || version.current;
+        if (action === reorderListingPhotos && offerUndo && previousPosition >= 0)
+          toast.success(
+            (t) => (
+              <span>
+                Photo order saved.{' '}
+                <button
+                  type="button"
+                  className="min-h-11 underline"
+                  onClick={() => {
+                    toast.dismiss(t.id);
+                    void mutate(
+                      reorderListingPhotos,
+                      { key: input.key, move: String(previousPosition) },
+                      false,
+                    );
+                  }}
+                >
+                  Undo
+                </button>
+              </span>
+            ),
+            { duration: 10000 },
+          );
+        else toast.success(action === removeListingPhoto ? 'Photo removed.' : 'Photo order saved.');
+        router.refresh();
+      }
+    } catch {
+      setError('Could not save the photo change. Try again.');
+    } finally {
+      setBusy(false);
+    }
+  }
+  const shown = tiles.filter((t) => t.status !== 'done');
   return (
     <Section
       id="photos"
       title="Photos"
-      intro="Six or more, of this property as it actually is. We reverse-image check them."
-      state={state}
-      pending={pending}
+      intro="Add at least six photos of the actual property. Choose a cover, then show the spaces guests will use."
     >
-      {removeState.errors?._ || orderState.errors?._ ? (
-        <p className="rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger">
-          {removeState.errors?._ ?? orderState.errors?._}
+      <p role="status" className="text-meta">
+        {photos.length} of 6 minimum · {photos.length} of 15 maximum
+      </p>
+      {error && (
+        <p role="alert" className="text-danger">
+          {error}
         </p>
-      ) : null}
-
-      {/* ------------------------- progress ------------------------- */}
-      <div className="flex items-center gap-3">
-        <div className="h-2 flex-1 overflow-hidden rounded-full bg-ink-100">
-          <div
-            className={`h-full rounded-full transition-[width] duration-700 ease-out ${
-              photos.length >= MIN_PHOTOS ? 'bg-brand-600' : 'bg-warning'
-            }`}
-            style={{ width: `${Math.min(100, (photos.length / MIN_PHOTOS) * 100)}%` }}
-          />
-        </div>
-        <p className="shrink-0 text-tiny font-semibold tabular text-ink-600">
-          {photos.length >= MIN_PHOTOS
-            ? `${photos.length} photos`
-            : `${photos.length} of ${MIN_PHOTOS}`}
-        </p>
-      </div>
-      {short > 0 ? (
-        <p className="text-tiny text-ink-500">
-          {short} more and this step is done. {room} slots left in total.
-        </p>
-      ) : null}
-
-      {/* ------------------------- the grid ------------------------- */}
-      {photos.length > 0 || staged.length > 0 ? (
-        <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
-          {photos.map((p, i) => (
+      )}
+      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {photos.map((photo, i) => {
+          const url = publicPhotoUrl(photo, {
+            cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+          });
+          return (
             <li
-              key={photoId(p)}
-              className={`group relative animate-in fade-in zoom-in-95 overflow-hidden rounded-lg border bg-ink-50 duration-300 ${
-                i === 0 ? 'border-brand-600 ring-2 ring-brand-600/30' : 'border-border'
-              }`}
+              key={photoId(photo)}
+              className="overflow-hidden rounded-md border bg-card"
+              data-photo-index={i}
+              onPointerDown={(e) => {
+                if (!busy && !uploading && !e.target.closest('button'))
+                  drag.current = { key: photoId(photo), x: e.clientX, y: e.clientY };
+              }}
+              onPointerUp={(e) => {
+                const from = drag.current;
+                drag.current = null;
+                if (!from || Math.hypot(e.clientX - from.x, e.clientY - from.y) < 20) return;
+                const tile = document
+                  .elementFromPoint(e.clientX, e.clientY)
+                  ?.closest('[data-photo-index]');
+                if (tile && from.key !== photoId(photos[Number(tile.dataset.photoIndex)]))
+                  mutate(reorderListingPhotos, { key: from.key, move: tile.dataset.photoIndex });
+              }}
+              draggable={!busy && !uploading}
+              onDragStart={(e) => e.dataTransfer.setData('text/plain', photoId(photo))}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                const key = e.dataTransfer.getData('text/plain');
+                if (key !== photoId(photo)) mutate(reorderListingPhotos, { key, move: String(i) });
+              }}
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (
+                  !busy &&
+                  !uploading &&
+                  e.target === e.currentTarget &&
+                  ['ArrowLeft', 'ArrowRight'].includes(e.key)
+                ) {
+                  e.preventDefault();
+                  mutate(reorderListingPhotos, {
+                    key: photoId(photo),
+                    move: e.key === 'ArrowLeft' ? 'back' : 'forward',
+                  });
+                }
+              }}
+              aria-label={`Photo ${i + 1}; arrow keys reorder`}
             >
-              {/* Listing photos live in the same private store as documents for
-                  now, so they are described rather than rendered until a public
-                  delivery bucket exists. */}
-              <div className="grid aspect-4/3 place-items-center p-2 text-center text-tiny text-ink-500">
-                Photo {i + 1}
-              </div>
-
-              {i === 0 ? (
-                <span className="absolute top-2 left-2 rounded-full bg-primary px-2 py-0.5 text-tiny font-bold text-white">
-                  Cover
-                </span>
-              ) : null}
-
-              {/* Controls fade in on hover, and are always visible on touch,
-                  where there is no hover to fade from. */}
-              <div className="absolute top-2 right-2 flex gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
-                {i > 0 ? (
-                  <Move photoKey={photoId(p)} move="cover" label={`Make photo ${i + 1} the cover`}>
-                    <Star className="size-4" aria-hidden="true" />
-                  </Move>
-                ) : null}
-                <form action={removeAction}>
-                  <input type="hidden" name="id" value={listing.id} />
-                  <VersionField listing={listing} states={[state, removeState]} />
-                  <input type="hidden" name="key" value={photoId(p)} />
+              {url ? (
+                <img
+                  src={url.replace(
+                    '/image/upload/',
+                    '/image/upload/c_fill,w_400,h_300,f_auto,q_auto,fl_strip_profile/',
+                  )}
+                  alt={photo.alt || `Property photo ${i + 1}`}
+                  className="aspect-4/3 w-full object-cover"
+                />
+              ) : (
+                <p className="grid aspect-4/3 place-items-center">Photo unavailable</p>
+              )}
+              <p className="px-2 text-tiny">{i === 0 ? 'Cover' : photo.tag || 'Other'}</p>
+              <div className="flex flex-wrap items-center gap-x-3 px-2 pb-1">
+                {i > 0 && (
                   <button
-                    type="submit"
-                    disabled={busy}
-                    aria-label={`Remove photo ${i + 1}`}
-                    className="grid size-11 place-items-center rounded-full bg-white md:size-8 text-ink-600 shadow-sm transition-colors hover:text-danger disabled:opacity-30"
+                    className="min-h-11 underline"
+                    disabled={busy || uploading}
+                    onClick={() =>
+                      mutate(reorderListingPhotos, { key: photoId(photo), move: 'cover' })
+                    }
                   >
-                    <Trash2 className="size-4" aria-hidden="true" />
+                    Make cover
                   </button>
-                </form>
-              </div>
-
-              <div className="absolute bottom-2 left-2 flex gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100">
-                <Move
-                  photoKey={photoId(p)}
-                  move="back"
-                  disabled={i === 0}
-                  label={`Move photo ${i + 1} earlier`}
+                )}
+                <button
+                  className="min-h-11 underline"
+                  disabled={busy || uploading}
+                  onClick={() => setAsk({ kind: 'remove', key: photoId(photo) })}
                 >
-                  <ChevronLeft className="size-4" aria-hidden="true" />
-                </Move>
-                <Move
-                  photoKey={photoId(p)}
-                  move="forward"
-                  disabled={i === photos.length - 1}
-                  label={`Move photo ${i + 1} later`}
+                  Remove
+                </button>
+                <button
+                  aria-label={`Move photo ${i + 1} earlier`}
+                  className="min-h-11 min-w-11"
+                  disabled={i === 0 || busy || uploading}
+                  onClick={() =>
+                    mutate(reorderListingPhotos, { key: photoId(photo), move: 'back' })
+                  }
                 >
-                  <ChevronRight className="size-4" aria-hidden="true" />
-                </Move>
+                  ←
+                </button>
+                <button
+                  aria-label={`Move photo ${i + 1} later`}
+                  className="min-h-11 min-w-11"
+                  disabled={i === photos.length - 1 || busy || uploading}
+                  onClick={() =>
+                    mutate(reorderListingPhotos, { key: photoId(photo), move: 'forward' })
+                  }
+                >
+                  →
+                </button>
               </div>
             </li>
+          );
+        })}
+        {shown.map((tile) => (
+          <li key={tile.id} className="rounded-md border p-2">
+            <img src={tile.url} alt="Selected photo" className="aspect-4/3 w-full object-cover" />
+            <p aria-live="polite" className="text-meta">
+              {tile.error || `${tile.status} ${tile.progress}%`}
+            </p>
+            {tile.status === 'error' && (
+              <button className="min-h-11 underline" onClick={() => upload(tile)}>
+                Retry photo
+              </button>
+            )}
+          </li>
+        ))}
+      </ul>
+      <label className="block text-meta">
+        Photo prompt
+        <select
+          value={tag}
+          onChange={(e) => setTag(e.target.value)}
+          className="min-h-11 rounded-md border p-2"
+        >
+          {(listing.rentalUnit === 'hour'
+            ? ['Court', 'Floodlights', 'Washroom', 'Other']
+            : ['Pool', 'Lawn', 'Rooms', 'Kitchen', 'Night view', 'Other']
+          ).map((t) => (
+            <option key={t}>{t}</option>
           ))}
-
-          {/* Optimistic tiles: the real thumbnail, on screen before the upload
-              finishes, so a slow connection shows progress instead of nothing. */}
-          {staged.map((f) => (
-            <li
-              key={f.url}
-              className="relative animate-in fade-in zoom-in-95 overflow-hidden rounded-lg border border-dashed border-brand-400 duration-300"
-            >
-              {/* Deliberately not next/image: this is a local blob: URL for a
-                  file that has not been uploaded yet. There is nothing on a
-                  CDN to optimise, and the optimiser cannot read a blob. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={f.url} alt="" className="aspect-4/3 w-full object-cover opacity-60" />
-              <span className="absolute inset-0 grid place-items-center bg-white/60">
-                <Loader2 className="size-5  text-brand-700" aria-hidden="true" />
-              </span>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-
-      {photos.length > 1 ? (
-        <p className="text-tiny text-ink-500">
-          The cover is what guests see in search and on WhatsApp. Reordering never sends a live
-          listing back for review — adding or removing a photo does.
-        </p>
-      ) : null}
-
-      {/* ------------------------- the dropzone ------------------------- */}
-      <form ref={formRef} action={action} className="space-y-3">
-        <input type="hidden" name="id" value={listing.id} />
-        <VersionField listing={listing} states={[state, removeState]} />
-
-        {room > 0 ? (
-          <label
-            htmlFor="photo-files"
-            onDragOver={(ev) => {
-              ev.preventDefault();
-              setDragging(true);
-            }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={(ev) => {
-              ev.preventDefault();
-              setDragging(false);
-              accept(ev.dataTransfer.files);
-            }}
-            className={`flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed p-8 text-center transition-[background-color,color,border-color,box-shadow,transform] duration-200 ${
-              dragging
-                ? 'scale-[1.01] border-brand-600 bg-brand-50'
-                : e.photos
-                  ? 'border-danger/50 bg-danger-bg'
-                  : 'border-input hover:border-brand-400 hover:bg-brand-50/40'
-            }`}
-          >
-            <span
-              className={`grid size-12 place-items-center rounded-full transition-transform duration-200 ${
-                dragging ? 'bg-primary text-primary-foreground' : 'bg-ink-100 text-ink-600'
-              }`}
-            >
-              {pending ? (
-                <Loader2 className="size-5 " aria-hidden="true" />
-              ) : (
-                <Upload className="size-5" aria-hidden="true" />
-              )}
-            </span>
-            <span className="text-body font-semibold text-ink-900">
-              {pending ? (
-                <span className="sr-only">Uploading…</span>
-              ) : dragging ? (
-                'Drop them here'
-              ) : (
-                'Add photos'
-              )}
-            </span>
-            <span className="text-tiny text-ink-500">
-              Tap to choose, or drag them in · JPG, PNG or WEBP · up to 2MB each · {room} more
-              allowed
-            </span>
-          </label>
-        ) : (
-          <p className="rounded-xl border border-border bg-ink-50 p-4 text-center text-meta text-ink-600">
-            That is the maximum of {MAX_PHOTOS} photos. Remove one to add another.
-          </p>
-        )}
-
+        </select>
+      </label>
+      <label className="block min-h-11 rounded-md border border-dashed p-4">
+        Add photos
         <input
-          ref={inputRef}
-          id="photo-files"
-          name="photos"
           type="file"
           multiple
-          accept="image/jpeg,image/png,image/webp"
-          className="sr-only"
-          onChange={(ev) => accept(ev.target.files)}
+          accept="image/jpeg,image/png,image/webp,image/heic"
+          disabled={uploading || photos.length >= 15}
+          onChange={(e) => {
+            const files = Array.from(e.target.files ?? []);
+            e.target.value = '';
+            if (reviewed && files.length) setAsk({ kind: 'add', files });
+            else accept(files);
+          }}
+          className="mt-2 block w-full"
         />
-        {e.photos ? <p className="text-tiny font-medium text-danger">{e.photos}</p> : null}
-
-        {/* Fallback only: with JavaScript the selection uploads itself. */}
-        <noscript>
-          <SaveButton pending={pending} label="Upload" />
-        </noscript>
-      </form>
+      </label>
+      {photos.length >= 15 && <p>15 of 15 — remove one to add another.</p>}
+      <ConfirmDialog
+        open={Boolean(ask)}
+        title={ask?.kind === 'add' ? 'New photos need a quick review' : 'Remove this photo?'}
+        confirmLabel={ask?.kind === 'add' ? 'Add and send for review' : 'Remove photo'}
+        danger={ask?.kind === 'remove'}
+        onCancel={() => setAsk(null)}
+        onConfirm={() => {
+          const current = ask;
+          setAsk(null);
+          if (current?.kind === 'add') accept(current.files);
+          else if (current) mutate(removeListingPhoto, { key: current.key });
+        }}
+      >
+        <p>
+          {ask?.kind === 'add'
+            ? 'Rentra checks new photos before guests see them. Your property is hidden until then, usually within 1 working day.'
+            : photos.length <= 6
+              ? 'You need at least six photos to submit. Removing a photo never sends a live property for review.'
+              : 'Removing a photo never sends a live property for review.'}
+        </p>
+      </ConfirmDialog>
     </Section>
   );
 }
-
-/* ------------------------------- ownership ------------------------------- */

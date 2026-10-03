@@ -1,0 +1,1600 @@
+{
+  "checks": [
+    "viewport matrix ",
+    "viewport matrix calendar",
+    "viewport matrix bookings",
+    "viewport matrix updates",
+    "viewport matrix reviews",
+    "viewport matrix team",
+    "viewport matrix help",
+    "viewport matrix support",
+    "viewport matrix support/new",
+    "viewport matrix disputes",
+    "viewport matrix disputes/new",
+    "viewport matrix settings",
+    "viewport matrix settings/payout",
+    "viewport matrix settings/notifications",
+    "viewport matrix settings/calendar-sync",
+    "viewport matrix settings/security",
+    "viewport matrix settings/privacy",
+    "viewport matrix earnings",
+    "viewport matrix earnings/statements",
+    "viewport matrix payouts",
+    "viewport matrix bookings/85a98084-24f6-453f-97cf-b5a014e162d9",
+    "viewport matrix listings/1e9363f0-a1ed-40de-8816-848fcde08cea/overview",
+    "viewport matrix listings/1e9363f0-a1ed-40de-8816-848fcde08cea/calendar",
+    "viewport matrix listings/1e9363f0-a1ed-40de-8816-848fcde08cea/photos",
+    "viewport matrix listings/1e9363f0-a1ed-40de-8816-848fcde08cea/arrival-guide",
+    "viewport matrix listings/1e9363f0-a1ed-40de-8816-848fcde08cea/reviews",
+    "viewport matrix listings/1e9363f0-a1ed-40de-8816-848fcde08cea/activity",
+    "viewport matrix listings/1e9363f0-a1ed-40de-8816-848fcde08cea/booking-rules",
+    "viewport matrix listings",
+    "viewport matrix listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/type",
+    "viewport matrix listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/location",
+    "viewport matrix listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/space",
+    "viewport matrix listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/amenities",
+    "viewport matrix listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/photos",
+    "viewport matrix listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/story",
+    "viewport matrix listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/pricing",
+    "viewport matrix listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/availability",
+    "viewport matrix listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/rules",
+    "viewport matrix listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/ownership",
+    "viewport matrix listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/preview",
+    "applicant onboarding viewport matrix",
+    "wizard keyboard hide, pinch zoom retains controls",
+    "booking thumb-zone action and keyboard hide"
+  ],
+  "rows": [
+    {
+      "route": "",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "calendar",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "calendar",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "calendar",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "calendar",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "calendar",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "bookings",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "bookings",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "bookings",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "bookings",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "bookings",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "updates",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "updates",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "updates",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "updates",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "updates",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "reviews",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "reviews",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "reviews",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "reviews",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "reviews",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "team",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "team",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "team",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "team",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "team",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "help",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "help",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "help",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "help",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "help",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "support",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "support",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "support",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "support",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "support",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "support/new",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "support/new",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "support/new",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "support/new",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "support/new",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "disputes",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "disputes",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "disputes",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "disputes",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "disputes",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "disputes/new",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "disputes/new",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "disputes/new",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "disputes/new",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "disputes/new",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/payout",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/payout",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/payout",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/payout",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/payout",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/notifications",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/notifications",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/notifications",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/notifications",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/notifications",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/calendar-sync",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/calendar-sync",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/calendar-sync",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/calendar-sync",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/calendar-sync",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/security",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/security",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/security",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/security",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/security",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/privacy",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/privacy",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/privacy",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/privacy",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "settings/privacy",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "earnings",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "earnings",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "earnings",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "earnings",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "earnings",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "earnings/statements",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "earnings/statements",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "earnings/statements",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "earnings/statements",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "earnings/statements",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "payouts",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "payouts",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "payouts",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "payouts",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "payouts",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "bookings/85a98084-24f6-453f-97cf-b5a014e162d9",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "bookings/85a98084-24f6-453f-97cf-b5a014e162d9",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "bookings/85a98084-24f6-453f-97cf-b5a014e162d9",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "bookings/85a98084-24f6-453f-97cf-b5a014e162d9",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "bookings/85a98084-24f6-453f-97cf-b5a014e162d9",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/overview",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/overview",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/overview",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/overview",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/overview",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/calendar",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/calendar",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/calendar",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/calendar",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/calendar",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/photos",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/photos",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/photos",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/photos",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/photos",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/arrival-guide",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/arrival-guide",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/arrival-guide",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/arrival-guide",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/arrival-guide",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/reviews",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/reviews",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/reviews",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/reviews",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/reviews",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/activity",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/activity",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/activity",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/activity",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/activity",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/booking-rules",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/booking-rules",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/booking-rules",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/booking-rules",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/1e9363f0-a1ed-40de-8816-848fcde08cea/booking-rules",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/type",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/type",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/type",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/type",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/type",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/location",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/location",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/location",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/location",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/location",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/space",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/space",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/space",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/space",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/space",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/amenities",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/amenities",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/amenities",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/amenities",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/amenities",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/photos",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/photos",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/photos",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/photos",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/photos",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/story",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/story",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/story",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/story",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/story",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/pricing",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/pricing",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/pricing",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/pricing",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/pricing",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/availability",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/availability",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/availability",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/availability",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/availability",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/rules",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/rules",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/rules",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/rules",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/rules",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/ownership",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/ownership",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/ownership",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/ownership",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/ownership",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/preview",
+      "width": 360,
+      "scroll": 360,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/preview",
+      "width": 390,
+      "scroll": 390,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/preview",
+      "width": 768,
+      "scroll": 768,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/preview",
+      "width": 1024,
+      "scroll": 1024,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "listings/b32aac5b-4de5-4b8f-93ec-ae3594f9c005/setup/preview",
+      "width": 1440,
+      "scroll": 1440,
+      "small": [],
+      "smallInputs": []
+    },
+    {
+      "route": "onboarding/details",
+      "width": 360,
+      "scroll": 360
+    },
+    {
+      "route": "onboarding/details",
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "onboarding/details",
+      "width": 768,
+      "scroll": 768
+    },
+    {
+      "route": "onboarding/details",
+      "width": 1024,
+      "scroll": 1024
+    },
+    {
+      "route": "onboarding/details",
+      "width": 1440,
+      "scroll": 1440
+    },
+    {
+      "route": "onboarding/phone",
+      "width": 360,
+      "scroll": 360
+    },
+    {
+      "route": "onboarding/phone",
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "onboarding/phone",
+      "width": 768,
+      "scroll": 768
+    },
+    {
+      "route": "onboarding/phone",
+      "width": 1024,
+      "scroll": 1024
+    },
+    {
+      "route": "onboarding/phone",
+      "width": 1440,
+      "scroll": 1440
+    },
+    {
+      "route": "onboarding/kyc",
+      "width": 360,
+      "scroll": 360
+    },
+    {
+      "route": "onboarding/kyc",
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "onboarding/kyc",
+      "width": 768,
+      "scroll": 768
+    },
+    {
+      "route": "onboarding/kyc",
+      "width": 1024,
+      "scroll": 1024
+    },
+    {
+      "route": "onboarding/kyc",
+      "width": 1440,
+      "scroll": 1440
+    },
+    {
+      "route": "onboarding/payout",
+      "width": 360,
+      "scroll": 360
+    },
+    {
+      "route": "onboarding/payout",
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "onboarding/payout",
+      "width": 768,
+      "scroll": 768
+    },
+    {
+      "route": "onboarding/payout",
+      "width": 1024,
+      "scroll": 1024
+    },
+    {
+      "route": "onboarding/payout",
+      "width": 1440,
+      "scroll": 1440
+    },
+    {
+      "route": "onboarding/consent",
+      "width": 360,
+      "scroll": 360
+    },
+    {
+      "route": "onboarding/consent",
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "onboarding/consent",
+      "width": 768,
+      "scroll": 768
+    },
+    {
+      "route": "onboarding/consent",
+      "width": 1024,
+      "scroll": 1024
+    },
+    {
+      "route": "onboarding/consent",
+      "width": 1440,
+      "scroll": 1440
+    },
+    {
+      "route": "onboarding/review",
+      "width": 360,
+      "scroll": 360
+    },
+    {
+      "route": "onboarding/review",
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "onboarding/review",
+      "width": 768,
+      "scroll": 768
+    },
+    {
+      "route": "onboarding/review",
+      "width": 1024,
+      "scroll": 1024
+    },
+    {
+      "route": "onboarding/review",
+      "width": 1440,
+      "scroll": 1440
+    }
+  ],
+  "errors": []
+}

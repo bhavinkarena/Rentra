@@ -16,7 +16,8 @@ const effective = (value) =>
   }).format(new Date(value));
 
 async function document(params) {
-  const { kind, version } = await params;
+  const { kind: requestedKind, version } = await params;
+  const kind = requestedKind === 'owner-terms' ? 'terms' : requestedKind;
   if (version && version.length !== 1) notFound();
   if (!['terms', 'privacy', 'cancellation'].includes(kind)) notFound();
   let publication;

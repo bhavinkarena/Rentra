@@ -1,8 +1,10 @@
 'use client';
+import OwnerTable from '../OwnerTable';
+import { EmptyState } from '@/components/ui/empty-state';
 import PolicyValues from './PolicyValues';
 import { useActionState, useState, useTransition } from 'react';
 
-export function usePolicyAction(action) {
+export function usePolicyAction(action, listing) {
   const [state, dispatch, pending] = useActionState(action, {});
   const [edited, setEdited] = useState(false);
   const [, startTransition] = useTransition();
@@ -13,10 +15,13 @@ export function usePolicyAction(action) {
     preview,
     invalidatePreview: () => setEdited(true),
     form: {
+      'data-unsaved-until-saved': '',
       onChange: () => setEdited(true),
       onSubmit: (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
+        if (['draft', 'rejected'].includes(listing?.status) && !listing?.hasBookings)
+          data.set('direct', 'true');
         data.set('mode', preview ? 'apply' : 'preview');
         if (preview) data.set('previewToken', preview.token);
         setEdited(false);
@@ -72,32 +77,58 @@ export function PolicyPreview({ preview, state }) {
     </>
   );
 }
+const POLICY_ACTION = {
+  property_pricing_changed: 'Prices changed',
+  property_terms_changed: 'Deposit or cancellation changed',
+  property_hourly_rates_changed: 'Hourly prices changed',
+  booking_configuration_changed: 'Booking hours changed',
+};
+
+/** Pricing and policy changes in plain words (Activity tab). */
 export function PolicyHistory({ listing }) {
+  const entries = listing.policyHistory || [];
   return (
-    <details className="rounded-md border border-border p-4">
-      <summary className="min-h-11 cursor-pointer font-semibold">
-        Pricing and policy history
-      </summary>
-      <p className="text-sm">
-        Current content version {listing.contentVersion}. Changes apply immediately to new quotes;
-        accepted bookings keep their snapshot.
+    <div>
+      <p className="text-meta text-ink-600">
+        Changes apply to new bookings straight away. Bookings already made keep the price and terms
+        the guest accepted.
       </p>
-      <ol className="mt-3 space-y-3">
-        {(listing.policyHistory || []).map((entry, index) => (
-          <li key={index} className="text-sm">
-            <p>
-              {entry.action.replaceAll('_', ' ')} ·{' '}
-              {new Date(entry.at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} India
-              {entry.effectiveVersion ? ` · Version ${entry.effectiveVersion}` : ''}
-            </p>
-            <details>
-              <summary className="min-h-11 cursor-pointer">Recorded values</summary>
-              <PolicyValues values={entry.values} />
-            </details>
-          </li>
-        ))}
-      </ol>
-      {!listing.policyHistory?.length && <p>No recorded pricing or policy changes yet.</p>}
-    </details>
+      {entries.length ? (
+        <OwnerTable
+          label="Price and policy history"
+          columns={['Change', 'Date (IST)', 'Details']}
+          minWidth={500}
+        >
+          {entries.map((entry, index) => (
+            <tr key={index}>
+              <td className="font-semibold">
+                {POLICY_ACTION[entry.action] ?? entry.action.replaceAll('_', ' ')}
+              </td>
+              <td className="whitespace-nowrap">
+                {new Date(entry.at).toLocaleString('en-IN', {
+                  timeZone: 'Asia/Kolkata',
+                  dateStyle: 'medium',
+                  timeStyle: 'short',
+                })}
+              </td>
+              <td>
+                <details>
+                  <summary className="min-h-11 cursor-pointer content-center font-semibold text-brand-800">
+                    What was saved
+                  </summary>
+                  <PolicyValues values={entry.values} />
+                </details>
+              </td>
+            </tr>
+          ))}
+        </OwnerTable>
+      ) : (
+        <EmptyState
+          variant="compact"
+          title="No price or policy changes yet"
+          description="Saved pricing and policy changes appear here."
+        />
+      )}
+    </div>
   );
 }

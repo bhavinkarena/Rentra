@@ -3,34 +3,67 @@
 import { useEffect } from 'react';
 
 export const DIRTY_EVENT = 'rentra:form-dirty';
+const LEAVE_EVENT = 'rentra:before-leave';
+export function requestPortalLeave() {
+  return window.dispatchEvent(new Event(LEAVE_EVENT, { cancelable: true }));
+}
 const MESSAGE = 'You have unsaved changes. Leave this page and discard them?';
 
 /**
- * Warns before leaving a multi-section editor with unsaved input.
+ * Only forms that save in place are tracked. Filter forms navigate: they carry a
+ * real URL `action` or `method="get"`. React Server Action forms have no
+ * `method` (so `form.method` reports "get") and a `javascript:` or absent action.
+ */
+export function tracksForm(form) {
+  if (!(form instanceof HTMLFormElement)) return false;
+  const action = form.getAttribute('action');
+  return (
+    form.getAttribute('method')?.toLowerCase() !== 'get' &&
+    (!action || action.startsWith('javascript:')) &&
+    form.getAttribute('role') !== 'search' &&
+    form.dataset.unsavedGuard !== 'off'
+  );
+}
+
+/**
+ * Warn before leaving dirty forms or an upload in progress.
  *
- * A form becomes dirty on its first input and clean when it is submitted; a
- * form whose save failed marks itself dirty again with DIRTY_EVENT. Covers
- * reload/close (beforeunload) and in-app links (capture-phase click, before
- * Next's router sees it).
- *
- * ponytail: browser Back inside the app is not intercepted — the App Router
- * has no cancellable navigation event. Add it if Back loses real work.
+ * Mounted once by PortalShell and WizardShell (DS-07). A form is dirty from its
+ * first input until it is submitted, or, with `data-unsaved-until-saved`, until
+ * it dispatches `rentra:form-saved` (policy forms: a preview is not a save).
+ * A failed Section save re-dirties its form. Forms that leave the DOM
+ * (a server action redirected) stop counting. The browser Back button is
+ * intercepted only while something is dirty.
  */
 export default function UnsavedChangesGuard() {
   useEffect(() => {
     const dirty = new Set();
+    let sentinel = false;
+    const pending = () => {
+      for (const form of dirty) if (!form.isConnected) dirty.delete(form);
+      return dirty.size > 0 || Boolean(window.rentraUploadPending);
+    };
     const mark = (event) => {
       const form = event.target?.closest?.('form') ?? event.target;
-      if (form instanceof HTMLFormElement) dirty.add(form);
+      if (!tracksForm(form)) return;
+      dirty.add(form);
+      if (!sentinel) {
+        // One extra entry at the same URL, so Back pops it instead of the page.
+        history.pushState({ ...history.state, rentraDraftGuard: true }, '', location.href);
+        sentinel = true;
+      }
     };
     const clear = (event) => dirty.delete(event.target);
+    const submit = (event) => {
+      if (!('unsavedUntilSaved' in (event.target?.dataset ?? {}))) clear(event);
+    };
     const beforeUnload = (event) => {
-      if (!dirty.size) return;
+      if (!pending()) return;
       event.preventDefault();
       event.returnValue = '';
     };
     const click = (event) => {
-      if (!dirty.size || event.defaultPrevented || event.button !== 0) return;
+      if (!pending() || event.defaultPrevented || event.button !== 0) return;
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       const link = event.target?.closest?.('a[href]');
       if (!link || link.target === '_blank' || link.hasAttribute('download')) return;
@@ -45,16 +78,39 @@ export default function UnsavedChangesGuard() {
       event.preventDefault();
       event.stopPropagation();
     };
+    const leave = (event) => {
+      if (!pending()) return;
+      if (window.confirm(MESSAGE)) dirty.clear();
+      else event.preventDefault();
+    };
+    const pop = () => {
+      if (!sentinel) return;
+      sentinel = false; // The sentinel entry was just popped.
+      if (!pending()) return;
+      if (window.confirm(MESSAGE)) {
+        dirty.clear();
+        history.back();
+        return;
+      }
+      history.pushState({ ...history.state, rentraDraftGuard: true }, '', location.href);
+      sentinel = true;
+    };
 
+    window.addEventListener(LEAVE_EVENT, leave);
+    window.addEventListener('popstate', pop);
+    document.addEventListener('rentra:form-saved', clear);
+    document.addEventListener('submit', submit);
     document.addEventListener('input', mark);
     document.addEventListener(DIRTY_EVENT, mark);
-    document.addEventListener('submit', clear);
     document.addEventListener('click', click, true);
     window.addEventListener('beforeunload', beforeUnload);
     return () => {
+      window.removeEventListener(LEAVE_EVENT, leave);
+      window.removeEventListener('popstate', pop);
+      document.removeEventListener('rentra:form-saved', clear);
+      document.removeEventListener('submit', submit);
       document.removeEventListener('input', mark);
       document.removeEventListener(DIRTY_EVENT, mark);
-      document.removeEventListener('submit', clear);
       document.removeEventListener('click', click, true);
       window.removeEventListener('beforeunload', beforeUnload);
     };

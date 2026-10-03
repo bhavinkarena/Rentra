@@ -51,7 +51,7 @@ export default async function Help({ searchParams }) {
             maxLength={100}
             placeholder="Search help, for example refund"
           />
-          <button className="min-h-10 shrink-0 rounded-full bg-primary px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-hover active:bg-primary-active">
+          <button className="min-h-10 shrink-0 rounded-full bg-primary px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-hover active:bg-brand-900">
             Search help
           </button>
         </div>

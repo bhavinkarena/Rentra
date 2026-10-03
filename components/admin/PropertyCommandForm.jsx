@@ -21,7 +21,7 @@ export function CommandForm({ id, command, hidden = {}, submitLabel, tone = 'bra
   const buttonTone =
     tone === 'danger'
       ? 'border border-danger text-danger hover:bg-danger-bg'
-      : 'bg-primary text-white hover:bg-primary-hover active:bg-primary-active';
+      : 'bg-primary text-white hover:bg-primary-hover active:bg-brand-900';
   return (
     <form
       ref={formRef}

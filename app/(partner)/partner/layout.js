@@ -1,14 +1,17 @@
 import { cookies } from 'next/headers';
 import PartnerPortal from '@/components/partner/PartnerPortal';
+import OwnerToaster from '@/components/partner/OwnerToaster';
 import { partnerCacheEnabled } from '@/lib/partner/flags';
 import Link from '@/components/navigation/NavigationLink';
-import { Suspense } from 'react';
+import { Suspense, cache } from 'react';
 import { RentraLogo } from '@/components/rentra/Logo';
-import { getCurrentUser } from '@/lib/api/session';
+import { getCurrentUserWithCompletion } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
 import { logout } from '@/lib/actions/auth';
 import PartnerShell from '@/components/partner/PartnerShell';
 import { portalFont } from '@/lib/portal-font';
+
+const readNavigationCounts = cache(() => partnerApi.unreadUpdates().catch(() => null));
 
 export const metadata = {
   title: 'Partner',
@@ -25,7 +28,7 @@ export const metadata = {
  * read the real code from the server terminal, where `deliverOtp` prints it.
  */
 export default async function PartnerLayout({ children }) {
-  const user = await getCurrentUser();
+  const { user, completion } = await getCurrentUserWithCompletion();
 
   if (user?.role === 'client') {
     // The badge is a convenience: an outage leaves it off rather than failing the page.
@@ -34,17 +37,32 @@ export default async function PartnerLayout({ children }) {
         <UnreadUpdatesCount />
       </Suspense>
     ) : null;
+    const counts = { unreadUpdates: unread };
+    for (const key of [
+      'bookingsAction',
+      'reviewsUnreplied',
+      'supportAwaiting',
+      'propertiesNeedsChanges',
+    ]) {
+      counts[key] = (
+        <Suspense fallback={null}>
+          <NavigationCount field={key} />
+        </Suspense>
+      );
+    }
     const cached = partnerCacheEnabled() && user.accountStatus === 'active' && user.cacheScope;
     const Shell = cached ? PartnerPortal : PartnerShell;
     const revision = (await cookies()).get('rentra_partner_revision')?.value ?? '';
     return (
       <div className={portalFont.variable}>
+        <OwnerToaster />
         <Shell
           key={user.cacheScope ?? user.id}
           user={user}
           revision={revision}
           logoutAction={logout}
-          counts={{ unreadUpdates: unread }}
+          counts={counts}
+          completion={completion}
         >
           {children}
         </Shell>
@@ -53,14 +71,13 @@ export default async function PartnerLayout({ children }) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="owner-portal flex min-h-dvh flex-col">
       <header className="border-b border-border bg-background">
         <div className="mx-auto flex w-full max-w-(--container-page) items-center gap-4 px-4 py-3 sm:px-6">
           {/* Same lockup as the public site, with a product suffix — this is
               the owner's proof they are on Rentra and not a lookalike. */}
-          <Link href="/partner" className="flex shrink-0 items-center gap-2.5">
+          <Link href="/partner" className="flex shrink-0 flex-col items-start gap-1">
             <RentraLogo className="h-7 w-auto" />
-            <span className="h-5 w-px bg-ink-200" aria-hidden="true" />
             <span className="text-meta font-semibold text-ink-500">for owners</span>
           </Link>
 
@@ -79,11 +96,22 @@ export default async function PartnerLayout({ children }) {
 }
 
 async function UnreadUpdatesCount() {
-  const result = await partnerApi.unreadUpdates().catch(() => null);
+  const result = await readNavigationCounts();
   return result?.unread > 0 ? (
     <>
-      {result.unread}
+      {result.unread > 9 ? '9+' : result.unread}
       <span className="sr-only"> unread updates</span>
+    </>
+  ) : null;
+}
+
+async function NavigationCount({ field }) {
+  const result = await readNavigationCounts();
+  const count = result?.[field];
+  return count > 0 ? (
+    <>
+      {count > 9 ? '9+' : count}
+      <span className="sr-only"> needing your attention</span>
     </>
   ) : null;
 }

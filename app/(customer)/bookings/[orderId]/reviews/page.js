@@ -43,7 +43,7 @@ export default async function Reviews({ params }) {
                   <Star className="size-4 fill-current text-warning" aria-hidden="true" />
                   {v.rating} out of 5
                 </h2>
-                <StateBadge state={v.moderation_state}>Status: {v.moderation_state}</StateBadge>
+                <StateBadge domain="review" state={v.moderation_state} />
               </div>
               <p className="whitespace-pre-wrap wrap-break-word text-ink-800">{v.body}</p>
               {v.moderation_reason ? (

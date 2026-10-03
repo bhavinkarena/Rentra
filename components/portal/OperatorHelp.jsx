@@ -25,7 +25,7 @@ const admin = [
     title: 'Resolve a booking incident',
     capability: 'admin.records.read',
     href: '/admin/bookings',
-    link: 'Booking records',
+    link: 'Bookings',
     steps: [
       'Open the booking and inspect each affected visit, its status, evidence and accepted rules. Preserve the recorded evidence; use a correction with a reason when needed.',
       'Create or assign a case, select exact visits and review the impact preview before confirming a resolution. A change check does not reserve replacement dates.',
@@ -81,7 +81,7 @@ const owner = [
     href: '/partner/listings',
     link: 'Your properties',
     steps: [
-      'Complete the property details and required evidence, then submit for review. Open the returned revision to see the exact corrections requested.',
+      'Complete the property details and required evidence, then submit for review. Open the property to see the exact changes Rentra asked for.',
       'Correct and resubmit, then follow the verification appointment. Material changes may require another review. Pausing or resuming cannot remove an administrator restriction.',
     ],
   },
@@ -89,9 +89,9 @@ const owner = [
     title: 'Plan availability',
     capability: 'client.calendar.read',
     href: '/partner/calendar',
-    link: 'Portfolio calendar',
+    link: 'Calendar',
     steps: [
-      'Review open dates, scheduled hours, buffers and existing reservations before changing availability.',
+      'Review open dates, scheduled hours, buffers and existing bookings before changing availability.',
       'Read the impact preview before confirming a bulk change. A conflict means the current inventory changed; reload and prepare a fresh preview.',
     ],
   },
@@ -99,17 +99,17 @@ const owner = [
     title: 'Record visits and get help',
     capability: 'client.records.read',
     href: '/partner/bookings',
-    link: 'Booking records',
+    link: 'Bookings',
     steps: [
-      'Open the booking and check each visit separately. Record handover, return and completion in order with the actual time and required evidence.',
+      'Open the booking and check each visit separately. Record check-in, check-out and completion in order with the actual time and required evidence.',
       'Use a booking case or support request for a cancellation, amendment or incident. Explain the affected visits and preserve evidence; a support acknowledgement does not change a booking.',
     ],
   },
   {
     title: 'Understand your statement',
     capability: 'client.finance.read',
-    href: '/partner/finance',
-    link: 'Statements',
+    href: '/partner/earnings',
+    link: 'Earnings',
     steps: [
       'Check the currency, environment and reporting period. Test, simulated and legacy records are shown separately from eligible Live earnings.',
       'A recorded obligation is not proof of money received. Open its payment or payout evidence and contact support if an amount needs investigation.',
@@ -119,7 +119,7 @@ const owner = [
     title: 'Manage caretakers',
     capability: 'client.team.read',
     href: '/partner/team',
-    link: 'Team access',
+    link: 'Caretakers',
     steps: [
       'Assign only the properties a caretaker operates. Grant evidence recording only when needed.',
       'Reassign or revoke access when responsibilities change. Caretaker access does not include owner pricing, earnings, identity documents or team management.',

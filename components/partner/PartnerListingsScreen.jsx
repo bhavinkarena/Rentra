@@ -6,7 +6,7 @@ import {
 } from '@/lib/services/partner.service';
 import PartnerListingsView from './PartnerListingsView';
 import PartnerQueryState from './PartnerQueryState';
-export default function PartnerListingsScreen({ args, submitted, scope }) {
+export default function PartnerListingsScreen({ args, submitted, deleted, scope }) {
   const matches = usePortalScope(scope);
   const listings = useGetPartnerListingsQuery(args, {
     skip: !matches,
@@ -22,11 +22,16 @@ export default function PartnerListingsScreen({ args, submitted, scope }) {
   });
   if (!matches) return <p role="status">Checking your session…</p>;
   return (
-    <PartnerQueryState screen="properties" queries={[listings, summary]}>
+    <PartnerQueryState
+      label="Loading your properties"
+      screen="properties"
+      queries={[listings, summary]}
+    >
       {listings.currentData?.data && summary.currentData?.data && (
         <PartnerListingsView
           args={args}
           submitted={submitted}
+          deleted={deleted}
           result={listings.currentData.data}
           summary={summary.currentData.data}
         />

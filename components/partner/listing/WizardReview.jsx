@@ -1,6 +1,7 @@
 import Link from '@/components/navigation/NavigationLink';
-import { Check, AlertTriangle, Circle } from 'lucide-react';
+import { Check, CircleAlert, Circle } from 'lucide-react';
 import { chaptersFor, stepHref } from '@/lib/domain/listing-steps';
+import DeleteDraftButton from './DeleteDraftButton';
 import { SubmitBar } from './ListingSections';
 
 /**
@@ -19,6 +20,7 @@ export default function WizardReview({
   listing,
   completion,
   submitAction,
+  ownerApproved = true,
 }) {
   const bySection = new Map(completion.sections.map((s) => [s.id, s]));
 
@@ -27,10 +29,17 @@ export default function WizardReview({
       <h1 className="text-h1">{completion.canSubmit ? 'Ready to send' : 'Almost there'}</h1>
       <p className="mt-2 max-w-prose text-body text-ink-600">
         {completion.canSubmit
-          ? 'Have a last look, then send it to us. We check every property before it goes live — 2 working days, by email and WhatsApp.'
+          ? 'Have a last look, then send it to us. We check every property before it goes live, within 2 working days. The decision appears on your dashboard.'
           : 'A few things still need finishing. Tap any of them to go straight there.'}
       </p>
 
+      <Link
+        href={`/partner/listings/${listingId}/preview`}
+        className="mt-5 inline-flex min-h-11 items-center rounded-md border px-4 font-semibold"
+      >
+        Preview as a guest
+      </Link>
+      <DeleteDraftButton listing={listing} />
       <div className="mt-7 space-y-4">
         {chaptersFor(model).map((chapter) => {
           const rows = chapter.steps.filter((s) => bySection.has(s.id));
@@ -60,7 +69,7 @@ export default function WizardReview({
                           }`}
                         >
                           {section.failed ? (
-                            <AlertTriangle className="size-3" aria-hidden="true" />
+                            <CircleAlert className="size-3" aria-hidden="true" />
                           ) : section.done ? (
                             <Check className="size-3" aria-hidden="true" />
                           ) : (
@@ -95,7 +104,12 @@ export default function WizardReview({
       </div>
 
       <div className="mt-6">
-        <SubmitBar listing={listing} completion={completion} submitAction={submitAction} />
+        <SubmitBar
+          listing={listing}
+          completion={completion}
+          submitAction={submitAction}
+          ownerApproved={ownerApproved}
+        />
       </div>
 
       <p className="mt-5 text-center text-tiny text-ink-500">

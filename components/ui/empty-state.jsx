@@ -1,3 +1,5 @@
+import { Inbox } from 'lucide-react';
+import Link from '@/components/navigation/NavigationLink';
 import { cn } from 'cn';
 
 /**
@@ -6,16 +8,25 @@ import { cn } from 'cn';
  * `tone="warning"` is for failures; the default brand tint is for "nothing yet".
  */
 export function EmptyState({
-  icon: Icon,
+  icon: Icon = Inbox,
   title,
   description,
   tone = 'brand',
   as: Heading = 'h2',
   className,
   children,
+  variant = 'first-use',
+  actionHref,
+  actionLabel,
 }) {
   return (
-    <div className={cn('mx-auto flex max-w-md flex-col items-center py-12 text-center', className)}>
+    <div
+      className={cn(
+        'mx-auto flex max-w-md flex-col items-center text-center',
+        variant === 'compact' ? 'py-5' : 'py-12',
+        className,
+      )}
+    >
       {Icon ? (
         <span
           className={cn(
@@ -28,8 +39,18 @@ export function EmptyState({
       ) : null}
       <Heading className="mt-5 text-h3">{title}</Heading>
       {description ? <p className="mt-2 text-ink-600">{description}</p> : null}
-      {children ? (
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">{children}</div>
+      {children || actionHref ? (
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          {actionHref && (
+            <Link
+              href={actionHref}
+              className="inline-flex min-h-11 items-center rounded-md bg-primary px-4 py-2 font-semibold text-white"
+            >
+              {actionLabel}
+            </Link>
+          )}
+          {children}
+        </div>
       ) : null}
     </div>
   );

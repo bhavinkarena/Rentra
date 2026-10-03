@@ -1,7 +1,7 @@
 'use client';
 
 import Link from '@/components/navigation/NavigationLink';
-import { AlertTriangle, Check, ChevronDown, ListChecks } from 'lucide-react';
+import { CircleAlert, Check, ChevronDown, ListChecks } from 'lucide-react';
 
 /** Five compact chapter segments used in the pinned wizard header. */
 export function ChapterBar({ chapters, hrefs = {} }) {
@@ -36,7 +36,7 @@ export function ChapterBar({ chapters, hrefs = {} }) {
                 }`}
               >
                 {chapter.failed ? (
-                  <AlertTriangle className="size-3 shrink-0" aria-hidden="true" />
+                  <CircleAlert className="size-3 shrink-0" aria-hidden="true" />
                 ) : chapter.complete ? (
                   <Check className="size-3 shrink-0 text-brand-600" aria-hidden="true" />
                 ) : null}
@@ -51,7 +51,7 @@ export function ChapterBar({ chapters, hrefs = {} }) {
                 <Link
                   href={href}
                   aria-current={chapter.isCurrent ? 'step' : undefined}
-                  className="block min-h-6 rounded-md sm:min-h-11"
+                  className="block min-h-11 rounded-md"
                   title={`${chapter.label} — ${chapter.done} of ${chapter.total} done`}
                 >
                   {track}
@@ -73,7 +73,7 @@ function StatusIcon({ step }) {
   if (step.failed) {
     return (
       <span className="grid size-6 shrink-0 place-items-center rounded-full bg-danger-bg text-danger">
-        <AlertTriangle className="size-3.5" aria-hidden="true" />
+        <CircleAlert className="size-3.5" aria-hidden="true" />
         <span className="sr-only">Needs attention</span>
       </span>
     );
@@ -201,7 +201,7 @@ function OverallProgress({ progress }) {
 export function StepRail({ progress, stepHrefs = {} }) {
   return (
     <aside className="hidden lg:block" aria-label="Property setup steps">
-      <div className="sticky top-6 rounded-xl border border-border bg-card p-4 shadow-xs">
+      <div className="sticky top-6 rounded-lg border border-border bg-card p-4">
         <OverallProgress progress={progress} />
         <ProgressList progress={progress} stepHrefs={stepHrefs} />
       </div>
@@ -212,7 +212,7 @@ export function StepRail({ progress, stepHrefs = {} }) {
 /** Compact disclosure keeps all ten labels available without crowding mobile. */
 export function MobileStepDisclosure({ progress, stepHrefs = {} }) {
   return (
-    <details className="group mb-4 rounded-lg border border-border bg-card shadow-xs lg:hidden">
+    <details className="group mb-4 rounded-lg border border-border bg-card lg:hidden">
       <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 text-meta font-semibold text-ink-800 [&::-webkit-details-marker]:hidden">
         <ListChecks className="size-4 text-brand-700" aria-hidden="true" />
         <span className="flex-1">All setup steps</span>

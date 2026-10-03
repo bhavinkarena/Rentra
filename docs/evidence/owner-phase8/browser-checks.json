@@ -1,0 +1,42 @@
+{
+  "accessibility": {
+    "earnings": 0,
+    "earningsMobile": 0,
+    "printStatement": 0,
+    "earningLine": 0,
+    "payoutExplainer": 0,
+    "payoutMethod": 0
+  },
+  "widths": {
+    "360": "no horizontal overflow",
+    "390": "no horizontal overflow",
+    "768": "no horizontal overflow",
+    "1024": "no horizontal overflow",
+    "1440": "no horizontal overflow"
+  },
+  "errors": [],
+  "pagination": {
+    "visits": 35,
+    "firstPage": 30,
+    "secondPage": 5
+  },
+  "statementAliases": true,
+  "printVisits": 35,
+  "csv": {
+    "visits": 35,
+    "rupees": true,
+    "uuidColumns": false
+  },
+  "bookingEarningLink": true,
+  "payoutMethod": {
+    "allErrors": true,
+    "preservedInputs": true,
+    "normalizedBank": true,
+    "lookupOutage": true,
+    "draft": true,
+    "wrongCode": true,
+    "sameSession": true,
+    "submitted": true
+  },
+  "emptyOwner": true
+}

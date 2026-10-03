@@ -1,5 +1,6 @@
 'use client';
 
+import toast from 'react-hot-toast';
 import { useEffect, useState } from 'react';
 import { Check, Copy } from 'lucide-react';
 
@@ -18,8 +19,9 @@ export default function CopyChip({ label, value, display }) {
         try {
           await navigator.clipboard.writeText(value);
           setCopied(true);
+          toast.success(`${label} copied.`);
         } catch {
-          /* Clipboard blocked: the value stays visible and selectable. */
+          toast.error('Could not copy. Select the value and copy it manually.');
         }
       }}
       className="inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 text-tiny font-semibold text-brand-800 hover:bg-brand-100"

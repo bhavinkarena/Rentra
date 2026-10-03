@@ -13,7 +13,7 @@ export default function PendingSubmitButton({
   return (
     <button type="submit" disabled={pending} className={className} aria-live="polite">
       {pending ? <LoaderCircle className="size-4 " aria-hidden="true" /> : null}
-      {pending ? <span className="sr-only">{pendingLabel}</span> : children}
+      {pending ? <span>{pendingLabel}</span> : children}
     </button>
   );
 }

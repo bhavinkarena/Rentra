@@ -1,8 +1,12 @@
 'use client';
+import OwnerTable from './OwnerTable';
+import ConfirmedForm from '@/components/portal/ConfirmedForm';
+import { EmptyState } from '@/components/ui/empty-state';
 
 import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
-import { useActionState, useRef, useState, useTransition } from 'react';
+import { useActionState, useRef, useState, useTransition, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import LoaderCircle from '@/components/ui/rentra-loader';
 import ValidationSummary from '@/components/portal/ValidationSummary';
 import {
@@ -27,8 +31,15 @@ const ist = (value) =>
  * Submitted from a transition so a refused save keeps the chosen checkboxes
  * (React resets `<form action>` fields, and controlled checkboxes with them).
  */
-function useCommand(command) {
-  const [state, action, pending] = useActionState(command, {});
+function useCommand(command, onSuccess) {
+  const [state, action, pending] = useActionState(async (previous, form) => {
+    const result = await command(previous, form);
+    if (result?.message || result?.version) {
+      toast.success(result.message || 'Saved.');
+      onSuccess?.(result);
+    }
+    return result;
+  }, {});
   const [, startTransition] = useTransition();
   const submit = (build) => (event) => {
     event.preventDefault();
@@ -51,8 +62,8 @@ function Failure({ state }) {
   ) : null;
 }
 
-/** The link is shown once: Rentra stores only its hash and does not send it. */
-function LinkBox({ token, expiresAt }) {
+/** The token is shown once; delivery state distinguishes a send from a copy-link fallback. */
+function LinkBox({ token, expiresAt, deliveryState }) {
   const [copied, setCopied] = useState(false);
   const url = `${window.location.origin}/staff/join/${token}`;
   return (
@@ -60,10 +71,14 @@ function LinkBox({ token, expiresAt }) {
       role="status"
       className="space-y-2 rounded-md border border-brand-200 bg-brand-50 p-3 text-meta"
     >
-      <p className="font-semibold text-brand-900">Send this link to the caretaker yourself</p>
+      <p className="font-semibold text-brand-900">
+        {['accepted', 'delivered'].includes(deliveryState)
+          ? 'Invite sent'
+          : 'Link created — not used'}
+      </p>
       <p className="text-tiny text-brand-800">
-        For example on WhatsApp. Rentra does not send it. It works once, needs a code sent to their
-        phone, and expires {ist(expiresAt)} IST. It is shown only now.
+        Copy this link as a fallback. It works once, needs a code sent to their phone, and expires{' '}
+        {ist(expiresAt)} IST. It is shown only now.
       </p>
       <input
         readOnly
@@ -74,7 +89,15 @@ function LinkBox({ token, expiresAt }) {
       <button
         type="button"
         className={quiet}
-        onClick={() => navigator.clipboard?.writeText(url).then(() => setCopied(true))}
+        onClick={async () => {
+          try {
+            await navigator.clipboard.writeText(url);
+            setCopied(true);
+            toast.success('Invitation link copied.');
+          } catch {
+            toast.error('Could not copy. Select the link and copy it manually.');
+          }
+        }}
       >
         {copied ? 'Copied' : 'Copy link'}
       </button>
@@ -83,29 +106,36 @@ function LinkBox({ token, expiresAt }) {
 }
 
 function PropertyChoices({ properties, selected, setSelected, error }) {
+  const [drafts, setDrafts] = useState(false);
   return (
     <fieldset>
       <legend className="text-meta font-semibold text-ink-800">Properties they may operate</legend>
+      <label className="flex min-h-11 items-center gap-2">
+        <input type="checkbox" checked={drafts} onChange={(e) => setDrafts(e.target.checked)} />{' '}
+        Show draft and other properties
+      </label>
       <div className="mt-2 grid gap-2 sm:grid-cols-2">
-        {properties.map((property) => (
-          <label key={property.id} className="flex items-start gap-2 text-meta">
-            <input
-              type="checkbox"
-              name="propertyIds"
-              value={property.id}
-              checked={selected.includes(property.id)}
-              onChange={(event) =>
-                setSelected(
-                  event.target.checked
-                    ? [...selected, property.id]
-                    : selected.filter((id) => id !== property.id),
-                )
-              }
-              className="mt-0.5 size-4 accent-brand-700"
-            />
-            <span>{property.title}</span>
-          </label>
-        ))}
+        {properties
+          .filter((p) => drafts || p.status === 'live' || selected.includes(p.id))
+          .map((property) => (
+            <label key={property.id} className="flex items-start gap-2 text-meta">
+              <input
+                type="checkbox"
+                name="propertyIds"
+                value={property.id}
+                checked={selected.includes(property.id)}
+                onChange={(event) =>
+                  setSelected(
+                    event.target.checked
+                      ? [...selected, property.id]
+                      : selected.filter((id) => id !== property.id),
+                  )
+                }
+                className="mt-0.5 size-4 accent-brand-700"
+              />
+              <span>{property.title}</span>
+            </label>
+          ))}
       </div>
       {error ? <p className="mt-1 text-tiny font-medium text-danger">{error}</p> : null}
     </fieldset>
@@ -134,12 +164,20 @@ function EvidenceChoice({ checked, onChange }) {
 }
 
 function InviteForm({ properties }) {
-  const { state, pending, submit } = useCommand(inviteCaretaker);
   const formRef = useRef(null);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [selected, setSelected] = useState([]);
   const [evidence, setEvidence] = useState(true);
+  const { state, pending, submit } = useCommand(inviteCaretaker, (result) => {
+    if (result.token) {
+      setName('');
+      setPhone('');
+      setSelected([]);
+      setEvidence(true);
+      formRef.current?.reset();
+    }
+  });
   const e = state?.errors ?? {};
   return (
     <form ref={formRef} onSubmit={submit()} className="space-y-4">
@@ -177,11 +215,22 @@ function InviteForm({ properties }) {
         error={e.propertyIds}
       />
       <EvidenceChoice checked={evidence} onChange={setEvidence} />
+      <label className="flex min-h-11 items-center gap-2">
+        <input type="hidden" name="guestContact" value="false" />
+        <input type="checkbox" name="guestContact" defaultChecked={true} />
+        Can see guest contact on visit day
+      </label>
       <button type="submit" disabled={pending} className={primary}>
         {pending ? <LoaderCircle className="size-4" aria-hidden="true" /> : null}
-        Create invitation link
+        Invite caretaker
       </button>
-      {state?.token ? <LinkBox token={state.token} expiresAt={state.expiresAt} /> : null}
+      {state?.token ? (
+        <LinkBox
+          token={state.token}
+          expiresAt={state.expiresAt}
+          deliveryState={state.deliveryState}
+        />
+      ) : null}
     </form>
   );
 }
@@ -202,6 +251,15 @@ function AccessForm({ member, properties }) {
         error={state?.errors?.propertyIds}
       />
       <EvidenceChoice checked={evidence} onChange={setEvidence} />
+      <label className="flex min-h-11 items-center gap-2">
+        <input type="hidden" name="guestContact" value="false" />
+        <input
+          type="checkbox"
+          name="guestContact"
+          defaultChecked={member.permissions.guestContact !== false}
+        />
+        Can see guest contact on visit day
+      </label>
       <button type="submit" disabled={pending} className={quiet}>
         Save access
       </button>
@@ -223,7 +281,13 @@ function LinkForm({ member }) {
       <button type="submit" disabled={pending} className={quiet}>
         {member.state === 'active' ? 'New sign-in link' : 'New invitation link'}
       </button>
-      {state?.token ? <LinkBox token={state.token} expiresAt={state.expiresAt} /> : null}
+      {state?.token ? (
+        <LinkBox
+          token={state.token}
+          expiresAt={state.expiresAt}
+          deliveryState={state.deliveryState}
+        />
+      ) : null}
     </form>
   );
 }
@@ -233,7 +297,14 @@ function RevokeForm({ member }) {
   const [reason, setReason] = useState('');
   const [sure, setSure] = useState(false);
   return (
-    <form onSubmit={submit()} className="space-y-2">
+    <ConfirmedForm
+      title="Revoke caretaker access?"
+      description="Their signed-in sessions and unused invitation links will stop working."
+      confirmLabel="Revoke access"
+      danger
+      onSubmit={submit()}
+      className="space-y-2"
+    >
       <input type="hidden" name="staffId" value={member.id} />
       <input type="hidden" name="expectedVersion" value={member.version} />
       <Failure state={state} />
@@ -268,15 +339,15 @@ function RevokeForm({ member }) {
       <button type="submit" disabled={pending} className={`${quiet} border-danger text-danger`}>
         Revoke access
       </button>
-    </form>
+    </ConfirmedForm>
   );
 }
 
 const STATE = {
   active: ['Active', 'bg-success-bg text-brand-800'],
-  invited: ['Invitation sent', 'bg-warning-bg text-warning'],
+  invited: ['Link created — not used', 'bg-warning-bg text-warning'],
   invite_expired: ['Invitation expired', 'bg-ink-100 text-ink-700'],
-  revoked: ['Revoked', 'bg-danger-bg text-danger'],
+  revoked: ['Removed', 'bg-danger-bg text-danger'],
 };
 
 export default function TeamPanel({ team }) {
@@ -295,7 +366,13 @@ export default function TeamPanel({ team }) {
         {team.properties.length ? (
           <InviteForm properties={team.properties} />
         ) : (
-          <p className="text-meta text-ink-600">Add a property before inviting a caretaker.</p>
+          <EmptyState
+            variant="compact"
+            title="Add a property first"
+            description="Choose a property for your caretaker to operate."
+            actionHref="/partner/listings"
+            actionLabel="Add property"
+          />
         )}
       </section>
 
@@ -303,57 +380,78 @@ export default function TeamPanel({ team }) {
         <h2 id="members-title" className="text-h4 font-bold text-ink-900">
           Caretakers ({team.members.length})
         </h2>
-        {team.members.length ? null : <p className="text-meta text-ink-600">No caretakers yet.</p>}
-        {team.members.map((member) => {
-          const [label, tone] = STATE[member.state];
-          return (
-            <article
-              key={member.id}
-              aria-label={`Caretaker ${member.name}`}
-              className="space-y-3 rounded-lg border border-border bg-card p-5"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <h3 className="text-meta font-bold text-ink-900">{member.name}</h3>
-                  <p className="text-tiny text-ink-500">
-                    {member.phone}
-                    {member.lastSessionAt
-                      ? ` · last signed in ${ist(member.lastSessionAt)} IST`
-                      : ''}
-                  </p>
-                </div>
-                <span className={`rounded-full px-2.5 py-0.5 text-tiny font-semibold ${tone}`}>
-                  {label}
-                </span>
-              </div>
-              <p className="text-tiny text-ink-700">
-                {member.properties.map((p) => p.title).join(', ') || 'No properties'} ·{' '}
-                {member.permissions.evidence ? 'may record evidence' : 'view only'}
-              </p>
-              {member.state === 'revoked' ? (
-                <p className="text-tiny text-ink-600">
-                  Revoked {ist(member.revokedAt)} IST: {member.revokedReason}. Invite the number
-                  again to restore access.
-                </p>
-              ) : (
-                <details className="rounded-md border border-border p-3">
-                  <summary className="cursor-pointer text-meta font-semibold">
-                    Manage access
-                  </summary>
-                  <div className="mt-3 space-y-5">
-                    <LinkForm member={member} />
-                    <AccessForm
-                      key={`access-${member.version}`}
-                      member={member}
-                      properties={team.properties}
-                    />
-                    <RevokeForm key={`revoke-${member.version}`} member={member} />
-                  </div>
-                </details>
-              )}
-            </article>
-          );
-        })}
+        {team.members.length ? null : (
+          <EmptyState
+            variant="compact"
+            title="No caretakers yet"
+            description="Invite the person who opens the gate. They will see arrivals, never your earnings."
+            actionHref="#invite-title"
+            actionLabel="Invite a caretaker"
+          />
+        )}
+        <OwnerTable
+          label="Caretakers"
+          columns={['Caretaker', 'Status', 'Properties / permissions', 'Action']}
+          empty={!team.members.length ? 'No caretakers yet.' : null}
+        >
+          {team.members.map((member) => {
+            const [originalLabel, tone] = STATE[member.state];
+            const label =
+              member.state === 'invited' &&
+              ['accepted', 'delivered'].includes(member.pendingInvite?.deliveryState)
+                ? 'Invite sent'
+                : originalLabel;
+            return (
+              <tr key={member.id} aria-label={`Caretaker ${member.name}`}>
+                <td>
+                  <strong className="block">{member.name}</strong>
+                  <span className="block text-tiny text-ink-600">{member.phone}</span>
+                  {member.lastSessionAt && (
+                    <span className="block text-tiny text-ink-600">
+                      Last signed in {ist(member.lastSessionAt)} IST
+                    </span>
+                  )}
+                </td>
+                <td>
+                  <span
+                    className={`whitespace-nowrap rounded-full px-2.5 py-1 text-tiny font-semibold ${tone}`}
+                  >
+                    {label}
+                  </span>
+                </td>
+                <td>
+                  {member.properties.map((p) => p.title).join(', ') || 'No properties'}
+                  <span className="block text-tiny text-ink-600">
+                    {member.permissions.evidence ? 'May record evidence' : 'View only'}
+                  </span>
+                </td>
+                <td className="min-w-72">
+                  {member.state === 'revoked' ? (
+                    <p className="text-tiny text-ink-600">
+                      Revoked {ist(member.revokedAt)} IST: {member.revokedReason}. Invite the number
+                      again to restore access.
+                    </p>
+                  ) : (
+                    <details className="rounded-md border border-border p-3">
+                      <summary className="cursor-pointer text-meta font-semibold">
+                        Manage access
+                      </summary>
+                      <div className="mt-3 space-y-5">
+                        <LinkForm member={member} />
+                        <AccessForm
+                          key={`access-${member.version}`}
+                          member={member}
+                          properties={team.properties}
+                        />
+                        <RevokeForm key={`revoke-${member.version}`} member={member} />
+                      </div>
+                    </details>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </OwnerTable>
       </section>
 
       <section
@@ -364,36 +462,42 @@ export default function TeamPanel({ team }) {
           Membership history
         </h2>
         {team.history.length ? (
-          <ol className="mt-3 space-y-2">
+          <OwnerTable
+            label="Membership history"
+            columns={['Change', 'Caretaker', 'Changed by', 'Date', 'Details']}
+          >
             {team.history.map((entry) => (
-              <li key={entry.id} className="border-l-2 border-border pl-3 text-meta">
-                <strong>{HISTORY[entry.action] ?? entry.action.replaceAll('_', ' ')}</strong>
-                {' · '}
-                {entry.staffName}
-                <span className="block text-tiny text-ink-500">
+              <tr key={entry.id}>
+                <td className="font-semibold">
+                  {HISTORY[entry.action] ?? entry.action.replaceAll('_', ' ')}
+                </td>
+                <td>{entry.staffName}</td>
+                <td>
                   {entry.actor === 'caretaker'
                     ? 'Caretaker'
                     : entry.actor === 'you'
                       ? 'You'
-                      : 'Rentra'}{' '}
-                  · {ist(entry.at)} IST
-                  {entry.properties != null
-                    ? ` · ${entry.properties} propert${entry.properties === 1 ? 'y' : 'ies'}`
-                    : ''}
+                      : 'Rentra'}
+                </td>
+                <td className="whitespace-nowrap">{ist(entry.at)} IST</td>
+                <td>
+                  {entry.properties != null ? `${entry.properties} properties` : ''}
                   {entry.evidence != null
                     ? entry.evidence
-                      ? ' · may record evidence'
-                      : ' · view only'
+                      ? ' · May record evidence'
+                      : ' · View only'
                     : ''}
-                </span>
-                {entry.reason ? (
-                  <span className="block text-tiny text-ink-700">{entry.reason}</span>
-                ) : null}
-              </li>
+                  {entry.reason && <span className="block">{entry.reason}</span>}
+                </td>
+              </tr>
             ))}
-          </ol>
+          </OwnerTable>
         ) : (
-          <p className="mt-2 text-meta text-ink-600">No team changes yet.</p>
+          <EmptyState
+            variant="compact"
+            title="No team changes yet"
+            description="Invitations and changes to caretaker access appear here."
+          />
         )}
       </section>
     </div>

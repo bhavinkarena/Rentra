@@ -6,7 +6,7 @@ import { disputeCommand } from '@/lib/actions/disputes';
 const field = `${sharedFieldClass} mt-1 min-h-11`;
 export const disputeBase = (kind) =>
   kind === 'admin' ? '/admin/disputes' : kind === 'owner' ? '/partner/disputes' : '/disputes';
-export function DisputeForm({ kind, command, record, context }) {
+export function DisputeForm({ kind, command, record, context, defaultVisitId }) {
   const router = useRouter(),
     [state, setState] = useState({}),
     [pending, start] = useTransition();
@@ -50,7 +50,16 @@ export function DisputeForm({ kind, command, record, context }) {
           <input type="hidden" name="orderId" value={context.id} />
           <label className="block">
             Visit
-            <select aria-label="Visit" name="visitId" className={field}>
+            <select
+              aria-label="Visit"
+              name="visitId"
+              className={field}
+              defaultValue={
+                context?.visits?.some((v) => v.id === defaultVisitId)
+                  ? defaultVisitId
+                  : context?.visits?.[0]?.id
+              }
+            >
               {context.visits.map((v) => (
                 <option key={v.id} value={v.id}>
                   {v.reference} · {String(v.local_day).slice(0, 10)} · {v.state}
@@ -135,6 +144,21 @@ export function DisputeForm({ kind, command, record, context }) {
               className={field}
             />
           </label>
+          <label className="block">
+            Summary of the guest’s claim (shared with both participants)
+            <textarea
+              name="claimSummary"
+              className={field}
+              minLength={10}
+              maxLength={2000}
+              defaultValue={record.claimSummary || ''}
+              required
+            />
+          </label>
+          <p>
+            Write a clear summary without private customer details. The original submission stays
+            private.
+          </p>
           <p>A deadline requests a response; missing it does not automatically decide liability.</p>
         </>
       )}
@@ -170,7 +194,7 @@ export function DisputeForm({ kind, command, record, context }) {
           className={field}
         />
       </label>
-      {command === 'reply' && (
+      {['reply', 'create'].includes(command) && (
         <>
           <label className="block">
             Evidence photos (up to 3, 2MB each)

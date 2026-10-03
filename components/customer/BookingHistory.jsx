@@ -1,3 +1,5 @@
+import OwnerTable from '@/components/partner/OwnerTable';
+import { EmptyState } from '@/components/ui/empty-state';
 import Form from '@/components/navigation/NavigationForm';
 import Link from '@/components/navigation/NavigationLink';
 import { ArrowUpRight, CalendarDays, Search } from 'lucide-react';
@@ -8,6 +10,16 @@ import {
   displayMoney as money,
   StateBadge,
 } from './BookingDisplay';
+
+const OWNER_STATE = {
+  confirmed: 'Upcoming',
+  handed_over: 'Checked in',
+  returned: 'Checked out',
+  completed: 'Completed',
+  cancelled: 'Cancelled',
+  no_show: 'No show',
+  disputed: 'With Rentra',
+};
 function href(base, data, changes) {
   const query = {
     tab: data.tab,
@@ -16,6 +28,9 @@ function href(base, data, changes) {
     ...(data.property ? { property: data.property } : {}),
     ...(data.resource ? { resource: data.resource } : {}),
     ...(data.vertical ? { vertical: data.vertical } : {}),
+    ...(data.from ? { from: data.from } : {}),
+    ...(data.to ? { to: data.to } : {}),
+    ...(data.event ? { event: data.event } : {}),
     ...changes,
   };
   // Optional filters drop out when cleared; tab, q and page keep their place.
@@ -38,13 +53,19 @@ function shortDate(value) {
 
 export function BookingHistory({ data, base = '/bookings', operational = false, homes = [] }) {
   return (
-    <div className="mx-auto max-w-5xl space-y-7">
+    <div
+      className={
+        base === '/partner/bookings'
+          ? 'mx-auto w-full min-w-0 max-w-7xl space-y-6'
+          : 'mx-auto max-w-5xl space-y-7'
+      }
+    >
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="mb-2 text-xs font-semibold tracking-widest text-brand-700 uppercase">
-            Time well spent
+            {operational ? 'Your guest visits' : 'Time well spent'}
           </p>
-          <h1 className="text-h1">{operational ? 'Booking records' : 'Your bookings'}</h1>
+          <h1 className="text-h1">{operational ? 'Bookings' : 'Your bookings'}</h1>
           <p className="mt-2 text-ink-600">
             {operational
               ? 'Manage reservations and individual visits.'
@@ -59,9 +80,37 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
         )}
       </header>
       <div className="rounded-xl border border-border bg-card p-4 sm:p-5">
-        <Form action={base} className="flex items-end gap-3">
+        <Form action={base} className="flex flex-wrap items-end gap-3">
           <input type="hidden" name="tab" value={data.tab} />
-          {data.property && <input type="hidden" name="property" value={data.property} />}
+          {operational && (
+            <label>
+              Property
+              <select
+                name="property"
+                defaultValue={data.property || ''}
+                className="min-h-11 rounded-md border p-2"
+              >
+                <option value="">All properties</option>
+                {(data.properties || []).map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          {operational &&
+            ['from', 'to'].map((k) => (
+              <label key={k}>
+                {k === 'from' ? 'From' : 'To'}
+                <input
+                  type="date"
+                  name={k}
+                  defaultValue={data[k] || ''}
+                  className="min-h-11 rounded-md border p-2"
+                />
+              </label>
+            ))}
           {data.resource && <input type="hidden" name="resource" value={data.resource} />}
           {data.vertical && <input type="hidden" name="vertical" value={data.vertical} />}
           <label className="min-w-0 flex-1">
@@ -76,17 +125,29 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
                 name="q"
                 maxLength={100}
                 defaultValue={data.q}
-                placeholder="Search property or booking reference"
+                placeholder={
+                  operational
+                    ? 'Guest name, phone, property or reference'
+                    : 'Property or booking reference'
+                }
               />
             </span>
           </label>
-          <button className="min-h-12 rounded-full bg-primary px-5 text-sm font-semibold text-white hover:bg-primary-hover active:bg-primary-active">
+          <button className="min-h-12 rounded-full bg-primary px-5 text-sm font-semibold text-white hover:bg-primary-hover active:bg-brand-900">
             Search
           </button>
         </Form>
         <nav aria-label="Booking history filters" className="mt-5 flex gap-2 overflow-x-auto pb-1">
           {(operational
-            ? ['all', 'today', 'upcoming', 'action_needed', 'past', 'cancelled']
+            ? [
+                ...(base === '/partner/bookings' ? [] : ['all']),
+                'today',
+                'upcoming',
+                'action_needed',
+                ...(base === '/partner/bookings' ? ['with_rentra'] : []),
+                'past',
+                'cancelled',
+              ]
             : ['all', 'upcoming', 'past', 'cancelled']
           ).map((tab) => (
             <Link
@@ -95,7 +156,11 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
               className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm text-ink-600 hover:bg-ink-50 aria-[current=page]:bg-primary aria-[current=page]:font-semibold aria-[current=page]:text-white"
               href={href(base, data, { tab, page: '1' })}
             >
-              {tab === 'action_needed' ? 'Action needed' : tab[0].toUpperCase() + tab.slice(1)}
+              {tab === 'action_needed'
+                ? 'Needs action'
+                : tab === 'with_rentra'
+                  ? 'With Rentra'
+                  : tab[0].toUpperCase() + tab.slice(1)}
               {data.summary && (
                 <span className="text-xs">
                   {tab === 'all' ? data.summary.total : data.summary[tab]}
@@ -151,107 +216,229 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
         ) : null}
       </div>
       <p className="text-sm text-ink-500">
-        {data.total} booking{data.total === 1 ? '' : 's'} found
+        {data.total} {data.tab === 'today' && base === '/partner/bookings' ? 'visit' : 'booking'}
+        {data.total === 1 ? '' : 's'} found
       </p>
-      <ul className="space-y-4">
-        {data.items.map((item) => (
-          <li key={item.id}>
+      {operational && data.tab === 'today' && (
+        <nav aria-label="Today arrivals and departures" className="flex gap-3">
+          {['all', 'arriving', 'leaving'].map((event) => (
             <Link
-              href={`${base}/${item.id}${operational ? `?from=${encodeURIComponent(href(base, data, {}))}` : ''}`}
-              className="group grid overflow-hidden rounded-xl border border-border bg-card transition hover:border-brand-300 hover:shadow-md grid-cols-[112px_1fr] sm:grid-cols-[200px_1fr]"
+              key={event}
+              className="min-h-11 rounded-md border p-3"
+              aria-current={(data.event || 'all') === event ? 'page' : undefined}
+              href={href(base, data, { event, page: '1' })}
             >
-              <PropertyPhoto photo={item.photo} title={item.title} />
-              <div className="flex flex-col gap-3 p-4 sm:p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <StateBadge state={item.state} />
-                    <h2 className="mt-2 text-h4 group-hover:text-brand-700">{item.title}</h2>
-                  </div>
-                  <ArrowUpRight
-                    className="size-5 shrink-0 text-muted-foreground group-hover:text-brand-700"
-                    aria-hidden="true"
-                  />
-                </div>
-                <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-600">
-                  <span className="inline-flex items-center gap-2">
-                    <CalendarDays className="size-4 text-brand-700" aria-hidden="true" />
-                    {item.firstVisitSlot === 'hourly'
-                      ? item.firstVisitLabel
-                      : shortDate(item.firstVisit)}
-                  </span>
-                  <span>
-                    {item.visitCount} visit{item.visitCount === 1 ? '' : 's'}
-                  </span>
-                </div>
-                <div className="mt-auto flex flex-wrap items-end justify-between gap-3 border-t border-border pt-3">
-                  <div>
-                    <p className="text-xs text-ink-500">Accepted total · separate deposit</p>
-                    <p className="mt-0.5 text-h4 font-bold tabular">{money(totalPrice(item))}</p>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2 text-xs text-ink-500">
-                  <span className="max-w-full truncate font-mono" title={item.reference}>
-                    {item.reference}
-                  </span>
-                  {operational && (
-                    <span>
-                      Visit states: {item.visitStates.join(', ').replaceAll('_', ' ')}. Payment
-                      below applies to the booking.
-                    </span>
-                  )}
-                  {item.payments.map((payment, index) => (
-                    <span key={index}>
-                      · {payment.environment === 'test' ? 'Test payment: ' : 'Payment: '}
-                      {payment.state}
-                    </span>
-                  ))}
-                  {!item.payments.length && <span>· No verified payment</span>}
-                </div>
-              </div>
+              {event === 'all' ? 'All today' : event === 'arriving' ? 'Arriving' : 'Leaving'}
             </Link>
-          </li>
-        ))}
-      </ul>
-      {!data.items.length && (
-        <div className="rounded-xl border border-dashed border-border bg-card px-6 py-14 text-center">
-          <CalendarDays className="mx-auto mb-5 size-10 text-brand-600" />
-          <h2 className="text-xl font-semibold">
-            {operational
-              ? 'No bookings in this queue'
-              : data.q
-                ? 'No matching bookings'
-                : 'Your next memory starts here'}
-          </h2>
-          <p className="mx-auto mt-3 mb-6 max-w-sm text-sm leading-relaxed text-ink-500">
-            {operational
-              ? 'Change your filters to view other bookings.'
-              : data.q
-                ? 'Try another property name or booking reference.'
-                : 'When you book a place, you’ll find your visit details and updates here.'}
-          </p>
-          {!operational && !data.q && data.tab === 'all' && homes.length > 1 ? (
-            // Two public homes: one link each, named by the vertical.
-            <div className="flex flex-wrap justify-center gap-3">
-              {homes.map((home) => (
-                <Link key={home.href} href={home.href} className={linkClass}>
-                  {home.label}
-                  <ArrowUpRight className="size-4" />
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <Link
-              href={operational || data.q || data.tab !== 'all' ? base : '/search'}
-              className={linkClass}
-            >
-              {operational || data.q || data.tab !== 'all'
-                ? 'View all bookings'
-                : 'Explore farmhouses'}
-              <ArrowUpRight className="size-4" />
-            </Link>
-          )}
-        </div>
+          ))}
+        </nav>
       )}
+      {base === '/partner/bookings' ? (
+        <OwnerTable
+          label="Bookings"
+          columns={[
+            'Property / reference',
+            'Guest',
+            'Visit date',
+            'Visits',
+            'Status',
+            'Booking total',
+            'Action',
+          ]}
+          empty={!data.items.length ? 'No bookings match this view.' : null}
+        >
+          {data.items.map((item) => (
+            <tr key={item.visitId ?? item.id}>
+              <td>
+                <strong className="block">{item.title}</strong>
+                <span
+                  className="block max-w-64 truncate text-tiny text-ink-600"
+                  title={item.reference}
+                >
+                  {item.reference}
+                </span>
+              </td>
+              <td>
+                {item.contact?.name || 'Guest'}
+                <span className="block text-tiny text-ink-600">{item.guests || 0} guests</span>
+              </td>
+              <td className="whitespace-nowrap">
+                {item.firstVisitSlot === 'hourly'
+                  ? item.firstVisitLabel
+                  : shortDate(item.firstVisit)}
+              </td>
+              <td>{item.visitCount}</td>
+              <td>
+                <StateBadge state={item.state} />
+                <span className="mt-1 block text-tiny text-ink-600">
+                  {item.operation?.label ||
+                    item.visits?.find((v) => v.operation?.action)?.operation.label}
+                </span>
+              </td>
+              <td className="whitespace-nowrap font-semibold">
+                {money(totalPrice(item))}
+                <span className="block text-tiny font-normal text-ink-600">Separate deposit</span>
+              </td>
+              <td>
+                <Link
+                  scroll={false}
+                  href={href(base, data, { booking: item.id })}
+                  className="inline-flex min-h-11 items-center rounded-lg border px-4 font-semibold text-brand-800"
+                >
+                  View<span className="sr-only"> booking {item.reference}</span>
+                </Link>
+              </td>
+            </tr>
+          ))}
+        </OwnerTable>
+      ) : (
+        <ul className="space-y-4">
+          {data.items.map((item) => (
+            <li
+              key={item.visitId ?? item.id}
+              className={
+                base === '/partner/bookings'
+                  ? 'overflow-hidden rounded-xl border border-border bg-card'
+                  : undefined
+              }
+            >
+              <Link
+                href={`${base}/${item.id}${operational ? `?from=${encodeURIComponent(href(base, data, {}))}` : ''}${item.visitId ? `#visit-${item.visitId}` : ''}`}
+                className={`group grid overflow-hidden bg-card transition grid-cols-[112px_1fr] sm:grid-cols-[200px_1fr] ${base === '/partner/bookings' ? 'hover:bg-ink-50' : 'rounded-xl border border-border hover:border-brand-300 hover:shadow-md'}`}
+              >
+                <PropertyPhoto photo={item.photo} title={item.title} />
+                <div className="flex flex-col gap-3 p-4 sm:p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <StateBadge state={item.state} />
+                      <h2 className="mt-2 text-h4 group-hover:text-brand-700">{item.title}</h2>
+                    </div>
+                    <ArrowUpRight
+                      className="size-5 shrink-0 text-muted-foreground group-hover:text-brand-700"
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-600">
+                    <span className="inline-flex items-center gap-2">
+                      <CalendarDays className="size-4 text-brand-700" aria-hidden="true" />
+                      {item.firstVisitSlot === 'hourly'
+                        ? item.firstVisitLabel
+                        : shortDate(item.firstVisit)}
+                    </span>
+                    <span>
+                      {item.visitCount} visit{item.visitCount === 1 ? '' : 's'}
+                    </span>
+                  </div>
+                  <div className="mt-auto flex flex-wrap items-end justify-between gap-3 border-t border-border pt-3">
+                    <div>
+                      <p className="text-xs text-ink-500">
+                        {item.visitId
+                          ? 'Booking total · separate deposit'
+                          : 'Accepted total · separate deposit'}
+                      </p>
+                      <p className="mt-0.5 text-h4 font-bold tabular">{money(totalPrice(item))}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-xs text-ink-500">
+                    <span className="max-w-full truncate font-mono" title={item.reference}>
+                      {item.reference}
+                    </span>
+                    {operational && (
+                      <span>
+                        {item.visitStates.map((s) => OWNER_STATE[s] || 'With Rentra').join(', ')}.
+                        Payment below applies to the booking.
+                      </span>
+                    )}
+                    {item.payments.map((payment, index) => (
+                      <span key={index}>
+                        · {payment.environment === 'test' ? 'Test payment: ' : 'Payment: '}
+                        {payment.state}
+                      </span>
+                    ))}
+                    {!item.payments.length && <span>· No verified payment</span>}
+                  </div>
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+      {!data.items.length &&
+        (base === '/partner/bookings' ? (
+          <EmptyState
+            icon={CalendarDays}
+            variant={
+              data.q || data.property || data.from || data.to || data.resource || data.vertical
+                ? 'no-results'
+                : 'first-use'
+            }
+            title={
+              data.q || data.property || data.from || data.to || data.resource || data.vertical
+                ? 'No bookings match these filters'
+                : data.tab === 'action_needed'
+                  ? 'Nothing needs you'
+                  : data.tab === 'upcoming'
+                    ? 'No upcoming bookings'
+                    : 'No bookings in this queue'
+            }
+            description={
+              data.tab === 'action_needed'
+                ? 'Check-ins and check-outs to record will appear here.'
+                : 'Keep your calendar open and prices current to get booked.'
+            }
+            actionHref={
+              data.q || data.property || data.from || data.to || data.resource || data.vertical
+                ? `${base}?tab=${data.tab}`
+                : data.tab === 'action_needed'
+                  ? undefined
+                  : '/partner/calendar'
+            }
+            actionLabel={
+              data.q || data.property || data.from || data.to || data.resource || data.vertical
+                ? 'Clear filters'
+                : 'Open calendar'
+            }
+          />
+        ) : (
+          <div className="rounded-xl border border-dashed border-border bg-card px-6 py-14 text-center">
+            <CalendarDays className="mx-auto mb-5 size-10 text-brand-600" />
+            <h2 className="text-xl font-semibold">
+              {operational
+                ? 'No bookings in this queue'
+                : data.q
+                  ? 'No matching bookings'
+                  : 'Your next memory starts here'}
+            </h2>
+            <p className="mx-auto mt-3 mb-6 max-w-sm text-sm leading-relaxed text-ink-500">
+              {operational
+                ? 'Change your filters to view other bookings.'
+                : data.q
+                  ? 'Try another property name or booking reference.'
+                  : 'When you book a place, you’ll find your visit details and updates here.'}
+            </p>
+            {!operational && !data.q && data.tab === 'all' && homes.length > 1 ? (
+              // Two public homes: one link each, named by the vertical.
+              <div className="flex flex-wrap justify-center gap-3">
+                {homes.map((home) => (
+                  <Link key={home.href} href={home.href} className={linkClass}>
+                    {home.label}
+                    <ArrowUpRight className="size-4" />
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <Link
+                href={operational || data.q || data.tab !== 'all' ? base : '/search'}
+                className={linkClass}
+              >
+                {operational || data.q || data.tab !== 'all'
+                  ? 'View all bookings'
+                  : 'Explore farmhouses'}
+                <ArrowUpRight className="size-4" />
+              </Link>
+            )}
+          </div>
+        ))}
       {data.pages > 1 && (
         <nav
           aria-label="Booking pages"

@@ -10,6 +10,7 @@ import {
   useTransition,
   useRef,
   useEffect,
+  useCallback,
 } from 'react';
 import { useRouter } from 'next/navigation';
 const CalendarVersion = createContext(null);
@@ -19,7 +20,10 @@ import {
   addOpenDates,
   blockDates,
   unblockDates,
+  undoCalendarChange,
+  turnOnAutoOpen,
 } from '@/lib/actions/partner';
+import Link from '@/components/navigation/NavigationLink';
 
 const inputClass = `${sharedFieldClass} mt-1 min-h-11`;
 const labels = { day: 'Day picnic', night: 'Overnight', full_day: 'Full day' };
@@ -31,8 +35,17 @@ function Field({ label, ...props }) {
     </label>
   );
 }
-function ActionForm({ action, rentableId, title, children, button = 'Save', id }) {
-  const version = useContext(CalendarVersion);
+export function ActionForm({
+  action,
+  rentableId,
+  title,
+  children,
+  button = 'Save',
+  id,
+  calendarVersion,
+}) {
+  const contextVersion = useContext(CalendarVersion);
+  const version = calendarVersion ?? contextVersion;
   const guarded = true;
   const router = useRouter();
   const [state, formAction, pending] = useActionState(action, {});
@@ -77,7 +90,7 @@ function ActionForm({ action, rentableId, title, children, button = 'Save', id }
               <li key={i}>
                 {c.source === 'owner_block' ? 'Owner block' : 'Booking reservation'}:{' '}
                 {new Date(c.from).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} –{' '}
-                {new Date(c.to).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} (India)
+                {new Date(c.to).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} (IST)
               </li>
             ))}
           </ul>
@@ -105,6 +118,14 @@ function ActionForm({ action, rentableId, title, children, button = 'Save', id }
               : ''}
           </p>
         )}
+        {state.undoToken && (
+          <UndoButton
+            key={state.undoToken}
+            rentableId={rentableId}
+            token={state.undoToken}
+            until={state.undoUntil}
+          />
+        )}
         {preview && (
           <section
             className="space-y-2 rounded-md border border-border p-4"
@@ -120,8 +141,8 @@ function ActionForm({ action, rentableId, title, children, button = 'Save', id }
                     {{
                       from: 'From date',
                       to: 'To date',
-                      startTime: 'Start time (India)',
-                      endTime: 'End time (India)',
+                      startTime: 'Start time (IST)',
+                      endTime: 'End time (IST)',
                       reason: 'Reason',
                       leadTimeMinutes: 'Minimum notice (minutes)',
                       bookingHorizonDays: 'Booking horizon (days)',
@@ -172,11 +193,95 @@ function ActionForm({ action, rentableId, title, children, button = 'Save', id }
   );
 }
 
-export default function BookingCalendarSettings({ listing, blocks, resources = [] }) {
+/** Guarded Undo (block release): the server refuses it once the dates changed. */
+export function UndoButton({ rentableId, token, until }) {
+  const router = useRouter();
+  const [state, setState] = useState({});
+  useEffect(() => {
+    const timer = setTimeout(
+      () => setState((s) => (s.ok || s.error ? s : { expired: true })),
+      Math.max(0, until - Date.now()),
+    );
+    return () => clearTimeout(timer);
+  }, [until]);
+  if (state.expired) return null;
+  if (state.ok)
+    return (
+      <p role="status" className="text-meta">
+        Undone. The block is back.
+      </p>
+    );
+  return (
+    <p role="status" className="flex flex-wrap items-center gap-3 text-meta">
+      Block released.
+      <button
+        type="button"
+        className="min-h-11 rounded-md border border-border px-3"
+        onClick={async () => {
+          const result = await undoCalendarChange(rentableId, token);
+          setState(result.error ? result : { ok: true });
+          router.refresh();
+        }}
+      >
+        Undo (10 seconds)
+      </button>
+      {state.error && <span className="text-danger">{state.error}</span>}
+    </p>
+  );
+}
+
+function AutoOpenOffer({ id }) {
+  const router = useRouter();
+  const [state, setState] = useState({});
+  const [pending, startTransition] = useTransition();
+  return (
+    <section id="auto-open" className="space-y-2 rounded-lg border border-border bg-card p-5">
+      <h2 className="text-h3">Keep this property open automatically?</h2>
+      <p className="text-meta text-ink-600">
+        Rentra opens new dates as your booking window moves. Dates you closed stay closed.
+      </p>
+      <button
+        type="button"
+        disabled={pending}
+        className="min-h-11 rounded-md bg-primary px-5 py-2 font-semibold text-white disabled:bg-muted"
+        onClick={() =>
+          startTransition(async () => {
+            const result = await turnOnAutoOpen(id);
+            setState(result);
+            if (!result.error) router.refresh();
+          })
+        }
+      >
+        Turn on
+      </button>
+      {state.error && (
+        <p role="alert" className="text-meta text-danger">
+          {state.error}
+        </p>
+      )}
+    </section>
+  );
+}
+
+export default function BookingCalendarSettings({
+  listing,
+  blocks,
+  resources = [],
+  blocksPage = 1,
+  blocksHasMore = false,
+}) {
   const config = listing.booking_config;
   // Time-booked venues open by weekly hours and price by the hour (set on the property page);
   // here they only block a court or the whole venue.
   const venue = listing.rental_unit === 'hour';
+  // The released block leaves the list on refresh, so its Undo lives here.
+  const [released, setReleased] = useState(null);
+  // Kept outside the form: the refresh that removes the block also unmounts its form.
+  const release = useCallback(async (previous, form) => {
+    const result = await unblockDates(previous, form);
+    if (result.undoToken) setReleased(result);
+    return result;
+  }, []);
   return (
     <CalendarVersion.Provider value={listing.calendar_version}>
       <div id="calendar-settings" className="space-y-6">
@@ -192,6 +297,9 @@ export default function BookingCalendarSettings({ listing, blocks, resources = [
             . Use a block below to close one court or the whole venue for a period.
           </p>
         ) : null}
+        {!venue && config?.inventoryReady && config.autoOpen === undefined ? (
+          <AutoOpenOffer id={listing.id} />
+        ) : null}
         {venue ? null : (
           <ActionForm
             action={saveSchedule}
@@ -200,8 +308,8 @@ export default function BookingCalendarSettings({ listing, blocks, resources = [
           >
             <input type="hidden" name="expectedVersion" value={listing.booking_config_version} />
             <p className="text-meta text-ink-600">
-              All hours are in India time. Choose exact hours for each offered slot. Existing
-              bookings retain their original hours.
+              All hours are in IST. Choose exact hours for each offered slot. Existing bookings
+              retain their original hours.
             </p>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field
@@ -223,6 +331,31 @@ export default function BookingCalendarSettings({ listing, blocks, resources = [
                 required
               />
             </div>
+            <label className="flex min-h-11 gap-2 items-center">
+              <input type="checkbox" name="autoOpen" defaultChecked={config?.autoOpen === true} />
+              Automatically open new dates as the booking window moves
+            </label>
+            <Field
+              label="Allow early check-in (minutes)"
+              type="number"
+              name="earlyArrivalMinutes"
+              min="0"
+              max="240"
+              defaultValue={config?.earlyArrivalMinutes ?? 120}
+              required
+            />
+            <label className="block">
+              Weekend prices apply on
+              <select
+                name="weekendDays"
+                defaultValue={(config?.weekendDays || [6, 0]).join(',')}
+                className={inputClass}
+              >
+                <option value="6,0">Saturday and Sunday</option>
+                <option value="5,6,0">Friday, Saturday and Sunday</option>
+                <option value="5,6">Friday and Saturday</option>
+              </select>
+            </label>
             {Object.entries(labels).map(([slot, label]) => {
               const value = config?.slots?.[slot];
               return (
@@ -284,24 +417,23 @@ export default function BookingCalendarSettings({ listing, blocks, resources = [
                       max={listing.capacity}
                       defaultValue={value?.capacity ?? listing.capacity}
                     />
-                    <Field
-                      label="Included guests"
+                    <input
+                      type="hidden"
                       name={`${slot}_includedGuests`}
-                      type="number"
-                      min="1"
-                      max={listing.capacity}
-                      defaultValue={value?.includedGuests ?? listing.capacity}
-                    />
-                    <Field
-                      label="Extra guest charge (₹ per visit)"
-                      name={`${slot}_extraGuestCharge`}
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      defaultValue={
-                        value ? value.extraGuestChargeMinor / 100 || 0 : listing.extra_guest_charge
+                      value={
+                        listing.booking_config?.pricingIncludedGuests ??
+                        value?.includedGuests ??
+                        listing.capacity
                       }
                     />
+                    <input
+                      type="hidden"
+                      name={`${slot}_extraGuestCharge`}
+                      value={listing.extra_guest_charge ?? 0}
+                    />
+                    <p className="text-meta text-ink-600">
+                      Guests included and extra-guest charges are set in Pricing.
+                    </p>
                   </div>
                 </fieldset>
               );
@@ -382,9 +514,9 @@ export default function BookingCalendarSettings({ listing, blocks, resources = [
           ) : null}
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="From date" name="from" type="date" required />
-            <Field label="From time (India)" name="startTime" type="time" required />
+            <Field label="From time (IST)" name="startTime" type="time" required />
             <Field label="To date" name="to" type="date" required />
-            <Field label="To time (India)" name="endTime" type="time" required />
+            <Field label="To time (IST)" name="endTime" type="time" required />
           </div>
           <Field
             label="Reason (visible to your team)"
@@ -394,14 +526,22 @@ export default function BookingCalendarSettings({ listing, blocks, resources = [
             required
           />
         </ActionForm>
-        {blocks.length ? (
-          <section className="space-y-3">
+        {released && (
+          <UndoButton
+            key={released.undoToken}
+            rentableId={listing.id}
+            token={released.undoToken}
+            until={released.undoUntil}
+          />
+        )}
+        {blocks.length || blocksPage > 1 ? (
+          <section className="space-y-3" id="active-blocks">
             <h2 className="text-h3">Active owner blocks</h2>
             {blocks.map((block) => (
               <ActionForm
                 id={`block-${block.id}`}
                 key={block.id}
-                action={unblockDates}
+                action={release}
                 rentableId={listing.id}
                 title={block.resource ? `${block.resource.name} · ${block.label}` : block.label}
                 button="Release block"
@@ -410,6 +550,24 @@ export default function BookingCalendarSettings({ listing, blocks, resources = [
                 <p className="text-meta">{block.reason}</p>
               </ActionForm>
             ))}
+            <nav aria-label="Active block pages" className="flex gap-3">
+              {blocksPage > 1 && (
+                <Link
+                  className="inline-flex min-h-11 items-center underline"
+                  href={`?blocksPage=${blocksPage - 1}#active-blocks`}
+                >
+                  Earlier blocks
+                </Link>
+              )}
+              {blocksHasMore && (
+                <Link
+                  className="inline-flex min-h-11 items-center underline"
+                  href={`?blocksPage=${blocksPage + 1}#active-blocks`}
+                >
+                  Later blocks
+                </Link>
+              )}
+            </nav>
           </section>
         ) : null}
       </div>

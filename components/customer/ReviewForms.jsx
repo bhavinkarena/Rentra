@@ -1,4 +1,5 @@
 'use client';
+import OwnerReviewReply from '@/components/partner/OwnerReviewReply';
 import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import { useRouter } from 'next/navigation';
 import RentraLoader from '@/components/ui/rentra-loader';
@@ -76,7 +77,7 @@ export function CustomerReviewForm({ visits }) {
       </p>
       <button
         disabled={pending}
-        className="min-h-11 rounded-full bg-primary px-5 font-semibold text-white transition-colors hover:bg-primary-hover disabled:bg-muted disabled:text-muted-foreground active:bg-primary-active"
+        className="min-h-11 rounded-full bg-primary px-5 font-semibold text-white transition-colors hover:bg-primary-hover disabled:bg-muted disabled:text-muted-foreground active:bg-brand-900"
       >
         {pending ? <RentraLoader label="Submitting…" /> : 'Submit review'}
       </button>
@@ -84,7 +85,16 @@ export function CustomerReviewForm({ visits }) {
     </form>
   );
 }
-export function ReviewControl({ kind, id, version, body = '' }) {
+export function ReviewControl(props) {
+  if (props.kind === 'reply')
+    return (
+      <OwnerReviewReply
+        review={{ id: props.id, version: props.version, owner_reply: props.body || null }}
+      />
+    );
+  return <OtherReviewControl {...props} />;
+}
+function OtherReviewControl({ kind, id, version, body = '' }) {
   const fn = {
     moderate: moderateCustomerReview,
     reply: ownerReviewReply,

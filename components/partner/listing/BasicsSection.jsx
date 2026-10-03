@@ -3,7 +3,7 @@ import { useActionState } from 'react';
 import { saveBasics } from '@/lib/actions/partner';
 import { useStepFormId } from './chrome';
 import { VersionField, Input, Field, Section, SaveButton, inputCls } from './SectionPrimitives';
-export function BasicsSection({ listing, categories }) {
+export function BasicsSection({ listing, categories, storyOnly = false }) {
   const [state, action, pending] = useActionState(saveBasics, {});
   const e = state.errors ?? {};
   const venue = listing.rentalUnit === 'hour';
@@ -11,7 +11,7 @@ export function BasicsSection({ listing, categories }) {
   return (
     <Section
       id="basics"
-      title="What it is"
+      title={storyOnly ? 'Title and description' : 'What it is'}
       intro="How guests find and recognise it."
       state={state}
       pending={pending}
@@ -19,22 +19,33 @@ export function BasicsSection({ listing, categories }) {
       <form id={useStepFormId()} action={action} className="space-y-4">
         <input type="hidden" name="id" value={listing.id} />
         <VersionField listing={listing} states={[state]} />
-        <Field id="categoryId" label={venue ? 'Main activity' : 'Category'} error={e.categoryId}>
-          <select
-            id="categoryId"
-            name="categoryId"
-            defaultValue={listing.categoryId}
-            required
-            aria-invalid={Boolean(e.categoryId)}
-            className={inputCls}
-          >
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </Field>
+        {storyOnly ? (
+          <input type="hidden" name="categoryId" value={listing.categoryId} />
+        ) : (
+          <>
+            {' '}
+            <Field
+              id="categoryId"
+              label={venue ? 'Main activity' : 'Category'}
+              error={e.categoryId}
+            >
+              <select
+                id="categoryId"
+                name="categoryId"
+                defaultValue={listing.categoryId}
+                required
+                aria-invalid={Boolean(e.categoryId)}
+                className={inputCls}
+              >
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          </>
+        )}
         <Field
           id="title"
           label="Title"
@@ -51,7 +62,9 @@ export function BasicsSection({ listing, categories }) {
             maxLength={90}
             required
             minLength={8}
-            defaultValue={listing.title === 'Untitled property' ? '' : listing.title}
+            defaultValue={
+              !listing.title || listing.title.startsWith('Untitled ') ? '' : listing.title
+            }
             placeholder={
               venue ? 'Smash Arena — floodlit box cricket' : 'Riverside Farm with private pool'
             }

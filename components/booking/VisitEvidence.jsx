@@ -168,6 +168,7 @@ export function VisitEvidence({
   admin = false,
   action = null,
   canReport = true,
+  incidentAction = null,
 }) {
   const href = (id) => `${base}/${orderId}/attachments/${id}`;
   const incidents = visit.incidents ?? [];
@@ -206,6 +207,7 @@ export function VisitEvidence({
             visit={visit}
             requestKey={randomUUID()}
             admin={admin}
+            action={incidentAction}
           />
         ) : null}
       </section>

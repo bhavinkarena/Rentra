@@ -1,11 +1,15 @@
 'use client';
+import useMobileKeyboard from './useMobileKeyboard';
 import NavigationProgress from '@/components/navigation/NavigationProgress';
+import OwnerGlobalSearch from '@/components/partner/OwnerGlobalSearch';
 
-import { useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import Link, { useLinkStatus } from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useFormStatus } from 'react-dom';
 import {
+  Bell,
+  Plus,
   ArrowUpRight,
   Lock,
   LogOut,
@@ -17,6 +21,8 @@ import {
 import LoaderCircle from '@/components/ui/rentra-loader';
 import { RentraLogo, RentraMark } from '@/components/rentra/Logo';
 import NavDrawer from './NavDrawer';
+import UnsavedChangesGuard from './UnsavedChangesGuard';
+import PortalBottomBar from './PortalBottomBar';
 
 /**
  * One shell for the client and Super Admin workspaces.
@@ -31,9 +37,10 @@ import NavDrawer from './NavDrawer';
 const RAIL_KEY = 'rentra-portal-rail';
 const RAIL_EVENT = 'rentra-portal-rail';
 
-function readRail() {
+function readRail(owner = false) {
   try {
-    return localStorage.getItem(RAIL_KEY) === '1';
+    const saved = localStorage.getItem(RAIL_KEY);
+    return saved == null ? owner && window.innerWidth < 1024 : saved === '1';
   } catch {
     return false; // Storage unavailable: keep the full sidebar.
   }
@@ -49,9 +56,11 @@ function writeRail(value) {
 function subscribeRail(callback) {
   window.addEventListener(RAIL_EVENT, callback);
   window.addEventListener('storage', callback);
+  window.addEventListener('resize', callback);
   return () => {
     window.removeEventListener(RAIL_EVENT, callback);
     window.removeEventListener('storage', callback);
+    window.removeEventListener('resize', callback);
   };
 }
 
@@ -84,32 +93,54 @@ function NavItem({ item, pathname, rail, onNavigate }) {
   const Icon = item.icon;
   const active = isActive(pathname, item);
   const base = `group relative flex items-center gap-2.5 rounded-md text-meta font-semibold transition-colors ${
-    rail ? 'size-10 justify-center' : 'min-h-11 px-2.5 lg:min-h-10'
+    rail ? 'size-11 justify-center' : 'min-h-11 px-2.5'
   }`;
 
-  if (item.locked) {
+  if (item.onClick)
     return (
-      <div
-        className={`${base} cursor-not-allowed text-on-dark-muted`}
-        tabIndex={rail ? 0 : undefined}
+      <button
+        type="button"
+        onClick={() => {
+          onNavigate?.();
+          item.onClick();
+        }}
+        className={`${base} text-on-dark-muted`}
       >
-        <Icon className="size-4 shrink-0" aria-hidden="true" />
+        <Icon className="size-5 shrink-0" aria-hidden="true" />
+        {rail ? <RailTip>{item.label}</RailTip> : <span>{item.label}</span>}
+      </button>
+    );
+  if (item.locked) {
+    // DS-06: one focusable row; the reason is announced with the label.
+    const noteId = `locked-${item.href.replace(/\W+/g, '-')}`;
+    return (
+      <button
+        type="button"
+        aria-disabled="true"
+        aria-describedby={noteId}
+        className={`${base} cursor-not-allowed text-left text-on-dark-muted`}
+      >
+        <Icon className="size-5 shrink-0" aria-hidden="true" />
         {rail ? (
           <RailTip>
-            {item.label} — {item.lockedNote}
+            {item.label}
+            <span id={noteId}> — {item.lockedNote}</span>
           </RailTip>
         ) : (
           <>
             <span className="min-w-0">
               {item.label}
-              <span className="block text-tiny leading-4 font-normal text-on-dark-muted">
+              <span
+                id={noteId}
+                className="block text-meta leading-4 font-normal text-on-dark-muted"
+              >
                 {item.lockedNote}
               </span>
             </span>
-            <Lock className="ml-auto size-3 shrink-0" aria-hidden="true" />
+            <Lock className="ml-auto size-4 shrink-0" aria-hidden="true" />
           </>
         )}
-      </div>
+      </button>
     );
   }
 
@@ -131,7 +162,9 @@ function NavItem({ item, pathname, rail, onNavigate }) {
         />
       ) : null}
       <Icon
-        className={`size-4 shrink-0 ${active ? 'text-brand-200' : 'text-on-dark-muted group-hover:text-on-dark-muted'}`}
+        fill={active ? 'currentColor' : 'none'}
+        fillOpacity={active ? 0.15 : 1}
+        className={`size-5 shrink-0 ${active ? 'text-brand-200' : 'text-on-dark-muted group-hover:text-on-dark-muted'}`}
         aria-hidden="true"
       />
       {rail ? <RailTip>{item.label}</RailTip> : <span className="truncate">{item.label}</span>}
@@ -143,7 +176,7 @@ function NavItem({ item, pathname, rail, onNavigate }) {
               : 'ml-auto rounded-full bg-champagne px-1.5 text-tiny font-semibold text-brand-950 tabular empty:hidden'
           }
         >
-          {item.badge}
+          {typeof item.badge === 'number' ? (item.badge > 9 ? '9+' : item.badge) : item.badge}
           {typeof item.badge === 'number' ? <span className="sr-only"> waiting</span> : null}
         </span>
       ) : null}
@@ -198,7 +231,15 @@ function Sidebar({ config, pathname, rail, onNavigate, onToggleRail }) {
         </button>
       ) : (
         <div className="flex items-center gap-2 px-1.5">
-          <Link href={config.home} onClick={onNavigate} className="flex items-center gap-2.5">
+          <Link
+            href={config.home}
+            onClick={onNavigate}
+            className={
+              config.ownerNavigation
+                ? 'flex flex-col items-start gap-1'
+                : 'flex items-center gap-2.5'
+            }
+          >
             <RentraLogo tone="inverse" className="h-6 w-auto" />
             <span className="rounded-md bg-white/10 px-1.5 py-0.5 text-tiny font-semibold text-brand-100">
               {config.product}
@@ -243,6 +284,11 @@ function Sidebar({ config, pathname, rail, onNavigate, onToggleRail }) {
         ))}
       </nav>
 
+      {config.ownerNavigation && onNavigate && (
+        <Link href="/" className="mt-4 flex min-h-11 items-center px-2.5 text-meta text-white">
+          View Rentra <ArrowUpRight className="ml-2 size-4" aria-hidden="true" />
+        </Link>
+      )}
       <div
         className={`mt-4 border-t border-white/10 pt-3 ${rail ? 'flex flex-col items-center' : ''}`}
       >
@@ -280,13 +326,56 @@ function Sidebar({ config, pathname, rail, onNavigate, onToggleRail }) {
 }
 
 export default function PortalShell({ config, children }) {
+  const keyboard = useMobileKeyboard();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const rail = useSyncExternalStore(subscribeRail, readRail, () => false);
+  const rail = useSyncExternalStore(
+    subscribeRail,
+    () => readRail(config.ownerNavigation),
+    () => false,
+  );
   const toggleRail = () => writeRail(!rail);
+  const owner = config.ownerNavigation;
+  const [accountOpen, setAccountOpen] = useState(false);
+  // DS-06: after a client navigation, start keyboard and screen-reader users at
+  // the new page (the h1 when there is one), not at the link they pressed.
+  const main = useRef(null);
+  const firstPath = useRef(pathname);
+  useEffect(() => {
+    if (pathname === firstPath.current) return;
+    firstPath.current = null;
+    if (main.current?.contains(document.activeElement) && document.activeElement !== document.body)
+      return; // The page already placed focus itself (a dialog, an error summary).
+    const node = main.current;
+    if (!node) return;
+    const toHeading = () => {
+      const heading = node.querySelector('h1');
+      if (!heading) return false;
+      heading.tabIndex = -1;
+      heading.focus({ preventScroll: true });
+      return true;
+    };
+    if (toHeading()) return;
+    // A loading skeleton has no h1 yet: hold focus on main, then move to the
+    // h1 when the page streams in, unless the user has moved on meanwhile.
+    node.focus({ preventScroll: true });
+    const observer = new MutationObserver(() => {
+      if (document.activeElement !== node || toHeading()) observer.disconnect();
+    });
+    observer.observe(node, { childList: true, subtree: true });
+    const stop = setTimeout(() => observer.disconnect(), 10000);
+    return () => {
+      observer.disconnect();
+      clearTimeout(stop);
+    };
+  }, [pathname]);
 
   return (
-    <div className="portal-ui min-h-screen bg-ink-25 lg:flex">
+    <div
+      data-keyboard-open={keyboard}
+      className={`portal-ui min-h-dvh bg-ink-25 ${owner ? 'owner-portal md:flex' : 'lg:flex'}`}
+    >
+      <UnsavedChangesGuard />
       <a
         href="#portal-main"
         className="sr-only fixed top-2 left-2 z-50 rounded-md bg-white p-3 font-semibold text-brand-800 shadow-lg focus:not-sr-only"
@@ -297,7 +386,7 @@ export default function PortalShell({ config, children }) {
           rail stays unclipped so its tooltips can extend past it. */}
       <aside
         data-surface="inverse"
-        className={`sticky top-0 hidden h-screen shrink-0 bg-sidebar transition-[width] duration-200 ease-out motion-reduce:transition-none lg:block ${
+        className={`sticky top-0 hidden h-dvh shrink-0 bg-sidebar transition-[width] duration-200 ease-out motion-reduce:transition-none ${owner ? 'md:block' : 'lg:block'} ${
           rail ? 'w-16 overflow-visible' : 'w-[236px] overflow-hidden'
         }`}
       >
@@ -306,22 +395,28 @@ export default function PortalShell({ config, children }) {
 
       <div className="min-w-0 flex-1">
         <header className="sticky top-0 z-30 flex min-h-16 items-center gap-3 border-b border-border bg-card px-4 py-2 sm:px-6 lg:min-h-14">
-          <button
-            type="button"
-            onClick={() => setMobileOpen(true)}
-            className="grid size-11 shrink-0 place-items-center rounded-md border border-border bg-card text-ink-700 lg:hidden"
-            aria-label="Open navigation"
-            aria-expanded={mobileOpen}
-          >
-            <Menu className="size-5" aria-hidden="true" />
-          </button>
-          <div className="min-w-0">
+          {!owner && (
+            <button
+              type="button"
+              onClick={() => setMobileOpen(true)}
+              className="grid size-11 shrink-0 place-items-center rounded-md border border-border bg-card text-ink-700 lg:hidden"
+              aria-label="Open navigation"
+              aria-expanded={mobileOpen}
+            >
+              <Menu className="size-5" aria-hidden="true" />
+            </button>
+          )}
+          <div className={owner ? 'hidden' : 'min-w-0'}>
             <p className="truncate text-tiny font-medium text-ink-500">{config.workspace}</p>
             <p className="truncate text-meta font-semibold text-ink-900">
               {config.routeLabel(pathname)}
             </p>
           </div>
-          {config.search ? (
+          {owner ? (
+            <div className="min-w-0 flex-1 sm:max-w-xl">
+              <OwnerGlobalSearch />
+            </div>
+          ) : config.search ? (
             <div className="ml-auto hidden w-full max-w-md md:block">{config.search}</div>
           ) : null}
           <div className={`flex items-center gap-2 ${config.search ? 'md:ml-3' : ''} ml-auto`}>
@@ -335,13 +430,50 @@ export default function PortalShell({ config, children }) {
               </Link>
             ) : null}
             {config.headerNote}
-            <Link
-              href="/"
-              className="hidden min-h-10 items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-tiny font-semibold text-ink-700 hover:bg-ink-50 sm:inline-flex"
-            >
-              View Rentra <ArrowUpRight className="size-3.5" aria-hidden="true" />
-            </Link>
-            {config.profileHref ? (
+            {!owner && (
+              <Link
+                href="/"
+                className="hidden min-h-10 items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-tiny font-semibold text-ink-700 hover:bg-ink-50 sm:inline-flex"
+              >
+                View Rentra <ArrowUpRight className="size-3.5" aria-hidden="true" />
+              </Link>
+            )}
+            {owner ? (
+              <>
+                {config.addHref && (
+                  <Link
+                    href={config.addHref}
+                    className="hidden min-h-11 items-center gap-1 rounded-md border border-border px-3 text-meta font-semibold md:flex"
+                  >
+                    <Plus className="size-4" aria-hidden="true" />
+                    Add
+                  </Link>
+                )}
+                <Link
+                  href="/partner/updates"
+                  aria-label="Inbox"
+                  aria-describedby="owner-inbox-count"
+                  className="relative grid size-11 place-items-center rounded-md text-ink-700 hover:bg-ink-50"
+                >
+                  <Bell className="size-5" aria-hidden="true" />
+                  <span
+                    id="owner-inbox-count"
+                    className="absolute top-0 right-0 rounded-full bg-brand-800 px-1 text-tiny text-white empty:hidden"
+                  >
+                    {config.inboxBadge}
+                  </span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setAccountOpen(true)}
+                  aria-label="Open account menu"
+                  aria-expanded={accountOpen}
+                  className="grid size-11 place-items-center rounded-full bg-brand-100 text-tiny font-bold text-brand-800"
+                >
+                  {config.user.initials}
+                </button>
+              </>
+            ) : config.profileHref ? (
               <Link
                 href={config.profileHref}
                 aria-label="Open account settings"
@@ -361,14 +493,54 @@ export default function PortalShell({ config, children }) {
           </div>
         </header>
 
-        <main id="portal-main" tabIndex={-1} className="min-h-[calc(100vh-3.5rem)] scroll-mt-16">
+        <main
+          id="portal-main"
+          ref={main}
+          tabIndex={-1}
+          className={`min-h-[calc(100dvh-3.5rem)] scroll-mt-16 ${owner ? 'pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0' : ''}`}
+        >
           {children}
         </main>
       </div>
 
+      {owner && (
+        <PortalBottomBar
+          keyboard={keyboard}
+          items={config.bottomItems}
+          pathname={pathname}
+          open={mobileOpen}
+          onMore={() => setMobileOpen(true)}
+          moreActive={!config.bottomItems.some((item) => isActive(pathname, item))}
+        />
+      )}
+      {owner && (
+        <NavDrawer
+          open={accountOpen}
+          onClose={() => setAccountOpen(false)}
+          label="Owner account"
+          desktop
+        >
+          <div className="space-y-2 px-6 pt-20 text-white">
+            <p className="mb-4 font-semibold">{config.user.name}</p>
+            <Link
+              href={config.profileHref}
+              onClick={() => setAccountOpen(false)}
+              className="flex min-h-11 items-center"
+            >
+              Settings
+            </Link>
+            <Link href="/" className="flex min-h-11 items-center">
+              View Rentra
+            </Link>
+            <form action={config.logoutAction}>
+              <SignOut />
+            </form>
+          </div>
+        </NavDrawer>
+      )}
       <NavDrawer open={mobileOpen} onClose={() => setMobileOpen(false)} label={config.navLabel}>
         <Sidebar
-          config={config}
+          config={owner ? { ...config, groups: config.mobileGroups } : config}
           pathname={pathname}
           rail={false}
           onNavigate={() => setMobileOpen(false)}

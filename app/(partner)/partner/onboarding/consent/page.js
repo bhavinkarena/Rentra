@@ -11,9 +11,9 @@ export default async function Page() {
 
   return (
     <OnboardingShell
-      step={6}
+      current="consent"
       title="Agree to the terms"
-      intro="Two confirmations and you are done with your side."
+      intro="Agree to the policies, then check everything before submitting."
     >
       <ConsentForm user={user} application={application} />
     </OnboardingShell>

@@ -30,3 +30,19 @@ test('return paths stay inside the portal list they belong to', () => {
   ])
     assert.equal(safeReturnPath(value, list), list);
 });
+
+test('a form failure without field errors still has a message to show', async () => {
+  const { formError } = await import('../../lib/domain/portal-state.js');
+  assert.equal(
+    formError({ error: 'Rentra could not be reached.' }),
+    'Rentra could not be reached.',
+  );
+  assert.equal(
+    formError({ errors: { _: 'Upload is not configured.' } }),
+    'Upload is not configured.',
+  );
+  // Field errors are shown beside their fields, not repeated as a banner.
+  assert.equal(formError({ errors: { name: 'Required' }, error: 'Check the fields' }), null);
+  assert.equal(formError({ ok: true }), null);
+  assert.equal(formError({}), null);
+});

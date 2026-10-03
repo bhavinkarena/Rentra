@@ -1,12 +1,27 @@
 'use client';
+import {
+  basicsSchema,
+  locationSchema,
+  capacitySchema,
+  pricingSchema,
+  rulesSchema,
+} from '@/lib/validation/zod/listing';
 export { Field } from '@/components/ui/field';
 import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import Loader2 from '@/components/ui/rentra-loader';
-import { createContext, useContext, useEffect, useRef } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import ConfirmDialog from '@/components/ui/confirm-dialog';
+import {
+  IN_REVIEW_STATUSES,
+  REVIEWED_STATUSES,
+  trustFieldSentence,
+  trustFieldsTouched,
+} from '@/lib/domain/listing-trust';
 import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input as BaseInput } from '@/components/ui/input';
 import { sectionAnchorId } from '@/lib/domain/listing-steps';
+import { formError as generalFormError } from '@/lib/domain/portal-state';
 import { useChrome, useIsWizard } from './chrome';
 import ValidationSummary from '@/components/portal/ValidationSummary';
 import { DIRTY_EVENT } from '@/components/portal/UnsavedChangesGuard';
@@ -46,7 +61,9 @@ export function ReviewFlags({ sections = [], reason = null, children }) {
  * section's own last save may be newer than the page props, so take the max.
  */
 export function VersionField({ listing, states = [] }) {
+  const chrome = useChrome();
   const version = Math.max(
+    chrome.version || 0,
     Number(listing.contentVersion) || 0,
     ...states.map((state) => Number(state?.contentVersion) || 0),
   );
@@ -56,12 +73,88 @@ export function VersionField({ listing, states = [] }) {
 export const inputCls = `${sharedFieldClass} min-h-12`;
 
 export function Input({ className = '', ...props }) {
-  return <BaseInput className={`min-h-12 rounded-md px-3.5 py-3 ${className}`} {...props} />;
+  return (
+    <BaseInput
+      enterKeyHint="next"
+      className={`min-h-12 rounded-md px-3.5 py-3 ${className}`}
+      {...props}
+    />
+  );
 }
 
 /** Wraps a section: heading, save state, and the "sent back for review" note. */
+/**
+ * PROP-03: before a save Rentra must review again, say so and let the owner
+ * cancel. Live/paused/hidden: only when an edited input is a trust field.
+ * In review: any save means submitting again (the content version moves).
+ */
+function useReviewWarning(listing) {
+  const edited = useRef(new Set());
+  const confirmed = useRef(false);
+  const [warning, setWarning] = useState(null);
+  const status = listing?.status;
+  const onEdit = (event) => {
+    if (event.target?.name && !event.target.closest('dialog'))
+      edited.current.add(event.target.name);
+  };
+  const intercept = (event) => {
+    // The dialog's own form submits through this section too; it is not a save.
+    if (!(event.target instanceof HTMLFormElement) || event.target.closest('dialog')) return true;
+    if (!listing) return false;
+    if (confirmed.current) {
+      confirmed.current = false;
+      edited.current.clear();
+      return false;
+    }
+    const touched = trustFieldsTouched([...edited.current], listing.trustFields);
+    const kind =
+      IN_REVIEW_STATUSES.includes(status) && edited.current.size
+        ? 'in_review'
+        : REVIEWED_STATUSES.includes(status) && touched.length
+          ? status
+          : null;
+    if (!kind) return false;
+    event.preventDefault();
+    event.stopPropagation();
+    setWarning({ kind, touched, form: event.target });
+    return true;
+  };
+  const dialog = warning ? (
+    <ConfirmDialog
+      open
+      title={
+        warning.kind === 'in_review'
+          ? 'Rentra is reviewing this property'
+          : 'This change needs a quick review'
+      }
+      confirmLabel={warning.kind === 'in_review' ? 'Save changes' : 'Save and send for review'}
+      onCancel={() => setWarning(null)}
+      onConfirm={() => {
+        const { form } = warning;
+        setWarning(null);
+        confirmed.current = true;
+        form.requestSubmit();
+      }}
+    >
+      {warning.kind === 'in_review' ? (
+        <p>Saving now means you submit the property again, and Rentra reviews the new version.</p>
+      ) : (
+        <p>
+          Changing {trustFieldSentence(warning.touched)} needs a quick Rentra review.{' '}
+          {warning.kind === 'hidden'
+            ? 'Rentra reviews it before the property can be restored.'
+            : 'Your property is hidden from guests until then, usually within 1 working day.'}{' '}
+          Bookings already confirmed are not affected.
+        </p>
+      )}
+    </ConfirmDialog>
+  ) : null;
+  return { onEdit, intercept, dialog };
+}
+
 export function Section({ id, title, intro, state, pending, children }) {
-  const { variant, onSaved, onPending } = useChrome();
+  const { variant, onSaved, onPending, listing } = useChrome();
+  const review = useReviewWarning(variant === 'wizard' ? null : listing);
   const flags = useContext(ReviewFlagsContext);
   const flagged = flags.sections.includes(id);
   const wizard = variant === 'wizard';
@@ -72,7 +165,7 @@ export function Section({ id, title, intro, state, pending, children }) {
   const fieldErrors = Object.keys(state?.errors ?? {}).some((key) => key !== '_');
   // Validation failures list their fields; any other failure (network, conflict,
   // permission) must still be said out loud rather than leave a silent form.
-  const formError = state?.errors?._ ?? (!fieldErrors && !state?.ok ? state?.error : null);
+  const formError = generalFormError(state);
   const failed = Boolean(formError || fieldErrors);
 
   useEffect(() => {
@@ -83,6 +176,9 @@ export function Section({ id, title, intro, state, pending, children }) {
   }, [state, failed]);
 
   const onSubmitCapture = (event) => {
+    // Section forms stay dirty until `rentra:form-saved` (below), not on submit.
+    if (event.target instanceof HTMLFormElement) event.target.dataset.unsavedUntilSaved = '';
+    if (review.intercept(event)) return;
     if (event.target instanceof HTMLFormElement)
       submitted.current = { form: event.target, data: new FormData(event.target) };
   };
@@ -97,6 +193,12 @@ export function Section({ id, title, intro, state, pending, children }) {
   const wasOk = useRef(false);
   useEffect(() => {
     const ok = Boolean(state?.ok);
+    // A policy preview is not applied yet, so its form stays dirty (DS-07).
+    if (ok && !state.preview) {
+      sectionRef.current
+        ?.querySelectorAll('form')
+        .forEach((form) => form.dispatchEvent(new Event('rentra:form-saved', { bubbles: true })));
+    }
     if (ok && !wasOk.current && onSaved) onSaved(state);
     wasOk.current = ok;
   }, [state, onSaved]);
@@ -106,6 +208,34 @@ export function Section({ id, title, intro, state, pending, children }) {
     onPending?.(Boolean(pending));
   }, [pending, onPending]);
 
+  const validateBlur = (event) => {
+    const control = event.target,
+      form = control.form;
+    if (!form || !control.name) return;
+    const schema = {
+      basics: basicsSchema,
+      location: locationSchema,
+      capacity: capacitySchema,
+      pricing: pricingSchema,
+      rules: rulesSchema,
+    }[id];
+    if (!schema) return;
+    const parsed = schema.safeParse(Object.fromEntries(new FormData(form)));
+    const issue = parsed.success
+      ? null
+      : parsed.error.issues.find((issue) => issue.path[0] === control.name);
+    let feedback = form.querySelector(`[data-blur-field="${CSS.escape(control.name)}"]`);
+    if (!feedback) {
+      feedback = document.createElement('p');
+      feedback.dataset.blurField = control.name;
+      feedback.className = 'mt-1 text-tiny text-danger';
+      feedback.id = `${control.id || control.name}-blur`;
+      control.insertAdjacentElement('afterend', feedback);
+    }
+    feedback.textContent = issue?.message || '';
+    control.setAttribute('aria-invalid', Boolean(issue));
+    if (issue) control.setAttribute('aria-describedby', feedback.id);
+  };
   const notices = (
     <>
       {flagged ? (
@@ -123,8 +253,8 @@ export function Section({ id, title, intro, state, pending, children }) {
         >
           <p>{formError}</p>
           <p className="mt-1 text-tiny text-ink-700">
-            Nothing was saved. Your typed changes are still in the form; copy anything you need,
-            because reloading shows the latest saved version.
+            Your typed changes are still in the form; copy anything you need, because reloading
+            shows the latest saved version.
           </p>
           <button
             type="button"
@@ -167,7 +297,12 @@ export function Section({ id, title, intro, state, pending, children }) {
      * progress, Back, Next — and nothing that is about this step's content.
      */
     return (
-      <section id={sectionAnchorId(id)} ref={sectionRef} onSubmitCapture={onSubmitCapture}>
+      <section
+        id={sectionAnchorId(id)}
+        ref={sectionRef}
+        onSubmitCapture={onSubmitCapture}
+        onBlurCapture={validateBlur}
+      >
         <h1 className="text-h1">{title}</h1>
         {intro ? <p className="mt-2 max-w-prose text-body text-ink-600">{intro}</p> : null}
         {notices}
@@ -181,8 +316,12 @@ export function Section({ id, title, intro, state, pending, children }) {
       id={sectionAnchorId(id)}
       ref={sectionRef}
       onSubmitCapture={onSubmitCapture}
+      onBlurCapture={validateBlur}
+      onInputCapture={review.onEdit}
+      onChangeCapture={review.onEdit}
       className="scroll-mt-24 rounded-lg border border-border bg-card p-5"
     >
+      {review.dialog}
       <h2 className="text-h3">{title}</h2>
       {intro ? <p className="mt-1 text-meta text-ink-600">{intro}</p> : null}
 
@@ -195,7 +334,13 @@ export function Section({ id, title, intro, state, pending, children }) {
           role="status"
           className="mt-3 inline-flex items-center gap-1.5 text-meta font-semibold text-brand-700"
         >
-          <Check className="size-4" aria-hidden="true" /> Saved
+          <Check className="size-4" aria-hidden="true" /> Saved{' '}
+          {state.savedAt
+            ? new Date(state.savedAt).toLocaleTimeString('en-IN', {
+                hour: '2-digit',
+                minute: '2-digit',
+              })
+            : ''}
         </p>
       ) : null}
 

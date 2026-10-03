@@ -173,7 +173,7 @@ export default function OccasionPicker({ cities, category }) {
           </div>
           <Link
             href={href}
-            className="mt-5 inline-flex min-h-12 items-center gap-6 rounded-full bg-primary px-5 text-body font-medium text-white transition-colors hover:bg-primary-hover active:bg-primary-active"
+            className="mt-5 inline-flex min-h-12 items-center gap-6 rounded-full bg-primary px-5 text-body font-medium text-white transition-colors hover:bg-primary-hover active:bg-brand-900"
           >
             Explore {intent.label.toLowerCase()}
             <ArrowUpRight className="size-5" aria-hidden="true" />

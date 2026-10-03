@@ -1,10 +1,17 @@
+import OwnerTable from '@/components/partner/OwnerTable';
 import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import Form from '@/components/navigation/NavigationForm';
 import Link from '@/components/navigation/NavigationLink';
 import { randomUUID } from 'node:crypto';
-import { supportCategories, supportStates } from '@/lib/domain/help';
+import {
+  supportCategories,
+  supportStates,
+  ownerSupportCategories,
+  ownerSupportStates,
+} from '@/lib/domain/help';
 import { SupportReplyForm } from './SupportForms';
 import { ChevronRight, MessageSquare, Plus } from 'lucide-react';
+import OwnerContactStrip from '@/components/partner/OwnerContactStrip';
 import { BackLink, PageHeader } from '@/components/ui/page-header';
 import { EmptyState } from '@/components/ui/empty-state';
 import { StateBadge } from './BookingDisplay';
@@ -19,16 +26,18 @@ const time = (value) =>
     timeStyle: 'short',
   });
 export function SupportList({ data, admin = false, owner = false }) {
+  const states = owner ? ownerSupportStates : supportStates;
+  const categories = owner ? ownerSupportCategories : supportCategories;
   const base = admin ? '/admin/support' : owner ? '/partner/support' : '/support';
   return (
-    <section className="mx-auto max-w-3xl">
+    <section className={owner ? 'mx-auto max-w-7xl space-y-5' : 'mx-auto max-w-3xl'}>
       <PageHeader
         title={admin ? 'Support inbox' : 'Your support requests'}
         description="Requests and replies are saved here. This is not live chat. Return here to check for a reply."
         actions={
           !admin ? (
             <>
-              <Link className={secondary} href="/help">
+              <Link className={secondary} href={owner ? '/partner/help' : '/help'}>
                 Help and contact details
               </Link>
               <Link className={primary} href={`${base}/new`}>
@@ -39,6 +48,7 @@ export function SupportList({ data, admin = false, owner = false }) {
           ) : null
         }
       />
+      {owner && <OwnerContactStrip />}
       <Form className="flex flex-wrap items-center justify-between gap-3" action={base}>
         <p className="text-meta text-ink-600">{data.total} request(s)</p>
         <div className="flex flex-wrap items-center gap-2">
@@ -50,7 +60,7 @@ export function SupportList({ data, admin = false, owner = false }) {
               defaultValue={data.state}
             >
               <option value="all">All</option>
-              {Object.entries(supportStates).map(([value, label]) => (
+              {Object.entries(states).map(([value, label]) => (
                 <option key={value} value={value}>
                   {label}
                 </option>
@@ -61,38 +71,89 @@ export function SupportList({ data, admin = false, owner = false }) {
         </div>
       </Form>
       {data.items.length ? (
-        <ul className="mt-4 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
-          {data.items.map((r) => (
-            <li key={r.id}>
-              <Link
-                href={`${base}/${r.id}`}
-                className="flex items-start gap-3 p-4 transition-colors hover:bg-ink-25"
-              >
-                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-700">
-                  <MessageSquare className="size-5" aria-hidden="true" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="flex flex-wrap items-center gap-2">
-                    <span className="font-semibold text-ink-900">{r.subject}</span>
-                    <StateBadge state={r.state}>{supportStates[r.state]}</StateBadge>
+        owner ? (
+          <OwnerTable
+            label="Support requests"
+            columns={['Subject / reference', 'Category', 'Status', 'Updated', 'Action']}
+          >
+            {data.items.map((r) => (
+              <tr key={r.id}>
+                <td>
+                  <strong className="block">
+                    {r.subject}
+                    {r.unread && (
+                      <span className="ml-2 text-tiny text-brand-800">Unread reply</span>
+                    )}
+                  </strong>
+                  <span className="text-tiny text-ink-600">{r.reference}</span>
+                </td>
+                <td>{categories[r.category] || supportCategories[r.category]}</td>
+                <td>
+                  <StateBadge state={r.state}>{states[r.state]}</StateBadge>
+                </td>
+                <td className="whitespace-nowrap">{time(r.updatedAt)} IST</td>
+                <td>
+                  <Link
+                    href={`${base}/${r.id}`}
+                    className="inline-flex min-h-11 items-center rounded-lg border px-3 font-semibold text-brand-800"
+                  >
+                    View
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </OwnerTable>
+        ) : (
+          <ul className="mt-4 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
+            {data.items.map((r) => (
+              <li key={r.id}>
+                <Link
+                  href={`${base}/${r.id}`}
+                  className="flex items-start gap-3 p-4 transition-colors hover:bg-ink-25"
+                >
+                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-700">
+                    <MessageSquare className="size-5" aria-hidden="true" />
                   </span>
-                  <span className="mt-1 block text-meta text-ink-600">
-                    {supportCategories[r.category]} · Updated {time(r.updatedAt)} India time
+                  <span className="min-w-0 flex-1">
+                    <span className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold text-ink-900">{r.subject}</span>
+                      {r.unread && (
+                        <span
+                          className="size-2 rounded-full bg-brand-600"
+                          aria-label="Unread reply"
+                        />
+                      )}
+                      <StateBadge state={r.state}>{states[r.state]}</StateBadge>
+                    </span>
+                    <span className="mt-1 block text-meta text-ink-600">
+                      {categories[r.category] || supportCategories[r.category]} · Updated{' '}
+                      {time(r.updatedAt)} India time
+                    </span>
+                    <span className="mt-0.5 block truncate font-mono text-tiny text-ink-500">
+                      {r.reference}
+                    </span>
                   </span>
-                  <span className="mt-0.5 block truncate font-mono text-tiny text-ink-500">
-                    {r.reference}
-                  </span>
-                </span>
-                <ChevronRight
-                  className="mt-2 size-4 shrink-0 text-muted-foreground"
-                  aria-hidden="true"
-                />
-              </Link>
-            </li>
-          ))}
-        </ul>
+                  <ChevronRight
+                    className="mt-2 size-4 shrink-0 text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )
       ) : (
-        <EmptyState icon={MessageSquare} title="No requests match this view." />
+        <EmptyState
+          icon={MessageSquare}
+          title={owner && data.state === 'all' ? 'No requests yet' : 'No requests match this view'}
+          description={
+            owner
+              ? 'Questions about verification, bookings or payouts? We usually reply within 1 working day.'
+              : 'Your requests and replies appear here.'
+          }
+          actionHref={data.state === 'all' ? `${base}/new` : base}
+          actionLabel={data.state === 'all' ? 'New request' : 'Clear filters'}
+        />
       )}
       {data.page > 1 || data.hasNext ? (
         <nav
@@ -116,6 +177,8 @@ export function SupportList({ data, admin = false, owner = false }) {
   );
 }
 export function SupportDetail({ record, admin = false, owner = false }) {
+  const states = owner ? ownerSupportStates : supportStates;
+  const categories = owner ? ownerSupportCategories : supportCategories;
   const base = admin ? '/admin/support' : owner ? '/partner/support' : '/support';
   return (
     <article className="mx-auto max-w-3xl space-y-6 wrap-break-word">
@@ -123,14 +186,16 @@ export function SupportDetail({ record, admin = false, owner = false }) {
         <BackLink href={base}>Back to support requests</BackLink>
         <div className="mt-1 flex flex-wrap items-center gap-3">
           <h1 className="text-h2">{record.subject}</h1>
-          <StateBadge state={record.state}>{supportStates[record.state]}</StateBadge>
+          <StateBadge state={record.state}>{states[record.state]}</StateBadge>
         </div>
         <p className="mt-2 font-mono text-tiny break-all text-ink-500">{record.reference}</p>
       </header>
+      {owner && <OwnerContactStrip />}
       <section className="space-y-1 rounded-lg border border-border bg-card p-4 text-meta text-ink-700 sm:p-5">
         <h2 className="mb-2 font-semibold text-ink-900">Request context</h2>
         <p>
-          {supportCategories[record.category]} · Created {time(record.createdAt)} India time
+          {categories[record.category] || supportCategories[record.category]} · Created{' '}
+          {time(record.createdAt)} India time
         </p>
         {record.orderId ? (
           <>
@@ -150,6 +215,12 @@ export function SupportDetail({ record, admin = false, owner = false }) {
             </p>
           </>
         ) : null}
+        {record.context.visitReference && (
+          <p>
+            Visit {record.context.visitReference} · {record.context.visitDate} ·{' '}
+            {record.context.slot?.replaceAll('_', ' ')}
+          </p>
+        )}
         {record.privacy ? (
           <>
             <Link className={link} href={admin ? '/admin/privacy' : '/account/privacy'}>
@@ -169,7 +240,7 @@ export function SupportDetail({ record, admin = false, owner = false }) {
         </p>
       </section>
       <p className="text-meta text-ink-600">
-        Participants: {record.participant === 'client' ? 'You (client)' : 'You (customer)'} and
+        Participants: {record.participant === 'client' ? 'You (owner)' : 'You (customer)'} and
         Rentra support. Other cases linked by admins keep their own private conversations.
       </p>
       {record.propertyId && (
@@ -185,7 +256,7 @@ export function SupportDetail({ record, admin = false, owner = false }) {
               <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                 <p className="font-semibold">{m.author}</p>
                 <p className="text-tiny text-ink-500">
-                  {time(m.at)} India time · {supportStates[m.state]}
+                  {time(m.at)} India time · {states[m.state]}
                 </p>
               </div>
               <p className="mt-2 whitespace-pre-wrap wrap-break-word text-ink-800">{m.body}</p>

@@ -6,7 +6,7 @@ import { settle } from '@/lib/api/page-state';
 import PortalState from '@/components/portal/PortalState';
 import { VisitEvidence } from '@/components/booking/VisitEvidence';
 import { VisitLifecycle } from '@/components/customer/VisitLifecycle';
-import { recordStaffVisit } from '@/lib/actions/staff';
+import { recordStaffVisit, reportStaffIncident } from '@/lib/actions/staff';
 
 export const metadata = { title: 'Visit' };
 
@@ -30,6 +30,29 @@ export default async function StaffVisitPage({ params }) {
         <h1 className="text-h2 font-bold text-ink-900">{data.propertyTitle}</h1>
         <p className="text-tiny text-ink-500">Booking {data.reference}</p>
       </header>
+      {data.guest && (
+        <section className="rounded-lg border bg-card p-4 space-y-3">
+          <h2 className="text-h3">
+            {data.guest.name || 'Guest'} · {data.guest.guests} guests
+          </h2>
+          {data.guest.phone && (
+            <div className="flex gap-3">
+              <a href={`tel:${data.guest.phone}`} className="min-h-11 underline">
+                Call guest
+              </a>
+              <a
+                href={`https://wa.me/${data.guest.phone.replace(/\D/g, '').length === 10 ? '91' : ''}${data.guest.phone.replace(/\D/g, '')}`}
+                className="min-h-11 underline"
+              >
+                WhatsApp
+              </a>
+            </div>
+          )}
+        </section>
+      )}
+      {data.ownerNote && (
+        <p className="rounded-md border p-3">Owner&apos;s note: {data.ownerNote}</p>
+      )}
       {data.arrival ? (
         <section
           aria-label="Arrival"
@@ -80,7 +103,8 @@ export default async function StaffVisitPage({ params }) {
             orderId={data.orderId}
             base="/staff/visits"
             timeZone={data.timeZone}
-            canReport={false}
+            canReport={data.canRecord}
+            incidentAction={reportStaffIncident}
             action={
               data.canRecord ? (
                 <VisitLifecycle

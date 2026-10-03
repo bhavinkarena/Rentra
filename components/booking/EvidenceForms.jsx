@@ -117,9 +117,9 @@ const CATEGORIES = [
   ['other', 'Other'],
 ];
 
-export function IncidentForm({ visit, requestKey, admin = false }) {
+export function IncidentForm({ visit, requestKey, admin = false, action = null }) {
   const { state, pending, onSubmit } = useKeptInputAction(
-    admin ? reportAdminIncident : reportOwnerIncident,
+    action ?? (admin ? reportAdminIncident : reportOwnerIncident),
   );
   const [key] = useState(requestKey);
   const e = state.errors ?? {};

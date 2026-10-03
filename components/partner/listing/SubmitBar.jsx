@@ -1,53 +1,20 @@
 'use client';
-import Loader2 from '@/components/ui/rentra-loader';
-import { useActionState } from 'react';
-import { Check, AlertTriangle, Pause, Play } from 'lucide-react';
-import { toggleListingPause } from '@/lib/actions/partner';
+import { CircleAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { sectionAnchorId } from '@/lib/domain/listing-steps';
-function PauseControl({ listing }) {
-  const [state, action, pending] = useActionState(toggleListingPause, {});
-  const paused = listing.status === 'paused';
-
-  return (
-    <form action={action} className="mt-3 border-t border-brand-200 pt-3">
-      <input type="hidden" name="id" value={listing.id} />
-      {state.errors?._ ? (
-        <p className="mb-2 text-tiny font-medium text-danger">{state.errors._}</p>
-      ) : null}
-      <button
-        type="submit"
-        disabled={pending}
-        className="inline-flex items-center gap-1.5 text-meta font-semibold text-ink-700 underline underline-offset-4 hover:text-ink-900 disabled:opacity-50"
-      >
-        {pending ? (
-          <Loader2 className="size-4 " aria-hidden="true" />
-        ) : paused ? (
-          <Play className="size-4" aria-hidden="true" />
-        ) : (
-          <Pause className="size-4" aria-hidden="true" />
-        )}
-        {paused ? 'Take bookings again' : 'Pause new bookings'}
-      </button>
-      <p className="mt-1.5 text-tiny text-ink-600">
-        {paused
-          ? 'Guests cannot find or book this property right now. Your calendar and confirmed bookings are untouched.'
-          : 'Takes it out of search without deleting anything. Bookings already confirmed still stand.'}
-      </p>
-    </form>
-  );
-}
-
-export function SubmitBar({ listing, completion, submitAction }) {
-  const [state, action, pending] = useActionState(submitAction, {});
+import { stepHref } from '@/lib/domain/listing-steps';
+import { trustFieldSentence } from '@/lib/domain/listing-trust';
+import PauseButton from '@/components/partner/property/PauseButton';
+import SubmitForReview from '@/components/partner/property/SubmitForReview';
+export function SubmitBar({ listing, completion, ownerApproved = true }) {
+  const review = trustFieldSentence(listing.trustFields);
 
   if (completion.isLive) {
     return (
       <div className="rounded-lg border border-brand-200 bg-brand-50 p-4">
         <p className="text-h4 font-bold text-brand-900">This property is live</p>
         <p className="mt-1 text-meta text-brand-800">
-          Price and calendar changes apply immediately. Changing photos, the address, capacity or
-          amenities sends it back for a quick re-check.
+          Prices, the calendar, the description and photo order change immediately. Changing{' '}
+          {review} sends it back for a quick Rentra review first.
         </p>
         {listing.adminCorrection ? (
           <p className="mt-2 rounded-md bg-card p-3 text-meta text-ink-800">
@@ -65,7 +32,9 @@ export function SubmitBar({ listing, completion, submitAction }) {
             calendar.
           </p>
         ) : null}
-        <PauseControl listing={listing} />
+        <div className="mt-3 border-t border-brand-200 pt-3">
+          <PauseButton listing={listing} />
+        </div>
       </div>
     );
   }
@@ -81,10 +50,11 @@ export function SubmitBar({ listing, completion, submitAction }) {
         <p className="text-h4 font-bold text-ink-900">Paused by you</p>
         <p className="mt-1 text-meta text-ink-600">
           This property is not in search and cannot be booked. Everything about it is saved — resume
-          whenever you are ready. Changing photos, the address, capacity or amenities sends it back
-          for review first.
+          whenever you are ready. Changing {review} sends it back for review first.
         </p>
-        <PauseControl listing={listing} />
+        <div className="mt-3">
+          <PauseButton listing={listing} />
+        </div>
       </div>
     );
   }
@@ -100,8 +70,8 @@ export function SubmitBar({ listing, completion, submitAction }) {
         ) : null}
         <p className="mt-1 text-meta text-ink-700">
           Guests cannot find or book this property, and only Rentra can restore it. Bookings already
-          confirmed still stand. You can keep editing; changes to photos, the address, capacity or
-          amenities will need review after it is restored. Contact Rentra support to resolve it.
+          confirmed still stand. You can keep editing; changes to {review} will need review after it
+          is restored. Contact Rentra support to resolve it.
         </p>
       </div>
     );
@@ -117,8 +87,8 @@ export function SubmitBar({ listing, completion, submitAction }) {
         </p>
         <p className="mt-1 text-meta text-ink-700">
           {listing.status === 'pending_verification'
-            ? 'Your submitted revision is approved for verification. It is not published yet.'
-            : 'Your submitted revision is waiting for review. If you edit it, resubmit the updated version. Check this workspace for the decision.'}
+            ? 'Your property passed review and is waiting for verification. It is not live yet.'
+            : 'Your property is in review. If you edit it, send it again. We will tell you the decision here.'}
         </p>
         {listing.status === 'pending_verification' ? (
           <p className="mt-2 text-meta font-semibold text-ink-800">
@@ -139,26 +109,20 @@ export function SubmitBar({ listing, completion, submitAction }) {
 
   return (
     <div className="rounded-lg border border-border bg-card p-4">
-      {state.errors?._ ? (
-        <p className="mb-3 rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger">
-          {state.errors._}
-        </p>
-      ) : null}
-
       {listing.rejectionReason ? (
         <p className="mb-3 rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger">
           <strong>Sent back:</strong> {listing.rejectionReason}
         </p>
       ) : null}
 
-      {listing.reviewFlaggedFields?.length ? (
+      {listing.reviewFlags?.length ? (
         <p className="mb-3 text-meta text-warning">
           Sections to correct:{' '}
-          {listing.reviewFlaggedFields.map((section, index) => (
-            <span key={section}>
+          {listing.reviewFlags.map((flag, index) => (
+            <span key={flag.section}>
               {index ? ', ' : ''}
-              <a className="underline" href={`#${sectionAnchorId(section)}`}>
-                {section}
+              <a className="underline" href={stepHref(listing.id, flag.step)}>
+                {flag.step}
               </a>
             </span>
           ))}
@@ -173,19 +137,17 @@ export function SubmitBar({ listing, completion, submitAction }) {
       ) : null}
 
       {completion.canSubmit ? (
-        <form action={action}>
-          <input type="hidden" name="id" value={listing.id} />
-          <Button type="submit" size="lg" className="w-full" disabled={pending}>
-            {pending ? <Loader2 className="size-4 " /> : null}
-            Submit for review
-          </Button>
-          <p className="mt-2 text-center text-tiny text-ink-500">
-            Every property is checked before it goes live. 2 working days.
-          </p>
-        </form>
+        <div className="[&_button]:w-full">
+          <SubmitForReview listing={listing} ownerApproved={ownerApproved} />
+          {ownerApproved ? (
+            <p className="mt-2 text-center text-tiny text-ink-500">
+              Every property is checked before it goes live. 2 working days.
+            </p>
+          ) : null}
+        </div>
       ) : (
         <div className="flex items-start gap-2.5">
-          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-ink-500" aria-hidden="true" />
+          <CircleAlert className="mt-0.5 size-4 shrink-0 text-ink-500" aria-hidden="true" />
           <p className="text-meta text-ink-600">
             <strong className="text-ink-900">
               {completion.remaining.length} section
@@ -197,6 +159,16 @@ export function SubmitBar({ listing, completion, submitAction }) {
           </p>
         </div>
       )}
+      {!ownerApproved && !completion.canSubmit ? (
+        <div className="mt-4">
+          <Button type="button" size="lg" className="w-full" disabled>
+            Submit for review
+          </Button>
+          <p className="mt-2 text-center text-tiny text-ink-500">
+            You can submit once your account is approved.
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 }

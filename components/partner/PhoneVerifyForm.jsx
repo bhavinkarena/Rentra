@@ -2,6 +2,7 @@
 import Loader2 from '@/components/ui/rentra-loader';
 
 import { useActionState } from 'react';
+import FormError from '@/components/portal/FormError';
 import { Smartphone } from 'lucide-react';
 import { requestPhoneVerification, confirmPhoneVerification } from '@/lib/actions/auth';
 import { Button } from '@/components/ui/button';
@@ -20,13 +21,13 @@ export default function PhoneVerifyForm({ defaultPhone = '' }) {
 
   if (phase === 'phone') {
     return (
-      <form action={issueAction} className="space-y-4">
+      <form onReset={(event) => event.preventDefault()} action={issueAction} className="space-y-4">
         <div>
           <label htmlFor="phone" className="mb-1.5 block text-meta font-semibold text-ink-700">
             Mobile number
           </label>
           <div className="flex items-stretch gap-2">
-            <span className="grid shrink-0 place-items-center rounded-sm border border-input bg-ink-50 px-3 text-meta font-medium text-ink-600">
+            <span className="grid shrink-0 place-items-center rounded-md border border-input bg-ink-50 px-3 text-meta font-medium text-ink-600">
               +91
             </span>
             <Input
@@ -46,12 +47,13 @@ export default function PhoneVerifyForm({ defaultPhone = '' }) {
             <p className="mt-1.5 text-tiny font-medium text-danger">{issueState.errors.phone}</p>
           ) : (
             <p className="mt-1.5 text-tiny text-ink-500">
-              Booking requests, the 12-hour accept reminder and payout notices all come here on
-              WhatsApp. This is the number guests will call on the day.
+              Rentra uses this number to reach you about your properties and bookings. Guests may
+              call it on the day of their visit.
             </p>
           )}
         </div>
 
+        <FormError state={issueState} />
         <Button type="submit" size="lg" className="w-full" disabled={issuing}>
           {issuing ? <Loader2 className="size-4 " /> : <Smartphone className="size-4" />}
           {issuing ? <span className="sr-only">Sending code…</span> : 'Send code by SMS'}
@@ -66,7 +68,11 @@ export default function PhoneVerifyForm({ defaultPhone = '' }) {
         Code sent to <strong className="font-semibold">+91 {phone}</strong>.
       </p>
 
-      <form action={confirmAction} className="space-y-4">
+      <form
+        onReset={(event) => event.preventDefault()}
+        action={confirmAction}
+        className="space-y-4"
+      >
         <input type="hidden" name="phone" value={phone} />
         <div>
           <label htmlFor="pcode" className="mb-1.5 block text-meta font-semibold text-ink-700">
@@ -89,13 +95,14 @@ export default function PhoneVerifyForm({ defaultPhone = '' }) {
           ) : null}
         </div>
 
+        <FormError state={confirmState} />
         <Button type="submit" size="lg" className="w-full" disabled={confirming}>
           {confirming ? <Loader2 className="size-4 " /> : null}
           {confirming ? <span className="sr-only">Checking…</span> : 'Verify mobile'}
         </Button>
       </form>
 
-      <form action={issueAction}>
+      <form onReset={(event) => event.preventDefault()} action={issueAction}>
         <input type="hidden" name="phone" value={phone} />
         <button
           type="submit"

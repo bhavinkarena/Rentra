@@ -1,4 +1,6 @@
 'use client';
+import InlineAlert from '@/components/portal/InlineAlert';
+import PortalState from '@/components/portal/PortalState';
 import { useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Provider } from 'react-redux';
@@ -9,7 +11,14 @@ import { disposePortalStore, partnerTags, tagsForRevision } from '@/lib/partner/
 import PartnerShell from './PartnerShell';
 import { runIdentityAction } from '@/lib/auth/identity-signal';
 
-export default function PartnerPortal({ user, revision, logoutAction, counts, children }) {
+export default function PartnerPortal({
+  user,
+  revision,
+  logoutAction,
+  counts,
+  completion,
+  children,
+}) {
   const [store] = useState(() => makePortalStore(user.cacheScope));
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -43,7 +52,9 @@ export default function PartnerPortal({ user, revision, logoutAction, counts, ch
         if (attempt !== sequence || !alive) return;
         if (response.status === 401) {
           stop();
-          window.location.replace('/partner/login?session=ended');
+          window.location.replace(
+            `/partner/login?session=ended&next=${encodeURIComponent(window.location.pathname + window.location.search)}`,
+          );
           return;
         }
         if (!response.ok) throw new Error('Identity check unavailable');
@@ -61,11 +72,11 @@ export default function PartnerPortal({ user, revision, logoutAction, counts, ch
         setFailed(false);
         setMounted(true);
         setReady(true);
-        if (conceal) store.dispatch(baseApi.internalActions.onFocus());
+        store.dispatch(baseApi.internalActions.onFocus());
         return true;
       } catch {
         if (attempt === sequence && alive) {
-          setReady(false);
+          if (conceal) setReady(false);
           setFailed(true);
         }
       }
@@ -74,16 +85,15 @@ export default function PartnerPortal({ user, revision, logoutAction, counts, ch
     // Custom listener ordering: verify identity BEFORE any focus refetch.
     const cleanupListeners = setupListeners(store.dispatch, (dispatch, actions) => {
       const focus = () => {
-        if (document.visibilityState === 'visible') void verify();
+        if (document.visibilityState === 'visible') void verify(false);
       };
       const visibility = () => {
         if (document.visibilityState === 'hidden') {
-          setReady(false);
           dispatch(actions.onFocusLost());
         } else focus();
       };
       const online = () =>
-        void verify().then((verified) => {
+        void verify(false).then((verified) => {
           if (verified && !store.portalLifecycle.disposed) dispatch(actions.onOnline());
         });
       window.addEventListener('focus', focus);
@@ -101,7 +111,10 @@ export default function PartnerPortal({ user, revision, logoutAction, counts, ch
     const access = (event) => {
       if (event.detail?.status === 401 || event.detail?.status === 'PORTAL_REDIRECT') {
         stop();
-        window.location.replace(event.detail.redirect ?? '/partner/login?session=ended');
+        window.location.replace(
+          event.detail.redirect ??
+            `/partner/login?session=ended&next=${encodeURIComponent(window.location.pathname + window.location.search)}`,
+        );
       } else void verify(false);
     };
     const changed = (phase) => {
@@ -167,26 +180,33 @@ export default function PartnerPortal({ user, revision, logoutAction, counts, ch
   }
   return (
     <Provider store={store}>
-      <PartnerShell user={user} logoutAction={logout} counts={counts}>
+      <PartnerShell user={user} logoutAction={logout} counts={counts} completion={completion}>
+        {ready && failed && (
+          <InlineAlert className="m-4">
+            Could not refresh your session. Your current page is still available.{' '}
+            <button className="min-h-11 underline" onClick={() => check.current?.(false)}>
+              Try again
+            </button>
+          </InlineAlert>
+        )}
         {mounted && (
           <div hidden={!ready} inert={!ready}>
             {children}
           </div>
         )}
-        {!ready && (
-          <div role="status" className="p-6">
-            {failed ? (
-              <>
-                Could not verify your session.{' '}
-                <button className="underline" onClick={() => check.current?.()}>
-                  Retry
-                </button>
-              </>
-            ) : (
-              'Checking your session…'
-            )}
-          </div>
-        )}
+        {!ready &&
+          (failed ? (
+            <PortalState
+              compact
+              title="Could not verify your session"
+              description="Check your connection and try again to open your workspace."
+              onRetry={() => check.current?.()}
+            />
+          ) : (
+            <div role="status" className="p-6">
+              Checking your session…
+            </div>
+          ))}
       </PartnerShell>
     </Provider>
   );

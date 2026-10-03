@@ -1,31 +1,31 @@
+import OwnerTable from '@/components/partner/OwnerTable';
+import { normalizeBookings } from '@/lib/partner/query-args';
+import PortalPage from '@/components/portal/PortalPage';
+import { EmptyState } from '@/components/ui/empty-state';
+import OwnerToday from '@/components/partner/OwnerToday';
+import OwnerHelpHeader from '@/components/partner/OwnerHelpHeader';
 import Link from '@/components/navigation/NavigationLink';
-import { ArrowRight, Bell, Building2, CircleAlert, Clock3, Eye, ShieldCheck } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { requireClient, getCurrentUserWithCompletion } from '@/lib/api/session';
+import { verificationOutcome } from '@/lib/domain/owner-onboarding';
+import OwnerApprovalNotice from '@/components/partner/OwnerApprovalNotice';
+import OwnerSetupGuide from '@/components/partner/OwnerSetupGuide';
 import { lockedCtaMessage } from '@/lib/domain/profile-completion';
 import { recordLockedCtaClick } from '@/lib/actions/auth';
-import { submitApplication, withdrawApplication } from '@/lib/actions/partner';
+import { withdrawApplication } from '@/lib/actions/partner';
 import { partnerApi } from '@/lib/api/endpoints';
 import CompletionStepper from '@/components/partner/CompletionStepper';
 import GatedAddPlaceButton from '@/components/partner/GatedAddPlaceButton';
-import PendingSubmitButton from '@/components/partner/PendingSubmitButton';
+import ApplicationCommand from '@/components/partner/ApplicationCommand';
 import PropertyTable from '@/components/partner/PropertyTable';
-import { KpiCard, PartnerPageHeader } from '@/components/partner/PortalPrimitives';
+import { PartnerPageHeader } from '@/components/partner/PortalPrimitives';
 import RetryButton from '@/components/portal/RetryButton';
 import { settle } from '@/lib/api/page-state';
-import { updateTitle, visibleTasks } from '@/lib/domain/client-updates';
+import { updateTitle, updateHref } from '@/lib/domain/client-updates';
 
 export const metadata = {
   title: 'Your dashboard',
   robots: { index: false, follow: false },
-};
-
-const EMPTY_SUMMARY = {
-  total: 0,
-  live: 0,
-  inReview: 0,
-  attention: 0,
-  counts: {},
-  recent: [],
 };
 
 /**
@@ -33,7 +33,8 @@ const EMPTY_SUMMARY = {
  * same URL. Before approval, the next required step is dominant. Afterwards,
  * the screen becomes a dense operational dashboard backed only by real data.
  */
-export default async function PartnerDashboard() {
+export default async function PartnerDashboard({ searchParams }) {
+  const params = await searchParams;
   const user = await requireClient();
   /* `/auth/me` returns the completion state alongside the actor, so the
      application and the KYC list are not two further round trips. */
@@ -41,202 +42,114 @@ export default async function PartnerDashboard() {
   const locked = lockedCtaMessage(completion);
   // Independent reads start together after authorization. Approved partners
   // never render the onboarding application, so do not fetch it for them.
-  const [application, summary, tasks, updates] = await Promise.all([
-    completion.approved ? null : partnerApi.application(),
-    completion.canPublish ? partnerApi.summary() : EMPTY_SUMMARY,
-    completion.approved ? settle(partnerApi.tasks()) : null,
+  const approved = completion.approved;
+  const [
+    summary,
+    needs,
+    visits,
+    week,
+    earnings,
+    properties,
+    updates,
+    setup,
+    records,
+    portfolio,
+    analytics,
+  ] = await Promise.all([
+    !approved ? settle(partnerApi.summary()) : null,
+    ...['needsYou', 'visits', 'week', 'earnings', 'properties'].map((section) =>
+      approved ? settle(partnerApi.today({ section })) : null,
+    ),
     settle(partnerApi.updates({ page: 1 })),
+    approved ? settle(partnerApi.setupGuide()) : null,
+    approved
+      ? settle(partnerApi.records(normalizeBookings({ ...params, tab: params.tab || 'all' })))
+      : null,
+    approved ? settle(partnerApi.summary()) : null,
+    approved ? settle(partnerApi.today({ section: 'analytics' })) : null,
   ]);
 
   const firstName = user.name?.trim().split(/\s+/)[0];
 
   return (
-    <div className="mx-auto w-full max-w-(--container-workspace) px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-      <PartnerPageHeader
-        eyebrow={completion.approved ? 'Approved partner' : 'Getting set up'}
-        title={firstName ? `Welcome back, ${firstName}` : 'Welcome to Rentra'}
-        description={
-          completion.approved
-            ? summary.total > 0
-              ? `Here’s a clear view of all ${summary.total} ${summary.total === 1 ? 'property' : 'properties'} in your Rentra portfolio.`
-              : 'Your partner account is ready. Add your first property to start building your portfolio.'
-            : 'Finish your verification so you can add and publish properties with confidence.'
-        }
-        action={
-          <GatedAddPlaceButton
-            unlocked={completion.canPublish}
-            message={locked}
-            onLockedClick={recordLockedCtaClick}
-          />
-        }
-      />
-
+    <PortalPage>
+      <div id="owner-today-card">
+        <PartnerPageHeader
+          eyebrow={completion.approved ? 'Verified owner' : 'Getting set up'}
+          title={approved ? 'Dashboard' : 'Get verified'}
+          description={
+            approved
+              ? `Hello${firstName ? `, ${firstName}` : ''}. Your visits and next actions, all in IST.`
+              : 'Finish verification to publish. You can start a property draft now.'
+          }
+          action={
+            <GatedAddPlaceButton
+              unlocked={user.capabilities?.includes('client.listings.write')}
+              message={locked}
+              onLockedClick={recordLockedCtaClick}
+            />
+          }
+        />
+      </div>
+      {params?.submitted ? (
+        <p role="status" className="mt-4 rounded-md bg-brand-50 p-4 text-brand-900">
+          Verification submitted. Check back here for the decision.
+        </p>
+      ) : null}
+      {params?.locked === 'in_review' ? (
+        <p role="status" className="mt-4 rounded-md bg-warning-bg p-4">
+          Your application is read-only while Rentra reviews it. Withdraw to edit.
+        </p>
+      ) : null}
       {completion.approved ? (
-        <ApprovedDashboard summary={summary} tasks={tasks} updates={updates} />
-      ) : (
         <>
-          <OnboardingDashboard completion={completion} application={application} />
-          <div className="mt-5 max-w-[720px]">
+          {!user.ownerGuide?.approvalSeenAt ? <OwnerApprovalNotice /> : null}
+          {setup?.failure ? (
+            <div role="alert" className="mt-5 rounded-md border border-danger/30 p-4">
+              Setup guide could not load. <RetryButton label="Try again" />
+            </div>
+          ) : setup?.data ? (
+            <OwnerSetupGuide guide={setup.data} expanded={!properties?.data?.length} />
+          ) : null}
+          <OwnerToday
+            analytics={analytics}
+            records={records}
+            portfolio={portfolio}
+            filters={params}
+            needs={needs}
+            visits={visits}
+            week={week}
+            earnings={earnings}
+            properties={properties}
+          />
+          <div className="mt-5">
             <LatestUpdates updates={updates} />
           </div>
         </>
-      )}
-    </div>
-  );
-}
-
-function ApprovedDashboard({ summary, tasks, updates }) {
-  return (
-    <>
-      <section
-        className="mt-7 grid grid-cols-2 gap-3 xl:grid-cols-4"
-        aria-label="Portfolio summary"
-      >
-        <KpiCard
-          label="Total properties"
-          value={summary.total}
-          hint="Across your complete portfolio"
-          icon={Building2}
-        />
-        <KpiCard
-          label="Live listings"
-          value={summary.live}
-          hint={`Visible to guests · ${summary.bookable ?? 0} bookable now`}
-          icon={Eye}
-          tone="success"
-        />
-        <KpiCard
-          label="In review"
-          value={summary.inReview}
-          hint="Currently with the Rentra team"
-          icon={Clock3}
-          tone="warning"
-        />
-        <KpiCard
-          label="Needs attention"
-          value={summary.attention}
-          hint="Drafts or listings needing changes"
-          icon={CircleAlert}
-          tone={summary.attention > 0 ? 'danger' : 'neutral'}
-        />
-      </section>
-
-      <section className="mt-6 grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
-        <div className="space-y-5">
-          <Tasks tasks={tasks} />
-          <div className="overflow-hidden rounded-lg border border-border bg-card shadow-xs">
-            <div className="flex items-center justify-between gap-4 border-b border-border px-4 py-4 sm:px-5">
-              <div>
-                <h2 className="text-h4 font-bold text-ink-900">Recent properties</h2>
-                <p className="mt-0.5 text-tiny text-ink-500">
-                  Most recently updated across your portfolio
-                </p>
-              </div>
-              <Link
-                href="/partner/listings"
-                className="inline-flex shrink-0 items-center gap-1.5 text-tiny font-semibold text-brand-700 hover:text-brand-900"
-              >
-                View all <ArrowRight className="size-3.5" aria-hidden="true" />
-              </Link>
+      ) : (
+        <>
+          <OnboardingDashboard completion={completion} />
+          {summary?.data?.total > 0 ? (
+            <div className="mt-5">
+              <PropertyTable listings={summary.data.recent} compact />
             </div>
-            {(summary.verticals ?? []).length > 1 ? (
-              // Owners with farmhouses and venues: jump to one kind (entertainment plan, Phase 11).
-              <nav
-                aria-label="Properties by kind"
-                className="flex flex-wrap gap-2 border-b border-border px-4 py-3 sm:px-5"
-              >
-                {summary.verticals.map((code) => (
-                  <Link
-                    key={code}
-                    href={`/partner/listings?vertical=${code}`}
-                    className="inline-flex min-h-9 items-center rounded-full border border-border px-3 text-tiny font-semibold text-ink-700 hover:border-brand-300 hover:bg-brand-50"
-                  >
-                    {{ farmhouse: 'Farmhouses', entertainment: 'Venues' }[code] ?? code}
-                  </Link>
-                ))}
-              </nav>
-            ) : null}
-            <PropertyTable
-              listings={summary.recent}
-              compact
-              emptyTitle="No properties yet"
-              emptyDescription="Add your first property to start your Rentra portfolio."
-            />
+          ) : null}
+          <div className="mt-5 max-w-[720px]">
+            <OwnerHelpHeader tabs={false} />
           </div>
-        </div>
-        <LatestUpdates updates={updates} />
-      </section>
-    </>
-  );
-}
-
-/**
- * Work derived from current state: required work first, then information.
- * Each count is the total of the list it opens.
- */
-function Tasks({ tasks }) {
-  if (tasks?.failure) {
-    return (
-      <section
-        aria-labelledby="tasks-title"
-        className="rounded-lg border border-danger/30 bg-danger-bg p-5"
-      >
-        <h2 id="tasks-title" className="text-h4 font-bold text-ink-900">
-          Your tasks
-        </h2>
-        <p role="alert" className="mt-1 text-meta text-danger">
-          Tasks could not load. Nothing was changed.
-        </p>
-        <div className="mt-3">
-          <RetryButton label="Try again" />
-        </div>
-      </section>
-    );
-  }
-  const list = visibleTasks(tasks?.data?.tasks);
-  const required = list.filter((task) => task.kind === 'action');
-  const info = list.filter((task) => task.kind === 'info');
-  return (
-    <section
-      aria-labelledby="tasks-title"
-      className="rounded-lg border border-border bg-card p-5 shadow-xs"
-    >
-      <h2 id="tasks-title" className="text-h4 font-bold text-ink-900">
-        Your tasks
-      </h2>
-      {!list.length ? (
-        <p className="mt-2 flex items-center gap-2 text-meta text-brand-800">
-          <ShieldCheck className="size-4" aria-hidden="true" /> Nothing needs your attention right
-          now.
-        </p>
-      ) : null}
-      {[
-        ['Needs your action', required, 'text-danger'],
-        ['For your information', info, 'text-ink-500'],
-      ].map(([heading, items, tone]) =>
-        items.length ? (
-          <div key={heading} className="mt-4">
-            <h3 className={`text-tiny font-bold tracking-[0.1em] uppercase ${tone}`}>{heading}</h3>
-            <ul className="mt-2 divide-y divide-border rounded-md border border-border">
-              {items.map((task) => (
-                <li key={task.key}>
-                  <Link
-                    href={task.href}
-                    className="flex items-center justify-between gap-3 px-4 py-3 text-meta hover:bg-ink-50"
-                  >
-                    <span>{task.label}</span>
-                    <ArrowRight
-                      className="size-4 shrink-0 text-muted-foreground"
-                      aria-hidden="true"
-                    />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null,
+          {updates?.failure || updates?.data?.items?.length ? (
+            <div className="mt-5 max-w-[720px]">
+              <LatestUpdates updates={updates} />
+            </div>
+          ) : null}
+          {summary?.failure ? (
+            <p role="alert" className="mt-5 text-danger">
+              Property drafts could not load. <RetryButton />
+            </p>
+          ) : null}
+        </>
       )}
-    </section>
+    </PortalPage>
   );
 }
 
@@ -245,7 +158,7 @@ function LatestUpdates({ updates }) {
   return (
     <section
       aria-labelledby="latest-updates-title"
-      className="rounded-lg border border-border bg-card p-5 shadow-xs"
+      className="rounded-lg border border-border bg-card p-5"
     >
       <div className="flex items-center justify-between gap-3">
         <h2
@@ -268,108 +181,115 @@ function LatestUpdates({ updates }) {
           </div>
         </div>
       ) : data?.items.length ? (
-        <ul className="mt-3 space-y-3">
+        <OwnerTable
+          label="Latest updates"
+          columns={['Update', 'Context', 'Received', 'Status', 'Action']}
+        >
           {data.items.slice(0, 5).map((update) => (
-            <li key={update.id} className="text-meta">
-              <p className={update.read ? 'text-ink-700' : 'font-semibold text-ink-900'}>
-                {updateTitle(update)}
-                <span className="sr-only">{update.read ? ' (read)' : ' (unread)'}</span>
-              </p>
-              <p className="text-tiny text-ink-500">
-                {update.propertyTitle ?? update.detail?.reference ?? 'Account'} ·{' '}
+            <tr key={update.id}>
+              <td className="font-semibold">{updateTitle(update)}</td>
+              <td>{update.propertyTitle ?? update.detail?.reference ?? 'Account'}</td>
+              <td className="whitespace-nowrap">
                 {new Date(update.createdAt).toLocaleString('en-IN', {
                   timeZone: 'Asia/Kolkata',
                   dateStyle: 'medium',
                   timeStyle: 'short',
                 })}{' '}
                 IST
-              </p>
-            </li>
+              </td>
+              <td>{update.read ? 'Read' : 'Unread'}</td>
+              <td>
+                <Link
+                  className="inline-flex min-h-11 items-center rounded-lg border px-3 font-semibold text-brand-800"
+                  href={updateHref(update)}
+                >
+                  View
+                </Link>
+              </td>
+            </tr>
           ))}
-        </ul>
+        </OwnerTable>
       ) : (
-        <p className="mt-2 text-meta text-ink-600">No updates yet.</p>
+        <EmptyState
+          variant="compact"
+          title="You're all caught up"
+          description="Bookings, review results and Rentra messages appear here."
+        />
       )}
     </section>
   );
 }
 
-function OnboardingDashboard({ completion, application }) {
+function OnboardingDashboard({ completion }) {
+  const outcome = verificationOutcome(completion);
   return (
-    <section className="mt-7 grid items-start gap-5 lg:grid-cols-[minmax(0,720px)_minmax(260px,1fr)]">
-      <div className="space-y-4">
-        <CompletionStepper completion={completion} />
-
-        {completion.canSubmit ? (
-          <form action={submitApplication}>
-            <PendingSubmitButton
-              pendingLabel="Submitting for review…"
-              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-primary px-5 text-meta font-semibold text-white hover:bg-primary-hover disabled:cursor-wait disabled:bg-muted disabled:text-muted-foreground"
+    <section className="mt-7 max-w-[720px] space-y-4">
+      {outcome ? (
+        <div
+          className={`rounded-lg border p-5 ${completion.submitted ? 'border-warning/30 bg-warning-bg' : 'border-danger/30 bg-danger-bg'}`}
+        >
+          <h2 className="text-h3">{outcome.title}</h2>
+          <p className="mt-2 text-meta text-ink-700">{outcome.body}</p>
+          {outcome.href ? (
+            <Link
+              href={outcome.href}
+              className="mt-3 inline-flex min-h-11 items-center font-semibold text-brand-700"
             >
-              Submit for review
-            </PendingSubmitButton>
-            <p className="mt-2 text-center text-tiny text-ink-500">
-              A person reviews it within 2 working days. The decision appears here.
-            </p>
-          </form>
-        ) : null}
-
-        {completion.submitted ? (
-          <div className="rounded-lg border border-warning/25 bg-warning-bg p-4">
-            <p className="text-h4 font-bold text-warning">With us for review</p>
-            <p className="mt-1 text-meta text-ink-700">
-              Nothing more to do. We reply within 2 working days either way. Need to change
-              something first?
-            </p>
-            <form action={withdrawApplication} className="mt-3">
-              <PendingSubmitButton
-                pendingLabel="Withdrawing…"
-                className="inline-flex items-center gap-2 text-meta font-semibold text-brand-700 hover:underline disabled:cursor-wait"
-              >
-                Withdraw and edit
-              </PendingSubmitButton>
-            </form>
-          </div>
-        ) : null}
-
-        {completion.changesRequested ? (
-          <div className="rounded-lg border border-danger/30 bg-danger-bg p-4">
-            <p className="text-h4 font-bold text-danger">We need a bit more</p>
-            <p className="mt-1 text-meta text-ink-700">
-              {application.decisionReason || 'Please check the flagged steps above and resubmit.'}
-            </p>
-            <p className="mt-2 text-tiny text-ink-600">
-              Update the steps marked above, then submit again. Your other details stay as they are.
-            </p>
-          </div>
-        ) : null}
+              {outcome.action}
+            </Link>
+          ) : null}
+          {completion.submitted ? (
+            <ApplicationCommand
+              confirm
+              action={withdrawApplication}
+              pendingLabel="Withdrawing…"
+              className="mt-3 min-h-11 font-semibold text-brand-700 underline"
+            >
+              Withdraw to edit
+            </ApplicationCommand>
+          ) : null}
+          {completion.status === 'rejected' ? (
+            <Link
+              href="/partner/help/requests"
+              className="ml-5 inline-flex min-h-11 items-center text-brand-700 underline"
+            >
+              Contact support
+            </Link>
+          ) : null}
+        </div>
+      ) : null}
+      <CompletionStepper completion={completion} />
+      <div className="rounded-lg border border-border bg-card p-5">
+        <h2 className="text-h3">What you’ll need</h2>
+        <ul className="mt-3 list-disc space-y-2 pl-5 text-meta text-ink-600">
+          <li>A PAN, driving licence, or masked Aadhaar photo or PDF</li>
+          <li>Your mobile for a verification code</li>
+          <li>Your UPI ID or bank details</li>
+          <li>An ownership document and six property photos for your draft</li>
+        </ul>
+        <Link
+          href="/partner/listings/new"
+          className="mt-3 inline-flex min-h-11 items-center font-semibold text-brand-700 underline"
+        >
+          Start your property draft
+        </Link>
       </div>
-
-      <aside className="rounded-lg border border-border bg-card p-5 shadow-xs">
-        <p className="text-tiny font-bold tracking-[0.1em] text-brand-700 uppercase">
-          What happens next
-        </p>
-        <ol className="mt-4 space-y-4">
-          {[
-            ['Complete your details', 'Add the identity and payout information Rentra needs.'],
-            ['Rentra reviews them', 'A person checks your application within 2 working days.'],
-            [
-              'Publish properties',
-              'Once approved, add and manage every property from this workspace.',
-            ],
-          ].map(([title, body], index) => (
-            <li key={title} className="flex gap-3">
-              <span className="grid size-6 shrink-0 place-items-center rounded-full bg-brand-50 text-tiny font-bold text-brand-700 ring-1 ring-brand-100">
-                {index + 1}
-              </span>
-              <span>
-                <span className="block text-tiny font-bold text-ink-800">{title}</span>
-                <span className="mt-0.5 block text-tiny leading-5 text-ink-500">{body}</span>
-              </span>
-            </li>
-          ))}
-        </ol>
-      </aside>
+      {!completion.submitted ? (
+        <Link
+          href={
+            completion.canSubmit
+              ? '/partner/onboarding/review'
+              : (completion.remaining[0]?.href ?? '/partner/onboarding/review')
+          }
+          className="flex min-h-12 items-center justify-center rounded-md bg-primary px-4 py-3 font-semibold text-white"
+        >
+          {completion.canSubmit ? 'Review and submit' : 'Continue verification'}
+        </Link>
+      ) : null}
+      <p className="text-meta text-ink-600">
+        You can draft your property while Rentra reviews your account. Publishing opens after
+        approval.
+      </p>
     </section>
   );
 }
