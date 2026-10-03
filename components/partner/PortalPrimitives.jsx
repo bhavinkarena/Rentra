@@ -1,6 +1,4 @@
-import Link from '@/components/navigation/NavigationLink';
-import { ownerHelpHref } from '@/lib/domain/owner-help';
-export function PartnerPageHeader({ eyebrow, title, description, action, helpArticle }) {
+export function PartnerPageHeader({ eyebrow, title, description, action }) {
   return (
     <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
@@ -8,17 +6,6 @@ export function PartnerPageHeader({ eyebrow, title, description, action, helpArt
           <h1 className="text-h1 leading-tight font-bold tracking-[-0.03em] text-ink-900">
             {title}
           </h1>
-          <Link
-            href={
-              helpArticle
-                ? `/partner/help#${helpArticle}`
-                : ownerHelpHref(String(title).toLowerCase())
-            }
-            aria-label={`Help with ${title}`}
-            className="inline-flex size-11 items-center justify-center rounded-full border text-lg font-semibold"
-          >
-            ?
-          </Link>
           {eyebrow ? <p className="text-meta font-medium text-ink-600">{eyebrow}</p> : null}
         </div>
         {description ? (

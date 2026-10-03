@@ -1,0 +1,185 @@
+{
+  "results": [
+    {
+      "name": "1280px /partner table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "1280px /partner/calendar table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "1280px /partner/bookings?tab=all table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "1280px /partner/listings table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "1280px /partner/reviews?tab=all table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "1280px /partner/support table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "1280px /partner/disputes table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "1280px /partner/team table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "1280px /partner/updates table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "1280px /partner/search?q=River table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "1280px /partner/earnings table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "1280px /partner/earnings/statements table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "1280px /partner/settings/security table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "1280px /partner/settings/privacy table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "1280px /partner/settings/calendar-sync table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "1280px /partner/listings/d8e8d20b-5e13-4ac9-b2e9-f9f538fc15e3/activity table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "360px /partner table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "360px /partner/calendar table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "360px /partner/bookings?tab=all table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "360px /partner/listings table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "360px /partner/reviews?tab=all table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "360px /partner/support table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "360px /partner/disputes table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "360px /partner/team table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "360px /partner/updates table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "360px /partner/search?q=River table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "360px /partner/earnings table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "360px /partner/earnings/statements table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "360px /partner/settings/security table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "360px /partner/settings/privacy table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "360px /partner/settings/calendar-sync table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "360px /partner/listings/d8e8d20b-5e13-4ac9-b2e9-f9f538fc15e3/activity table and accessibility",
+      "ok": true
+    },
+    {
+      "name": "global header search finds records in different sections",
+      "ok": true
+    },
+    {
+      "name": "booking View opens complete detail modal and Escape preserves filters",
+      "ok": true
+    },
+    {
+      "name": "calendar begins with only properties, property opens month in modal",
+      "ok": true
+    },
+    {
+      "name": "360px calendar date detail and nested dialog",
+      "ok": true
+    },
+    {
+      "name": "1280px calendar date detail and nested dialog",
+      "ok": true
+    },
+    {
+      "name": "calendar property search filters records",
+      "ok": true
+    },
+    {
+      "name": "dashboard filters use saved property and date parameters",
+      "ok": true
+    },
+    {
+      "name": "review table keeps reply action functional",
+      "ok": true
+    },
+    {
+      "name": "populated earnings and print tables preserve rent and refund evidence",
+      "ok": true
+    },
+    {
+      "name": "mobile booking detail stays inside the viewport",
+      "ok": true
+    },
+    {
+      "name": "booking modal protects a private note when closing",
+      "ok": true
+    },
+    {
+      "name": "calendar date modal protects an unsaved block reason",
+      "ok": true
+    },
+    {
+      "name": "applicant global search cannot find another owner records",
+      "ok": true
+    }
+  ],
+  "errors": []
+}

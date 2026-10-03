@@ -3,6 +3,10 @@
 import { useEffect } from 'react';
 
 export const DIRTY_EVENT = 'rentra:form-dirty';
+const LEAVE_EVENT = 'rentra:before-leave';
+export function requestPortalLeave() {
+  return window.dispatchEvent(new Event(LEAVE_EVENT, { cancelable: true }));
+}
 const MESSAGE = 'You have unsaved changes. Leave this page and discard them?';
 
 /**
@@ -74,6 +78,11 @@ export default function UnsavedChangesGuard() {
       event.preventDefault();
       event.stopPropagation();
     };
+    const leave = (event) => {
+      if (!pending()) return;
+      if (window.confirm(MESSAGE)) dirty.clear();
+      else event.preventDefault();
+    };
     const pop = () => {
       if (!sentinel) return;
       sentinel = false; // The sentinel entry was just popped.
@@ -87,6 +96,7 @@ export default function UnsavedChangesGuard() {
       sentinel = true;
     };
 
+    window.addEventListener(LEAVE_EVENT, leave);
     window.addEventListener('popstate', pop);
     document.addEventListener('rentra:form-saved', clear);
     document.addEventListener('submit', submit);
@@ -95,6 +105,7 @@ export default function UnsavedChangesGuard() {
     document.addEventListener('click', click, true);
     window.addEventListener('beforeunload', beforeUnload);
     return () => {
+      window.removeEventListener(LEAVE_EVENT, leave);
       window.removeEventListener('popstate', pop);
       document.removeEventListener('rentra:form-saved', clear);
       document.removeEventListener('submit', submit);

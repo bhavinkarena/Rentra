@@ -103,7 +103,7 @@ export default function PropertyTable({
   return (
     <>
       <div
-        className="relative hidden overflow-x-auto md:block"
+        className="relative overflow-x-auto"
         tabIndex={0}
         role="region"
         aria-label="Properties table"
@@ -206,38 +206,6 @@ export default function PropertyTable({
           </tbody>
         </table>
       </div>
-
-      <ul className="divide-y divide-border md:hidden">
-        {listings.map((listing) => (
-          <li key={listing.id} className="p-4">
-            <div className="flex items-start justify-between gap-3">
-              <PropertyIdentity listing={listing} />
-              <ListingStatusBadge status={listing.status} />
-            </div>
-            <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-dashed border-border pt-3 text-tiny">
-              <div>
-                <dt className="text-ink-500">Location</dt>
-                <dd className="mt-0.5 truncate font-medium text-ink-700">
-                  {displayLocation(listing)}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-ink-500">Updated</dt>
-                <dd className="mt-0.5 font-medium text-ink-700">
-                  {displayDate(listing.updatedAt)}
-                </dd>
-              </div>
-            </dl>
-            <Link
-              href={actionHref(listing, from)}
-              className="mt-4 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-md border border-border bg-card text-tiny font-semibold text-ink-800"
-            >
-              <ActionText listing={listing} />
-              <ArrowRight className="size-3.5" aria-hidden="true" />
-            </Link>
-          </li>
-        ))}
-      </ul>
     </>
   );
 }

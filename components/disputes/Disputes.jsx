@@ -1,3 +1,4 @@
+import OwnerTable from '@/components/partner/OwnerTable';
 import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import Link from '@/components/navigation/NavigationLink';
 import { ChevronDown, ChevronRight, FileText, Plus, Scale } from 'lucide-react';
@@ -27,7 +28,7 @@ export function DisputeList({ data, kind }) {
     f = data.filters,
     time = timeFor(kind);
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className={kind === 'owner' ? 'mx-auto max-w-7xl space-y-5' : 'mx-auto max-w-3xl'}>
       <PageHeader
         title="Disputes and deposit cases"
         description="Service complaints, deposit concerns and provider disputes are separate case types. This workspace cannot charge a participant or submit a provider dispute."
@@ -58,43 +59,76 @@ export function DisputeList({ data, kind }) {
         <button className={pill}>Apply filters</button>
       </form>
       {data.items.length ? (
-        <ul className="mt-5 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
-          {data.items.map((c) => (
-            <li key={c.id}>
-              <Link
-                href={`${base}/${c.id}`}
-                className="flex items-start gap-3 p-4 transition-colors hover:bg-ink-25"
-              >
-                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-700">
-                  <Scale className="size-5" aria-hidden="true" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="font-semibold text-ink-900">{c.subject}</h2>
-                    <StateBadge state={c.state} />
-                  </div>
-                  <span className="mt-1 block text-meta text-ink-600 capitalize">
-                    {words(c.kind)} dispute
+        kind === 'owner' ? (
+          <OwnerTable
+            label="Disputes"
+            columns={['Subject / reference', 'Type', 'Status', 'Response due', 'Action']}
+          >
+            {data.items.map((c) => (
+              <tr key={c.id}>
+                <td>
+                  <strong className="block">{c.subject}</strong>
+                  <span className="text-tiny text-ink-600">{c.reference}</span>
+                </td>
+                <td className="capitalize">{words(c.kind)}</td>
+                <td>
+                  <StateBadge state={c.state} />
+                </td>
+                <td>
+                  {c.requested_party
+                    ? `${c.requested_party === kind ? 'Your reply' : 'Reply from ' + c.requested_party} · ${time(c.response_due)}`
+                    : 'No response requested'}
+                </td>
+                <td>
+                  <Link
+                    href={`${base}/${c.id}`}
+                    className="inline-flex min-h-11 items-center rounded-lg border px-3 font-semibold text-brand-800"
+                  >
+                    View
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </OwnerTable>
+        ) : (
+          <ul className="mt-5 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
+            {data.items.map((c) => (
+              <li key={c.id}>
+                <Link
+                  href={`${base}/${c.id}`}
+                  className="flex items-start gap-3 p-4 transition-colors hover:bg-ink-25"
+                >
+                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-700">
+                    <Scale className="size-5" aria-hidden="true" />
                   </span>
-                  <span className="mt-0.5 block truncate font-mono text-tiny text-ink-500">
-                    {c.reference}
-                  </span>
-                  {c.requested_party && (
-                    <span className="mt-1 block text-meta text-warning">
-                      {kind === c.requested_party
-                        ? `Rentra needs your reply by ${time(c.response_due)}`
-                        : `Response requested from ${c.requested_party} by ${time(c.response_due)}`}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="font-semibold text-ink-900">{c.subject}</h2>
+                      <StateBadge state={c.state} />
+                    </div>
+                    <span className="mt-1 block text-meta text-ink-600 capitalize">
+                      {words(c.kind)} dispute
                     </span>
-                  )}
-                </div>
-                <ChevronRight
-                  className="mt-2 size-4 shrink-0 text-muted-foreground"
-                  aria-hidden="true"
-                />
-              </Link>
-            </li>
-          ))}
-        </ul>
+                    <span className="mt-0.5 block truncate font-mono text-tiny text-ink-500">
+                      {c.reference}
+                    </span>
+                    {c.requested_party && (
+                      <span className="mt-1 block text-meta text-warning">
+                        {kind === c.requested_party
+                          ? `Rentra needs your reply by ${time(c.response_due)}`
+                          : `Response requested from ${c.requested_party} by ${time(c.response_due)}`}
+                      </span>
+                    )}
+                  </div>
+                  <ChevronRight
+                    className="mt-2 size-4 shrink-0 text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )
       ) : (
         <EmptyState
           icon={Scale}

@@ -1,4 +1,4 @@
-import { EmptyState } from '@/components/ui/empty-state';
+import OwnerTable from '@/components/partner/OwnerTable';
 import InlineAlert from '@/components/portal/InlineAlert';
 import RetryButton from '@/components/portal/RetryButton';
 import PortalState from '@/components/portal/PortalState';
@@ -53,28 +53,27 @@ export default async function PropertyActivityPage(props) {
       <PropertyHub {...hub} active="activity" />
       <div className="mt-6 grid items-start gap-5 lg:grid-cols-2">
         <SectionCard id="activity" title="Activity" description="Newest first.">
-          {overview?.activity.length ? (
-            <ol className="space-y-3">
+          {overview ? (
+            <OwnerTable
+              empty={!overview.activity.length ? 'No property activity yet.' : null}
+              label="Property activity"
+              columns={['Change', 'Date (IST)', 'Details']}
+              minWidth={500}
+            >
               {overview.activity.map((entry) => (
-                <li key={entry.id} className="border-l-2 border-border pl-3 text-meta">
-                  <p className="font-semibold text-ink-900">
+                <tr key={entry.id}>
+                  <td className="font-semibold">
                     {ACTIVITY[entry.action] ?? entry.action.replaceAll('_', ' ')}
                     {entry.outcome ? `: ${OUTCOME[entry.outcome] ?? entry.outcome}` : ''}
-                  </p>
-                  <p className="text-tiny text-ink-500">{ist(entry.at)} IST</p>
-                  {entry.fields?.length ? (
-                    <p className="text-tiny text-ink-600">Changed: {entry.fields.join(', ')}</p>
-                  ) : null}
-                  {entry.reason ? <p className="mt-1 text-tiny">{entry.reason}</p> : null}
-                </li>
+                  </td>
+                  <td className="whitespace-nowrap">{ist(entry.at)}</td>
+                  <td>
+                    {entry.fields?.length > 0 && <p>Changed: {entry.fields.join(', ')}</p>}
+                    {entry.reason}
+                  </td>
+                </tr>
               ))}
-            </ol>
-          ) : overview ? (
-            <EmptyState
-              variant="compact"
-              title="No activity yet"
-              description="Property edits and review decisions appear here."
-            />
+            </OwnerTable>
           ) : (
             <InlineAlert action={<RetryButton />}>
               This section could not load. Try again.

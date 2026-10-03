@@ -1,7 +1,7 @@
 'use client';
 import useMobileKeyboard from './useMobileKeyboard';
 import NavigationProgress from '@/components/navigation/NavigationProgress';
-import { ownerHelpHref } from '@/lib/domain/owner-help';
+import OwnerGlobalSearch from '@/components/partner/OwnerGlobalSearch';
 
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import Link, { useLinkStatus } from 'next/link';
@@ -231,7 +231,15 @@ function Sidebar({ config, pathname, rail, onNavigate, onToggleRail }) {
         </button>
       ) : (
         <div className="flex items-center gap-2 px-1.5">
-          <Link href={config.home} onClick={onNavigate} className="flex items-center gap-2.5">
+          <Link
+            href={config.home}
+            onClick={onNavigate}
+            className={
+              config.ownerNavigation
+                ? 'flex flex-col items-start gap-1'
+                : 'flex items-center gap-2.5'
+            }
+          >
             <RentraLogo tone="inverse" className="h-6 w-auto" />
             <span className="rounded-md bg-white/10 px-1.5 py-0.5 text-tiny font-semibold text-brand-100">
               {config.product}
@@ -398,19 +406,17 @@ export default function PortalShell({ config, children }) {
               <Menu className="size-5" aria-hidden="true" />
             </button>
           )}
-          {owner && (
-            <Link href="/partner" className="flex min-h-11 shrink-0 items-center gap-2">
-              <RentraLogo className="h-6 w-auto" />
-              <span className="text-tiny text-ink-500">for owners</span>
-            </Link>
-          )}
-          <div className={owner ? 'hidden min-w-0 lg:block' : 'min-w-0'}>
+          <div className={owner ? 'hidden' : 'min-w-0'}>
             <p className="truncate text-tiny font-medium text-ink-500">{config.workspace}</p>
             <p className="truncate text-meta font-semibold text-ink-900">
               {config.routeLabel(pathname)}
             </p>
           </div>
-          {config.search ? (
+          {owner ? (
+            <div className="min-w-0 flex-1 sm:max-w-xl">
+              <OwnerGlobalSearch />
+            </div>
+          ) : config.search ? (
             <div className="ml-auto hidden w-full max-w-md md:block">{config.search}</div>
           ) : null}
           <div className={`flex items-center gap-2 ${config.search ? 'md:ml-3' : ''} ml-auto`}>
@@ -434,13 +440,6 @@ export default function PortalShell({ config, children }) {
             )}
             {owner ? (
               <>
-                <Link
-                  href={ownerHelpHref(pathname)}
-                  aria-label="Help with this page"
-                  className="grid size-11 place-items-center rounded-md text-lg font-semibold text-ink-700 hover:bg-ink-50"
-                >
-                  ?
-                </Link>
                 {config.addHref && (
                   <Link
                     href={config.addHref}

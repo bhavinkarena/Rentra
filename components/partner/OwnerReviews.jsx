@@ -1,3 +1,4 @@
+import OwnerTable from './OwnerTable';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Star } from 'lucide-react';
 import Link from '@/components/navigation/NavigationLink';
@@ -8,7 +9,7 @@ const date = (value) =>
 export default function OwnerReviews({ data, embedded = false }) {
   const Heading = embedded ? 'h2' : 'h1';
   return (
-    <section className={embedded ? 'space-y-5' : 'mx-auto max-w-4xl space-y-5 px-4 py-6 sm:px-6'}>
+    <section className={embedded ? 'space-y-5' : 'mx-auto max-w-7xl space-y-5 px-4 py-6 sm:px-6'}>
       <Heading className="text-h2">Guest reviews</Heading>
       <p>
         {data.stats?.average ?? '—'} out of 5 · {data.stats?.count ?? 0} reviews
@@ -37,40 +38,71 @@ export default function OwnerReviews({ data, embedded = false }) {
           actionLabel="Show all reviews"
         />
       )}
-      <ul className="space-y-5">
+      <OwnerTable
+        label="Guest reviews"
+        columns={['Property / guest', 'Rating', 'Visit', 'Review', 'Reply status', 'Action']}
+        empty={!data.rows.length ? 'No reviews in this view.' : null}
+      >
         {data.rows.map((r) => (
-          <li key={r.id} className="space-y-4 rounded-lg border border-border bg-card p-5">
-            <h3 className="font-semibold">
-              {r.title} ·{' '}
+          <tr key={r.id}>
+            <td>
+              <strong className="block">{r.title}</strong>
+              <span className="block text-tiny text-ink-600">
+                {r.guest_first_name} · {date(r.created_at)}
+              </span>
+            </td>
+            <td className="whitespace-nowrap">
               <span aria-label={`${r.rating} out of 5 stars`}>
                 {'★'.repeat(r.rating)}
                 {'☆'.repeat(5 - r.rating)}
               </span>
-            </h3>
-            <p className="text-sm text-ink-600">
-              {r.guest_first_name} · {date(r.created_at)} · Visit {r.visit_date} ·{' '}
-              {r.visit_reference}
-            </p>
-            <p className="line-clamp-4 whitespace-pre-wrap wrap-break-word">{r.body}</p>
-            {r.moderation_state === 'published' && <OwnerReviewReply key={r.version} review={r} />}
-            <Link
-              className="inline-flex min-h-11 items-center underline"
-              href={`/partner/reviews/${r.id}`}
-            >
-              Review detail and history
-            </Link>
-            {r.reported_at ? (
-              <p>Already reported on {date(r.reported_at)}.</p>
-            ) : (
-              <details>
-                <summary className="min-h-11 cursor-pointer">Report this review</summary>
-                <p>Reporting does not remove a review or change its rating.</p>
-                <ReviewControl kind="ownerReport" id={r.id} />
-              </details>
-            )}
-          </li>
+            </td>
+            <td>
+              <span className="block whitespace-nowrap">{r.visit_date}</span>
+              <span className="text-tiny">{r.visit_reference}</span>
+            </td>
+            <td className="max-w-72">
+              <p className="line-clamp-3 whitespace-pre-wrap wrap-break-word">{r.body}</p>
+            </td>
+            <td>
+              <span
+                className={`whitespace-nowrap rounded-full px-2 py-1 text-tiny ${r.owner_reply ? 'bg-success-bg text-success' : 'bg-warning-bg text-warning'}`}
+              >
+                {r.owner_reply ? 'Replied' : 'Needs reply'}
+              </span>
+            </td>
+            <td className="min-w-64 space-y-3">
+              <Link
+                className="inline-flex min-h-11 items-center rounded-lg border px-3 font-semibold text-brand-800"
+                href={`/partner/reviews/${r.id}`}
+              >
+                View details
+              </Link>
+              {r.moderation_state === 'published' && (
+                <details>
+                  <summary className="min-h-11 cursor-pointer content-center font-semibold">
+                    {r.owner_reply ? 'Manage reply' : 'Reply'}
+                  </summary>
+                  <OwnerReviewReply key={r.version} review={r} />
+                </details>
+              )}
+              {r.reported_at ? (
+                <p className="text-tiny">Reported {date(r.reported_at)}</p>
+              ) : (
+                <details>
+                  <summary className="min-h-11 cursor-pointer content-center">
+                    Report review
+                  </summary>
+                  <p className="text-tiny">
+                    Reporting does not remove a review or change its rating.
+                  </p>
+                  <ReviewControl kind="ownerReport" id={r.id} />
+                </details>
+              )}
+            </td>
+          </tr>
         ))}
-      </ul>
+      </OwnerTable>
       {(data.page > 1 || data.hasNext) && (
         <nav className="flex gap-4" aria-label="Review pages">
           {data.page > 1 && <Link href={`?tab=${data.tab}&page=${data.page - 1}`}>Previous</Link>}

@@ -1,3 +1,4 @@
+import OwnerTable from '@/components/partner/OwnerTable';
 import { EmptyState } from '@/components/ui/empty-state';
 import { requireClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
@@ -16,40 +17,52 @@ export default async function Page() {
       <SettingsTabs />
       <OwnerPrivacyForm blocked={data.deletionBlocked} />
       <h2 className="text-h3">Your requests</h2>
-      <ul className="space-y-3">
-        {data.requests.map((r) => (
-          <li key={r.id} className="rounded-lg border p-4 space-y-2">
-            <strong>
-              {r.kind === 'access' ? 'Account data copy' : 'Account deletion'} ·{' '}
-              {r.state.replaceAll('_', ' ')}
-            </strong>
-            <p>
-              {new Date(r.created_at).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}
-            </p>
-            {r.job_state && <p>Fulfillment: {r.job_state.replaceAll('_', ' ')}</p>}
-            {r.error_code && <p>Staff attention is needed. Earlier stages may have completed.</p>}
-            {r.export_available && (
-              <a
-                className="min-h-11 inline-flex items-center underline"
-                href={`/partner/settings/privacy/${r.id}/export`}
-              >
-                Download data copy
-              </a>
-            )}
-            {r.receipt && (
-              <>
-                <p>{r.receipt.limitations}</p>
+      <OwnerTable
+        label="Privacy requests"
+        columns={['Request', 'Status', 'Created', 'Fulfillment', 'Downloads']}
+        empty={!data.requests.length ? 'No privacy requests yet.' : null}
+      >
+        {data.requests.map((request) => (
+          <tr key={request.id}>
+            <td className="font-semibold">
+              {request.kind === 'access' ? 'Account data copy' : 'Account deletion'}
+            </td>
+            <td>{request.state.replaceAll('_', ' ')}</td>
+            <td className="whitespace-nowrap">
+              {new Date(request.created_at).toLocaleDateString('en-IN', {
+                timeZone: 'Asia/Kolkata',
+              })}
+            </td>
+            <td>
+              {request.job_state?.replaceAll('_', ' ') || '—'}
+              {request.error_code && (
+                <p>Staff attention is needed. Earlier stages may have completed.</p>
+              )}
+            </td>
+            <td>
+              {request.export_available && (
                 <a
-                  className="min-h-11 inline-flex items-center underline"
-                  href={`/partner/settings/privacy/${r.id}/receipt`}
+                  className="inline-flex min-h-11 items-center text-brand-800 underline"
+                  href={`/partner/settings/privacy/${request.id}/export`}
                 >
-                  Download outcome receipt
+                  Download data copy
                 </a>
-              </>
-            )}
-          </li>
+              )}
+              {request.receipt && (
+                <>
+                  <p className="text-tiny">{request.receipt.limitations}</p>
+                  <a
+                    className="inline-flex min-h-11 items-center text-brand-800 underline"
+                    href={`/partner/settings/privacy/${request.id}/receipt`}
+                  >
+                    Download outcome receipt
+                  </a>
+                </>
+              )}
+            </td>
+          </tr>
         ))}
-      </ul>
+      </OwnerTable>
       {!data.requests.length && (
         <EmptyState
           variant="compact"

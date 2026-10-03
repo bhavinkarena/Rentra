@@ -7,14 +7,14 @@ export default async function OnboardingShell({ current = 'details', title, intr
     <div className="mx-auto max-w-xl px-4 py-8 sm:px-6">
       <div className="flex items-center justify-between gap-3">
         <Link href="/partner" className="min-h-11 py-3 text-meta font-semibold text-brand-700">
-          Back to Today
+          Back to dashboard
         </Link>
         <Link
           href={`/partner/help#verification-${current}`}
           className="min-h-11 py-3 text-meta font-semibold text-brand-700"
           aria-label={`Help with ${title}`}
         >
-          ? Help
+          Help
         </Link>
       </div>
       <ol aria-label="Verification progress" className="my-6 grid grid-cols-4 gap-2">

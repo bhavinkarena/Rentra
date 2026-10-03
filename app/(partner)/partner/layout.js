@@ -76,9 +76,8 @@ export default async function PartnerLayout({ children }) {
         <div className="mx-auto flex w-full max-w-(--container-page) items-center gap-4 px-4 py-3 sm:px-6">
           {/* Same lockup as the public site, with a product suffix — this is
               the owner's proof they are on Rentra and not a lookalike. */}
-          <Link href="/partner" className="flex shrink-0 items-center gap-2.5">
+          <Link href="/partner" className="flex shrink-0 flex-col items-start gap-1">
             <RentraLogo className="h-7 w-auto" />
-            <span className="h-5 w-px bg-ink-200" aria-hidden="true" />
             <span className="text-meta font-semibold text-ink-500">for owners</span>
           </Link>
 

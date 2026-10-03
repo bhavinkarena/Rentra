@@ -5,7 +5,7 @@ import Link from '@/components/navigation/NavigationLink';
 import { Building2 } from 'lucide-react';
 import CreateListingButton from '@/components/partner/CreateListingButton';
 import PropertyFilters from '@/components/partner/PropertyFilters';
-import PropertyCards from '@/components/partner/PropertyCards';
+import PropertyTable from '@/components/partner/PropertyTable';
 import { PartnerPageHeader } from '@/components/partner/PortalPrimitives';
 
 function pageHref({ query, status, vertical, page }) {
@@ -91,7 +91,7 @@ export default function PartnerListingsView({ summary, result, args, submitted, 
             summary={summary}
           />
           {result.items.length ? (
-            <PropertyCards
+            <PropertyTable
               listings={result.items}
               from={pageHref({ query, status, vertical, page: result.page })}
             />

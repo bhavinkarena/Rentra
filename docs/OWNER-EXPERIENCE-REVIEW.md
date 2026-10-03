@@ -1,5 +1,7 @@
 # Owner experience verification — 3 October 2026
 
+**Follow-up:** the three behavior defects and lint/formatting failures below have been addressed in [Owner review fixes](OWNER-EXPERIENCE-REVIEW-FIXES.md), with fresh regression evidence. The JavaScript budget and production evidence remain open. The rest of this document preserves the original audit findings and measurements.
+
 **Verdict:** the tested owner workflows work locally, but the code is not fully ready for release. Three behavior defects remain, both repositories have failing formatting gates, and the owner JavaScript budget fails. Passing tests do not establish that every requirement in the plan or every production integration works.
 
 Reviewed [OWNER-EXPERIENCE-PLAN.md](OWNER-EXPERIENCE-PLAN.md) against frontend commit `4e7edf2` and backend commit `63cbf77`. Application code was not changed during this review. Database writes and browser submissions used disposable localhost fixtures; external notification delivery was disabled or replaced with fake providers.

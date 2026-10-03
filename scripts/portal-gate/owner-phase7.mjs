@@ -130,8 +130,10 @@ try {
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  await page.goto(origin + '/partner/calendar', { waitUntil: 'networkidle' });
-  await page.getByRole('heading', { name: 'Portfolio calendar', exact: true }).waitFor();
+  await page.goto(`${origin}/partner/calendar?property=${L}&view=month`, {
+    waitUntil: 'networkidle',
+  });
+  await page.getByRole('heading', { name: 'Calendar', exact: true }).waitFor();
   const audit = await auditPage(page);
   assert.equal(
     audit.violations.length,
@@ -149,7 +151,7 @@ try {
     new Date(Date.parse(date) + 86400000).toISOString().slice(0, 10),
   );
   const future = new Date(Date.now() + 10 * 86400000 + 330 * 60000).toISOString().slice(0, 10);
-  await page.goto(`${origin}/partner/calendar?from=${future}&view=week`, {
+  await page.goto(`${origin}/partner/calendar?property=${L}&from=${future}&view=week`, {
     waitUntil: 'networkidle',
   });
   await page
@@ -171,7 +173,9 @@ try {
     .fill('Gate test private note');
   await page.getByRole('button', { name: 'Save note', exact: true }).click();
   // CAL-01 sticky property/photo column in the multi-property view.
-  await page.goto(origin + '/partner/calendar?view=multi', { waitUntil: 'networkidle' });
+  await page.goto(`${origin}/partner/calendar?property=${L}&view=multi`, {
+    waitUntil: 'networkidle',
+  });
   const stickyHeading = page.locator('.sticky h2', { hasText: 'Review River Farm' });
   await stickyHeading.waitFor();
   results.stickyPropertyColumn =

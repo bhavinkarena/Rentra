@@ -5,7 +5,7 @@ import { recordOwnerGuide } from '@/lib/actions/partner';
 import FormError from '@/components/portal/FormError';
 import { Button } from '@/components/ui/button';
 const stops = [
-  ['#owner-today-card', 'Today', 'See your next verification step, tasks and arrivals here.'],
+  ['#owner-today-card', 'Dashboard', 'See your next verification step, tasks and arrivals here.'],
   [
     'a[href="/partner/listings"]',
     'Properties',

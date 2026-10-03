@@ -1,3 +1,4 @@
+import OwnerTable from './OwnerTable';
 import { EmptyState } from '@/components/ui/empty-state';
 import { randomUUID } from 'node:crypto';
 import Link from '@/components/navigation/NavigationLink';
@@ -144,13 +145,32 @@ export default function PayoutDestinations({ data }) {
         </div>
         <Card title="History" icon={History}>
           {data.history.length ? (
-            <ol className="space-y-3">
-              {data.history.map((d) => (
-                <li key={d.id} className="border-l-2 border-border pl-3">
-                  <Version d={d} />
-                </li>
+            <OwnerTable
+              label="Payout method history"
+              columns={['Version / method', 'Holder', 'Status', 'Submitted (IST)', 'Notes']}
+            >
+              {data.history.map((destination) => (
+                <tr key={destination.id}>
+                  <td>
+                    Version {destination.version}
+                    <strong className="block">{destination.masked}</strong>
+                  </td>
+                  <td>{destination.holderName}</td>
+                  <td>
+                    <span className={`${chip} ${TONE[destination.state]}`}>
+                      {destination.stateLabel}
+                    </span>
+                  </td>
+                  <td className="whitespace-nowrap">{ist(destination.submittedAt)}</td>
+                  <td>
+                    {NAME[destination.nameCheck]} (a comparison, not verification)
+                    {destination.state === 'failed' && (
+                      <p className="text-danger">Reason: {destination.failureReason}</p>
+                    )}
+                  </td>
+                </tr>
               ))}
-            </ol>
+            </OwnerTable>
           ) : (
             <EmptyState
               variant="compact"

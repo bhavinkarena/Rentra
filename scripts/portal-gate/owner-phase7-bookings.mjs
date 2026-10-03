@@ -1,4 +1,4 @@
-// Phase 7 bookings gate: BOOK-01 list cards, BOOK-05/08 no-show prefill, BOOK-08 arrival guide
+// Phase 7 bookings gate: BOOK-01 list tables and detail modals, BOOK-05/08 no-show prefill, BOOK-08 arrival guide
 // and BOOK-06 caretaker contact toggle. Seeds the disposable fixture database directly
 // (serve-property-review.mjs with FIXTURE_STAGE=published); refuses any nonlocal database.
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
@@ -70,22 +70,30 @@ try {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
 
-  // BOOK-01: guest, next action, contact and expandable visits on the list card.
+  // BOOK-01: compact booking row, with all visits and contact in its detail modal.
   await page.goto(`${origin}/partner/bookings?tab=upcoming`, { waitUntil: 'networkidle' });
-  const card = page.locator('li', { hasText: 'Riya' }).first();
-  await card.getByRole('link', { name: 'Record check-in', exact: true }).waitFor();
+  const row = page
+    .getByRole('region', { name: 'Bookings', exact: true })
+    .locator('tbody tr', { hasText: 'Riya' })
+    .first();
+  await row.getByRole('link', { name: /View booking/ }).click();
+  const modal = page.getByRole('dialog', { name: 'Booking details', exact: true });
+  await modal.waitFor();
+  await modal.getByRole('button', { name: 'Record check-in', exact: true }).first().waitFor();
   assert.equal(
-    await card.getByRole('link', { name: 'Call Riya' }).getAttribute('href'),
-    'tel:+919876543210',
+    await modal.getByRole('link', { name: 'Call guest', exact: true }).getAttribute('href'),
+    'tel:9876543210',
   );
   assert.equal(
-    await card.getByRole('link', { name: 'WhatsApp Riya' }).getAttribute('href'),
+    await modal.getByRole('link', { name: 'WhatsApp', exact: true }).getAttribute('href'),
     'https://wa.me/919876543210',
   );
-  await card.locator('summary', { hasText: '2 visits' }).click();
-  assert.equal(await card.locator('details li').count(), 2);
+  const visits = modal.locator('section', {
+    has: modal.getByRole('heading', { name: 'Visits', exact: true }),
+  });
+  assert.equal(await visits.locator('ul > li').count(), 2);
   axe(await auditPage(page));
-  results.listCard = { guest: true, action: true, contact: true, expandableVisits: 2, axe: 0 };
+  results.listTable = { guest: true, action: true, contact: true, modalVisits: 2, axe: 0 };
 
   // BOOK-05/08: the overdue arrival offers a pre-filled no-show request.
   await page.goto(`${origin}/partner/bookings/${order}`, { waitUntil: 'networkidle' });

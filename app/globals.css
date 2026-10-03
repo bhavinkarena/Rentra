@@ -1069,8 +1069,21 @@
     color: black;
     font-size: 10pt;
   }
-  .owner-statement-print li {
+  .owner-statement-print :is(li, tr) {
     break-inside: avoid;
+  }
+  .owner-statement-print .owner-table {
+    overflow: visible;
+  }
+  .owner-statement-print .owner-table table {
+    min-width: 0 !important;
+    table-layout: fixed;
+    font-size: 8pt;
+  }
+  .owner-statement-print .owner-table :is(th, td) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    padding: 6pt;
   }
   .owner-statement-print a {
     color: black;
@@ -1117,4 +1130,16 @@
   :is(.owner-portal, .owner-wizard) [data-mobile-actions] {
     padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
   }
+}
+
+/* Owner record lists share cell spacing and a quiet hover state. */
+.owner-table td {
+  padding: 0.875rem 1rem;
+  vertical-align: top;
+}
+.owner-table tbody tr:hover {
+  background: var(--color-ink-25, #f8faf9);
+}
+.owner-table a:focus-visible {
+  outline-offset: 3px;
 }

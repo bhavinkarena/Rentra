@@ -62,7 +62,7 @@ try {
   });
   await check('tour traps keyboard focus, completes and restarts from Help', async () => {
     await page.goto(web + '/partner?tour=1');
-    const dialog = page.getByRole('dialog', { name: 'Today', exact: true });
+    const dialog = page.getByRole('dialog', { name: 'Dashboard', exact: true });
     await dialog.waitFor();
     for (let i = 0; i < 8; i++) {
       await page.keyboard.press('Tab');
@@ -74,7 +74,7 @@ try {
     await page.getByRole('dialog').waitFor({ state: 'hidden' });
     await page.goto(web + '/partner/help');
     await page.getByRole('link', { name: 'Show me around again' }).click();
-    await page.getByRole('dialog', { name: 'Today', exact: true }).waitFor();
+    await page.getByRole('dialog', { name: 'Dashboard', exact: true }).waitFor();
     await page.getByRole('button', { name: 'Skip tour' }).click();
     await page.getByRole('dialog').waitFor({ state: 'hidden' });
   });

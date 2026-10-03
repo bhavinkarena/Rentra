@@ -20,7 +20,7 @@ import LegacyPartnerShell from './LegacyPartnerShell';
 import { ownerRouteLabel, ownerNavMatch } from '@/lib/domain/owner-navigation';
 
 const primary = [
-  { href: '/partner', label: 'Today', icon: Sun, exact: true },
+  { href: '/partner', label: 'Dashboard', icon: Sun, exact: true },
   {
     href: '/partner/calendar',
     label: 'Calendar',

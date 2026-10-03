@@ -1,3 +1,5 @@
+import OwnerTable from '@/components/partner/OwnerTable';
+import { normalizeBookings } from '@/lib/partner/query-args';
 import PortalPage from '@/components/portal/PortalPage';
 import { EmptyState } from '@/components/ui/empty-state';
 import OwnerToday from '@/components/partner/OwnerToday';
@@ -41,13 +43,30 @@ export default async function PartnerDashboard({ searchParams }) {
   // Independent reads start together after authorization. Approved partners
   // never render the onboarding application, so do not fetch it for them.
   const approved = completion.approved;
-  const [summary, needs, visits, week, earnings, properties, updates, setup] = await Promise.all([
+  const [
+    summary,
+    needs,
+    visits,
+    week,
+    earnings,
+    properties,
+    updates,
+    setup,
+    records,
+    portfolio,
+    analytics,
+  ] = await Promise.all([
     !approved ? settle(partnerApi.summary()) : null,
     ...['needsYou', 'visits', 'week', 'earnings', 'properties'].map((section) =>
       approved ? settle(partnerApi.today({ section })) : null,
     ),
     settle(partnerApi.updates({ page: 1 })),
     approved ? settle(partnerApi.setupGuide()) : null,
+    approved
+      ? settle(partnerApi.records(normalizeBookings({ ...params, tab: params.tab || 'all' })))
+      : null,
+    approved ? settle(partnerApi.summary()) : null,
+    approved ? settle(partnerApi.today({ section: 'analytics' })) : null,
   ]);
 
   const firstName = user.name?.trim().split(/\s+/)[0];
@@ -57,7 +76,7 @@ export default async function PartnerDashboard({ searchParams }) {
       <div id="owner-today-card">
         <PartnerPageHeader
           eyebrow={completion.approved ? 'Verified owner' : 'Getting set up'}
-          title={approved ? 'Today' : 'Get verified'}
+          title={approved ? 'Dashboard' : 'Get verified'}
           description={
             approved
               ? `Hello${firstName ? `, ${firstName}` : ''}. Your visits and next actions, all in IST.`
@@ -93,6 +112,10 @@ export default async function PartnerDashboard({ searchParams }) {
             <OwnerSetupGuide guide={setup.data} expanded={!properties?.data?.length} />
           ) : null}
           <OwnerToday
+            analytics={analytics}
+            records={records}
+            portfolio={portfolio}
+            filters={params}
             needs={needs}
             visits={visits}
             week={week}
@@ -158,28 +181,34 @@ function LatestUpdates({ updates }) {
           </div>
         </div>
       ) : data?.items.length ? (
-        <ul className="mt-3 space-y-3">
+        <OwnerTable
+          label="Latest updates"
+          columns={['Update', 'Context', 'Received', 'Status', 'Action']}
+        >
           {data.items.slice(0, 5).map((update) => (
-            <li key={update.id} className="text-meta">
-              <Link
-                href={updateHref(update)}
-                className={`block min-h-11 py-2 ${update.read ? 'text-ink-700' : 'font-semibold text-ink-900'}`}
-              >
-                {updateTitle(update)}
-                <span className="sr-only">{update.read ? ' (read)' : ' (unread)'}</span>
-              </Link>
-              <p className="text-tiny text-ink-500">
-                {update.propertyTitle ?? update.detail?.reference ?? 'Account'} ·{' '}
+            <tr key={update.id}>
+              <td className="font-semibold">{updateTitle(update)}</td>
+              <td>{update.propertyTitle ?? update.detail?.reference ?? 'Account'}</td>
+              <td className="whitespace-nowrap">
                 {new Date(update.createdAt).toLocaleString('en-IN', {
                   timeZone: 'Asia/Kolkata',
                   dateStyle: 'medium',
                   timeStyle: 'short',
                 })}{' '}
                 IST
-              </p>
-            </li>
+              </td>
+              <td>{update.read ? 'Read' : 'Unread'}</td>
+              <td>
+                <Link
+                  className="inline-flex min-h-11 items-center rounded-lg border px-3 font-semibold text-brand-800"
+                  href={updateHref(update)}
+                >
+                  View
+                </Link>
+              </td>
+            </tr>
           ))}
-        </ul>
+        </OwnerTable>
       ) : (
         <EmptyState
           variant="compact"

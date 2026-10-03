@@ -55,7 +55,7 @@ try {
     const money = fixture.money;
     await goto('/partner/earnings');
     await page.getByRole('heading', { name: 'Earnings', exact: true }).waitFor();
-    const rows = page.getByRole('list', { name: 'Rent by visit' }).locator(':scope > li');
+    const rows = page.getByRole('region', { name: 'Rent by visit' }).locator('tbody > tr');
     assert.equal(await rows.count(), 30);
     assert.match(await page.locator('main').innerText(), /₹35,000/);
     assert.match(await page.locator('main').innerText(), /Test bookings/);
@@ -95,7 +95,7 @@ try {
       `/partner/statements/${money.period}`,
     ]) {
       await goto(path);
-      await page.getByRole('list', { name: 'Rent by visit' }).waitFor();
+      await page.getByRole('region', { name: 'Rent by visit' }).waitFor();
     }
     results.statementAliases = true;
     await goto(`/partner/earnings/print?month=${money.period}&environment=test`);

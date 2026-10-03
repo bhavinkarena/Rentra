@@ -1,3 +1,4 @@
+import OwnerTable from '../OwnerTable';
 import { EmptyState } from '@/components/ui/empty-state';
 import Link from '@/components/navigation/NavigationLink';
 import { displayMoney } from '@/lib/domain/display-money';
@@ -116,70 +117,68 @@ export function EarningsSummary({ totals }) {
 }
 export function EarningRows({ data }) {
   return (
-    <ul
-      aria-label="Rent by visit"
-      className="divide-y divide-border rounded-lg border border-border bg-card"
+    <OwnerTable
+      label="Rent by visit"
+      columns={[
+        'Property / booking',
+        'Guest',
+        'Visit / status',
+        'Booked rent',
+        'Refunded',
+        'Payout / details',
+      ]}
+      empty={!data.items.length ? 'No earnings in this view.' : null}
     >
       {data.items.map((row) => (
-        <li
-          key={row.id}
-          className="grid min-w-0 gap-3 p-4 md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]"
-        >
-          <div className="min-w-0">
-            <p className="font-semibold">{row.title}</p>
+        <tr key={row.id}>
+          <td>
+            <strong className="block">{row.title}</strong>
             {row.bookingLinkAvailable ? (
               <Link
-                className="inline-flex min-h-11 max-w-full items-center break-all text-meta font-semibold text-brand-800 underline"
-                href={`/partner/bookings/${row.orderId}`}
+                className="inline-flex min-h-11 items-center text-brand-800 underline"
+                href={`/partner/bookings?booking=${row.orderId}`}
               >
                 {row.reference}
               </Link>
             ) : (
-              <p className="break-all text-meta">{row.reference}</p>
+              <span className="block break-all">{row.reference}</span>
             )}
-            <p className="text-meta text-ink-600">{row.guestFirstName}</p>
-          </div>
-          <div className="text-meta">
-            <p>
-              {formatLocalDate(row.visitDate, { year: 'numeric' })} ·{' '}
-              {{
-                day: 'Day visit',
-                night: 'Overnight',
-                full_day: 'Full day',
-                hourly: 'Court visit',
-              }[row.slot] || 'Visit'}
-            </p>
-            <p className="mt-1 font-semibold">{earningState(row.state)}</p>
-            <p className="mt-1 text-tiny text-ink-600">Recorded {earningsTime(row.recordedAt)}</p>
-          </div>
-          <dl className="text-meta">
-            <dt className="text-ink-600">Booked rent</dt>
-            <dd className="font-semibold">{displayMoney(row.bookedRentMinor)}</dd>
-            <dt className="mt-1 text-ink-600">Refunded</dt>
-            <dd>{displayMoney(row.refundedMinor)}</dd>
+          </td>
+          <td>{row.guestFirstName}</td>
+          <td>
+            {formatLocalDate(row.visitDate, { year: 'numeric' })} ·{' '}
+            {{ day: 'Day visit', night: 'Overnight', full_day: 'Full day', hourly: 'Court visit' }[
+              row.slot
+            ] || 'Visit'}
+            <span className="block font-semibold">{earningState(row.state)}</span>
+            <span className="block text-tiny text-ink-600">
+              Recorded {earningsTime(row.recordedAt)}
+            </span>
+          </td>
+          <td className="whitespace-nowrap font-semibold">{displayMoney(row.bookedRentMinor)}</td>
+          <td className="whitespace-nowrap">
+            {displayMoney(row.refundedMinor)}
             {BigInt(row.refundPendingMinor) > 0n && (
-              <>
-                <dt className="mt-1 text-ink-600">Refund in progress</dt>
-                <dd>{displayMoney(row.refundPendingMinor)}</dd>
-              </>
+              <span className="block text-tiny">
+                In progress: {displayMoney(row.refundPendingMinor)}
+              </span>
             )}
-          </dl>
-          <div className="text-meta">
-            <p className="text-ink-600">Payout</p>
-            <p>Not switched on yet</p>
+          </td>
+          <td>
+            Not switched on yet
             {row.earningLineIds.map((id, i) => (
               <Link
                 key={id}
                 href={`/partner/allocations/${id}`}
-                className="flex min-h-11 items-center font-semibold text-brand-800 underline"
+                className="flex min-h-11 items-center text-brand-800 underline"
               >
                 {row.earningLineIds.length === 1 ? 'Earning details' : `Earning line ${i + 1}`}
               </Link>
             ))}
-          </div>
-        </li>
+          </td>
+        </tr>
       ))}
-    </ul>
+    </OwnerTable>
   );
 }
 export default function Earnings({ data, statement = false, print = false }) {
@@ -220,6 +219,7 @@ export default function Earnings({ data, statement = false, print = false }) {
           </Link>
         )}
       </div>
+      {!data.count && <EarningRows data={data} />}
       {data.count ? (
         <>
           <p className="text-meta">

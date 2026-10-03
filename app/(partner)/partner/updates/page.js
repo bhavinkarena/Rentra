@@ -1,3 +1,5 @@
+import PortalPage from '@/components/portal/PortalPage';
+import OwnerTable from '@/components/partner/OwnerTable';
 import { EmptyState } from '@/components/ui/empty-state';
 import Link from '@/components/navigation/NavigationLink';
 import { requireClient } from '@/lib/api/session';
@@ -15,7 +17,7 @@ export default async function Page({ searchParams }) {
   const { filter, category, page, pages, items, unread, action } = data;
   const query = (values) => '?' + new URLSearchParams({ filter, category, ...values });
   return (
-    <section className="space-y-5">
+    <PortalPage className="space-y-5">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-h1">Updates</h1>
@@ -69,11 +71,14 @@ export default async function Page({ searchParams }) {
         Notification settings
       </Link>
       {items.length ? (
-        <ul className="overflow-hidden rounded-lg border border-border bg-card">
+        <OwnerTable
+          label="Inbox updates"
+          columns={['Update', 'Category', 'Status', 'Received', 'Action']}
+        >
           {items.map((u) => (
             <InboxRow key={u.id} update={u} />
           ))}
-        </ul>
+        </OwnerTable>
       ) : (
         <EmptyState
           title={
@@ -104,6 +109,6 @@ export default async function Page({ searchParams }) {
           )}
         </nav>
       )}
-    </section>
+    </PortalPage>
   );
 }

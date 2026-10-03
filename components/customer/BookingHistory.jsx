@@ -1,3 +1,4 @@
+import OwnerTable from '@/components/partner/OwnerTable';
 import { EmptyState } from '@/components/ui/empty-state';
 import Form from '@/components/navigation/NavigationForm';
 import Link from '@/components/navigation/NavigationLink';
@@ -9,7 +10,6 @@ import {
   displayMoney as money,
   StateBadge,
 } from './BookingDisplay';
-import GuestContactLinks from '@/components/booking/GuestContactLinks';
 
 const OWNER_STATE = {
   confirmed: 'Upcoming',
@@ -20,71 +20,6 @@ const OWNER_STATE = {
   no_show: 'No show',
   disputed: 'With Rentra',
 };
-const ACTION = {
-  handover: 'Record check-in',
-  return: 'Record check-out',
-  complete: 'Finish inspection',
-};
-
-/** BOOK-01: who is coming, what to do next and how to reach them, under each owner card. */
-function OwnerCardWork({ item, detailHref }) {
-  const visits = item.visits ?? [];
-  const next = item.visitId
-    ? { id: item.visitId, operation: item.operation }
-    : visits.find((v) => v.operation?.action) ||
-      visits.find((v) => v.state === 'confirmed') ||
-      visits[0];
-  const name = item.contact?.name || 'Guest';
-  return (
-    <div className="flex flex-col gap-3 border-t border-border p-4 sm:px-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-meta">
-          <strong>{name}</strong>
-          {item.guests ? ` · ${item.guests} guests` : ''}
-          {next?.operation?.label ? (
-            <span className="block text-tiny text-ink-600">{next.operation.label}</span>
-          ) : null}
-        </p>
-        <span className="flex flex-wrap items-center gap-2">
-          {next?.operation?.action ? (
-            <Link
-              href={`${detailHref}#visit-${next.id}`}
-              className="inline-flex min-h-11 items-center rounded-md bg-primary px-4 text-meta font-semibold text-white"
-            >
-              {ACTION[next.operation.action]}
-            </Link>
-          ) : null}
-          <GuestContactLinks phone={item.contact?.phone} name={name} />
-        </span>
-      </div>
-      {visits.length > 1 ? (
-        <details>
-          <summary className="min-h-11 cursor-pointer content-center text-meta font-semibold">
-            {visits.length} visits
-            {next?.label ? ` · next ${next.label}` : ''}
-          </summary>
-          <ul className="divide-y divide-border">
-            {visits.map((v) => (
-              <li key={v.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-                <span className="text-meta">
-                  {v.label} · {v.guests} guests ·{' '}
-                  <span className="text-ink-600">{OWNER_STATE[v.state] || 'With Rentra'}</span>
-                </span>
-                <Link
-                  href={`${detailHref}#visit-${v.id}`}
-                  className="inline-flex min-h-11 items-center text-meta font-semibold text-brand-800 underline"
-                >
-                  {ACTION[v.operation?.action] ?? 'View visit'}
-                  <span className="sr-only"> {v.reference}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </details>
-      ) : null}
-    </div>
-  );
-}
 function href(base, data, changes) {
   const query = {
     tab: data.tab,
@@ -118,7 +53,13 @@ function shortDate(value) {
 
 export function BookingHistory({ data, base = '/bookings', operational = false, homes = [] }) {
   return (
-    <div className="mx-auto max-w-5xl space-y-7">
+    <div
+      className={
+        base === '/partner/bookings'
+          ? 'mx-auto w-full min-w-0 max-w-7xl space-y-6'
+          : 'mx-auto max-w-5xl space-y-7'
+      }
+    >
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="mb-2 text-xs font-semibold tracking-widest text-brand-700 uppercase">
@@ -292,82 +233,136 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
           ))}
         </nav>
       )}
-      <ul className="space-y-4">
-        {data.items.map((item) => (
-          <li
-            key={item.visitId ?? item.id}
-            className={
-              base === '/partner/bookings'
-                ? 'overflow-hidden rounded-xl border border-border bg-card'
-                : undefined
-            }
-          >
-            <Link
-              href={`${base}/${item.id}${operational ? `?from=${encodeURIComponent(href(base, data, {}))}` : ''}${item.visitId ? `#visit-${item.visitId}` : ''}`}
-              className={`group grid overflow-hidden bg-card transition grid-cols-[112px_1fr] sm:grid-cols-[200px_1fr] ${base === '/partner/bookings' ? 'hover:bg-ink-50' : 'rounded-xl border border-border hover:border-brand-300 hover:shadow-md'}`}
+      {base === '/partner/bookings' ? (
+        <OwnerTable
+          label="Bookings"
+          columns={[
+            'Property / reference',
+            'Guest',
+            'Visit date',
+            'Visits',
+            'Status',
+            'Booking total',
+            'Action',
+          ]}
+          empty={!data.items.length ? 'No bookings match this view.' : null}
+        >
+          {data.items.map((item) => (
+            <tr key={item.visitId ?? item.id}>
+              <td>
+                <strong className="block">{item.title}</strong>
+                <span
+                  className="block max-w-64 truncate text-tiny text-ink-600"
+                  title={item.reference}
+                >
+                  {item.reference}
+                </span>
+              </td>
+              <td>
+                {item.contact?.name || 'Guest'}
+                <span className="block text-tiny text-ink-600">{item.guests || 0} guests</span>
+              </td>
+              <td className="whitespace-nowrap">
+                {item.firstVisitSlot === 'hourly'
+                  ? item.firstVisitLabel
+                  : shortDate(item.firstVisit)}
+              </td>
+              <td>{item.visitCount}</td>
+              <td>
+                <StateBadge state={item.state} />
+                <span className="mt-1 block text-tiny text-ink-600">
+                  {item.operation?.label ||
+                    item.visits?.find((v) => v.operation?.action)?.operation.label}
+                </span>
+              </td>
+              <td className="whitespace-nowrap font-semibold">
+                {money(totalPrice(item))}
+                <span className="block text-tiny font-normal text-ink-600">Separate deposit</span>
+              </td>
+              <td>
+                <Link
+                  scroll={false}
+                  href={href(base, data, { booking: item.id })}
+                  className="inline-flex min-h-11 items-center rounded-lg border px-4 font-semibold text-brand-800"
+                >
+                  View<span className="sr-only"> booking {item.reference}</span>
+                </Link>
+              </td>
+            </tr>
+          ))}
+        </OwnerTable>
+      ) : (
+        <ul className="space-y-4">
+          {data.items.map((item) => (
+            <li
+              key={item.visitId ?? item.id}
+              className={
+                base === '/partner/bookings'
+                  ? 'overflow-hidden rounded-xl border border-border bg-card'
+                  : undefined
+              }
             >
-              <PropertyPhoto photo={item.photo} title={item.title} />
-              <div className="flex flex-col gap-3 p-4 sm:p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <StateBadge state={item.state} />
-                    <h2 className="mt-2 text-h4 group-hover:text-brand-700">{item.title}</h2>
+              <Link
+                href={`${base}/${item.id}${operational ? `?from=${encodeURIComponent(href(base, data, {}))}` : ''}${item.visitId ? `#visit-${item.visitId}` : ''}`}
+                className={`group grid overflow-hidden bg-card transition grid-cols-[112px_1fr] sm:grid-cols-[200px_1fr] ${base === '/partner/bookings' ? 'hover:bg-ink-50' : 'rounded-xl border border-border hover:border-brand-300 hover:shadow-md'}`}
+              >
+                <PropertyPhoto photo={item.photo} title={item.title} />
+                <div className="flex flex-col gap-3 p-4 sm:p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <StateBadge state={item.state} />
+                      <h2 className="mt-2 text-h4 group-hover:text-brand-700">{item.title}</h2>
+                    </div>
+                    <ArrowUpRight
+                      className="size-5 shrink-0 text-muted-foreground group-hover:text-brand-700"
+                      aria-hidden="true"
+                    />
                   </div>
-                  <ArrowUpRight
-                    className="size-5 shrink-0 text-muted-foreground group-hover:text-brand-700"
-                    aria-hidden="true"
-                  />
-                </div>
-                <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-600">
-                  <span className="inline-flex items-center gap-2">
-                    <CalendarDays className="size-4 text-brand-700" aria-hidden="true" />
-                    {item.firstVisitSlot === 'hourly'
-                      ? item.firstVisitLabel
-                      : shortDate(item.firstVisit)}
-                  </span>
-                  <span>
-                    {item.visitCount} visit{item.visitCount === 1 ? '' : 's'}
-                  </span>
-                </div>
-                <div className="mt-auto flex flex-wrap items-end justify-between gap-3 border-t border-border pt-3">
-                  <div>
-                    <p className="text-xs text-ink-500">
-                      {item.visitId
-                        ? 'Booking total · separate deposit'
-                        : 'Accepted total · separate deposit'}
-                    </p>
-                    <p className="mt-0.5 text-h4 font-bold tabular">{money(totalPrice(item))}</p>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2 text-xs text-ink-500">
-                  <span className="max-w-full truncate font-mono" title={item.reference}>
-                    {item.reference}
-                  </span>
-                  {operational && (
+                  <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-600">
+                    <span className="inline-flex items-center gap-2">
+                      <CalendarDays className="size-4 text-brand-700" aria-hidden="true" />
+                      {item.firstVisitSlot === 'hourly'
+                        ? item.firstVisitLabel
+                        : shortDate(item.firstVisit)}
+                    </span>
                     <span>
-                      {item.visitStates.map((s) => OWNER_STATE[s] || 'With Rentra').join(', ')}.
-                      Payment below applies to the booking.
+                      {item.visitCount} visit{item.visitCount === 1 ? '' : 's'}
                     </span>
-                  )}
-                  {item.payments.map((payment, index) => (
-                    <span key={index}>
-                      · {payment.environment === 'test' ? 'Test payment: ' : 'Payment: '}
-                      {payment.state}
+                  </div>
+                  <div className="mt-auto flex flex-wrap items-end justify-between gap-3 border-t border-border pt-3">
+                    <div>
+                      <p className="text-xs text-ink-500">
+                        {item.visitId
+                          ? 'Booking total · separate deposit'
+                          : 'Accepted total · separate deposit'}
+                      </p>
+                      <p className="mt-0.5 text-h4 font-bold tabular">{money(totalPrice(item))}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-xs text-ink-500">
+                    <span className="max-w-full truncate font-mono" title={item.reference}>
+                      {item.reference}
                     </span>
-                  ))}
-                  {!item.payments.length && <span>· No verified payment</span>}
+                    {operational && (
+                      <span>
+                        {item.visitStates.map((s) => OWNER_STATE[s] || 'With Rentra').join(', ')}.
+                        Payment below applies to the booking.
+                      </span>
+                    )}
+                    {item.payments.map((payment, index) => (
+                      <span key={index}>
+                        · {payment.environment === 'test' ? 'Test payment: ' : 'Payment: '}
+                        {payment.state}
+                      </span>
+                    ))}
+                    {!item.payments.length && <span>· No verified payment</span>}
+                  </div>
                 </div>
-              </div>
-            </Link>
-            {base === '/partner/bookings' ? (
-              <OwnerCardWork
-                item={item}
-                detailHref={`${base}/${item.id}?from=${encodeURIComponent(href(base, data, {}))}`}
-              />
-            ) : null}
-          </li>
-        ))}
-      </ul>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
       {!data.items.length &&
         (base === '/partner/bookings' ? (
           <EmptyState

@@ -1,4 +1,5 @@
 'use client';
+import OwnerTable from './OwnerTable';
 import ConfirmedForm from '@/components/portal/ConfirmedForm';
 import { EmptyState } from '@/components/ui/empty-state';
 
@@ -388,61 +389,69 @@ export default function TeamPanel({ team }) {
             actionLabel="Invite a caretaker"
           />
         )}
-        {team.members.map((member) => {
-          const [originalLabel, tone] = STATE[member.state];
-          const label =
-            member.state === 'invited' &&
-            ['accepted', 'delivered'].includes(member.pendingInvite?.deliveryState)
-              ? 'Invite sent'
-              : originalLabel;
-          return (
-            <article
-              key={member.id}
-              aria-label={`Caretaker ${member.name}`}
-              className="space-y-3 rounded-lg border border-border bg-card p-5"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <h3 className="text-meta font-bold text-ink-900">{member.name}</h3>
-                  <p className="text-tiny text-ink-500">
-                    {member.phone}
-                    {member.lastSessionAt
-                      ? ` · last signed in ${ist(member.lastSessionAt)} IST`
-                      : ''}
-                  </p>
-                </div>
-                <span className={`rounded-full px-2.5 py-0.5 text-tiny font-semibold ${tone}`}>
-                  {label}
-                </span>
-              </div>
-              <p className="text-tiny text-ink-700">
-                {member.properties.map((p) => p.title).join(', ') || 'No properties'} ·{' '}
-                {member.permissions.evidence ? 'may record evidence' : 'view only'}
-              </p>
-              {member.state === 'revoked' ? (
-                <p className="text-tiny text-ink-600">
-                  Revoked {ist(member.revokedAt)} IST: {member.revokedReason}. Invite the number
-                  again to restore access.
-                </p>
-              ) : (
-                <details className="rounded-md border border-border p-3">
-                  <summary className="cursor-pointer text-meta font-semibold">
-                    Manage access
-                  </summary>
-                  <div className="mt-3 space-y-5">
-                    <LinkForm member={member} />
-                    <AccessForm
-                      key={`access-${member.version}`}
-                      member={member}
-                      properties={team.properties}
-                    />
-                    <RevokeForm key={`revoke-${member.version}`} member={member} />
-                  </div>
-                </details>
-              )}
-            </article>
-          );
-        })}
+        <OwnerTable
+          label="Caretakers"
+          columns={['Caretaker', 'Status', 'Properties / permissions', 'Action']}
+          empty={!team.members.length ? 'No caretakers yet.' : null}
+        >
+          {team.members.map((member) => {
+            const [originalLabel, tone] = STATE[member.state];
+            const label =
+              member.state === 'invited' &&
+              ['accepted', 'delivered'].includes(member.pendingInvite?.deliveryState)
+                ? 'Invite sent'
+                : originalLabel;
+            return (
+              <tr key={member.id} aria-label={`Caretaker ${member.name}`}>
+                <td>
+                  <strong className="block">{member.name}</strong>
+                  <span className="block text-tiny text-ink-600">{member.phone}</span>
+                  {member.lastSessionAt && (
+                    <span className="block text-tiny text-ink-600">
+                      Last signed in {ist(member.lastSessionAt)} IST
+                    </span>
+                  )}
+                </td>
+                <td>
+                  <span
+                    className={`whitespace-nowrap rounded-full px-2.5 py-1 text-tiny font-semibold ${tone}`}
+                  >
+                    {label}
+                  </span>
+                </td>
+                <td>
+                  {member.properties.map((p) => p.title).join(', ') || 'No properties'}
+                  <span className="block text-tiny text-ink-600">
+                    {member.permissions.evidence ? 'May record evidence' : 'View only'}
+                  </span>
+                </td>
+                <td className="min-w-72">
+                  {member.state === 'revoked' ? (
+                    <p className="text-tiny text-ink-600">
+                      Revoked {ist(member.revokedAt)} IST: {member.revokedReason}. Invite the number
+                      again to restore access.
+                    </p>
+                  ) : (
+                    <details className="rounded-md border border-border p-3">
+                      <summary className="cursor-pointer text-meta font-semibold">
+                        Manage access
+                      </summary>
+                      <div className="mt-3 space-y-5">
+                        <LinkForm member={member} />
+                        <AccessForm
+                          key={`access-${member.version}`}
+                          member={member}
+                          properties={team.properties}
+                        />
+                        <RevokeForm key={`revoke-${member.version}`} member={member} />
+                      </div>
+                    </details>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </OwnerTable>
       </section>
 
       <section
@@ -453,34 +462,36 @@ export default function TeamPanel({ team }) {
           Membership history
         </h2>
         {team.history.length ? (
-          <ol className="mt-3 space-y-2">
+          <OwnerTable
+            label="Membership history"
+            columns={['Change', 'Caretaker', 'Changed by', 'Date', 'Details']}
+          >
             {team.history.map((entry) => (
-              <li key={entry.id} className="border-l-2 border-border pl-3 text-meta">
-                <strong>{HISTORY[entry.action] ?? entry.action.replaceAll('_', ' ')}</strong>
-                {' · '}
-                {entry.staffName}
-                <span className="block text-tiny text-ink-500">
+              <tr key={entry.id}>
+                <td className="font-semibold">
+                  {HISTORY[entry.action] ?? entry.action.replaceAll('_', ' ')}
+                </td>
+                <td>{entry.staffName}</td>
+                <td>
                   {entry.actor === 'caretaker'
                     ? 'Caretaker'
                     : entry.actor === 'you'
                       ? 'You'
-                      : 'Rentra'}{' '}
-                  · {ist(entry.at)} IST
-                  {entry.properties != null
-                    ? ` · ${entry.properties} propert${entry.properties === 1 ? 'y' : 'ies'}`
-                    : ''}
+                      : 'Rentra'}
+                </td>
+                <td className="whitespace-nowrap">{ist(entry.at)} IST</td>
+                <td>
+                  {entry.properties != null ? `${entry.properties} properties` : ''}
                   {entry.evidence != null
                     ? entry.evidence
-                      ? ' · may record evidence'
-                      : ' · view only'
+                      ? ' · May record evidence'
+                      : ' · View only'
                     : ''}
-                </span>
-                {entry.reason ? (
-                  <span className="block text-tiny text-ink-700">{entry.reason}</span>
-                ) : null}
-              </li>
+                  {entry.reason && <span className="block">{entry.reason}</span>}
+                </td>
+              </tr>
             ))}
-          </ol>
+          </OwnerTable>
         ) : (
           <EmptyState
             variant="compact"

@@ -1,5 +1,6 @@
 'use client';
-import { useActionState, useEffect, useTransition } from 'react';
+import OwnerTable from './OwnerTable';
+import { useActionState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import {
@@ -19,14 +20,12 @@ function Result({ state }) {
 }
 function ContactForm({ channel, current }) {
   const [issued, issue, sending] = useActionState(requestOwnerContact, {});
-  const [saved, verify, verifying] = useActionState(confirmOwnerContact, {});
-  const router = useRouter();
-  useEffect(() => {
-    if (saved.message) {
-      toast.success(saved.message);
-      router.refresh();
-    }
-  }, [saved, router]);
+  const [saved, verify, verifying] = useActionState(async (previous, form) => {
+    const result = await confirmOwnerContact(previous, form);
+    // Announce before layout revalidation remounts this contact-keyed form.
+    if (result.message) toast.success(result.message);
+    return result;
+  }, {});
   return (
     <section className="rounded-lg border bg-card p-5 space-y-4">
       <h2 className="text-h3">{channel === 'email' ? 'Email address' : 'Mobile number'}</h2>
@@ -83,22 +82,27 @@ export default function OwnerSecurity({ data }) {
       <ContactForm key={`phone-${data.phone}`} channel="sms" current={data.phone} />
       <section className="rounded-lg border bg-card p-5 space-y-4">
         <h2 className="text-h3">Active sessions</h2>
-        <ul className="divide-y">
-          {data.sessions.map((s) => (
-            <li key={s.id} className="py-3">
-              <strong>{s.device}</strong> {s.current && <span>· This device</span>}
-              <p className="text-sm">
-                Last seen{' '}
-                {new Date(s.lastSeen).toLocaleString('en-IN', {
+        <OwnerTable
+          label="Active sessions"
+          columns={['Device', 'Session', 'Last seen']}
+          minWidth={520}
+          empty={!data.sessions.length ? 'No active sessions.' : null}
+        >
+          {data.sessions.map((session) => (
+            <tr key={session.id}>
+              <td className="font-semibold">{session.device}</td>
+              <td>{session.current ? 'This device' : 'Other device'}</td>
+              <td className="whitespace-nowrap">
+                {new Date(session.lastSeen).toLocaleString('en-IN', {
                   timeZone: 'Asia/Kolkata',
                   dateStyle: 'medium',
                   timeStyle: 'short',
                 })}{' '}
                 IST
-              </p>
-            </li>
+              </td>
+            </tr>
           ))}
-        </ul>
+        </OwnerTable>
         <button
           className={buttonVariants()}
           disabled={pending}

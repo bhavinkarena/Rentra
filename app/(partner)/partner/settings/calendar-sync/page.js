@@ -1,3 +1,4 @@
+import OwnerTable from '@/components/partner/OwnerTable';
 import { EmptyState } from '@/components/ui/empty-state';
 import { requireClient } from '@/lib/api/session';
 import { partnerApi } from '@/lib/api/endpoints';
@@ -25,18 +26,27 @@ export default async function Page() {
       <p>
         Choose a property to create or rotate its private calendar feed. Keep the feed link private.
       </p>
-      <ul>
-        {rows.map((r) => (
-          <li key={r.id}>
-            <Link
-              className="inline-flex min-h-11 items-center underline"
-              href={`/partner/listings/${r.id}/booking-rules`}
-            >
-              {r.title}
-            </Link>
-          </li>
+      <OwnerTable
+        label="Calendar feeds"
+        columns={['Property', 'Status', 'Action']}
+        minWidth={520}
+        empty={!rows.length ? 'Add a property to sync your calendar.' : null}
+      >
+        {rows.map((row) => (
+          <tr key={row.id}>
+            <td className="font-semibold">{row.title}</td>
+            <td className="capitalize">{row.status.replaceAll('_', ' ')}</td>
+            <td>
+              <Link
+                className="inline-flex min-h-11 items-center rounded-lg border px-3 font-semibold text-brand-800"
+                href={`/partner/listings/${row.id}/booking-rules`}
+              >
+                Manage feed
+              </Link>
+            </td>
+          </tr>
         ))}
-      </ul>
+      </OwnerTable>
       {!rows.length && (
         <EmptyState
           title="Add a property to sync your calendar"

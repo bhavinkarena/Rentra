@@ -22,32 +22,36 @@ export function relativeUpdateTime(value, now = Date.now()) {
 export default function InboxRow({ update }) {
   const Icon = icons[update.category] || Bell;
   return (
-    <li className={`border-b border-border last:border-0 ${update.read ? '' : 'bg-brand-50'}`}>
-      <a href={`/partner/updates/${update.id}/open`} className="flex min-h-11 gap-3 p-4">
-        <Icon className="mt-1 size-5 shrink-0 text-brand-800" aria-hidden="true" />
-        <div className="min-w-0 flex-1">
-          <p className="font-semibold">
-            {updateTitle(update)}
-            {!update.read && (
-              <span className="ml-2 inline-block size-2 rounded-full bg-brand-800">
-                <span className="sr-only">Unread</span>
-              </span>
-            )}
-          </p>
-          <p className="mt-1 truncate text-meta text-ink-600">
-            {update.propertyTitle || update.detail?.reference || 'Your owner account'}
-          </p>
-          <p className="mt-1 text-tiny text-ink-600">
-            <time dateTime={update.createdAt} title={earningsTime(update.createdAt)}>
-              {relativeUpdateTime(update.createdAt)}
-            </time>
-            {update.needsAction && (
-              <span className="ml-2 rounded-full bg-warning-bg px-2 text-warning">Needs you</span>
-            )}
-            {update.detail?.simulation && <span className="ml-2">Test booking</span>}
-          </p>
-        </div>
-      </a>
-    </li>
+    <tr className={update.read ? '' : 'bg-brand-50'}>
+      <td>
+        <p className="flex items-start gap-2 font-semibold">
+          <Icon className="mt-0.5 size-4 shrink-0 text-brand-800" aria-hidden="true" />
+          {updateTitle(update)}
+        </p>
+        <span className="block text-tiny text-ink-600">
+          {update.propertyTitle || update.detail?.reference || 'Your owner account'}
+        </span>
+      </td>
+      <td className="capitalize">{update.category}</td>
+      <td>
+        <span className="whitespace-nowrap">
+          {update.needsAction ? 'Needs you' : update.read ? 'Read' : 'Unread'}
+        </span>
+        {update.detail?.simulation && <span className="block text-tiny">Test booking</span>}
+      </td>
+      <td className="whitespace-nowrap">
+        <time dateTime={update.createdAt} title={earningsTime(update.createdAt)}>
+          {relativeUpdateTime(update.createdAt)}
+        </time>
+      </td>
+      <td>
+        <a
+          href={`/partner/updates/${update.id}/open`}
+          className="inline-flex min-h-11 items-center rounded-lg border px-3 font-semibold text-brand-800"
+        >
+          View<span className="sr-only"> {updateTitle(update)}</span>
+        </a>
+      </td>
+    </tr>
   );
 }

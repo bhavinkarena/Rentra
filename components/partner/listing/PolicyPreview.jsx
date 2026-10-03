@@ -1,4 +1,5 @@
 'use client';
+import OwnerTable from '../OwnerTable';
 import { EmptyState } from '@/components/ui/empty-state';
 import PolicyValues from './PolicyValues';
 import { useActionState, useState, useTransition } from 'react';
@@ -93,29 +94,34 @@ export function PolicyHistory({ listing }) {
         the guest accepted.
       </p>
       {entries.length ? (
-        <ol className="mt-3 space-y-3">
+        <OwnerTable
+          label="Price and policy history"
+          columns={['Change', 'Date (IST)', 'Details']}
+          minWidth={500}
+        >
           {entries.map((entry, index) => (
-            <li key={index} className="border-l-2 border-border pl-3 text-meta">
-              <p className="font-semibold text-ink-900">
+            <tr key={index}>
+              <td className="font-semibold">
                 {POLICY_ACTION[entry.action] ?? entry.action.replaceAll('_', ' ')}
-              </p>
-              <p className="text-tiny text-ink-500">
+              </td>
+              <td className="whitespace-nowrap">
                 {new Date(entry.at).toLocaleString('en-IN', {
                   timeZone: 'Asia/Kolkata',
                   dateStyle: 'medium',
                   timeStyle: 'short',
-                })}{' '}
-                IST
-              </p>
-              <details>
-                <summary className="min-h-11 cursor-pointer text-tiny font-semibold text-brand-700">
-                  What was saved
-                </summary>
-                <PolicyValues values={entry.values} />
-              </details>
-            </li>
+                })}
+              </td>
+              <td>
+                <details>
+                  <summary className="min-h-11 cursor-pointer content-center font-semibold text-brand-800">
+                    What was saved
+                  </summary>
+                  <PolicyValues values={entry.values} />
+                </details>
+              </td>
+            </tr>
           ))}
-        </ol>
+        </OwnerTable>
       ) : (
         <EmptyState
           variant="compact"

@@ -1,11 +1,12 @@
 'use client';
+import { requestPortalLeave } from '@/components/portal/UnsavedChangesGuard';
 import { EmptyState } from '@/components/ui/empty-state';
 import { OfflineBooking } from './CalendarTools';
 import { displayMoney as money } from '@/lib/domain/display-money';
 import { EARNINGS_NOTICE } from '@/lib/domain/owner-earnings';
 import { ActionForm } from './listing/BookingCalendarSettings';
 import { blockDates, unblockDates } from '@/lib/actions/partner';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from '@/components/navigation/NavigationLink';
 import {
@@ -79,8 +80,10 @@ export default function PortfolioCalendar({
   basePath = '/partner/calendar',
   view = 'month',
   listHref,
+  listFilters = {},
   anchor = propertyToday(),
 }) {
+  const detailHeading = useId();
   const router = useRouter(),
     dialog = useRef(null),
     drag = useRef(null);
@@ -110,7 +113,7 @@ export default function PortfolioCalendar({
   }, [result.undoUntil]);
   const days = Array.from({ length: data.days }, (_, i) => addLocalDays(data.from, i));
   const href = (changes) =>
-    `${basePath}?${new URLSearchParams({ from: anchor, view, slot: data.slot || '', ...(data.property ? { property: data.property } : {}), ...(listHref ? { fromList: listHref } : {}), ...changes })}`;
+    `${basePath}?${new URLSearchParams({ from: anchor, view, slot: data.slot || '', ...(data.property ? { property: data.property } : {}), ...(listHref ? { fromList: listHref } : {}), ...listFilters, ...changes })}`;
   const toggle = (id, date) =>
     setSelected((rows) =>
       rows.some((r) => r.id === id && r.date === date)
@@ -127,6 +130,7 @@ export default function PortfolioCalendar({
   }
   const refresh = useCallback(() => router.refresh(), [router]);
   const close = () => {
+    if (!requestPortalLeave()) return;
     dialog.current?.close();
     setOpened(null);
     setSelected([]);
@@ -346,7 +350,14 @@ export default function PortfolioCalendar({
   );
   return (
     <section aria-label="Property calendar" className="space-y-5">
-      <form className="flex flex-wrap items-end gap-3">
+      <form
+        method="get"
+        action={basePath}
+        className="flex flex-wrap items-end gap-3 rounded-xl border bg-card p-4"
+      >
+        {Object.entries(listFilters).map(([key, value]) => (
+          <input key={key} type="hidden" name={key} value={value} />
+        ))}
         <label>
           Start date
           <input type="date" name="from" defaultValue={anchor} className={field} />
@@ -363,7 +374,7 @@ export default function PortfolioCalendar({
           <label>
             Property
             <select name="property" defaultValue={data.property || ''} className={field}>
-              <option value="">All properties</option>
+              {!data.property && <option value="">All properties</option>}
               {data.items.map((p) => (
                 <option value={p.id} key={p.id}>
                   {p.title || 'Untitled draft'}
@@ -377,6 +388,15 @@ export default function PortfolioCalendar({
           Legend
         </button>
       </form>
+      <h2 className="text-h3 font-semibold">
+        {view === 'month'
+          ? new Intl.DateTimeFormat('en-IN', {
+              month: 'long',
+              year: 'numeric',
+              timeZone: 'UTC',
+            }).format(new Date(anchor + 'T00:00:00Z'))
+          : `${dayText(data.from)} – ${dayText(days.at(-1))}`}
+      </h2>
       <nav aria-label="Calendar periods" className="flex gap-3">
         <Link
           className={field}
@@ -690,14 +710,20 @@ export default function PortfolioCalendar({
         </aside>
       )}
       <dialog
+        data-calendar-detail
         ref={dialog}
-        onCancel={close}
+        aria-labelledby={detailHeading}
+        onCancel={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          close();
+        }}
         className="fixed inset-x-0 bottom-0 top-auto m-0 w-full max-w-none max-h-[90dvh] overflow-auto rounded-t-xl border bg-card p-5 text-foreground backdrop:bg-black/30 md:left-auto md:top-0 md:h-dvh md:max-h-none md:w-[32rem] md:rounded-none md:p-7"
       >
         {opened && (
           <>
             <header className="flex justify-between gap-3">
-              <h2 className="text-h3">
+              <h2 id={detailHeading} className="text-h3">
                 {dayText(opened.date)} · {opened.property.title}
               </h2>
               <button className={field} onClick={close} aria-label="Close date detail">

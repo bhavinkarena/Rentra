@@ -1,319 +1,488 @@
-import { EmptyState } from '@/components/ui/empty-state';
-import InlineAlert from '@/components/portal/InlineAlert';
 import Link from '@/components/navigation/NavigationLink';
-import { PropertyPhoto, displayMoney } from '@/components/customer/BookingDisplay';
+import Form from '@/components/navigation/NavigationForm';
+import OwnerAnalytics from './OwnerAnalytics';
+import OwnerTable from './OwnerTable';
 import ListingStatusBadge from './ListingStatusBadge';
-import RetryButton from '@/components/portal/RetryButton';
+import { KpiCard } from './PortalPrimitives';
+import { displayMoney, StateBadge, totalPrice } from '@/components/customer/BookingDisplay';
 import { visibleTasks } from '@/lib/domain/client-updates';
-
-const local = (value, options) =>
-  new Date(value).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', ...options });
-const time = (value) =>
-  value ? local(value, { hour: 'numeric', minute: '2-digit' }) : 'Hours with Rentra';
-const link =
-  'inline-flex min-h-11 items-center font-semibold text-brand-700 underline underline-offset-4';
-
-function Section({ title, result, children, action }) {
+import InlineAlert from '@/components/portal/InlineAlert';
+import RetryButton from '@/components/portal/RetryButton';
+const action =
+  'inline-flex min-h-11 items-center rounded-lg border px-3 font-semibold text-brand-800';
+const date = (value) =>
+  value
+    ? new Date(value).toLocaleDateString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      })
+    : 'Hours with Rentra';
+const categories = {
+  all: 'All actions',
+  booking: 'Bookings',
+  property: 'Properties & calendar',
+  review: 'Reviews',
+  support: 'Support',
+  dispute: 'Disputes',
+  account: 'Account & inbox',
+};
+function taskCategory(task) {
+  if (/review/.test(task.key)) return 'review';
+  if (/dispute|incident/.test(task.key)) return 'dispute';
+  if (/support/.test(task.key)) return 'support';
+  if (/booking|visit/.test(task.key)) return 'booking';
+  if (/^(propert|draft|dates|auto_open)/.test(task.key)) return 'property';
+  return 'account';
+}
+function Section({ title, result, children, href }) {
   return (
-    <section className="min-w-0 rounded-lg border border-border bg-card p-4 sm:p-5">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-h3">{title}</h2>
-        {action}
-      </div>
+    <section className="min-w-0 space-y-4">
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-h3 font-semibold">{title}</h2>
+        {href && (
+          <Link href={href} className={action}>
+            View all
+          </Link>
+        )}
+      </header>
       {result?.failure ? (
-        <InlineAlert className="mt-3" action={<RetryButton label={`Retry ${title}`} />}>
-          {title} could not load. Try again to refresh this section.
-        </InlineAlert>
+        <InlineAlert action={<RetryButton />}>{title} could not load. Try again.</InlineAlert>
       ) : (
         children
       )}
     </section>
   );
 }
-
-function VisitRows({ title, rows = [], count = 0, departure = false }) {
-  if (!count) return null;
+export default function OwnerToday({
+  analytics,
+  needs,
+  visits,
+  week,
+  earnings,
+  properties,
+  records,
+  portfolio,
+  filters = {},
+}) {
+  const todayRows = Array.from(
+    new Map(
+      [
+        ...(visits?.data?.arrivals || []),
+        ...(visits?.data?.departures || []),
+        ...(visits?.data?.onSite || []),
+      ].map((row) => [row.visitId, row]),
+    ).values(),
+  );
+  const data = records?.data,
+    taskFilter = categories[filters.task] ? filters.task : 'all';
+  const tasks = visibleTasks(needs?.data?.tasks).filter(
+    (task) => taskFilter === 'all' || taskCategory(task) === taskFilter,
+  );
+  const taskPage = /^\d{1,6}$/.test(filters.taskPage || '')
+    ? Math.max(1, Number(filters.taskPage))
+    : 1;
+  const currentTaskPage = Math.min(taskPage, Math.max(1, Math.ceil(tasks.length / 8)));
+  const property = data?.property || '',
+    filteredProperties = (properties?.data || []).filter((p) => !property || p.id === property);
+  const bookingHref = `/partner/bookings?${new URLSearchParams({ property, from: data?.from || '', to: data?.to || '', tab: data?.tab || 'all' })}`;
+  const dashboardHref = (changes) =>
+    `/partner?${new URLSearchParams({ property, from: data?.from || '', to: data?.to || '', tab: data?.tab || 'all', task: taskFilter, page: String(data?.page || 1), ...changes })}`;
   return (
-    <div className="mt-5">
-      <h3 className="text-meta font-semibold">
-        {title} · {count}
-      </h3>
-      <ul className="mt-2 divide-y divide-border">
-        {rows.map((row) => {
-          const href = `/partner/bookings/${row.id}#visit-${row.visitId}`;
-          const phone = String(row.contact?.phone ?? '').replace(/\D/g, '');
-          const action =
-            {
-              handover: 'Record check-in',
-              return: 'Record check-out',
-              complete: 'Finish inspection',
-            }[row.operation?.action] ?? 'View visit';
-          return (
-            <li key={row.visitId} className="py-4">
-              <p className="font-semibold tabular">
-                {time(departure ? row.endsAt : row.startsAt)} · {row.firstVisitLabel}
-              </p>
-              <p className="mt-1 text-meta">
-                {row.contact?.name || 'Guest'} · {row.guests} guests · {row.title}
-              </p>
-              <p className="mt-1 text-tiny text-ink-500">{row.operation?.label}</p>
-              <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1">
-                <Link
-                  href={href}
-                  className="inline-flex min-h-11 items-center rounded-md bg-primary px-4 text-meta font-semibold text-white"
-                >
-                  {action}
+    <div className="mt-6 min-w-0 space-y-7">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <KpiCard
+          label="Your properties"
+          value={portfolio?.failure ? '—' : (portfolio?.data?.total ?? '—')}
+          hint="Across your entire portfolio"
+        />
+        <KpiCard
+          label="Bookings in this view"
+          value={records?.failure ? '—' : (data?.total ?? '—')}
+          hint="Matches the property, dates and status below"
+        />
+        <KpiCard
+          label="Today's visits"
+          value={visits?.failure ? '—' : (visits?.data?.total ?? '—')}
+          hint="All properties · India time"
+        />
+        <KpiCard
+          label="Booked rent this month"
+          value={
+            earnings?.failure
+              ? '—'
+              : earnings?.data
+                ? displayMoney(earnings.data.bookedRentMinor)
+                : '—'
+          }
+          hint="All properties · rent only, before settlement"
+        />
+      </div>
+      <OwnerAnalytics result={analytics} portfolio={portfolio} earnings={earnings} />
+      <Form
+        action="/partner"
+        className="grid gap-3 rounded-xl border bg-card p-4 sm:grid-cols-2 xl:grid-cols-5"
+      >
+        <label className="text-meta">
+          Property
+          <select
+            name="property"
+            defaultValue={property}
+            className="mt-1 block min-h-11 w-full rounded-lg border p-2"
+          >
+            <option value="">All properties</option>
+            {data?.properties?.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.title}
+              </option>
+            ))}
+          </select>
+        </label>
+        {['from', 'to'].map((key) => (
+          <label key={key} className="text-meta">
+            {key === 'from' ? 'From date' : 'To date'}
+            <input
+              type="date"
+              name={key}
+              defaultValue={data?.[key] || ''}
+              className="mt-1 block min-h-11 w-full rounded-lg border p-2"
+            />
+          </label>
+        ))}
+        <label className="text-meta">
+          Booking status
+          <select
+            name="tab"
+            defaultValue={data?.tab || 'all'}
+            className="mt-1 block min-h-11 w-full rounded-lg border p-2"
+          >
+            {Object.entries({
+              all: 'All bookings',
+              today: 'Today',
+              upcoming: 'Upcoming',
+              action_needed: 'Needs action',
+              with_rentra: 'With Rentra',
+              past: 'Past',
+              cancelled: 'Cancelled',
+            }).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="flex items-end gap-2">
+          <button className="min-h-11 rounded-lg bg-primary px-4 font-semibold text-white">
+            Apply filters
+          </button>
+          <Link className="inline-flex min-h-11 items-center px-2 text-brand-800" href="/partner">
+            Reset
+          </Link>
+        </div>
+      </Form>
+      <Section title="Booking overview" result={records} href={bookingHref}>
+        <OwnerTable
+          label="Dashboard bookings"
+          columns={[
+            'Property / reference',
+            'Guest',
+            'Visit date',
+            'Status',
+            'Booking total',
+            'Action',
+          ]}
+          empty={!data?.items?.length ? 'No bookings match the selected filters.' : null}
+        >
+          {data?.items.map((item) => (
+            <tr key={item.visitId ?? item.id}>
+              <td>
+                <strong className="block">{item.title}</strong>
+                <span className="block max-w-60 truncate text-tiny text-ink-600">
+                  {item.reference}
+                </span>
+              </td>
+              <td>
+                {item.contact?.name || 'Guest'}
+                <span className="block text-tiny">{item.guests || 0} guests</span>
+              </td>
+              <td className="whitespace-nowrap">
+                {date(item.firstVisit)}
+                <span className="block text-tiny">{item.visitCount} visits</span>
+              </td>
+              <td>
+                <StateBadge state={item.state} />
+              </td>
+              <td className="whitespace-nowrap font-semibold">{displayMoney(totalPrice(item))}</td>
+              <td>
+                <Link className={action} href={`${bookingHref}&booking=${item.id}`}>
+                  View
                 </Link>
-                {phone && /^\d{10,15}$/.test(phone) ? (
-                  <>
-                    <a className={link} href={`tel:+${phone.length === 10 ? '91' : ''}${phone}`}>
+              </td>
+            </tr>
+          ))}
+        </OwnerTable>
+        {data?.pages > 1 && (
+          <nav className="flex items-center gap-4" aria-label="Dashboard booking pages">
+            {data.page > 1 && (
+              <Link href={dashboardHref({ page: String(data.page - 1) })}>Previous</Link>
+            )}
+            <span>
+              Page {data.page} of {data.pages}
+            </span>
+            {data.page < data.pages && (
+              <Link href={dashboardHref({ page: String(data.page + 1) })}>Next</Link>
+            )}
+          </nav>
+        )}
+      </Section>
+      <Section
+        title="Today's visits · all properties"
+        result={visits}
+        href="/partner/bookings?tab=today"
+      >
+        <OwnerTable
+          label="Today's visits"
+          columns={['Property', 'Guest', 'Visit', 'Next action', 'Action']}
+          empty={
+            !todayRows.length
+              ? visits?.data?.total
+                ? 'Visit hours need attention. Open all bookings to check the details.'
+                : visits?.data?.next
+                  ? `No guests today. Next booking: ${date(visits.data.next.startsAt)} · ${visits.data.next.title}.`
+                  : 'No guests today.'
+              : null
+          }
+        >
+          {todayRows.slice(0, 8).map((row) => (
+            <tr key={row.visitId}>
+              <td className="font-semibold">{row.title}</td>
+              <td>
+                {row.contact?.name || 'Guest'}
+                <span className="block text-tiny">{row.guests} guests</span>
+              </td>
+              <td>
+                {row.firstVisitLabel}
+                <span className="block text-tiny">
+                  {row.startsAt
+                    ? new Date(row.startsAt).toLocaleTimeString('en-IN', {
+                        timeZone: 'Asia/Kolkata',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                      })
+                    : 'Hours with Rentra'}
+                </span>
+              </td>
+              <td>{row.operation?.label || 'View visit'}</td>
+              <td>
+                <Link className={action} href={`/partner/bookings?tab=today&booking=${row.id}`}>
+                  View
+                </Link>
+              </td>
+            </tr>
+          ))}
+        </OwnerTable>
+      </Section>
+      {visits?.data?.offline?.length > 0 && (
+        <Section title="Today's offline bookings · all properties">
+          <OwnerTable
+            label="Offline bookings"
+            columns={['Property', 'Guest', 'Visit hours (IST)', 'Guests', 'Action']}
+          >
+            {visits.data.offline.map((row) => (
+              <tr key={row.id}>
+                <td className="font-semibold">{row.title}</td>
+                <td>
+                  {row.name}
+                  {row.phone && (
+                    <a
+                      className="block min-h-11 content-center text-brand-800 underline"
+                      href={`tel:${row.phone}`}
+                    >
                       Call guest
                     </a>
-                    <a
-                      className={link}
-                      href={`https://wa.me/${phone.length === 10 ? '91' : ''}${phone}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      WhatsApp
-                    </a>
-                  </>
-                ) : null}
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-      {count > rows.length ? (
-        <Link href="/partner/bookings?tab=today" className={link}>
-          +{count - rows.length} more today
-        </Link>
-      ) : null}
-    </div>
-  );
-}
-
-export default function OwnerToday({ needs, visits, week, earnings, properties }) {
-  const tasks = visibleTasks(needs?.data?.tasks),
-    actions = tasks.filter((t) => t.kind === 'action'),
-    info = tasks.filter((t) => t.kind === 'info');
-  const today = visits?.data;
-  return (
-    <div className="mt-6 space-y-5">
-      <Section title="Needs you" result={needs}>
-        {actions.length ? (
-          <ul className="mt-2 divide-y divide-border">
-            {actions.map((task) => (
-              <li key={task.key} className="flex flex-wrap items-center justify-between gap-3 py-3">
-                <p className="min-w-0 flex-1 text-meta">{task.label}</p>
-                <Link href={task.href} className={link}>
-                  {task.action ?? 'Open'}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <EmptyState
-            variant="compact"
-            title="Nothing needs you"
-            description="Check-ins and check-outs to record will appear here."
-          />
-        )}
-        {info.length ? (
-          <details className="mt-3 border-t border-border pt-3">
-            <summary className="cursor-pointer text-meta font-semibold">
-              With Rentra and other updates
-            </summary>
-            <ul className="mt-2">
-              {info.map((task) => (
-                <li key={task.key}>
-                  <Link href={task.href} className={`${link} text-meta`}>
-                    {task.label}
+                  )}
+                </td>
+                <td>
+                  {[row.startsAt, row.endsAt]
+                    .map((value) =>
+                      new Date(value).toLocaleTimeString('en-IN', {
+                        timeZone: 'Asia/Kolkata',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                      }),
+                    )
+                    .join(' – ')}
+                </td>
+                <td>{row.guests}</td>
+                <td>
+                  <Link className={action} href={`/partner/calendar?property=${row.propertyId}`}>
+                    View calendar
                   </Link>
-                </li>
-              ))}
-            </ul>
-          </details>
-        ) : null}
-      </Section>
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-        <Section
-          title="Today’s visits"
-          result={visits}
-          action={
-            <Link href="/partner/bookings?tab=today" className={link}>
-              {today?.total ? `${today.total} visits today` : 'Bookings'}
-            </Link>
-          }
-        >
-          <VisitRows title="Arriving" rows={today?.arrivals} count={today?.arrivalCount} />
-          <VisitRows
-            title="Leaving"
-            rows={today?.departures}
-            count={today?.departureCount}
-            departure
-          />
-          <VisitRows title="On site" rows={today?.onSite} count={today?.onSiteCount} />
-          {today?.offline?.length > 0 && (
-            <div className="mt-5">
-              <h3 className="font-semibold">Offline bookings · {today.offline.length}</h3>
-              <ul className="divide-y">
-                {today.offline.map((r) => (
-                  <li key={r.id} className="py-3 space-y-2">
-                    <p>
-                      {r.name} · {r.guests} guests · {r.title}
-                    </p>
-                    <p>
-                      {time(r.startsAt)}–{time(r.endsAt)}
-                    </p>
-                    {r.phone && (
-                      <a className={link} href={`tel:${r.phone}`}>
-                        Call guest
-                      </a>
-                    )}
-                    <Link className={link} href={`/partner/listings/${r.propertyId}/calendar`}>
-                      Open calendar
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {!today?.arrivalCount && !today?.departureCount && !today?.onSiteCount ? (
-            <EmptyState
-              variant="compact"
-              title={
-                today?.total
-                  ? 'Visit hours need attention'
-                  : today?.next
-                    ? 'No guests today'
-                    : 'No bookings yet'
-              }
-              description={
-                today?.total
-                  ? 'Open your bookings to check visit details.'
-                  : today?.next
-                    ? `Next booking: ${local(today.next.startsAt, { day: 'numeric', month: 'short' })} · ${today.next.label} · ${today.next.title}.`
-                    : 'Once your property is live and your dates are open, bookings show up here.'
-              }
-              actionHref={
-                today?.total ? '/partner/bookings' : today?.next?.href || '/partner/calendar'
-              }
-              actionLabel={
-                today?.total ? 'View bookings' : today?.next ? 'View booking' : 'Open calendar'
-              }
-            />
-          ) : null}
-        </Section>
-        <Section
-          title="This week"
-          result={week}
-          action={
-            <Link href="/partner/calendar" className={link}>
-              Calendar
-            </Link>
-          }
-        >
-          <ul className="mt-3 divide-y divide-border">
-            {week?.data?.map((day) => (
-              <li key={day.date}>
-                <Link
-                  href={`/partner/calendar?from=${day.date}`}
-                  className="flex min-h-14 items-center justify-between gap-3 py-3 text-meta"
-                >
-                  <span className="shrink-0 font-semibold">
-                    {local(`${day.date}T12:00:00+05:30`, {
-                      weekday: 'short',
-                      day: 'numeric',
-                      month: 'short',
-                    })}
-                  </span>
-                  <span className="min-w-0 text-right text-ink-600">
-                    {day.count
-                      ? `${day.count} visits · ${day.properties.slice(0, 2).join(', ')}`
-                      : 'No visits'}
-                  </span>
-                </Link>
-              </li>
+                </td>
+              </tr>
             ))}
-          </ul>
+          </OwnerTable>
+        </Section>
+      )}
+      <Section title="Needs your attention · all properties" result={needs}>
+        <Form action="/partner" className="flex flex-wrap items-end gap-3">
+          {['property', 'from', 'to', 'tab'].map((key) => (
+            <input type="hidden" key={key} name={key} value={data?.[key] || ''} />
+          ))}
+          <label>
+            Action category
+            <select
+              name="task"
+              defaultValue={taskFilter}
+              className="ml-2 min-h-11 rounded-lg border bg-card p-2"
+            >
+              {Object.entries(categories).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button className={action}>Filter actions</button>
+        </Form>
+        <OwnerTable
+          label="Dashboard actions"
+          columns={['Category', 'Next action', 'Status', 'Action']}
+          empty={!tasks.length ? 'Nothing needs you in this category.' : null}
+        >
+          {tasks.slice((currentTaskPage - 1) * 8, currentTaskPage * 8).map((task) => (
+            <tr key={task.key}>
+              <td>{categories[taskCategory(task)]}</td>
+              <td>{task.label}</td>
+              <td>
+                <span
+                  className={`rounded-full px-2 py-1 text-tiny ${task.kind === 'action' ? 'bg-warning-bg text-warning' : 'bg-ink-100 text-ink-700'}`}
+                >
+                  {task.kind === 'action' ? 'Needs you' : 'Information'}
+                </span>
+              </td>
+              <td>
+                <Link href={task.href} className={action}>
+                  {task.action || 'Open'}
+                </Link>
+              </td>
+            </tr>
+          ))}
+        </OwnerTable>
+        {tasks.length > 8 && (
+          <nav aria-label="Dashboard action pages" className="flex items-center gap-4">
+            {currentTaskPage > 1 && (
+              <Link href={dashboardHref({ taskPage: String(currentTaskPage - 1) })}>
+                Previous actions
+              </Link>
+            )}
+            <span>
+              Page {currentTaskPage} of {Math.ceil(tasks.length / 8)} · {tasks.length} actions
+            </span>
+            {currentTaskPage < Math.ceil(tasks.length / 8) && (
+              <Link href={dashboardHref({ taskPage: String(currentTaskPage + 1) })}>
+                More actions
+              </Link>
+            )}
+          </nav>
+        )}
+      </Section>
+      <div className="grid min-w-0 items-start gap-6 xl:grid-cols-2">
+        <Section title="This week · all properties" result={week}>
+          <OwnerTable
+            minWidth={430}
+            label="Weekly visits"
+            columns={['Date', 'Visits', 'Properties', 'Action']}
+            empty={!week?.data?.length ? 'No visit information available.' : null}
+          >
+            {week?.data?.map((day) => (
+              <tr key={day.date}>
+                <td className="whitespace-nowrap">{date(day.date)}</td>
+                <td>{day.count}</td>
+                <td>{day.properties.join(', ') || 'No visits'}</td>
+                <td>
+                  <Link
+                    href={dashboardHref({ from: day.date, to: day.date, tab: 'all', property: '' })}
+                    className={action}
+                  >
+                    View visits
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </OwnerTable>
+        </Section>
+        <Section title="Recently updated properties" result={properties} href="/partner/listings">
+          <OwnerTable
+            minWidth={430}
+            label="Dashboard properties"
+            columns={['Property', 'Status', 'Setup', 'Action']}
+            empty={
+              !filteredProperties.length
+                ? 'No recently updated properties in this view. Open all properties to see your full portfolio.'
+                : null
+            }
+          >
+            {filteredProperties.map((p) => (
+              <tr key={p.id}>
+                <td className="font-semibold">{p.title}</td>
+                <td>
+                  <ListingStatusBadge status={p.status} />
+                </td>
+                <td>{p.strength == null ? '—' : `${p.strength}%`}</td>
+                <td>
+                  <Link href={`/partner/listings/${p.id}/overview`} className={action}>
+                    Manage
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </OwnerTable>
         </Section>
       </div>
-      <Section
-        title="Earnings"
-        result={earnings}
-        action={
-          <Link href="/partner/earnings" className={link}>
-            View earnings
-          </Link>
-        }
-      >
-        {earnings?.data ? (
-          <>
-            <p className="mt-3 text-h3">
-              Booked this month: {displayMoney(earnings.data.bookedRentMinor)}
-            </p>
-            <p className="mt-2 text-meta text-ink-600">{earnings.data.status}</p>
-            <details className="mt-2 text-tiny text-ink-500">
-              <summary className="min-h-11 cursor-pointer py-3">
-                How this amount is calculated
-              </summary>
-              <p>
-                {earnings.data.basis} Rent only; guest fees and deposits are excluded.{' '}
-                {earnings.data.environment === 'live'
-                  ? 'Live payments.'
-                  : 'Test or simulated payments; this is not money paid to you.'}
-              </p>
-            </details>
-          </>
-        ) : null}
-      </Section>
-      <Section
-        title="Properties"
-        result={properties}
-        action={
-          <Link href="/partner/listings" className={link}>
-            All properties
-          </Link>
-        }
-      >
-        {properties?.data?.length ? (
-          <ul className="mt-4 flex gap-4 overflow-x-auto pb-2" aria-label="Your properties">
-            {properties.data.map((property) => (
-              <li
-                key={property.id}
-                className="w-64 shrink-0 overflow-hidden rounded-md border border-border"
-              >
-                <Link href={`/partner/listings/${property.id}/overview`} className="block h-full">
-                  <div className="h-32 overflow-hidden">
-                    <PropertyPhoto photo={property.photo} title={property.title} />
-                  </div>
-                  <div className="space-y-2 p-4">
-                    <h3 className="font-semibold">{property.title || 'Untitled property'}</h3>
-                    <ListingStatusBadge status={property.status} />
-                    <p className="text-meta text-ink-600">
-                      {property.next
-                        ? `Next booking: ${property.next.startsAt ? local(property.next.startsAt, { day: 'numeric', month: 'short' }) : 'Hours with Rentra'} · ${property.next.label}`
-                        : 'No upcoming bookings'}
-                    </p>
-                    {property.strength != null ? (
-                      <p className="text-tiny text-ink-500">Setup strength: {property.strength}%</p>
-                    ) : null}
-                  </div>
+      <Section title="Workspace overview">
+        <OwnerTable
+          label="Owner workspace sections"
+          columns={['Section', 'What you can manage', 'Action']}
+        >
+          {[
+            ['Calendar', 'Availability, holds, blocks and date prices', '/partner/calendar'],
+            ['Properties', 'Drafts, setup and published listings', '/partner/listings'],
+            ['Earnings', 'Booked rent, statements and payout status', '/partner/earnings'],
+            ['Reviews', 'Guest feedback and owner replies', '/partner/reviews'],
+            ['Caretakers', 'Invitations and property access', '/partner/team'],
+            ['Support', 'Questions and replies from Rentra', '/partner/support'],
+            ['Disputes', 'Responses, evidence and case decisions', '/partner/disputes'],
+            ['Inbox', 'Notifications and next actions', '/partner/updates'],
+            ['Settings', 'Account, notifications and security', '/partner/settings'],
+          ].map(([title, description, href]) => (
+            <tr key={href}>
+              <td className="font-semibold">{title}</td>
+              <td>{description}</td>
+              <td>
+                <Link className={action} href={href}>
+                  Open
                 </Link>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <EmptyState
-            variant="compact"
-            title="You haven't added a property yet"
-            description="Add your farmhouse or venue in about 15 minutes. You'll need 6 photos and your prices."
-            actionHref="/partner/listings"
-            actionLabel="Add your first property"
-          />
-        )}
+              </td>
+            </tr>
+          ))}
+        </OwnerTable>
       </Section>
+      {earnings?.failure && (
+        <InlineAlert action={<RetryButton label="Retry earnings" />}>
+          Earnings could not load. Try again.
+        </InlineAlert>
+      )}
+      {earnings?.data && (
+        <p className="rounded-xl border bg-card p-4 text-meta text-ink-600">
+          {earnings.data.status} {earnings.data.basis} Rent only; guest fees and deposits are
+          excluded.{' '}
+          {earnings.data.environment === 'live'
+            ? 'Live payments.'
+            : 'Test or simulated payments; this is not money paid to you.'}
+        </p>
+      )}
     </div>
   );
 }
