@@ -1,115 +1,142 @@
-import OwnerTable from './OwnerTable';
-import { EmptyState } from '@/components/ui/empty-state';
-import { Star } from 'lucide-react';
+import { Star, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from '@/components/navigation/NavigationLink';
-import OwnerReviewReply from './OwnerReviewReply';
-import { ReviewControl } from '@/components/customer/ReviewForms';
-const date = (value) =>
-  new Date(value).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium' });
+import { EmptyState } from '@/components/ui/empty-state';
+import ReviewCard, { ReviewStars } from './reviews/ReviewCard';
+
 export default function OwnerReviews({ data, embedded = false }) {
-  const Heading = embedded ? 'h2' : 'h1';
+  const Heading = embedded ? 'h2' : 'h1',
+    Subheading = embedded ? 'h3' : 'h2';
+  const count = data.stats?.count ?? 0,
+    average = data.stats?.average,
+    unanswered = data.tab === 'needs_reply';
   return (
-    <section className={embedded ? 'space-y-5' : 'mx-auto max-w-7xl space-y-5 px-4 py-6 sm:px-6'}>
-      <Heading className="text-h2">Guest reviews</Heading>
-      <p>
-        {data.stats?.average ?? '—'} out of 5 · {data.stats?.count ?? 0} reviews
-      </p>
-      <nav aria-label="Review filters" className="flex gap-3">
-        {[
-          ['needs_reply', 'Needs reply'],
-          ['all', 'All'],
-        ].map(([tab, label]) => (
-          <Link
-            key={tab}
-            className="min-h-11 inline-flex items-center rounded-full border px-4"
-            aria-current={data.tab === tab ? 'page' : undefined}
-            href={`?tab=${tab}`}
-          >
-            {label}
-          </Link>
-        ))}
-      </nav>
-      {!data.rows.length && (
-        <EmptyState
-          icon={Star}
-          title={data.tab === 'needs_reply' ? 'No reviews need a reply' : 'No reviews yet'}
-          description="Guests can review after a completed visit. Replying builds trust."
-          actionHref={data.tab === 'needs_reply' ? '?tab=all' : undefined}
-          actionLabel="Show all reviews"
-        />
-      )}
-      <OwnerTable
-        label="Guest reviews"
-        columns={['Property / guest', 'Rating', 'Visit', 'Review', 'Reply status', 'Action']}
-        empty={!data.rows.length ? 'No reviews in this view.' : null}
+    <section
+      className={
+        embedded
+          ? 'owner-reviews space-y-5'
+          : 'owner-reviews mx-auto w-full max-w-(--container-workspace) min-w-0 space-y-5 px-4 py-6 sm:px-6 sm:py-8 lg:px-8'
+      }
+    >
+      <header>
+        <Heading className={`${embedded ? 'text-h2' : 'text-h1'} font-bold text-ink-900`}>
+          {embedded ? 'Guest reviews' : 'Reviews'}
+        </Heading>
+        <p className="mt-2 text-meta text-ink-600">
+          Read your guests’ experiences and keep the conversation going.
+        </p>
+      </header>
+      <section
+        aria-label="Public review overview"
+        className="flex flex-wrap items-center gap-x-8 gap-y-4 rounded-lg border border-border bg-card px-5 py-5 sm:px-6"
       >
-        {data.rows.map((r) => (
-          <tr key={r.id}>
-            <td>
-              <strong className="block">{r.title}</strong>
-              <span className="block text-tiny text-ink-600">
-                {r.guest_first_name} · {date(r.created_at)}
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
+          <p className="text-4xl font-semibold tracking-[-0.035em] text-ink-900 tabular">
+            {count && average != null ? Number(average).toFixed(1) : '—'}
+            <span className="ml-1 text-meta font-normal tracking-normal text-ink-500">/ 5</span>
+          </p>
+          <div>
+            {count && average != null ? (
+              <span className="hidden sm:inline-flex">
+                <ReviewStars rating={average} />
               </span>
-            </td>
-            <td className="whitespace-nowrap">
-              <span aria-label={`${r.rating} out of 5 stars`}>
-                {'★'.repeat(r.rating)}
-                {'☆'.repeat(5 - r.rating)}
-              </span>
-            </td>
-            <td>
-              <span className="block whitespace-nowrap">{r.visit_date}</span>
-              <span className="text-tiny">{r.visit_reference}</span>
-            </td>
-            <td className="max-w-72">
-              <p className="line-clamp-3 whitespace-pre-wrap wrap-break-word">{r.body}</p>
-            </td>
-            <td>
-              <span
-                className={`whitespace-nowrap rounded-full px-2 py-1 text-tiny ${r.owner_reply ? 'bg-success-bg text-success' : 'bg-warning-bg text-warning'}`}
-              >
-                {r.owner_reply ? 'Replied' : 'Needs reply'}
-              </span>
-            </td>
-            <td className="min-w-64 space-y-3">
+            ) : (
+              <Star className="hidden size-5 text-ink-400 sm:block" aria-hidden="true" />
+            )}
+            <p className="text-tiny text-ink-500 sm:mt-1">Public rating</p>
+          </div>
+        </div>
+        <div className="border-l border-border pl-6">
+          <p className="text-h3 font-semibold text-ink-800 tabular">
+            {count.toLocaleString('en-IN')}
+          </p>
+          <p className="mt-1 text-tiny text-ink-500">
+            Public {count === 1 ? 'review' : 'reviews'}
+            {embedded ? ' for this property' : ''}
+          </p>
+        </div>
+      </section>
+      <section
+        className="overflow-hidden rounded-lg border border-border bg-card"
+        aria-labelledby="reviews-inbox-title"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 pt-5 sm:px-6">
+          <Subheading id="reviews-inbox-title" className="pb-3 text-h4 font-semibold text-ink-900">
+            Guest feedback
+          </Subheading>
+          <nav aria-label="Review filters" className="flex gap-1">
+            {[
+              ['needs_reply', 'Needs reply'],
+              ['all', 'All reviews'],
+            ].map(([tab, label]) => (
               <Link
-                className="inline-flex min-h-11 items-center rounded-lg border px-3 font-semibold text-brand-800"
-                href={`/partner/reviews/${r.id}`}
+                key={tab}
+                href={`?tab=${tab}`}
+                aria-current={data.tab === tab ? 'page' : undefined}
+                className={`inline-flex min-h-11 items-center gap-2 border-b-2 px-3 text-meta font-semibold ${data.tab === tab ? 'border-brand-700 text-brand-800' : 'border-transparent text-ink-500 hover:text-ink-800'}`}
               >
-                View details
+                {label}
               </Link>
-              {r.moderation_state === 'published' && (
-                <details>
-                  <summary className="min-h-11 cursor-pointer content-center font-semibold">
-                    {r.owner_reply ? 'Manage reply' : 'Reply'}
-                  </summary>
-                  <OwnerReviewReply key={r.version} review={r} />
-                </details>
-              )}
-              {r.reported_at ? (
-                <p className="text-tiny">Reported {date(r.reported_at)}</p>
-              ) : (
-                <details>
-                  <summary className="min-h-11 cursor-pointer content-center">
-                    Report review
-                  </summary>
-                  <p className="text-tiny">
-                    Reporting does not remove a review or change its rating.
-                  </p>
-                  <ReviewControl kind="ownerReport" id={r.id} />
-                </details>
-              )}
-            </td>
-          </tr>
-        ))}
-      </OwnerTable>
-      {(data.page > 1 || data.hasNext) && (
-        <nav className="flex gap-4" aria-label="Review pages">
-          {data.page > 1 && <Link href={`?tab=${data.tab}&page=${data.page - 1}`}>Previous</Link>}
-          <span>Page {data.page}</span>
-          {data.hasNext && <Link href={`?tab=${data.tab}&page=${data.page + 1}`}>Next</Link>}
-        </nav>
-      )}
+            ))}
+          </nav>
+        </div>
+        {data.rows.length ? (
+          <div className="divide-y divide-border">
+            {data.rows.map((r) => (
+              <ReviewCard key={`${r.id}-${r.version}`} review={r} />
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            icon={unanswered ? MessageSquare : Star}
+            title={
+              data.page > 1
+                ? 'No reviews on this page'
+                : unanswered
+                  ? 'You’re all caught up'
+                  : 'Your first review starts here'
+            }
+            description={
+              unanswered
+                ? 'No reviews on this page need a reply. You can still read previous feedback and your replies.'
+                : 'Guests can leave feedback after a completed visit. Their published reviews will appear here.'
+            }
+            actionHref={unanswered ? '?tab=all' : undefined}
+            actionLabel="Read all reviews"
+          />
+        )}
+        {data.page > 1 || data.hasNext ? (
+          <nav
+            aria-label="Review pages"
+            className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-5 py-4 sm:px-6"
+          >
+            <span className="text-tiny text-ink-500">Page {data.page}</span>
+            <div className="flex gap-2">
+              {data.page > 1 ? (
+                <Link
+                  href={`?tab=${data.tab}&page=${data.page - 1}`}
+                  className="inline-flex min-h-11 items-center gap-1 rounded-full border border-border px-4 text-meta font-medium text-ink-700 hover:bg-ink-50"
+                >
+                  <ChevronLeft className="size-4" aria-hidden="true" />
+                  Previous
+                </Link>
+              ) : null}
+              {data.hasNext ? (
+                <Link
+                  href={`?tab=${data.tab}&page=${data.page + 1}`}
+                  className="inline-flex min-h-11 items-center gap-1 rounded-full border border-border px-4 text-meta font-medium text-ink-700 hover:bg-ink-50"
+                >
+                  Next
+                  <ChevronRight className="size-4" aria-hidden="true" />
+                </Link>
+              ) : null}
+            </div>
+          </nav>
+        ) : null}
+      </section>
+      <p className="text-tiny leading-5 text-ink-500">
+        Replies are public. Keep guest contact details private; reporting a review does not change
+        its rating.
+      </p>
     </section>
   );
 }

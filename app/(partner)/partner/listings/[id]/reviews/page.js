@@ -11,7 +11,9 @@ export const metadata = { title: 'Property reviews', robots: { index: false, fol
 export default async function PropertyReviewsPage(props) {
   const { failure, hub, id, query, listHref } = await loadPropertyHub(props);
   if (failure) return <PortalState kind={failure} backHref={listHref} backLabel="All properties" />;
-  const reviews = await settle(partnerApi.reviews({ page: query.page, property: id }));
+  const reviews = await settle(
+    partnerApi.reviews({ page: query.page, property: id, tab: query.tab }),
+  );
   return (
     <div className="mx-auto w-full max-w-300 px-4 py-6 sm:px-6 sm:py-8">
       <PropertyHub {...hub} active="reviews" />

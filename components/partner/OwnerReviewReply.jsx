@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import { ownerReviewReply } from '@/lib/actions/partner';
 import { fieldClass } from '@/components/ui/field';
 import { buttonVariants } from '@/components/ui/button';
-export default function OwnerReviewReply({ review }) {
+export default function OwnerReviewReply({ review, autoFocus = false }) {
   const [state, action, pending] = useActionState(async (previous, form) => {
     const result = await ownerReviewReply(previous, form);
     if (result.message) toast.success(result.message);
@@ -21,13 +21,14 @@ export default function OwnerReviewReply({ review }) {
       router.refresh();
     }
   }, [state, router]);
+  const saving = pending || Boolean(state.message);
   return (
     <>
       <form action={action} className="space-y-3">
         <input type="hidden" name="id" value={review.id} />
         <input type="hidden" name="version" value={review.version} />
         <label className="block">
-          Your public reply
+          <span className="text-meta font-semibold text-ink-800">Your public reply</span>
           <textarea
             className={`${fieldClass} mt-1`}
             name="body"
@@ -37,26 +38,34 @@ export default function OwnerReviewReply({ review }) {
             value={body}
             onChange={(e) => setBody(e.target.value)}
             rows={3}
-            aria-describedby={`reply-count-${review.id}`}
+            autoFocus={autoFocus}
+            placeholder="Thank your guest and address their feedback."
+            aria-invalid={Boolean(state.errors?.body)}
+            aria-describedby={`reply-count-${review.id}${state.errors?.body ? ` reply-error-${review.id}` : ''}`}
           />
         </label>
-        <p id={`reply-count-${review.id}`} className="text-sm text-ink-600">
+        <p id={`reply-count-${review.id}`} className="text-tiny text-ink-500">
           {body.length}/2000 · Keep guest contact details private.
         </p>
         {Object.entries(state.errors || {}).map(([key, messages]) => (
-          <p key={key} role="alert">
+          <p
+            key={key}
+            id={key === 'body' ? `reply-error-${review.id}` : undefined}
+            role="alert"
+            className="text-meta text-danger"
+          >
             {Array.isArray(messages) ? messages.join(' ') : messages}
           </p>
         ))}
         {state.error && <p role="alert">{state.error}</p>}
-        <div className="flex gap-3">
-          <button className={buttonVariants()} disabled={pending}>
-            {pending ? 'Saving…' : review.owner_reply ? 'Save reply' : 'Post reply'}
+        <div className="flex flex-wrap gap-3">
+          <button className={buttonVariants()} disabled={saving}>
+            {saving ? 'Saving…' : review.owner_reply ? 'Save reply' : 'Post reply'}
           </button>
           {review.owner_reply && (
             <button
               type="button"
-              disabled={pending}
+              disabled={saving}
               className="min-h-11 underline"
               onClick={() => setDeleting(true)}
             >
