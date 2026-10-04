@@ -1,0 +1,41 @@
+{
+  "title": "Privacy policy",
+  "sections": [
+    [
+      "Information we use",
+      "Rentra processes account names and contact details, authentication and session records, preferences and consents, saved properties, booking and visit details, payment references, reviews, support conversations and privacy requests. For owners, this also includes submitted property information, photos, verification and payout details, and caretaker access records. These records support account access, booking operations, verification, payments, support and service security."
+    ],
+    [
+      "Access and public information",
+      "Your private booking, support and privacy records require authentication and ownership or permission checks. Authorized Rentra staff can review relevant records. Owners and assigned caretakers can access operational information for their properties according to their permissions. Owners do not have access to the customer support inbox. Published property content, reviews and approved owner replies are public. Exact arrival details are restricted to authorized confirmed booking records."
+    ],
+    [
+      "Payment and service providers",
+      "Razorpay handles the current Test checkout. Rentra stores payment references and, when you authorize a saved payment method, protected provider tokens and limited method details; account closure disables local reuse without proving provider deletion. When configured, Twilio handles OTP or booking SMS delivery, and Cloudinary handles uploaded media. Hosting and database services process the records needed to run Rentra. Do not send OTPs, passwords, card details, bank credentials or identity documents in support messages."
+    ],
+    [
+      "Privacy requests and review",
+      "Submit a data-copy or account-deletion request through your account privacy page. Owners can use their owner privacy settings. Requests are reviewed for identity, authority and scope before fulfillment. Recent authentication and appropriate permissions protect sensitive actions. Saving a request or resolving its linked support conversation does not complete the privacy request. Review or fulfillment may require follow-up, and no fixed completion deadline is promised."
+    ],
+    [
+      "Data copies",
+      "Approved access requests can produce an encrypted, account-scoped export. Downloads require authorization, are logged and expire 24 hours after the export is generated. Expired or revoked copies cannot be downloaded; the scheduled worker clears expired export artifacts. Copies exclude authentication secrets, OTPs, sessions, payment tokens, internal notes and other participants’ private identifiers. Requests outside the automatic export scope require a separately reviewed copy."
+    ],
+    [
+      "Account closure",
+      "Approved closure uses staged cleanup rather than immediate deletion of every record. Active visits, checkout holds, disputes and pending payments or refunds may need resolution first. Cleanup removes the profile photo and live profile contact fields, removes saved properties, disables saved payment methods and account access, and revokes authentication access. Owner closure also clears owner preferences and revokes caretaker access and invitations. Failed stages remain recorded for retry. The receipt describes the completed scope and retained or outstanding records."
+    ],
+    [
+      "Records that remain",
+      "Historical booking contacts, transactions, refunds, cancellation evidence, support and dispute messages, review content, verification references, audit evidence and an account identifier may remain after live account cleanup. Retention depends on record purpose, reviewed schedules and any applicable holds. Shared verification records, provider-held data, protected payment tokens, delivered messages and backups require separate review or disposal. Account closure is not full erasure, provider deletion or a claim that every retained record is anonymous."
+    ],
+    [
+      "Optional aggregate measurement",
+      "When enabled, Rentra counts selected page views, searches, date selections, share actions and service outcomes in daily groups. Browser measurements include only the action name, mobile or desktop size group and single or multiple visit group where known. They exclude identity, phone, search text, dates, address, OTP and payment tokens, and use no analytics cookie or cross-site identifier. Browser signals respect Do Not Track and Global Privacy Control. The scheduled worker removes daily aggregate counters after 90 days. Required booking, financial and security records follow their separate retention process."
+    ],
+    [
+      "Questions about your information",
+      "Use your privacy request and its support link to ask about a copy, account closure or retained records. Return to your account to check replies and the separate request status. Support is not live chat. A resolved conversation is not evidence that data was exported, deleted or removed by a provider."
+    ]
+  ]
+}

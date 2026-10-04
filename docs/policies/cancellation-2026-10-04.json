@@ -1,0 +1,33 @@
+{
+  "title": "Cancellation and refund policy",
+  "sections": [
+    [
+      "Rules saved with your booking",
+      "Each visit keeps its accepted cancellation tier, policy version and, where available, its refund bands. Those saved rules govern the estimate. The current supported booking policy is customer-v1. Historical or unsupported records require staff review. Current public wording does not change previously accepted bookings."
+    ],
+    [
+      "Farmhouse and villa cutoffs",
+      "Cutoffs use exact elapsed 24-hour days before the stored arrival time, rather than midnight calendar dates. Flexible: 100% of rent at least 3 days before arrival; 50% less than 3 days before arrival. Moderate: 100% at least 7 days before arrival; 50% at least 3 days but less than 7 days before arrival; 0% less than 3 days before arrival. Strict: 50% at least 7 days before arrival; 0% less than 7 days before arrival."
+    ],
+    [
+      "Sports and play venue cutoffs",
+      "When the saved policy uses hours, cutoffs count exact hours before the booked start time. Flexible: 100% of rent at least 4 hours before the start; 0% less than 4 hours before. Moderate: 100% at least 24 hours before; 50% at least 6 hours but less than 24 hours before; 0% less than 6 hours before. Strict: 50% at least 48 hours before; 0% less than 48 hours before. The exact cutoff is included in the higher refund band."
+    ],
+    [
+      "Started visits",
+      "Self-service cancellation is unavailable at or after a visit starts. Contact support for a started visit, arrival problem or unsupported historical record. Contacting support does not cancel the visit or promise a refund."
+    ],
+    [
+      "Platform fee, deposits and captured funds",
+      "For the current default tiers, the platform fee is refundable only when the flexible tier grants a full rent refund. An explicitly saved fee rule takes precedence. Estimates are calculated in paise, with fractional paise rounded down, and capped by verified captured rent and fee components after prior refund obligations. Uncollected balances cannot be refunded through the gateway. Security deposits are excluded from current online checkout collection, so the gateway cannot return an uncollected deposit."
+    ],
+    [
+      "Review, cancel and track",
+      "Open the booking record, select the visits and review the estimate before confirming. Only selected visits are cancelled. If the estimate changes, review it again. Cancellation and refund completion are separate outcomes. A refund remains pending until the provider result is verified; failed or uncertain outcomes need reconciliation. No fixed refund completion time is promised. Current Razorpay Test refunds do not return actual bank money."
+    ],
+    [
+      "Changing dates, activity or guest count",
+      "The current process is cancellation and a fresh booking. Sending a change request leaves the original booking unchanged. Replacement dates, court availability and the old price are not guaranteed. Check new availability, guest limits and prices before rebooking."
+    ]
+  ]
+}

@@ -27,6 +27,7 @@ import {
 } from '@/lib/domain/booking-dates';
 import { BOOKING_POLICY } from '@/lib/domain/booking-policy';
 import { SLOTS } from '@/lib/domain/pricing';
+import VisitTypeFilter from './VisitTypeFilter';
 import { discoveryApi } from '@/lib/api/endpoints';
 import { ActivityIcon } from './icons/activity-icons';
 import { clock12 as clock } from '@/lib/domain/vertical-ui';
@@ -696,27 +697,20 @@ export default function SearchFields({
         'Visit type',
         SLOTS[slot].label,
         Sun,
-        <div className="space-y-2">
-          {Object.values(SLOTS)
-            .filter((item) => !route?.intent?.slot || item.id === route.intent.slot)
-            .map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                aria-pressed={slot === item.id}
-                onClick={() => {
-                  setSlot(item.id);
-                  setActive('guests');
-                }}
-                className={`flex min-h-16 w-full items-center justify-between rounded-xl border px-3 py-2 text-left ${slot === item.id ? 'border-brand-600 bg-brand-50' : 'border-border hover:bg-ink-50'}`}
-              >
-                <span>
-                  <span className="block text-meta font-semibold">{item.label}</span>
-                  <span className="mt-1 block text-tiny text-ink-600">{item.window}</span>
-                </span>
-                {slot === item.id && <Check className="size-5 text-brand-600" aria-hidden="true" />}
-              </button>
-            ))}
+        <div>
+          <VisitTypeFilter
+            value={slot}
+            items={Object.values(SLOTS).filter(
+              (item) => !route?.intent?.slot || item.id === route.intent.slot,
+            )}
+            onChange={(value) => {
+              setSlot(value);
+              setActive('guests');
+            }}
+          />
+          <p className="mt-3 text-center text-tiny text-ink-600">
+            {SLOTS[slot].label} · {SLOTS[slot].window}
+          </p>
         </div>,
       )}
 

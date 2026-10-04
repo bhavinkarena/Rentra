@@ -7,7 +7,7 @@ import { formatINRMinor } from '@/lib/domain/booking-money';
 import { SLOTS } from '@/lib/domain/pricing';
 import { clockTime, localDay, shortDay } from '@/lib/domain/checkout-display';
 import SaveButton from '@/components/rentra/SaveButton';
-import { SLOT_ICONS } from '@/components/rentra/slot-icons';
+import VisitTypeFilter from '@/components/rentra/VisitTypeFilter';
 import QuoteSummary from './QuoteSummary';
 
 export default function BookingPriceBox({
@@ -67,28 +67,14 @@ export default function BookingPriceBox({
         </div>
         <SaveButton rentableId={rentableId} listingTitle={listingTitle} variant="icon" />
       </div>
-      <div
-        className="mb-3 flex gap-1 rounded-lg bg-ink-50 p-1"
-        role="group"
-        aria-label="Booking visit type"
-      >
-        {Object.values(SLOTS).map((item) => {
-          const Icon = SLOT_ICONS[item.id];
-          return (
-            <button
-              type="button"
-              key={item.id}
-              disabled={!selectionReady || !prices?.[item.id]}
-              aria-pressed={slot === item.id}
-              onClick={() => setSlot(item.id)}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-md px-1.5 text-xs font-semibold text-ink-600 transition-colors aria-pressed:bg-white aria-pressed:text-brand-800 aria-pressed:shadow-sm disabled:opacity-40"
-            >
-              <Icon className="size-3.5 shrink-0" aria-hidden="true" />
-              {item.label}
-            </button>
-          );
-        })}
-      </div>
+      <VisitTypeFilter
+        value={slot}
+        onChange={setSlot}
+        disabled={!selectionReady}
+        prices={prices}
+        label="Booking visit type"
+        className="mb-3"
+      />
       <div className="rounded-xl border border-ink-300">
         <button
           type="button"

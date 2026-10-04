@@ -1,30 +1,12 @@
 'use client';
 
-import { usePathname, useSearchParams } from 'next/navigation';
-import Link from '@/components/navigation/NavigationLink';
+import { useOptimistic, useTransition } from 'react';
+import { usePathname, useSearchParams, useRouter } from 'next/navigation';
+import { LoaderCircle } from 'lucide-react';
+import Link from 'next/link';
+import styles from './VerticalTabs.module.css';
 import { pageVertical, searchTabHref, verticalTabs } from '@/lib/domain/vertical-ui';
 import { VerticalIcon } from './icons/vertical-icons';
-
-const LOOK = {
-  // md+, centred in the header; fades out when the search docks and the pill takes the centre.
-  header: {
-    list: 'flex h-full items-stretch gap-6',
-    link: 'group relative flex h-full items-center gap-2.5 px-1.5 text-[0.9375rem] font-semibold text-ink-500 transition-colors hover:text-ink-900 aria-[current=page]:text-ink-900 aria-[current=page]:after:absolute aria-[current=page]:after:inset-x-0 aria-[current=page]:after:-bottom-px aria-[current=page]:after:h-[3px] aria-[current=page]:after:rounded-full aria-[current=page]:after:bg-ink-900',
-    icon: 'size-8 transition-transform duration-150 ease-out motion-safe:group-hover:-translate-y-0.5',
-  },
-  // Below md, two equal pills at the top of a photo hero (the photo chip recipe).
-  hero: {
-    list: 'mb-5 grid grid-cols-2 gap-2 md:hidden',
-    link: 'flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 text-meta font-semibold text-white backdrop-blur aria-[current=page]:border-white aria-[current=page]:bg-white aria-[current=page]:text-ink-900',
-    icon: 'size-6.5',
-  },
-  // Below md, above the search fields on discovery pages.
-  light: {
-    list: 'mb-3 grid grid-cols-2 gap-2 md:hidden',
-    link: 'flex min-h-11 items-center justify-center gap-2 rounded-full border border-border bg-card px-3 text-meta font-semibold text-ink-600 aria-[current=page]:border-ink-900 aria-[current=page]:text-ink-900',
-    icon: 'size-6',
-  },
-};
 
 /**
  * Farmhouse / Entertainment (entertainment plan, Phase 6). Links, not an ARIA
@@ -32,24 +14,58 @@ const LOOK = {
  * is empty until two verticals are public, so nothing renders before launch.
  */
 export default function VerticalTabs({ items, variant = 'header' }) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const activeCode = items.find((item) => item.active)?.code;
+  const [selected, select] = useOptimistic(activeCode);
   if (items.length < 2) return null;
-  const look = LOOK[variant];
+  const index = Math.max(
+    0,
+    items.findIndex((item) => item.code === selected),
+  );
   return (
-    <nav aria-label="Categories" className={variant === 'header' ? 'h-full' : undefined}>
-      <ul className={look.list}>
-        {items.map((item) => (
-          <li key={item.code} className={variant === 'header' ? 'flex' : undefined}>
-            <Link
-              href={item.href}
-              aria-current={item.active ? 'page' : undefined}
-              className={look.link}
-            >
-              <VerticalIcon code={item.code} className={look.icon} />
-              {item.name}
-            </Link>
-          </li>
-        ))}
+    <nav
+      aria-label="Categories"
+      aria-busy={pending}
+      className={`${styles.navigation} ${styles[variant]}`}
+    >
+      <ul
+        className={styles.track}
+        style={{ '--category-count': items.length, '--category-index': index }}
+      >
+        <li className={styles.selection} aria-hidden="true" />
+        {items.map((item) => {
+          const chosen = item.code === selected;
+          return (
+            <li key={item.code} className={styles.item}>
+              <Link
+                href={item.href}
+                prefetch={true}
+                aria-current={item.active ? 'page' : undefined}
+                data-selected={chosen}
+                className={styles.link}
+                onNavigate={(event) => {
+                  event.preventDefault();
+                  if (item.active && !pending) return;
+                  startTransition(() => {
+                    select(item.code);
+                    router.push(item.href);
+                  });
+                }}
+              >
+                <VerticalIcon code={item.code} className={styles.icon} />
+                <span>{item.name}</span>
+                <span className={styles.pendingSlot} aria-hidden="true">
+                  {chosen && pending && <LoaderCircle className={styles.spinner} />}
+                </span>
+              </Link>
+            </li>
+          );
+        })}
       </ul>
+      <span role="status" className="sr-only">
+        {pending ? `Opening ${items[index].name}` : ''}
+      </span>
     </nav>
   );
 }
