@@ -1,4 +1,5 @@
 'use client';
+import { segmentedTrack, segmentedItem } from '@/components/ui/segmented-control';
 import { requestPortalLeave } from '@/components/portal/UnsavedChangesGuard';
 import { EmptyState } from '@/components/ui/empty-state';
 import Skeleton from '@/components/ui/skeleton';
@@ -127,8 +128,7 @@ const btn = {
   ghost: 'text-ink-700 hover:bg-ink-100',
 };
 const button = (kind = 'outline') => `${btn.base} ${btn[kind]}`;
-const segment = (on) =>
-  `inline-flex h-full min-w-11 items-center justify-center rounded-[9px] px-3 text-meta font-semibold whitespace-nowrap transition-colors ${on ? 'bg-card text-ink-900 shadow-sm ring-1 ring-border' : 'text-ink-600 hover:text-ink-900'}`;
+const segment = (on) => segmentedItem(on);
 
 function Hold({ expires, onExpire }) {
   const [left, setLeft] = useState(() => Math.max(0, new Date(expires) - Date.now()));
@@ -288,7 +288,7 @@ export default function PortfolioCalendar({
       <div
         role="group"
         aria-label="What to change"
-        className="flex h-11 w-full items-center gap-0.5 rounded-md border border-border bg-ink-25 p-1 sm:inline-flex sm:w-auto"
+        className={`${segmentedTrack} flex w-full sm:w-auto`}
       >
         {[
           ['slots', 'Open or close'],
@@ -626,10 +626,7 @@ export default function PortfolioCalendar({
             </h2>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <nav
-              aria-label="Calendar view"
-              className="inline-flex h-11 items-center gap-0.5 rounded-md border border-border bg-ink-25 p-1"
-            >
+            <nav aria-label="Calendar view" className={segmentedTrack}>
               {VIEWS.map(([value, text]) => (
                 <Link
                   key={value}

@@ -1,4 +1,5 @@
 'use client';
+import { segmentedTrack, segmentedItem } from '@/components/ui/segmented-control';
 import NavigationProgress from '@/components/navigation/NavigationProgress';
 import LoaderCircle from '@/components/ui/rentra-loader';
 
@@ -70,7 +71,7 @@ export default function PropertyFilters({
       <div
         role="group"
         aria-label="Filter by status"
-        className="-mx-4 flex gap-1 overflow-x-auto px-4 [scrollbar-width:thin]"
+        className={`${segmentedTrack} flex max-w-full overflow-x-auto [scrollbar-width:thin]`}
       >
         {SEGMENTS.map((segment) => (
           <button
@@ -79,20 +80,14 @@ export default function PropertyFilters({
             aria-pressed={status === segment.value}
             disabled={pending}
             onClick={() => choose(segment.value)}
-            className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-tiny font-semibold ${
-              status === segment.value
-                ? 'bg-primary text-white'
-                : 'bg-ink-25 text-ink-700 hover:bg-ink-100'
-            }`}
+            className={`${segmentedItem(status === segment.value)} shrink-0 gap-1.5`}
           >
             {segment.label}
             <span className="tabular opacity-80">{segment.count(summary) ?? 0}</span>
           </button>
         ))}
         {OTHER[status] ? (
-          <span className="inline-flex min-h-11 shrink-0 items-center rounded-full bg-primary px-3.5 text-tiny font-semibold text-white">
-            {OTHER[status]}
-          </span>
+          <span className={`${segmentedItem(true)} shrink-0`}>{OTHER[status]}</span>
         ) : null}
       </div>
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
@@ -126,11 +121,7 @@ export default function PropertyFilters({
 
         <div className="flex shrink-0 flex-wrap items-center gap-2">
           {verticals.length > 1 ? (
-            <div
-              role="group"
-              aria-label="Property type"
-              className="inline-flex max-w-full items-center gap-1 rounded-full border border-border bg-ink-50 p-1"
-            >
+            <div role="group" aria-label="Property type" className={`${segmentedTrack} max-w-full`}>
               {verticals.length > 1
                 ? // Only for owners who list both kinds.
                   [['', 'All kinds'], ...verticals.map((code) => [code, KINDS[code] ?? code])].map(
@@ -141,11 +132,7 @@ export default function PropertyFilters({
                         aria-pressed={vertical === code}
                         onClick={() => choose(status, code)}
                         disabled={pending}
-                        className={`inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-full px-3 text-tiny font-semibold transition-colors disabled:cursor-wait ${
-                          vertical === code
-                            ? 'bg-card text-brand-800 shadow-xs'
-                            : 'text-ink-600 hover:bg-ink-100 hover:text-ink-900'
-                        }`}
+                        className={segmentedItem(vertical === code)}
                       >
                         {label}
                       </button>

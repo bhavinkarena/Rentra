@@ -110,7 +110,6 @@ export default function PartnerShellSkeleton() {
         >
           <Skeleton className="h-11 min-w-0 flex-1 sm:max-w-xl" />
           <div className="ml-auto flex items-center gap-2">
-            <Skeleton className="hidden h-11 w-20 md:block" />
             <Skeleton className="size-11" />
             <Skeleton className="size-11 rounded-full" />
           </div>

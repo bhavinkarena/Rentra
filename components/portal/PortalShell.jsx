@@ -9,7 +9,6 @@ import { usePathname } from 'next/navigation';
 import { useFormStatus } from 'react-dom';
 import {
   Bell,
-  Plus,
   ArrowUpRight,
   Lock,
   LogOut,
@@ -441,15 +440,6 @@ export default function PortalShell({ config, children }) {
             {owner ? (
               <>
                 {config.headerAction}
-                {config.addHref && (
-                  <Link
-                    href={config.addHref}
-                    className="hidden min-h-11 items-center gap-1 rounded-md border border-border px-3 text-meta font-semibold md:flex"
-                  >
-                    <Plus className="size-4" aria-hidden="true" />
-                    Add
-                  </Link>
-                )}
                 <Link
                   href="/partner/updates"
                   aria-label="Inbox"

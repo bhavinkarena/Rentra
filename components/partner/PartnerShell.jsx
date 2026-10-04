@@ -109,7 +109,6 @@ function OwnerShell({ children, user, logoutAction, counts = {}, completion }) {
     routeLabel: (path) => ownerRouteLabel(path, approved),
     logoutAction,
     profileHref: '/partner/settings',
-    addHref: user.capabilities?.includes('client.listings.write') ? '/partner/listings/new' : null,
     inboxBadge: counts.unreadUpdates,
     headerAction: counts.setup,
     user: {

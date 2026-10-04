@@ -5,17 +5,14 @@ import { RentraLogo } from '@/components/rentra/Logo';
 import Link from '@/components/navigation/NavigationLink';
 import { ChapterBar } from './WizardProgress';
 import { inputCls } from './SectionPrimitives';
-export default function NewListingStart({
-  categories,
-  intendedVertical,
-  verticals = [],
-  progress,
-  venueProgress,
-}) {
+export default function NewListingStart({ categories, verticals = [], progress, venueProgress }) {
   const [state, action, pending] = useActionState(createListingFromBasics, {});
-  const choices = verticals.filter((v) => categories.some((c) => c.vertical === v.code));
-  const [vertical, setVertical] = useState(intendedVertical || choices[0]?.code || 'farmhouse');
+  const choices = ['farmhouse', 'entertainment']
+    .map((code) => verticals.find((v) => v.code === code) || { code })
+    .filter((v) => categories.some((c) => (c.vertical || 'farmhouse') === v.code));
+  const [vertical, setVertical] = useState('farmhouse');
   const shown = categories.filter((c) => (c.vertical || 'farmhouse') === vertical);
+  const farmhouseCategory = shown.find((c) => c.slug === 'farmhouse') || shown[0];
   const current = vertical === 'entertainment' ? venueProgress : progress;
   return (
     <div className="flex min-h-dvh flex-col bg-background">
@@ -54,17 +51,21 @@ export default function NewListingStart({
               ))}
             </div>
           </fieldset>
-          <label className="block text-meta font-semibold">
-            {vertical === 'entertainment' ? 'Main activity' : 'Category'}
-            <select key={vertical} name="categoryId" required defaultValue="" className={inputCls}>
-              <option value="">Choose a category</option>
-              {shown.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </label>
+          {vertical === 'entertainment' ? (
+            <label className="block text-meta font-semibold">
+              Category
+              <select name="categoryId" required defaultValue="" className={inputCls}>
+                <option value="">Choose a category</option>
+                {shown.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : (
+            <input type="hidden" name="categoryId" value={farmhouseCategory?.id || ''} />
+          )}
           {Object.values(state.errors || {}).map((e, i) => (
             <p key={i} role="alert" className="text-danger">
               {e}

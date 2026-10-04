@@ -1,4 +1,5 @@
 'use client';
+import { segmentedTrack, segmentedItem } from '@/components/ui/segmented-control';
 
 import { useRef, useState } from 'react';
 import { Download, TrendingDown, TrendingUp } from 'lucide-react';
@@ -288,11 +289,7 @@ export default function OwnerAnalytics({ result, earnings }) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div
-            role="group"
-            aria-label="Date range"
-            className="inline-flex h-11 items-center gap-0.5 rounded-md border border-border bg-ink-25 p-1"
-          >
+          <div role="group" aria-label="Date range" className={segmentedTrack}>
             {RANGES.map(([value, short, name]) => (
               <button
                 key={value}
@@ -303,7 +300,7 @@ export default function OwnerAnalytics({ result, earnings }) {
                   setRange(value);
                   setActive(null);
                 }}
-                className={`h-full min-w-11 rounded-[9px] px-2.5 text-meta font-semibold transition-colors ${range === value ? 'bg-card text-ink-900 shadow-sm ring-1 ring-border' : 'text-ink-600 hover:text-ink-900'}`}
+                className={segmentedItem(range === value)}
               >
                 {short}
               </button>

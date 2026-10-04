@@ -201,11 +201,7 @@ export default function OwnerBookings({ data }) {
         (data.resources ?? []).length ? (
           <div className="flex flex-wrap items-center gap-2 border-b border-border px-3 py-3 sm:px-4">
             {data.tab === 'today' ? (
-              <div
-                role="group"
-                aria-label="Arrivals and departures"
-                className="inline-flex h-10 items-center gap-0.5 rounded-md border border-border bg-ink-25 p-1"
-              >
+              <div role="group" aria-label="Arrivals and departures" className={segmentedTrack}>
                 {[
                   ['all', 'All today'],
                   ['arriving', 'Arriving'],
@@ -215,7 +211,7 @@ export default function OwnerBookings({ data }) {
                     key={event}
                     aria-current={(data.event || 'all') === event ? 'page' : undefined}
                     href={href(data, { event, page: '1' })}
-                    className={`inline-flex h-full items-center rounded-[7px] px-3 text-tiny font-semibold ${(data.event || 'all') === event ? 'bg-card text-ink-900 shadow-sm ring-1 ring-border' : 'text-ink-600 hover:text-ink-900'}`}
+                    className={segmentedItem((data.event || 'all') === event)}
                   >
                     {text}
                   </Link>
