@@ -70,3 +70,7 @@ The browser workflows covered inbox links opening in a new tab and retaining unr
 - Local database fixtures substitute text for unavailable PostGIS geometry. These results do not validate production geospatial behavior.
 
 Fix the three confirmed behavior defects and the failing CI gates before claiming the implemented scope is complete. Meet the performance and production integration gates before claiming readiness for the full owner experience.
+
+## Account switching follow-up · 4 October 2026
+
+Customer ↔ owner switching is implemented separately from the release findings above. Users with a shared verified mobile can use “List your space” and “Book a property” without another OTP or login screen. See [account switching behavior and verification](ACCOUNT-SWITCHING.md) for identity requirements, session handling, and test evidence. This does not resolve the unrelated release findings in this review.

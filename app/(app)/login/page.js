@@ -36,11 +36,11 @@ export default async function CustomerLoginPage() {
           <div className="mt-8 space-y-4">
             <p className="text-meta">
               You are signed in as {admin ? 'an administrator' : 'a partner'}. Customer booking uses
-              a separate account.
+              your customer account.
             </p>
             <IdentityActionForm action={switchToCustomer}>
               <Button type="submit" className="w-full">
-                Sign out and continue as customer
+                {admin ? 'Sign out and continue as customer' : 'Continue as customer'}
               </Button>
             </IdentityActionForm>
             <Link

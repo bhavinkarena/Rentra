@@ -132,9 +132,20 @@ export default function SavedPlacesProvider({ children }) {
     const changed = (event) => {
       if (
         !event.key ||
-        [GUEST_SAVED_KEY, GUEST_MERGE_OWNER_KEY, SAVED_SIGNAL_KEY].includes(event.key)
+        [GUEST_SAVED_KEY, GUEST_MERGE_OWNER_KEY, SAVED_SIGNAL_KEY, 'rentra:identity'].includes(
+          event.key,
+        )
       )
         scheduleRefresh();
+    };
+    const identityChanged = (event) => {
+      if (event.detail === 'changing') {
+        clearTimeout(timer);
+        ++generation.current;
+        setState(null);
+        setIdentity(null);
+        setUndo(null);
+      } else scheduleRefresh();
     };
     const hidden = () => {
       if (document.visibilityState === 'hidden') {
@@ -148,6 +159,7 @@ export default function SavedPlacesProvider({ children }) {
     window.addEventListener('focus', scheduleRefresh);
     window.addEventListener('rentra-saved-changed', refresh);
     window.addEventListener('rentra-profile-changed', refresh);
+    window.addEventListener('rentra:identity', identityChanged);
     document.addEventListener('visibilitychange', hidden);
     return () => {
       clearTimeout(timer);
@@ -156,6 +168,7 @@ export default function SavedPlacesProvider({ children }) {
       window.removeEventListener('focus', scheduleRefresh);
       window.removeEventListener('rentra-saved-changed', refresh);
       window.removeEventListener('rentra-profile-changed', refresh);
+      window.removeEventListener('rentra:identity', identityChanged);
       document.removeEventListener('visibilitychange', hidden);
     };
   }, [refresh]);

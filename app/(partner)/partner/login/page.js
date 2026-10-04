@@ -1,4 +1,5 @@
 import Link from '@/components/navigation/NavigationLink';
+import AccountSwitchButton from '@/components/auth/AccountSwitchButton';
 import AuthLayout from '@/components/auth/AuthLayout';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/api/session';
@@ -16,8 +17,8 @@ export const metadata = {
  * An account carries exactly one role, fixed at signup, so the role cannot be
  * inferred from a credential — the login route has to declare it. Uniqueness
  * in the database is on (email, role), so the same address can hold one
- * Client account and one Customer account, linked by person_id so that KYC is
- * only ever done once.
+ * Client account and one Customer account. Switching reuses live sessions
+ * only after matching the verified mobile number on both accounts.
  */
 export default async function PartnerLoginPage({ searchParams }) {
   // Next 16: searchParams is a Promise.
@@ -70,9 +71,12 @@ export default async function PartnerLoginPage({ searchParams }) {
 
       <p className="mt-8 border-t border-border pt-6 text-meta text-ink-600">
         Looking to book instead?{' '}
-        <Link href="/login" className="font-semibold text-brand-700 hover:underline">
-          Guest log in
-        </Link>
+        <AccountSwitchButton
+          role="customer"
+          className="font-semibold text-brand-700 hover:underline"
+        >
+          Book a property
+        </AccountSwitchButton>
       </p>
     </AuthLayout>
   );

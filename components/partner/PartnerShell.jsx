@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
+import BookPropertyButton from './BookPropertyButton';
 import PortalShell from '@/components/portal/PortalShell';
 import NavDrawer from '@/components/portal/NavDrawer';
 import OwnerTour from './OwnerTour';
@@ -111,6 +112,7 @@ function OwnerShell({ children, user, logoutAction, counts = {}, completion }) {
     profileHref: '/partner/settings',
     inboxBadge: counts.unreadUpdates,
     headerAction: counts.setup,
+    bookingAction: user.hasCustomerAccount === true ? <BookPropertyButton /> : null,
     user: {
       name,
       initials: name

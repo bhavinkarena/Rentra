@@ -1,3 +1,4 @@
+import AccountSwitchButton from '@/components/auth/AccountSwitchButton';
 import Link from '@/components/navigation/NavigationLink';
 import ListingCard from './ListingCard';
 import DiscoveryFilters from './DiscoveryFilters';
@@ -286,9 +287,9 @@ export default async function DiscoveryResults({ query, registry: registryInput,
                     {c.name}
                   </Link>
                 ))}
-                <Link className={pill} href="/partner/login">
+                <AccountSwitchButton className={pill} role="client">
                   List your venue
-                </Link>
+                </AccountSwitchButton>
               </EmptyState>
             ) : null}
             {!result.total && !play && (

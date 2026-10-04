@@ -1015,15 +1015,15 @@
     white-space: nowrap;
     min-width: 0;
   }
-  .customer-nav--compact a[aria-current='page'] .customer-nav-label,
-  .customer-nav--compact a:focus-visible .customer-nav-label {
+  .customer-nav--compact :is(a, button)[aria-current='page'] .customer-nav-label,
+  .customer-nav--compact :is(a, button):focus-visible .customer-nav-label {
     grid-template-columns: 1fr;
     margin-left: 0.5rem;
     opacity: 1;
   }
 }
 @media (min-width: 640px) and (hover: hover) and (pointer: fine) {
-  .customer-nav--compact a:hover .customer-nav-label {
+  .customer-nav--compact :is(a, button):hover .customer-nav-label {
     grid-template-columns: 1fr;
     margin-left: 0.5rem;
     opacity: 1;
@@ -1035,7 +1035,7 @@
   }
 }
 
-.customer-nav--compact a:focus-visible .customer-nav-label {
+.customer-nav--compact :is(a, button):focus-visible .customer-nav-label {
   transition: none;
 }
 /* Signed-in navigation has the extra Bookings item; leave room for its label. */

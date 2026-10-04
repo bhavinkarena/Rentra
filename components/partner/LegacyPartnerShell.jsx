@@ -10,6 +10,7 @@ import {
   Star,
   Users,
 } from 'lucide-react';
+import BookPropertyButton from './BookPropertyButton';
 import PortalShell from '@/components/portal/PortalShell';
 
 const NAV_GROUPS = [
@@ -119,6 +120,7 @@ export default function LegacyPartnerShell({ children, user, logoutAction, count
         groups,
         routeLabel,
         logoutAction,
+        bookingAction: user.hasCustomerAccount === true ? <BookPropertyButton /> : null,
         profileHref: '/partner/settings',
         user: {
           name: displayName,

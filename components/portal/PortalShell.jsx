@@ -335,7 +335,6 @@ export default function PortalShell({ config, children }) {
   );
   const toggleRail = () => writeRail(!rail);
   const owner = config.ownerNavigation;
-  const [accountOpen, setAccountOpen] = useState(false);
   // DS-06: after a client navigation, start keyboard and screen-reader users at
   // the new page (the h1 when there is one), not at the link they pressed.
   const main = useRef(null);
@@ -429,7 +428,8 @@ export default function PortalShell({ config, children }) {
               </Link>
             ) : null}
             {config.headerNote}
-            {!owner && (
+            {config.bookingAction}
+            {!owner && !config.bookingAction && (
               <Link
                 href="/"
                 className="hidden min-h-10 items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-tiny font-semibold text-ink-700 hover:bg-ink-50 sm:inline-flex"
@@ -454,15 +454,13 @@ export default function PortalShell({ config, children }) {
                     {config.inboxBadge}
                   </span>
                 </Link>
-                <button
-                  type="button"
-                  onClick={() => setAccountOpen(true)}
-                  aria-label="Open account menu"
-                  aria-expanded={accountOpen}
+                <Link
+                  href={config.profileHref}
+                  aria-label="Open account settings"
                   className="grid size-11 place-items-center rounded-full bg-brand-100 text-tiny font-bold text-brand-800"
                 >
                   {config.user.initials}
-                </button>
+                </Link>
               </>
             ) : config.profileHref ? (
               <Link
@@ -503,31 +501,6 @@ export default function PortalShell({ config, children }) {
           onMore={() => setMobileOpen(true)}
           moreActive={!config.bottomItems.some((item) => isActive(pathname, item))}
         />
-      )}
-      {owner && (
-        <NavDrawer
-          open={accountOpen}
-          onClose={() => setAccountOpen(false)}
-          label="Owner account"
-          desktop
-        >
-          <div className="space-y-2 px-6 pt-20 text-white">
-            <p className="mb-4 font-semibold">{config.user.name}</p>
-            <Link
-              href={config.profileHref}
-              onClick={() => setAccountOpen(false)}
-              className="flex min-h-11 items-center"
-            >
-              Settings
-            </Link>
-            <Link href="/" className="flex min-h-11 items-center">
-              View Rentra
-            </Link>
-            <form action={config.logoutAction}>
-              <SignOut />
-            </form>
-          </div>
-        </NavDrawer>
       )}
       <NavDrawer open={mobileOpen} onClose={() => setMobileOpen(false)} label={config.navLabel}>
         <Sidebar

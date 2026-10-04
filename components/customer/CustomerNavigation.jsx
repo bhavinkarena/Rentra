@@ -3,6 +3,7 @@ import Link from '@/components/navigation/NavigationLink';
 import { usePathname } from 'next/navigation';
 import { Heart, CalendarDays, CircleUserRound } from 'lucide-react';
 import { useSavedPlaces } from './SavedPlacesProvider';
+import AccountSwitchButton from '@/components/auth/AccountSwitchButton';
 import ProfileAvatar from './ProfileAvatar';
 
 export default function CustomerNavigation({ authenticated = false, compact = false, profile }) {
@@ -48,17 +49,16 @@ export default function CustomerNavigation({ authenticated = false, compact = fa
           <ProfileAvatar name={identity?.name} photoUrl={identity?.photoUrl} />
         </Link>
       ) : (
-        <Link
-          href="/login"
-          aria-label="Log in"
-          aria-current={pathname === '/login' ? 'page' : undefined}
+        <AccountSwitchButton
+          role="customer"
+          ariaLabel="Log in"
           className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full px-3 transition-colors duration-150 hover:bg-ink-200 hover:text-brand-800 aria-[current=page]:bg-brand-600 aria-[current=page]:text-white aria-[current=page]:hover:bg-brand-700 motion-reduce:transition-none"
         >
           <CircleUserRound className="size-4.5" aria-hidden="true" />
           <span className="customer-nav-label max-sm:sr-only sm:ml-2">
             <span>Log in</span>
           </span>
-        </Link>
+        </AccountSwitchButton>
       )}
     </nav>
   );

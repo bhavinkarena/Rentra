@@ -1,3 +1,4 @@
+import AccountSwitchButton from '@/components/auth/AccountSwitchButton';
 import Link from '@/components/navigation/NavigationLink';
 import { Suspense } from 'react';
 import { FaWhatsapp } from 'react-icons/fa6';
@@ -57,12 +58,12 @@ export default function SiteChrome({
               <MarketingHeaderSearch />
             </Suspense>
             <div className="pointer-events-auto relative ml-auto">{navigation}</div>
-            <Link
-              href="/partner/login"
+            <AccountSwitchButton
+              role="client"
               className="pointer-events-auto relative hidden min-h-11 items-center rounded-full px-3 text-meta text-ink-500 hover:bg-brand-50 hover:text-brand-700 md:inline-flex docked:max-xl:hidden"
             >
-              List your place
-            </Link>
+              List your space
+            </AccountSwitchButton>
           </div>
         </header>
 
@@ -168,13 +169,13 @@ async function MarketingFooter() {
             <p className="mt-4 max-w-56 text-meta text-on-dark-muted max-sm:hidden">
               Bring your property to Rentra and welcome your next guests.
             </p>
-            <Link
-              href="/partner/login"
+            <AccountSwitchButton
+              role="client"
               className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-champagne px-4 text-meta font-semibold text-brand-900 transition-colors hover:bg-champagne-hover"
             >
-              List your place
+              List your space
               <ArrowUpRight className="size-4" aria-hidden="true" />
-            </Link>
+            </AccountSwitchButton>
           </div>
 
           {farmhouse && cities.length > 0 ? (
