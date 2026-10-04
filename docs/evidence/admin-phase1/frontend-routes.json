@@ -1,0 +1,518 @@
+[
+  {
+    "route": "/admin/applications/[id]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/applications/[id]/page.js",
+    "readCapability": "admin.applications.read",
+    "queryControls": ["from", "tab"],
+    "apiReads": ["application"]
+  },
+  {
+    "route": "/admin/audit/events/[id]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/audit/events/[id]/page.js",
+    "readCapability": "admin.audit.read",
+    "queryControls": [],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/audit/exports/[id]/download",
+    "kind": "file",
+    "source": "Rentra/app/(admin)/admin/audit/exports/[id]/download/route.js",
+    "readCapability": "admin.audit.read",
+    "queryControls": [],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/audit/exports/[id]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/audit/exports/[id]/page.js",
+    "readCapability": "admin.audit.read",
+    "queryControls": [],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/audit/exports/[id]/receipt",
+    "kind": "file",
+    "source": "Rentra/app/(admin)/admin/audit/exports/[id]/receipt/route.js",
+    "readCapability": "admin.audit.read",
+    "queryControls": [],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/audit/exports",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/audit/exports/page.js",
+    "readCapability": "admin.audit.read",
+    "queryControls": [],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/audit",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/audit/page.js",
+    "readCapability": "admin.audit.read",
+    "queryControls": [
+      "from",
+      "to",
+      "actorType",
+      "actorId",
+      "action",
+      "entity",
+      "target",
+      "correlation",
+      "page"
+    ],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/booking-cases/[id]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/booking-cases/[id]/page.js",
+    "readCapability": "admin.records.read",
+    "queryControls": [],
+    "apiReads": ["bookingCase"]
+  },
+  {
+    "route": "/admin/booking-cases",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/booking-cases/page.js",
+    "readCapability": "admin.records.read",
+    "queryControls": ["state", "type", "assigned", "q", "page"],
+    "apiReads": ["cases"]
+  },
+  {
+    "route": "/admin/bookings/[orderId]/attachments/[attachmentId]",
+    "kind": "file",
+    "source": "Rentra/app/(admin)/admin/bookings/[orderId]/attachments/[attachmentId]/route.js",
+    "readCapability": "admin.records.read",
+    "queryControls": [],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/bookings/[orderId]/calendar",
+    "kind": "file",
+    "source": "Rentra/app/(admin)/admin/bookings/[orderId]/calendar/route.js",
+    "readCapability": "admin.records.read",
+    "queryControls": [],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/bookings/[orderId]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/bookings/[orderId]/page.js",
+    "readCapability": "admin.records.read",
+    "queryControls": ["from", "tab"],
+    "apiReads": ["record"]
+  },
+  {
+    "route": "/admin/bookings/[orderId]/summary",
+    "kind": "file",
+    "source": "Rentra/app/(admin)/admin/bookings/[orderId]/summary/route.js",
+    "readCapability": "admin.records.read",
+    "queryControls": [],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/bookings",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/bookings/page.js",
+    "readCapability": "admin.records.read",
+    "queryControls": [
+      "tab",
+      "page",
+      "q",
+      "vertical",
+      "from",
+      "to",
+      "event",
+      "property",
+      "resource"
+    ],
+    "apiReads": ["records"]
+  },
+  {
+    "route": "/admin/catalogues/[type]/[id]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/catalogues/[type]/[id]/page.js",
+    "readCapability": "admin.catalogues.read",
+    "queryControls": [],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/catalogues/[type]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/catalogues/[type]/page.js",
+    "readCapability": "admin.catalogues.read",
+    "queryControls": ["q", "status", "page"],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/catalogues",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/catalogues/page.js",
+    "readCapability": "admin.catalogues.read",
+    "queryControls": [],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/clients/[id]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/clients/[id]/page.js",
+    "readCapability": "admin.clients.read",
+    "queryControls": ["from", "tab"],
+    "apiReads": ["client"]
+  },
+  {
+    "route": "/admin/clients",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/clients/page.js",
+    "readCapability": "admin.clients.read",
+    "queryControls": ["q", "status", "page"],
+    "apiReads": ["clients"]
+  },
+  {
+    "route": "/admin/content/[kind]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/content/[kind]/page.js",
+    "readCapability": "admin.content.read",
+    "queryControls": ["historyPage"],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/content",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/content/page.js",
+    "readCapability": "admin.content.read",
+    "queryControls": [],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/customers/[id]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/customers/[id]/page.js",
+    "readCapability": "admin.customers.read",
+    "queryControls": ["from", "tab"],
+    "apiReads": ["customer"]
+  },
+  {
+    "route": "/admin/customers",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/customers/page.js",
+    "readCapability": "admin.customers.read",
+    "queryControls": ["q", "status", "page"],
+    "apiReads": ["customers"]
+  },
+  {
+    "route": "/admin/disputes/[id]/attachments/[fileId]",
+    "kind": "file",
+    "source": "Rentra/app/(admin)/admin/disputes/[id]/attachments/[fileId]/route.js",
+    "readCapability": "admin.payments.read",
+    "queryControls": [],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/disputes/[id]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/disputes/[id]/page.js",
+    "readCapability": "admin.payments.read",
+    "queryControls": [],
+    "apiReads": ["detail"]
+  },
+  {
+    "route": "/admin/disputes/new",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/disputes/new/page.js",
+    "readCapability": "admin.payments.read",
+    "queryControls": ["order"],
+    "apiReads": ["context"]
+  },
+  {
+    "route": "/admin/disputes",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/disputes/page.js",
+    "readCapability": "admin.payments.read",
+    "queryControls": ["state", "kind", "page", "orderId"],
+    "apiReads": ["list"]
+  },
+  {
+    "route": "/admin/documents/[id]",
+    "kind": "file",
+    "source": "Rentra/app/(admin)/admin/documents/[id]/route.js",
+    "readCapability": "admin.documents.read",
+    "queryControls": [],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/enroll",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/enroll/page.js",
+    "readCapability": "Private one-time token; no admin session required",
+    "queryControls": ["#token (URL fragment)"],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/finance/allocations/[id]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/finance/allocations/[id]/page.js",
+    "readCapability": "admin.payments.read",
+    "queryControls": [],
+    "apiReads": ["allocation"]
+  },
+  {
+    "route": "/admin/finance/payments/[id]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/finance/payments/[id]/page.js",
+    "readCapability": "admin.payments.read",
+    "queryControls": [],
+    "apiReads": ["paymentOrder"]
+  },
+  {
+    "route": "/admin/finance/payments",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/finance/payments/page.js",
+    "readCapability": "admin.payments.read",
+    "queryControls": ["environment", "state", "attention", "q", "from", "to", "page"],
+    "apiReads": ["paymentOrders"]
+  },
+  {
+    "route": "/admin/finance/payouts/[id]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/finance/payouts/[id]/page.js",
+    "readCapability": "admin.payments.read",
+    "queryControls": [],
+    "apiReads": ["payout"]
+  },
+  {
+    "route": "/admin/finance/payouts",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/finance/payouts/page.js",
+    "readCapability": "admin.payments.read",
+    "queryControls": ["period", "environment", "propertyId", "ownerId", "page"],
+    "apiReads": ["payouts"]
+  },
+  {
+    "route": "/admin/finance/refunds/[id]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/finance/refunds/[id]/page.js",
+    "readCapability": "admin.payments.read",
+    "queryControls": [],
+    "apiReads": ["refund"]
+  },
+  {
+    "route": "/admin/finance/refunds/new",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/finance/refunds/new/page.js",
+    "readCapability": "admin.payments.read",
+    "queryControls": ["order"],
+    "apiReads": ["refundableVisits"]
+  },
+  {
+    "route": "/admin/finance/refunds",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/finance/refunds/page.js",
+    "readCapability": "admin.payments.read",
+    "queryControls": ["environment", "status", "source", "q", "page"],
+    "apiReads": ["refunds"]
+  },
+  {
+    "route": "/admin/finance/statements/[id]/download",
+    "kind": "file",
+    "source": "Rentra/app/(admin)/admin/finance/statements/[id]/download/route.js",
+    "readCapability": "admin.payments.read",
+    "queryControls": ["period", "environment", "propertyId", "ownerId", "page"],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/finance/statements/[id]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/finance/statements/[id]/page.js",
+    "readCapability": "admin.payments.read",
+    "queryControls": ["period", "environment", "propertyId", "ownerId", "page"],
+    "apiReads": ["statement"]
+  },
+  {
+    "route": "/admin/finance/statements",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/finance/statements/page.js",
+    "readCapability": "admin.payments.read",
+    "queryControls": ["period", "environment", "propertyId", "ownerId", "page"],
+    "apiReads": ["statement"]
+  },
+  {
+    "route": "/admin/help",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/help/page.js",
+    "readCapability": "Admin session; articles capability-filtered",
+    "queryControls": [],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/login",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/login/page.js",
+    "readCapability": "Public credential form; existing-admin redirect",
+    "queryControls": ["reauthenticate", "session"],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/notifications/[id]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/notifications/[id]/page.js",
+    "readCapability": "admin.notifications.read",
+    "queryControls": [],
+    "apiReads": ["notification"]
+  },
+  {
+    "route": "/admin/notifications",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/notifications/page.js",
+    "readCapability": "admin.notifications.read",
+    "queryControls": ["page"],
+    "apiReads": ["notifications"]
+  },
+  {
+    "route": "/admin/operations/incidents/[code]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/operations/incidents/[code]/page.js",
+    "readCapability": "admin.operations.read",
+    "queryControls": [],
+    "apiReads": ["incident"]
+  },
+  {
+    "route": "/admin/operations",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/operations/page.js",
+    "readCapability": "admin.operations.read",
+    "queryControls": [],
+    "apiReads": ["operations"]
+  },
+  {
+    "route": "/admin",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/page.js",
+    "readCapability": "admin.applications.read",
+    "queryControls": ["status", "assignee", "q", "page", "decided"],
+    "apiReads": ["applications", "applicationStats", "recentDecisions"]
+  },
+  {
+    "route": "/admin/payments",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/payments/page.js",
+    "readCapability": "admin.payments.read",
+    "queryControls": [],
+    "apiReads": ["paymentConfiguration"]
+  },
+  {
+    "route": "/admin/privacy/[id]/export",
+    "kind": "file",
+    "source": "Rentra/app/(admin)/admin/privacy/[id]/export/route.js",
+    "readCapability": "admin.privacy.read",
+    "queryControls": [],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/privacy/[id]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/privacy/[id]/page.js",
+    "readCapability": "admin.privacy.read",
+    "queryControls": [],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/privacy/[id]/receipt",
+    "kind": "file",
+    "source": "Rentra/app/(admin)/admin/privacy/[id]/receipt/route.js",
+    "readCapability": "admin.privacy.read",
+    "queryControls": [],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/privacy",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/privacy/page.js",
+    "readCapability": "admin.privacy.read",
+    "queryControls": ["state", "page"],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/properties/[id]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/properties/[id]/page.js",
+    "readCapability": "admin.properties.read",
+    "queryControls": ["from", "tab", "revision"],
+    "apiReads": ["property"]
+  },
+  {
+    "route": "/admin/properties",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/properties/page.js",
+    "readCapability": "admin.properties.read",
+    "queryControls": ["status", "assignee", "q", "page"],
+    "apiReads": ["properties"]
+  },
+  {
+    "route": "/admin/reviews/[id]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/reviews/[id]/page.js",
+    "readCapability": "admin.reviews.read",
+    "queryControls": [],
+    "apiReads": ["reviewDetail"]
+  },
+  {
+    "route": "/admin/reviews",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/reviews/page.js",
+    "readCapability": "admin.reviews.read",
+    "queryControls": ["page"],
+    "apiReads": ["reviews"]
+  },
+  {
+    "route": "/admin/search",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/search/page.js",
+    "readCapability": "Per-section applications/clients/customers read capabilities",
+    "queryControls": ["q"],
+    "apiReads": ["clients", "customers", "applications"]
+  },
+  {
+    "route": "/admin/security/[id]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/security/[id]/page.js",
+    "readCapability": "admin.security.read",
+    "queryControls": [],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/security",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/security/page.js",
+    "readCapability": "admin.security.read",
+    "queryControls": ["q", "status", "page"],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/support/[id]/attachments/[attachmentId]",
+    "kind": "file",
+    "source": "Rentra/app/(admin)/admin/support/[id]/attachments/[attachmentId]/route.js",
+    "readCapability": "admin.support.read",
+    "queryControls": [],
+    "apiReads": []
+  },
+  {
+    "route": "/admin/support/[id]",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/support/[id]/page.js",
+    "readCapability": "admin.support.read",
+    "queryControls": [],
+    "apiReads": ["supportThread"]
+  },
+  {
+    "route": "/admin/support",
+    "kind": "page",
+    "source": "Rentra/app/(admin)/admin/support/page.js",
+    "readCapability": "admin.support.read",
+    "queryControls": ["state", "participant", "assignment", "page"],
+    "apiReads": ["support"]
+  }
+]

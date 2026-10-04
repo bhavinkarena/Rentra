@@ -1,0 +1,126 @@
+{
+  "commandScope": "Existing admin domain integrations plus portal capability tests; PORTAL_TEST_DATABASE_URL and CP01_TEST_DATABASE_URL set to a disposable localhost PostgreSQL cluster",
+  "tests": [
+    {
+      "name": "CP05 Gate 1 queue, assignment, version-guarded decisions and resubmission",
+      "passed": true
+    },
+    {
+      "name": "CP28 redacted audit, governed scopes, retries, receipts and live export authorization",
+      "passed": true
+    },
+    {
+      "name": "CP14 booking cases: exact visits, previewed partial cancellation, one refund effect, races and audiences",
+      "passed": true
+    },
+    {
+      "name": "CP24 catalogue authorization, immutable references, preview freshness, archive and discovery",
+      "passed": true
+    },
+    {
+      "name": "CP03 client directory, impact preview and version-guarded suspend/reinstate",
+      "passed": true
+    },
+    {
+      "name": "CP25 publication, immutable history, rollback and checkout acceptance",
+      "passed": false
+    },
+    {
+      "name": "CP04 customer directory, minimization, corrections, restriction and session revocation",
+      "passed": true
+    },
+    {
+      "name": "CP26 operator access, session revocation, enrollment and audited recovery",
+      "passed": true
+    },
+    {
+      "name": "CP19 investigation: environment-separated totals, verified-only money, reconcile, webhook evidence and disabled gateway",
+      "passed": true
+    },
+    {
+      "name": "portal sessions revoke durably on logout, suspension, permissions and credential changes",
+      "passed": true
+    },
+    {
+      "name": "CP27 scoped export, live permission checks, retention, checkpoints and receipts",
+      "passed": true
+    },
+    {
+      "name": "CP06 immutable property submissions, scoped corrections, stale decisions and reviewer races",
+      "passed": true
+    },
+    {
+      "name": "CP20 refunds: capped operator refunds, single dispatch, lost responses, duplicate callbacks and failed refunds",
+      "passed": true
+    },
+    {
+      "name": "CP17 storage failure saves nothing, assignee rules, malformed input, cross-case keys, update link, customer photos",
+      "passed": true
+    },
+    {
+      "name": "CP07 verification scheduling, evidence rules and revision-exact publication",
+      "passed": true
+    },
+    {
+      "name": "CP13 private evidence photos, incidents, superseding corrections, scope and append-only history",
+      "passed": true
+    },
+    {
+      "name": "capabilities fail closed for unknown, customer, suspended and blocked actors",
+      "passed": true
+    },
+    {
+      "name": "pending clients can edit drafts but cannot operate calendars or bookings",
+      "passed": true
+    },
+    {
+      "name": "admin permissions use current grants; document downloads and writes are distinct",
+      "passed": true
+    },
+    {
+      "name": "missing, legacy and wrong-role portal claims fail before SQL",
+      "passed": true
+    },
+    {
+      "name": "client lifecycle commands need admin.clients.write, reads need admin.clients.read",
+      "passed": true
+    },
+    {
+      "name": "customer account controls need admin.customers.write; clients grants do not carry over",
+      "passed": true
+    },
+    {
+      "name": "verification and publication commands need admin.properties.write",
+      "passed": true
+    },
+    {
+      "name": "restriction and correction commands need admin.properties.write",
+      "passed": true
+    },
+    {
+      "name": "updates reach onboarding clients; tasks need an active client",
+      "passed": true
+    },
+    {
+      "name": "caretakers get only the two assigned-visit capabilities; team admin stays with the owner",
+      "passed": true
+    },
+    {
+      "name": "refund operations need admin.payments; records-only operators cannot request or send refunds",
+      "passed": true
+    }
+  ],
+  "summary": {
+    "tests": 27,
+    "pass": 26,
+    "fail": 1,
+    "skipped": 0
+  },
+  "failure": {
+    "file": "rentra-backend/test/integration/content.integration.test.js",
+    "line": 204,
+    "expected": 4,
+    "actual": 5,
+    "description": "Content history includes the newly added built-in 2026-10-04 policy version; fixed-count assertion still expects four entries."
+  }
+}

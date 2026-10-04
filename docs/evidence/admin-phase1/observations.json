@@ -1,0 +1,83 @@
+[
+  {
+    "id": "ADM-F02",
+    "role": "readonly",
+    "route": "application decision",
+    "buttons": [
+      {
+        "text": "1c5f3ef6",
+        "disabled": false
+      },
+      {
+        "text": "Assign to me",
+        "disabled": false
+      },
+      {
+        "text": "Approve",
+        "disabled": false
+      },
+      {
+        "text": "Need more info",
+        "disabled": false
+      },
+      {
+        "text": "Reject",
+        "disabled": false
+      }
+    ],
+    "screenshot": "readonly-application-actions.png"
+  },
+  {
+    "id": "ADM-F03",
+    "apiStatus": 200,
+    "route": "/admin/content/owner_help",
+    "heading": ["Record not found"],
+    "screenshot": "owner-guide-unreachable.png"
+  },
+  {
+    "id": "mobile-navigation",
+    "focusInside": true,
+    "closed": true,
+    "focusReturned": true
+  },
+  {
+    "id": "private-file-capability",
+    "path": "/admin/documents/a86a217d-0e81-4e49-94b4-69fecabade74",
+    "status": 403
+  },
+  {
+    "id": "private-file-capability",
+    "path": "/admin/audit/exports/a86a217d-0e81-4e49-94b4-69fecabade74/download",
+    "status": 403
+  },
+  {
+    "id": "private-file-capability",
+    "path": "/admin/audit/exports/a86a217d-0e81-4e49-94b4-69fecabade74/receipt",
+    "status": 403
+  },
+  {
+    "id": "private-file-capability",
+    "path": "/admin/finance/statements/2026-10/download",
+    "status": 403
+  },
+  {
+    "id": "private-file-capability",
+    "path": "/admin/privacy/a86a217d-0e81-4e49-94b4-69fecabade74/export",
+    "status": 403
+  },
+  {
+    "id": "private-file-capability",
+    "path": "/admin/privacy/a86a217d-0e81-4e49-94b4-69fecabade74/receipt",
+    "status": 403
+  },
+  {
+    "id": "private-file-capability",
+    "path": "/admin/support/dd911a43-40be-4812-b41d-875a5260b1e3/attachments/a86a217d-0e81-4e49-94b4-69fecabade74",
+    "status": 403
+  },
+  {
+    "id": "private-file-capability",
+    "path": "/admin/disputes/a86a217d-0e81-4e49-94b4-69fecabade74/attachments/a86a217d-0e81-4e49-94b4-69fecabade74",
+    "status": 403
+  }
+]

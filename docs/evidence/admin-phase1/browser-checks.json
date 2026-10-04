@@ -1,0 +1,4865 @@
+{
+  "scope": "Disposable local fixture only; captured existing behavior, not release approval",
+  "screens": [
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin",
+      "status": 200,
+      "heading": "Review queue",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-01.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/help",
+      "status": 200,
+      "heading": "Operator guide",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-02.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/content",
+      "status": 200,
+      "heading": "Public content",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-03.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/catalogues",
+      "status": 200,
+      "heading": "Categories",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-04.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/properties",
+      "status": 200,
+      "heading": "Property review",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-05.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/clients",
+      "status": 200,
+      "heading": "Clients",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-06.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/customers",
+      "status": 200,
+      "heading": "Customers",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-07.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/bookings",
+      "status": 200,
+      "heading": "Booking records",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-08.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/booking-cases",
+      "status": 200,
+      "heading": "Booking cases",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-09.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/support",
+      "status": 200,
+      "heading": "Support inbox",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-10.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/reviews",
+      "status": 200,
+      "heading": "Customer review moderation",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-11.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/disputes",
+      "status": 200,
+      "heading": "Disputes and deposit cases",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-12.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/finance/statements",
+      "status": 200,
+      "heading": "Finance statements \u00b7 2026-10",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-13.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/finance/payouts",
+      "status": 200,
+      "heading": "Payout history",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-14.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/finance/payments",
+      "status": 200,
+      "heading": "Payments",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-15.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/finance/refunds",
+      "status": 200,
+      "heading": "Refunds",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-16.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/payments",
+      "status": 200,
+      "heading": "Gateway settings",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-17.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/audit",
+      "status": 200,
+      "heading": "Audit history",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-18.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/security",
+      "status": 200,
+      "heading": "Operators & security",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-19.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/privacy",
+      "status": 200,
+      "heading": "Customer privacy requests",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-20.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/operations",
+      "status": 200,
+      "heading": "Operations overview",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-21.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/notifications",
+      "status": 200,
+      "heading": "Notification delivery",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-22.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/search?q=Owner",
+      "status": 200,
+      "heading": "Results for \u201cOwner\u201d",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-23.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/applications/1c5f3ef6-853d-4b49-aae3-ecd001765eab",
+      "status": 200,
+      "heading": "Other Owner",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-24.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/properties/85c88b64-5b7e-4f21-8bd3-5e57630bd0ab",
+      "status": 200,
+      "heading": "Review River Farm",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-25.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/bookings/32c9911f-1e85-4d91-8f94-aeb797d1a916",
+      "status": 200,
+      "heading": "Review River Farm (as booked)",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-26.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/clients/2b794fb6-81f1-430a-a812-da003d57b93e",
+      "status": 200,
+      "heading": "Property Owner",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-27.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/customers/ee4e2dff-4f8d-45cf-bbdd-ca8cd309c70f",
+      "status": 200,
+      "heading": "Booked Guest",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-28.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/support/dd911a43-40be-4812-b41d-875a5260b1e3",
+      "status": 200,
+      "heading": "Fixture calendar question",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-360-29.png"
+    },
+    {
+      "role": "full",
+      "width": 360,
+      "route": "/admin/security/0bbc2eed-d650-4f94-bd37-a2bcf88af517",
+      "status": 200,
+      "heading": "Reviewer",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [
+        "Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:\n\n- A server/client branch `if (typeof window !== 'undefined')`.\n- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.\n- Date formatting in a user's locale which doesn't match the server.\n- External changing data without sending a snapshot of it along with the HTML.\n- Invalid HTML tag nesting.\n\nIt can also happen if the client has a browser extension installed which messes with the HTML before React loaded.\n\nhttps://react.dev/link/hydration-mismatch\n\n  ...\n    <Suspense name=\"0bbc2eed-d...\" fallback={<Fragment>}>\n      <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>\n        <RedirectBoundary>\n          <RedirectErrorBoundary router={{...}}>\n            <InnerLayoutRouter url=\"/admin/sec...\" tree={[...]} params={{id:\"0bbc2e...\"}} cacheNode={{rsc:{...}, ...}} ...>\n              <SegmentViewNode type=\"page\" pagePath=\"(admin)/ad...\">\n                <SegmentTrieNode>\n                <Page>\n                  <OperatorDetail data={{operator:{...}, ...}}>\n                    <section className=\"space-y-6 ...\">\n                      <NavigationLink>\n                      <h1>\n                      <p>\n                      <p>\n                      <CommandForm>\n                      <section className=\"space-y-4 ...\">\n                        <h2>\n                        <p>\n                        <ul className=\"space-y-2\">\n                          <li>\n+                           04/10/2026, 23:08:38\n-                           10/4/2026, 11:08:38 PM\n                            ...\n                      ...\n              ...\n            ...\n"
+      ],
+      "screenshot": "full-360-30.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin",
+      "status": 200,
+      "heading": "Review queue",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-01.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/help",
+      "status": 200,
+      "heading": "Operator guide",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-02.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/content",
+      "status": 200,
+      "heading": "Public content",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-03.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/catalogues",
+      "status": 200,
+      "heading": "Categories",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-04.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/properties",
+      "status": 200,
+      "heading": "Property review",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-05.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/clients",
+      "status": 200,
+      "heading": "Clients",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-06.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/customers",
+      "status": 200,
+      "heading": "Customers",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-07.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/bookings",
+      "status": 200,
+      "heading": "Booking records",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-08.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/booking-cases",
+      "status": 200,
+      "heading": "Booking cases",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-09.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/support",
+      "status": 200,
+      "heading": "Support inbox",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-10.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/reviews",
+      "status": 200,
+      "heading": "Customer review moderation",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-11.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/disputes",
+      "status": 200,
+      "heading": "Disputes and deposit cases",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-12.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/finance/statements",
+      "status": 200,
+      "heading": "Finance statements \u00b7 2026-10",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-13.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/finance/payouts",
+      "status": 200,
+      "heading": "Payout history",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-14.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/finance/payments",
+      "status": 200,
+      "heading": "Payments",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-15.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/finance/refunds",
+      "status": 200,
+      "heading": "Refunds",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-16.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/payments",
+      "status": 200,
+      "heading": "Gateway settings",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-17.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/audit",
+      "status": 200,
+      "heading": "Audit history",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-18.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/security",
+      "status": 200,
+      "heading": "Operators & security",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-19.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/privacy",
+      "status": 200,
+      "heading": "Customer privacy requests",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-20.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/operations",
+      "status": 200,
+      "heading": "Operations overview",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-21.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/notifications",
+      "status": 200,
+      "heading": "Notification delivery",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-22.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/search?q=Owner",
+      "status": 200,
+      "heading": "Results for \u201cOwner\u201d",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-23.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/applications/1c5f3ef6-853d-4b49-aae3-ecd001765eab",
+      "status": 200,
+      "heading": "Other Owner",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-24.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/properties/85c88b64-5b7e-4f21-8bd3-5e57630bd0ab",
+      "status": 200,
+      "heading": "Review River Farm",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-25.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/bookings/32c9911f-1e85-4d91-8f94-aeb797d1a916",
+      "status": 200,
+      "heading": "Review River Farm (as booked)",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-26.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/clients/2b794fb6-81f1-430a-a812-da003d57b93e",
+      "status": 200,
+      "heading": "Property Owner",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-27.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/customers/ee4e2dff-4f8d-45cf-bbdd-ca8cd309c70f",
+      "status": 200,
+      "heading": "Booked Guest",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-28.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/support/dd911a43-40be-4812-b41d-875a5260b1e3",
+      "status": 200,
+      "heading": "Fixture calendar question",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "full-768-29.png"
+    },
+    {
+      "role": "full",
+      "width": 768,
+      "route": "/admin/security/0bbc2eed-d650-4f94-bd37-a2bcf88af517",
+      "status": 200,
+      "heading": "Reviewer",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [
+        "Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:\n\n- A server/client branch `if (typeof window !== 'undefined')`.\n- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.\n- Date formatting in a user's locale which doesn't match the server.\n- External changing data without sending a snapshot of it along with the HTML.\n- Invalid HTML tag nesting.\n\nIt can also happen if the client has a browser extension installed which messes with the HTML before React loaded.\n\nhttps://react.dev/link/hydration-mismatch\n\n  ...\n    <Suspense name=\"0bbc2eed-d...\" fallback={<Fragment>}>\n      <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>\n        <RedirectBoundary>\n          <RedirectErrorBoundary router={{...}}>\n            <InnerLayoutRouter url=\"/admin/sec...\" tree={[...]} params={{id:\"0bbc2e...\"}} cacheNode={{rsc:{...}, ...}} ...>\n              <SegmentViewNode type=\"page\" pagePath=\"(admin)/ad...\">\n                <SegmentTrieNode>\n                <Page>\n                  <OperatorDetail data={{operator:{...}, ...}}>\n                    <section className=\"space-y-6 ...\">\n                      <NavigationLink>\n                      <h1>\n                      <p>\n                      <p>\n                      <CommandForm>\n                      <section className=\"space-y-4 ...\">\n                        <h2>\n                        <p>\n                        <ul className=\"space-y-2\">\n                          <li>\n+                           04/10/2026, 23:08:38\n-                           10/4/2026, 11:08:38 PM\n                            ...\n                      ...\n              ...\n            ...\n"
+      ],
+      "screenshot": "full-768-30.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin",
+      "status": 200,
+      "heading": "Review queue",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-01.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/help",
+      "status": 200,
+      "heading": "Operator guide",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-02.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/content",
+      "status": 200,
+      "heading": "Public content",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-03.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/catalogues",
+      "status": 200,
+      "heading": "Categories",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-04.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/properties",
+      "status": 200,
+      "heading": "Property review",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-05.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/clients",
+      "status": 200,
+      "heading": "Clients",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-06.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/customers",
+      "status": 200,
+      "heading": "Customers",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-07.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/bookings",
+      "status": 200,
+      "heading": "Booking records",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-08.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/booking-cases",
+      "status": 200,
+      "heading": "Booking cases",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-09.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/support",
+      "status": 200,
+      "heading": "Support inbox",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-10.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/reviews",
+      "status": 200,
+      "heading": "Customer review moderation",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-11.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/disputes",
+      "status": 200,
+      "heading": "Disputes and deposit cases",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-12.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/finance/statements",
+      "status": 200,
+      "heading": "Finance statements \u00b7 2026-10",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-13.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/finance/payouts",
+      "status": 200,
+      "heading": "Payout history",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-14.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/finance/payments",
+      "status": 200,
+      "heading": "Payments",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-15.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/finance/refunds",
+      "status": 200,
+      "heading": "Refunds",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-16.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/payments",
+      "status": 200,
+      "heading": "Gateway settings",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-17.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/audit",
+      "status": 200,
+      "heading": "Audit history",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-18.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/security",
+      "status": 200,
+      "heading": "Operators & security",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-19.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/privacy",
+      "status": 200,
+      "heading": "Customer privacy requests",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-20.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/operations",
+      "status": 200,
+      "heading": "Operations overview",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-21.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/notifications",
+      "status": 200,
+      "heading": "Notification delivery",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-22.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/search?q=Owner",
+      "status": 200,
+      "heading": "Results for \u201cOwner\u201d",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-23.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/applications/1c5f3ef6-853d-4b49-aae3-ecd001765eab",
+      "status": 200,
+      "heading": "Other Owner",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-24.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/properties/85c88b64-5b7e-4f21-8bd3-5e57630bd0ab",
+      "status": 200,
+      "heading": "Review River Farm",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-25.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/bookings/32c9911f-1e85-4d91-8f94-aeb797d1a916",
+      "status": 200,
+      "heading": "Review River Farm (as booked)",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-26.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/clients/2b794fb6-81f1-430a-a812-da003d57b93e",
+      "status": 200,
+      "heading": "Property Owner",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-27.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/customers/ee4e2dff-4f8d-45cf-bbdd-ca8cd309c70f",
+      "status": 200,
+      "heading": "Booked Guest",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-28.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/support/dd911a43-40be-4812-b41d-875a5260b1e3",
+      "status": 200,
+      "heading": "Fixture calendar question",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "full-1280-29.png"
+    },
+    {
+      "role": "full",
+      "width": 1280,
+      "route": "/admin/security/0bbc2eed-d650-4f94-bd37-a2bcf88af517",
+      "status": 200,
+      "heading": "Reviewer",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [
+        "Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:\n\n- A server/client branch `if (typeof window !== 'undefined')`.\n- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.\n- Date formatting in a user's locale which doesn't match the server.\n- External changing data without sending a snapshot of it along with the HTML.\n- Invalid HTML tag nesting.\n\nIt can also happen if the client has a browser extension installed which messes with the HTML before React loaded.\n\nhttps://react.dev/link/hydration-mismatch\n\n  ...\n    <Suspense name=\"0bbc2eed-d...\" fallback={<Fragment>}>\n      <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>\n        <RedirectBoundary>\n          <RedirectErrorBoundary router={{...}}>\n            <InnerLayoutRouter url=\"/admin/sec...\" tree={[...]} params={{id:\"0bbc2e...\"}} cacheNode={{rsc:{...}, ...}} ...>\n              <SegmentViewNode type=\"page\" pagePath=\"(admin)/ad...\">\n                <SegmentTrieNode>\n                <Page>\n                  <OperatorDetail data={{operator:{...}, ...}}>\n                    <section className=\"space-y-6 ...\">\n                      <NavigationLink>\n                      <h1>\n                      <p>\n                      <p>\n                      <CommandForm>\n                      <section className=\"space-y-4 ...\">\n                        <h2>\n                        <p>\n                        <ul className=\"space-y-2\">\n                          <li>\n+                           04/10/2026, 23:08:38\n-                           10/4/2026, 11:08:38 PM\n                            ...\n                      ...\n              ...\n            ...\n"
+      ],
+      "screenshot": "full-1280-30.png"
+    },
+    {
+      "role": "restricted",
+      "width": 360,
+      "route": "/admin/bookings",
+      "status": 200,
+      "heading": "Booking records",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "restricted-360-01.png"
+    },
+    {
+      "role": "restricted",
+      "width": 360,
+      "route": "/admin/bookings/32c9911f-1e85-4d91-8f94-aeb797d1a916",
+      "status": 200,
+      "heading": "Review River Farm (as booked)",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "restricted-360-02.png"
+    },
+    {
+      "role": "restricted",
+      "width": 360,
+      "route": "/admin/support",
+      "status": 200,
+      "heading": "You do not have access to this",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "restricted-360-03.png"
+    },
+    {
+      "role": "restricted",
+      "width": 360,
+      "route": "/admin",
+      "status": 200,
+      "heading": "This page could not load",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "restricted-360-04.png"
+    },
+    {
+      "role": "restricted",
+      "width": 768,
+      "route": "/admin/bookings",
+      "status": 200,
+      "heading": "Booking records",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "restricted-768-01.png"
+    },
+    {
+      "role": "restricted",
+      "width": 768,
+      "route": "/admin/bookings/32c9911f-1e85-4d91-8f94-aeb797d1a916",
+      "status": 200,
+      "heading": "Review River Farm (as booked)",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "restricted-768-02.png"
+    },
+    {
+      "role": "restricted",
+      "width": 768,
+      "route": "/admin/support",
+      "status": 200,
+      "heading": "You do not have access to this",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "restricted-768-03.png"
+    },
+    {
+      "role": "restricted",
+      "width": 768,
+      "route": "/admin",
+      "status": 200,
+      "heading": "This page could not load",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "restricted-768-04.png"
+    },
+    {
+      "role": "restricted",
+      "width": 1280,
+      "route": "/admin/bookings",
+      "status": 200,
+      "heading": "Booking records",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        }
+      ],
+      "errors": [],
+      "screenshot": "restricted-1280-01.png"
+    },
+    {
+      "role": "restricted",
+      "width": 1280,
+      "route": "/admin/bookings/32c9911f-1e85-4d91-8f94-aeb797d1a916",
+      "status": 200,
+      "heading": "Review River Farm (as booked)",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        }
+      ],
+      "errors": [],
+      "screenshot": "restricted-1280-02.png"
+    },
+    {
+      "role": "restricted",
+      "width": 1280,
+      "route": "/admin/support",
+      "status": 200,
+      "heading": "You do not have access to this",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        }
+      ],
+      "errors": [],
+      "screenshot": "restricted-1280-03.png"
+    },
+    {
+      "role": "restricted",
+      "width": 1280,
+      "route": "/admin",
+      "status": 200,
+      "heading": "This page could not load",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        }
+      ],
+      "errors": [],
+      "screenshot": "restricted-1280-04.png"
+    },
+    {
+      "role": "customerReader",
+      "width": 360,
+      "route": "/admin/customers",
+      "status": 200,
+      "heading": "Customers",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "customerReader-360-01.png"
+    },
+    {
+      "role": "customerReader",
+      "width": 360,
+      "route": "/admin/search?q=Guest",
+      "status": 200,
+      "heading": "Results for \u201cGuest\u201d",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "customerReader-360-02.png"
+    },
+    {
+      "role": "customerReader",
+      "width": 360,
+      "route": "/admin",
+      "status": 200,
+      "heading": "This page could not load",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "customerReader-360-03.png"
+    },
+    {
+      "role": "customerReader",
+      "width": 768,
+      "route": "/admin/customers",
+      "status": 200,
+      "heading": "Customers",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "customerReader-768-01.png"
+    },
+    {
+      "role": "customerReader",
+      "width": 768,
+      "route": "/admin/search?q=Guest",
+      "status": 200,
+      "heading": "Results for \u201cGuest\u201d",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "customerReader-768-02.png"
+    },
+    {
+      "role": "customerReader",
+      "width": 768,
+      "route": "/admin",
+      "status": 200,
+      "heading": "This page could not load",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "customerReader-768-03.png"
+    },
+    {
+      "role": "customerReader",
+      "width": 1280,
+      "route": "/admin/customers",
+      "status": 200,
+      "heading": "Customers",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        }
+      ],
+      "errors": [],
+      "screenshot": "customerReader-1280-01.png"
+    },
+    {
+      "role": "customerReader",
+      "width": 1280,
+      "route": "/admin/search?q=Guest",
+      "status": 200,
+      "heading": "Results for \u201cGuest\u201d",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        }
+      ],
+      "errors": [],
+      "screenshot": "customerReader-1280-02.png"
+    },
+    {
+      "role": "customerReader",
+      "width": 1280,
+      "route": "/admin",
+      "status": 200,
+      "heading": "This page could not load",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        }
+      ],
+      "errors": [],
+      "screenshot": "customerReader-1280-03.png"
+    },
+    {
+      "role": "readonly",
+      "width": 360,
+      "route": "/admin",
+      "status": 200,
+      "heading": "Review queue",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "readonly-360-01.png"
+    },
+    {
+      "role": "readonly",
+      "width": 360,
+      "route": "/admin/properties",
+      "status": 200,
+      "heading": "Property review",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "readonly-360-02.png"
+    },
+    {
+      "role": "readonly",
+      "width": 360,
+      "route": "/admin/applications/1c5f3ef6-853d-4b49-aae3-ecd001765eab?tab=decision",
+      "status": 200,
+      "heading": "Other Owner",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "readonly-360-03.png"
+    },
+    {
+      "role": "readonly",
+      "width": 360,
+      "route": "/admin/finance/refunds",
+      "status": 200,
+      "heading": "Refunds",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "readonly-360-04.png"
+    },
+    {
+      "role": "readonly",
+      "width": 360,
+      "route": "/admin/security",
+      "status": 200,
+      "heading": "Operators & security",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "readonly-360-05.png"
+    },
+    {
+      "role": "readonly",
+      "width": 768,
+      "route": "/admin",
+      "status": 200,
+      "heading": "Review queue",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "readonly-768-01.png"
+    },
+    {
+      "role": "readonly",
+      "width": 768,
+      "route": "/admin/properties",
+      "status": 200,
+      "heading": "Property review",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "readonly-768-02.png"
+    },
+    {
+      "role": "readonly",
+      "width": 768,
+      "route": "/admin/applications/1c5f3ef6-853d-4b49-aae3-ecd001765eab?tab=decision",
+      "status": 200,
+      "heading": "Other Owner",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "readonly-768-03.png"
+    },
+    {
+      "role": "readonly",
+      "width": 768,
+      "route": "/admin/finance/refunds",
+      "status": 200,
+      "heading": "Refunds",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "readonly-768-04.png"
+    },
+    {
+      "role": "readonly",
+      "width": 768,
+      "route": "/admin/security",
+      "status": 200,
+      "heading": "Operators & security",
+      "overflow": false,
+      "violations": [],
+      "nav": [],
+      "errors": [],
+      "screenshot": "readonly-768-05.png"
+    },
+    {
+      "role": "readonly",
+      "width": 1280,
+      "route": "/admin",
+      "status": 200,
+      "heading": "Review queue",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "readonly-1280-01.png"
+    },
+    {
+      "role": "readonly",
+      "width": 1280,
+      "route": "/admin/properties",
+      "status": 200,
+      "heading": "Property review",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "readonly-1280-02.png"
+    },
+    {
+      "role": "readonly",
+      "width": 1280,
+      "route": "/admin/applications/1c5f3ef6-853d-4b49-aae3-ecd001765eab?tab=decision",
+      "status": 200,
+      "heading": "Other Owner",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "readonly-1280-03.png"
+    },
+    {
+      "role": "readonly",
+      "width": 1280,
+      "route": "/admin/finance/refunds",
+      "status": 200,
+      "heading": "Refunds",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "readonly-1280-04.png"
+    },
+    {
+      "role": "readonly",
+      "width": 1280,
+      "route": "/admin/security",
+      "status": 200,
+      "heading": "Operators & security",
+      "overflow": false,
+      "violations": [],
+      "nav": [
+        {
+          "text": "Operator guide",
+          "href": "/admin/help"
+        },
+        {
+          "text": "Public content",
+          "href": "/admin/content"
+        },
+        {
+          "text": "Catalogues",
+          "href": "/admin/catalogues"
+        },
+        {
+          "text": "Property review",
+          "href": "/admin/properties"
+        },
+        {
+          "text": "Applications1 waiting applications",
+          "href": "/admin"
+        },
+        {
+          "text": "Clients",
+          "href": "/admin/clients"
+        },
+        {
+          "text": "Customers",
+          "href": "/admin/customers"
+        },
+        {
+          "text": "Bookings",
+          "href": "/admin/bookings"
+        },
+        {
+          "text": "Booking cases",
+          "href": "/admin/booking-cases"
+        },
+        {
+          "text": "Support inbox",
+          "href": "/admin/support"
+        },
+        {
+          "text": "Reviews",
+          "href": "/admin/reviews"
+        },
+        {
+          "text": "Disputes",
+          "href": "/admin/disputes"
+        },
+        {
+          "text": "Statements",
+          "href": "/admin/finance/statements"
+        },
+        {
+          "text": "Payouts",
+          "href": "/admin/finance/payouts"
+        },
+        {
+          "text": "Payments",
+          "href": "/admin/finance/payments"
+        },
+        {
+          "text": "Refunds",
+          "href": "/admin/finance/refunds"
+        },
+        {
+          "text": "Gateway settings",
+          "href": "/admin/payments"
+        },
+        {
+          "text": "Audit & exports",
+          "href": "/admin/audit"
+        },
+        {
+          "text": "Operators & security",
+          "href": "/admin/security"
+        },
+        {
+          "text": "Privacy requests",
+          "href": "/admin/privacy"
+        },
+        {
+          "text": "Service health",
+          "href": "/admin/operations"
+        },
+        {
+          "text": "Message delivery",
+          "href": "/admin/notifications"
+        }
+      ],
+      "errors": [],
+      "screenshot": "readonly-1280-05.png"
+    }
+  ],
+  "checks": [
+    {
+      "name": "booking detail retains tabs and filtered return context",
+      "pass": true
+    },
+    {
+      "name": "application tabs retain old queue context",
+      "pass": true
+    },
+    {
+      "name": "restricted records reader sidebar excludes finance/support/people",
+      "pass": true
+    },
+    {
+      "name": "restricted API denies GET content",
+      "pass": true
+    },
+    {
+      "name": "restricted API denies GET security",
+      "pass": true
+    },
+    {
+      "name": "restricted API denies GET catalogues/cities",
+      "pass": true
+    },
+    {
+      "name": "restricted API denies GET applications",
+      "pass": true
+    },
+    {
+      "name": "restricted API denies GET properties",
+      "pass": true
+    },
+    {
+      "name": "restricted API denies GET clients",
+      "pass": true
+    },
+    {
+      "name": "restricted API denies GET customers",
+      "pass": true
+    },
+    {
+      "name": "restricted API denies GET users/2b794fb6-81f1-430a-a812-da003d57b93e/documents",
+      "pass": true
+    },
+    {
+      "name": "restricted API denies GET payments/orders",
+      "pass": true
+    },
+    {
+      "name": "restricted API denies GET reviews",
+      "pass": true
+    },
+    {
+      "name": "restricted API denies GET support",
+      "pass": true
+    },
+    {
+      "name": "restricted API denies GET notifications",
+      "pass": true
+    },
+    {
+      "name": "restricted API denies GET privacy/requests",
+      "pass": true
+    },
+    {
+      "name": "restricted API denies GET audit/events",
+      "pass": true
+    },
+    {
+      "name": "restricted API denies GET operations",
+      "pass": true
+    },
+    {
+      "name": "read-only API denies POST content/owner_help",
+      "pass": true
+    },
+    {
+      "name": "read-only API denies POST security",
+      "pass": true
+    },
+    {
+      "name": "read-only API denies POST catalogues/cities/85c88b64-5b7e-4f21-8bd3-5e57630bd0ab",
+      "pass": true
+    },
+    {
+      "name": "read-only API denies POST applications/approve",
+      "pass": true
+    },
+    {
+      "name": "read-only API denies POST properties/85c88b64-5b7e-4f21-8bd3-5e57630bd0ab/decision",
+      "pass": true
+    },
+    {
+      "name": "read-only API denies POST clients/2b794fb6-81f1-430a-a812-da003d57b93e/suspend",
+      "pass": true
+    },
+    {
+      "name": "read-only API denies POST customers/ee4e2dff-4f8d-45cf-bbdd-ca8cd309c70f/restrict",
+      "pass": true
+    },
+    {
+      "name": "read-only API denies POST documents/review",
+      "pass": true
+    },
+    {
+      "name": "read-only API denies POST payments/orders/reconcile",
+      "pass": true
+    },
+    {
+      "name": "read-only API denies POST records/cases",
+      "pass": true
+    },
+    {
+      "name": "read-only API denies POST reviews/moderate",
+      "pass": true
+    },
+    {
+      "name": "read-only API denies POST support/dd911a43-40be-4812-b41d-875a5260b1e3/reply",
+      "pass": true
+    },
+    {
+      "name": "read-only API denies POST notifications/manage",
+      "pass": true
+    },
+    {
+      "name": "read-only API denies POST privacy/requests/85c88b64-5b7e-4f21-8bd3-5e57630bd0ab",
+      "pass": true
+    },
+    {
+      "name": "read-only API denies POST audit/exports",
+      "pass": true
+    },
+    {
+      "name": "read-only API denies POST operations/incidents/fixture",
+      "pass": true
+    },
+    {
+      "name": "unsigned admin API returns 401",
+      "pass": true
+    },
+    {
+      "name": "2FA requires a code and valid TOTP signs in",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "fixtureCorrection": "Read-only grants stored as a JSON array; all 15 affected views and 16 write-denial probes rerun. Initial misencoded fixture results replaced."
+}

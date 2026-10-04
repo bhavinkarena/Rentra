@@ -1,0 +1,536 @@
+# Rentra admin experience — phased UI redesign plan
+
+| Item               | Detail                                                                                                                                                                                 |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Prepared           | 4 October 2026                                                                                                                                                                         |
+| Scope              | Admin dashboard, navigation, section tabs, tables, record details, review workflows, finance, support, configuration and release QA                                                    |
+| Status             | Phase 1 audit complete; Phases 2–12 pending                                                                                                                                            |
+| Method             | Repository review plus Phase 1 disposable-local role, viewport, permission and integration baseline; inspected saved owner and current admin screenshots                               |
+| Verification limit | Phase 1 adds authenticated disposable-local browser/API/database evidence below. Production workflows and providers were not exercised; historical owner test results remain separate. |
+
+## Phase completion tracker
+
+**Progress:** 1 of 12 phases complete · 0 in progress · 11 pending. Phase 1 audit is complete; UI implementation starts with Phase 2. Existing admin functionality does not count as completion of these redesign phases.
+
+| Phase | Work                                                            | Status      | Completed on | Notes / remaining work                                                                                       |
+| ----- | --------------------------------------------------------------- | ----------- | ------------ | ------------------------------------------------------------------------------------------------------------ |
+| 1     | Admin inventory and behavior baseline                           | ✅ Complete | 4 Oct 2026   | Inventory, owner comparison and disposable baseline recorded; seven findings remain assigned to later phases |
+| 2     | Admin shell, navigation and section tabs                        | ⏳ Pending  | —            | Group navigation, migrate applications route and preserve links                                              |
+| 3     | Shared admin visual system and list/detail primitives           | ⏳ Pending  | —            | Standardize tables, filters, forms, states and detail views                                                  |
+| 4     | Dashboard and analytics                                         | ⏳ Pending  | —            | Define dashboard API, implement aggregates and dashboard panels                                              |
+| 5     | Owner applications and property review                          | ⏳ Pending  | —            | Refresh queues and review/verification workflows                                                             |
+| 6     | Bookings and booking cases                                      | ⏳ Pending  | —            | Refresh records, detail sheets and case workflows                                                            |
+| 7     | People: owners and customers                                    | ⏳ Pending  | —            | Refresh directories, record tabs and account controls                                                        |
+| 8     | Finance workspace                                               | ⏳ Pending  | —            | Organize finance tabs and verify money/evidence definitions                                                  |
+| 9     | Guest reviews, support and message delivery                     | ⏳ Pending  | —            | Refresh moderation, support and delivery screens                                                             |
+| 10    | Operations, privacy, audit and configuration                    | ⏳ Pending  | —            | Organize operational tools, exports and configuration                                                        |
+| 11    | Global search and cross-workspace links                         | ⏳ Pending  | —            | Improve authorized search and expand supported scopes                                                        |
+| 12    | Responsive, accessibility, performance and release verification | ⏳ Pending  | —            | Complete regression checks and record release evidence                                                       |
+
+**Status key:** ⏳ Pending · 🔄 In progress · ✅ Complete · 🚧 Blocked.
+
+Update this table and the release table in section 6 together as work progresses. Mark a phase complete only after its acceptance criteria and required checks pass; record its completion date and link supporting evidence in Notes. Keep the progress totals above in sync.
+
+## 1. Reference and current findings
+
+Read this alongside [OWNER-EXPERIENCE-PLAN.md](OWNER-EXPERIENCE-PLAN.md), [OWNER-WORKSPACE-UI.md](OWNER-WORKSPACE-UI.md), [OWNER-EXPERIENCE-REVIEW.md](OWNER-EXPERIENCE-REVIEW.md), and [DESIGN.md](../DESIGN.md).
+
+The original owner plan describes the earlier experience. The later workspace refresh adds filtered tables, URL-driven booking/calendar modals, global search and dashboard analytics. Current owner components and the design document include further surface refinements. Follow the latest implemented patterns per screen rather than copying every original recommendation. In particular, the original mobile-card recommendation has since been supplemented by locally scrollable record tables. The saved dashboard screenshot predates the documented analytics addition; it is evidence of the table/shell composition, not the latest analytics appearance.
+
+### Code-backed observations
+
+| Observation                                                                                          | Evidence                                                                                                                                         | Admin redesign consequence                                                                                     |
+| ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| Admin home is an application queue, not an overall dashboard                                         | `app/(admin)/admin/page.js` fetches applications, application statistics and recent decisions                                                    | Give `/admin` a true cross-workspace dashboard and move the queue to a dedicated list route                    |
+| Navigation has 22 destinations across eight groups                                                   | `components/admin/AdminShell.jsx`, including Help, Publication, Reference data, Work queues, People, Operations, Finance and Compliance & health | Group related tasks behind a small number of clear destinations and local tabs                                 |
+| Current sidebar already filters by capabilities                                                      | `AdminShell.jsx`; authenticated layout in `app/(admin)/admin/layout.js`                                                                          | Preserve this filtering, including for dashboard metrics and local tabs                                        |
+| Record tabs already exist                                                                            | `components/portal/DetailLayout.jsx`, `AdminBookingDetail.jsx`, `AdminClients.jsx`, `AdminCustomers.jsx`, property detail page                   | Standardize existing tabs; do not rebuild working record workflows                                             |
+| Admin search currently fans out to three directories                                                 | `app/(admin)/admin/search/page.js`: clients, customers and applications                                                                          | Broader property/booking search is additional API work, not a placeholder change                               |
+| Finance investigation and gateway configuration have separate routes                                 | `/admin/finance/payments` versus `/admin/payments`                                                                                               | Keep Payments and Gateway settings distinct in both navigation and labels                                      |
+| Admin writes already use specialized commands                                                        | `lib/actions/admin.js`: review, property lifecycle, refunds, cases, support and incident commands                                                | Retain previews, reasons, authorization, version checks and audit evidence during visual changes               |
+| There is an operations endpoint but no dedicated dashboard endpoint in the reviewed admin route file | `rentra-backend/src/routes/admin.route.js`                                                                                                       | Define dashboard aggregation explicitly; existing queue pages cannot supply trustworthy global analytics alone |
+| Owner has reusable visual patterns                                                                   | `OwnerTable.jsx`, `OwnerModal.jsx`, `OwnerAnalytics.jsx`, shared portal/UI components                                                            | Reuse presentation where appropriate; keep admin data, permissions and money definitions separate              |
+| Admin has separate primitives and badges                                                             | `components/admin/AdminPrimitives.jsx` alongside shared UI primitives                                                                            | Consolidate gradually with parity checks, especially semantic status labels                                    |
+
+These are structural findings. Runtime bugs, query performance and production readiness remain to be verified during implementation.
+
+## 2. Target navigation and tabs
+
+Use a forest-green sidebar, warm off-white workspace, white bordered panels, existing portal typography, clear filters and compact tables. Admin density can be higher than owner density, while keeping essential text readable. Show “Admin workspace” prominently so operators can identify their role.
+
+Keep seven main sidebar destinations, with Help & guide in the footer. Local tabs reveal the selected area's tools. Tab groups may wrap or scroll inside their own container on phones; do not put all tools back into the sidebar.
+
+| Main destination     | Local tabs                                                             | Existing routes to preserve                                                                                            |
+| -------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Dashboard            | No competing default subtab                                            | `/admin` becomes the overview                                                                                          |
+| Reviews & approvals  | Owner applications · Property review · Guest reviews                   | New list route `/admin/applications`; existing `/admin/applications/[id]`, `/admin/properties/**`, `/admin/reviews/**` |
+| Bookings             | Booking records · Booking cases                                        | `/admin/bookings/**`, `/admin/booking-cases/**`                                                                        |
+| People               | Owners · Customers                                                     | `/admin/clients/**`, `/admin/customers/**`                                                                             |
+| Finance              | Payments · Refunds · Statements · Payouts · Disputes                   | `/admin/finance/**`, `/admin/disputes/**`; allocation details remain reachable from statements/bookings                |
+| Operations           | Service health · Message delivery · Privacy requests · Audit & exports | `/admin/operations/**`, `/admin/notifications/**`, `/admin/privacy/**`, `/admin/audit/**`                              |
+| Settings & content   | Public content · Catalogues · Gateway settings · Operators & security  | `/admin/content/**`, `/admin/catalogues/**`, `/admin/payments`, `/admin/security/**`                                   |
+| Footer: Help & guide | Guide · Support inbox                                                  | `/admin/help`, `/admin/support/**`                                                                                     |
+
+Support is reachable directly from the footer and dashboard attention list. Retain an unread/waiting badge there when an authorized aggregate exists; never infer it from the current page. Operators handling support must be able to bookmark its route as their working destination.
+
+### Navigation rules
+
+- Each main item opens the first permitted tab; omit empty groups. A customer-only or finance-only operator must still reach an authorized home.
+- Hide tabs without read access. Show a clear read-only state where read access exists without write access. The API remains the authority for every read and write.
+- Keep existing child route URLs; new hub routes are optional redirects to a permitted child, not duplicate data screens.
+- Match details to their parent section. Exactly one sidebar item and one applicable section tab are active.
+- Changing section resets incompatible section filters. Changing list filters resets its page; preserve all remaining compatible query parameters.
+- Use navigational links with `aria-current` for route/query navigation. Use ARIA tab semantics and arrow-key behavior only for actual in-place tab panels.
+- Rename “Clients” to “Owners” in UI copy while retaining `/admin/clients` and existing API terminology.
+- Preserve the current search initially; expand its scope only when the corresponding backend support is delivered.
+
+### Root-route compatibility
+
+Moving applications from `/admin` requires updating `ApplicationQueue`, decision redirects, shell matching, search “See all” links, guide links and test selectors. Preserve recognized old application-filter links such as `/admin?status=...&assignee=...&q=...&page=...` through a compatibility redirect to `/admin/applications`. Reserve distinct dashboard query names, such as `period` and `environment`, to avoid ambiguity. Carry decision feedback to the new queue. Inventory every root application link before switching the root page.
+
+## 3. Dashboard specification
+
+The dashboard must answer: what needs action, what is happening today, and how is the marketplace performing?
+
+### Layout order
+
+1. Heading, one-sentence description, IST period, environment selector, refreshed-at time and Refresh.
+2. Urgent attention strip: overdue reviews, payment/refund exceptions, unresolved high-priority cases and service incidents, limited to permitted modules.
+3. Four to six summary tiles, chosen from the operator's accessible data.
+4. Analytics: booking trend and booked-rent trend, followed by booking-status distribution and review throughput when supported.
+5. Needs attention table, then today's visits/bookings table.
+6. Recent decisions/activity and a compact service-health panel. Every panel links to its complete filtered destination.
+
+Desktop: summary grid and two-column analytics; wide attention and booking tables below. Tablet: two tiles per row and stacked charts. Phone: stacked panels, locally scrollable tables, secondary filters under Filters, visible period and Refresh controls. Avoid duplicating the whole navigation as dashboard tiles.
+
+### Metric contract
+
+| Metric                     | Definition and required drill-down                                                                                                              |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Waiting owner applications | Submitted applications awaiting decision, with unassigned and overdue breakdowns; opens the matching queue                                      |
+| Properties awaiting review | Submitted property revisions needing review, separate from published-property count and scheduled verification visits                           |
+| Bookings created           | Booking orders created in selected IST period, with documented inclusion/exclusion states; count orders once regardless of visit count          |
+| Today's visits             | Visits on today's IST date; separate arrival, departure and hourly visits where data supports it; never label visit count as booking count      |
+| Booked rent                | Rent attributed to an explicitly documented date basis; exclude cancelled rent, guest fees and deposits; does not mean collected cash or payout |
+| Captured payments          | Provider capture evidence in the selected period and environment; show separately from booked rent                                              |
+| Refunds                    | Distinguish requested/pending amounts from successful refund evidence; do not subtract pending refunds as settled cash                          |
+| Open cases/support         | Unresolved queue totals, not page lengths; separate categories and their actual priority/SLA rules                                              |
+
+For every metric return its unit, date basis, IST boundaries, environment, filters, generated-at time and permitted drill-down. Keep “Waiting now” tiles separate from selected-period analytics. Never display a missing or failed metric as zero. Zero is a valid result; absent provider evidence is “Unavailable”.
+
+Default to Live financial data; expose Test and any supported simulated namespace explicitly. Do not blend environments into a revenue figure. Reuse owner chart colors, controls and accessible data-table patterns without reusing its owner-only aggregation assumptions. Daily series must include zero-value dates; status charts must state whether they represent bookings created in the period or current states. Twelve-month trends are a follow-up once daily aggregation is correct.
+
+### Proposed dashboard API — new work
+
+Add a capability-filtered `GET /api/v1/admin/dashboard` (route path `/dashboard` in the admin router) and `adminApi.dashboard()` after agreeing the contract. Suggested inputs: `period=today|7d|30d|90d` and a validated supported environment. Suggested response sections: `scope`, `summary`, `attention`, `dailySeries`, `distributions`, `todayVisits`, `recentActivity`, `health`, and per-section availability.
+
+Aggregations must execute on the server across the full matching dataset. Omit unauthorized sections without revealing restricted counts or financial totals. If a module fails, return or compose a truthful partial state and let that panel retry. Audit existing operations queries for reuse rather than importing its entire sensitive payload into the home screen. No database migration is assumed: measure query plans first and add indexes only if needed. Do not invent historical queue-backlog charts from today's queue.
+
+## 4. Shared screen contracts
+
+### Lists
+
+Heading → section tabs → optional meaningful totals → URL-backed search/filter strip → results count → table → shared pagination. Keep status, assignee and date filters close to the records. Defaults must reflect supported API states. Add sort/page-size controls only after validating or extending the backend query contract.
+
+Tables use explicit column headers, semantic captions, visible reference/name links and labelled row actions. Keep status and the next action easy to scan. Confine horizontal scroll to the table. Use the shared `ui/pagination.jsx`; total counts and page sizes must reflect actual API behavior. Filtered-empty, no-records, failed-load and forbidden states are distinct.
+
+### Details and modals
+
+Identity/reference → state/environment → meaningful facts → record tabs → focused content and actions → history. Preserve direct detail URLs. Offer View in a large side sheet for fast booking/people inspection, with Full page and an exact return to the filtered list. Keep complex application/property decisions and finance investigations on full pages initially; a drawer must never omit required evidence or hide a consequence.
+
+Modal URLs identify the record and preserve list context. Refresh, copied links, Back/Forward, Escape and close must work. Restore focus to the invoking row, trap focus and protect unsaved edits on every close/navigation path. Validate return URLs as local allowed admin paths. Adapt presentation primitives rather than copying owner-specific routing/session hooks wholesale.
+
+### Actions and state
+
+One primary action per task. Keep pending buttons disabled with meaningful progress text; retain form values after failure. Destructive or financial actions show target, reason, consequence and the existing preview/confirmation sequence. On a stale version/token, reload or re-preview with an explanation; never silently retry a changed financial command. Preserve request-key/idempotency semantics.
+
+Skeletons match each screen's layout. Background refresh retains records and labels stale data. Session expiry offers a sign-in recovery path. Success feedback must survive revalidation/remount. Shared status mapping must be domain-aware: property review, account restriction, payment, visit and export states are not interchangeable. Display raw technical IDs/enums only in labelled diagnostic/evidence sections.
+
+## 5. Implementation phases
+
+Phase 1 is **Complete (audit)**; Phases 2–12 are **Not started**. Phase 1 establishes the baseline; Phases 2–4 create the shared foundation and dashboard; the remaining modules ship incrementally. Each phase includes its own verification before proceeding.
+
+### Phase 1 — Admin inventory and behavior baseline
+
+**IDs:** ADM-AUD-01–03 · **Priority:** High · **Depends on:** none.
+
+Inventory every admin route, query parameter, capability, action, detail tab and redirect. Include login/2FA, private files, exports, allocation details and routes absent from navigation. Compare latest owner components against older documentation per surface. Capture permitted full-access/read-only/restricted-role screens with disposable data at 360, 768 and 1280 px.
+
+**Files:** `app/(admin)/admin/**`, `components/admin/**`, `components/portal/**`, `lib/api/endpoints.js`, `lib/actions/admin.js`, `lib/services/admin.service.js`; backend `src/routes/admin.route.js` and corresponding controllers/services.
+
+**Backend/database:** read-only mapping; identify missing aggregates and supported list controls.
+
+**Acceptance/QA:** route/capability matrix, existing action invariants, root-route link inventory and baseline screenshots recorded. Separate verified runtime findings from code-review observations. Do not treat historical owner checks as admin passes.
+
+#### Phase 1 delivery record — 4 October 2026
+
+**Status: audit complete.** ADM-AUD-01 (inventory), ADM-AUD-02 (latest owner pattern comparison) and ADM-AUD-03 (disposable runtime baseline) are delivered. This is completion of the audit, not approval of the current UI for release. No production application code or schema was changed.
+
+**Reviewed revisions:** frontend `767f7e8`, backend `97e902e`. The new plan was untracked when this phase began. Browser verification used a separate frontend on port 3161, a fixture API on port 4161 and an isolated PostgreSQL 14 cluster on port 55461. The existing app on ports 3000/4000 was not used. Fixture sessions, credentials and database URLs remain in private temporary files and are not included in committed evidence.
+
+##### ADM-AUD-01 — Complete route and capability inventory
+
+There are **51 admin page routes, 11 private file handlers and 114 authenticated API method/path pairs (61 GET, 53 POST)** in the reviewed admin router. All 114 API entries map to a known capability. Authentication adds four endpoints in its separate router: POST login, POST enrollment, POST logout and GET me. GET me requires a valid admin session; enrollment uses an expiring private token. The page matrix below records routing requirements; it does not imply every displayed subrecord has a separate domain permission check.
+
+Machine-readable sources: [frontend route inventory](evidence/admin-phase1/frontend-routes.json), [expanded API/capability inventory](evidence/admin-phase1/api-routes.json), and [root-link inventory](evidence/admin-phase1/root-links.json). Frontend inventory entries include the exact source path and adapter calls; backend method/path entries were read from Express's registered route stack, including loop-generated verification commands.
+
+| Frontend route                                         | Kind | Read requirement                                               | Existing URL controls                                                                     |
+| ------------------------------------------------------ | ---- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `/admin/applications/[id]`                             | page | `admin.applications.read`                                      | `from`, `tab`                                                                             |
+| `/admin/audit/events/[id]`                             | page | `admin.audit.read`                                             | —                                                                                         |
+| `/admin/audit/exports/[id]/download`                   | file | `admin.audit.read`                                             | —                                                                                         |
+| `/admin/audit/exports/[id]`                            | page | `admin.audit.read`                                             | —                                                                                         |
+| `/admin/audit/exports/[id]/receipt`                    | file | `admin.audit.read`                                             | —                                                                                         |
+| `/admin/audit/exports`                                 | page | `admin.audit.read`                                             | —                                                                                         |
+| `/admin/audit`                                         | page | `admin.audit.read`                                             | `from`, `to`, `actorType`, `actorId`, `action`, `entity`, `target`, `correlation`, `page` |
+| `/admin/booking-cases/[id]`                            | page | `admin.records.read`                                           | —                                                                                         |
+| `/admin/booking-cases`                                 | page | `admin.records.read`                                           | `state`, `type`, `assigned`, `q`, `page`                                                  |
+| `/admin/bookings/[orderId]/attachments/[attachmentId]` | file | `admin.records.read`                                           | —                                                                                         |
+| `/admin/bookings/[orderId]/calendar`                   | file | `admin.records.read`                                           | —                                                                                         |
+| `/admin/bookings/[orderId]`                            | page | `admin.records.read`                                           | `from`, `tab`                                                                             |
+| `/admin/bookings/[orderId]/summary`                    | file | `admin.records.read`                                           | —                                                                                         |
+| `/admin/bookings`                                      | page | `admin.records.read`                                           | `tab`, `page`, `q`, `vertical`, `from`, `to`, `event`, `property`, `resource`             |
+| `/admin/catalogues/[type]/[id]`                        | page | `admin.catalogues.read`                                        | —                                                                                         |
+| `/admin/catalogues/[type]`                             | page | `admin.catalogues.read`                                        | `q`, `status`, `page`                                                                     |
+| `/admin/catalogues`                                    | page | `admin.catalogues.read`                                        | —                                                                                         |
+| `/admin/clients/[id]`                                  | page | `admin.clients.read`                                           | `from`, `tab`                                                                             |
+| `/admin/clients`                                       | page | `admin.clients.read`                                           | `q`, `status`, `page`                                                                     |
+| `/admin/content/[kind]`                                | page | `admin.content.read`                                           | `historyPage`                                                                             |
+| `/admin/content`                                       | page | `admin.content.read`                                           | —                                                                                         |
+| `/admin/customers/[id]`                                | page | `admin.customers.read`                                         | `from`, `tab`                                                                             |
+| `/admin/customers`                                     | page | `admin.customers.read`                                         | `q`, `status`, `page`                                                                     |
+| `/admin/disputes/[id]/attachments/[fileId]`            | file | `admin.payments.read`                                          | —                                                                                         |
+| `/admin/disputes/[id]`                                 | page | `admin.payments.read`                                          | —                                                                                         |
+| `/admin/disputes/new`                                  | page | `admin.payments.read`                                          | `order`                                                                                   |
+| `/admin/disputes`                                      | page | `admin.payments.read`                                          | `state`, `kind`, `page`, `orderId`                                                        |
+| `/admin/documents/[id]`                                | file | `admin.documents.read`                                         | —                                                                                         |
+| `/admin/enroll`                                        | page | `Private one-time token; no admin session required`            | `#token (URL fragment)`                                                                   |
+| `/admin/finance/allocations/[id]`                      | page | `admin.payments.read`                                          | —                                                                                         |
+| `/admin/finance/payments/[id]`                         | page | `admin.payments.read`                                          | —                                                                                         |
+| `/admin/finance/payments`                              | page | `admin.payments.read`                                          | `environment`, `state`, `attention`, `q`, `from`, `to`, `page`                            |
+| `/admin/finance/payouts/[id]`                          | page | `admin.payments.read`                                          | —                                                                                         |
+| `/admin/finance/payouts`                               | page | `admin.payments.read`                                          | `period`, `environment`, `propertyId`, `ownerId`, `page`                                  |
+| `/admin/finance/refunds/[id]`                          | page | `admin.payments.read`                                          | —                                                                                         |
+| `/admin/finance/refunds/new`                           | page | `admin.payments.read`                                          | `order`                                                                                   |
+| `/admin/finance/refunds`                               | page | `admin.payments.read`                                          | `environment`, `status`, `source`, `q`, `page`                                            |
+| `/admin/finance/statements/[id]/download`              | file | `admin.payments.read`                                          | `period`, `environment`, `propertyId`, `ownerId`, `page`                                  |
+| `/admin/finance/statements/[id]`                       | page | `admin.payments.read`                                          | `period`, `environment`, `propertyId`, `ownerId`, `page`                                  |
+| `/admin/finance/statements`                            | page | `admin.payments.read`                                          | `period`, `environment`, `propertyId`, `ownerId`, `page`                                  |
+| `/admin/help`                                          | page | `Admin session; articles capability-filtered`                  | —                                                                                         |
+| `/admin/login`                                         | page | `Public credential form; existing-admin redirect`              | `reauthenticate`, `session`                                                               |
+| `/admin/notifications/[id]`                            | page | `admin.notifications.read`                                     | —                                                                                         |
+| `/admin/notifications`                                 | page | `admin.notifications.read`                                     | `page`                                                                                    |
+| `/admin/operations/incidents/[code]`                   | page | `admin.operations.read`                                        | —                                                                                         |
+| `/admin/operations`                                    | page | `admin.operations.read`                                        | —                                                                                         |
+| `/admin`                                               | page | `admin.applications.read`                                      | `status`, `assignee`, `q`, `page`, `decided`                                              |
+| `/admin/payments`                                      | page | `admin.payments.read`                                          | —                                                                                         |
+| `/admin/privacy/[id]/export`                           | file | `admin.privacy.read`                                           | —                                                                                         |
+| `/admin/privacy/[id]`                                  | page | `admin.privacy.read`                                           | —                                                                                         |
+| `/admin/privacy/[id]/receipt`                          | file | `admin.privacy.read`                                           | —                                                                                         |
+| `/admin/privacy`                                       | page | `admin.privacy.read`                                           | `state`, `page`                                                                           |
+| `/admin/properties/[id]`                               | page | `admin.properties.read`                                        | `from`, `tab`, `revision`                                                                 |
+| `/admin/properties`                                    | page | `admin.properties.read`                                        | `status`, `assignee`, `q`, `page`                                                         |
+| `/admin/reviews/[id]`                                  | page | `admin.reviews.read`                                           | —                                                                                         |
+| `/admin/reviews`                                       | page | `admin.reviews.read`                                           | `page`                                                                                    |
+| `/admin/search`                                        | page | `Per-section applications/clients/customers read capabilities` | `q`                                                                                       |
+| `/admin/security/[id]`                                 | page | `admin.security.read`                                          | —                                                                                         |
+| `/admin/security`                                      | page | `admin.security.read`                                          | `q`, `status`, `page`                                                                     |
+| `/admin/support/[id]/attachments/[attachmentId]`       | file | `admin.support.read`                                           | —                                                                                         |
+| `/admin/support/[id]`                                  | page | `admin.support.read`                                           | —                                                                                         |
+| `/admin/support`                                       | page | `admin.support.read`                                           | `state`, `participant`, `assignment`, `page`                                              |
+
+`[id]` is an entity UUID except statement IDs, which are `YYYY-MM`. Catalogue `[type]` supports cities, areas, categories, amenities and the inline verticals registry. The current catalogue detail page allows only the first four types and `new`/UUID IDs; vertical editing happens in the registry list. `/admin/catalogues` redirects to Categories. API paths use `/records` for booking pages and `/payments/finance` or `/payments/disputes` for finance/dispute pages. File handlers proxy private bytes rather than returning page data.
+
+**Default order and pagination:** applications/properties/people/cases/support/security/privacy use fixed 20-row pages in their existing contracts; reviews, notification delivery, finance records and disputes use 30-row windows or view pagination; catalogues and audit events use 25 rows. Most lists do not support selectable page size or arbitrary sorting. Application waiting order is oldest-first, other application states use latest update; people use newest-first; cases prioritize open/oldest; catalogues use configured order/name; audit uses newest-first. These existing semantics must survive UI changes. Passing a new `size` or `sort` query parameter does not establish backend support.
+
+| Domain                    | Read capability            | Write capability            | Existing write operations / authoritative source                                                                                                                                    |
+| ------------------------- | -------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Applications              | `admin.applications.read`  | `admin.applications.write`  | Assign/claim/release, approve, request information, reject; `services/admin/applications.js`, `auth/admin-actions.js`                                                               |
+| Properties                | `admin.properties.read`    | `admin.properties.write`    | Assign, decide, schedule/reschedule/cancel verification, record outcome, publish, hide/restore/correct; `admin/listings.js`, `admin/verification.js`, `admin/property-lifecycle.js` |
+| Owners                    | `admin.clients.read`       | `admin.clients.write`       | Suspend/reinstate, fail payout destination; `admin/clients.js`, `payouts/destinations.js`                                                                                           |
+| Customers                 | `admin.customers.read`     | `admin.customers.write`     | Restrict/reinstate, revoke sessions, correct permitted profile fields; `admin/customers.js`                                                                                         |
+| Documents                 | `admin.documents.read`     | `admin.documents.write`     | Private document file access and document review; `auth/document-file.js`, `auth/admin-actions.js`                                                                                  |
+| Booking records/cases     | `admin.records.read`       | `admin.records.write`       | Visit/evidence/incident commands; create/assign/update/preview/resolve case; `booking/visit-lifecycle.js`, `booking/booking-cases.js`, case actions                                 |
+| Payments/finance/disputes | `admin.payments.read`      | `admin.payments.write`      | Gateway settings, reconcile payments/refunds, preview/request refund, create/reply/manage dispute; payment, finance and dispute services                                            |
+| Guest reviews             | `admin.reviews.read`       | `admin.reviews.write`       | Preview/moderate, resolve report; `reviews/service.js`                                                                                                                              |
+| Support                   | `admin.support.read`       | `admin.support.write`       | Reply with private attachments, assign/manage/escalate; `support/service.js` and support management                                                                                 |
+| Message delivery          | `admin.notifications.read` | `admin.notifications.write` | Existing notification management/reconciliation commands; `notifications/actions.js`                                                                                                |
+| Privacy                   | `admin.privacy.read`       | `admin.privacy.write`       | Start review and fulfillment review/preview/queue/retry; `customer/privacy-fulfillment.js`                                                                                          |
+| Audit/exports             | `admin.audit.read`         | `admin.audit.write`         | Create/retry governed export; `admin/audit-browser.js`                                                                                                                              |
+| Operators/security        | `admin.security.read`      | `admin.security.write`      | Create/access/revoke, issue/cancel enrollment/recovery; `admin/operators.js`                                                                                                        |
+| Public content            | `admin.content.read`       | `admin.content.write`       | Save/restore/review/preview/publish; `content/service.js`                                                                                                                           |
+| Catalogues                | `admin.catalogues.read`    | `admin.catalogues.write`    | Save/replace catalogue records and registry configuration; `catalogues/service.js`                                                                                                  |
+| Service health            | `admin.operations.read`    | `admin.operations.write`    | Existing incident commands; `operations/overview.js`, `operations/incidents.js`                                                                                                     |
+
+Capabilities are not a role hierarchy: 16 domains produce 32 grants. An active admin with null permissions has full access; an explicit list grants only listed capabilities. Record ownership/actor checks and fresh authentication may add restrictions beyond route permission. Governed payment exports additionally require payment read access; operation-receipt exports additionally require record read access. Keep these service checks when moving pages.
+
+**Current detail tabs:** applications: Overview, Documents, Decision, Activity log; properties: Submitted property, Review & decision, Verification & publication, Visibility & corrections, History & activity; bookings: Visits, Payments, Guest & arrival, Cases, Records; owners: Overview, Properties, Upcoming visits, Application, Account details, Payout method, Activity log; customers: Overview, Bookings, Support, Reviews, Privacy, Account details, Activity log. Tabs use URL links through `DetailLayout.jsx`. Cases, support, security and finance investigations mostly use sections rather than these record tabs. Adding tabs must reorganize their existing content, not drop it.
+
+##### Root-route migration checklist for Phase 2
+
+The [root-link inventory](evidence/admin-phase1/root-links.json) records **34 source references**. Some are generic home links or route-prefix builders; they must not all be blindly replaced.
+
+| Location                                      | Application-specific behavior to migrate                                                                |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `components/admin/ApplicationQueue.jsx`       | Queue URL builder, GET search form, filters, pagination and detail `from` context                       |
+| `app/(admin)/admin/page.js`                   | Queue reads, statistics, recent decisions and `decided` feedback; move to the new application list page |
+| `components/admin/AdminShell.jsx`             | Applications href/matcher; root becomes Dashboard, detail matching stays with applications              |
+| `app/(admin)/admin/applications/[id]/page.js` | Default Applications back link and safe filtered return                                                 |
+| `app/(admin)/admin/search/page.js`            | Application “See all” link currently uses `/admin?status=all&q=...`                                     |
+| `components/portal/OperatorHelp.jsx`          | Application queue guide link                                                                            |
+| `lib/actions/admin.js`                        | Application assignment revalidation currently targets `/admin`                                          |
+| Backend `src/services/auth/admin-actions.js`  | Decision redirect `/admin?decided=...`                                                                  |
+| `app/(admin)/admin/not-found.js`              | Root link label currently says “Go to applications queue”                                               |
+
+Keep login success, logo home and general error/home links at `/admin` once it becomes the dashboard. Preserve shared `/admin` prefix builders for booking/review/finance links. Handle recognized legacy application query links before introducing dashboard filters. The `safeReturnPath` helper preserves same-section paths; validate compatibility with the new queue and modal return paths.
+
+##### Command invariants to preserve
+
+| Workflow                 | Existing invariant                                                                                                                                                                        | Evidence layer in Phase 1                                                                                  |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Admin sign-in            | Separate `rentra_admin` cookie/audience, durable session, account deactivation/revocation; provisioned account only; TOTP when enrolled and mandatory in production                       | Code, portal integration, local missing/valid-TOTP API checks; production hard-stop not exercised here     |
+| Application review       | Review-version compare, explicit reason for corrections/rejection, strikes, assignment and audit; three outcomes remain distinct                                                          | Existing application-review integration passed                                                             |
+| Property publication     | Immutable submitted revision; completed, passed verification with checklist/findings for the exact revision; publication distinct from inventory readiness                                | Property-review and verification/publication integrations passed                                           |
+| Account controls         | Lifecycle/profile version guards; restriction affects new business while confirmed visits remain; session revocation retained                                                             | Client/customer/portal integrations passed                                                                 |
+| Visit/evidence/cases     | Visit state order, exact affected visits, evidence history, scoped attachments, case preview/version/request-key guards                                                                   | Visit-evidence and booking-case integrations passed                                                        |
+| Money/refunds            | Verified capture evidence, environment separation, full-dataset/per-order sums, bounded remaining refund, hash/preview guards and single-dispatch handling of uncertain provider outcomes | Payment-investigation and refund-operation integrations passed                                             |
+| Support                  | Version and request key, internal versus participant-visible messages, assignment/escalation and private attachment access                                                                | Extended support integration passed; eight denied private-file probes recorded separately                  |
+| Operator security        | Fresh authentication, write grant, audited access change, session revocation, private enrollment/recovery and last-super-admin protection                                                 | Operator integration passed                                                                                |
+| Privacy/governed exports | Scoped identity, preview/confirmation, reason, fresh authentication where required, dataset permission, encrypted expiring artifacts and receipts                                         | Privacy/audit integrations passed; no production exports generated                                         |
+| Content/catalogues       | Version/review/preview/publication, immutable public history and booking acceptance; catalogue structural-change restrictions                                                             | Catalogue integration passed; content integration failed at a fixed history-count assertion (see findings) |
+
+Frontend command boundaries are spread across `lib/actions/admin.js`, `auth.js`, `audit.js`, `catalogues.js`, `content.js`, `disputes.js`, `operators.js` and `privacy.js`. Some flows use server actions and `runApiAction` redirect/revalidation metadata; others post JSON through dedicated actions. Admin pages currently use server-side API adapters; the RTK admin service exists but no `useGetAdmin*`/`useReplyAdmin*` usage was found in pages/components. Do not introduce a second admin cache/session model as part of a visual rewrite without a separate decision.
+
+##### ADM-AUD-02 — Latest owner patterns and admin adaptation
+
+| Surface          | Current owner evidence                                                                                                                                              | Admin direction                                                                                                                                    |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Shell/home       | Current `PartnerShell.jsx` says Dashboard; original specification says Today. Five main destinations plus secondary tools; header search and guarded account switch | Keep the Admin identity; use grouped admin section tabs; no admin-to-customer impersonation switch                                                 |
+| Dashboard        | `OwnerAnalytics.jsx` and updated workspace documentation add scoped trends, distributions, refresh/CSV and data tables after the saved initial screenshot           | Copy visual hierarchy and accessible controls; implement separate full-platform aggregates and money definitions                                   |
+| Bookings         | Updated owner tables and `OwnerModal.jsx` preserve detail URLs and list context                                                                                     | Introduce booking inspection sheets only after full-record, role and unsaved-form parity                                                           |
+| Properties       | Current `DESIGN.md` describes photography-led portfolio/overview refinements; older workspace refresh describes a table pass                                        | Admin review remains a dense queue with thumbnail/context and submitted-versus-published comparison; do not copy a portfolio grid indiscriminately |
+| Calendar         | Older plan specifies grid/drawer; later refresh uses property selection and a large calendar modal                                                                  | Retain visit links and property review context; platform editable calendar is not included                                                         |
+| Earnings         | Booked rent and payout availability are explicitly distinct; chart and month scopes are labelled                                                                    | Finance keeps evidence, environments, refund uncertainty and actual payout availability                                                            |
+| Forms/states     | Shared fields, `ValidationSummary`, guarded navigation, semantic badges, durable feedback and matching skeletons                                                    | Reuse shared behavior; verify admin command context and control permissions independently                                                          |
+| Support/settings | Subject-led conversations, focused tasks and disclosure for secondary evidence                                                                                      | Match hierarchy while retaining internal notes, operator management and audit controls                                                             |
+
+No live owner regression was performed in this phase. Current owner documentation, components and saved screenshots were inspected; their earlier tests are not counted as new admin evidence.
+
+##### ADM-AUD-03 — Runtime baseline and findings
+
+[Browser baseline](evidence/admin-phase1/browser-checks.json): **126 recorded views** (90 full-access, 15 read-only, 12 records-only and 9 customer-reader) at **360, 768 and 1280 px**, plus three login screenshots. **36 explicit checks passed**: record/application tab and return context, restricted navigation, 15 forbidden read probes, 16 forbidden write probes, unsigned session denial, and missing/valid TOTP behavior. The corrected read-only fixture was rerun independently; its 15 screens replaced the initial incorrectly encoded fixture results.
+
+All 126 views had no recorded page-width overflow or WCAG 2 A/AA / 2.1 A/AA axe violations. **Three hydration errors were recorded**, all on the same operator detail route across the three widths; the baseline is not error-free. Accessibility results apply to rendered fixture states, not every possible form, populated ledger or private-file preview.
+
+Additional [observations](evidence/admin-phase1/observations.json) record enabled read-only decision buttons, unavailable owner-guide editing, eight forbidden private-file handlers and mobile drawer focus/Escape/return behavior. [Sanitized role API probes](evidence/admin-phase1/role-api-probes.json) separate valid sessions from forbidden modules.
+
+| Finding                                                                | Evidence / impact                                                                                                                                                                                                                                          | Follow-up phase                                                          |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| ADM-F01 · High · Restricted-role home shows an outage message          | Browser-confirmed records-only/customer-reader `/admin` displays “This page could not load”; their permitted directories work and application API returns 403. Root calls application endpoints without a capability-aware home or settled forbidden state | Phase 2 route/shell work; Phase 4 authorized dashboard                   |
+| ADM-F02 · Medium · Read-only reviewers receive enabled write controls  | Browser-confirmed Assign to me / Approve / Need more info / Reject on application decision tab for an all-read operator; write API correctly returns 403. Application page does not pass a write grant to these panels                                     | Phase 5; add visible read-only treatment during Phase 3                  |
+| ADM-F03 · High · Owner guide content cannot be edited through admin UI | Full admin GET `/admin/content/owner_help` API returns 200, frontend shows Record not found. Both frontend content page and `lib/actions/content.js` allowlists omit `owner_help`, while the backend and editor recognize it                               | Phase 10; fix route/action allowlist parity together                     |
+| ADM-F04 · Medium · Operator detail hydration mismatch                  | Three browser page errors; `OperatorSecurity.jsx` uses implicit-locale `toLocaleString()` for session/history dates. Node rendered `10/4/2026, 11:08:38 PM`, Chrome rendered `04/10/2026, 23:08:38`                                                        | Phase 3 deterministic formatting; Phase 10 operator screens              |
+| ADM-F05 · Medium · Content integration assertion is stale              | Existing integration expected four history entries at line 204, observed five. Code now includes a third built-in policy version, `2026-10-04`. No application/test fix is included in this audit                                                          | Phase 10/content validation, required before Phase 12 clean release gate |
+| ADM-F06 · Medium · Guest-review summaries use bounded rows as totals   | Code-reviewed `AdminReviewQueue.jsx` counts Pending/Published from the current 30-row window and Open reports from up to 30 reports; only “On this page” explicitly states its scope                                                                       | Phase 9; relabel page scope or add authoritative aggregates              |
+| ADM-F07 · Low · Search affordance excludes application-only operators  | Code-reviewed shell shows search only for clients/customers read capabilities, despite the search page also supporting applications                                                                                                                        | Phase 11; capability-aware search sections and affordance                |
+
+**Existing integration baseline:** [results](evidence/admin-phase1/integration-tests.json) — **27 tests, 26 passed, 1 failed, 0 skipped** against disposable local databases. Failure ADM-F05 is recorded without changing the assertion. The run covers the audited admin domains and portal boundaries; it is not a full repository CI run. The failing content test stops at its assertion, so later assertions in that test are not verified by this run.
+
+**Representative screenshots:** [desktop home](evidence/admin-phase1/full-1280-01.png), [mobile home](evidence/admin-phase1/full-360-01.png), [booking record](evidence/admin-phase1/full-1280-26.png), [read-only decision](evidence/admin-phase1/readonly-application-actions.png), [owner-guide missing page](evidence/admin-phase1/owner-guide-unreachable.png). Every baseline row links its matching screenshot filename in the evidence directory.
+
+**Coverage boundaries:** all route families are inventoried, but runtime screenshots cover 30 representative full-access destinations/detail states, not all 51 pages. Private downloads were tested for denied access; successful provider-backed document preview, populated finance ledgers, export execution, production 2FA configuration, actual notification delivery and PostGIS behavior were not exercised. Local PostgreSQL substitutes nullable text geometry through the existing disposable helper. No provider requests or external delivery were enabled; browser external requests were blocked in the main baseline.
+
+##### Reusable Phase 1 verification
+
+The fixture is [admin-experience-browser.mjs](../../rentra-backend/test/helpers/admin-experience-browser.mjs); the browser harness is [admin-baseline.mjs](../scripts/portal-gate/admin-baseline.mjs). The fixture refuses a nonlocal database server through `createDisposableDatabase`, creates a new `rentra_test_*` database, seeds fake operators/accounts, writes private fixture JSON with mode 0600 and exposes a loopback-only API. Do not load the application `.env` for this fixture. Stop its process with SIGTERM to drop the created database; stop the isolated frontend and temporary PostgreSQL cluster after capture.
+
+Supply `PORTAL_TEST_DATABASE_URL` for a disposable localhost PostgreSQL server, `ADMIN_BASELINE_FIXTURE` for a private temporary file, `ADMIN_BASELINE_EVIDENCE_DIR` for output, and optional `ADMIN_BASELINE_API_PORT`/`GATE_WEB_ORIGIN`. From the backend directory:
+
+```sh
+node --import ./loader/register.mjs test/helpers/admin-experience-browser.mjs
+```
+
+From the frontend directory, start a separate fixture build/cache and matching API URL:
+
+```sh
+RENTRA_BROWSER_FIXTURE=1 RENTRA_BROWSER_FIXTURE_ID=admin-phase1 \
+NEXT_PUBLIC_API_URL=http://127.0.0.1:4161/api/v1 \
+NEXT_PUBLIC_SITE_URL=http://127.0.0.1:3161 \
+npm run dev -- --webpack --hostname 127.0.0.1 --port 3161
+```
+
+Supply `ADMIN_BASELINE_FIXTURE`, `ADMIN_BASELINE_EVIDENCE_DIR`, `PLAYWRIGHT_MODULE` (absolute installed module entry), and optional `CHROME_PATH`, `GATE_WEB_ORIGIN`, `GATE_API_ORIGIN`; then:
+
+```sh
+node scripts/portal-gate/admin-baseline.mjs
+```
+
+`ADMIN_BASELINE_ROLES=readonly` limits a follow-up run to that fixture role and writes its own result set; use a separate output directory when retaining earlier evidence. The harness records existing errors/violations rather than fixing them. Review recorded errors and screenshots even when explicit checks pass. Fixture helper startup/cleanup, syntax, targeted ESLint and formatting were checked for the delivered scripts. No production build was necessary because no runtime application code changed.
+
+**Next phase:** Phase 2, with ADM-F01 and the application root-link checklist carried into its acceptance criteria. ADM-F02–07 remain explicitly assigned above; audit completion does not close them.
+
+### Phase 2 — Admin shell, navigation and section tabs
+
+**IDs:** ADM-NAV-01–05 · **Priority:** High · **Depends on:** Phase 1.
+
+Implement the navigation map in section 2 with reusable section navigation and proper detail matching. Introduce `/admin/applications`, migrate queue references and implement legacy-filter redirects before replacing root content. Retain search, admin identity, sign-out and 2FA warning. Put Help and Support where they remain readily reachable. Mobile uses the existing drawer rather than a bottom bar containing every admin tool.
+
+**Files:** `AdminShell.jsx`, admin layout/root, new applications list page, `ApplicationQueue.jsx`, admin actions/search, `PortalShell.jsx`, `NavDrawer.jsx`, `DetailLayout.jsx`.
+
+**Backend/database:** none expected for grouping/routes. Badge additions require authorized aggregate support.
+
+**Acceptance/QA:** each existing destination reachable; old application links and decision feedback work; details activate the correct parent; restricted roles see only allowed tabs; keyboard and mobile navigation work; owner/customer shells remain unchanged by shared-component edits.
+
+### Phase 3 — Shared admin visual system and list/detail primitives
+
+**IDs:** ADM-DS-01–06 · **Priority:** High · **Depends on:** Phase 2.
+
+Standardize page headers, metric tiles, filters, tables, pagination, badges, forms, empty/error/loading states and record detail layout using current Rentra tokens. Add a shared table abstraction only where it removes duplication. Consolidate `AdminPrimitives` gradually; preserve callers while migrating. Establish the modal behavior contract before enabling View sheets.
+
+**Files:** `AdminPrimitives.jsx`, `AdminLoading.jsx`, shared portal/UI components, `OwnerTable.jsx`/`OwnerModal.jsx` as references, `lib/domain/status.js`, `app/globals.css`, `DESIGN.md`.
+
+**Backend/database:** none for presentation; query extensions are separately scoped.
+
+**Acceptance/QA:** representative queue, detail, finance and form screens match the system; readable status labels; keyboard focus, 44 px touch controls and localized table scrolling; shared changes do not regress owner screens. Add behavior tests for extracted URL/modal logic, not tests that merely mirror CSS.
+
+### Phase 4 — Dashboard and analytics
+
+**IDs:** ADM-HOME-01–07 · **Priority:** High · **Depends on:** Phases 1–3 and dashboard API contract.
+
+Replace root queue with the dashboard in section 3. Deliver attention/summary/today panels first, then correctly aggregated trends and distributions. Refresh only authorized data. Provide chart data tables and filtered drill-downs; include CSV only when its access policy and definition are explicit.
+
+**Files:** admin root and loading page; proposed `AdminDashboard.jsx` and `AdminAnalytics.jsx`; `OwnerAnalytics.jsx` as a presentation reference; endpoint/service adapters. Backend admin router/controller and a proposed dedicated dashboard aggregation service.
+
+**Backend/database:** new dashboard read contract; full-dataset aggregates and per-module authorization; evaluate indexes against realistic fixtures. No payout engine or speculative schema migration.
+
+**Acceptance/QA:** fixed fixtures prove order/visit distinction, multi-visit deduplication, cancelled rent, period boundaries, zero-filled dates, Test/Live separation and restricted roles. A panel failure does not blank the home or display zero. Check deterministic date/number rendering for hydration. Tiles open exactly matching filters.
+
+### Phase 5 — Owner applications and property review
+
+**IDs:** ADM-REV-01–06 · **Priority:** High · **Depends on:** Phases 2–3.
+
+Unify queues with status/assignee/search controls and backend-supported SLA summaries. Application table: owner, submitted date, waiting age, state, assignee and Review. Property table: thumbnail/name, owner, submission state, verification readiness, assignee and Review. Only expose counters supplied by authorized aggregates.
+
+Application details: Overview · Documents · Decision · History, mapped to existing data/actions. Property details retain Submission · Review decision · Verification · Visibility · History, with clearer labels and consistent chrome. Put immutable submission comparison beside the reviewed revision; distinguish submitted, current and published data. Preserve document authorization, assignment, request-more-information, strikes, appeals, verification scheduling/outcomes and publication prerequisites.
+
+**Files:** `ApplicationQueue.jsx`, `DecisionPanel.jsx`, `DocumentViewer.jsx`, `AssignmentPanel.jsx`, `PropertyReviewForm.jsx`, `VerificationPanel.jsx`, `PropertyLifecyclePanel.jsx`, applications/property routes.
+
+**Backend/database:** reuse review commands; any missing SLA/count/filter contract is new scoped work.
+
+**Acceptance/QA:** approve, request information and reject refresh the correct queue and show durable feedback; two reviewers receive stale-state protection; historical/private document boundaries hold; unpublished/failed verification cannot become published through a UI shortcut.
+
+### Phase 6 — Bookings and booking cases
+
+**IDs:** ADM-BOOK-01–05 · **Priority:** High · **Depends on:** Phase 3.
+
+Standardize booking tables with reference, property, owner/guest, visit dates, state, money/environment and View. Enable the full booking detail sheet with an independent full-page route. Retain existing visit/payment/guest/case/history/policy content and downloads; map labels to the actual detail contract. Cases remain a separate section tab with supported open, unassigned, mine and resolved filters.
+
+**Files:** `AdminBookingHistory.jsx`, `AdminBookingDetail.jsx`, `BookingCases.jsx`, booking routes, `components/booking/CasePanels.jsx`, visit/evidence components.
+
+**Backend/database:** existing records/case APIs first; add missing filters only with validation and service support. A platform-wide editable calendar is outside this phase; links to booking visits satisfy the dashboard drill-down.
+
+**Acceptance/QA:** list context survives open/close; all visits and evidence remain accessible; lifecycle actions retain prerequisites; case resolution still previews and executes once; private files stay protected; simultaneous updates are handled; unsaved edits block sheet close.
+
+### Phase 7 — People: owners and customers
+
+**IDs:** ADM-PEOPLE-01–04 · **Priority:** Medium · **Depends on:** Phase 3.
+
+Use Owners/Customers section tabs and matching table/filter patterns. Details retain current record tabs and cross-links to applications, properties, bookings, support and history. Optional View sheets follow booking parity checks. Keep account restriction, reinstatement, profile correction, session revocation and payout-method failure controls in clearly labelled action panels.
+
+**Files:** `AdminClients.jsx`, `AdminCustomers.jsx`, `AccountLifecyclePanel.jsx`, `CustomerAccountForms.jsx`, `PayoutDestinationAdmin.jsx`, people routes.
+
+**Backend/database:** reuse existing scoped APIs. Shared customer/owner identity does not authorize admin impersonation; preserve current account separation and switching behavior.
+
+**Acceptance/QA:** UI says Owner while old URLs work; restricted operators cannot access documents/commands by entering a direct URL; failed changes retain values; account history and all linked records remain reachable.
+
+### Phase 8 — Finance workspace
+
+**IDs:** ADM-FIN-01–06 · **Priority:** High · **Depends on:** Phase 3; metric definitions aligned with Phase 4.
+
+Implement Finance local tabs for Payments, Refunds, Statements, Payouts and Disputes. Keep environment/period scope visible. Standardize tables and evidence detail headers. Separate booking rent, captured amount, successful refunds, accounting allocations and payout evidence. Keep Gateway settings under Settings & content.
+
+Refund tasks keep select → preview → confirm → recorded outcome; provider reconciliation remains an explicit authorized action. Statements retain IST periods and authorized CSV/downloads. Disputes retain evidence, replies and history. Payout UI describes actual rail availability; neither an eligibility figure nor an admin button proves funds were transferred.
+
+**Files:** finance/dispute routes, `PaymentInvestigation.jsx`, `RefundOperations.jsx`, `RefundCommands.jsx`, `ReconcilePayment.jsx`, shared finance/dispute components and admin actions.
+
+**Backend/database:** reuse finance/refund/dispute commands; missing aggregate definitions require backend changes. Live settlement, commission/tax policy and payout execution are separate projects, consistent with owner EARN-07.
+
+**Acceptance/QA:** no Test amount presented as Live cash; preview expiry/version/idempotency safeguards remain; unavailable evidence is explicit; export respects role and environment; statement and detail totals reconcile against fixtures.
+
+### Phase 9 — Guest reviews, support and message delivery
+
+**IDs:** ADM-COMMS-01–05 · **Priority:** Medium · **Depends on:** Phase 3.
+
+Guest reviews sit under Reviews & approvals, with reported/moderation states and readable feedback. Support uses a subject-led inbox and conversation-led detail with contextual booking/owner/guest links; assignment, escalation, replies and attachments remain available. Message delivery sits under Operations and distinguishes queued, provider accepted, delivered and failed outcomes supported by the current contract. Retry/suppress commands must remain explicit and authorized.
+
+**Files:** `AdminReviewQueue.jsx`, `AdminSupport.jsx`, `SupportManagement.jsx`, review/support/notification routes and shared thread/delivery components.
+
+**Backend/database:** reuse APIs; add only supported unread/queue aggregates. Do not introduce a live chat promise or external messaging channel through UI copy.
+
+**Acceptance/QA:** moderation preserves public-rating semantics; unread state and saved replies refresh correctly; private attachments stay private; failed provider delivery is distinguishable from acceptance; repeated retries cannot accidentally duplicate an ambiguous delivery.
+
+### Phase 10 — Operations, privacy, audit and configuration
+
+**IDs:** ADM-OPS-01–06 · **Priority:** Medium · **Depends on:** Phases 2–3.
+
+Operations tabs expose service health, delivery, privacy and audit. Health prioritizes incidents before diagnostics; keep incident commands and evidence. Audit includes event filters, governed export creation, job progress, receipts/downloads and expiry. Privacy retains review/blocking/retention context and existing identity scope. Settings & content contains publishing/version history, catalogue management, gateway configuration and operator security with capability-based controls.
+
+**Files:** operations/privacy/audit/content/catalogue/security/payment configuration routes; `IncidentControls.jsx`, `PrivacyFulfillment.jsx`, `AuditBrowser.jsx`, `OperatorSecurity.jsx`, `PaymentGatewaySettings.jsx`.
+
+**Backend/database:** existing contracts first; publication previews, governed exports and security workflows are preserved. No new capability names or stored preferences until justified by an approved contract.
+
+**Acceptance/QA:** event/export details and private downloads remain reachable; read-only roles cannot mutate content/security; 2FA/recovery/session behavior survives styling; gateway settings cannot be mistaken for payment investigation; no unsupported privacy scope is implied.
+
+### Phase 11 — Global search and cross-workspace links
+
+**IDs:** ADM-SEARCH-01–04 · **Priority:** Medium · **Depends on:** route map stabilized; Phase 3.
+
+First improve current authorized directory search and root application links. Then expand to properties and booking references, followed by case/support references where existing query contracts support them. Add type filters and independent pagination. State supported search scopes accurately in the placeholder. Check capability before making each section request, not just before rendering results.
+
+**Files:** `AdminShell.jsx`, search page, admin API adapters; relevant backend list/search services and validators.
+
+**Backend/database:** proposed authorized unified search endpoint only if existing endpoints cannot provide correct paginated results. Validate literal wildcard handling, bounded queries and supported reference matching. Exclude private message bodies/documents and unauthorized identities.
+
+**Acceptance/QA:** no cross-role leakage; partial failure retains other permitted results; searches and drill-downs survive refresh; copy/open/full-page links preserve allowed context; search-only eligible roles can access the header affordance.
+
+### Phase 12 — Responsive, accessibility, performance and release verification
+
+**IDs:** ADM-QA-01–07 · **Priority:** High release gate · **Depends on:** all shipped module phases.
+
+Run the complete redesigned journey with disposable fixtures: sign-in/2FA → dashboard → review → property verification/publication → booking/case → refund evidence → support → audit. Cover narrow phones, tablet, desktop, keyboard-only use and zoom. Confirm table containment, chart tables, field errors, modal focus, reduced motion and session recovery.
+
+**Files:** affected routes/components, existing `test/**` and portal-gate infrastructure; add an admin-specific browser gate if existing scripts do not cover these paths.
+
+**Backend/database:** validate new aggregates/search against an integration database, migration journal if schema changes occurred, realistic query plans and concurrent reviewer/finance cases. Production-provider checks are separate recorded evidence.
+
+**Acceptance/QA:** targeted and required lint/format/test/build gates pass, or outstanding unrelated failures are explicitly recorded; no new hydration/accessibility/page-overflow defects; permissions validated by API and direct URLs; no lost admin workflow. Measure representative cold-load bundles and interaction performance against a baseline before setting the final budget. Do not inherit the owner plan's already-failing budget as a claimed pass.
+
+## 6. Delivery order and progress
+
+| Release | Phases | Reviewable outcome                                                                | Status                              |
+| ------- | ------ | --------------------------------------------------------------------------------- | ----------------------------------- |
+| A0      | 1      | Verified inventory and baseline                                                   | Complete (audit); findings recorded |
+| A1      | 2–3    | Clear sidebar, section tabs and consistent primitives; application route migrated | Not started                         |
+| A2      | 4      | Authorized dashboard, actionable queues and defined analytics                     | Not started                         |
+| A3      | 5–7    | Review, booking/case and people workspaces                                        | Not started                         |
+| A4      | 8–9    | Finance, guest-review and support workflows                                       | Not started                         |
+| A5      | 10–11  | Operations/configuration and expanded search                                      | Not started                         |
+| A6      | 12     | Full regression evidence and release readiness decision                           | Not started                         |
+
+Phase 4 API definition can begin during Phase 1. Module phases can ship independently after the shared foundation; finance remains high priority even though it is listed later. Every release receives targeted accessibility, role and workflow checks. A6 adds the complete journey rather than postponing verification until the end.
+
+### Per-phase completion record
+
+Update this single document as work progresses. Record implemented IDs, changed files, API/migration impact, checks actually run and their results, screenshot/evidence paths, unresolved issues and next phase. Distinguish implementation complete, locally verified and deployed. Do not mark a phase complete because its screen looks finished while a preserved command, permission or link is broken.
+
+## 7. Implementation defaults and boundaries
+
+- Use existing Rentra tokens/components; no new brand theme or chart dependency is required by this plan.
+- Keep deep links and backend domain terminology compatible; UI copy uses Owner, Property, Booking and Visit.
+- Treat each capability independently. The dashboard has no implied super-admin access.
+- Use tables and inspection sheets to match the latest owner workflow; complex decisions keep full-page evidence initially.
+- Charts require real aggregates, explicit money/date definitions and accessible tables. Queue urgency takes precedence over decorative analytics.
+- Add no editable platform calendar, admin impersonation, automated bulk approvals, live chat or payout execution as part of this UI redesign.
+- UI-only phases should need no migration. Dashboard/search/index changes are scoped and verified separately when evidence requires them.
+
+Phase 1 is complete. The next implementation step is Phase 2: migrate the application queue route, add grouped navigation and provide an authorized home for restricted operators.
