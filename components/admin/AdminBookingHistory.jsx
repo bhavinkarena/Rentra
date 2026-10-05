@@ -8,6 +8,7 @@ import {
   CircleDollarSign,
   Search,
 } from 'lucide-react';
+import { displayMoney } from '@/lib/domain/display-money';
 import Pagination from '@/components/ui/pagination';
 
 const TABS = [
@@ -26,8 +27,14 @@ function queryHref(data, changes) {
     page: String(data.page),
     ...(data.property ? { property: data.property } : {}),
     ...(data.vertical ? { vertical: data.vertical } : {}),
+    ...Object.fromEntries(
+      ['createdFrom', 'createdTo', 'environment', 'rentOnly', 'unit']
+        .filter((key) => data[key])
+        .map((key) => [key, data[key]]),
+    ),
     ...changes,
   });
+  if (changes.tab && changes.tab !== 'today') params.delete('unit');
   if (params.get('vertical') === '') params.delete('vertical');
   return `/admin/bookings?${params}`;
 }
@@ -82,34 +89,53 @@ export default function AdminBookingHistory({ data }) {
         </p>
       </header>
 
-      <section className="mt-7 grid grid-cols-2 gap-3 xl:grid-cols-4" aria-label="Booking summary">
-        <KpiCard
-          label="Total bookings"
-          value={summary.total}
-          hint="All booking records"
-          icon={CalendarCheck2}
-        />
-        <KpiCard
-          label="Upcoming"
-          value={summary.upcoming}
-          hint="Confirmed future visits"
-          icon={CalendarClock}
-          tone="brand"
-        />
-        <KpiCard
-          label="Past"
-          value={summary.past}
-          hint="Includes visits whose scheduled end has passed"
-          icon={CircleDollarSign}
-        />
-        <KpiCard
-          label="Cancelled"
-          value={summary.cancelled}
-          hint="Cancelled or expired"
-          icon={CalendarX2}
-          tone={summary.cancelled ? 'danger' : 'neutral'}
-        />
-      </section>
+      {data.environment ? (
+        <p className="mt-4 text-meta text-ink-600">
+          Dashboard scope: {data.environment}{' '}
+          {data.unit === 'visits'
+            ? 'visits arriving or departing today (IST), counted once per visit.'
+            : `orders created ${data.createdFrom || 'any date'} to ${data.createdTo || 'any date'} (IST).`}
+          {data.rentOnly
+            ? ' Non-cancelled visit rent only; excludes unpaid holds, fees and deposits.'
+            : ''}{' '}
+          <Link href="/admin/bookings" className="underline">
+            Clear dashboard scope
+          </Link>
+        </p>
+      ) : null}
+      {data.unit !== 'visits' ? (
+        <section
+          className="mt-7 grid grid-cols-2 gap-3 xl:grid-cols-4"
+          aria-label="Booking summary"
+        >
+          <KpiCard
+            label="Total bookings"
+            value={summary.total}
+            hint="All booking records"
+            icon={CalendarCheck2}
+          />
+          <KpiCard
+            label="Upcoming"
+            value={summary.upcoming}
+            hint="Confirmed future visits"
+            icon={CalendarClock}
+            tone="brand"
+          />
+          <KpiCard
+            label="Past"
+            value={summary.past}
+            hint="Includes visits whose scheduled end has passed"
+            icon={CircleDollarSign}
+          />
+          <KpiCard
+            label="Cancelled"
+            value={summary.cancelled}
+            hint="Cancelled or expired"
+            icon={CalendarX2}
+            tone={summary.cancelled ? 'danger' : 'neutral'}
+          />
+        </section>
+      ) : null}
 
       <section className="mt-6 overflow-hidden rounded-lg border border-border bg-card shadow-xs">
         <div className="border-b border-border p-4 sm:p-5">
@@ -122,6 +148,11 @@ export default function AdminBookingHistory({ data }) {
             </div>
             <Form action="/admin/bookings" className="flex w-full max-w-xl gap-2">
               <input type="hidden" name="tab" value={data.tab} />
+              {['createdFrom', 'createdTo', 'environment', 'rentOnly', 'unit']
+                .filter((key) => data[key])
+                .map((key) => (
+                  <input key={key} type="hidden" name={key} value={data[key]} />
+                ))}
               {data.property && <input type="hidden" name="property" value={data.property} />}
               <label className="relative min-w-0 flex-1">
                 <span className="sr-only">Search property or booking reference</span>
@@ -199,6 +230,7 @@ export default function AdminBookingHistory({ data }) {
                   <th className="px-4 py-3">Booked on</th>
                   <th className="px-4 py-3">Visits</th>
                   <th className="px-4 py-3">Booking status</th>
+                  {data.rentOnly ? <th className="px-4 py-3">Rent (INR)</th> : null}
                   <th className="px-4 py-3">Payment</th>
                   <th className="px-5 py-3">
                     <span className="sr-only">Open</span>
@@ -207,7 +239,12 @@ export default function AdminBookingHistory({ data }) {
               </thead>
               <tbody className="divide-y divide-border">
                 {data.items.map((item) => (
-                  <BookingRow key={item.id} item={item} listHref={queryHref(data, {})} />
+                  <BookingRow
+                    key={item.visitId ?? item.id}
+                    item={item}
+                    rentOnly={data.rentOnly}
+                    listHref={queryHref(data, {})}
+                  />
                 ))}
               </tbody>
             </table>
@@ -231,7 +268,7 @@ export default function AdminBookingHistory({ data }) {
           pages={data.pages}
           pageSizes={null}
           label="Booking pages"
-          noun="bookings"
+          noun={data.unit === 'visits' ? 'visits' : 'bookings'}
           className="border-t border-border px-4 py-4 sm:px-5"
         />
       </section>
@@ -239,7 +276,7 @@ export default function AdminBookingHistory({ data }) {
   );
 }
 
-function BookingRow({ item, listHref }) {
+function BookingRow({ item, listHref, rentOnly }) {
   const payment = paymentSummary(item.payments);
 
   return (
@@ -247,7 +284,7 @@ function BookingRow({ item, listHref }) {
       <td className="px-5 py-4">
         <p className="max-w-[300px] truncate text-meta font-semibold text-ink-900">{item.title}</p>
         <p className="mt-1 font-mono text-tiny text-ink-500">{item.reference}</p>
-        {item.firstVisitSlot === 'hourly' ? (
+        {item.visitId || item.firstVisitSlot === 'hourly' ? (
           // Venue bookings: when and which court, from the list alone.
           <p className="mt-1 text-tiny font-semibold text-ink-700 tabular">
             {item.firstVisitLabel}
@@ -272,6 +309,9 @@ function BookingRow({ item, listHref }) {
           {label(item.state)}
         </span>
       </td>
+      {rentOnly ? (
+        <td className="px-4 py-4 text-meta tabular">{displayMoney(item.rentMinor)}</td>
+      ) : null}
       <td className="px-4 py-4">
         <span
           className={`inline-flex items-center gap-1.5 text-tiny font-semibold capitalize ${payment.tone}`}

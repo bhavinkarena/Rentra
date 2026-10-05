@@ -41,6 +41,9 @@ function href(data, changes) {
     source: data.source,
     q: data.q,
     page: String(data.page),
+    dashboard: data.dashboard,
+    from: data.from,
+    to: data.to,
     ...changes,
   };
   const kept = Object.entries(params).filter(
@@ -64,6 +67,20 @@ export function RefundList({ data }) {
         title="Refunds"
         description="Every refund obligation, from request to the provider's verified outcome. Nothing reads as refunded until Razorpay confirms it."
       />
+      {data.dashboard ? (
+        <p className="mt-4 text-meta text-ink-600">
+          Dashboard scope:{' '}
+          {data.dashboard === 'success'
+            ? `Successful refunds verified ${data.from} to ${data.to} (IST)`
+            : data.dashboard === 'pending'
+              ? 'Requested, processing or uncertain refunds now'
+              : 'Uncertain or failed refunds now'}
+          .{' '}
+          <Link href="/admin/finance/refunds" className="underline">
+            Clear dashboard scope
+          </Link>
+        </p>
+      ) : null}
       <nav aria-label="Refund environment" className="mt-6 flex flex-wrap gap-2">
         {ENVIRONMENTS.map(([value, label]) => (
           <Link
@@ -90,6 +107,10 @@ export function RefundList({ data }) {
       </nav>
       <Form action="/admin/finance/refunds" className="mt-4 flex flex-wrap items-end gap-3">
         <input type="hidden" name="environment" value={data.environment} />
+        {data.dashboard ? <input type="hidden" name="dashboard" value={data.dashboard} /> : null}
+        {data.from ? <input type="hidden" name="from" value={data.from} /> : null}
+        {data.to ? <input type="hidden" name="to" value={data.to} /> : null}
+
         <input type="hidden" name="status" value={data.status} />
         <label className="text-meta font-semibold">
           Source

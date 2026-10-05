@@ -54,6 +54,7 @@ function href(data, changes) {
     from: data.from,
     to: data.to,
     page: String(data.page),
+    basis: data.basis,
     ...changes,
   };
   const kept = Object.entries(params).filter(
@@ -138,6 +139,15 @@ export function PaymentList({ data }) {
           </Link>
         }
       />
+      {data.basis === 'capture' ? (
+        <p className="mt-4 text-meta text-ink-600">
+          Capture evidence verified {data.from} to {data.to} (IST). Captured amounts use this
+          period.{' '}
+          <Link href="/admin/finance/payments" className="underline">
+            Clear dashboard scope
+          </Link>
+        </p>
+      ) : null}
       <AdminFilterBar label="Payment filters" className="mt-6 rounded-lg border border-border">
         <nav aria-label="Payment environment" className="flex flex-wrap gap-2">
           {ENVIRONMENTS.map(([value, label]) => (
@@ -166,6 +176,8 @@ export function PaymentList({ data }) {
           className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5"
         >
           <input type="hidden" name="environment" value={data.environment} />
+          {data.basis ? <input type="hidden" name="basis" value={data.basis} /> : null}
+
           <input type="hidden" name="attention" value={data.attention} />
           <label className="block lg:col-span-2">
             <span className="text-meta font-medium">Booking reference, payment or provider id</span>

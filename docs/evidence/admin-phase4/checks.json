@@ -1,0 +1,88 @@
+{
+  "date": "2026-10-05",
+  "status": "Implemented and locally verified; not deployed",
+  "ids": "ADM-HOME-01 through ADM-HOME-07",
+  "contract": "../../ADMIN-DASHBOARD-CONTRACT.md",
+  "api": "New independently scoped GET /admin/dashboard and application decision history; narrow matching list filters. No money writes.",
+  "migrations": "None added; all existing migrations applied to disposable local fixtures.",
+  "checks": [
+    {
+      "command": "npm test (frontend)",
+      "result": "pass",
+      "tests": 92,
+      "skipped": 0
+    },
+    {
+      "command": "Targeted backend dashboard, owner booking list/Today, payment investigation, refunds, application review and support tests",
+      "result": "pass",
+      "tests": 8,
+      "skipped": 0,
+      "detail": "One scope unit test and seven disposable integration tests"
+    },
+    {
+      "command": "python scripts/portal-gate/admin-dashboard.py",
+      "result": "pass",
+      "checks": 36,
+      "axeRuns": 10,
+      "axeViolations": 0,
+      "pageErrors": 0
+    },
+    {
+      "command": "Changed frontend JS/JSX: ESLint --max-warnings 0 and Prettier --check",
+      "result": "pass"
+    },
+    {
+      "command": "npm run lint (backend), changed-file Prettier and service syntax checks",
+      "result": "pass",
+      "detail": "New dashboard services also pass explicit ESLint --no-ignore and Prettier. Repository policy excludes existing ported services, which received syntax and affected integration checks."
+    },
+    {
+      "command": "npm run build (frontend, isolated verification-build directory)",
+      "result": "pass",
+      "warnings": "Configured public sitemap policy API unavailable"
+    },
+    {
+      "command": "node src/scripts/checkMigrations.js",
+      "result": "pass",
+      "journalEntries": 64
+    },
+    {
+      "command": "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) created-order/rent aggregate",
+      "result": "pass",
+      "orders": 1009,
+      "executionMs": 1.581,
+      "detail": "Uses existing visit order index; fixture measurement, no production capacity claim"
+    },
+    {
+      "command": "Impeccable detect AdminDashboard/AdminAnalytics --json",
+      "result": "pass",
+      "findings": 0
+    },
+    {
+      "command": "npm run lint (frontend)",
+      "result": "unrelated existing failures",
+      "errors": 418,
+      "warnings": 3,
+      "files": ".impeccable/review scripts and public icon image warnings"
+    },
+    {
+      "command": "npm run format:check (frontend)",
+      "result": "unrelated existing failure",
+      "file": "Rentra_Post_Development_Launch_Roadmap.md"
+    },
+    {
+      "command": "npm run format:check (backend)",
+      "result": "unrelated existing failure",
+      "file": ".prettierrc"
+    }
+  ],
+  "browserEvidence": "browser-checks.json",
+  "queryPlan": "query-plan.json",
+  "limitations": [
+    "Not deployed; production providers and the Phase 12 complete journey were not exercised.",
+    "No CSV without an explicit export policy; no new dependencies or schema changes.",
+    "Query plans cover a local 1,009-order fixture; production financial/event volume must be measured separately.",
+    "Cases have no stored high-priority/SLA rule; only real urgent support priority is highlighted."
+  ],
+  "cleanup": "Disposable fixture databases dropped; isolated Next.js process stopped; PostgreSQL cluster stopped and removed; private session JSON removed."
+}

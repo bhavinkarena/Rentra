@@ -28,6 +28,7 @@ export default async function PropertyReviewQueue({ searchParams }) {
   const { data, failure } = await settle(
     adminApi.properties({
       status: params?.status,
+      submitted: params?.submitted,
       assignee: params?.assignee,
       q: params?.q,
       page: params?.page,
@@ -37,12 +38,14 @@ export default async function PropertyReviewQueue({ searchParams }) {
   const link = (change) => {
     const next = {
       status: data.status,
+      submitted: params?.submitted,
       assignee: data.assignee,
       q: data.q,
       page: data.page,
       ...change,
     };
     const query = new URLSearchParams();
+    if (next.submitted) query.set('submitted', next.submitted);
     if (next.status !== 'pending_review') query.set('status', next.status);
     if (next.assignee !== 'any') query.set('assignee', next.assignee);
     if (next.q) query.set('q', next.q);
@@ -97,6 +100,7 @@ export default async function PropertyReviewQueue({ searchParams }) {
           </nav>
           <Form className="flex items-end gap-2" action="/admin/properties" role="search">
             <input type="hidden" name="status" value={data.status} />
+            {params?.submitted === '1' ? <input type="hidden" name="submitted" value="1" /> : null}
             <input type="hidden" name="assignee" value={data.assignee} />
             <label className="text-tiny font-semibold text-ink-600">
               Title, reference or client email

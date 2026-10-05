@@ -86,6 +86,7 @@ export function AdminSupportList({ data }) {
                 defaultValue={data.state}
               >
                 <option value="all">All statuses</option>
+                <option value="unresolved">Unresolved requests</option>
                 {Object.entries(supportStates).map(([value, text]) => (
                   <option key={value} value={value}>
                     {text}
