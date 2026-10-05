@@ -4,7 +4,7 @@ const admin = [
   {
     title: 'Review and publish',
     capability: 'admin.applications.read',
-    href: '/admin',
+    href: '/admin/applications',
     link: 'Application queue',
     steps: [
       'Review identity, account details and the submitted revision. Ask for more information when a correction is possible; explain the exact fields to fix.',

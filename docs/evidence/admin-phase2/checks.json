@@ -1,0 +1,64 @@
+{
+  "date": "2026-10-05",
+  "status": "Implemented and locally verified; not deployed",
+  "ids": "ADM-NAV-01 through ADM-NAV-05",
+  "api": "Existing application decision redirect changed; no endpoints or capability changes",
+  "migrations": "None added; existing migration journal applied to disposable local fixtures",
+  "checks": [
+    {
+      "command": "npm test",
+      "result": "pass",
+      "tests": 89
+    },
+    {
+      "command": "node --import ./loader/register.mjs --test test/integration/application-review.integration.test.js",
+      "result": "pass",
+      "tests": 1,
+      "skipped": 0
+    },
+    {
+      "command": "python scripts/portal-gate/admin-navigation.py",
+      "result": "pass",
+      "checks": 37,
+      "pageErrors": 0
+    },
+    {
+      "command": "Changed frontend JavaScript files: ESLint --max-warnings 0 and Prettier --check",
+      "result": "pass"
+    },
+    {
+      "command": "Backend fixture: ESLint; redirect file: syntax and Prettier checks",
+      "result": "pass",
+      "note": "Existing auth action is ignored by backend ESLint configuration."
+    },
+    {
+      "command": "RENTRA_BUILD_FIXTURE=1 npm run build",
+      "result": "pass",
+      "warnings": "Public sitemap policy reads could not reach configured API; no admin route build errors."
+    },
+    {
+      "command": "npm run lint",
+      "result": "fail",
+      "errors": 418,
+      "warnings": 3,
+      "scope": "Unchanged .impeccable/review script formatting; opengraph-image.js and apple-icon.js image warnings."
+    },
+    {
+      "command": "npm run format:check",
+      "result": "fail",
+      "scope": "Unchanged Rentra_Post_Development_Launch_Roadmap.md"
+    },
+    {
+      "command": "Impeccable detector (changed UI targets)",
+      "result": "Inherited findings only",
+      "scope": "Existing AdminClients action border and moved application metric type size"
+    }
+  ],
+  "browserEvidence": "browser-checks.json",
+  "limitations": [
+    "Production providers not exercised",
+    "Phase 4 authorized dashboard remains pending",
+    "ADM-F02 through ADM-F06 remain in later phases",
+    "Existing mobile queue row density remains Phase 5 work"
+  ]
+}

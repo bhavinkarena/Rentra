@@ -61,7 +61,7 @@ with sync_playwright() as p:
     for width in (1280, 390):
         c = ctx(browser, first, width)
         page = c.new_page()
-        r = go(page, f"{WEB}/admin?assignee=unassigned&q=gate")
+        r = go(page, f"{WEB}/admin/applications?assignee=unassigned&q=gate")
         check(f"queue loads with filters {width}px", r.status == 200 and visible(page.get_by_role("heading", name="Waiting applications")))
         check(f"queue shows aging past the service window {width}px", visible(page.get_by_text(re.compile(r"\d+h · overdue"))))
         row = page.locator(f"a[href*='/admin/applications/{A['appId']}'][href*='from=']").first
@@ -73,7 +73,7 @@ with sync_playwright() as p:
     # ---- reviewer 1 claims; reviewer 2 cannot decide it
     c1 = ctx(browser, first)
     p1 = c1.new_page()
-    go(p1, f"{WEB}/admin?assignee=unassigned&q=gate")
+    go(p1, f"{WEB}/admin/applications?assignee=unassigned&q=gate")
     p1.locator(f"a[href*='/admin/applications/{A['appId']}']").first.click()
     p1.wait_for_url(re.compile(A["appId"]))
     p1.wait_for_load_state("networkidle")

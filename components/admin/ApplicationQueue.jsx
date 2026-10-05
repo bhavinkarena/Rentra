@@ -3,6 +3,7 @@ import Link from '@/components/navigation/NavigationLink';
 import { AlertTriangle, Clock, Inbox, MousePointerClick, RotateCcw, UserCheck } from 'lucide-react';
 import { AdminEmpty, StatusBadge } from './AdminPrimitives';
 import Pagination from '@/components/ui/pagination';
+import { applicationQueueHref as queueHref } from '@/lib/domain/admin-navigation';
 
 const STATUS = {
   submitted: 'Waiting',
@@ -22,19 +23,9 @@ const tone = (status) =>
         ? 'info'
         : 'warning';
 
-export function queueHref({ status = 'submitted', assignee = 'any', q = '', page = 1 }) {
-  const params = new URLSearchParams();
-  if (status !== 'submitted') params.set('status', status);
-  if (assignee !== 'any') params.set('assignee', assignee);
-  if (q) params.set('q', q);
-  if (page > 1) params.set('page', String(page));
-  const query = params.toString();
-  return query ? `/admin?${query}` : '/admin';
-}
-
 /** Gate 1 work queue: URL-backed status, assignee, search and page. */
-export default function ApplicationQueue({ data }) {
-  const here = queueHref(data);
+export default function ApplicationQueue({ data, query = {} }) {
+  const here = queueHref(data, query);
   return (
     <section
       className="mt-6 overflow-hidden rounded-lg border border-border bg-card shadow-xs"
@@ -52,7 +43,18 @@ export default function ApplicationQueue({ data }) {
                 : 'Most recently changed first'}
             </p>
           </div>
-          <Form action="/admin" className="flex items-end gap-2" role="search">
+          <Form
+            action="/admin/applications"
+            className="flex flex-wrap items-end gap-2"
+            role="search"
+          >
+            {Object.entries(query)
+              .filter(([key]) => !['status', 'assignee', 'q', 'page', 'decided'].includes(key))
+              .flatMap(([key, value]) =>
+                (Array.isArray(value) ? value : [value]).map((item, index) => (
+                  <input key={`${key}-${index}`} type="hidden" name={key} value={item} />
+                )),
+              )}
             {data.status !== 'submitted' ? (
               <input type="hidden" name="status" value={data.status} />
             ) : null}
@@ -77,7 +79,7 @@ export default function ApplicationQueue({ data }) {
           {Object.entries(STATUS).map(([key, text]) => (
             <Link
               key={key}
-              href={queueHref({ ...data, status: key, page: 1 })}
+              href={queueHref({ ...data, status: key, page: 1 }, query)}
               aria-current={data.status === key ? 'page' : undefined}
               className={`inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-tiny font-semibold ${
                 data.status === key
@@ -93,7 +95,7 @@ export default function ApplicationQueue({ data }) {
           {Object.entries(ASSIGNEE).map(([key, text]) => (
             <Link
               key={key}
-              href={queueHref({ ...data, assignee: key, page: 1 })}
+              href={queueHref({ ...data, assignee: key, page: 1 }, query)}
               aria-current={data.assignee === key ? 'page' : undefined}
               className={`inline-flex min-h-9 items-center rounded-md border px-3 text-tiny font-semibold ${
                 data.assignee === key

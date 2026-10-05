@@ -3,7 +3,7 @@ import { settle } from '@/lib/api/page-state';
 import PortalState from '@/components/portal/PortalState';
 import { AdminClientList } from '@/components/admin/AdminClients';
 
-export const metadata = { title: 'Clients', robots: { index: false, follow: false } };
+export const metadata = { title: 'Owners', robots: { index: false, follow: false } };
 
 export default async function Page({ searchParams }) {
   const { q, status, page } = (await searchParams) ?? {};

@@ -50,7 +50,7 @@ export function AdminClientList({ data }) {
     <AdminPage>
       <AdminPageHeader
         eyebrow="People"
-        title="Clients"
+        title="Owners"
         description="Owners and authorised agents: onboarding, properties, upcoming visits and account status."
       />
 
@@ -109,12 +109,12 @@ export function AdminClientList({ data }) {
             className="relative overflow-x-auto"
             tabIndex={0}
             role="region"
-            aria-label="Clients table"
+            aria-label="Owners table"
           >
             <table className="w-full min-w-[820px] text-left">
               <thead className="bg-ink-25 text-tiny font-bold tracking-wider text-ink-500 uppercase">
                 <tr>
-                  <th className="px-5 py-3">Client</th>
+                  <th className="px-5 py-3">Owner</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Application</th>
                   <th className="px-4 py-3">Properties</th>
@@ -174,7 +174,7 @@ export function AdminClientList({ data }) {
           total={data.total}
           pages={data.pages}
           pageSizes={null}
-          label="Client pages"
+          label="Owner pages"
           noun="clients"
           className="border-t border-border px-5 py-4"
         />
@@ -327,7 +327,7 @@ export function AdminClientDetail({ data, listHref: backHref = '/admin/clients',
   return (
     <AdminPage width="max-w-[1320px]">
       <DetailHeader
-        breadcrumbs={[{ href: backHref, label: 'Clients' }, { label: title }]}
+        breadcrumbs={[{ href: backHref, label: 'Owners' }, { label: title }]}
         title={title}
         badges={[
           { label: STATUS[client.accountStatus], tone: statusTone(client.accountStatus) },
@@ -342,7 +342,7 @@ export function AdminClientDetail({ data, listHref: backHref = '/admin/clients',
               }
             : null,
         ].filter(Boolean)}
-        id={{ label: 'Client ID', value: client.id, display: client.id.slice(0, 8) }}
+        id={{ label: 'Owner ID', value: client.id, display: client.id.slice(0, 8) }}
         chips={[
           { icon: Mail, value: client.email ?? 'No email' },
           client.phone ? { icon: Phone, value: `+91 ${client.phone}` } : null,
@@ -489,7 +489,7 @@ export function AdminClientDetail({ data, listHref: backHref = '/admin/clients',
             <SectionCard id="profile" title="Account details">
               <FieldGrid
                 fields={[
-                  { label: 'Client ID', value: client.id, mono: true },
+                  { label: 'Owner ID', value: client.id, mono: true },
                   { label: 'Name', value: client.name || '—' },
                   {
                     label: 'Email',

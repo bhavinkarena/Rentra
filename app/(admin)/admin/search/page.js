@@ -1,4 +1,5 @@
 import Link from '@/components/navigation/NavigationLink';
+import { requireAdmin } from '@/lib/api/session';
 import { adminApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
 import { AdminPage, AdminPageHeader, StatusBadge } from '@/components/admin/AdminPrimitives';
@@ -13,20 +14,22 @@ const label = (value) => String(value ?? '—').replaceAll('_', ' ');
  * a forbidden or failed section says so instead of hiding the others.
  */
 export default async function SearchPage({ searchParams }) {
+  const admin = await requireAdmin();
+  const can = (scope) => admin.capabilities?.includes(`admin.${scope}.read`);
   const q = String((await searchParams)?.q ?? '')
     .trim()
     .slice(0, 100);
   const [clients, customers, applications] = q
     ? await Promise.all([
-        settle(adminApi.clients({ q })),
-        settle(adminApi.customers({ q })),
-        settle(adminApi.applications({ q, status: 'all' })),
+        can('clients') ? settle(adminApi.clients({ q })) : null,
+        can('customers') ? settle(adminApi.customers({ q })) : null,
+        can('applications') ? settle(adminApi.applications({ q, status: 'all' })) : null,
       ])
     : [null, null, null];
   const sections = [
     {
       key: 'clients',
-      title: 'Clients',
+      title: 'Owners',
       result: clients,
       all: `/admin/clients?q=${encodeURIComponent(q)}`,
       row: (item) => (
@@ -58,7 +61,7 @@ export default async function SearchPage({ searchParams }) {
       key: 'applications',
       title: 'Applications',
       result: applications,
-      all: `/admin?status=all&q=${encodeURIComponent(q)}`,
+      all: `/admin/applications?status=all&q=${encodeURIComponent(q)}`,
       row: (item) => (
         <Row
           key={item.id}
@@ -76,47 +79,49 @@ export default async function SearchPage({ searchParams }) {
       <AdminPageHeader
         eyebrow="Search"
         title={q ? `Results for “${q}”` : 'Search'}
-        description="Clients, customers and partner applications, by name, email or phone."
+        description="Owners, customers and owner applications, by name, email or phone."
       />
       {!q ? (
         <p className="mt-6 text-meta text-ink-600">Type in the search box at the top.</p>
       ) : (
         <div className="mt-6 space-y-5">
-          {sections.map((section) => (
-            <SectionCard
-              key={section.key}
-              id={`search-${section.key}`}
-              title={section.title}
-              description={
-                section.result?.data ? `${section.result.data.total} match(es)` : undefined
-              }
-              action={
-                section.result?.data?.total ? (
-                  <Link
-                    href={section.all}
-                    className="text-tiny font-bold text-brand-700 hover:underline"
-                  >
-                    See all →
-                  </Link>
-                ) : null
-              }
-              flush
-            >
-              {section.result?.failure ? (
-                <p className="p-5 text-meta text-ink-600">
-                  {section.result.failure === 'forbidden'
-                    ? 'You do not have access to this directory.'
-                    : 'This directory could not load. Try again.'}
-                </p>
-              ) : (
-                <RowList
-                  items={section.result.data.items.slice(0, 5)}
-                  empty="No matches."
-                  render={section.row}
-                />
-              )}
-            </SectionCard>
-          ))}
+          {sections
+            .filter((section) => can(section.key))
+            .map((section) => (
+              <SectionCard
+                key={section.key}
+                id={`search-${section.key}`}
+                title={section.title}
+                description={
+                  section.result?.data ? `${section.result.data.total} match(es)` : undefined
+                }
+                action={
+                  section.result?.data?.total ? (
+                    <Link
+                      href={section.all}
+                      className="text-tiny font-bold text-brand-700 hover:underline"
+                    >
+                      See all →
+                    </Link>
+                  ) : null
+                }
+                flush
+              >
+                {section.result?.failure ? (
+                  <p className="p-5 text-meta text-ink-600">
+                    {section.result.failure === 'forbidden'
+                      ? 'You do not have access to this directory.'
+                      : 'This directory could not load. Try again.'}
+                  </p>
+                ) : (
+                  <RowList
+                    items={section.result.data.items.slice(0, 5)}
+                    empty="No matches."
+                    render={section.row}
+                  />
+                )}
+              </SectionCard>
+            ))}
         </div>
       )}
     </AdminPage>

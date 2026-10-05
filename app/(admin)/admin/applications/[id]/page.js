@@ -5,7 +5,7 @@ import { adminApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
 import PortalState from '@/components/portal/PortalState';
 import AssignmentPanel from '@/components/admin/AssignmentPanel';
-import { safeReturnPath } from '@/lib/domain/portal-state';
+import { applicationReturnHref } from '@/lib/domain/admin-navigation';
 import DecisionPanel from '@/components/admin/DecisionPanel';
 import DocumentViewer from '@/components/admin/DocumentViewer';
 import { AdminPage } from '@/components/admin/AdminPrimitives';
@@ -60,7 +60,7 @@ export default async function ApplicationReviewPage({ params, searchParams }) {
   await requireAdmin();
   const { id } = await params; // Next 16: params is a Promise
   const query = (await searchParams) ?? {};
-  const queueHref = safeReturnPath(query.from, '/admin');
+  const queueHref = applicationReturnHref(query.from);
 
   const { data, failure } = await settle(adminApi.application(id));
   if (failure) return <PortalState kind={failure} backHref={queueHref} backLabel="Applications" />;
@@ -112,7 +112,7 @@ export default async function ApplicationReviewPage({ params, searchParams }) {
             href={`/admin/clients/${user.id}`}
             className="inline-flex min-h-9 items-center rounded-md border border-border bg-card px-3 text-tiny font-semibold text-ink-800 hover:bg-ink-50"
           >
-            Open client record →
+            Open owner record →
           </Link>
         }
       />

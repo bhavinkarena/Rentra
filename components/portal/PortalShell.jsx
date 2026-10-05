@@ -166,7 +166,13 @@ function NavItem({ item, pathname, rail, onNavigate }) {
         className={`size-5 shrink-0 ${active ? 'text-brand-200' : 'text-on-dark-muted group-hover:text-on-dark-muted'}`}
         aria-hidden="true"
       />
-      {rail ? <RailTip>{item.label}</RailTip> : <span className="truncate">{item.label}</span>}
+      {rail ? (
+        <RailTip>{item.label}</RailTip>
+      ) : (
+        <span className={item.wrap ? 'min-w-0 flex-1 whitespace-normal' : 'truncate'}>
+          {item.label}
+        </span>
+      )}
       {item.badge ? (
         <span
           className={
@@ -263,7 +269,7 @@ function Sidebar({ config, pathname, rail, onNavigate, onToggleRail }) {
       >
         {config.groups.map((group) => (
           <div key={group.label} className={rail ? 'flex flex-col items-center gap-1' : undefined}>
-            {rail ? (
+            {group.hideLabel ? null : rail ? (
               <span className="my-1 h-px w-6 bg-white/15" aria-hidden="true" />
             ) : (
               <p className="mb-1.5 px-2.5 text-tiny font-semibold text-brand-200">{group.label}</p>
@@ -283,6 +289,22 @@ function Sidebar({ config, pathname, rail, onNavigate, onToggleRail }) {
         ))}
       </nav>
 
+      {config.footerItems?.length ? (
+        <nav
+          aria-label="Help and support"
+          className={`mt-4 border-t border-white/10 pt-3 ${rail ? 'flex flex-col items-center gap-1' : 'space-y-0.5'}`}
+        >
+          {config.footerItems.map((item) => (
+            <NavItem
+              key={item.href}
+              item={item}
+              pathname={pathname}
+              rail={rail}
+              onNavigate={onNavigate}
+            />
+          ))}
+        </nav>
+      ) : null}
       {config.ownerNavigation && onNavigate && (
         <Link href="/" className="mt-4 flex min-h-11 items-center px-2.5 text-meta text-white">
           View Rentra <ArrowUpRight className="ml-2 size-4" aria-hidden="true" />
