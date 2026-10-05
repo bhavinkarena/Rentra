@@ -1,0 +1,238 @@
+{
+  "scope": "Local production builds, same disposable API, unthrottled, cold cache per run; medians of 3 runs",
+  "routes": [
+    {
+      "route": "/admin",
+      "current": {
+        "ttfb": 8.3,
+        "domContentLoaded": 34.8,
+        "load": 81.7,
+        "lcp": 380,
+        "documentBytes": 34502,
+        "scriptCount": 33,
+        "scriptBytes": 338495,
+        "scriptDecodedBytes": 1059627,
+        "status": 200,
+        "rendered": true
+      },
+      "preRedesign": {
+        "ttfb": 8.7,
+        "domContentLoaded": 28.2,
+        "load": 65,
+        "lcp": 368,
+        "documentBytes": 33645,
+        "scriptCount": 33,
+        "scriptBytes": 336616,
+        "scriptDecodedBytes": 1053535,
+        "status": 200,
+        "rendered": true
+      }
+    },
+    {
+      "route": "/admin/bookings",
+      "current": {
+        "ttfb": 6.8,
+        "domContentLoaded": 34.7,
+        "load": 71.3,
+        "lcp": 384,
+        "documentBytes": 31709,
+        "scriptCount": 37,
+        "scriptBytes": 355068,
+        "scriptDecodedBytes": 1106597,
+        "status": 200,
+        "rendered": true
+      },
+      "preRedesign": {
+        "ttfb": 6.9,
+        "domContentLoaded": 34.3,
+        "load": 71.5,
+        "lcp": 384,
+        "documentBytes": 36808,
+        "scriptCount": 35,
+        "scriptBytes": 340825,
+        "scriptDecodedBytes": 1062971,
+        "status": 200,
+        "rendered": true
+      }
+    },
+    {
+      "route": "/admin/bookings/[orderId]",
+      "current": {
+        "ttfb": 7.7,
+        "domContentLoaded": 34.3,
+        "load": 72,
+        "lcp": 384,
+        "documentBytes": 34591,
+        "scriptCount": 36,
+        "scriptBytes": 351582,
+        "scriptDecodedBytes": 1096859,
+        "status": 200,
+        "rendered": true
+      },
+      "preRedesign": {
+        "ttfb": 7.2,
+        "domContentLoaded": 32.9,
+        "load": 71.3,
+        "lcp": 380,
+        "documentBytes": 40363,
+        "scriptCount": 36,
+        "scriptBytes": 356640,
+        "scriptDecodedBytes": 1107567,
+        "status": 200,
+        "rendered": true
+      }
+    },
+    {
+      "route": "/admin/customers",
+      "current": {
+        "ttfb": 6.6,
+        "domContentLoaded": 29,
+        "load": 69.6,
+        "lcp": 364,
+        "documentBytes": 29504,
+        "scriptCount": 37,
+        "scriptBytes": 354751,
+        "scriptDecodedBytes": 1106095,
+        "status": 200,
+        "rendered": true
+      },
+      "preRedesign": {
+        "ttfb": 6.6,
+        "domContentLoaded": 26,
+        "load": 75.8,
+        "lcp": 68,
+        "documentBytes": 34645,
+        "scriptCount": 37,
+        "scriptBytes": 356542,
+        "scriptDecodedBytes": 1106466,
+        "status": 200,
+        "rendered": true
+      }
+    },
+    {
+      "route": "/admin/finance/payments",
+      "current": {
+        "ttfb": 6.5,
+        "domContentLoaded": 28.4,
+        "load": 67.2,
+        "lcp": 384,
+        "documentBytes": 28427,
+        "scriptCount": 35,
+        "scriptBytes": 347483,
+        "scriptDecodedBytes": 1084359,
+        "status": 200,
+        "rendered": true
+      },
+      "preRedesign": {
+        "ttfb": 6.6,
+        "domContentLoaded": 29.6,
+        "load": 69.7,
+        "lcp": 384,
+        "documentBytes": 32151,
+        "scriptCount": 36,
+        "scriptBytes": 352792,
+        "scriptDecodedBytes": 1094997,
+        "status": 200,
+        "rendered": true
+      }
+    },
+    {
+      "route": "/admin/support",
+      "current": {
+        "ttfb": 7.3,
+        "domContentLoaded": 27.9,
+        "load": 67.1,
+        "lcp": 380,
+        "documentBytes": 26746,
+        "scriptCount": 36,
+        "scriptBytes": 352187,
+        "scriptDecodedBytes": 1099041,
+        "status": 200,
+        "rendered": true
+      },
+      "preRedesign": {
+        "ttfb": 6.5,
+        "domContentLoaded": 23.4,
+        "load": 74.6,
+        "lcp": 68,
+        "documentBytes": 32006,
+        "scriptCount": 37,
+        "scriptBytes": 357568,
+        "scriptDecodedBytes": 1109912,
+        "status": 200,
+        "rendered": true
+      }
+    },
+    {
+      "route": "/admin/properties",
+      "current": {
+        "ttfb": 7.7,
+        "domContentLoaded": 27.5,
+        "load": 68.6,
+        "lcp": 368,
+        "documentBytes": 25412,
+        "scriptCount": 33,
+        "scriptBytes": 339455,
+        "scriptDecodedBytes": 1062750,
+        "status": 200,
+        "rendered": true
+      },
+      "preRedesign": {
+        "ttfb": 6.1,
+        "domContentLoaded": 25.8,
+        "load": 63.7,
+        "lcp": 368,
+        "documentBytes": 30787,
+        "scriptCount": 35,
+        "scriptBytes": 340825,
+        "scriptDecodedBytes": 1062971,
+        "status": 200,
+        "rendered": true
+      }
+    },
+    {
+      "route": "/admin/search?q=Search%20fixture",
+      "current": {
+        "ttfb": 6.3,
+        "domContentLoaded": 70.7,
+        "load": 101.5,
+        "lcp": 104,
+        "documentBytes": 44672,
+        "scriptCount": 34,
+        "scriptBytes": 340794,
+        "scriptDecodedBytes": 1066452,
+        "status": 200,
+        "rendered": true
+      },
+      "preRedesign": {
+        "ttfb": 8,
+        "domContentLoaded": 31.9,
+        "load": 69.2,
+        "lcp": 368,
+        "documentBytes": 31545,
+        "scriptCount": 34,
+        "scriptBytes": 339131,
+        "scriptDecodedBytes": 1059030,
+        "status": 200,
+        "rendered": true
+      }
+    }
+  ],
+  "interactions": {
+    "openBookingSheet": {
+      "medianMs": 101.3,
+      "maxMs": 105.5,
+      "runs": 4
+    },
+    "switchSheetTab": {
+      "medianMs": 67.5,
+      "maxMs": 283.5,
+      "runs": 4
+    },
+    "filterBookings": {
+      "medianMs": 47.3,
+      "maxMs": 2692.2,
+      "runs": 4
+    }
+  }
+}

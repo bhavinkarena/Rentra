@@ -1,0 +1,97 @@
+{
+  "scope": "Disposable local PostgreSQL 14, unthrottled; synthetic rows cloned from fixture records",
+  "rows": {
+    "properties": "2024",
+    "users": "20053",
+    "visits": "20031",
+    "orders": "20029"
+  },
+  "endpoints": [
+    {
+      "endpoint": "/admin/dashboard?period=30d&environment=live",
+      "status": 200,
+      "medianMs": 10.7,
+      "maxMs": 12.3
+    },
+    {
+      "endpoint": "/admin/clients?status=all&q=Volume%20person%20199",
+      "status": 200,
+      "medianMs": 5.7,
+      "maxMs": 6.1
+    },
+    {
+      "endpoint": "/admin/customers?status=all&q=Volume",
+      "status": 200,
+      "medianMs": 24.6,
+      "maxMs": 28.0
+    },
+    {
+      "endpoint": "/admin/customers?status=all&q=9300001234",
+      "status": 200,
+      "medianMs": 14.7,
+      "maxMs": 18.3
+    },
+    {
+      "endpoint": "/admin/properties?status=all&q=Volume%20property%201999",
+      "status": 200,
+      "medianMs": 9.3,
+      "maxMs": 9.6
+    },
+    {
+      "endpoint": "/admin/properties?status=all&q=vol01999",
+      "status": 200,
+      "medianMs": 9.6,
+      "maxMs": 10.3
+    },
+    {
+      "endpoint": "/admin/records?tab=all&q=VOL-19999",
+      "status": 200,
+      "medianMs": 34.5,
+      "maxMs": 35.5
+    },
+    {
+      "endpoint": "/admin/records?tab=all",
+      "status": 200,
+      "medianMs": 118.8,
+      "maxMs": 120.0
+    },
+    {
+      "endpoint": "/admin/records?tab=all&page=500",
+      "status": 200,
+      "medianMs": 358.8,
+      "maxMs": 1200.0
+    },
+    {
+      "endpoint": "/admin/records/cases?state=all&q=CASE",
+      "status": 200,
+      "medianMs": 1.9,
+      "maxMs": 2.4
+    },
+    {
+      "endpoint": "/admin/applications?status=all&q=Fixture",
+      "status": 200,
+      "medianMs": 2.3,
+      "maxMs": 2.9
+    }
+  ],
+  "statementsOver50ms": [
+    " 66.437 ms  execute dhie16mybl470: SELECT count(*)::int total,\n",
+    " 65.046 ms  execute djus2u0bd9460: SELECT count(*)::int total,\n",
+    " 64.798 ms  execute iekve3sfnxf47: SELECT count(*)::int total,\n",
+    " 64.923 ms  execute dhie16mybl470: SELECT count(*)::int total,\n",
+    " 64.954 ms  execute djus2u0bd9460: SELECT count(*)::int total,\n",
+    " 65.380 ms  execute iekve3sfnxf47: SELECT count(*)::int total,\n",
+    " 65.287 ms  execute dhie16mybl470: SELECT count(*)::int total,\n",
+    " 294.138 ms  execute dhie16mybl473: SELECT o.*,r.client_id owner_id,(SELECT u.name FROM \"user\" u WHERE u.id=r.client_id) owner_name,\n",
+    " 65.420 ms  execute djus2u0bd9460: SELECT count(*)::int total,\n",
+    " 286.331 ms  execute djus2u0bd9463: SELECT o.*,r.client_id owner_id,(SELECT u.name FROM \"user\" u WHERE u.id=r.client_id) owner_name,\n",
+    " 66.272 ms  execute iekve3sfnxf47: SELECT count(*)::int total,\n",
+    " 268.055 ms  execute iekve3sfnxf50: SELECT o.*,r.client_id owner_id,(SELECT u.name FROM \"user\" u WHERE u.id=r.client_id) owner_name,\n",
+    " 919.081 ms  execute dhie16mybl470: SELECT count(*)::int total,\n",
+    " 267.656 ms  execute dhie16mybl473: SELECT o.*,r.client_id owner_id,(SELECT u.name FROM \"user\" u WHERE u.id=r.client_id) owner_name,\n",
+    " 74.657 ms  execute djus2u0bd9460: SELECT count(*)::int total,\n",
+    " 258.512 ms  execute djus2u0bd9463: SELECT o.*,r.client_id owner_id,(SELECT u.name FROM \"user\" u WHERE u.id=r.client_id) owner_name,\n",
+    " 74.513 ms  execute iekve3sfnxf47: SELECT count(*)::int total,\n",
+    " 271.085 ms  execute iekve3sfnxf50: SELECT o.*,r.client_id owner_id,(SELECT u.name FROM \"user\" u WHERE u.id=r.client_id) owner_name,\n"
+  ]
+}

@@ -4,13 +4,13 @@
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Prepared           | 4 October 2026                                                                                                                                                                         |
 | Scope              | Admin dashboard, navigation, section tabs, tables, record details, review workflows, finance, support, configuration and release QA                                                    |
-| Status | Phases 1–11 complete; Phase 12 pending |
+| Status | Phases 1–12 complete (locally verified); not deployed |
 | Method             | Repository review plus Phase 1 disposable-local role, viewport, permission and integration baseline; inspected saved owner and current admin screenshots                               |
 | Verification limit | Phase 1 adds authenticated disposable-local browser/API/database evidence below. Production workflows and providers were not exercised; historical owner test results remain separate. |
 
 ## Phase completion tracker
 
-**Progress:** 11 of 12 phases complete · 0 in progress · 1 pending. Phase 11 is implemented and locally verified; Phase 12 is next. Existing admin functionality does not count as completion of these redesign phases.
+**Progress:** 12 of 12 phases complete · 0 in progress · 0 pending. Phase 12 release verification is locally verified; deployment and production-provider checks remain separate. Existing admin functionality does not count as completion of these redesign phases.
 
 | Phase | Work                                                            | Status      | Completed on | Notes / remaining work                                                                                       |
 | ----- | --------------------------------------------------------------- | ----------- | ------------ | ------------------------------------------------------------------------------------------------------------ |
@@ -25,7 +25,7 @@
 | 9 | Guest reviews, support and message delivery | ✅ Complete | 5 Oct 2026 | ADM-COMMS-01–05 delivered; [checks](evidence/admin-phase9/checks.json), [browser evidence](evidence/admin-phase9/browser-results.json), [runbook](ADMIN-COMMUNICATION-WORKSPACE.md); locally verified, not deployed |
 | 10 | Operations, privacy, audit and configuration | ✅ Complete | 5 Oct 2026 | ADM-OPS-01–06 delivered; [checks](evidence/admin-phase10/checks.json), [browser evidence](evidence/admin-phase10/browser-results.json), [runbook](ADMIN-OPERATIONS-WORKSPACE.md); locally verified, not deployed |
 | 11 | Global search and cross-workspace links | ✅ Complete | 5 Oct 2026 | ADM-SEARCH-01–04 delivered; [checks](evidence/admin-phase11/checks.json), [browser evidence](evidence/admin-phase11/browser-results.json), [runbook](ADMIN-SEARCH-WORKSPACE.md); locally verified, not deployed |
-| 12    | Responsive, accessibility, performance and release verification | ⏳ Pending  | —            | Complete regression checks and record release evidence                                                       |
+| 12 | Responsive, accessibility, performance and release verification | ✅ Complete | 5 Oct 2026 | ADM-QA-01–07 delivered; [checks](evidence/admin-phase12/checks.json), [browser evidence](evidence/admin-phase12/browser-results.json), [performance](evidence/admin-phase12/performance.json), [runbook](ADMIN-RELEASE-VERIFICATION.md); locally verified, not deployed |
 
 **Status key:** ⏳ Pending · 🔄 In progress · ✅ Complete · 🚧 Blocked.
 
@@ -148,7 +148,7 @@ Skeletons match each screen's layout. Background refresh retains records and lab
 
 ## 5. Implementation phases
 
-Phases 1–11 are **Complete (locally verified)**; Phase 12 is **Not started**. Phase 1 establishes the baseline; Phases 2–4 create the shared foundation and dashboard; the remaining modules ship incrementally. Each phase includes its own verification before proceeding.
+Phases 1–12 are **Complete (locally verified)**; nothing is deployed. Phase 1 establishes the baseline; Phases 2–4 create the shared foundation and dashboard; the remaining modules ship incrementally. Each phase includes its own verification before proceeding.
 
 ### Phase 1 — Admin inventory and behavior baseline
 
@@ -562,7 +562,7 @@ Run the complete redesigned journey with disposable fixtures: sign-in/2FA → da
 | A3 | 5–7 | Review, booking/case and people workspaces | Complete; locally verified, not deployed |
 | A4      | 8–9    | Finance, guest-review and support workflows                                       | Complete (locally verified)                         |
 | A5      | 10–11  | Operations/configuration and expanded search                                      | Complete (locally verified) |
-| A6      | 12     | Full regression evidence and release readiness decision                           | Not started                         |
+| A6 | 12 | Full regression evidence and release readiness decision | Complete; locally verified, not deployed |
 
 Phase 4 API definition can begin during Phase 1. Module phases can ship independently after the shared foundation; finance remains high priority even though it is listed later. Every release receives targeted accessibility, role and workflow checks. A6 adds the complete journey rather than postponing verification until the end.
 
@@ -715,6 +715,68 @@ Account lifecycle, customer profile correction/session revocation and payout-met
 
 **Next phase:** Phase 12 — responsive, accessibility, performance and release verification.
 
+### Phase 12 — Complete (locally verified, 5 October 2026)
+
+**Implemented IDs:** ADM-QA-01–07. The new release gate `scripts/portal-gate/admin-release.py` runs the complete redesigned journey with one operator, in this order:
+
+1. Password and authenticator sign-in.
+2. Dashboard attention link to an application approval.
+3. Property decision, then scheduled and passed verification, then exact-revision publication.
+4. Booking-case preview and confirmation, which cancels one visit.
+5. Inspection of the single resulting Test refund obligation.
+6. Support reply, audit trail, then sign-out.
+
+Each step is checked in the UI and in the disposable database. The gate then:
+
+- sweeps every admin page at 320, 640, 768 and 1280 px (400 % and 200 % zoom equivalents);
+- runs WCAG 2.2 AA axe at 320 and 1280 px;
+- checks the skip link, visible focus, sheet and drawer focus, Escape restoration and reduced motion;
+- checks revoked and expired session recovery;
+- probes the full API capability matrix and direct URLs for an operator with no grants.
+
+`admin-release-perf.py` compares cold-load JavaScript and timings against a pre-redesign build (`90b0900`) served on the same API. `admin-release-volume.py` times admin APIs at synthetic volume.
+
+**Regressions proved and fixed:**
+
+- **Admin sign-in:** rate-limit and outage errors were never shown, field errors were not linked to their inputs, and React's post-action reset cleared the email after every failed attempt. The form now uses the shared `Field`, shows a form-level alert and keeps the email. Passwords are never echoed back.
+- **Saving after a session ended:** the form said only "Admin sign-in required." `ApiError` now maps `ADMIN_REQUIRED` to copy that says the entry is kept and how to sign in again. The draft stays in the form, and the next load redirects to sign-in.
+- A unit test covers the session copy.
+
+**Phase 1 findings:** ADM-F01–F07 are closed:
+
+- ADM-F01 in Phase 2.
+- ADM-F02 across Phases 3, 5–8 and 10.
+- ADM-F03 and ADM-F05 in Phase 10. The F05 assertion now passes in the full backend suite.
+- ADM-F04 in Phase 3.
+- ADM-F06 in Phase 9, where counts state the scope they were loaded from.
+- ADM-F07 in Phase 11.
+
+The release journey and permission matrix re-verify the reachable behavior.
+
+**API/database:** no production backend change, endpoint, capability, migration or dependency. The backend adds only `test/helpers/seed-admin-release-gate.mjs`. It layers the booking/case/refund dataset over the review fixture and restores the review property state. The migration journal still has **64 entries**.
+
+**Verification:**
+
+- **Frontend:** **103 tests passed**; repository ESLint is clean; the production Webpack build has no warnings.
+- **Backend:** full suite **237 passed, 1 failed, 0 skipped**. The failure is `owner-ownership-continue`, which needs Cloudinary configured; it passes on its own with dummy values and no network call. The CP25 history failure recorded in Phases 6–8 now passes. Backend lint, format and the migration check pass.
+- **Browser:** **19 checks, 97 axe scans, zero violations, zero page errors and zero hydration errors** across 47 pages.
+- **Permissions:** all **115** protected API routes refuse the no-grant operator; **53** writes refuse read-only and **62** reads admit it.
+- **Cold-load JavaScript:** within **−1.9 % to +4.2 %** of the pre-redesign build; the largest is `/admin/bookings` at 346.7 KiB compressed.
+- **Warm medians:** booking sheet opens in 101 ms, a sheet tab switches in 68 ms, a filter applies in 47 ms.
+- **Budget:** at most 360 KiB compressed JavaScript per admin route, and the sheet opens in at most 300 ms on the local production build.
+- **Volume:** at about 20,000 users, orders and visits, the dashboard and searches respond in 2–35 ms. Booking records page 1 takes 119 ms; page 500 takes 359 ms because of OFFSET pagination.
+- **Concurrency:** reviewer, case, refund and payout races pass in the backend suite.
+
+**Remaining limits:**
+
+- Frontend global formatting still flags the unchanged launch roadmap.
+- Six detail routes had no seeded record for sweep discovery: audit export, dispute, allocation, payout, statement and privacy. Their Phase 8–10 gates cover them.
+- Session recovery returns to the dashboard rather than the original page.
+- Deep booking-record pages need keyset pagination or index review once production volume is measured.
+- Production providers, workers, hosted-database plans and deployment were not exercised. Nothing is deployed.
+
+**Evidence and reproduction:** [checks](evidence/admin-phase12/checks.json), [browser results](evidence/admin-phase12/browser-results.json), [performance](evidence/admin-phase12/performance.json), [volume](evidence/admin-phase12/volume.json), [journey audit](evidence/admin-phase12/journey-audit-1280.png), [phone dashboard](evidence/admin-phase12/dashboard-320.png) and the [release verification runbook](ADMIN-RELEASE-VERIFICATION.md). Evidence contains no session tokens or credentials. Disposable services, the database, the baseline worktree and the private fixture JSON were removed after the run. Release A6 is complete locally.
+
 ## 7. Implementation defaults and boundaries
 
 - Use existing Rentra tokens/components; no new brand theme or chart dependency is required by this plan.
@@ -725,4 +787,4 @@ Account lifecycle, customer profile correction/session revocation and payout-met
 - Add no editable platform calendar, admin impersonation, automated bulk approvals, live chat or payout execution as part of this UI redesign.
 - UI-only phases should need no migration. Dashboard/search/index changes are scoped and verified separately when evidence requires them.
 
-Phases 1–11 are complete and locally verified. The next implementation step is Phase 12: responsive, accessibility, performance and release verification.
+Phases 1–12 are complete and locally verified. The release is locally ready. Deploying it needs the separately recorded production-provider and hosted-database checks.
