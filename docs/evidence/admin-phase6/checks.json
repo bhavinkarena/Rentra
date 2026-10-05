@@ -1,0 +1,82 @@
+{
+  "date": "2026-10-05",
+  "status": "Implemented and locally verified; not deployed",
+  "ids": "ADM-BOOK-01 through ADM-BOOK-05",
+  "migrations": "None added; 64 migration journal entries verified; existing migrations applied to disposable fixtures.",
+  "api": "Existing records/cases routes. Admin list DTO adds owner, protected guest identity and lastVisit. Mutations revalidate admin booking list/sheet parent. Existing versions, previews, idempotency and private download boundaries retained.",
+  "checks": [
+    {
+      "command": "npm test (frontend)",
+      "result": "pass",
+      "tests": 97,
+      "skipped": 0
+    },
+    {
+      "command": "Admin booking experience, booking cases and visit evidence disposable integrations",
+      "result": "pass",
+      "tests": 3,
+      "skipped": 0
+    },
+    {
+      "command": "python scripts/portal-gate/admin-bookings.py",
+      "result": "pass",
+      "checks": 39,
+      "axeRuns": 15,
+      "axeViolations": 0,
+      "pageErrors": 0
+    },
+    {
+      "command": "Final case filter and record download confirmation",
+      "result": "pass",
+      "detail": "Five filter modes each have exactly one active link; summary/calendar links are at least 44px high."
+    },
+    {
+      "command": "Failed-save guard browser regression against original hook and fixed hook",
+      "result": "pass",
+      "detail": "Original hook fails unsaved protection assertion; fixed hook passes stale assignment/refusal/dismissal checks."
+    },
+    {
+      "command": "npm run lint (frontend and backend); changed frontend Prettier and backend npm run format:check",
+      "result": "pass"
+    },
+    {
+      "command": "npm run build -- --webpack (isolated verification build)",
+      "result": "pass"
+    },
+    {
+      "command": "npm run build (default Turbopack)",
+      "result": "environment failure",
+      "detail": "Turbopack CSS worker port binding denied: Operation not permitted (os error 1). Webpack production build passes."
+    },
+    {
+      "command": "node src/scripts/checkMigrations.js",
+      "result": "pass",
+      "journalEntries": 64
+    },
+    {
+      "command": "Full backend npm test with PORTAL_TEST_DATABASE_URL",
+      "result": "unrelated existing failure",
+      "passed": 233,
+      "failed": 1,
+      "skipped": 3,
+      "detail": "CP25 publication, immutable history, rollback and checkout acceptance: content.integration.test.js:204 expects history length 4, receives 5. Reproduced in isolated rerun."
+    },
+    {
+      "command": "npm run format:check (frontend)",
+      "result": "unrelated existing failure",
+      "file": "Rentra_Post_Development_Launch_Roadmap.md"
+    },
+    {
+      "command": "Fresh code review and bounded screenshot review; Impeccable detector",
+      "result": "pass",
+      "findings": 0
+    }
+  ],
+  "browserEvidence": "browser-checks.json",
+  "limitations": [
+    "Not deployed; production providers and Phase 12 full release journeys unverified.",
+    "Case cancellation continues to support its existing Razorpay Test contract; no Live refund execution added.",
+    "Booking lists show original rent unless dashboard rentOnly scope is active; neither is labeled collected cash."
+  ],
+  "cleanup": "Disposable API database dropped; isolated Next.js and PostgreSQL stopped; private fixture session JSON removed. Temporary QA tools are outside application dependencies."
+}

@@ -1,7 +1,7 @@
 'use client';
 import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
-import { useActionState, useId, useState, useTransition } from 'react';
+import { useActionState, useId, useRef, useState, useTransition } from 'react';
 import { Camera, History, ShieldAlert, CircleCheck } from 'lucide-react';
 import RentraLoader from '@/components/ui/rentra-loader';
 import { reportOwnerIncident } from '@/lib/actions/partner';
@@ -19,10 +19,21 @@ const TYPES = ['image/jpeg', 'image/png', 'image/webp'];
  * the record from the server, and the parent's `key` remounts a fresh form.
  */
 export function useKeptInputAction(action) {
-  const [state, dispatch, pending] = useActionState(action, {});
+  const submittedForm = useRef(null);
+  const [state, dispatch, pending] = useActionState(async (previous, data) => {
+    const result = await action(previous, data);
+    if (result?.message && !result.error && !result.errors) {
+      submittedForm.current?.dispatchEvent(new Event('rentra:form-saved', { bubbles: true }));
+    }
+    return result;
+  }, {});
   const [, startTransition] = useTransition();
   const onSubmit = (event) => {
     event.preventDefault();
+    submittedForm.current = event.currentTarget;
+    // Keep failed and pending saves protected; only confirmed success clears the guard.
+    event.currentTarget.dataset.unsavedUntilSaved = '';
+    event.currentTarget.dispatchEvent(new Event('rentra:form-dirty', { bubbles: true }));
     const data = new FormData(event.currentTarget);
     startTransition(() => dispatch(data));
   };

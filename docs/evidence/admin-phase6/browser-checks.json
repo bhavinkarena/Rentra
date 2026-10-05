@@ -1,0 +1,108 @@
+{
+  "date": "2026-10-05",
+  "scope": "Disposable localhost fixture; no production/provider access",
+  "checks": [
+    "Stale assignment retains input and blocks sheet close after failed save",
+    "bookings-1280 axe checks",
+    "booking-visits-1280 axe checks",
+    "Booking visits sheet at 1280px",
+    "Booking payments sheet at 1280px",
+    "Booking guest sheet at 1280px",
+    "Booking cases sheet at 1280px",
+    "booking-records-1280 axe checks",
+    "Booking records sheet at 1280px",
+    "case-1280 axe checks",
+    "bookings-768 axe checks",
+    "booking-visits-768 axe checks",
+    "Booking visits sheet at 768px",
+    "Booking payments sheet at 768px",
+    "Booking guest sheet at 768px",
+    "Booking cases sheet at 768px",
+    "booking-records-768 axe checks",
+    "Booking records sheet at 768px",
+    "case-768 axe checks",
+    "bookings-360 axe checks",
+    "booking-visits-360 axe checks",
+    "Booking visits sheet at 360px",
+    "Booking payments sheet at 360px",
+    "Booking guest sheet at 360px",
+    "Booking cases sheet at 360px",
+    "booking-records-360 axe checks",
+    "Booking records sheet at 360px",
+    "case-360 axe checks",
+    "Open/tab/refresh/Escape/Back/full-page retain complete list context",
+    "Case preview/confirm resolves once, refreshes sheet and retains outcome",
+    "Previewed case affects exact visit and creates one refund obligation",
+    "Test capture excluded from Live totals; verified Live capture remains visible",
+    "Lifecycle prerequisites retained; check-in refreshes sheet and durable evidence",
+    "readonly-direct-url axe checks",
+    "readonly direct URL and write API enforce permissions",
+    "restricted-direct-url axe checks",
+    "restricted direct URL and write API enforce permissions",
+    "customerReader-direct-url axe checks",
+    "customerReader direct URL and write API enforce permissions"
+  ],
+  "pageErrors": [],
+  "accessibility": [
+    {
+      "screen": "bookings-1280",
+      "violations": []
+    },
+    {
+      "screen": "booking-visits-1280",
+      "violations": []
+    },
+    {
+      "screen": "booking-records-1280",
+      "violations": []
+    },
+    {
+      "screen": "case-1280",
+      "violations": []
+    },
+    {
+      "screen": "bookings-768",
+      "violations": []
+    },
+    {
+      "screen": "booking-visits-768",
+      "violations": []
+    },
+    {
+      "screen": "booking-records-768",
+      "violations": []
+    },
+    {
+      "screen": "case-768",
+      "violations": []
+    },
+    {
+      "screen": "bookings-360",
+      "violations": []
+    },
+    {
+      "screen": "booking-visits-360",
+      "violations": []
+    },
+    {
+      "screen": "booking-records-360",
+      "violations": []
+    },
+    {
+      "screen": "case-360",
+      "violations": []
+    },
+    {
+      "screen": "readonly-direct-url",
+      "violations": []
+    },
+    {
+      "screen": "restricted-direct-url",
+      "violations": []
+    },
+    {
+      "screen": "customerReader-direct-url",
+      "violations": []
+    }
+  ]
+}

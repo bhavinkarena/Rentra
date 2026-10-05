@@ -5,7 +5,8 @@ import { bookingMoney as money, bookingTime as time } from '@/lib/domain/booking
 import { VisitLifecycle } from '@/components/customer/VisitLifecycle';
 import { VisitEvidence } from '@/components/booking/VisitEvidence';
 import { AdminOrderCases } from '@/components/booking/CasePanels';
-import { AdminPage, StatusBadge } from './AdminPrimitives';
+import { adminBookingHref } from '@/lib/domain/admin-booking-navigation';
+import { AdminReadOnly, StatusBadge } from './AdminPrimitives';
 import {
   DetailHeader,
   DetailTabs,
@@ -29,30 +30,49 @@ const created = (value) =>
     timeStyle: 'short',
   });
 
-export default function AdminBookingDetail({ record, tab, params, listHref = '/admin/bookings' }) {
+export default function AdminBookingDetail({
+  record,
+  tab,
+  params,
+  listHref = '/admin/bookings',
+  capabilities = [],
+  sheet = false,
+}) {
+  const writable = capabilities.includes('admin.records.write');
+  const canRead = (scope) => capabilities.includes(`admin.${scope}.read`);
   const test = record.payments.some((payment) => payment.environment === 'test');
   const total =
     record.rentMinor == null || record.feeMinor == null ? null : record.rentMinor + record.feeMinor;
-  const captured = record.payments.reduce((sum, payment) => sum + (payment.capturedMinor ?? 0), 0);
-  const refunded = record.payments.reduce((sum, payment) => sum + (payment.refundedMinor ?? 0), 0);
+  const livePayments = record.payments.filter((payment) => payment.environment === 'live');
+  const captured = livePayments.reduce((sum, payment) => sum + (payment.capturedMinor ?? 0), 0);
+  const refunded = livePayments.reduce((sum, payment) => sum + (payment.refundedMinor ?? 0), 0);
   const guests = record.visits.reduce((sum, visit) => sum + (visit.guests || 0), 0);
   const tabs = [
     { key: 'visits', label: 'Visits', count: record.visits.length },
     { key: 'payments', label: 'Payments', count: record.payments.length },
     { key: 'guest', label: 'Guest & arrival' },
     { key: 'cases', label: 'Cases', count: (record.cases ?? []).length },
-    { key: 'records', label: 'Records' },
+    { key: 'records', label: 'History & policy' },
   ];
   const active = pickTab(tab, tabs);
 
   return (
-    <AdminPage width="max-w-[1320px]">
-      <Link
-        className="inline-flex min-h-11 items-center underline"
-        href={`/admin/disputes/new?order=${record.id}`}
-      >
-        Open dispute or deposit case
-      </Link>
+    <div
+      className={
+        sheet
+          ? 'min-w-0'
+          : 'mx-auto w-full min-w-0 max-w-(--container-workspace) px-4 py-6 sm:px-6 sm:py-8 lg:px-8'
+      }
+    >
+      {capabilities.includes('admin.payments.write') ? (
+        <Link
+          className="inline-flex min-h-11 items-center underline"
+          href={`/admin/disputes/new?order=${record.id}`}
+        >
+          Open dispute or deposit case
+        </Link>
+      ) : null}
+      {!writable ? <AdminReadOnly /> : null}
 
       <DetailHeader
         breadcrumbs={[{ href: listHref, label: 'Bookings' }, { label: record.reference }]}
@@ -73,24 +93,30 @@ export default function AdminBookingDetail({ record, tab, params, listHref = '/a
 
       {record.relationships && (
         <nav aria-label="Related records" className="my-4 flex flex-wrap gap-4 text-sm">
-          <Link
-            className="min-h-11 underline"
-            href={`/admin/properties/${record.relationships.propertyId}`}
-          >
-            Property detail
-          </Link>
-          <Link
-            className="min-h-11 underline"
-            href={`/admin/clients/${record.relationships.clientId}`}
-          >
-            Client detail
-          </Link>
-          <Link
-            className="min-h-11 underline"
-            href={`/admin/customers/${record.relationships.customerId}`}
-          >
-            Customer detail
-          </Link>
+          {canRead('properties') ? (
+            <Link
+              className="min-h-11 underline"
+              href={`/admin/properties/${record.relationships.propertyId}`}
+            >
+              Property detail
+            </Link>
+          ) : null}
+          {canRead('clients') ? (
+            <Link
+              className="min-h-11 underline"
+              href={`/admin/clients/${record.relationships.clientId}`}
+            >
+              Owner detail
+            </Link>
+          ) : null}
+          {canRead('customers') ? (
+            <Link
+              className="min-h-11 underline"
+              href={`/admin/customers/${record.relationships.customerId}`}
+            >
+              Customer detail
+            </Link>
+          ) : null}
         </nav>
       )}
       <p className="my-3 text-sm">
@@ -110,27 +136,50 @@ export default function AdminBookingDetail({ record, tab, params, listHref = '/a
           { label: 'Guests', value: guests, hint: 'across visits' },
           { label: 'Payments', value: record.payments.length, hint: 'provider records' },
           {
-            label: 'Captured',
+            label: 'Live captured',
             value: money(captured),
-            hint: test ? 'test gateway — not bank money' : 'verified captures',
-            tone: test ? 'warning' : 'neutral',
+            hint: 'verified Live captures only',
           },
-          { label: 'Refunded', value: money(refunded), hint: 'recorded refunds' },
+          {
+            label: 'Live refunded',
+            value: money(refunded),
+            hint: 'successful Live refund evidence',
+          },
         ]}
       />
 
       {test ? (
         <div className="mt-5 rounded-lg border border-warning/25 bg-warning-bg p-4 text-meta text-warning">
-          <strong>Test booking:</strong> no actual bank money was collected by the test gateway.
+          <strong>Test payment evidence:</strong> Test captures and refunds are excluded from Live
+          totals. No actual bank money is collected by the Test gateway.
         </div>
       ) : null}
 
-      <DetailTabs
-        tabs={tabs}
-        active={active}
-        basePath={`/admin/bookings/${record.id}`}
-        params={params}
-      />
+      {sheet ? (
+        <nav aria-label="Record sections" className="mt-6 overflow-x-auto border-b border-border">
+          <div className="flex min-w-max gap-1">
+            {tabs.map((section) => (
+              <Link
+                key={section.key}
+                href={adminBookingHref(params, { booking: record.id, recordTab: section.key })}
+                scroll={false}
+                aria-current={active === section.key ? 'page' : undefined}
+                className="inline-flex min-h-11 items-center px-3 text-meta font-semibold text-ink-600 aria-[current=page]:text-brand-800 aria-[current=page]:border-b-2 aria-[current=page]:border-brand-700"
+              >
+                {section.label}
+                {section.count != null ? ` (${section.count})` : ''}
+              </Link>
+            ))}
+          </div>
+        </nav>
+      ) : (
+        <DetailTabs
+          tabs={tabs}
+          active={active}
+          basePath={`/admin/bookings/${record.id}`}
+          params={params}
+        />
+      )}
 
       <div className="mt-6">
         {active === 'visits' ? (
@@ -173,13 +222,17 @@ export default function AdminBookingDetail({ record, tab, params, listHref = '/a
                       base="/admin/bookings"
                       timeZone={record.timeZone}
                       admin
+                      writable={writable}
+                      canReport={writable}
                       action={
-                        <VisitLifecycle
-                          key={`${visit.id}-${visit.version}`}
-                          requestKey={randomUUID()}
-                          visit={visit}
-                          admin
-                        />
+                        writable ? (
+                          <VisitLifecycle
+                            key={`${visit.id}-${visit.version}`}
+                            requestKey={randomUUID()}
+                            visit={visit}
+                            admin
+                          />
+                        ) : null
                       }
                     />
                   </div>
@@ -196,7 +249,7 @@ export default function AdminBookingDetail({ record, tab, params, listHref = '/a
             description="Change, cancellation and operational requests for exact visits"
             flush
           >
-            <AdminOrderCases record={record} />
+            <AdminOrderCases record={record} writable={writable} />
           </SectionCard>
         ) : null}
 
@@ -231,12 +284,14 @@ export default function AdminBookingDetail({ record, tab, params, listHref = '/a
                       ]}
                     />
                   </div>
-                  <Link
-                    href={`/admin/finance/payments/${payment.id}`}
-                    className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-brand-700 underline"
-                  >
-                    Investigate payment
-                  </Link>
+                  {canRead('payments') ? (
+                    <Link
+                      href={`/admin/finance/payments/${payment.id}`}
+                      className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-brand-700 underline"
+                    >
+                      Investigate payment
+                    </Link>
+                  ) : null}
                 </li>
               )}
             />
@@ -281,36 +336,82 @@ export default function AdminBookingDetail({ record, tab, params, listHref = '/a
         ) : null}
 
         {active === 'records' ? (
-          <SectionCard id="records" title="Record tools">
-            <ul className="space-y-3 text-meta">
-              <li>
-                <a
-                  className="inline-flex items-center gap-2 font-semibold text-brand-700 hover:underline"
-                  href={`/admin/bookings/${record.id}/summary`}
-                >
-                  <Clock className="size-4" aria-hidden="true" /> Download summary →
-                </a>
-              </li>
-              <li>
-                <a
-                  className="inline-flex items-center gap-2 font-semibold text-brand-700 hover:underline"
-                  href={`/admin/bookings/${record.id}/calendar`}
-                >
-                  <CalendarDays className="size-4" aria-hidden="true" /> Download calendar →
-                </a>
-              </li>
-              <li>
-                <Link
-                  className="font-semibold text-brand-700 hover:underline"
-                  href="/admin/reviews"
-                >
-                  Customer reviews →
-                </Link>
-              </li>
-            </ul>
-          </SectionCard>
+          <div className="space-y-5">
+            <SectionCard id="policy" title="Accepted policy">
+              <FieldGrid
+                fields={[
+                  { label: 'Policy version', value: record.policy?.version || 'Not recorded' },
+                  {
+                    label: 'Cancellation tier',
+                    value: record.policy?.cancellationTier || 'Not recorded',
+                  },
+                ]}
+              />
+              {record.policy?.houseRules?.length ? (
+                <ul className="mt-4 list-disc space-y-2 pl-5 text-meta">
+                  {record.policy.houseRules.map((rule, index) => (
+                    <li key={index}>{rule}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-4 text-meta text-ink-600">No accepted house rules recorded.</p>
+              )}
+              {record.policy?.publications ? (
+                <details className="mt-4">
+                  <summary className="min-h-11 cursor-pointer text-meta font-semibold">
+                    Accepted publication snapshot
+                  </summary>
+                  <pre className="overflow-x-auto whitespace-pre-wrap break-words text-meta">
+                    {JSON.stringify(record.policy.publications, null, 2)}
+                  </pre>
+                </details>
+              ) : null}
+            </SectionCard>
+            <SectionCard id="history" title="Booking history">
+              <RowList
+                items={record.events || []}
+                empty="No lifecycle events recorded."
+                render={(event, index) => (
+                  <li key={`${event.at}-${index}`} className="p-4 text-meta">
+                    <p className="font-semibold">{event.kind.replaceAll('_', ' ')}</p>
+                    <p className="mt-1 text-ink-600">{time(event.at, record.timeZone)}</p>
+                  </li>
+                )}
+              />
+            </SectionCard>
+            <SectionCard id="records" title="Record downloads">
+              <ul className="space-y-3 text-meta">
+                <li>
+                  <a
+                    className="inline-flex min-h-11 items-center gap-2 font-semibold text-brand-700 hover:underline"
+                    href={`/admin/bookings/${record.id}/summary`}
+                  >
+                    <Clock className="size-4" aria-hidden="true" /> Download summary →
+                  </a>
+                </li>
+                <li>
+                  <a
+                    className="inline-flex min-h-11 items-center gap-2 font-semibold text-brand-700 hover:underline"
+                    href={`/admin/bookings/${record.id}/calendar`}
+                  >
+                    <CalendarDays className="size-4" aria-hidden="true" /> Download calendar →
+                  </a>
+                </li>
+                {canRead('reviews') ? (
+                  <li>
+                    <Link
+                      className="inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline"
+                      href="/admin/reviews"
+                    >
+                      Customer reviews →
+                    </Link>
+                  </li>
+                ) : null}
+              </ul>
+            </SectionCard>
+          </div>
         ) : null}
       </div>
-    </AdminPage>
+    </div>
   );
 }

@@ -57,7 +57,7 @@ function Photos({ items, href, label }) {
   );
 }
 
-function Evidence({ item, href, timeZone, admin }) {
+function Evidence({ item, href, timeZone, admin, writable }) {
   return (
     <li className="space-y-1.5 rounded-md border border-border p-3 text-meta">
       <div className="flex flex-wrap items-center gap-2">
@@ -110,7 +110,7 @@ function Evidence({ item, href, timeZone, admin }) {
           </ol>
         </details>
       ) : null}
-      {admin ? (
+      {admin && writable ? (
         <CorrectionForm
           key={`${item.id}-${item.headCorrectionId ?? 'original'}`}
           evidence={item}
@@ -121,7 +121,7 @@ function Evidence({ item, href, timeZone, admin }) {
   );
 }
 
-function Incident({ incident, href, timeZone, admin }) {
+function Incident({ incident, href, timeZone, admin, writable }) {
   const open = incident.state === 'open';
   return (
     <li className="space-y-1.5 rounded-md border border-border p-3 text-meta">
@@ -149,7 +149,7 @@ function Incident({ incident, href, timeZone, admin }) {
           Closed {time(incident.closedAt, timeZone)}: {incident.resolutionNote}
         </p>
       ) : null}
-      {admin && open ? (
+      {admin && writable && open ? (
         <CloseIncidentForm key={`${incident.id}-${incident.version}`} incident={incident} />
       ) : null}
     </li>
@@ -166,6 +166,7 @@ export function VisitEvidence({
   base,
   timeZone,
   admin = false,
+  writable = true,
   action = null,
   canReport = true,
   incidentAction = null,
@@ -177,7 +178,14 @@ export function VisitEvidence({
       {visit.evidence?.length ? (
         <ol className="space-y-2" aria-label={`Evidence for ${visit.reference}`}>
           {visit.evidence.map((item) => (
-            <Evidence key={item.id} item={item} href={href} timeZone={timeZone} admin={admin} />
+            <Evidence
+              key={item.id}
+              item={item}
+              href={href}
+              timeZone={timeZone}
+              admin={admin}
+              writable={writable}
+            />
           ))}
         </ol>
       ) : null}
@@ -196,6 +204,7 @@ export function VisitEvidence({
                 href={href}
                 timeZone={timeZone}
                 admin={admin}
+                writable={writable}
               />
             ))}
           </ol>

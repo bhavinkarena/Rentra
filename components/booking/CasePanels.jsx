@@ -128,7 +128,7 @@ export function CustomerCaseUpdates({ record }) {
 }
 
 /** Admin booking detail tab: this booking's cases and a way to open one. */
-export function AdminOrderCases({ record }) {
+export function AdminOrderCases({ record, writable = true }) {
   const cases = record.cases ?? [];
   return (
     <div className="space-y-4 p-5">
@@ -159,13 +159,15 @@ export function AdminOrderCases({ record }) {
       ) : (
         <p className="text-meta text-ink-600">No cases on this booking.</p>
       )}
-      <CreateCaseForm
-        key={`new-${cases.length}`}
-        orderId={record.id}
-        visits={operationalVisits(record)}
-        requestKey={randomUUID()}
-        admin
-      />
+      {writable ? (
+        <CreateCaseForm
+          key={`new-${cases.length}`}
+          orderId={record.id}
+          visits={operationalVisits(record)}
+          requestKey={randomUUID()}
+          admin
+        />
+      ) : null}
     </div>
   );
 }

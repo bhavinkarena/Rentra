@@ -2,8 +2,16 @@ import Form from '@/components/navigation/NavigationForm';
 import { randomUUID } from 'node:crypto';
 import Link from '@/components/navigation/NavigationLink';
 import { ClipboardList, Search } from 'lucide-react';
-import { AdminEmpty, AdminPage, AdminPageHeader, StatusBadge } from './AdminPrimitives';
+import {
+  AdminEmpty,
+  AdminPage,
+  AdminPageHeader,
+  AdminTable,
+  AdminReadOnly,
+  StatusBadge,
+} from './AdminPrimitives';
 import Pagination from '@/components/ui/pagination';
+import { adminCaseHref as listHref } from '@/lib/domain/admin-booking-navigation';
 import { FieldGrid, SectionCard } from '@/components/portal/DetailLayout';
 import { bookingMoney as money, bookingTime as time } from '@/lib/domain/booking-record';
 import { AssignCaseForm, CaseMessageForm, ResolveCaseForm } from '@/components/booking/CaseForms';
@@ -14,24 +22,6 @@ const TZ = 'Asia/Kolkata';
 const REQUESTER = { customer: 'Customer', owner: 'Owner', admin: 'Rentra' };
 const tabClass = (active) =>
   `inline-flex min-h-11 items-center rounded-full border px-4 text-meta font-semibold ${active ? 'border-brand-700 bg-primary text-white' : 'border-border bg-card text-ink-700 hover:bg-ink-50'}`;
-
-function listHref(data, changes) {
-  const params = {
-    state: data.state,
-    type: data.type,
-    assigned: data.assigned,
-    q: data.q,
-    page: String(data.page),
-    ...changes,
-  };
-  const kept = Object.entries(params).filter(
-    ([key, value]) =>
-      value &&
-      !(['type', 'assigned'].includes(key) && value === 'all') &&
-      !(key === 'page' && value === '1'),
-  );
-  return `/admin/booking-cases?${new URLSearchParams(kept)}`;
-}
 
 export function BookingCaseList({ data }) {
   return (
@@ -45,30 +35,37 @@ export function BookingCaseList({ data }) {
         <Link
           href={listHref(data, { state: 'open', assigned: 'all', page: '1' })}
           className={tabClass(data.state === 'open' && data.assigned === 'all')}
+          aria-current={data.state === 'open' && data.assigned === 'all' ? 'page' : undefined}
         >
           Open ({data.summary.open})
         </Link>
         <Link
           href={listHref(data, { state: 'open', assigned: 'unassigned', page: '1' })}
-          className={tabClass(data.assigned === 'unassigned')}
+          className={tabClass(data.state === 'open' && data.assigned === 'unassigned')}
+          aria-current={
+            data.state === 'open' && data.assigned === 'unassigned' ? 'page' : undefined
+          }
         >
           Unassigned ({data.summary.unassigned})
         </Link>
         <Link
           href={listHref(data, { state: 'open', assigned: 'me', page: '1' })}
-          className={tabClass(data.assigned === 'me')}
+          className={tabClass(data.state === 'open' && data.assigned === 'me')}
+          aria-current={data.state === 'open' && data.assigned === 'me' ? 'page' : undefined}
         >
           Assigned to me ({data.summary.mine})
         </Link>
         <Link
           href={listHref(data, { state: 'resolved', assigned: 'all', page: '1' })}
-          className={tabClass(data.state === 'resolved')}
+          className={tabClass(data.state === 'resolved' && data.assigned === 'all')}
+          aria-current={data.state === 'resolved' && data.assigned === 'all' ? 'page' : undefined}
         >
           Resolved
         </Link>
         <Link
           href={listHref(data, { state: 'all', assigned: 'all', page: '1' })}
-          className={tabClass(data.state === 'all')}
+          className={tabClass(data.state === 'all' && data.assigned === 'all')}
+          aria-current={data.state === 'all' && data.assigned === 'all' ? 'page' : undefined}
         >
           All
         </Link>
@@ -110,40 +107,43 @@ export function BookingCaseList({ data }) {
       </Form>
       <div className="mt-6">
         {data.items.length ? (
-          <ul className="divide-y divide-border rounded-lg border border-border bg-card">
+          <AdminTable
+            label="Booking cases"
+            minWidth={900}
+            columns={['Case / booking', 'Property', 'Request', 'State', 'Assignment', 'View']}
+          >
             {data.items.map((item) => (
-              <li
-                key={item.id}
-                className="flex flex-wrap items-center justify-between gap-3 px-5 py-4"
-              >
-                <span className="min-w-0 space-y-1">
-                  <span className="flex flex-wrap items-center gap-2">
-                    <Link
-                      href={`/admin/booking-cases/${item.id}`}
-                      className="font-bold text-brand-800 underline"
-                      aria-label={`Open case ${item.reference}`}
-                    >
-                      {item.reference}
-                    </Link>
-                    <CaseState
-                      item={{ ...item, outcomeLabel: item.outcome?.replaceAll('_', ' ') }}
-                    />
-                    <span className="text-meta">
-                      {CASE_TYPES.find(([v]) => v === item.type)?.[1]}
-                    </span>
-                  </span>
-                  <span className="block text-tiny text-ink-600">
-                    {item.title} · booking {item.orderReference} · {item.visitCount} visit
-                    {item.visitCount === 1 ? '' : 's'} · from {REQUESTER[item.requesterKind]} ·
-                    opened {time(item.createdAt, TZ)}
-                  </span>
-                </span>
-                <span className="text-tiny text-ink-600">
-                  {item.assigneeName ? `Assigned to ${item.assigneeName}` : 'Unassigned'}
-                </span>
-              </li>
+              <tr key={item.id}>
+                <td className="px-4 py-4">
+                  <p className="font-semibold">{item.reference}</p>
+                  <p className="mt-1 text-ink-600">{item.orderReference}</p>
+                </td>
+                <td className="px-4 py-4">{item.title}</td>
+                <td className="px-4 py-4">
+                  <p>{CASE_TYPES.find(([value]) => value === item.type)?.[1] || item.type}</p>
+                  <p className="mt-1 text-ink-600">
+                    {item.visitCount} visit{item.visitCount === 1 ? '' : 's'} ·{' '}
+                    {REQUESTER[item.requesterKind]}
+                  </p>
+                  <p className="mt-1 text-ink-600">{time(item.createdAt, TZ)}</p>
+                </td>
+                <td className="px-4 py-4">
+                  <CaseState item={{ ...item, outcomeLabel: item.outcome?.replaceAll('_', ' ') }} />
+                </td>
+                <td className="px-4 py-4">{item.assigneeName || 'Unassigned'}</td>
+                <td className="px-4 py-4">
+                  <Link
+                    href={listHref(data, { case: item.id })}
+                    scroll={false}
+                    aria-label={`Open case ${item.reference}`}
+                    className="inline-flex min-h-11 items-center rounded-md px-3 font-semibold text-brand-700 hover:bg-brand-50"
+                  >
+                    View
+                  </Link>
+                </td>
+              </tr>
             ))}
-          </ul>
+          </AdminTable>
         ) : (
           <AdminEmpty
             icon={ClipboardList}
@@ -166,19 +166,33 @@ export function BookingCaseList({ data }) {
   );
 }
 
-export function BookingCaseDetail({ bookingCase: c }) {
+export function BookingCaseDetail({
+  bookingCase: c,
+  capabilities = [],
+  listHref = '/admin/booking-cases',
+  sheet = false,
+}) {
+  const writable = capabilities.includes('admin.records.write');
   const open = c.state === 'open';
   return (
-    <AdminPage width="max-w-[1180px]">
+    <div
+      className={
+        sheet
+          ? 'min-w-0'
+          : 'mx-auto w-full min-w-0 max-w-(--container-workspace) px-4 py-6 sm:px-6 sm:py-8 lg:px-8'
+      }
+    >
       <AdminPageHeader
-        breadcrumbs={[
-          { href: '/admin/booking-cases', label: 'Booking cases' },
-          { label: c.reference },
-        ]}
+        breadcrumbs={[{ href: listHref, label: 'Booking cases' }, { label: c.reference }]}
         eyebrow={c.typeLabel}
         title={`${c.reference} · ${c.order.title}`}
         description={c.reason}
       />
+      {!writable ? (
+        <div className="mt-4">
+          <AdminReadOnly />
+        </div>
+      ) : null}
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <CaseState item={c} />
         <StatusBadge tone="info">Version {c.version}</StatusBadge>
@@ -188,14 +202,16 @@ export function BookingCaseDetail({ bookingCase: c }) {
         >
           Booking {c.order.reference}
         </Link>
-        <Link
-          href={`/admin/properties/${c.order.propertyId}`}
-          className="min-h-11 content-center text-meta font-semibold text-brand-700 underline"
-        >
-          Property
-        </Link>
+        {capabilities.includes('admin.properties.read') ? (
+          <Link
+            href={`/admin/properties/${c.order.propertyId}`}
+            className="min-h-11 content-center text-meta font-semibold text-brand-700 underline"
+          >
+            Property
+          </Link>
+        ) : null}
       </div>
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_380px]">
+      <div className="mt-6 grid gap-6 2xl:grid-cols-[1fr_380px]">
         <div className="space-y-6">
           <SectionCard id="summary" title="Request">
             <FieldGrid
@@ -281,7 +297,7 @@ export function BookingCaseDetail({ bookingCase: c }) {
               ))}
             </ul>
           </SectionCard>
-          {open ? (
+          {open && writable ? (
             <SectionCard
               id="resolve"
               title="Resolve"
@@ -296,7 +312,7 @@ export function BookingCaseDetail({ bookingCase: c }) {
           ) : null}
         </div>
         <div className="space-y-6">
-          {open ? (
+          {open && writable ? (
             <SectionCard id="assignment" title="Assignment">
               <AssignCaseForm key={`assign-${c.version}`} bookingCase={c} />
             </SectionCard>
@@ -308,16 +324,18 @@ export function BookingCaseDetail({ bookingCase: c }) {
           >
             <div className="space-y-4">
               <CaseUpdates updates={c.updates} timeZone={TZ} showAudience />
-              <CaseMessageForm
-                key={`update-${c.updates.length}`}
-                caseId={c.id}
-                requestKey={randomUUID()}
-                admin
-              />
+              {writable ? (
+                <CaseMessageForm
+                  key={`update-${c.updates.length}`}
+                  caseId={c.id}
+                  requestKey={randomUUID()}
+                  admin
+                />
+              ) : null}
             </div>
           </SectionCard>
         </div>
       </div>
-    </AdminPage>
+    </div>
   );
 }

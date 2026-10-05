@@ -1,15 +1,16 @@
 import Form from '@/components/navigation/NavigationForm';
 import Link from '@/components/navigation/NavigationLink';
-import {
-  CalendarCheck2,
-  CalendarClock,
-  CalendarX2,
-  ChevronRight,
-  CircleDollarSign,
-  Search,
-} from 'lucide-react';
+import { CalendarCheck2, CalendarClock, CalendarX2, CircleDollarSign, Search } from 'lucide-react';
 import { displayMoney } from '@/lib/domain/display-money';
 import Pagination from '@/components/ui/pagination';
+import {
+  AdminPage,
+  AdminPageHeader,
+  AdminTable,
+  AdminKpiCard,
+  StatusBadge,
+} from './AdminPrimitives';
+import { adminBookingHref as queryHref } from '@/lib/domain/admin-booking-navigation';
 
 const TABS = [
   { value: 'all', label: 'All bookings' },
@@ -20,28 +21,10 @@ const TABS = [
   { value: 'cancelled', label: 'Cancelled' },
 ];
 
-function queryHref(data, changes) {
-  const params = new URLSearchParams({
-    tab: data.tab,
-    q: data.q,
-    page: String(data.page),
-    ...(data.property ? { property: data.property } : {}),
-    ...(data.vertical ? { vertical: data.vertical } : {}),
-    ...Object.fromEntries(
-      ['createdFrom', 'createdTo', 'environment', 'rentOnly', 'unit']
-        .filter((key) => data[key])
-        .map((key) => [key, data[key]]),
-    ),
-    ...changes,
-  });
-  if (changes.tab && changes.tab !== 'today') params.delete('unit');
-  if (params.get('vertical') === '') params.delete('vertical');
-  return `/admin/bookings?${params}`;
-}
-
 function formatDate(value) {
   if (!value) return 'Not recorded';
   return new Intl.DateTimeFormat('en-IN', {
+    timeZone: 'Asia/Kolkata',
     day: '2-digit',
     month: 'short',
     year: 'numeric',
@@ -50,14 +33,6 @@ function formatDate(value) {
 
 function label(value) {
   return String(value || 'unknown').replaceAll('_', ' ');
-}
-
-function bookingTone(state) {
-  if (['confirmed', 'completed'].includes(state))
-    return 'bg-brand-50 text-brand-800 ring-brand-100';
-  if (['cancelled', 'expired', 'failed'].includes(state))
-    return 'bg-danger-bg text-danger ring-danger/10';
-  return 'bg-warning-bg text-warning ring-warning/15';
 }
 
 function paymentSummary(payments) {
@@ -78,16 +53,11 @@ export default function AdminBookingHistory({ data }) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-(--container-workspace) px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-      <header>
-        <p className="text-tiny font-bold tracking-[0.12em] text-brand-700 uppercase">
-          Booking operations
-        </p>
-        <h1 className="mt-1 text-h1 text-ink-900">Booking records</h1>
-        <p className="mt-2 max-w-2xl text-meta leading-6 text-ink-600">
-          Monitor every booking, payment state, and visit lifecycle from one operational view.
-        </p>
-      </header>
+    <AdminPage>
+      <AdminPageHeader
+        title="Booking records"
+        description="Inspect bookings, visit dates, payment evidence and operational cases."
+      />
 
       {data.environment ? (
         <p className="mt-4 text-meta text-ink-600">
@@ -108,26 +78,26 @@ export default function AdminBookingHistory({ data }) {
           className="mt-7 grid grid-cols-2 gap-3 xl:grid-cols-4"
           aria-label="Booking summary"
         >
-          <KpiCard
+          <AdminKpiCard
             label="Total bookings"
             value={summary.total}
             hint="All booking records"
             icon={CalendarCheck2}
           />
-          <KpiCard
+          <AdminKpiCard
             label="Upcoming"
             value={summary.upcoming}
             hint="Confirmed future visits"
             icon={CalendarClock}
             tone="brand"
           />
-          <KpiCard
+          <AdminKpiCard
             label="Past"
             value={summary.past}
             hint="Includes visits whose scheduled end has passed"
             icon={CircleDollarSign}
           />
-          <KpiCard
+          <AdminKpiCard
             label="Cancelled"
             value={summary.cancelled}
             hint="Cancelled or expired"
@@ -148,7 +118,18 @@ export default function AdminBookingHistory({ data }) {
             </div>
             <Form action="/admin/bookings" className="flex w-full max-w-xl gap-2">
               <input type="hidden" name="tab" value={data.tab} />
-              {['createdFrom', 'createdTo', 'environment', 'rentOnly', 'unit']
+              {[
+                'resource',
+                'vertical',
+                'from',
+                'to',
+                'event',
+                'createdFrom',
+                'createdTo',
+                'environment',
+                'rentOnly',
+                'unit',
+              ]
                 .filter((key) => data[key])
                 .map((key) => (
                   <input key={key} type="hidden" name={key} value={data[key]} />
@@ -185,28 +166,21 @@ export default function AdminBookingHistory({ data }) {
                   key={tab.value}
                   href={queryHref(data, { tab: tab.value, page: '1' })}
                   aria-current={active ? 'page' : undefined}
-                  className={`relative shrink-0 px-3 pb-3 text-tiny font-semibold transition-colors ${active ? 'text-brand-800' : 'text-ink-500 hover:text-ink-900'}`}
+                  className="inline-flex min-h-11 shrink-0 items-center border-b-2 border-transparent px-3 text-meta font-semibold text-ink-600 aria-[current=page]:border-brand-700 aria-[current=page]:text-brand-800 hover:text-ink-900"
                 >
                   {tab.label}
-                  {active ? (
-                    <span
-                      className="absolute right-2 bottom-0 left-2 h-0.5 rounded-full bg-brand-700"
-                      aria-hidden="true"
-                    />
-                  ) : null}
                 </Link>
               );
             })}
           </nav>
           {(data.verticals ?? []).length > 1 ? (
-            // Entertainment plan, Phase 11: farmhouse or venue bookings.
             <nav aria-label="Kind of place" className="mt-3 flex flex-wrap gap-2">
               {['', ...data.verticals].map((code) => (
                 <Link
                   key={code || 'all'}
                   href={queryHref(data, { vertical: code, page: '1' })}
                   aria-current={(data.vertical ?? '') === code ? 'page' : undefined}
-                  className="inline-flex min-h-9 items-center rounded-full border border-border px-3 text-tiny font-semibold text-ink-600 hover:bg-ink-50 aria-[current=page]:border-brand-600 aria-[current=page]:bg-brand-50 aria-[current=page]:text-brand-800"
+                  className="inline-flex min-h-11 items-center rounded-md border border-border px-3 text-meta font-semibold text-ink-600 hover:bg-ink-50 aria-[current=page]:bg-brand-50 aria-[current=page]:text-brand-800"
                 >
                   {{ '': 'All kinds', farmhouse: 'Farmhouses', entertainment: 'Venues' }[code] ??
                     code}
@@ -215,52 +189,39 @@ export default function AdminBookingHistory({ data }) {
             </nav>
           ) : null}
         </div>
-
-        {data.items.length ? (
-          <div
-            className="relative overflow-x-auto"
-            tabIndex={0}
-            role="region"
-            aria-label="Booking records table"
-          >
-            <table className="w-full min-w-[900px] border-collapse text-left">
-              <thead className="bg-ink-25 text-tiny font-bold tracking-[0.08em] text-ink-500 uppercase">
-                <tr>
-                  <th className="px-5 py-3">Property and reference</th>
-                  <th className="px-4 py-3">Booked on</th>
-                  <th className="px-4 py-3">Visits</th>
-                  <th className="px-4 py-3">Booking status</th>
-                  {data.rentOnly ? <th className="px-4 py-3">Rent (INR)</th> : null}
-                  <th className="px-4 py-3">Payment</th>
-                  <th className="px-5 py-3">
-                    <span className="sr-only">Open</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {data.items.map((item) => (
-                  <BookingRow
-                    key={item.visitId ?? item.id}
-                    item={item}
-                    rentOnly={data.rentOnly}
-                    listHref={queryHref(data, {})}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="px-6 py-14 text-center">
-            <span className="mx-auto grid size-12 place-items-center rounded-full bg-ink-50 text-ink-500 ring-1 ring-border">
-              <CalendarCheck2 className="size-6" aria-hidden="true" />
-            </span>
-            <h3 className="mt-4 text-h4 font-bold text-ink-900">No bookings found</h3>
-            <p className="mt-1 text-meta text-ink-500">
-              Try another status or clear your search terms.
-            </p>
-          </div>
-        )}
-
+        <AdminTable
+          label="Booking records"
+          framed={false}
+          minWidth={1060}
+          columns={[
+            'Property and reference',
+            'Owner / guest',
+            'Visit dates',
+            'Booking state',
+            data.rentOnly ? 'Non-cancelled rent (INR)' : 'Booked rent (INR)',
+            'Payment environment',
+            'View',
+          ]}
+          empty={
+            !data.items.length ? (
+              <div className="text-center">
+                <h3 className="text-h4 font-semibold">No bookings found</h3>
+                <p className="mt-2 text-meta text-ink-600">
+                  Try another filter or clear your search.
+                </p>
+              </div>
+            ) : null
+          }
+        >
+          {data.items.map((item) => (
+            <BookingRow
+              key={item.visitId ?? item.id}
+              item={item}
+              rentOnly={data.rentOnly}
+              viewHref={queryHref(data, { booking: item.id })}
+            />
+          ))}
+        </AdminTable>
         <Pagination
           page={data.page}
           pageSize={20}
@@ -272,94 +233,65 @@ export default function AdminBookingHistory({ data }) {
           className="border-t border-border px-4 py-4 sm:px-5"
         />
       </section>
-    </div>
+    </AdminPage>
   );
 }
 
-function BookingRow({ item, listHref, rentOnly }) {
+function BookingRow({ item, viewHref, rentOnly }) {
   const payment = paymentSummary(item.payments);
-
   return (
-    <tr className="group transition-colors hover:bg-ink-25/80">
-      <td className="px-5 py-4">
+    <tr className="hover:bg-ink-25">
+      <td className="px-4 py-4">
         <p className="max-w-[300px] truncate text-meta font-semibold text-ink-900">{item.title}</p>
-        <p className="mt-1 font-mono text-tiny text-ink-500">{item.reference}</p>
-        {item.visitId || item.firstVisitSlot === 'hourly' ? (
-          // Venue bookings: when and which court, from the list alone.
-          <p className="mt-1 text-tiny font-semibold text-ink-700 tabular">
-            {item.firstVisitLabel}
-          </p>
+        <p className="mt-1 text-meta text-ink-600">{item.reference}</p>
+        {item.firstVisitLabel ? (
+          <p className="mt-1 text-meta text-ink-600">{item.firstVisitLabel}</p>
         ) : null}
       </td>
-      <td className="whitespace-nowrap px-4 py-4 text-tiny text-ink-600">
-        {formatDate(item.createdAt)}
-      </td>
-      <td className="px-4 py-4">
-        <p className="text-tiny font-semibold text-ink-800">
-          {item.visitCount} visit{item.visitCount === 1 ? '' : 's'}
+      <td className="px-4 py-4 text-meta">
+        <p className="font-semibold">{item.owner?.name || 'Owner not recorded'}</p>
+        <p className="mt-1 text-ink-600">
+          {item.guestWithheld
+            ? 'Guest hidden — no active fulfillment'
+            : item.guestName || 'Guest not recorded'}
         </p>
-        <p className="mt-1 max-w-[180px] truncate text-tiny capitalize text-ink-500">
+      </td>
+      <td className="px-4 py-4 text-meta">
+        <p>
+          {item.firstVisit || 'Not recorded'}
+          {item.lastVisit && item.lastVisit !== item.firstVisit ? ` – ${item.lastVisit}` : ''}
+        </p>
+        <p className="mt-1 text-ink-600">
+          {item.visitCount} visit{item.visitCount === 1 ? '' : 's'} ·{' '}
           {item.visitStates.map(label).join(', ') || 'No visits recorded'}
         </p>
+        <p className="mt-1 text-ink-600">Booked {formatDate(item.createdAt)} (IST)</p>
       </td>
       <td className="px-4 py-4">
-        <span
-          className={`inline-flex rounded-full px-2.5 py-1 text-tiny font-bold capitalize ring-1 ${bookingTone(item.state)}`}
-        >
-          {label(item.state)}
-        </span>
+        <StatusBadge domain="booking" state={item.state} />
       </td>
-      {rentOnly ? (
-        <td className="px-4 py-4 text-meta tabular">{displayMoney(item.rentMinor)}</td>
-      ) : null}
-      <td className="px-4 py-4">
-        <span
-          className={`inline-flex items-center gap-1.5 text-tiny font-semibold capitalize ${payment.tone}`}
-        >
-          <span className={`size-1.5 rounded-full ${payment.dot}`} aria-hidden="true" />{' '}
-          {payment.text}
-        </span>
+      <td className="px-4 py-4 text-meta tabular">
+        {displayMoney(item.rentMinor)}
+        <p className="mt-1 text-tiny text-ink-600">
+          {rentOnly ? 'Excludes fees and deposits' : 'Original rent; not collected cash'}
+        </p>
+      </td>
+      <td className="px-4 py-4 text-meta">
+        <span className={payment.tone}>{payment.text}</span>
         {item.payments.some((entry) => entry.environment === 'test') ? (
           <p className="mt-1 text-tiny font-semibold text-warning">Test gateway</p>
         ) : null}
       </td>
-      <td className="px-5 py-4 text-right">
+      <td className="px-4 py-4">
         <Link
-          href={`/admin/bookings/${item.id}?from=${encodeURIComponent(listHref)}`}
-          className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition hover:bg-brand-50 hover:text-brand-700"
+          href={viewHref}
+          scroll={false}
+          className="inline-flex min-h-11 items-center rounded-md px-3 text-meta font-semibold text-brand-700 hover:bg-brand-50"
           aria-label={`Open booking ${item.reference}`}
         >
-          <ChevronRight
-            className="size-5 transition-transform group-hover:translate-x-0.5"
-            aria-hidden="true"
-          />
+          View
         </Link>
       </td>
     </tr>
-  );
-}
-
-function KpiCard({ label: title, value, hint, icon: Icon, tone = 'neutral' }) {
-  const styles = {
-    neutral: 'border-border bg-card text-ink-600',
-    brand: 'border-brand-200 bg-brand-50 text-brand-700',
-    danger: 'border-danger/25 bg-danger-bg text-danger',
-  };
-
-  return (
-    <article className={`rounded-lg border p-4 shadow-xs sm:p-5 ${styles[tone]}`}>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-tiny font-semibold text-ink-500">{title}</p>
-          <p className="mt-1 text-[1.75rem] leading-none font-extrabold text-ink-900 tabular">
-            {value}
-          </p>
-        </div>
-        <span className="grid size-9 place-items-center rounded-md bg-white/70 ring-1 ring-current/10">
-          <Icon className="size-[18px]" aria-hidden="true" />
-        </span>
-      </div>
-      <p className="mt-3 hidden text-tiny leading-4 text-ink-500 sm:block">{hint}</p>
-    </article>
   );
 }
