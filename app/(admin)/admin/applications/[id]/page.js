@@ -8,6 +8,7 @@ import AssignmentPanel from '@/components/admin/AssignmentPanel';
 import { applicationReturnHref } from '@/lib/domain/admin-navigation';
 import DecisionPanel from '@/components/admin/DecisionPanel';
 import DocumentViewer from '@/components/admin/DocumentViewer';
+import { adminDateTime } from '@/lib/domain/admin-display';
 import { AdminPage } from '@/components/admin/AdminPrimitives';
 import {
   DetailHeader,
@@ -30,8 +31,7 @@ const STATUS_TONE = {
   more_info_needed: 'warning',
   draft: 'neutral',
 };
-const when = (value, options = { dateStyle: 'medium', timeStyle: 'short' }) =>
-  value ? new Date(value).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', ...options }) : '—';
+const when = adminDateTime;
 
 function ReviewState({ review }) {
   return (
@@ -73,13 +73,13 @@ export default async function ApplicationReviewPage({ params, searchParams }) {
     { key: 'overview', label: 'Overview' },
     { key: 'documents', label: 'Documents', count: documents.length },
     { key: 'decision', label: 'Decision' },
-    { key: 'history', label: 'Activity log', count: trail.length },
+    { key: 'history', label: 'History', count: trail.length },
   ];
   const active = pickTab(query.tab, tabs);
   const title = app.legalName || user.email;
   const notAwaiting =
     app.status !== 'submitted' ? (
-      <p className="rounded-md border-l-4 border-info bg-info-bg p-3 text-meta text-ink-700">
+      <p className="rounded-md border border-info/25 bg-info-bg p-3 text-meta text-ink-700">
         This application is <strong>{app.status.replace(/_/g, ' ')}</strong> and is not awaiting a
         decision.{' '}
         {app.decisionReason ? <>Last reason given: &ldquo;{app.decisionReason}&rdquo;</> : null}
@@ -109,12 +109,14 @@ export default async function ApplicationReviewPage({ params, searchParams }) {
           { icon: Clock, label: 'Joined', value: when(user.createdAt, { dateStyle: 'medium' }) },
         ]}
         actions={
-          <Link
-            href={`/admin/clients/${user.id}`}
-            className="inline-flex min-h-9 items-center rounded-md border border-border bg-card px-3 text-tiny font-semibold text-ink-800 hover:bg-ink-50"
-          >
-            Open owner record →
-          </Link>
+          admin.capabilities.includes('admin.clients.read') ? (
+            <Link
+              href={`/admin/clients/${user.id}`}
+              className="inline-flex min-h-9 items-center rounded-md border border-border bg-card px-3 text-tiny font-semibold text-ink-800 hover:bg-ink-50"
+            >
+              Open owner record →
+            </Link>
+          ) : null
         }
       />
 
@@ -263,6 +265,8 @@ export default async function ApplicationReviewPage({ params, searchParams }) {
         {active === 'documents' ? (
           <div id="documents" className="scroll-mt-24">
             <DocumentViewer
+              canRead={admin.capabilities.includes('admin.documents.read')}
+              canWrite={admin.capabilities.includes('admin.documents.write')}
               documents={documents}
               kycNameOnDoc={app.kycNameOnDoc}
               accountName={user.name}
@@ -280,6 +284,7 @@ export default async function ApplicationReviewPage({ params, searchParams }) {
               <div id="decision" className="scroll-mt-24">
                 <DecisionPanel
                   applicationId={app.id}
+                  returnHref={queueHref}
                   strikeCount={app.strikeCount}
                   reviewVersion={review.reviewVersion}
                   canWrite={canWrite}
@@ -350,7 +355,7 @@ function Panel({ title, tone, children }) {
     tone === 'bad' ? 'border-danger/40' : tone === 'warn' ? 'border-warning/30' : 'border-border';
   return (
     <div className={`rounded-lg border bg-card p-4 ${border}`}>
-      <h2 className="text-tiny font-bold tracking-wider text-brand-700 uppercase">{title}</h2>
+      <h2 className="text-h4 font-semibold text-ink-900">{title}</h2>
       <dl className="mt-2">{children}</dl>
     </div>
   );
@@ -361,7 +366,7 @@ function Row({ label, value, ok, bad, mono }) {
     <div className="flex items-baseline justify-between gap-3 border-b border-dashed border-border py-1.5 text-meta last:border-b-0">
       <dt className="shrink-0 text-ink-600">{label}</dt>
       <dd
-        className={`min-w-0 truncate text-right font-medium ${
+        className={`min-w-0 break-words text-right font-medium ${
           bad ? 'text-danger' : ok ? 'text-brand-700' : 'text-ink-900'
         } ${mono ? 'font-mono text-tiny' : ''}`}
       >

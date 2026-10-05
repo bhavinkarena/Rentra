@@ -8,6 +8,7 @@ import {
   legacyApplicationHref,
   applicationQueueHref,
   applicationReturnHref,
+  applicationDecisionHref,
 } from '../lib/domain/admin-navigation.js';
 
 test('every delivered destination and detail selects exactly one section and tab', () => {
@@ -109,4 +110,22 @@ test('application breadcrumbs accept new and legacy queue context and reject oth
     '/admin/applications/../../login',
   ])
     assert.equal(applicationReturnHref(value), '/admin/applications');
+});
+
+test('decision feedback retains safe queue filters and the committed server outcome', () => {
+  assert.equal(
+    applicationDecisionHref(
+      '/admin/applications?q=Asha&assignee=me&page=2',
+      '/admin?decided=blocked',
+    ),
+    '/admin/applications?q=Asha&assignee=me&page=2&decided=blocked',
+  );
+  assert.equal(
+    applicationDecisionHref('//evil.example', '/admin/applications?decided=approved'),
+    '/admin/applications?decided=approved',
+  );
+  assert.equal(
+    applicationDecisionHref('/admin/applications?decided=rejected', '/admin?decided=more_info'),
+    '/admin/applications?decided=more_info',
+  );
 });

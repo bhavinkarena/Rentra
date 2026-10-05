@@ -30,6 +30,7 @@ const FLAGGABLE = [
  */
 export default function DecisionPanel({
   applicationId,
+  returnHref,
   strikeCount,
   reviewVersion,
   canWrite = false,
@@ -96,6 +97,7 @@ export default function DecisionPanel({
       {mode === 'approve' ? (
         <form ref={formRef} action={approveAction} className="mt-4 space-y-3">
           <input type="hidden" name="applicationId" value={applicationId} />
+          <input type="hidden" name="from" value={returnHref} />
           <input type="hidden" name="expectedVersion" value={reviewVersion} />
           <p className="rounded-md border border-success/20 bg-success-bg p-3 text-meta text-brand-900">
             This closes Gate&nbsp;1: the account becomes <strong>active</strong>, identity is
@@ -135,6 +137,7 @@ export default function DecisionPanel({
         >
           <ValidationSummary errors={infoState.errors} scope={formRef} />
           <input type="hidden" name="applicationId" value={applicationId} />
+          <input type="hidden" name="from" value={returnHref} />
           <input type="hidden" name="expectedVersion" value={reviewVersion} />
           <fieldset>
             <legend className="mb-1.5 text-meta font-semibold text-ink-700">
@@ -207,6 +210,7 @@ export default function DecisionPanel({
         <form ref={formRef} action={rejectAction} className="mt-4 space-y-3">
           <ValidationSummary errors={rejectState.errors} scope={formRef} />
           <input type="hidden" name="applicationId" value={applicationId} />
+          <input type="hidden" name="from" value={returnHref} />
           <input type="hidden" name="expectedVersion" value={reviewVersion} />
           <p className="rounded-md border border-danger/25 bg-danger-bg p-3 text-meta text-danger">
             Strike {nextStrike} of 3.

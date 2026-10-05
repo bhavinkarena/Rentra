@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { CommandForm, FieldError, control } from '@/components/admin/PropertyCommandForm';
-const IST = { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' };
+import { adminDateTime } from '@/lib/domain/admin-display';
 const MODE = { video_call: 'Video call', physical: 'Site visit' };
 
 function ScheduleForm({ id, submissionId }) {
@@ -304,7 +304,7 @@ export default function VerificationPanel({ id, data, writable }) {
         <section aria-labelledby="open-visit-title" className="space-y-5">
           <div>
             <h3 id="open-visit-title" className="text-h4 font-bold text-ink-900">
-              {MODE[open.mode]} · {new Date(open.scheduledAt).toLocaleString('en-IN', IST)} IST
+              {MODE[open.mode]} · {adminDateTime(open.scheduledAt)}
             </h3>
             <p className="text-tiny text-ink-500">
               Assigned to {open.assignee?.email ?? 'nobody'} · version {open.version}

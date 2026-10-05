@@ -4,6 +4,7 @@ import Loader2 from '@/components/ui/rentra-loader';
 import { useActionState, useState } from 'react';
 import { Check, X, FileText, ExternalLink } from 'lucide-react';
 import { reviewDocument } from '@/lib/actions/admin';
+import { adminDateTime } from '@/lib/domain/admin-display';
 import { ID_DOCUMENT_BY_ID } from '@/lib/constants';
 
 /**
@@ -20,13 +21,19 @@ import { ID_DOCUMENT_BY_ID } from '@/lib/constants';
  * stronger than expiry anyway: revoking an admin revokes access to every
  * document immediately, and no storage URL exists in history or a referrer.
  */
-export default function DocumentViewer({ documents = [], kycNameOnDoc, accountName }) {
+export default function DocumentViewer({
+  documents = [],
+  kycNameOnDoc,
+  accountName,
+  canRead = false,
+  canWrite = false,
+}) {
   if (documents.length === 0) {
     return (
       <div className="rounded-lg border border-warning/30 bg-warning-bg p-4">
         <p className="text-meta font-semibold text-warning">No identity document uploaded</p>
         <p className="mt-1 text-tiny text-ink-700">
-          The application cannot be approved without one. Send it back asking for photos of an ID.
+          Request photos of an ID if identity evidence is missing from this application.
         </p>
       </div>
     );
@@ -83,7 +90,7 @@ export default function DocumentViewer({ documents = [], kycNameOnDoc, accountNa
 
       <ul className="mt-3 space-y-2">
         {documents.map((d) => (
-          <DocRow key={d.id} doc={d} />
+          <DocRow key={d.id} doc={d} canRead={canRead} canWrite={canWrite} />
         ))}
       </ul>
 
@@ -95,7 +102,7 @@ export default function DocumentViewer({ documents = [], kycNameOnDoc, accountNa
   );
 }
 
-function DocRow({ doc }) {
+function DocRow({ doc, canRead, canWrite }) {
   const [reviewState, reviewAction, reviewing] = useActionState(reviewDocument, {});
   const [note, setNote] = useState('');
 
@@ -113,7 +120,7 @@ function DocRow({ doc }) {
           </span>
           <span className="block text-tiny text-ink-500">
             {Math.round((doc.bytes ?? 0) / 1024)}KB · {doc.mimeType} ·{' '}
-            {new Date(doc.uploadedAt).toLocaleDateString('en-IN')}
+            {adminDateTime(doc.uploadedAt)}
           </span>
         </span>
 
@@ -129,57 +136,80 @@ function DocRow({ doc }) {
           {status}
         </span>
 
-        <a
-          href={`/admin/documents/${doc.id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-meta font-semibold text-white hover:bg-primary-hover"
-        >
-          <ExternalLink className="size-3.5" aria-hidden="true" />
-          Open {doc.side}
-        </a>
+        {canRead ? (
+          <a
+            href={`/admin/documents/${doc.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-meta font-semibold text-white hover:bg-primary-hover"
+          >
+            <ExternalLink className="size-3.5" aria-hidden="true" />
+            Open {doc.side}
+          </a>
+        ) : (
+          <span className="text-meta text-ink-600">
+            Document access requires documents read permission.
+          </span>
+        )}
       </div>
 
       {/* Per-document accept/reject, separate from the application decision:
           "this photo is unreadable" is a different problem from "this person
           cannot be verified", and conflating them loses information. */}
-      <div className="mt-3 flex flex-wrap items-end gap-2 border-t border-dashed border-border pt-3">
-        <label className="min-w-0 flex-1">
-          <span className="mb-1 block text-tiny font-semibold text-ink-700">
-            Note (required to reject — the Client sees it)
-          </span>
-          <input
-            value={note}
-            onChange={(ev) => setNote(ev.target.value)}
-            placeholder="e.g. the back is blurred, please re-take it in better light"
-            className="w-full rounded-md border border-input bg-card px-3 py-2 text-base md:text-sm placeholder:text-muted-foreground focus:border-brand-600"
-          />
-        </label>
-        <form action={reviewAction} className="flex shrink-0 gap-2">
-          <input type="hidden" name="documentId" value={doc.id} />
-          <input type="hidden" name="note" value={note} />
-          <button
-            type="submit"
-            name="outcome"
-            value="accepted"
-            disabled={reviewing}
-            className="inline-flex items-center gap-1.5 rounded-md border border-brand-600 bg-brand-50 px-3 py-2 text-meta font-semibold text-brand-700 hover:bg-brand-100"
-          >
-            {reviewing ? <Loader2 className="size-3.5 " /> : <Check className="size-3.5" />}
-            Accept
-          </button>
-          <button
-            type="submit"
-            name="outcome"
-            value="rejected"
-            disabled={reviewing}
-            className="inline-flex items-center gap-1.5 rounded-md border border-danger/30 bg-danger-bg px-3 py-2 text-meta font-semibold text-danger hover:brightness-95"
-          >
-            <X className="size-3.5" aria-hidden="true" /> Reject
-          </button>
-        </form>
-      </div>
+      {canWrite ? (
+        <div className="mt-3 flex flex-wrap items-end gap-2 border-t border-dashed border-border pt-3">
+          <label className="min-w-0 flex-1">
+            <span className="mb-1 block text-tiny font-semibold text-ink-700">
+              Note (required to reject — the Client sees it)
+            </span>
+            <input
+              value={note}
+              onChange={(ev) => setNote(ev.target.value)}
+              placeholder="e.g. the back is blurred, please re-take it in better light"
+              className="w-full rounded-md border border-input bg-card px-3 py-2 text-base md:text-sm placeholder:text-muted-foreground focus:border-brand-600"
+            />
+          </label>
+          <form action={reviewAction} className="flex shrink-0 gap-2">
+            <input type="hidden" name="documentId" value={doc.id} />
+            <input type="hidden" name="note" value={note} />
+            <button
+              type="submit"
+              name="outcome"
+              value="accepted"
+              disabled={reviewing}
+              className="inline-flex items-center gap-1.5 rounded-md border border-brand-600 bg-brand-50 px-3 py-2 text-meta font-semibold text-brand-700 hover:bg-brand-100"
+            >
+              {reviewing ? <Loader2 className="size-3.5 " /> : <Check className="size-3.5" />}
+              Accept
+            </button>
+            <button
+              type="submit"
+              name="outcome"
+              value="rejected"
+              disabled={reviewing}
+              className="inline-flex items-center gap-1.5 rounded-md border border-danger/30 bg-danger-bg px-3 py-2 text-meta font-semibold text-danger hover:brightness-95"
+            >
+              <X className="size-3.5" aria-hidden="true" /> Reject
+            </button>
+          </form>
+        </div>
+      ) : (
+        <p className="mt-3 text-meta text-ink-600">
+          Read-only document review. Accepting or rejecting a document requires documents write
+          permission.
+        </p>
+      )}
 
+      {reviewState.ok ? (
+        <p role="status" className="mt-3 text-meta text-brand-800">
+          Document {reviewState.outcome}. This does not decide the application.
+        </p>
+      ) : null}
+      {reviewState.error ? (
+        <p role="alert" className="mt-2 text-meta text-danger">
+          {reviewState.error}
+        </p>
+      ) : null}
       {reviewState.errors?.note ? (
         <p className="mt-1.5 text-tiny font-medium text-danger">{reviewState.errors.note}</p>
       ) : null}

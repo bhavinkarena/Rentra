@@ -1,5 +1,4 @@
-import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
-
+import AdminLoading from '@/components/admin/AdminLoading';
 export default function Loading() {
-  return <ScreenSkeleton layout="portal" screen="properties" label="Loading admin properties" />;
+  return <AdminLoading screen="properties" label="property reviews" />;
 }

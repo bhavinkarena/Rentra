@@ -45,7 +45,7 @@ export function CommandForm({ id, command, hidden = {}, submitLabel, tone = 'bra
       {state.error && (!state.errors || state.errors._) ? (
         <div
           role="alert"
-          className="rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger"
+          className="rounded-md border border-danger/25 bg-danger-bg p-3 text-meta text-danger"
         >
           <p>{state.errors?._ ?? state.error}</p>
           <div className="mt-2">

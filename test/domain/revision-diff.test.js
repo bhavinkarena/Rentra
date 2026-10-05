@@ -36,3 +36,20 @@ test('changed trust fields, prices, amenities and photos are listed', () => {
   assert.equal(rows.Photos.after, '3 photo(s): 2 new, 1 removed');
   assert.equal(Object.keys(rows).length, 5);
 });
+
+test('venue revision comparisons include courts, hourly prices and booking hours', () => {
+  const before = {
+    listing: { bookingConfig: { hours: '09:00' } },
+    resources: [{ name: 'Court 1', capacity: 4 }],
+    hourlyRates: [{ hourlyRate: 100 }],
+  };
+  const after = {
+    listing: { bookingConfig: { hours: '10:00' } },
+    resources: [{ name: 'Court 1', capacity: 6 }],
+    hourlyRates: [{ hourlyRate: 200 }],
+  };
+  assert.deepEqual(
+    diffRevisions(before, after).map((row) => row.label),
+    ['Courts', 'Hourly rates', 'Booking settings'],
+  );
+});

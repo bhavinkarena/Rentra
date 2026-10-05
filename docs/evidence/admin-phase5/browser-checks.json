@@ -1,0 +1,96 @@
+{
+  "scope": "Disposable local fixture; no production/provider requests",
+  "checks": [
+    "property-queue-1280 axe checks",
+    "property-queue 1280px layout, controls and real data",
+    "property-submission-1280 axe checks",
+    "property-submission 1280px layout, controls and real data",
+    "property-decision-1280 axe checks",
+    "property-decision 1280px layout, controls and real data",
+    "application-documents-1280 axe checks",
+    "application-documents 1280px layout, controls and real data",
+    "property-queue 768px layout, controls and real data",
+    "property-submission 768px layout, controls and real data",
+    "property-decision 768px layout, controls and real data",
+    "application-documents 768px layout, controls and real data",
+    "property-queue-360 axe checks",
+    "property-queue 360px layout, controls and real data",
+    "property-submission-360 axe checks",
+    "property-submission 360px layout, controls and real data",
+    "property-decision-360 axe checks",
+    "property-decision 360px layout, controls and real data",
+    "application-documents-360 axe checks",
+    "application-documents 360px layout, controls and real data",
+    "Property open/tab/refresh preserves filtered queue",
+    "Historical submission hides commands and evidence previews",
+    "Historical decision hides commands and evidence previews",
+    "Historical verification hides commands and evidence previews",
+    "Historical visibility hides commands and evidence previews",
+    "Unknown revision never falls back to an actionable current record",
+    "Replaced private evidence direct URL returns 404",
+    "readonly-documents axe checks",
+    "readonly document permissions enforced in UI/API",
+    "appWriter-documents axe checks",
+    "appWriter document permissions enforced in UI/API",
+    "documentReader-documents axe checks",
+    "documentReader document permissions enforced in UI/API",
+    "Read-only property decision UI/API",
+    "approve Server Action retains queue and durable feedback",
+    "more_info Server Action retains queue and durable feedback",
+    "reject Server Action retains queue and durable feedback",
+    "Property decision appears in durable backend record",
+    "Unverified and failed verification never expose publication; direct publish denied",
+    "failed-verification axe checks"
+  ],
+  "pageErrors": [],
+  "accessibility": [
+    {
+      "screen": "property-queue-1280",
+      "violations": []
+    },
+    {
+      "screen": "property-submission-1280",
+      "violations": []
+    },
+    {
+      "screen": "property-decision-1280",
+      "violations": []
+    },
+    {
+      "screen": "application-documents-1280",
+      "violations": []
+    },
+    {
+      "screen": "property-queue-360",
+      "violations": []
+    },
+    {
+      "screen": "property-submission-360",
+      "violations": []
+    },
+    {
+      "screen": "property-decision-360",
+      "violations": []
+    },
+    {
+      "screen": "application-documents-360",
+      "violations": []
+    },
+    {
+      "screen": "readonly-documents",
+      "violations": []
+    },
+    {
+      "screen": "appWriter-documents",
+      "violations": []
+    },
+    {
+      "screen": "documentReader-documents",
+      "violations": []
+    },
+    {
+      "screen": "failed-verification",
+      "violations": []
+    }
+  ]
+}

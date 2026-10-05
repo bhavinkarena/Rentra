@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-05",
+  "status": "Implemented and locally verified; not deployed",
+  "ids": "ADM-REV-01 through ADM-REV-06",
+  "api": "Property review list adds authorized aggregate counts, owner/thumbnail and verification evidence; detail adds current draft snapshot. Superseded/deleted private documents return 404 before storage access. Existing write commands retained.",
+  "migrations": "None added; existing migration journal applied to disposable fixtures.",
+  "checks": [
+    {
+      "command": "npm test (frontend)",
+      "result": "pass",
+      "tests": 94,
+      "skipped": 0
+    },
+    {
+      "command": "admin-review-experience, application-review, property-review, verification-publication and property-restrictions disposable integrations",
+      "result": "pass",
+      "tests": 5,
+      "skipped": 0
+    },
+    {
+      "command": "python scripts/portal-gate/admin-reviews.py",
+      "result": "pass",
+      "checks": 40,
+      "axeRuns": 12,
+      "axeViolations": 0,
+      "pageErrors": 0
+    },
+    {
+      "command": "Changed frontend files ESLint --max-warnings 0 and Prettier --check",
+      "result": "pass"
+    },
+    {
+      "command": "npm run lint (backend), changed fixture/test Prettier and service node --check",
+      "result": "pass",
+      "detail": "Repository lint/format policy excludes ported services; changed services receive syntax and integration checks."
+    },
+    {
+      "command": "npm run build (isolated frontend verification build)",
+      "result": "pass",
+      "warnings": "Configured public sitemap policy API unavailable"
+    },
+    {
+      "command": "node src/scripts/checkMigrations.js",
+      "result": "pass",
+      "journalEntries": 64
+    },
+    {
+      "command": "Bounded screenshot review and Impeccable detector confirmation",
+      "result": "pass",
+      "findings": 0,
+      "detail": "Phone search containment adjusted; shared revision table alongside submission."
+    },
+    {
+      "command": "npm run lint (frontend)",
+      "result": "unrelated existing failures",
+      "errors": 418,
+      "warnings": 3,
+      "detail": "Unchanged review scripts and icon images"
+    },
+    {
+      "command": "npm run format:check (frontend)",
+      "result": "unrelated existing failure",
+      "file": "Rentra_Post_Development_Launch_Roadmap.md"
+    },
+    {
+      "command": "npm run format:check (backend)",
+      "result": "unrelated existing failure",
+      "file": ".prettierrc"
+    }
+  ],
+  "browserEvidence": "browser-checks.json",
+  "limitations": [
+    "Not deployed; production providers and Phase 12 full journeys not exercised.",
+    "Property verification column reports recorded facts; full publication eligibility remains the detail service/command check.",
+    "Property reviews have no documented time SLA; no overdue counter invented."
+  ],
+  "cleanup": "Disposable fixture stopped and dropped; isolated Next.js process stopped; PostgreSQL cluster stopped and removed; private fixture session JSON removed."
+}

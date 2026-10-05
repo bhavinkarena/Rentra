@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation';
 import Link from '@/components/navigation/NavigationLink';
 import { CalendarDays, CheckCircle2, CircleAlert, Hash, Mail, UserCheck } from 'lucide-react';
 import { requireAdmin } from '@/lib/api/session';
@@ -13,7 +14,8 @@ import {
   SectionCard,
   FieldGrid,
 } from '@/components/portal/DetailLayout';
-import { AdminPage } from '@/components/admin/AdminPrimitives';
+import { adminDateTime } from '@/lib/domain/admin-display';
+import { AdminPage, AdminTable } from '@/components/admin/AdminPrimitives';
 import PropertyReviewForm from '@/components/admin/PropertyReviewForm';
 import VerificationPanel from '@/components/admin/VerificationPanel';
 import PropertyLifecyclePanel from '@/components/admin/PropertyLifecyclePanel';
@@ -23,11 +25,11 @@ import { listingPath } from '@/lib/domain/listing-url';
 import { minuteToHhmm, WEEKDAYS } from '@/lib/domain/hourly';
 
 const tabs = [
-  { key: 'submission', label: 'Submitted property' },
-  { key: 'decision', label: 'Review & decision' },
-  { key: 'verification', label: 'Verification & publication' },
-  { key: 'visibility', label: 'Visibility & corrections' },
-  { key: 'history', label: 'History & activity' },
+  { key: 'submission', label: 'Submission' },
+  { key: 'decision', label: 'Review decision' },
+  { key: 'verification', label: 'Verification' },
+  { key: 'visibility', label: 'Visibility' },
+  { key: 'history', label: 'History' },
 ];
 const STATUS_TONE = {
   pending_review: 'warning',
@@ -59,14 +61,7 @@ const ACTION_LABEL = {
 };
 const statusLabel = (status) =>
   status === 'hidden' ? 'hidden by Rentra' : String(status ?? '—').replaceAll('_', ' ');
-const ist = (value) =>
-  value
-    ? new Date(value).toLocaleString('en-IN', {
-        timeZone: 'Asia/Kolkata',
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      })
-    : '—';
+const ist = adminDateTime;
 const VISIT_MODE = { video_call: 'Video call', physical: 'Site visit' };
 const display = (value) =>
   value == null
@@ -83,7 +78,11 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
   if (failure) return <PortalState kind={failure} backHref={back} />;
   const tab = pickTab(query?.tab, tabs),
     current = data.current;
+  if (query?.revision && !data.submissions.some((s) => s.id === query.revision)) notFound();
   const selected = data.submissions.find((s) => s.id === query?.revision) ?? current;
+  const historical = selected && selected.id !== current?.id;
+  const draftChanges =
+    current && data.draftSnapshot ? diffRevisions(current.snapshot, data.draftSnapshot) : [];
   const snap = selected?.snapshot,
     listing = snap?.listing;
   const photos = normalizePublicPhotos(selected?.displayPhotos ?? snap?.photos);
@@ -96,6 +95,7 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
   const changes = base && snap ? diffRevisions(base.snapshot, snap) : [];
   const canDecide = Boolean(
     current &&
+    !historical &&
     !data.stale &&
     data.property.status === 'pending_review' &&
     data.property.accountStatus === 'active',
@@ -112,12 +112,12 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
           },
           data.stale ? { label: 'Unsubmitted changes', tone: 'danger' } : null,
           data.property.accountStatus !== 'active'
-            ? { label: 'Client restricted', tone: 'danger' }
+            ? { label: 'Owner restricted', tone: 'danger' }
             : null,
         ].filter(Boolean)}
         id={{ label: 'Property ID', value: id, display: id.slice(0, 8) }}
         chips={[
-          { icon: Mail, label: 'Client', value: data.property.email },
+          { icon: Mail, label: 'Owner', value: data.property.email },
           { icon: Hash, label: 'Pass', value: current?.passNumber ?? 'Not submitted' },
           current
             ? { icon: CalendarDays, label: 'Submitted', value: ist(current.submittedAt) }
@@ -126,13 +126,16 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
         ]}
         actions={
           <div className="flex flex-wrap gap-2">
-            <Link
-              href={`/admin/clients/${data.property.clientId}`}
-              className="inline-flex min-h-9 items-center rounded-md border border-border bg-card px-3 text-tiny font-semibold text-ink-800 hover:bg-ink-50"
-            >
-              Client record →
-            </Link>
-            {data.property.applicationId ? (
+            {admin.capabilities.includes('admin.clients.read') ? (
+              <Link
+                href={`/admin/clients/${data.property.clientId}`}
+                className="inline-flex min-h-9 items-center rounded-md border border-border bg-card px-3 text-tiny font-semibold text-ink-800 hover:bg-ink-50"
+              >
+                Owner record →
+              </Link>
+            ) : null}
+            {data.property.applicationId &&
+            admin.capabilities.includes('admin.applications.read') ? (
               <Link
                 href={`/admin/applications/${data.property.applicationId}`}
                 className="inline-flex min-h-9 items-center rounded-md border border-border bg-card px-3 text-tiny font-semibold text-ink-800 hover:bg-ink-50"
@@ -181,111 +184,169 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
           The client is restricted. Resolve account access before reviewing this property.
         </p>
       ) : null}
+      <section
+        aria-label="Revision context"
+        className="mt-5 rounded-lg border border-border bg-card p-5"
+      >
+        <FieldGrid
+          fields={[
+            {
+              label: 'Inspecting submitted revision',
+              value: selected
+                ? `Pass ${selected.passNumber}, content version ${selected.contentVersion}`
+                : 'No submission',
+            },
+            {
+              label: 'Current property',
+              value: `Content version ${data.property.contentVersion}${data.stale ? ' / unsubmitted changes' : ' / matches latest submission'}`,
+            },
+            {
+              label: 'Published revision',
+              value: published
+                ? `Pass ${published.passNumber}, content version ${published.contentVersion}`
+                : 'Not published',
+            },
+          ]}
+        />
+        {historical ? (
+          <p className="mt-3 text-meta text-warning">
+            Historical revision: commands are read-only.{' '}
+            <Link
+              className="underline"
+              href={`/admin/properties/${id}?tab=${tab}&from=${encodeURIComponent(back)}`}
+            >
+              Return to latest submission
+            </Link>
+          </p>
+        ) : null}
+      </section>
+      {data.history[0] ? (
+        <section
+          aria-label="Latest recorded property decision"
+          className="mt-4 rounded-lg border border-border bg-card p-5"
+        >
+          <h2 className="text-h4 font-semibold">Latest recorded decision</h2>
+          <p className="mt-2 text-meta">
+            Pass {data.history[0].passNumber}: {data.history[0].outcome.replaceAll('_', ' ')} /{' '}
+            {ist(data.history[0].reviewedAt)}
+          </p>
+          <p className="mt-2 whitespace-pre-wrap text-meta text-ink-600">
+            {data.history[0].reason}
+          </p>
+        </section>
+      ) : null}
       <DetailTabs
         tabs={tabs}
         active={tab}
         basePath={`/admin/properties/${id}`}
         params={{ from: back, ...(query?.revision ? { revision: query.revision } : {}) }}
       />
+      {draftChanges.length && (tab === 'submission' || tab === 'decision') ? (
+        <SectionCard
+          title="Current changes since latest submission"
+          description="The current property is not the immutable submitted or published revision. These changes need a fresh submission."
+        >
+          <AdminTable
+            label="Submitted versus current property"
+            columns={['Field', 'Latest submitted value', 'Current property value']}
+            minWidth={600}
+          >
+            {draftChanges.map((row) => (
+              <tr key={row.label}>
+                <th scope="row" className="px-4 py-3">
+                  {row.label}
+                </th>
+                <td className="max-w-xs break-words px-4 py-3">{row.before}</td>
+                <td className="max-w-xs break-words px-4 py-3">{row.after}</td>
+              </tr>
+            ))}
+          </AdminTable>
+        </SectionCard>
+      ) : null}
       {tab === 'submission' && snap ? (
         <div className="mt-5 space-y-5">
-          <SectionCard
-            title={`Submitted revision · pass ${selected.passNumber}`}
-            description={`Captured ${new Date(selected.submittedAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} IST. These are submitted values, not a live editor.`}
-          >
-            <FieldGrid
-              fields={Object.entries({
-                title: listing.title,
-                category: snap.place?.category,
-                city: snap.place?.city,
-                area: snap.place?.area,
-                exactAddress: listing.exactAddress,
-                location:
-                  listing.location?.x != null
-                    ? `${listing.location.y}, ${listing.location.x} (lat, lng)`
-                    : listing.location,
-                ...(listing.rentalUnit === 'hour'
-                  ? {
-                      maxPlayers: listing.capacity,
-                      courts: (snap.resources ?? []).filter((r) => r.isActive).length,
-                    }
-                  : {
-                      capacity: listing.capacity,
-                      bedrooms: listing.bedrooms,
-                      farmSize: listing.farmSize,
-                      farmSizeUnit: listing.farmSizeUnit,
-                      checkInFrom: listing.checkInFrom,
-                      checkOutBy: listing.checkOutBy,
-                    }),
-                cancellationTier: listing.cancellationTier,
-                depositAmount: listing.depositAmount,
-                // Venues price per hour; extra-guest charges do not apply to them.
-                ...(listing.rentalUnit === 'hour'
-                  ? {}
-                  : { extraGuestCharge: listing.extraGuestCharge }),
-              }).map(([label, value]) => ({
-                label: label.replace(/([A-Z])/g, ' $1'),
-                value: display(value),
-              }))}
-            />
-            <h3 className="mt-4 font-semibold">Description</h3>
-            <p className="mt-2 whitespace-pre-wrap text-meta">{listing.description}</p>
-            <h3 className="mt-4 font-semibold">
-              {listing.rentalUnit === 'hour' ? 'Venue rules' : 'House rules'}
-            </h3>
-            <p className="mt-2 whitespace-pre-wrap text-meta">
-              {listing.rentalUnit === 'hour'
-                ? venueRules(listing.houseRules)
-                : display(listing.houseRules)}
-            </p>
-          </SectionCard>
-          {listing.rentalUnit === 'hour' ? <VenueSubmission snap={snap} listing={listing} /> : null}
-          {base ? (
+          <div className={`grid items-start gap-5 ${base ? 'xl:grid-cols-2' : ''}`}>
             <SectionCard
-              title={`Changes since pass ${base.passNumber}${base.id === published?.id ? ' (published)' : ''}`}
-              description="Field-level comparison of the two immutable submitted revisions."
+              title={`Submitted revision · pass ${selected.passNumber}`}
+              description={`Captured ${ist(selected.submittedAt)}. These are submitted values, not a live editor.`}
             >
-              {changes.length ? (
-                <div
-                  className="relative overflow-x-auto"
-                  tabIndex={0}
-                  role="region"
-                  aria-label="Revision changes"
-                >
-                  <table className="w-full min-w-[520px] text-left text-meta">
-                    <thead className="text-tiny uppercase text-ink-500">
-                      <tr>
-                        <th scope="col" className="py-2 pr-3">
-                          Field
-                        </th>
-                        <th scope="col" className="py-2 pr-3">
-                          Pass {base.passNumber}
-                        </th>
-                        <th scope="col" className="py-2">
-                          Pass {selected.passNumber}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {changes.map((row) => (
-                        <tr key={row.label} className="border-t border-border align-top">
-                          <th scope="row" className="py-2 pr-3 font-semibold">
-                            {row.label}
-                          </th>
-                          <td className="max-w-xs break-words py-2 pr-3 text-ink-600">
-                            {row.before}
-                          </td>
-                          <td className="max-w-xs break-words py-2">{row.after}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <p className="text-meta">No submitted content changed between these revisions.</p>
-              )}
+              <FieldGrid
+                fields={Object.entries({
+                  title: listing.title,
+                  category: snap.place?.category,
+                  city: snap.place?.city,
+                  area: snap.place?.area,
+                  exactAddress: listing.exactAddress,
+                  location:
+                    listing.location?.x != null
+                      ? `${listing.location.y}, ${listing.location.x} (lat, lng)`
+                      : listing.location,
+                  ...(listing.rentalUnit === 'hour'
+                    ? {
+                        maxPlayers: listing.capacity,
+                        courts: (snap.resources ?? []).filter((r) => r.isActive).length,
+                      }
+                    : {
+                        capacity: listing.capacity,
+                        bedrooms: listing.bedrooms,
+                        farmSize: listing.farmSize,
+                        farmSizeUnit: listing.farmSizeUnit,
+                        checkInFrom: listing.checkInFrom,
+                        checkOutBy: listing.checkOutBy,
+                      }),
+                  cancellationTier: listing.cancellationTier,
+                  depositAmount: listing.depositAmount,
+                  // Venues price per hour; extra-guest charges do not apply to them.
+                  ...(listing.rentalUnit === 'hour'
+                    ? {}
+                    : { extraGuestCharge: listing.extraGuestCharge }),
+                }).map(([label, value]) => ({
+                  label: label.replace(/([A-Z])/g, ' $1'),
+                  value: display(value),
+                }))}
+              />
+              <h3 className="mt-4 font-semibold">Description</h3>
+              <p className="mt-2 whitespace-pre-wrap text-meta">{listing.description}</p>
+              <h3 className="mt-4 font-semibold">
+                {listing.rentalUnit === 'hour' ? 'Venue rules' : 'House rules'}
+              </h3>
+              <p className="mt-2 whitespace-pre-wrap text-meta">
+                {listing.rentalUnit === 'hour'
+                  ? venueRules(listing.houseRules)
+                  : display(listing.houseRules)}
+              </p>
             </SectionCard>
-          ) : null}
+            {base ? (
+              <SectionCard
+                title={`Changes since pass ${base.passNumber}${base.id === published?.id ? ' (published)' : ''}`}
+                description="Field-level comparison of the two immutable submitted revisions."
+              >
+                {changes.length ? (
+                  <AdminTable
+                    label="Revision changes"
+                    columns={['Field', `Pass ${base.passNumber}`, `Pass ${selected.passNumber}`]}
+                    minWidth={520}
+                    framed={false}
+                  >
+                    {changes.map((row) => (
+                      <tr key={row.label}>
+                        <th scope="row" className="px-4 py-3 font-semibold">
+                          {row.label}
+                        </th>
+                        <td className="max-w-xs break-words px-4 py-3 text-ink-600">
+                          {row.before}
+                        </td>
+                        <td className="max-w-xs break-words px-4 py-3">{row.after}</td>
+                      </tr>
+                    ))}
+                  </AdminTable>
+                ) : (
+                  <p className="text-meta">No submitted content changed between these revisions.</p>
+                )}
+              </SectionCard>
+            ) : null}
+          </div>
+          {listing.rentalUnit === 'hour' ? <VenueSubmission snap={snap} listing={listing} /> : null}
           <SectionCard title="Photos">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {photos.map((photo, i) => (
@@ -386,7 +447,7 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
             ))}
           </ul>
           <p className="mt-4 text-meta">Assigned reviewer: {current?.reviewer ?? 'Unassigned'}</p>
-          {current && data.property.status === 'pending_review' ? (
+          {!historical && current && data.property.status === 'pending_review' ? (
             <PropertyReviewForm
               key={current.id}
               id={id}
@@ -395,10 +456,14 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
               adminId={admin.id}
               canDecide={canDecide}
               venue={data.current?.snapshot?.listing?.rentalUnit === 'hour'}
-              writable={admin.capabilities.includes('admin.properties.write')}
+              writable={!historical && admin.capabilities.includes('admin.properties.write')}
             />
           ) : (
-            <p className="mt-4 text-meta">There is no pending submission to decide.</p>
+            <p className="mt-4 text-meta">
+              {historical
+                ? 'Historical revisions cannot be decided. Open the latest submission to review it.'
+                : 'There is no pending submission to decide.'}
+            </p>
           )}
         </SectionCard>
       ) : null}
@@ -410,7 +475,7 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
           >
             {data.property.status === 'live' ? (
               <p role="status" className="rounded-md bg-success-bg p-3 text-meta text-brand-900">
-                Published {ist(data.publication.publishedAt)} IST.{' '}
+                Published {ist(data.publication.publishedAt)}.{' '}
                 {data.property.publicCode ? (
                   <Link
                     href={listingPath(data.property.slug, data.property.publicCode)}
@@ -444,7 +509,7 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
             <VerificationPanel
               id={id}
               data={data}
-              writable={admin.capabilities.includes('admin.properties.write')}
+              writable={!historical && admin.capabilities.includes('admin.properties.write')}
             />
             {!data.verifications.some((v) => v.status === 'scheduled') &&
             data.property.status !== 'pending_verification' ? (
@@ -458,14 +523,14 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
               {data.verifications.map((v) => (
                 <li key={v.id} className="text-meta">
                   <strong>
-                    {VISIT_MODE[v.mode]} · {ist(v.scheduledAt)} IST ·{' '}
+                    {VISIT_MODE[v.mode]} · {ist(v.scheduledAt)} ·{' '}
                     {v.status === 'completed' ? v.outcome.replaceAll('_', ' ') : v.status}
                   </strong>
                   <p className="mt-1 text-ink-600">
                     {v.submissionId === data.publication.submissionId
                       ? 'Current revision'
                       : 'Earlier revision'}
-                    {v.recordedBy ? ` · recorded by ${v.recordedBy} ${ist(v.completedAt)} IST` : ''}
+                    {v.recordedBy ? ` · recorded by ${v.recordedBy} ${ist(v.completedAt)}` : ''}
                     {v.cancelReason ? ` · ${v.cancelReason}` : ''}
                   </p>
                   {v.report?.findings ? (
@@ -510,7 +575,7 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
             {data.lifecycle.restriction ? (
               <p role="status" className="mt-4 rounded-md bg-danger-bg p-3 text-meta text-danger">
                 Hidden by {data.lifecycle.restriction.by ?? 'Rentra'} on{' '}
-                {ist(data.lifecycle.restriction.at)} IST: {data.lifecycle.restriction.reason}
+                {ist(data.lifecycle.restriction.at)}: {data.lifecycle.restriction.reason}
               </p>
             ) : null}
             {data.lifecycle.visits.length ? (
@@ -529,7 +594,7 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
             <PropertyLifecyclePanel
               id={id}
               lifecycle={data.lifecycle}
-              writable={admin.capabilities.includes('admin.properties.write')}
+              writable={!historical && admin.capabilities.includes('admin.properties.write')}
             />
           </SectionCard>
         </div>
@@ -546,8 +611,7 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
                   >
                     Pass {s.passNumber} · content version {s.contentVersion}
                   </Link>{' '}
-                  · {new Date(s.submittedAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}{' '}
-                  IST
+                  · {ist(s.submittedAt)}
                 </li>
               ))}
             </ul>
@@ -567,7 +631,7 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
                     </span>
                   ) : null}
                   <p className="text-tiny text-ink-500">
-                    {a.actor ?? a.actorType} · {ist(a.at)} IST
+                    {a.actor ?? a.actorType} · {ist(a.at)}
                   </p>
                   {a.action === 'listing_corrected' ? (
                     <p className="text-tiny text-ink-600">
@@ -589,9 +653,7 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
                   </strong>
                   <p className="mt-1 whitespace-pre-wrap">{h.reason}</p>
                   <p className="mt-1 text-ink-600">
-                    {h.reviewer ?? 'Previous reviewer'} ·{' '}
-                    {new Date(h.reviewedAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}{' '}
-                    IST
+                    {h.reviewer ?? 'Previous reviewer'} · {ist(h.reviewedAt)} IST
                   </p>
                   {h.flaggedFields?.length ? (
                     <p>Corrections: {h.flaggedFields.join(', ')}</p>

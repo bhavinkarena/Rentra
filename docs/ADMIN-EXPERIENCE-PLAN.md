@@ -4,13 +4,13 @@
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Prepared           | 4 October 2026                                                                                                                                                                         |
 | Scope              | Admin dashboard, navigation, section tabs, tables, record details, review workflows, finance, support, configuration and release QA                                                    |
-| Status | Phases 1–4 complete; Phases 5–12 pending |
+| Status | Phases 1–5 complete; Phases 6–12 pending |
 | Method             | Repository review plus Phase 1 disposable-local role, viewport, permission and integration baseline; inspected saved owner and current admin screenshots                               |
 | Verification limit | Phase 1 adds authenticated disposable-local browser/API/database evidence below. Production workflows and providers were not exercised; historical owner test results remain separate. |
 
 ## Phase completion tracker
 
-**Progress:** 4 of 12 phases complete · 0 in progress · 8 pending. Phase 4 is implemented and locally verified; Phase 5 is next. Existing admin functionality does not count as completion of these redesign phases.
+**Progress:** 5 of 12 phases complete · 0 in progress · 7 pending. Phase 5 is implemented and locally verified; Phase 6 is next. Existing admin functionality does not count as completion of these redesign phases.
 
 | Phase | Work                                                            | Status      | Completed on | Notes / remaining work                                                                                       |
 | ----- | --------------------------------------------------------------- | ----------- | ------------ | ------------------------------------------------------------------------------------------------------------ |
@@ -18,7 +18,7 @@
 | 2 | Admin shell, navigation and section tabs | ✅ Complete | 5 Oct 2026 | ADM-NAV-01–05 delivered; [local checks](evidence/admin-phase2/checks.json), [browser evidence](evidence/admin-phase2/browser-checks.json); dashboard delivered in Phase 4 |
 | 3 | Shared admin visual system and list/detail primitives | ✅ Complete | 5 Oct 2026 | ADM-DS-01–06 delivered; [checks](evidence/admin-phase3/checks.json), [browser evidence](evidence/admin-phase3/browser-checks.json); View sheets remain later-phase work |
 | 4 | Dashboard and analytics | ✅ Complete | 5 Oct 2026 | ADM-HOME-01–07 delivered; [contract](ADMIN-DASHBOARD-CONTRACT.md), [checks](evidence/admin-phase4/checks.json), [browser evidence](evidence/admin-phase4/browser-checks.json) |
-| 5     | Owner applications and property review                          | ⏳ Pending  | —            | Refresh queues and review/verification workflows                                                             |
+| 5 | Owner applications and property review | ✅ Complete | 5 Oct 2026 | ADM-REV-01–06 delivered; [checks](evidence/admin-phase5/checks.json), [browser evidence](evidence/admin-phase5/browser-checks.json) |
 | 6     | Bookings and booking cases                                      | ⏳ Pending  | —            | Refresh records, detail sheets and case workflows                                                            |
 | 7     | People: owners and customers                                    | ⏳ Pending  | —            | Refresh directories, record tabs and account controls                                                        |
 | 8     | Finance workspace                                               | ⏳ Pending  | —            | Organize finance tabs and verify money/evidence definitions                                                  |
@@ -148,7 +148,7 @@ Skeletons match each screen's layout. Background refresh retains records and lab
 
 ## 5. Implementation phases
 
-Phases 1–4 are **Complete (locally verified)**; Phases 5–12 are **Not started**. Phase 1 establishes the baseline; Phases 2–4 create the shared foundation and dashboard; the remaining modules ship incrementally. Each phase includes its own verification before proceeding.
+Phases 1–5 are **Complete (locally verified)**; Phases 6–12 are **Not started**. Phase 1 establishes the baseline; Phases 2–4 create the shared foundation and dashboard; the remaining modules ship incrementally. Each phase includes its own verification before proceeding.
 
 ### Phase 1 — Admin inventory and behavior baseline
 
@@ -327,7 +327,7 @@ Additional [observations](evidence/admin-phase1/observations.json) record enable
 | Finding                                                                | Evidence / impact                                                                                                                                                                                                                                          | Follow-up phase                                                          |
 | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
 | ADM-F01 · High · Restricted-role home shows an outage message          | Browser-confirmed records-only/customer-reader `/admin` displays “This page could not load”; their permitted directories work and application API returns 403. Root calls application endpoints without a capability-aware home or settled forbidden state | Resolved locally in Phases 2 and 4; capability-scoped dashboard verified                   |
-| ADM-F02 · Medium · Read-only reviewers receive enabled write controls  | Browser-confirmed Assign to me / Approve / Need more info / Reject on application decision tab for an all-read operator; write API correctly returns 403. Application page does not pass a write grant to these panels                                     | Application assignment/decision controls resolved locally in Phase 3; document/module permissions still verified in Phase 5 |
+| ADM-F02 · Medium · Read-only reviewers receive enabled write controls  | Browser-confirmed Assign to me / Approve / Need more info / Reject on application decision tab for an all-read operator; write API correctly returns 403. Application page does not pass a write grant to these panels                                     | Application assignment/decision controls resolved locally in Phase 3; application/document/property grants verified in Phase 5; other module grants remain later-phase checks |
 | ADM-F03 · High · Owner guide content cannot be edited through admin UI | Full admin GET `/admin/content/owner_help` API returns 200, frontend shows Record not found. Both frontend content page and `lib/actions/content.js` allowlists omit `owner_help`, while the backend and editor recognize it                               | Phase 10; fix route/action allowlist parity together                     |
 | ADM-F04 · Medium · Operator detail hydration mismatch                  | Three browser page errors; `OperatorSecurity.jsx` uses implicit-locale `toLocaleString()` for session/history dates. Node rendered `10/4/2026, 11:08:38 PM`, Chrome rendered `04/10/2026, 23:08:38`                                                        | Resolved locally in Phase 3 with deterministic IST formatting and browser verification |
 | ADM-F05 · Medium · Content integration assertion is stale              | Existing integration expected four history entries at line 204, observed five. Code now includes a third built-in policy version, `2026-10-04`. No application/test fix is included in this audit                                                          | Phase 10/content validation, required before Phase 12 clean release gate |
@@ -559,7 +559,7 @@ Run the complete redesigned journey with disposable fixtures: sign-in/2FA → da
 | A0      | 1      | Verified inventory and baseline                                                   | Complete (audit); findings recorded |
 | A1 | 2–3 | Clear sidebar, section tabs and consistent primitives; application route migrated | Complete; locally verified, not deployed |
 | A2 | 4 | Authorized dashboard, actionable queues and defined analytics | Complete; locally verified, not deployed |
-| A3      | 5–7    | Review, booking/case and people workspaces                                        | Not started                         |
+| A3 | 5–7 | Review, booking/case and people workspaces | In progress; Phase 5 complete locally, Phases 6–7 pending |
 | A4      | 8–9    | Finance, guest-review and support workflows                                       | Not started                         |
 | A5      | 10–11  | Operations/configuration and expanded search                                      | Not started                         |
 | A6      | 12     | Full regression evidence and release readiness decision                           | Not started                         |
@@ -588,6 +588,33 @@ Changed-file lint/format, backend repository lint and frontend production build 
 
 **Next phase:** Phase 5 — owner applications and property review.
 
+### Phase 5 — Complete (locally verified, 5 October 2026)
+
+| ID | Delivered result |
+| --- | --- |
+| ADM-REV-01 | Existing shared application queue retained; property queue now uses `AdminTable`, `AdminFilterBar`, URL-backed status/reviewer/search and shared pagination. Rows show property thumbnail/name, owner, submitted revision/state/date, recorded verification facts, reviewer and Review. Counts are full-dataset backend aggregates under the selected search/reviewer/submission scope, across status filters. Application SLA rows now use the same exact 48-hour threshold as counters, independently of rounded age. No property SLA was invented. |
+| ADM-REV-02 | Application Overview, Documents, Decision and History retain their evidence and commands. Document read/write grants independently control private-file links and moderation buttons; metadata stays available for application review/completion. Owner-record links require their own read grant. Dates use the deterministic IST formatter. |
+| ADM-REV-03 | Property Submission, Review decision, Verification, Visibility and History retain direct URLs and list context. Submitted/current/published versions are labelled separately. Immutable comparison sits alongside the selected submission; current unsubmitted changes have a separate comparison table. Venue court/rate/booking-setting changes are included. Unknown revision URLs never fall back to an actionable current revision. |
+| ADM-REV-04 | Existing assignment, expected-version/submission checks, reasons, flagged corrections, strikes and appeal/account workflows retained. Application decisions preserve the safe filtered queue and the server's committed outcome (including blocked), with feedback surviving refresh. Property decisions show the durable backend decision record after the form disappears. |
+| ADM-REV-05 | Existing scheduling, outcome evidence, publication, restriction/correction and version guards remain authoritative. Historical inspection suppresses write controls and evidence previews; superseded/deleted private-file URLs return 404 before accessing storage. Failed/missing verification never exposes a publication shortcut. |
+| ADM-REV-06 | Responsive, keyboard, role, document, decision and publication checks recorded. Property loading geometry follows the new queue. No new dependency, schema migration or provider operation. |
+
+**Changed files:** application/property detail pages, property queue/loading, `DocumentViewer`, `DecisionPanel`, `PropertyCommandForm`, `VerificationPanel`, `AdminLoading`, action/return helpers, status/revision-diff domains and their tests. Backend changes are scoped to application SLA projection, property review read models and private-document live-file validation. Verification adds `admin-review-experience.integration.test.js`, the opt-in `ADMIN_REVIEW_FIXTURE=1` browser dataset and `scripts/portal-gate/admin-reviews.py`.
+
+**API/database:** no new endpoints or capabilities. Property list adds aggregate `counts` (total, waiting submitted, unassigned waiting and pending verification), owner/normalized public-photo metadata and current-submission verification facts. The verification column deliberately reports recorded evidence, not publication eligibility. Property detail adds `draftSnapshot` from the existing snapshot projector, in a repeatable-read/read-only transaction so current/submitted/publication context stays consistent. Snapshots expose no storage keys or signed links. Document streaming retains private no-store headers, live admin authorization and audit evidence; replaced/deleted files are unavailable. Write protocols and publication prerequisites remain unchanged.
+
+**Verification:** [Check record](evidence/admin-phase5/checks.json) and [browser evidence](evidence/admin-phase5/browser-checks.json). Frontend **94 tests passed**; **five disposable backend integrations passed, zero skipped**, covering new count/revision/SLA/document behavior and existing application assignment/all decisions/strikes/resubmission, property reviewer races/stale submissions/corrections, revision-exact verification/publication and restrictions. Document proxy tests use a mocked upstream and verify the audit entry plus refusal of replaced/deleted evidence without a storage request.
+
+Browser **40 checks, 12 axe runs, zero violations and zero page errors**. Coverage includes 360/768/1280 px containment and 44 px controls, property table semantics/local scroll/focus, immutable comparison, current/historical revision context, unknown revision refusal, queue-preserving tabs/refresh, document read/write roles in UI/API, read-only property decisions, all three application Server Actions with retained filters/durable feedback, property approval and scheduled failed verification, hidden publish controls and API 409. [Desktop submission](evidence/admin-phase5/property-submission-1280.png), [phone queue](evidence/admin-phase5/property-queue-360.png), [phone document review](evidence/admin-phase5/application-documents-360.png). Other queue/detail sizes are saved alongside these. Bounded visual inspection corrected phone search containment; the detector and confirmation pass found no primary issues.
+
+Changed-file lint/format, backend repository lint and production build pass. The migration checker still verifies **64 journal entries**; no migration added. Existing unrelated global failures remain: frontend lint's 418 review-script formatting errors and three icon image warnings, frontend formatting's unchanged launch roadmap and backend formatting's unchanged `.prettierrc`. Build emits the existing configured public sitemap policy API warnings.
+
+**Reproduce:** use a disposable localhost PostgreSQL server and set `PORTAL_TEST_DATABASE_URL` without loading backend `.env`. Run the five integration files named above using `node --import ./loader/register.mjs --test`. For the browser fixture, run `test/helpers/admin-experience-browser.mjs` with `ADMIN_REVIEW_FIXTURE=1`, private `ADMIN_BASELINE_FIXTURE`, `ADMIN_BASELINE_EVIDENCE_DIR`, API port 4163 and web origin 3163. Start frontend with that API URL, `RENTRA_BROWSER_FIXTURE=1`, `RENTRA_BROWSER_FIXTURE_ID=admin-phase5` and port 3163; run `python scripts/portal-gate/admin-reviews.py` with the private fixture path. The action gate requires a fresh fixture. Send `stop` to the backend fixture, stop the isolated frontend/PostgreSQL cluster and remove private tokens. Recorded evidence contains no session tokens or configured credentials.
+
+**Remaining limits:** locally verified, not deployed. Production providers and the complete Phase 12 journeys remain pending. Existing application approval rules were preserved; this phase adds no new approval prerequisites. ADM-F02's reviewed application/document/property controls are verified; other module permissions remain their own phases. ADM-F03, ADM-F05 and ADM-F06 remain open. A3 continues with Phases 6–7.
+
+**Next phase:** Phase 6 — bookings and booking cases.
+
 ## 7. Implementation defaults and boundaries
 
 - Use existing Rentra tokens/components; no new brand theme or chart dependency is required by this plan.
@@ -598,4 +625,4 @@ Changed-file lint/format, backend repository lint and frontend production build 
 - Add no editable platform calendar, admin impersonation, automated bulk approvals, live chat or payout execution as part of this UI redesign.
 - UI-only phases should need no migration. Dashboard/search/index changes are scoped and verified separately when evidence requires them.
 
-Phases 1–4 are complete and locally verified. The next implementation step is Phase 5: owner applications and property review.
+Phases 1–5 are complete and locally verified. The next implementation step is Phase 6: bookings and booking cases.

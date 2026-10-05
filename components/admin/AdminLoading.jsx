@@ -3,7 +3,7 @@ import Skeleton from '@/components/ui/skeleton';
 import { AdminPage } from './AdminPrimitives';
 
 export default function AdminLoading({ label = 'workspace', screen = 'table' }) {
-  if (screen === 'applications' || screen === 'payments')
+  if (['applications', 'properties', 'payments'].includes(screen))
     return (
       <AdminPage>
         <div role="status" aria-busy="true" aria-label={`Loading ${label}`}>
@@ -13,9 +13,11 @@ export default function AdminLoading({ label = 'workspace', screen = 'table' }) 
               <Skeleton className="h-8 w-64 max-w-full" />
               <Skeleton className="h-4 w-96 max-w-full" />
             </div>
-            {screen === 'applications' ? (
-              <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-                {[0, 1, 2, 3].map((key) => (
+            {['applications', 'properties'].includes(screen) ? (
+              <div
+                className={`grid gap-3 ${screen === 'properties' ? 'sm:grid-cols-3' : 'sm:grid-cols-2 xl:grid-cols-4'}`}
+              >
+                {(screen === 'properties' ? [0, 1, 2] : [0, 1, 2, 3]).map((key) => (
                   <div key={key} className="space-y-4 rounded-lg border border-border bg-card p-5">
                     <Skeleton className="h-4 w-24" />
                     <Skeleton className="h-7 w-12" />
