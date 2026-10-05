@@ -6,7 +6,14 @@ import { useRouter } from 'next/navigation';
 import Link from '@/components/navigation/NavigationLink';
 import Pagination from '@/components/ui/pagination';
 import { adminDateTime } from '@/lib/domain/admin-display';
-import { AdminPage, AdminPageHeader } from './AdminPrimitives';
+import {
+  AdminPage,
+  AdminPageHeader,
+  AdminTable,
+  AdminReadOnly,
+  AdminEmpty,
+  StatusBadge,
+} from './AdminPrimitives';
 import { operatorCommand, enrollOperator } from '@/lib/actions/operators';
 const input = `${sharedFieldClass} mt-1`;
 const button = `${sharedButtonVariants({ shape: 'default', size: 'default' })} `;
@@ -203,26 +210,50 @@ export function OperatorDirectory({ data }) {
         <p>
           {data.total} operators · Page {data.page} of {data.pages}
         </p>
-        <ul className="space-y-3">
+        <AdminTable
+          label="Operators"
+          columns={['Operator', 'Status', 'Access', 'Enrollment', 'Inspect']}
+          empty={
+            !data.items.length && (
+              <AdminEmpty
+                title="No matching operators"
+                description="Choose another name or status."
+              />
+            )
+          }
+        >
           {data.items.map((o) => (
-            <li key={o.id} className={card}>
-              <Link className="font-semibold underline" href={`/admin/security/${o.id}`}>
-                {o.name}
-              </Link>
-              <p className="break-all">{o.email}</p>
-              <p>
-                {o.active ? 'Active' : 'Inactive'} ·{' '}
-                {o.fullAccess ? 'Full Super Admin' : 'Assigned capabilities'} ·{' '}
+            <tr key={o.id}>
+              <td className="max-w-xs break-all px-4 py-4">
+                <p className="font-semibold">{o.name}</p>
+                <p>{o.email}</p>
+              </td>
+              <td className="px-4 py-4">
+                <StatusBadge tone={o.active ? 'success' : 'neutral'}>
+                  {o.active ? 'Active' : 'Inactive'}
+                </StatusBadge>
+              </td>
+              <td className="px-4 py-4">
+                {o.fullAccess ? 'Full Super Admin' : 'Assigned capabilities'}
+              </td>
+              <td className="px-4 py-4">
                 {o.enrollmentPending
                   ? 'Enrollment pending'
                   : o.hasTotp
                     ? 'Factor enrolled'
                     : 'Factor missing'}
-              </p>
-            </li>
+              </td>
+              <td className="px-4 py-4">
+                <Link
+                  className="inline-flex min-h-11 items-center underline"
+                  href={`/admin/security/${o.id}`}
+                >
+                  View<span className="sr-only"> {o.name}</span>
+                </Link>
+              </td>
+            </tr>
           ))}
-        </ul>
-        {!data.items.length && <p>No operators match these filters.</p>}
+        </AdminTable>
         <Pagination
           page={data.page}
           pageSize={20}
@@ -232,7 +263,7 @@ export function OperatorDirectory({ data }) {
           label="Operator pages"
           noun="operators"
         />
-        {data.canWrite && <CommandForm data={data} create />}
+        {data.canWrite ? <CommandForm data={data} create /> : <AdminReadOnly />}
       </div>
     </AdminPage>
   );
@@ -259,7 +290,7 @@ export function OperatorDetail({ data }) {
                 <li key={c}>{c}</li>
               ))}
             </ul>
-            <p>You have read-only access.</p>
+            <p>Read-only security access. Changes require an authorized security writer.</p>
           </section>
         )}
         <section className={card}>

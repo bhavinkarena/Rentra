@@ -5,8 +5,15 @@ import { adminApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
 import PortalState from '@/components/portal/PortalState';
 import IncidentControls from '@/components/admin/IncidentControls';
-import { AdminPage, AdminPageHeader, StatusBadge } from '@/components/admin/AdminPrimitives';
+import {
+  AdminPage,
+  AdminPageHeader,
+  AdminReadOnly,
+  StatusBadge,
+} from '@/components/admin/AdminPrimitives';
 
+import { adminSectionForPath, permittedAdminSections } from '@/lib/domain/admin-navigation';
+import { adminDateTime } from '@/lib/domain/admin-display';
 export const metadata = { title: 'Operational incident', robots: { index: false, follow: false } };
 export default async function Page({ params }) {
   const admin = await requireAdmin();
@@ -14,14 +21,17 @@ export default async function Page({ params }) {
   const { data, failure } = await settle(adminApi.incident(code));
   if (failure) return <PortalState kind={failure} />;
   const incident = data.incident;
+  const sections = permittedAdminSections(admin.capabilities);
   return (
     <AdminPage>
       <AdminPageHeader
-        eyebrow="Operations"
         title={code.replaceAll('_', ' ')}
         description="Live measurement and human incident response are separate records."
       />
-      <Link href="/admin/operations" className="mt-4 inline-block text-brand-700 underline">
+      <Link
+        href="/admin/operations"
+        className="mt-4 inline-flex min-h-11 items-center text-brand-700 underline"
+      >
         Back to operations
       </Link>
       <section className="mt-5 rounded-lg border border-border bg-card p-5">
@@ -34,22 +44,21 @@ export default async function Page({ params }) {
           </StatusBadge>
         </div>
         <p className="mt-3 text-meta">
-          Sampled {new Date(data.sampledAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}.
-          Acknowledgement, assignment and snooze do not change the measured signal.
+          Sampled {adminDateTime(data.sampledAt)}. Acknowledgement, assignment and snooze do not
+          change the measured signal.
         </p>
         {incident ? (
           <p className="mt-2 text-meta">
             Assignee: {incident.assignee_name ?? 'Unassigned'} · version {incident.version}
             {incident.snoozed_until
-              ? ` · snoozed until ${new Date(incident.snoozed_until).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}`
+              ? ` · snoozed until ${adminDateTime(incident.snoozed_until)}`
               : ''}
           </p>
         ) : null}
         {data.health ? (
           <p className="mt-2 text-meta">
             Heartbeat: {data.health.stale ? 'stale' : data.health.healthy ? 'healthy' : 'failed'} ·
-            last checked{' '}
-            {new Date(data.health.checked_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
+            last checked {adminDateTime(data.health.checked_at)}
           </p>
         ) : code.endsWith('_worker_unhealthy') ? (
           <p className="mt-2 text-meta">Heartbeat missing: service health is unknown.</p>
@@ -65,9 +74,7 @@ export default async function Page({ params }) {
             initialRequestKey={randomUUID()}
           />
         ) : (
-          <p className="rounded-lg border border-border bg-card p-5">
-            Read-only operations access. Incident actions require operations write permission.
-          </p>
+          <AdminReadOnly>Incident actions require operations write access.</AdminReadOnly>
         )}
         <section className="rounded-lg border border-border bg-card p-5">
           <h2 className="font-bold">Related records</h2>
@@ -75,9 +82,16 @@ export default async function Page({ params }) {
             <ul className="mt-3 space-y-2">
               {data.records.map((row) => (
                 <li key={row.id}>
-                  <Link href={row.href} className="break-all text-brand-700 underline">
-                    {row.label}
-                  </Link>{' '}
+                  {adminSectionForPath(row.href, sections) ? (
+                    <Link
+                      href={row.href}
+                      className="inline-flex min-h-11 items-center break-all text-brand-700 underline"
+                    >
+                      {row.label}
+                    </Link>
+                  ) : (
+                    <span className="break-all">{row.label}</span>
+                  )}{' '}
                   · {row.state}
                 </li>
               ))}
@@ -98,23 +112,18 @@ export default async function Page({ params }) {
           <ol className="mt-3 space-y-3">
             {data.events.map((event) => (
               <li key={event.id} className="border-t border-border pt-3">
-                <strong>{event.action}</strong> by {event.actor_name} ·{' '}
-                {new Date(event.at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
+                <strong>{event.action}</strong> by {event.actor_name} · {adminDateTime(event.at)}
                 <p className="mt-1 whitespace-pre-wrap text-meta">{event.note}</p>
                 {event.details?.assigneeId ? (
                   <p className="text-tiny">Assigned operator ID: {event.details.assigneeId}</p>
                 ) : null}
                 {event.details?.snoozedUntil ? (
                   <p className="text-tiny">
-                    Snoozed until{' '}
-                    {new Date(event.details.snoozedUntil).toLocaleString('en-IN', {
-                      timeZone: 'Asia/Kolkata',
-                    })}
+                    Snoozed until {adminDateTime(event.details.snoozedUntil)}
                   </p>
                 ) : null}
                 <p className="text-tiny">
-                  Measured {event.signal_count} at{' '}
-                  {new Date(event.sampled_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
+                  Measured {event.signal_count} at {adminDateTime(event.sampled_at)}
                 </p>
               </li>
             ))}

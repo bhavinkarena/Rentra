@@ -6,7 +6,8 @@ import { notFound } from 'next/navigation';
 export const metadata = { title: 'Content editor', robots: { index: false, follow: false } };
 export default async function Page({ params, searchParams }) {
   const { kind } = await params;
-  if (!['terms', 'privacy', 'cancellation', 'help', 'contact'].includes(kind)) notFound();
+  if (!['terms', 'privacy', 'cancellation', 'help', 'contact', 'owner_help'].includes(kind))
+    notFound();
   const { data, failure } = await settle(
     api.get(`/admin/content/${kind}?${new URLSearchParams(await searchParams)}`, {
       cache: 'no-store',

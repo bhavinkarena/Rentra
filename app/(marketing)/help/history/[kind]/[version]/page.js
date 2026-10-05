@@ -9,7 +9,7 @@ export const metadata = {
 };
 export default async function Page({ params }) {
   const { kind, version } = await params;
-  if (!['help', 'contact'].includes(kind)) notFound();
+  if (!['help', 'contact', 'owner_help'].includes(kind)) notFound();
   let p;
   try {
     p = await publicContent(kind, version);
@@ -34,7 +34,7 @@ export default async function Page({ params }) {
           </time>
         </p>
       </header>
-      {kind === 'help' && <p className="text-ink-700">{p.body.intro}</p>}
+      {['help', 'owner_help'].includes(kind) && <p className="text-ink-700">{p.body.intro}</p>}
       <ContentBody kind={kind} body={p.body} />
     </article>
   );

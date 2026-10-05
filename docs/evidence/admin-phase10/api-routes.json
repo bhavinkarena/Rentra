@@ -1,0 +1,582 @@
+[
+  {
+    "method": "GET",
+    "path": "/dashboard",
+    "capability": null
+  },
+  {
+    "method": "GET",
+    "path": "/content",
+    "capability": "admin.content.read"
+  },
+  {
+    "method": "GET",
+    "path": "/security",
+    "capability": "admin.security.read"
+  },
+  {
+    "method": "POST",
+    "path": "/security",
+    "capability": "admin.security.write"
+  },
+  {
+    "method": "GET",
+    "path": "/security/:id",
+    "capability": "admin.security.read"
+  },
+  {
+    "method": "POST",
+    "path": "/security/:id",
+    "capability": "admin.security.write"
+  },
+  {
+    "method": "GET",
+    "path": "/content/:kind",
+    "capability": "admin.content.read"
+  },
+  {
+    "method": "POST",
+    "path": "/content/:kind",
+    "capability": "admin.content.write"
+  },
+  {
+    "method": "GET",
+    "path": "/catalogues/:type",
+    "capability": "admin.catalogues.read"
+  },
+  {
+    "method": "GET",
+    "path": "/catalogues/:type/:id",
+    "capability": "admin.catalogues.read"
+  },
+  {
+    "method": "POST",
+    "path": "/catalogues/:type/:id",
+    "capability": "admin.catalogues.write"
+  },
+  {
+    "method": "GET",
+    "path": "/applications",
+    "capability": "admin.applications.read"
+  },
+  {
+    "method": "GET",
+    "path": "/applications/history",
+    "capability": "admin.applications.read"
+  },
+  {
+    "method": "GET",
+    "path": "/properties",
+    "capability": "admin.properties.read"
+  },
+  {
+    "method": "GET",
+    "path": "/properties/:id",
+    "capability": "admin.properties.read"
+  },
+  {
+    "method": "POST",
+    "path": "/properties/:id/assign",
+    "capability": "admin.properties.write"
+  },
+  {
+    "method": "POST",
+    "path": "/properties/:id/decision",
+    "capability": "admin.properties.write"
+  },
+  {
+    "method": "POST",
+    "path": "/properties/:id/verifications",
+    "capability": "admin.properties.write"
+  },
+  {
+    "method": "POST",
+    "path": "/properties/:id/verifications/:visitId/reschedule",
+    "capability": "admin.properties.write"
+  },
+  {
+    "method": "POST",
+    "path": "/properties/:id/verifications/:visitId/cancel",
+    "capability": "admin.properties.write"
+  },
+  {
+    "method": "POST",
+    "path": "/properties/:id/verifications/:visitId/outcome",
+    "capability": "admin.properties.write"
+  },
+  {
+    "method": "POST",
+    "path": "/properties/:id/publish",
+    "capability": "admin.properties.write"
+  },
+  {
+    "method": "POST",
+    "path": "/properties/:id/hide",
+    "capability": "admin.properties.write"
+  },
+  {
+    "method": "POST",
+    "path": "/properties/:id/restore",
+    "capability": "admin.properties.write"
+  },
+  {
+    "method": "POST",
+    "path": "/properties/:id/correction",
+    "capability": "admin.properties.write"
+  },
+  {
+    "method": "GET",
+    "path": "/applications/stats",
+    "capability": "admin.applications.read"
+  },
+  {
+    "method": "GET",
+    "path": "/applications/decisions",
+    "capability": "admin.applications.read"
+  },
+  {
+    "method": "GET",
+    "path": "/applications/:id",
+    "capability": "admin.applications.read"
+  },
+  {
+    "method": "POST",
+    "path": "/applications/:id/assign",
+    "capability": "admin.applications.write"
+  },
+  {
+    "method": "POST",
+    "path": "/applications/approve",
+    "capability": "admin.applications.write"
+  },
+  {
+    "method": "POST",
+    "path": "/applications/more-info",
+    "capability": "admin.applications.write"
+  },
+  {
+    "method": "POST",
+    "path": "/applications/reject",
+    "capability": "admin.applications.write"
+  },
+  {
+    "method": "GET",
+    "path": "/clients",
+    "capability": "admin.clients.read"
+  },
+  {
+    "method": "GET",
+    "path": "/clients/:id",
+    "capability": "admin.clients.read"
+  },
+  {
+    "method": "POST",
+    "path": "/clients/:id/payout-destinations/fail",
+    "capability": "admin.clients.write"
+  },
+  {
+    "method": "GET",
+    "path": "/clients/:id/lifecycle-preview",
+    "capability": "admin.clients.read"
+  },
+  {
+    "method": "POST",
+    "path": "/clients/:id/suspend",
+    "capability": "admin.clients.write"
+  },
+  {
+    "method": "POST",
+    "path": "/clients/:id/reinstate",
+    "capability": "admin.clients.write"
+  },
+  {
+    "method": "GET",
+    "path": "/customers",
+    "capability": "admin.customers.read"
+  },
+  {
+    "method": "GET",
+    "path": "/customers/:id",
+    "capability": "admin.customers.read"
+  },
+  {
+    "method": "POST",
+    "path": "/customers/:id/restrict",
+    "capability": "admin.customers.write"
+  },
+  {
+    "method": "POST",
+    "path": "/customers/:id/reinstate",
+    "capability": "admin.customers.write"
+  },
+  {
+    "method": "POST",
+    "path": "/customers/:id/sessions/revoke",
+    "capability": "admin.customers.write"
+  },
+  {
+    "method": "POST",
+    "path": "/customers/:id/profile",
+    "capability": "admin.customers.write"
+  },
+  {
+    "method": "GET",
+    "path": "/users/:userId/documents",
+    "capability": "admin.documents.read"
+  },
+  {
+    "method": "GET",
+    "path": "/documents/:id/file",
+    "capability": "admin.documents.read"
+  },
+  {
+    "method": "POST",
+    "path": "/documents/review",
+    "capability": "admin.documents.write"
+  },
+  {
+    "method": "GET",
+    "path": "/payments/configuration",
+    "capability": "admin.payments.read"
+  },
+  {
+    "method": "POST",
+    "path": "/payments/configuration",
+    "capability": "admin.payments.write"
+  },
+  {
+    "method": "GET",
+    "path": "/payments/orders",
+    "capability": "admin.payments.read"
+  },
+  {
+    "method": "GET",
+    "path": "/payments/orders/:id",
+    "capability": "admin.payments.read"
+  },
+  {
+    "method": "POST",
+    "path": "/payments/orders/reconcile",
+    "capability": "admin.payments.write"
+  },
+  {
+    "method": "GET",
+    "path": "/payments/refunds",
+    "capability": "admin.payments.read"
+  },
+  {
+    "method": "POST",
+    "path": "/payments/refunds/preview",
+    "capability": "admin.payments.write"
+  },
+  {
+    "method": "POST",
+    "path": "/payments/refunds/request",
+    "capability": "admin.payments.write"
+  },
+  {
+    "method": "POST",
+    "path": "/payments/refunds/reconcile",
+    "capability": "admin.payments.write"
+  },
+  {
+    "method": "GET",
+    "path": "/payments/refunds/order/:id",
+    "capability": "admin.payments.read"
+  },
+  {
+    "method": "GET",
+    "path": "/payments/refunds/:id",
+    "capability": "admin.payments.read"
+  },
+  {
+    "method": "GET",
+    "path": "/records",
+    "capability": "admin.records.read"
+  },
+  {
+    "method": "GET",
+    "path": "/records/cases",
+    "capability": "admin.records.read"
+  },
+  {
+    "method": "GET",
+    "path": "/records/cases/:caseId",
+    "capability": "admin.records.read"
+  },
+  {
+    "method": "POST",
+    "path": "/records/cases",
+    "capability": "admin.records.write"
+  },
+  {
+    "method": "POST",
+    "path": "/records/cases/assign",
+    "capability": "admin.records.write"
+  },
+  {
+    "method": "POST",
+    "path": "/records/cases/update",
+    "capability": "admin.records.write"
+  },
+  {
+    "method": "POST",
+    "path": "/records/cases/preview",
+    "capability": "admin.records.write"
+  },
+  {
+    "method": "POST",
+    "path": "/records/cases/resolve",
+    "capability": "admin.records.write"
+  },
+  {
+    "method": "GET",
+    "path": "/records/:id",
+    "capability": "admin.records.read"
+  },
+  {
+    "method": "GET",
+    "path": "/records/:id/summary",
+    "capability": "admin.records.read"
+  },
+  {
+    "method": "GET",
+    "path": "/records/:id/attachments/:attachmentId",
+    "capability": "admin.records.read"
+  },
+  {
+    "method": "POST",
+    "path": "/records/visit",
+    "capability": "admin.records.write"
+  },
+  {
+    "method": "POST",
+    "path": "/records/incident",
+    "capability": "admin.records.write"
+  },
+  {
+    "method": "POST",
+    "path": "/records/incident/close",
+    "capability": "admin.records.write"
+  },
+  {
+    "method": "POST",
+    "path": "/records/evidence/correct",
+    "capability": "admin.records.write"
+  },
+  {
+    "method": "GET",
+    "path": "/reviews/:reviewId",
+    "capability": "admin.reviews.read"
+  },
+  {
+    "method": "GET",
+    "path": "/reviews",
+    "capability": "admin.reviews.read"
+  },
+  {
+    "method": "POST",
+    "path": "/reviews/moderate",
+    "capability": "admin.reviews.write"
+  },
+  {
+    "method": "POST",
+    "path": "/reviews/reports/resolve",
+    "capability": "admin.reviews.write"
+  },
+  {
+    "method": "GET",
+    "path": "/support",
+    "capability": "admin.support.read"
+  },
+  {
+    "method": "GET",
+    "path": "/support/:id",
+    "capability": "admin.support.read"
+  },
+  {
+    "method": "GET",
+    "path": "/support/:id/thread",
+    "capability": "admin.support.read"
+  },
+  {
+    "method": "POST",
+    "path": "/support/:id/reply",
+    "capability": "admin.support.write"
+  },
+  {
+    "method": "GET",
+    "path": "/notifications",
+    "capability": "admin.notifications.read"
+  },
+  {
+    "method": "GET",
+    "path": "/notifications/:id",
+    "capability": "admin.notifications.read"
+  },
+  {
+    "method": "POST",
+    "path": "/notifications/manage",
+    "capability": "admin.notifications.write"
+  },
+  {
+    "method": "GET",
+    "path": "/privacy",
+    "capability": "admin.privacy.read"
+  },
+  {
+    "method": "POST",
+    "path": "/privacy/review",
+    "capability": "admin.privacy.write"
+  },
+  {
+    "method": "GET",
+    "path": "/privacy/requests",
+    "capability": "admin.privacy.read"
+  },
+  {
+    "method": "GET",
+    "path": "/privacy/requests/:id",
+    "capability": "admin.privacy.read"
+  },
+  {
+    "method": "POST",
+    "path": "/privacy/requests/:id",
+    "capability": "admin.privacy.write"
+  },
+  {
+    "method": "GET",
+    "path": "/privacy/requests/:id/export",
+    "capability": "admin.privacy.read"
+  },
+  {
+    "method": "GET",
+    "path": "/privacy/requests/:id/receipt",
+    "capability": "admin.privacy.read"
+  },
+  {
+    "method": "GET",
+    "path": "/audit/events",
+    "capability": "admin.audit.read"
+  },
+  {
+    "method": "GET",
+    "path": "/audit/events/:id",
+    "capability": "admin.audit.read"
+  },
+  {
+    "method": "GET",
+    "path": "/audit/exports",
+    "capability": "admin.audit.read"
+  },
+  {
+    "method": "POST",
+    "path": "/audit/exports",
+    "capability": "admin.audit.write"
+  },
+  {
+    "method": "GET",
+    "path": "/audit/exports/:id",
+    "capability": "admin.audit.read"
+  },
+  {
+    "method": "POST",
+    "path": "/audit/exports/:id/retry",
+    "capability": "admin.audit.write"
+  },
+  {
+    "method": "GET",
+    "path": "/audit/exports/:id/download",
+    "capability": "admin.audit.read"
+  },
+  {
+    "method": "GET",
+    "path": "/audit/exports/:id/receipt",
+    "capability": "admin.audit.read"
+  },
+  {
+    "method": "GET",
+    "path": "/operations",
+    "capability": "admin.operations.read"
+  },
+  {
+    "method": "GET",
+    "path": "/operations/incidents/:code",
+    "capability": "admin.operations.read"
+  },
+  {
+    "method": "POST",
+    "path": "/operations/incidents/:code",
+    "capability": "admin.operations.write"
+  },
+  {
+    "method": "GET",
+    "path": "/support/:id/attachments/:attachmentId",
+    "capability": "admin.support.read"
+  },
+  {
+    "method": "POST",
+    "path": "/support/:id/manage",
+    "capability": "admin.support.write"
+  },
+  {
+    "method": "GET",
+    "path": "/payments/finance/statement.csv",
+    "capability": "admin.payments.read"
+  },
+  {
+    "method": "GET",
+    "path": "/payments/finance/allocations/:id",
+    "capability": "admin.payments.read"
+  },
+  {
+    "method": "GET",
+    "path": "/payments/finance/payouts/:id",
+    "capability": "admin.payments.read"
+  },
+  {
+    "method": "GET",
+    "path": "/payments/finance/payouts",
+    "capability": "admin.payments.read"
+  },
+  {
+    "method": "GET",
+    "path": "/payments/finance",
+    "capability": "admin.payments.read"
+  },
+  {
+    "method": "GET",
+    "path": "/payments/disputes/context/:orderId",
+    "capability": "admin.payments.read"
+  },
+  {
+    "method": "GET",
+    "path": "/payments/disputes/:id/attachments/:fileId",
+    "capability": "admin.payments.read"
+  },
+  {
+    "method": "GET",
+    "path": "/payments/disputes/:id",
+    "capability": "admin.payments.read"
+  },
+  {
+    "method": "GET",
+    "path": "/payments/disputes",
+    "capability": "admin.payments.read"
+  },
+  {
+    "method": "POST",
+    "path": "/payments/disputes",
+    "capability": "admin.payments.write"
+  },
+  {
+    "method": "POST",
+    "path": "/payments/disputes/:id/reply",
+    "capability": "admin.payments.write"
+  },
+  {
+    "method": "POST",
+    "path": "/payments/disputes/:id/manage",
+    "capability": "admin.payments.write"
+  }
+]

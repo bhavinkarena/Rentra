@@ -1,3 +1,4 @@
+import { requireAdmin } from '@/lib/api/session';
 import { api } from '@/lib/api/client';
 import { settle } from '@/lib/api/page-state';
 import PortalState from '@/components/portal/PortalState';
@@ -5,6 +6,7 @@ import { CatalogueDetail } from '@/components/catalogues/Catalogues';
 import { notFound } from 'next/navigation';
 export const metadata = { title: 'Catalogue record', robots: { index: false, follow: false } };
 export default async function Page({ params }) {
+  const actor = await requireAdmin();
   const { type, id } = await params;
   if (
     !['cities', 'areas', 'categories', 'amenities'].includes(type) ||
@@ -15,5 +17,11 @@ export default async function Page({ params }) {
     api.get(`/admin/catalogues/${type}/${id}`, { cache: 'no-store' }),
   );
   if (failure) return <PortalState kind={failure} />;
-  return <CatalogueDetail key={id} data={data} />;
+  return (
+    <CatalogueDetail
+      key={id}
+      data={data}
+      canReadProperties={actor.capabilities?.includes('admin.properties.read')}
+    />
+  );
 }

@@ -1,9 +1,14 @@
 import Link from '@/components/navigation/NavigationLink';
 import { Activity, AlertTriangle, CheckCircle2, Gauge, HeartPulse } from 'lucide-react';
+import { settle } from '@/lib/api/page-state';
+import PortalState from '@/components/portal/PortalState';
+import { adminDateTime } from '@/lib/domain/admin-display';
+import { displayMoney as money } from '@/lib/domain/display-money';
 import { requireAdmin } from '@/lib/api/session';
 import { adminApi } from '@/lib/api/endpoints';
 import {
   AdminEmpty,
+  AdminTable,
   AdminKpiCard,
   AdminPage,
   AdminPageHeader,
@@ -14,15 +19,10 @@ export const metadata = {
   title: 'Operations and measurement',
   robots: { index: false, follow: false, nocache: true },
 };
-const money = (minor) =>
-  new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 2,
-  }).format(Number(minor || 0) / 100);
 export default async function OperationsPage() {
   const admin = await requireAdmin();
-  const data = await adminApi.operations();
+  const { data, failure } = await settle(adminApi.operations());
+  if (failure) return <PortalState kind={failure} />;
   const health = ['payments', 'notifications'].map(
     (service) => data.health.find((row) => row.service === service) ?? { service, missing: true },
   );
@@ -30,11 +30,10 @@ export default async function OperationsPage() {
   return (
     <AdminPage>
       <AdminPageHeader
-        eyebrow="Platform health"
-        title="Operations overview"
-        description={`Last sampled ${new Date(data.sampledAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}. Health is based on persisted worker heartbeats and operational queues.`}
+        title="Service health"
+        description={`Last sampled ${adminDateTime(data.sampledAt)}. Health is based on persisted worker heartbeats and operational queues.`}
         action={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {[
               ['bookings', 'Bookings', 'admin.records.read'],
               ['notifications', 'Delivery', 'admin.notifications.read'],
@@ -46,7 +45,7 @@ export default async function OperationsPage() {
                 <Link
                   key={path}
                   href={`/admin/${path}`}
-                  className="rounded-md border border-border bg-card px-3 py-2 text-tiny font-semibold text-ink-700 hover:bg-ink-50"
+                  className="inline-flex min-h-11 items-center rounded-md border border-border bg-card px-3 py-2 text-tiny font-semibold text-ink-700 hover:bg-ink-50"
                 >
                   {label}
                 </Link>
@@ -54,6 +53,78 @@ export default async function OperationsPage() {
           </div>
         }
       />
+      <div className="mt-6 grid items-start gap-5 xl:grid-cols-2">
+        <section className="overflow-hidden rounded-lg border border-border bg-card shadow-xs">
+          <div className="border-b border-border p-5">
+            <h2 className="text-h4 font-bold">Needs attention</h2>
+            <p className="mt-1 text-tiny text-ink-500">
+              Missing heartbeats are treated as unknown health
+            </p>
+          </div>
+          <AdminTable
+            framed={false}
+            label="Operational alerts"
+            minWidth={420}
+            columns={['Signal', 'Measured count', 'Incident']}
+            empty={
+              !data.alerts.length && (
+                <AdminEmpty
+                  icon={CheckCircle2}
+                  title="All thresholds are clear"
+                  description="No configured operational alert is active."
+                />
+              )
+            }
+          >
+            {data.alerts.map((alert) => (
+              <tr key={alert.code}>
+                <td className="px-4 py-4">{alert.code.replaceAll('_', ' ')}</td>
+                <td className="px-4 py-4">
+                  <StatusBadge tone="danger">{alert.count}</StatusBadge>
+                </td>
+                <td className="px-4 py-4">
+                  <Link
+                    className="inline-flex min-h-11 items-center underline"
+                    href={`/admin/operations/incidents/${alert.code}`}
+                  >
+                    Investigate<span className="sr-only"> {alert.code.replaceAll('_', ' ')}</span>
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </AdminTable>
+        </section>
+        <section className="overflow-hidden rounded-lg border border-border bg-card shadow-xs">
+          <div className="border-b border-border p-5">
+            <h2 className="text-h4 font-bold">Worker health</h2>
+            <p className="mt-1 text-tiny text-ink-500">Workers become stale after two minutes</p>
+          </div>
+          <div className="divide-y divide-border">
+            {health.map((row) => (
+              <div key={row.service} className="flex items-center justify-between gap-4 px-5 py-4">
+                <div>
+                  <p className="font-semibold capitalize text-ink-900">{row.service}</p>
+                  <p className="mt-1 text-tiny text-ink-500">
+                    Last success{' '}
+                    {row.last_success_at ? adminDateTime(row.last_success_at) : 'never recorded'}
+                  </p>
+                </div>
+                <StatusBadge
+                  tone={row.missing ? 'warning' : row.healthy && !row.stale ? 'success' : 'danger'}
+                >
+                  {row.missing
+                    ? 'Unknown · no heartbeat'
+                    : row.stale
+                      ? 'Stale heartbeat'
+                      : row.healthy
+                        ? 'Healthy'
+                        : 'Failed heartbeat'}
+                </StatusBadge>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
       <section className="mt-7 grid grid-cols-2 gap-3 xl:grid-cols-4">
         <AdminKpiCard
           label="Active alerts"
@@ -84,71 +155,6 @@ export default async function OperationsPage() {
           tone={data.signals.support_backlog ? 'warning' : 'neutral'}
         />
       </section>
-      <div className="mt-6 grid items-start gap-5 xl:grid-cols-2">
-        <section className="overflow-hidden rounded-lg border border-border bg-card shadow-xs">
-          <div className="border-b border-border p-5">
-            <h2 className="text-h4 font-bold">Needs attention</h2>
-            <p className="mt-1 text-tiny text-ink-500">
-              Missing heartbeats are treated as unknown health
-            </p>
-          </div>
-          {data.alerts.length ? (
-            <ul className="divide-y divide-border">
-              {data.alerts.map((alert) => (
-                <li key={alert.code} className="flex items-center justify-between gap-3 px-5 py-3">
-                  <Link
-                    href={`/admin/operations/incidents/${alert.code}`}
-                    className="text-meta font-semibold capitalize text-brand-700 hover:underline"
-                  >
-                    {alert.code.replaceAll('_', ' ')} · investigate
-                  </Link>
-                  <StatusBadge tone="danger">{alert.count}</StatusBadge>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <AdminEmpty
-              icon={CheckCircle2}
-              title="All thresholds are clear"
-              description="No configured operational alert is currently active."
-            />
-          )}
-        </section>
-        <section className="overflow-hidden rounded-lg border border-border bg-card shadow-xs">
-          <div className="border-b border-border p-5">
-            <h2 className="text-h4 font-bold">Worker health</h2>
-            <p className="mt-1 text-tiny text-ink-500">Workers become stale after two minutes</p>
-          </div>
-          <div className="divide-y divide-border">
-            {health.map((row) => (
-              <div key={row.service} className="flex items-center justify-between gap-4 px-5 py-4">
-                <div>
-                  <p className="font-semibold capitalize text-ink-900">{row.service}</p>
-                  <p className="mt-1 text-tiny text-ink-500">
-                    Last success{' '}
-                    {row.last_success_at
-                      ? new Date(row.last_success_at).toLocaleString('en-IN', {
-                          timeZone: 'Asia/Kolkata',
-                        })
-                      : 'never recorded'}
-                  </p>
-                </div>
-                <StatusBadge
-                  tone={row.missing ? 'warning' : row.healthy && !row.stale ? 'success' : 'danger'}
-                >
-                  {row.missing
-                    ? 'Unknown · no heartbeat'
-                    : row.stale
-                      ? 'Stale heartbeat'
-                      : row.healthy
-                        ? 'Healthy'
-                        : 'Failed heartbeat'}
-                </StatusBadge>
-              </div>
-            ))}
-          </div>
-        </section>
-      </div>
       <section className="mt-5 overflow-hidden rounded-lg border border-border bg-card shadow-xs">
         <div className="border-b border-border p-5">
           <h2 className="text-h4 font-bold">Journey records · last 30 days</h2>
@@ -171,51 +177,44 @@ export default async function OperationsPage() {
         <div className="border-b border-border p-5">
           <h2 className="text-h4 font-bold">Payment namespaces</h2>
           <p className="mt-1 text-tiny text-ink-500">
-            All-time intent and verified movement; test captures move no bank money
+            All-time payment intent and verified provider outcomes; bank settlement is not verified
+            here
           </p>
         </div>
         {data.money.length ? (
-          <div
-            className="relative overflow-x-auto"
-            tabIndex={0}
-            role="region"
-            aria-label="Payment namespaces table"
+          <AdminTable
+            framed={false}
+            label="Payment namespaces table"
+            minWidth={760}
+            columns={[
+              'Provider',
+              'Environment',
+              'Mode',
+              'Intent',
+              'Captured evidence',
+              'Refund evidence',
+            ]}
           >
-            <table className="w-full min-w-[760px] text-left">
-              <thead className="bg-ink-25 text-tiny font-bold uppercase text-ink-500">
-                <tr>
-                  {['Provider', 'Environment', 'Mode', 'Intent', 'Captured', 'Refunded'].map(
-                    (item) => (
-                      <th key={item} className="px-5 py-3">
-                        {item}
-                      </th>
-                    ),
-                  )}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {data.money.map((row) => (
-                  <tr key={`${row.provider}/${row.environment}/${row.mode}`}>
-                    {[
-                      row.provider,
-                      row.environment,
-                      row.mode,
-                      money(row.intended_minor),
-                      money(row.captured_minor),
-                      money(row.refunded_minor),
-                    ].map((value, index) => (
-                      <td
-                        key={index}
-                        className={`px-5 py-4 text-meta ${index < 3 ? 'capitalize' : 'font-semibold tabular'}`}
-                      >
-                        {value}
-                      </td>
-                    ))}
-                  </tr>
+            {data.money.map((row) => (
+              <tr key={`${row.provider}/${row.environment}/${row.mode}`}>
+                {[
+                  row.provider,
+                  row.environment,
+                  row.mode,
+                  money(row.intended_minor),
+                  money(row.captured_minor),
+                  money(row.refunded_minor),
+                ].map((value, index) => (
+                  <td
+                    key={index}
+                    className={`px-5 py-4 text-meta ${index < 3 ? 'capitalize' : 'font-semibold tabular'}`}
+                  >
+                    {value}
+                  </td>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </tr>
+            ))}
+          </AdminTable>
         ) : (
           <AdminEmpty
             icon={Activity}
@@ -243,37 +242,24 @@ export default async function OperationsPage() {
           </StatusBadge>
         </div>
         {data.measurements.length ? (
-          <div
-            className="relative overflow-x-auto"
-            tabIndex={0}
-            role="region"
-            aria-label="Aggregate events table"
+          <AdminTable
+            framed={false}
+            label="Aggregate events table"
+            minWidth={720}
+            columns={['Event', 'Source', 'Device', 'Visits', 'Count']}
           >
-            <table className="w-full min-w-[720px] text-left">
-              <thead className="bg-ink-25 text-tiny font-bold uppercase text-ink-500">
-                <tr>
-                  {['Event', 'Source', 'Device', 'Visits', 'Count'].map((item) => (
-                    <th key={item} className="px-5 py-3">
-                      {item}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {data.measurements.map((row) => (
-                  <tr key={`${row.event}/${row.source}/${row.device}/${row.visits}`}>
-                    <td className="px-5 py-3 text-meta font-semibold capitalize">
-                      {row.event.replaceAll('_', ' ')}
-                    </td>
-                    <td className="px-5 py-3 text-tiny capitalize">{row.source}</td>
-                    <td className="px-5 py-3 text-tiny capitalize">{row.device}</td>
-                    <td className="px-5 py-3 text-tiny">{row.visits}</td>
-                    <td className="px-5 py-3 font-bold tabular">{row.count}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+            {data.measurements.map((row) => (
+              <tr key={`${row.event}/${row.source}/${row.device}/${row.visits}`}>
+                <td className="px-5 py-3 text-meta font-semibold capitalize">
+                  {row.event.replaceAll('_', ' ')}
+                </td>
+                <td className="px-5 py-3 text-tiny capitalize">{row.source}</td>
+                <td className="px-5 py-3 text-tiny capitalize">{row.device}</td>
+                <td className="px-5 py-3 text-tiny">{row.visits}</td>
+                <td className="px-5 py-3 font-bold tabular">{row.count}</td>
+              </tr>
+            ))}
+          </AdminTable>
         ) : (
           <AdminEmpty
             icon={Gauge}

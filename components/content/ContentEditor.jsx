@@ -6,16 +6,17 @@ import { useRouter } from 'next/navigation';
 import Link from '@/components/navigation/NavigationLink';
 import ContentBody from './ContentBody';
 import { contentCommand } from '@/lib/actions/content';
-import { AdminPage, AdminPageHeader, StatusBadge } from '@/components/admin/AdminPrimitives';
+import {
+  AdminPage,
+  AdminPageHeader,
+  AdminTable,
+  AdminReadOnly,
+  StatusBadge,
+} from '@/components/admin/AdminPrimitives';
 const input = `${sharedFieldClass} mt-1`;
 const button = `${sharedButtonVariants({ shape: 'default', size: 'default' })} `;
 const secondaryButton = sharedButtonVariants({ variant: 'outline' });
-const publicationDate = (value) =>
-  new Intl.DateTimeFormat('en-IN', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-    timeZone: 'Asia/Kolkata',
-  }).format(new Date(value));
+import { adminDateTime as publicationDate } from '@/lib/domain/admin-display';
 const title = {
   terms: 'Terms',
   privacy: 'Privacy',
@@ -31,27 +32,32 @@ export function ContentList({ data }) {
         title="Public content"
         description="Prepare, review and publish help and policy copy. Published versions remain available; operational booking rules are managed separately."
       />
-      <ul className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {data.items.map((item) => (
-          <li key={item.kind} className="rounded-lg border border-border bg-card p-5">
-            <Link
-              href={`/admin/content/${item.kind}`}
-              className="inline-flex min-h-11 items-center text-h3 text-primary underline-offset-4 hover:underline"
-            >
-              {title[item.kind]}
-            </Link>
-            <p className="mt-2 text-meta text-muted-foreground break-all">
-              Published version: {item.currentVersion}
-            </p>
-            <p className="mt-3 flex flex-wrap items-center gap-2 text-meta">
-              Working copy{' '}
-              <StatusBadge tone={item.draft?.state === 'reviewed' ? 'success' : 'neutral'}>
-                {item.draft?.state?.replaceAll('_', ' ') || 'Not started'}
-              </StatusBadge>
-            </p>
-          </li>
-        ))}
-      </ul>
+      <div className="mt-6">
+        <AdminTable
+          label="Public content"
+          columns={['Document', 'Published version', 'Working copy', 'Inspect']}
+        >
+          {data.items.map((item) => (
+            <tr key={item.kind}>
+              <td className="px-4 py-4 font-semibold">{title[item.kind]}</td>
+              <td className="max-w-xs break-all px-4 py-4">{item.currentVersion}</td>
+              <td className="px-4 py-4">
+                <StatusBadge tone={item.draft?.state === 'reviewed' ? 'success' : 'neutral'}>
+                  {item.draft?.state?.replaceAll('_', ' ') || 'Not started'}
+                </StatusBadge>
+              </td>
+              <td className="px-4 py-4">
+                <Link
+                  className="inline-flex min-h-11 items-center underline"
+                  href={`/admin/content/${item.kind}`}
+                >
+                  View<span className="sr-only"> {title[item.kind]}</span>
+                </Link>
+              </td>
+            </tr>
+          ))}
+        </AdminTable>
+      </div>
     </AdminPage>
   );
 }
@@ -130,7 +136,7 @@ export function ContentEditor({ data }) {
           backLabel="All public content"
         />
         <p className="text-meta text-muted-foreground break-words">
-          Current publication: {live.version} · Effective {publicationDate(live.effectiveAt)} IST
+          Current publication: {live.version} · Effective {publicationDate(live.effectiveAt)}
         </p>
         <p>
           Draft revision {draft.version} · {draft.state}
@@ -397,7 +403,7 @@ export function ContentEditor({ data }) {
           </>
         ) : (
           <div className="space-y-4">
-            <p>You have read-only content access.</p>
+            <AdminReadOnly />
             <h2 className="text-xl font-semibold">Saved working copy</h2>
             <h3 className="text-lg font-semibold">{draft.body.title}</h3>
             {['help', 'owner_help'].includes(kind) && <p>{draft.body.intro}</p>}
@@ -469,7 +475,7 @@ export function ContentEditor({ data }) {
           {data.history.map((h) => (
             <div key={h.version} className="space-y-2 rounded-md border border-ink-200 p-4">
               <p className="break-all">
-                Version {h.version} · {publicationDate(h.effective_at)} IST
+                Version {h.version} · {publicationDate(h.effective_at)}
               </p>
               <p>{h.reason}</p>
               <Link

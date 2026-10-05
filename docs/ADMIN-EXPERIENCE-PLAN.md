@@ -4,13 +4,13 @@
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Prepared           | 4 October 2026                                                                                                                                                                         |
 | Scope              | Admin dashboard, navigation, section tabs, tables, record details, review workflows, finance, support, configuration and release QA                                                    |
-| Status | Phases 1–9 complete; Phases 10–12 pending |
+| Status | Phases 1–10 complete; Phases 11–12 pending |
 | Method             | Repository review plus Phase 1 disposable-local role, viewport, permission and integration baseline; inspected saved owner and current admin screenshots                               |
 | Verification limit | Phase 1 adds authenticated disposable-local browser/API/database evidence below. Production workflows and providers were not exercised; historical owner test results remain separate. |
 
 ## Phase completion tracker
 
-**Progress:** 9 of 12 phases complete · 0 in progress · 3 pending. Phase 9 is implemented and locally verified; Phase 10 is next. Existing admin functionality does not count as completion of these redesign phases.
+**Progress:** 10 of 12 phases complete · 0 in progress · 2 pending. Phase 10 is implemented and locally verified; Phase 11 is next. Existing admin functionality does not count as completion of these redesign phases.
 
 | Phase | Work                                                            | Status      | Completed on | Notes / remaining work                                                                                       |
 | ----- | --------------------------------------------------------------- | ----------- | ------------ | ------------------------------------------------------------------------------------------------------------ |
@@ -23,7 +23,7 @@
 | 7 | People: owners and customers | ✅ Complete | 5 Oct 2026 | ADM-PEOPLE-01–04 delivered; [checks](evidence/admin-phase7/checks.json), [browser evidence](evidence/admin-phase7/browser-checks.json), [runbook](ADMIN-PEOPLE-WORKSPACE.md); optional sheets deferred |
 | 8 | Finance workspace | ✅ Complete | 5 Oct 2026 | ADM-FIN-01–06 delivered; [checks](evidence/admin-phase8/checks.json), [browser evidence](evidence/admin-phase8/browser-results.json), [runbook](ADMIN-FINANCE-WORKSPACE.md); locally verified, not deployed |
 | 9 | Guest reviews, support and message delivery | ✅ Complete | 5 Oct 2026 | ADM-COMMS-01–05 delivered; [checks](evidence/admin-phase9/checks.json), [browser evidence](evidence/admin-phase9/browser-results.json), [runbook](ADMIN-COMMUNICATION-WORKSPACE.md); locally verified, not deployed |
-| 10    | Operations, privacy, audit and configuration                    | ⏳ Pending  | —            | Organize operational tools, exports and configuration                                                        |
+| 10 | Operations, privacy, audit and configuration | ✅ Complete | 5 Oct 2026 | ADM-OPS-01–06 delivered; [checks](evidence/admin-phase10/checks.json), [browser evidence](evidence/admin-phase10/browser-results.json), [runbook](ADMIN-OPERATIONS-WORKSPACE.md); locally verified, not deployed |
 | 11    | Global search and cross-workspace links                         | ⏳ Pending  | —            | Improve authorized search and expand supported scopes                                                        |
 | 12    | Responsive, accessibility, performance and release verification | ⏳ Pending  | —            | Complete regression checks and record release evidence                                                       |
 
@@ -148,7 +148,7 @@ Skeletons match each screen's layout. Background refresh retains records and lab
 
 ## 5. Implementation phases
 
-Phases 1–5 are **Complete (locally verified)**; Phases 6–12 are **Not started**. Phase 1 establishes the baseline; Phases 2–4 create the shared foundation and dashboard; the remaining modules ship incrementally. Each phase includes its own verification before proceeding.
+Phases 1–10 are **Complete (locally verified)**; Phases 11–12 are **Not started**. Phase 1 establishes the baseline; Phases 2–4 create the shared foundation and dashboard; the remaining modules ship incrementally. Each phase includes its own verification before proceeding.
 
 ### Phase 1 — Admin inventory and behavior baseline
 
@@ -328,9 +328,9 @@ Additional [observations](evidence/admin-phase1/observations.json) record enable
 | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
 | ADM-F01 · High · Restricted-role home shows an outage message          | Browser-confirmed records-only/customer-reader `/admin` displays “This page could not load”; their permitted directories work and application API returns 403. Root calls application endpoints without a capability-aware home or settled forbidden state | Resolved locally in Phases 2 and 4; capability-scoped dashboard verified                   |
 | ADM-F02 · Medium · Read-only reviewers receive enabled write controls  | Browser-confirmed Assign to me / Approve / Need more info / Reject on application decision tab for an all-read operator; write API correctly returns 403. Application page does not pass a write grant to these panels                                     | Application assignment/decision controls resolved locally in Phase 3; application/document/property grants verified in Phase 5; other module grants remain later-phase checks |
-| ADM-F03 · High · Owner guide content cannot be edited through admin UI | Full admin GET `/admin/content/owner_help` API returns 200, frontend shows Record not found. Both frontend content page and `lib/actions/content.js` allowlists omit `owner_help`, while the backend and editor recognize it                               | Phase 10; fix route/action allowlist parity together                     |
+| ADM-F03 · High · Owner guide content cannot be edited through admin UI | Full admin GET `/admin/content/owner_help` API returns 200, frontend shows Record not found. Both frontend content page and `lib/actions/content.js` allowlists omit `owner_help`, while the backend and editor recognize it                               | Resolved Phase 10; route/action/archive allowlist parity and browser publication verified                     |
 | ADM-F04 · Medium · Operator detail hydration mismatch                  | Three browser page errors; `OperatorSecurity.jsx` uses implicit-locale `toLocaleString()` for session/history dates. Node rendered `10/4/2026, 11:08:38 PM`, Chrome rendered `04/10/2026, 23:08:38`                                                        | Resolved locally in Phase 3 with deterministic IST formatting and browser verification |
-| ADM-F05 · Medium · Content integration assertion is stale              | Existing integration expected four history entries at line 204, observed five. Code now includes a third built-in policy version, `2026-10-04`. No application/test fix is included in this audit                                                          | Phase 10/content validation, required before Phase 12 clean release gate |
+| ADM-F05 · Medium · Content integration assertion is stale              | Existing integration expected four history entries at line 204, observed five. Code now includes a third built-in policy version, `2026-10-04`. No application/test fix is included in this audit                                                          | Resolved Phase 10; assert preserved seeded versions plus two new publications, CP25 passes |
 | ADM-F06 · Medium · Guest-review summaries use bounded rows as totals   | Code-reviewed `AdminReviewQueue.jsx` counts Pending/Published from the current 30-row window and Open reports from up to 30 reports; only “On this page” explicitly states its scope                                                                       | Phase 9; relabel page scope or add authoritative aggregates              |
 | ADM-F07 · Low · Search affordance excludes application-only operators  | Code-reviewed shell shows search only for clients/customers read capabilities, despite the search page also supporting applications                                                                                                                        | Resolved locally in Phase 2; expanded search remains Phase 11                |
 
@@ -561,7 +561,7 @@ Run the complete redesigned journey with disposable fixtures: sign-in/2FA → da
 | A2 | 4 | Authorized dashboard, actionable queues and defined analytics | Complete; locally verified, not deployed |
 | A3 | 5–7 | Review, booking/case and people workspaces | Complete; locally verified, not deployed |
 | A4      | 8–9    | Finance, guest-review and support workflows                                       | Complete (locally verified)                         |
-| A5      | 10–11  | Operations/configuration and expanded search                                      | Not started                         |
+| A5      | 10–11  | Operations/configuration and expanded search                                      | In progress; Phase 10 complete locally |
 | A6      | 12     | Full regression evidence and release readiness decision                           | Not started                         |
 
 Phase 4 API definition can begin during Phase 1. Module phases can ship independently after the shared foundation; finance remains high priority even though it is listed later. Every release receives targeted accessibility, role and workflow checks. A6 adds the complete journey rather than postponing verification until the end.
@@ -683,6 +683,22 @@ Account lifecycle, customer profile correction/session revocation and payout-met
 
 **Next phase:** Phase 10 — operations, privacy, audit and configuration.
 
+### Phase 10 — Complete (locally verified, 5 October 2026)
+
+**Implemented IDs:** ADM-OPS-01–06. Service health places incident signals and worker evidence before summary metrics and diagnostics. Audit events, governed exports, privacy requests, public content, catalogues and operators use shared semantic tables with local keyboard scrolling. Details preserve commands, previews, histories, receipts and private files. Dates use deterministic IST; money retains precise minor-unit formatting. Gateway settings is explicitly distinct from Finance investigation.
+
+**Authorization and scope:** read-only operators inspect without mutation forms; independent read capabilities govern customer, property and incident record links. Privacy explicitly covers customer accounts and partial anonymization with retained historical evidence; authority, receipt delivery references, blocking conditions and worker progress remain visible. Exports preserve UTC scope, creator ownership, job progress, unavailable-copy messaging and private non-cacheable download/receipt guards. Content review/publication, catalogue impact checks and operator enrollment/recovery/session safeguards retain existing contracts. No new API, capability, migration, dependency or provider call.
+
+**Tracked findings resolved:** Owner guide (`owner_help`) now passes all frontend route/action/archive allowlists, with save/review/preview/publication and immutable history verified in the browser. CP25 now checks preservation of every seeded publication and both newly published versions instead of assuming a fixed number of built-in versions. The previously recorded history assertion passes.
+
+**Verification:** frontend **98 tests passed**; **seven focused backend tests passed, zero skipped**, covering audit exports, privacy retention, catalogue impact, incidents/delivery safeguards, operator 2FA/recovery/session revocation and content publication/checkout snapshots. Production browser gate **15 checks, 37 axe scans, zero violations and page errors**, at 1280/768/360 px. It checks seven queues, details, read-only UI and direct command denial, scoped private downloads/receipts/expiry, exact filters and queued exports, incident evidence, privacy review, Test gateway persistence, Owner guide publication and actual single-use authenticator enrollment. Production Webpack build, changed-source lint/format, backend lint, fixture/test formatting, Python syntax and diff whitespace pass; migration journal remains **64 entries**. Bounded visual review and Impeccable detector have no unresolved primary findings.
+
+**Remaining limits:** existing frontend global lint review-script errors/icon warnings, launch-roadmap formatting and backend `.prettierrc` formatting remain outside this phase. Build retains configured public sitemap policy API warnings. Full backend suite and production workers/providers were not rerun; complete release journeys remain Phase 12 work. Not deployed.
+
+**Evidence and reproduction:** [checks](evidence/admin-phase10/checks.json), [browser results](evidence/admin-phase10/browser-results.json), [desktop health](evidence/admin-phase10/operational-alerts-1280.png), [phone audit](evidence/admin-phase10/audit-events-360.png) and [Operations workspace runbook](ADMIN-OPERATIONS-WORKSPACE.md). Evidence contains no session tokens or enrollment secrets. Release A5 is in progress.
+
+**Next phase:** Phase 11 — global search and cross-workspace links.
+
 ## 7. Implementation defaults and boundaries
 
 - Use existing Rentra tokens/components; no new brand theme or chart dependency is required by this plan.
@@ -693,4 +709,4 @@ Account lifecycle, customer profile correction/session revocation and payout-met
 - Add no editable platform calendar, admin impersonation, automated bulk approvals, live chat or payout execution as part of this UI redesign.
 - UI-only phases should need no migration. Dashboard/search/index changes are scoped and verified separately when evidence requires them.
 
-Phases 1–9 are complete and locally verified. The next implementation step is Phase 10: operations, privacy, audit and configuration.
+Phases 1–10 are complete and locally verified. The next implementation step is Phase 11: global search and cross-workspace links.

@@ -5,8 +5,17 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from '@/components/navigation/NavigationLink';
 import Pagination from '@/components/ui/pagination';
+import {
+  AdminPage,
+  AdminPageHeader,
+  AdminTable,
+  AdminEmpty,
+  AdminReadOnly,
+  StatusBadge,
+} from './AdminPrimitives';
+import { adminDateTime as stamp } from '@/lib/domain/admin-display';
 import { createAuditExport, retryAuditExport } from '@/lib/actions/audit';
-const card = 'space-y-4 rounded-lg border border-ink-200 bg-white p-4 sm:p-6';
+const card = 'space-y-4 rounded-lg border border-border bg-card p-4 sm:p-6';
 const input = `${sharedFieldClass} mt-1`;
 const button = `${sharedButtonVariants({ shape: 'default', size: 'default' })} `;
 const label = (d) =>
@@ -15,17 +24,16 @@ const label = (d) =>
     payment_orders: 'Payment-order summary',
     operation_receipts: 'Calendar operation receipts',
   })[d] || d;
-const stamp = (v) => new Date(v).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 export function AuditDirectory({ data }) {
   const router = useRouter();
   return (
-    <div className="space-y-6">
-      <h1 className="text-h1">Audit history</h1>
+    <AdminPage className="space-y-6">
+      <AdminPageHeader title="Audit history" />
       <p>
         Search recorded actions. Contact details, free text and unrecognized payload fields are
         withheld.
       </p>
-      <Link className="underline" href="/admin/audit/exports">
+      <Link className="inline-flex min-h-11 items-center underline" href="/admin/audit/exports">
         My governed exports
       </Link>
       <form action="/admin/audit" className={card}>
@@ -86,30 +94,49 @@ export function AuditDirectory({ data }) {
       <button className={button} onClick={() => router.refresh()}>
         Refresh history
       </button>
-      {data.items.length ? (
-        <ul className="space-y-3">
-          {data.items.map((e) => (
-            <li key={e.id} className={card}>
-              <Link className="font-semibold underline" href={`/admin/audit/events/${e.id}`}>
-                {e.action}
-              </Link>
-              <p>
-                {stamp(e.at)} · {e.actor.type}
-              </p>
-              <p className="break-all text-sm">
-                Actor: {e.actor.id || 'System'}
-                <br />
-                Target: {e.target.type} · {e.target.id || 'No public identifier'}
-                <br />
-                Correlation: {e.correlation || 'Not recorded'}
-              </p>
+      <AdminTable
+        label="Audit events"
+        columns={['Action', 'Recorded (IST)', 'Actor', 'Target and correlation', 'Event']}
+        empty={
+          !data.items.length && (
+            <AdminEmpty
+              title="No matching events"
+              description="Choose another action, actor or UTC date range."
+            />
+          )
+        }
+      >
+        {data.items.map((e) => (
+          <tr key={e.id}>
+            <td className="max-w-xs break-words px-4 py-4">
+              {e.action}
               {e.reason && <p>{e.reason}</p>}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No events match these filters.</p>
-      )}
+            </td>
+            <td className="px-4 py-4">{stamp(e.at)}</td>
+            <td className="max-w-xs break-all px-4 py-4">
+              {e.actor.type}
+              <p>{e.actor.id || 'System'}</p>
+            </td>
+            <td className="max-w-xs break-all px-4 py-4">
+              {e.target.type}
+              <p>{e.target.id || 'Withheld or absent'}</p>
+              <p>Correlation: {e.correlation || 'Not recorded'}</p>
+            </td>
+            <td className="px-4 py-4">
+              <Link
+                className="inline-flex min-h-11 items-center underline"
+                href={`/admin/audit/events/${e.id}`}
+              >
+                View
+                <span className="sr-only">
+                  {' '}
+                  {e.action} at {stamp(e.at)}
+                </span>
+              </Link>
+            </td>
+          </tr>
+        ))}
+      </AdminTable>
       <Pagination
         page={data.page}
         pageSize={25}
@@ -119,8 +146,12 @@ export function AuditDirectory({ data }) {
         label="Audit pages"
         noun="events"
       />
-      {data.canExport && <ExportForm data={data} />}
-    </div>
+      {data.canExport ? (
+        <ExportForm data={data} />
+      ) : (
+        <AdminReadOnly>Audit write access is required to create governed exports.</AdminReadOnly>
+      )}
+    </AdminPage>
   );
 }
 function ExportForm({ data }) {
@@ -223,11 +254,11 @@ function ExportForm({ data }) {
 export function AuditDetail({ data }) {
   const e = data.event;
   return (
-    <div className="space-y-6">
-      <Link href="/admin/audit" className="underline">
+    <AdminPage className="space-y-6">
+      <Link href="/admin/audit" className="inline-flex min-h-11 items-center underline">
         Back to audit history
       </Link>
-      <h1 className="text-h1">Audit event</h1>
+      <AdminPageHeader title="Audit event" />
       <section className={card}>
         <h2 className="text-h2">{e.action}</h2>
         <p>{stamp(e.at)}</p>
@@ -276,37 +307,61 @@ export function AuditDetail({ data }) {
           </pre>
         </section>
       )}
-    </div>
+    </AdminPage>
   );
 }
 export function ExportDirectory({ data }) {
   return (
-    <div className="space-y-6">
-      <h1 className="text-h1">My governed exports</h1>
-      <Link className="underline" href="/admin/audit">
-        Search history and create an export
+    <AdminPage className="space-y-6">
+      <AdminPageHeader title="My governed exports" />
+      <Link className="inline-flex min-h-11 items-center underline" href="/admin/audit">
+        Search audit history
       </Link>
       <p>
         Latest 25 export requests for your account. Every download rechecks your current access.
       </p>
-      {data.items.length ? (
-        <ul className="space-y-3">
-          {data.items.map((j) => (
-            <li key={j.id} className={card}>
-              <Link className="underline font-semibold" href={`/admin/audit/exports/${j.id}`}>
-                {label(j.dataset)}
+      <AdminTable
+        label="Governed exports"
+        columns={['Dataset', 'Status', 'Requested (IST)', 'Failure', 'Export']}
+        empty={
+          !data.items.length && (
+            <AdminEmpty
+              title="No export requests"
+              description="Authorized operators can create an export from audit history."
+            />
+          )
+        }
+      >
+        {data.items.map((j) => (
+          <tr key={j.id}>
+            <td className="px-4 py-4">{label(j.dataset)}</td>
+            <td className="px-4 py-4">
+              <StatusBadge domain="export" state={j.state} />
+            </td>
+            <td className="px-4 py-4">{stamp(j.createdAt)}</td>
+            <td className="px-4 py-4">{j.errorCode || 'None recorded'}</td>
+            <td className="px-4 py-4">
+              <Link
+                className="inline-flex min-h-11 items-center underline"
+                href={`/admin/audit/exports/${j.id}`}
+              >
+                View
+                <span className="sr-only">
+                  {' '}
+                  {label(j.dataset)} requested {stamp(j.createdAt)}
+                </span>
               </Link>
-              <p>
-                {j.state} · {stamp(j.createdAt)}
-              </p>
-              {j.errorCode && <p>{j.errorCode}</p>}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No export requests.</p>
+            </td>
+          </tr>
+        ))}
+      </AdminTable>
+      {!data.canExport && (
+        <AdminReadOnly>
+          Export creation and retry require audit write access. Existing authorized copies remain
+          inspectable.
+        </AdminReadOnly>
       )}
-    </div>
+    </AdminPage>
   );
 }
 export function ExportDetail({ data }) {
@@ -328,11 +383,11 @@ export function ExportDetail({ data }) {
     });
   }
   return (
-    <div className="space-y-6">
-      <Link className="underline" href="/admin/audit/exports">
+    <AdminPage className="space-y-6">
+      <Link className="inline-flex min-h-11 items-center underline" href="/admin/audit/exports">
         Back to my exports
       </Link>
-      <h1 className="text-h1">{label(j.dataset)}</h1>
+      <AdminPageHeader title={label(j.dataset)} />
       <section className={card}>
         <p className="break-all">Request: {j.id}</p>
         <p>
@@ -385,18 +440,24 @@ export function ExportDetail({ data }) {
           </ul>
           {j.downloadAvailable ? (
             <p>
-              <a className="underline" href={`/admin/audit/exports/${j.id}/download`}>
+              <a
+                className="inline-flex min-h-11 items-center underline"
+                href={`/admin/audit/exports/${j.id}/download`}
+              >
                 Download scoped JSON
               </a>
             </p>
           ) : (
             <p>This copy expired or was revoked. Create a new request.</p>
           )}
-          <a className="underline" href={`/admin/audit/exports/${j.id}/receipt`}>
+          <a
+            className="inline-flex min-h-11 items-center underline"
+            href={`/admin/audit/exports/${j.id}/receipt`}
+          >
             Download export receipt
           </a>
         </section>
       )}
-    </div>
+    </AdminPage>
   );
 }

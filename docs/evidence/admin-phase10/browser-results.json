@@ -1,0 +1,171 @@
+{
+  "scope": "Disposable localhost; no providers, production credentials or deployment",
+  "checks": [
+    "Seven semantic queues and Gateway settings at 1280px",
+    "Seven semantic queues and Gateway settings at 768px",
+    "Seven semantic queues and Gateway settings at 360px",
+    "Read-only workflows hide commands and separately unauthorized record links",
+    "Seven direct mutation endpoints deny read-only access",
+    "Another operator cannot download the creator-owned export",
+    "Audit event/export, privacy retention/receipt, owner guide, catalogue impact and security details reachable",
+    "Four private scoped exports/receipts remain authorized, non-cacheable and downloadable",
+    "Expired export hides download and rejects the direct private URL",
+    "Exact event filtering and governed export creation retain the selected UTC scope",
+    "Incident open/acknowledge evidence survives and active measurements block resolution",
+    "Privacy review preserves identity/delivery references and explicit partial-retention scope",
+    "Test-only gateway setting and audited history refresh without a provider call",
+    "Owner guide can save/review/preview/publish and open its immutable public version",
+    "Operator creation, single-use enrollment and actual authenticator confirmation work"
+  ],
+  "accessibility": [
+    {
+      "screen": "Operational alerts-1280",
+      "violations": []
+    },
+    {
+      "screen": "Customer privacy requests-1280",
+      "violations": []
+    },
+    {
+      "screen": "Audit events-1280",
+      "violations": []
+    },
+    {
+      "screen": "Governed exports-1280",
+      "violations": []
+    },
+    {
+      "screen": "Public content-1280",
+      "violations": []
+    },
+    {
+      "screen": "Categories catalogue-1280",
+      "violations": []
+    },
+    {
+      "screen": "Operators-1280",
+      "violations": []
+    },
+    {
+      "screen": "gateway-1280",
+      "violations": []
+    },
+    {
+      "screen": "Operational alerts-768",
+      "violations": []
+    },
+    {
+      "screen": "Customer privacy requests-768",
+      "violations": []
+    },
+    {
+      "screen": "Audit events-768",
+      "violations": []
+    },
+    {
+      "screen": "Governed exports-768",
+      "violations": []
+    },
+    {
+      "screen": "Public content-768",
+      "violations": []
+    },
+    {
+      "screen": "Categories catalogue-768",
+      "violations": []
+    },
+    {
+      "screen": "Operators-768",
+      "violations": []
+    },
+    {
+      "screen": "gateway-768",
+      "violations": []
+    },
+    {
+      "screen": "Operational alerts-360",
+      "violations": []
+    },
+    {
+      "screen": "Customer privacy requests-360",
+      "violations": []
+    },
+    {
+      "screen": "Audit events-360",
+      "violations": []
+    },
+    {
+      "screen": "Governed exports-360",
+      "violations": []
+    },
+    {
+      "screen": "Public content-360",
+      "violations": []
+    },
+    {
+      "screen": "Categories catalogue-360",
+      "violations": []
+    },
+    {
+      "screen": "Operators-360",
+      "violations": []
+    },
+    {
+      "screen": "gateway-360",
+      "violations": []
+    },
+    {
+      "screen": "readonly-content",
+      "violations": []
+    },
+    {
+      "screen": "readonly-content",
+      "violations": []
+    },
+    {
+      "screen": "readonly-catalogues",
+      "violations": []
+    },
+    {
+      "screen": "readonly-security",
+      "violations": []
+    },
+    {
+      "screen": "readonly-privacy",
+      "violations": []
+    },
+    {
+      "screen": "readonly-payments",
+      "violations": []
+    },
+    {
+      "screen": "readonly-operations",
+      "violations": []
+    },
+    {
+      "screen": "detail-audit",
+      "violations": []
+    },
+    {
+      "screen": "detail-audit",
+      "violations": []
+    },
+    {
+      "screen": "detail-privacy",
+      "violations": []
+    },
+    {
+      "screen": "detail-content",
+      "violations": []
+    },
+    {
+      "screen": "detail-catalogues",
+      "violations": []
+    },
+    {
+      "screen": "detail-security",
+      "violations": []
+    }
+  ],
+  "pageErrors": []
+}

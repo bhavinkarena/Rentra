@@ -1,26 +1,31 @@
 import { CheckCircle2, CircleDollarSign, CreditCard, ShieldAlert } from 'lucide-react';
+import { settle } from '@/lib/api/page-state';
+import PortalState from '@/components/portal/PortalState';
+import { adminDateTime } from '@/lib/domain/admin-display';
 import { requireAdmin } from '@/lib/api/session';
 import { adminApi } from '@/lib/api/endpoints';
 import PaymentGatewaySettings from '@/components/admin/PaymentGatewaySettings';
 import {
   AdminKpiCard,
+  AdminReadOnly,
   AdminPage,
   AdminPageHeader,
   StatusBadge,
 } from '@/components/admin/AdminPrimitives';
 
 export const metadata = {
-  title: 'Payment settings',
+  title: 'Gateway settings',
   robots: { index: false, follow: false, nocache: true },
 };
 export default async function AdminPaymentsPage() {
   const admin = await requireAdmin();
-  const { configuration, providers, history } = await adminApi.paymentConfiguration();
+  const { data, failure } = await settle(adminApi.paymentConfiguration());
+  if (failure) return <PortalState kind={failure} />;
+  const { configuration, providers, history } = data;
   const ready = providers.filter((provider) => provider.ready).length;
   return (
     <AdminPage width="max-w-6xl">
       <AdminPageHeader
-        eyebrow="Payment operations"
         title="Gateway settings"
         description="Control new sandbox payment attempts and collection behavior. Existing payment intents keep the configuration version with which they were created."
       />
@@ -62,9 +67,7 @@ export default async function AdminPaymentsPage() {
           {admin.capabilities?.includes('admin.payments.write') ? (
             <PaymentGatewaySettings configuration={configuration} providers={providers} />
           ) : (
-            <p className="rounded-lg border border-border bg-card p-5 text-meta">
-              Read-only payment access. Settings changes require payments write permission.
-            </p>
+            <AdminReadOnly>Gateway settings changes require payments write access.</AdminReadOnly>
           )}
         </div>
         <aside className="rounded-lg border border-border bg-card p-5 shadow-xs">
@@ -108,7 +111,7 @@ export default async function AdminPaymentsPage() {
                 Version {row.version} ·{' '}
                 {row.enabled ? 'New attempts enabled' : 'New attempts disabled'} ·{' '}
                 {row.collection_purpose} collection · {row.changed_by_name} ·{' '}
-                {new Date(row.created_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
+                {adminDateTime(row.created_at)}
               </li>
             ))}
           </ol>

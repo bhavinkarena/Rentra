@@ -5,6 +5,13 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from '@/components/navigation/NavigationLink';
 import Pagination from '@/components/ui/pagination';
+import {
+  AdminPage,
+  AdminPageHeader,
+  AdminTable,
+  AdminEmpty,
+  AdminReadOnly,
+} from '@/components/admin/AdminPrimitives';
 import { catalogueCommand } from '@/lib/actions/catalogues';
 import { ActivityIcon } from '@/components/rentra/icons/activity-icons';
 import { VerticalIcon } from '@/components/rentra/icons/vertical-icons';
@@ -50,11 +57,16 @@ const fieldNames = {
 };
 const inputClass = `${sharedFieldClass} mt-1`;
 const buttonClass = `${sharedButtonVariants({ shape: 'default', size: 'default' })} `;
-function Nav() {
+function Nav({ type: current }) {
   return (
     <nav aria-label="Catalogue types" className="flex flex-wrap gap-4">
       {Object.entries(names).map(([type, name]) => (
-        <Link key={type} className="underline" href={`/admin/catalogues/${type}`}>
+        <Link
+          key={type}
+          className="inline-flex min-h-11 items-center underline"
+          aria-current={current === type ? 'page' : undefined}
+          href={`/admin/catalogues/${type}`}
+        >
           {name}
         </Link>
       ))}
@@ -63,9 +75,9 @@ function Nav() {
 }
 export function CatalogueList({ data }) {
   return (
-    <section className="space-y-6 p-4 sm:p-6">
-      <Nav />
-      <h1 className="text-2xl font-bold">{names[data.type]}</h1>
+    <AdminPage className="space-y-6">
+      <Nav type={data.type} />
+      <AdminPageHeader title={names[data.type]} />
       <p>
         Manage reference labels, ordering and availability. Open a record to review its listing
         usage.
@@ -91,41 +103,40 @@ export function CatalogueList({ data }) {
         <button className={buttonClass}>Search</button>
       </form>
       {data.canWrite && (
-        <Link className="inline-block underline" href={`/admin/catalogues/${data.type}/new`}>
+        <Link
+          className="inline-flex min-h-11 items-center underline"
+          href={`/admin/catalogues/${data.type}/new`}
+        >
           Add record
         </Link>
       )}
       <p>{data.total} records</p>
-      <div className="overflow-x-auto">
-        <table className="w-full text-left">
-          <caption className="sr-only">{names[data.type]} catalogue</caption>
-          <thead>
-            <tr>
-              {['Label', 'Slug', 'Status', 'Order', 'Listing usage'].map((h) => (
-                <th scope="col" className="p-3" key={h}>
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {data.items.map((r) => (
-              <tr key={r.id} className="border-t border-ink-200">
-                <td className="p-3">
-                  <Link className="underline" href={`/admin/catalogues/${data.type}/${r.id}`}>
-                    {r.name || r.label_en}
-                  </Link>
-                </td>
-                <td className="p-3">{r.slug}</td>
-                <td className="p-3">{r.is_active ? 'Active' : 'Inactive'}</td>
-                <td className="p-3">{r.sort_order}</td>
-                <td className="p-3">{r.usageCount}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {!data.items.length && <p>No matching records. Try another label or status.</p>}
+      <AdminTable
+        label={`${names[data.type]} catalogue`}
+        columns={['Label', 'Slug', 'Status', 'Order', 'Property usage']}
+        empty={
+          !data.items.length && (
+            <AdminEmpty title="No matching records" description="Choose another label or status." />
+          )
+        }
+      >
+        {data.items.map((record) => (
+          <tr key={record.id}>
+            <td className="px-4 py-4">
+              <Link
+                className="inline-flex min-h-11 items-center underline"
+                href={`/admin/catalogues/${data.type}/${record.id}`}
+              >
+                {record.name || record.label_en}
+              </Link>
+            </td>
+            <td className="max-w-xs break-all px-4 py-4">{record.slug}</td>
+            <td className="px-4 py-4">{record.is_active ? 'Active' : 'Inactive'}</td>
+            <td className="px-4 py-4">{record.sort_order}</td>
+            <td className="px-4 py-4">{record.usageCount}</td>
+          </tr>
+        ))}
+      </AdminTable>
       <Pagination
         page={data.page}
         pageSize={25}
@@ -135,10 +146,10 @@ export function CatalogueList({ data }) {
         label="Catalogue pages"
         noun="records"
       />
-    </section>
+    </AdminPage>
   );
 }
-function Impact({ data }) {
+function Impact({ data, canReadProperties = false }) {
   return (
     <div className="space-y-3">
       <p>
@@ -150,9 +161,16 @@ function Impact({ data }) {
         <ul className="space-y-2 py-3">
           {data.listings.map((r) => (
             <li key={r.id}>
-              <Link className="underline" href={`/admin/properties/${r.id}`}>
-                {r.title}
-              </Link>{' '}
+              {canReadProperties ? (
+                <Link
+                  className="inline-flex min-h-11 items-center underline"
+                  href={`/admin/properties/${r.id}`}
+                >
+                  {r.title}
+                </Link>
+              ) : (
+                <span>{r.title}</span>
+              )}{' '}
               — {r.status}
               {r.value != null ? ` · value: ${r.value}` : ''}
             </li>
@@ -176,7 +194,7 @@ function Impact({ data }) {
     </div>
   );
 }
-export function CatalogueDetail({ data }) {
+export function CatalogueDetail({ data, canReadProperties = false }) {
   const { type, record: r, canWrite } = data,
     creating = !r,
     router = useRouter();
@@ -261,17 +279,19 @@ export function CatalogueDetail({ data }) {
     </label>
   );
   return (
-    <section className="mx-auto max-w-4xl space-y-6 p-4 sm:p-6">
-      <Nav />
-      <h1 className="text-2xl font-bold">
-        {creating ? `Add ${type} record` : r.name || r.label_en}
-      </h1>
+    <AdminPage width="max-w-4xl" className="space-y-6">
+      <Nav type={data.type} />
+      <AdminPageHeader
+        title={creating ? `Add ${type} record` : r.name || r.label_en}
+        backHref={`/admin/catalogues/${type}`}
+        backLabel={names[type]}
+      />
       {r && (
         <>
           <p>
             Slug: {r.slug} · Revision {r.version} · {r.is_active ? 'Active' : 'Inactive'}
           </p>
-          <Impact data={data.impact} />
+          <Impact data={data.impact} canReadProperties={canReadProperties} />
           <p>
             Slugs, city membership, rental semantics and amenity value types are protected. Changes
             to references or types require an explicit migration.
@@ -290,7 +310,7 @@ export function CatalogueDetail({ data }) {
       )}
       {!canWrite ? (
         <div className="space-y-3">
-          <p>You have read-only catalogue access.</p>
+          <AdminReadOnly />
           {r && (
             <dl className="space-y-2">
               {Object.entries({
@@ -545,7 +565,7 @@ export function CatalogueDetail({ data }) {
               {result.replacement.overlapCount ?? 0} overlapping listings
             </p>
           )}
-          <Impact data={result.impact} />
+          <Impact data={result.impact} canReadProperties={canReadProperties} />
           {result.blocked ? (
             <p role="status">{result.blocked}</p>
           ) : (
@@ -555,7 +575,7 @@ export function CatalogueDetail({ data }) {
           )}
         </section>
       )}
-    </section>
+    </AdminPage>
   );
 }
 
@@ -571,9 +591,9 @@ const STATUS_LABEL = {
  */
 export function VerticalList({ data }) {
   return (
-    <section className="space-y-6 p-4 sm:p-6">
-      <Nav />
-      <h1 className="text-2xl font-bold">Verticals</h1>
+    <AdminPage className="space-y-6">
+      <Nav type="verticals" />
+      <AdminPageHeader title="Verticals" />
       <p>
         The kinds of place guests switch between. Status is the launch switch: open a vertical to
         owners first, make it public once enough places are live. Farmhouse always stays public.
@@ -583,7 +603,7 @@ export function VerticalList({ data }) {
           <VerticalRow key={v.code} vertical={v} canWrite={data.canWrite} />
         ))}
       </ul>
-    </section>
+    </AdminPage>
   );
 }
 

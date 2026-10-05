@@ -5,8 +5,17 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from '@/components/navigation/NavigationLink';
 import Pagination from '@/components/ui/pagination';
+import {
+  AdminPage,
+  AdminPageHeader,
+  AdminTable,
+  AdminEmpty,
+  AdminReadOnly,
+  StatusBadge,
+} from './AdminPrimitives';
+import { adminDateTime } from '@/lib/domain/admin-display';
 import { privacyCommand } from '@/lib/actions/privacy';
-const card = 'space-y-4 rounded-lg border border-ink-200 bg-white p-4 sm:p-6';
+const card = 'space-y-4 rounded-lg border border-border bg-card p-4 sm:p-6';
 const input = `${sharedFieldClass} mt-1`;
 const button = `${sharedButtonVariants({ shape: 'default', size: 'default' })} `;
 function Counts({ data }) {
@@ -24,8 +33,11 @@ function Counts({ data }) {
 export function PrivacyDirectory({ data }) {
   const router = useRouter();
   return (
-    <div className="space-y-6">
-      <h1 className="text-h1">Customer privacy requests</h1>
+    <AdminPage className="space-y-6">
+      <AdminPageHeader
+        title="Customer privacy requests"
+        description="Customer accounts only. Review identity, blocking conditions and retained evidence before approval."
+      />
       <p>Verify authority, approve a scoped operation, and track its actual outcome.</p>
       <form action="/admin/privacy" className="flex flex-wrap items-end gap-3">
         <label>
@@ -46,27 +58,45 @@ export function PrivacyDirectory({ data }) {
       <button className={button} onClick={() => router.refresh()}>
         Refresh status
       </button>
-      {data.items.length ? (
-        <ul className="space-y-3">
-          {data.items.map((r) => (
-            <li key={r.id} className={card}>
-              <Link className="font-semibold underline" href={`/admin/privacy/${r.id}`}>
+      <AdminTable
+        label="Customer privacy requests"
+        columns={['Request', 'Review status', 'Fulfillment', 'Created (IST)', 'Inspect']}
+        empty={
+          !data.items.length && (
+            <AdminEmpty
+              title="No matching privacy requests"
+              description="Choose another review status."
+            />
+          )
+        }
+      >
+        {data.items.map((r) => (
+          <tr key={r.id}>
+            <td className="max-w-xs break-all px-4 py-4">
+              <p className="font-semibold">
                 {r.kind === 'access' ? 'Account data copy' : 'Account closure'}
+              </p>
+              <p>{r.id}</p>
+            </td>
+            <td className="px-4 py-4">
+              <StatusBadge>{r.state.replaceAll('_', ' ')}</StatusBadge>
+            </td>
+            <td className="px-4 py-4">
+              {r.job_state || 'Not queued'}
+              {r.error_code && <p>{r.error_code}</p>}
+            </td>
+            <td className="px-4 py-4">{adminDateTime(r.created_at)}</td>
+            <td className="px-4 py-4">
+              <Link
+                className="inline-flex min-h-11 items-center underline"
+                href={`/admin/privacy/${r.id}`}
+              >
+                View<span className="sr-only"> {r.id}</span>
               </Link>
-              <p className="break-all text-sm">{r.id}</p>
-              <p>
-                {r.state.replaceAll('_', ' ')} · {r.job_state || 'No fulfillment job'}
-                {r.error_code ? ` · ${r.error_code}` : ''}
-              </p>
-              <p className="text-sm">
-                {new Date(r.created_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
-              </p>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No matching privacy requests.</p>
-      )}
+            </td>
+          </tr>
+        ))}
+      </AdminTable>
       <Pagination
         page={data.page}
         pageSize={20}
@@ -76,7 +106,7 @@ export function PrivacyDirectory({ data }) {
         label="Privacy queue pages"
         noun="requests"
       />
-    </div>
+    </AdminPage>
   );
 }
 function Commands({ data }) {
@@ -219,7 +249,7 @@ function Commands({ data }) {
     </section>
   );
 }
-export function PrivacyDetail({ data }) {
+export function PrivacyDetail({ data, canReadCustomer = false }) {
   const router = useRouter(),
     r = data.request;
   const live =
@@ -227,11 +257,11 @@ export function PrivacyDetail({ data }) {
     r.kind === 'access' &&
     new Date(data.job.expiresAt) > new Date();
   return (
-    <div className="space-y-6">
-      <Link href="/admin/privacy" className="underline">
+    <AdminPage className="space-y-6">
+      <Link href="/admin/privacy" className="inline-flex min-h-11 items-center underline">
         Back to privacy queue
       </Link>
-      <h1 className="text-h1">{r.kind === 'access' ? 'Account data copy' : 'Account closure'}</h1>
+      <AdminPageHeader title={r.kind === 'access' ? 'Account data copy' : 'Account closure'} />
       <p className="break-all">Reference: {r.id}</p>
       <p>
         {r.state.replaceAll('_', ' ')} · Version {r.version} · Policy {data.policy}
@@ -245,9 +275,14 @@ export function PrivacyDetail({ data }) {
           {data.customer.name || 'Removed profile'} · {data.customer.email || 'No live email'} ·{' '}
           {data.customer.phone || 'No live phone'}
         </p>
-        <Link className="underline" href={`/admin/customers/${data.customer.id}`}>
-          Customer record
-        </Link>
+        {canReadCustomer && (
+          <Link
+            className="inline-flex min-h-11 items-center underline"
+            href={`/admin/customers/${data.customer.id}`}
+          >
+            Customer record
+          </Link>
+        )}
         <Counts data={data.inventory} />
       </section>
       <section className={card}>
@@ -305,7 +340,7 @@ export function PrivacyDetail({ data }) {
         <Commands key={r.id} data={data} />
       ) : (
         !data.canWrite && (
-          <p>Read-only privacy access. A privacy writer must approve or retry jobs.</p>
+          <AdminReadOnly>A privacy writer must approve or retry jobs.</AdminReadOnly>
         )
       )}
       {r.receipt && (
@@ -319,12 +354,7 @@ export function PrivacyDetail({ data }) {
             ))}
           </ul>
           {r.receipt.retentionReviewDueAt && (
-            <p>
-              Retention follow-up due:{' '}
-              {new Date(r.receipt.retentionReviewDueAt).toLocaleDateString('en-IN', {
-                timeZone: 'Asia/Kolkata',
-              })}
-            </p>
+            <p>Retention follow-up due: {adminDateTime(r.receipt.retentionReviewDueAt)}</p>
           )}
           <a
             className="inline-flex min-h-11 items-center underline"
@@ -335,12 +365,7 @@ export function PrivacyDetail({ data }) {
           {r.kind === 'access' &&
             (live ? (
               <>
-                <p>
-                  Data copy expires:{' '}
-                  {new Date(data.job.expiresAt).toLocaleString('en-IN', {
-                    timeZone: 'Asia/Kolkata',
-                  })}
-                </p>
+                <p>Data copy expires: {adminDateTime(data.job.expiresAt)}</p>
                 <a
                   className="inline-flex min-h-11 items-center underline"
                   href={`/admin/privacy/${r.id}/export`}
@@ -353,6 +378,6 @@ export function PrivacyDetail({ data }) {
             ))}
         </section>
       )}
-    </div>
+    </AdminPage>
   );
 }
