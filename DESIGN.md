@@ -375,6 +375,18 @@ Empty states: `EmptyState` (`components/ui/empty-state.jsx`) — icon in a brand
 - Use champagne for warning/success text or a full-page dashboard background; add competing action greens.
 - Change APIs, routes, validation or money formatting as part of visual work.
 
+## Admin workspace
+
+Rules for `/admin/**` (ADMIN-EXPERIENCE-PLAN Phase 3), scoped by `data-admin-workspace` inside the shared portal shell. Owner and customer defaults remain independent.
+
+- Keep the existing forest sidebar, warm workspace and white bordered `rounded-lg` panels. No resting card shadows. Use portal type tokens, including `text-stat` for KPI figures; keep essential table/filter text at `text-meta` or larger.
+- `AdminPageHeader` adapts shared `PageHeader` and breadcrumbs while preserving admin callers. `AdminEmpty` and `StatusBadge` adapt the shared empty/badge components. Existing explicit status labels and tones remain valid; state-driven labels use `adminStatusMeta` in `lib/domain/status.js`, without borrowing owner/guest vocabulary or implying captured money from a successful payment state.
+- `AdminTable` owns caption, column headers, focusable scroll region and table geometry; callers own record cells and commands. Tables stay tables on phones, with local horizontal scrolling and visible record links. `AdminFilterBar` groups URL-backed filters without adding unsupported sort/page-size controls. Shared `Pagination` retains compatible query parameters and uses actual API page sizes.
+- Admin controls are at least 44 px high and retain visible keyboard outlines. Fields use `ui/field`; failed saves retain values and link feedback to controls. Read access does not imply write access: application assignment/decision panels receive an explicit write grant and otherwise explain read-only access.
+- Shared record headers and sections use the shared status presentation and navigational record-section links. `detailTabHref` preserves encoded list context and repeated parameters; sections survive refresh. Operator timestamps use `adminDateTime` with fixed month names, punctuation and IST time-zone text across server/browser locales.
+- Queue/payment skeletons match their summary/filter/table geometry, with one accessible loading announcement. Missing, forbidden and unavailable use `PortalState`; filtered-empty results use `AdminEmpty` and do not claim a service outage.
+- Admin detail sheets are not enabled in this phase. Follow [ADMIN-DETAIL-SHEETS.md](docs/ADMIN-DETAIL-SHEETS.md) before shipping View sheets; complex review and finance decisions remain full-page workflows.
+
 ## Owner portal
 
 Rules for `/partner/**` and the full-screen wizard (OWNER-EXPERIENCE-PLAN Phase 12). Both render inside `.portal-ui` with `portalFont`.

@@ -929,6 +929,34 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Admin presentation only; owner/customer control density stays unchanged. */
+.portal-ui[data-admin-workspace]
+  :is(button, a, select, input:not([type='hidden']):not([type='checkbox']):not([type='radio'])) {
+  min-height: 44px;
+}
+.portal-ui[data-admin-workspace]
+  :is(button, a, input, select, textarea, [tabindex='0']):focus-visible {
+  outline: 2px solid var(--color-brand-600);
+  outline-offset: 3px;
+}
+.portal-ui[data-admin-workspace] label:has(> :is(input[type='checkbox'], input[type='radio'])) {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 0.5rem;
+}
+.portal-ui[data-admin-workspace] .admin-table {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-brand-300) var(--color-ink-25);
+}
+.portal-ui[data-admin-workspace] .admin-table :is(td, th[scope='row']) {
+  padding: 1rem;
+  vertical-align: top;
+}
+.portal-ui[data-admin-workspace] .admin-table tbody tr:hover {
+  background: var(--color-ink-25);
+}
+
 /* Thin, in-panel sidebar scrollbar in the portal greens. */
 .portal-scroll {
   scrollbar-width: thin;

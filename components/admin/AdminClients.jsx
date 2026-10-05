@@ -538,7 +538,7 @@ export function AdminClientDetail({ data, listHref: backHref = '/admin/clients',
             <div className="space-y-4 text-meta">
               <p
                 role="status"
-                className="rounded-md border-l-4 border-warning bg-warning-bg p-3 text-warning"
+                className="rounded-md border border-warning/25 bg-warning-bg p-3 text-warning"
               >
                 <strong>
                   {data.payoutDestinations.readiness.ready ? 'Ready.' : 'Payouts disabled.'}

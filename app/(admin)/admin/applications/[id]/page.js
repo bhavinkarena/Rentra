@@ -57,7 +57,8 @@ function ReviewState({ review }) {
 }
 
 export default async function ApplicationReviewPage({ params, searchParams }) {
-  await requireAdmin();
+  const admin = await requireAdmin();
+  const canWrite = Boolean(admin.capabilities?.includes('admin.applications.write'));
   const { id } = await params; // Next 16: params is a Promise
   const query = (await searchParams) ?? {};
   const queueHref = applicationReturnHref(query.from);
@@ -160,7 +161,7 @@ export default async function ApplicationReviewPage({ params, searchParams }) {
             {notAwaiting}
             <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
               <ReviewState review={review} />
-              <AssignmentPanel applicationId={app.id} review={review} />
+              <AssignmentPanel applicationId={app.id} review={review} canWrite={canWrite} />
             </div>
             <section
               id="checklist"
@@ -273,7 +274,7 @@ export default async function ApplicationReviewPage({ params, searchParams }) {
           <>
             <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
               <ReviewState review={review} />
-              <AssignmentPanel applicationId={app.id} review={review} />
+              <AssignmentPanel applicationId={app.id} review={review} canWrite={canWrite} />
             </div>
             {app.status === 'submitted' ? (
               <div id="decision" className="scroll-mt-24">
@@ -281,6 +282,7 @@ export default async function ApplicationReviewPage({ params, searchParams }) {
                   applicationId={app.id}
                   strikeCount={app.strikeCount}
                   reviewVersion={review.reviewVersion}
+                  canWrite={canWrite}
                 />
               </div>
             ) : (

@@ -7,6 +7,8 @@ import { Check, HelpCircle, X } from 'lucide-react';
 import { approveApplication, requestMoreInfo, rejectApplication } from '@/lib/actions/admin';
 import { Button } from '@/components/ui/button';
 import RetryButton from '@/components/portal/RetryButton';
+import { AdminReadOnly } from './AdminPrimitives';
+import { fieldClass } from '@/components/ui/field';
 
 const FLAGGABLE = [
   { id: 'phone', label: 'Mobile number' },
@@ -26,7 +28,12 @@ const FLAGGABLE = [
  * as well as here: the Client sees it verbatim, and a silent no generates a
  * support call and a bad review.
  */
-export default function DecisionPanel({ applicationId, strikeCount, reviewVersion }) {
+export default function DecisionPanel({
+  applicationId,
+  strikeCount,
+  reviewVersion,
+  canWrite = false,
+}) {
   const [mode, setMode] = useState(null);
   const [reasons, setReasons] = useState({ approve: '', info: '', reject: '' });
   const [flagged, setFlagged] = useState([]);
@@ -43,6 +50,13 @@ export default function DecisionPanel({ applicationId, strikeCount, reviewVersio
   const nextStrike = (strikeCount ?? 0) + 1;
   const willBlock = nextStrike >= 3;
 
+  if (!canWrite)
+    return (
+      <AdminReadOnly title="Decision">
+        You can review this application. Decisions require applications write permission.
+      </AdminReadOnly>
+    );
+
   return (
     <section className="rounded-lg border border-border bg-card p-5">
       <h2 className="text-h3">Decision</h2>
@@ -53,7 +67,7 @@ export default function DecisionPanel({ applicationId, strikeCount, reviewVersio
       {anyError ? (
         <div
           role="alert"
-          className="mt-3 rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger"
+          className="mt-3 rounded-md border border-danger/25 bg-danger-bg p-3 text-meta text-danger"
         >
           <p>{anyError}</p>
           <p className="mt-1 text-tiny">
@@ -83,7 +97,7 @@ export default function DecisionPanel({ applicationId, strikeCount, reviewVersio
         <form ref={formRef} action={approveAction} className="mt-4 space-y-3">
           <input type="hidden" name="applicationId" value={applicationId} />
           <input type="hidden" name="expectedVersion" value={reviewVersion} />
-          <p className="rounded-md border-l-4 border-brand-600 bg-success-bg p-3 text-meta text-brand-900">
+          <p className="rounded-md border border-success/20 bg-success-bg p-3 text-meta text-brand-900">
             This closes Gate&nbsp;1: the account becomes <strong>active</strong>, identity is
             recorded as reviewed by Rentra (no KYC provider is connected), and they can start adding
             properties. Each property still needs its own approval — that is Gate&nbsp;2.
@@ -194,7 +208,7 @@ export default function DecisionPanel({ applicationId, strikeCount, reviewVersio
           <ValidationSummary errors={rejectState.errors} scope={formRef} />
           <input type="hidden" name="applicationId" value={applicationId} />
           <input type="hidden" name="expectedVersion" value={reviewVersion} />
-          <p className="rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger">
+          <p className="rounded-md border border-danger/25 bg-danger-bg p-3 text-meta text-danger">
             Strike {nextStrike} of 3.
             {willBlock
               ? ' This one BLOCKS the account — only a manual appeal reopens it.'
@@ -236,9 +250,7 @@ export default function DecisionPanel({ applicationId, strikeCount, reviewVersio
   );
 }
 
-const ta =
-  'w-full rounded-sm border border-input bg-card px-3.5 py-3 text-meta ' +
-  'text-ink-900 placeholder:text-muted-foreground focus:border-brand-600';
+const ta = `${fieldClass} min-h-28 resize-y`;
 
 function btn(tone) {
   const tones = {

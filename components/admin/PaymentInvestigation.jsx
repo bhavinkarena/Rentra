@@ -3,11 +3,19 @@ import Form from '@/components/navigation/NavigationForm';
 import { randomUUID } from 'node:crypto';
 import Link from '@/components/navigation/NavigationLink';
 import { ReceiptText, Search, TriangleAlert } from 'lucide-react';
-import { AdminEmpty, AdminPage, AdminPageHeader, StatusBadge } from './AdminPrimitives';
+import {
+  AdminEmpty,
+  AdminFilterBar,
+  AdminTable,
+  AdminPage,
+  AdminPageHeader,
+  StatusBadge,
+} from './AdminPrimitives';
 import Pagination from '@/components/ui/pagination';
 import { FieldGrid, SectionCard } from '@/components/portal/DetailLayout';
 import { bookingMoney as money, bookingTime as time } from '@/lib/domain/booking-record';
 import ReconcilePayment from './ReconcilePayment';
+import { adminStatusMeta } from '@/lib/domain/status';
 
 const TZ = 'Asia/Kolkata';
 const ENVIRONMENTS = [
@@ -130,110 +138,130 @@ export function PaymentList({ data }) {
           </Link>
         }
       />
-      <nav aria-label="Payment environment" className="mt-6 flex flex-wrap gap-2">
-        {ENVIRONMENTS.map(([value, label]) => (
+      <AdminFilterBar label="Payment filters" className="mt-6 rounded-lg border border-border">
+        <nav aria-label="Payment environment" className="flex flex-wrap gap-2">
+          {ENVIRONMENTS.map(([value, label]) => (
+            <Link
+              key={value}
+              href={href(data, { environment: value, page: '1' })}
+              className={tab(data.environment === value)}
+              aria-current={data.environment === value ? 'page' : undefined}
+            >
+              {label}
+            </Link>
+          ))}
           <Link
-            key={value}
-            href={href(data, { environment: value, page: '1' })}
-            className={tab(data.environment === value)}
-            aria-current={data.environment === value ? 'page' : undefined}
+            href={href(data, {
+              attention: data.attention === 'needs_review' ? 'all' : 'needs_review',
+              page: '1',
+            })}
+            className={tab(data.attention === 'needs_review')}
           >
-            {label}
+            Needs review
           </Link>
-        ))}
-        <Link
-          href={href(data, {
-            attention: data.attention === 'needs_review' ? 'all' : 'needs_review',
-            page: '1',
-          })}
-          className={tab(data.attention === 'needs_review')}
+        </nav>
+        <Form
+          action="/admin/finance/payments"
+          role="search"
+          className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5"
         >
-          Needs review
-        </Link>
-      </nav>
+          <input type="hidden" name="environment" value={data.environment} />
+          <input type="hidden" name="attention" value={data.attention} />
+          <label className="block lg:col-span-2">
+            <span className="text-meta font-medium">Booking reference, payment or provider id</span>
+            <input name="q" defaultValue={data.q} className={field} />
+          </label>
+          <label className="block">
+            <span className="text-meta font-medium">State</span>
+            <select name="state" defaultValue={data.state} className={field}>
+              {STATES.map((s) => (
+                <option key={s} value={s}>
+                  {s === 'all' ? 'All states' : adminStatusMeta('payment', s).label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block">
+            <span className="text-meta font-medium">From (India date)</span>
+            <input type="date" name="from" defaultValue={data.from} className={field} />
+          </label>
+          <label className="block">
+            <span className="text-meta font-medium">To (India date)</span>
+            <input type="date" name="to" defaultValue={data.to} className={field} />
+          </label>
+          <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-primary px-4 font-semibold text-white lg:col-start-5">
+            <Search className="size-4" aria-hidden="true" /> Filter
+          </button>
+        </Form>
+      </AdminFilterBar>
       <Totals totals={data.totals} asOf={data.asOf} />
-      <Form
-        action="/admin/finance/payments"
-        role="search"
-        className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5"
-      >
-        <input type="hidden" name="environment" value={data.environment} />
-        <input type="hidden" name="attention" value={data.attention} />
-        <label className="block lg:col-span-2">
-          <span className="text-meta font-medium">Booking reference, payment or provider id</span>
-          <input name="q" defaultValue={data.q} className={field} />
-        </label>
-        <label className="block">
-          <span className="text-meta font-medium">State</span>
-          <select name="state" defaultValue={data.state} className={field}>
-            {STATES.map((s) => (
-              <option key={s} value={s}>
-                {s === 'all' ? 'All states' : s}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="block">
-          <span className="text-meta font-medium">From (India date)</span>
-          <input type="date" name="from" defaultValue={data.from} className={field} />
-        </label>
-        <label className="block">
-          <span className="text-meta font-medium">To (India date)</span>
-          <input type="date" name="to" defaultValue={data.to} className={field} />
-        </label>
-        <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-primary px-4 font-semibold text-white lg:col-start-5">
-          <Search className="size-4" aria-hidden="true" /> Filter
-        </button>
-      </Form>
       <div className="mt-6">
-        {data.items.length ? (
-          <ul className="divide-y divide-border rounded-lg border border-border bg-card">
-            {data.items.map((p) => (
-              <li
-                key={p.id}
-                className="flex flex-wrap items-center justify-between gap-3 px-5 py-4"
-              >
-                <span className="min-w-0 space-y-1">
-                  <span className="flex flex-wrap items-center gap-2">
-                    <Link
-                      href={`/admin/finance/payments/${p.id}`}
-                      className="font-bold text-brand-800 underline"
-                      aria-label={`Open payment for ${p.bookingReference}`}
-                    >
-                      {p.bookingReference}
-                    </Link>
-                    <EnvironmentBadge environment={p.environment} />
-                    <StatusBadge tone={TONE[p.status.key]}>{p.status.label}</StatusBadge>
-                  </span>
-                  <span className="block text-tiny text-ink-600">
-                    {p.title} · {p.customerName || 'Customer'} · {p.purpose} · created{' '}
-                    {time(p.createdAt, TZ)}
-                  </span>
-                </span>
-                <span className="text-right text-meta tabular">
-                  <span className="block">Expected {money(p.expectedMinor)}</span>
-                  <span className="block font-semibold">
-                    {p.environment === 'simulated'
-                      ? `Simulated ${money(p.simulatedMinor)}`
-                      : `Captured ${money(p.capturedMinor)}`}
-                  </span>
-                  {p.refundPendingMinor ? (
-                    <span className="block text-tiny">
-                      Refund pending {money(p.refundPendingMinor)}
-                    </span>
-                  ) : null}
-                </span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <AdminEmpty
-            icon={ReceiptText}
-            title="No payments match this view"
-            description="Change the environment or filters. An empty list is a real result, not an outage."
-          />
-        )}
+        <AdminTable
+          label="Payment records"
+          minWidth={1100}
+          columns={[
+            'Booking & guest',
+            'State',
+            'Environment',
+            'Expected',
+            'Captured / simulated',
+            'Refund pending',
+            'Details',
+          ]}
+          empty={
+            !data.items.length ? (
+              <AdminEmpty
+                icon={ReceiptText}
+                title="No payments match this view"
+                description="Change the environment or filters. An empty list is a real result, not an outage."
+              />
+            ) : null
+          }
+        >
+          {data.items.map((p) => (
+            <tr key={p.id}>
+              <th scope="row" className="min-w-60 text-left font-normal">
+                <Link
+                  href={`/admin/finance/payments/${p.id}`}
+                  className="inline-flex min-h-11 items-center font-semibold text-brand-800 hover:underline"
+                  aria-label={`Open payment for ${p.bookingReference}`}
+                >
+                  {p.bookingReference}
+                </Link>
+                <p className="text-meta text-ink-600">
+                  {p.title} · {p.customerName || 'Customer'}
+                </p>
+                <p className="mt-1 text-meta text-ink-600">
+                  {p.purpose} · created {time(p.createdAt, TZ)}
+                </p>
+              </th>
+              <td>
+                <StatusBadge tone={TONE[p.status.key]}>{p.status.label}</StatusBadge>
+              </td>
+              <td>
+                <EnvironmentBadge environment={p.environment} />
+              </td>
+              <td className="whitespace-nowrap tabular">{money(p.expectedMinor)}</td>
+              <td className="whitespace-nowrap font-semibold tabular">
+                {p.environment === 'simulated'
+                  ? `Simulated ${money(p.simulatedMinor)}`
+                  : `Captured ${money(p.capturedMinor)}`}
+              </td>
+              <td className="whitespace-nowrap tabular">{money(p.refundPendingMinor)}</td>
+              <td>
+                <Link
+                  href={`/admin/finance/payments/${p.id}`}
+                  aria-label={`Inspect payment for ${p.bookingReference}`}
+                  className="inline-flex min-h-11 items-center rounded-md px-3 font-semibold text-brand-700 hover:bg-brand-50"
+                >
+                  Inspect
+                </Link>
+              </td>
+            </tr>
+          ))}
+        </AdminTable>
       </div>
+
       <Pagination
         page={data.page}
         pageSize={25}

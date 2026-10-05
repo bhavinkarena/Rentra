@@ -4,19 +4,19 @@
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Prepared           | 4 October 2026                                                                                                                                                                         |
 | Scope              | Admin dashboard, navigation, section tabs, tables, record details, review workflows, finance, support, configuration and release QA                                                    |
-| Status             | Phases 1–2 complete; Phases 3–12 pending                                                                                                                                            |
+| Status | Phases 1–3 complete; Phases 4–12 pending |
 | Method             | Repository review plus Phase 1 disposable-local role, viewport, permission and integration baseline; inspected saved owner and current admin screenshots                               |
 | Verification limit | Phase 1 adds authenticated disposable-local browser/API/database evidence below. Production workflows and providers were not exercised; historical owner test results remain separate. |
 
 ## Phase completion tracker
 
-**Progress:** 2 of 12 phases complete · 0 in progress · 10 pending. Phase 2 is implemented and locally verified; Phase 3 is next. Existing admin functionality does not count as completion of these redesign phases.
+**Progress:** 3 of 12 phases complete · 0 in progress · 9 pending. Phase 3 is implemented and locally verified; Phase 4 is next. Existing admin functionality does not count as completion of these redesign phases.
 
 | Phase | Work                                                            | Status      | Completed on | Notes / remaining work                                                                                       |
 | ----- | --------------------------------------------------------------- | ----------- | ------------ | ------------------------------------------------------------------------------------------------------------ |
-| 1     | Admin inventory and behavior baseline                           | ✅ Complete | 4 Oct 2026   | Inventory, owner comparison and disposable baseline recorded; seven findings remain assigned to later phases |
+| 1     | Admin inventory and behavior baseline                           | ✅ Complete | 4 Oct 2026   | Inventory, owner comparison and disposable baseline recorded; findings tracked below |
 | 2 | Admin shell, navigation and section tabs | ✅ Complete | 5 Oct 2026 | ADM-NAV-01–05 delivered; [local checks](evidence/admin-phase2/checks.json), [browser evidence](evidence/admin-phase2/browser-checks.json); Phase 4 dashboard pending |
-| 3     | Shared admin visual system and list/detail primitives           | ⏳ Pending  | —            | Standardize tables, filters, forms, states and detail views                                                  |
+| 3 | Shared admin visual system and list/detail primitives | ✅ Complete | 5 Oct 2026 | ADM-DS-01–06 delivered; [checks](evidence/admin-phase3/checks.json), [browser evidence](evidence/admin-phase3/browser-checks.json); View sheets remain later-phase work |
 | 4     | Dashboard and analytics                                         | ⏳ Pending  | —            | Define dashboard API, implement aggregates and dashboard panels                                              |
 | 5     | Owner applications and property review                          | ⏳ Pending  | —            | Refresh queues and review/verification workflows                                                             |
 | 6     | Bookings and booking cases                                      | ⏳ Pending  | —            | Refresh records, detail sheets and case workflows                                                            |
@@ -148,7 +148,7 @@ Skeletons match each screen's layout. Background refresh retains records and lab
 
 ## 5. Implementation phases
 
-Phase 1 is **Complete (audit)**; Phases 2–12 are **Not started**. Phase 1 establishes the baseline; Phases 2–4 create the shared foundation and dashboard; the remaining modules ship incrementally. Each phase includes its own verification before proceeding.
+Phases 1–3 are **Complete (locally verified)**; Phases 4–12 are **Not started**. Phase 1 establishes the baseline; Phases 2–4 create the shared foundation and dashboard; the remaining modules ship incrementally. Each phase includes its own verification before proceeding.
 
 ### Phase 1 — Admin inventory and behavior baseline
 
@@ -327,9 +327,9 @@ Additional [observations](evidence/admin-phase1/observations.json) record enable
 | Finding                                                                | Evidence / impact                                                                                                                                                                                                                                          | Follow-up phase                                                          |
 | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
 | ADM-F01 · High · Restricted-role home shows an outage message          | Browser-confirmed records-only/customer-reader `/admin` displays “This page could not load”; their permitted directories work and application API returns 403. Root calls application endpoints without a capability-aware home or settled forbidden state | Resolved locally in Phase 2; Phase 4 dashboard remains pending                   |
-| ADM-F02 · Medium · Read-only reviewers receive enabled write controls  | Browser-confirmed Assign to me / Approve / Need more info / Reject on application decision tab for an all-read operator; write API correctly returns 403. Application page does not pass a write grant to these panels                                     | Phase 5; add visible read-only treatment during Phase 3                  |
+| ADM-F02 · Medium · Read-only reviewers receive enabled write controls  | Browser-confirmed Assign to me / Approve / Need more info / Reject on application decision tab for an all-read operator; write API correctly returns 403. Application page does not pass a write grant to these panels                                     | Application assignment/decision controls resolved locally in Phase 3; document/module permissions still verified in Phase 5 |
 | ADM-F03 · High · Owner guide content cannot be edited through admin UI | Full admin GET `/admin/content/owner_help` API returns 200, frontend shows Record not found. Both frontend content page and `lib/actions/content.js` allowlists omit `owner_help`, while the backend and editor recognize it                               | Phase 10; fix route/action allowlist parity together                     |
-| ADM-F04 · Medium · Operator detail hydration mismatch                  | Three browser page errors; `OperatorSecurity.jsx` uses implicit-locale `toLocaleString()` for session/history dates. Node rendered `10/4/2026, 11:08:38 PM`, Chrome rendered `04/10/2026, 23:08:38`                                                        | Phase 3 deterministic formatting; Phase 10 operator screens              |
+| ADM-F04 · Medium · Operator detail hydration mismatch                  | Three browser page errors; `OperatorSecurity.jsx` uses implicit-locale `toLocaleString()` for session/history dates. Node rendered `10/4/2026, 11:08:38 PM`, Chrome rendered `04/10/2026, 23:08:38`                                                        | Resolved locally in Phase 3 with deterministic IST formatting and browser verification |
 | ADM-F05 · Medium · Content integration assertion is stale              | Existing integration expected four history entries at line 204, observed five. Code now includes a third built-in policy version, `2026-10-04`. No application/test fix is included in this audit                                                          | Phase 10/content validation, required before Phase 12 clean release gate |
 | ADM-F06 · Medium · Guest-review summaries use bounded rows as totals   | Code-reviewed `AdminReviewQueue.jsx` counts Pending/Published from the current 30-row window and Open reports from up to 30 reports; only “On this page” explicitly states its scope                                                                       | Phase 9; relabel page scope or add authoritative aggregates              |
 | ADM-F07 · Low · Search affordance excludes application-only operators  | Code-reviewed shell shows search only for clients/customers read capabilities, despite the search page also supporting applications                                                                                                                        | Resolved locally in Phase 2; expanded search remains Phase 11                |
@@ -411,6 +411,34 @@ Standardize page headers, metric tiles, filters, tables, pagination, badges, for
 **Backend/database:** none for presentation; query extensions are separately scoped.
 
 **Acceptance/QA:** representative queue, detail, finance and form screens match the system; readable status labels; keyboard focus, 44 px touch controls and localized table scrolling; shared changes do not regress owner screens. Add behavior tests for extracted URL/modal logic, not tests that merely mirror CSS.
+
+#### Phase 3 completion record · 5 October 2026
+
+**Status:** ADM-DS-01–06 implemented and locally verified; not deployed. Release A1's navigation and shared foundation are complete. Module-specific redesigns still follow their later phases.
+
+| ID | Delivered foundation |
+| --- | --- |
+| ADM-DS-01 | Admin headers adapt shared `PageHeader`/breadcrumbs, preserve callers and use portal type/geometry. Queue summary cards use `AdminKpiCard` and `text-stat`. |
+| ADM-DS-02 | Shared `AdminTable` and `AdminFilterBar` serve the application queue and payment list; semantic captions/headers, readable cells, explicit record actions and keyboard-focusable local scroll regions. Existing shared pagination retains API page sizes and query context. |
+| ADM-DS-03 | Admin badges and shared detail badges reuse `ui/status-badge`; operator status labels remain domain-specific through `adminStatusMeta`, with humanized unknown values and no inference of captured money from success alone. |
+| ADM-DS-04 | Shared native fields, admin-only 44 px controls and checkbox/radio labels, visible keyboard focus, and explicit application assignment/decision write grants with read-only alternatives. |
+| ADM-DS-05 | Shared record-section URL logic preserves encoded return paths and repeated parameters; deterministic IST operator timestamps resolve ADM-F04. [Detail-sheet contract](ADMIN-DETAIL-SHEETS.md) defines URL, focus, return and draft safeguards before sheets are enabled. |
+| ADM-DS-06 | Shared empty/error/forbidden presentation and queue/payment skeleton geometry with one loading announcement. Queue API failures settle into an explicit state rather than empty/zero data. Representative screen and owner regression evidence recorded. |
+
+**Changed files:** `AdminPrimitives`, `AdminLoading`, `ApplicationQueue`, `PaymentInvestigation`, `AssignmentPanel`, `DecisionPanel`, `OperatorSecurity`, `AdminClients`, admin shell and shared portal/detail components; application list/detail/loading and payment loading routes; `app/globals.css`, `lib/domain/{status,admin-display,detail-navigation}.js`, `DESIGN.md` and the sheet contract. Verification adds `test/domain/admin-display.test.js`, `scripts/portal-gate/admin-visual-system.py` and an opt-in `ADMIN_UI_FIXTURE=1` extension to backend `test/helpers/admin-navigation-browser.mjs` using existing review/finance fixture seeds. Normal Phase 2 fixture behavior remains unchanged.
+
+**API/database:** no production backend service, endpoint, capability or schema changes; no new migrations. Existing application assignment/decision versions, reasons and mutation APIs remain in use. Disposable local PostgreSQL applied the existing migration journal and seeded Test/Live/Simulated ledger evidence without calling providers or moving money. No admin View sheets were enabled; booking/people sheets remain Phases 6–7 work and full-page evidence remains accessible.
+
+**Verification:** [check record](evidence/admin-phase3/checks.json), [33 browser checks / zero page errors / ten WCAG axe runs](evidence/admin-phase3/browser-checks.json). Representative screenshots: queue [desktop](evidence/admin-phase3/queue-1280.png) / [phone](evidence/admin-phase3/queue-360.png), payments [desktop](evidence/admin-phase3/payments-1280.png) / [phone](evidence/admin-phase3/payments-360.png), [application detail](evidence/admin-phase3/application-detail-360.png), [gateway form](evidence/admin-phase3/gateway-form-360.png), [operator detail](evidence/admin-phase3/operator-detail-360.png), [read-only reviewer](evidence/admin-phase3/read-only-decision-360.png) and [owner property](evidence/admin-phase3/owner-property-360.png). Tablet captures are retained in the same directory.
+
+Frontend tests: **92 passed**, including new IST boundary/domain-status/record-tab URL tests and existing owner navigation/state tests. Application-review disposable integration: **1 passed, 0 skipped**, covering assignment, all decision outcomes, stale-state protection and resubmission. Changed-file ESLint/Prettier and production build pass. Browser coverage includes 360/768/1280 px containment, captions/headers, keyboard scroll/focus, 44 px native controls, full-access review actions, read-only control absence and API 403, forbidden/filtered-empty states, record-tab navigation/refresh, deterministic security history/session dates, gateway form and owner help/property shell parity. The Impeccable detector's three inherited decision-panel accent borders were removed in the confirmation pass.
+
+**Remaining limits:** repository-wide lint/format have unrelated failures recorded in the check record; build emits public sitemap policy API warnings. Production/provider workflows and the Phase 12 complete journey were not exercised. ADM-F02's named application assignment/decision controls and ADM-F04's operator-date mismatch are resolved locally; other document/module permissions remain their later-phase verification. ADM-F03, ADM-F05 and ADM-F06 remain open. Shared primitives are demonstrated on representative screens; remaining module tables/forms move onto them during Phases 5–10.
+
+**Reproduce:** follow the Phase 2 disposable fixture instructions above, adding `ADMIN_UI_FIXTURE=1` for backend startup, using frontend fixture ID `admin-phase3`, and running `python scripts/portal-gate/admin-visual-system.py` with the private `ADMIN_NAV_FIXTURE` path. The gate requires Python Playwright, Chrome and the application's pinned axe-core. Use a fresh fixture; do not load backend `.env`. Run fixtures in an interactive terminal so `stop` or Ctrl+C drops their database, stop the isolated frontend and PostgreSQL cluster, and remove private tokens. Evidence contains no fixture tokens or configured database credentials.
+
+**Next phase:** Phase 4 — authorized dashboard and analytics, beginning with the dashboard API contract and aggregate definitions.
+
 
 ### Phase 4 — Dashboard and analytics
 
@@ -529,7 +557,7 @@ Run the complete redesigned journey with disposable fixtures: sign-in/2FA → da
 | Release | Phases | Reviewable outcome                                                                | Status                              |
 | ------- | ------ | --------------------------------------------------------------------------------- | ----------------------------------- |
 | A0      | 1      | Verified inventory and baseline                                                   | Complete (audit); findings recorded |
-| A1 | 2–3 | Clear sidebar, section tabs and consistent primitives; application route migrated | In progress: Phase 2 complete; Phase 3 pending |
+| A1 | 2–3 | Clear sidebar, section tabs and consistent primitives; application route migrated | Complete; locally verified, not deployed |
 | A2      | 4      | Authorized dashboard, actionable queues and defined analytics                     | Not started                         |
 | A3      | 5–7    | Review, booking/case and people workspaces                                        | Not started                         |
 | A4      | 8–9    | Finance, guest-review and support workflows                                       | Not started                         |
@@ -552,4 +580,4 @@ Update this single document as work progresses. Record implemented IDs, changed 
 - Add no editable platform calendar, admin impersonation, automated bulk approvals, live chat or payout execution as part of this UI redesign.
 - UI-only phases should need no migration. Dashboard/search/index changes are scoped and verified separately when evidence requires them.
 
-Phases 1–2 are complete and locally verified. The next implementation step is Phase 3: standardize shared admin visual and list/detail primitives while preserving module behavior.
+Phases 1–3 are complete and locally verified. The next implementation step is Phase 4: define the authorized dashboard API and implement trustworthy overview/analytics panels.

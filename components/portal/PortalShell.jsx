@@ -392,6 +392,7 @@ export default function PortalShell({ config, children }) {
 
   return (
     <div
+      data-admin-workspace={config.adminNavigation || undefined}
       data-keyboard-open={keyboard}
       className={`portal-ui min-h-dvh bg-ink-25 ${owner ? 'owner-portal md:flex' : 'lg:flex'}`}
     >

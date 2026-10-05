@@ -5,10 +5,12 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from '@/components/navigation/NavigationLink';
 import Pagination from '@/components/ui/pagination';
+import { adminDateTime } from '@/lib/domain/admin-display';
+import { AdminPage, AdminPageHeader } from './AdminPrimitives';
 import { operatorCommand, enrollOperator } from '@/lib/actions/operators';
 const input = `${sharedFieldClass} mt-1`;
 const button = `${sharedButtonVariants({ shape: 'default', size: 'default' })} `;
-const card = 'space-y-4 rounded-lg border border-ink-200 bg-white p-4 sm:p-6';
+const card = 'space-y-4 rounded-lg border border-border bg-card p-5 sm:p-6';
 function Grants({ options, initial = [], full = false }) {
   const [all, setAll] = useState(full);
   return (
@@ -177,113 +179,118 @@ function CommandForm({ data, create = false }) {
 }
 export function OperatorDirectory({ data }) {
   return (
-    <section className="space-y-6 p-4 sm:p-6">
-      <h1 className="text-2xl font-bold">Operators & security</h1>
-      <form className="flex flex-wrap items-end gap-3">
-        <label>
-          Search
-          <input className={input} name="q" defaultValue={data.q} />
-        </label>
-        <label>
-          Status
-          <select className={input} name="status" defaultValue={data.status}>
-            <option value="all">All</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-        </label>
-        <button className={button}>Search operators</button>
-      </form>
-      <p>
-        {data.total} operators · Page {data.page} of {data.pages}
-      </p>
-      <ul className="space-y-3">
-        {data.items.map((o) => (
-          <li key={o.id} className={card}>
-            <Link className="font-semibold underline" href={`/admin/security/${o.id}`}>
-              {o.name}
-            </Link>
-            <p className="break-all">{o.email}</p>
-            <p>
-              {o.active ? 'Active' : 'Inactive'} ·{' '}
-              {o.fullAccess ? 'Full Super Admin' : 'Assigned capabilities'} ·{' '}
-              {o.enrollmentPending
-                ? 'Enrollment pending'
-                : o.hasTotp
-                  ? 'Factor enrolled'
-                  : 'Factor missing'}
-            </p>
-          </li>
-        ))}
-      </ul>
-      {!data.items.length && <p>No operators match these filters.</p>}
-      <Pagination
-        page={data.page}
-        pageSize={20}
-        total={data.total}
-        pages={data.pages}
-        pageSizes={null}
-        label="Operator pages"
-        noun="operators"
+    <AdminPage>
+      <AdminPageHeader
+        title="Operators & security"
+        description="Inspect operator access, enrollment and session history."
       />
-      {data.canWrite && <CommandForm data={data} create />}
-    </section>
+      <div className="mt-6 space-y-6">
+        <form className="flex flex-wrap items-end gap-3">
+          <label>
+            Search
+            <input className={input} name="q" defaultValue={data.q} />
+          </label>
+          <label>
+            Status
+            <select className={input} name="status" defaultValue={data.status}>
+              <option value="all">All</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </label>
+          <button className={button}>Search operators</button>
+        </form>
+        <p>
+          {data.total} operators · Page {data.page} of {data.pages}
+        </p>
+        <ul className="space-y-3">
+          {data.items.map((o) => (
+            <li key={o.id} className={card}>
+              <Link className="font-semibold underline" href={`/admin/security/${o.id}`}>
+                {o.name}
+              </Link>
+              <p className="break-all">{o.email}</p>
+              <p>
+                {o.active ? 'Active' : 'Inactive'} ·{' '}
+                {o.fullAccess ? 'Full Super Admin' : 'Assigned capabilities'} ·{' '}
+                {o.enrollmentPending
+                  ? 'Enrollment pending'
+                  : o.hasTotp
+                    ? 'Factor enrolled'
+                    : 'Factor missing'}
+              </p>
+            </li>
+          ))}
+        </ul>
+        {!data.items.length && <p>No operators match these filters.</p>}
+        <Pagination
+          page={data.page}
+          pageSize={20}
+          total={data.total}
+          pages={data.pages}
+          pageSizes={null}
+          label="Operator pages"
+          noun="operators"
+        />
+        {data.canWrite && <CommandForm data={data} create />}
+      </div>
+    </AdminPage>
   );
 }
 export function OperatorDetail({ data }) {
   const o = data.operator;
   return (
-    <section className="space-y-6 p-4 sm:p-6">
-      <Link className="underline" href="/admin/security">
-        Back to operators
-      </Link>
-      <h1 className="text-2xl font-bold">{o.name}</h1>
-      <p className="break-all">{o.email}</p>
-      <p>
-        {o.active ? 'Active' : 'Inactive'} · {o.hasTotp ? 'Factor enrolled' : 'Factor missing'}
-        {o.enrollmentPending ? ' · Enrollment pending' : ''} · Version {o.version}
-      </p>
-      {o.lockedUntil && <p>Sign-in lock until {new Date(o.lockedUntil).toLocaleString()}</p>}
-      {data.canWrite ? (
-        <CommandForm data={data} />
-      ) : (
+    <AdminPage>
+      <AdminPageHeader title={o.name} backHref="/admin/security" backLabel="Operators & security" />
+      <div className="mt-6 space-y-6">
+        <p className="break-all">{o.email}</p>
+        <p>
+          {o.active ? 'Active' : 'Inactive'} · {o.hasTotp ? 'Factor enrolled' : 'Factor missing'}
+          {o.enrollmentPending ? ' · Enrollment pending' : ''} · Version {o.version}
+        </p>
+        {o.lockedUntil && <p>Sign-in lock until {adminDateTime(o.lockedUntil)}</p>}
+        {data.canWrite ? (
+          <CommandForm data={data} />
+        ) : (
+          <section className={card}>
+            <h2 className="font-semibold">Assigned capabilities</h2>
+            <ul>
+              {o.capabilities.map((c) => (
+                <li key={c}>{c}</li>
+              ))}
+            </ul>
+            <p>You have read-only access.</p>
+          </section>
+        )}
         <section className={card}>
-          <h2 className="font-semibold">Assigned capabilities</h2>
-          <ul>
-            {o.capabilities.map((c) => (
-              <li key={c}>{c}</li>
+          <h2 className="text-xl font-semibold">Active sessions</h2>
+          <p>
+            {data.sessions.length} sessions (latest 100). Use Sign out everywhere to revoke them.
+          </p>
+          <ul className="space-y-2">
+            {data.sessions.map((s) => (
+              <li key={s.id}>
+                Signed in {adminDateTime(s.created_at)} · Expires {adminDateTime(s.expires_at)}
+              </li>
             ))}
           </ul>
-          <p>You have read-only access.</p>
         </section>
-      )}
-      <section className={card}>
-        <h2 className="text-xl font-semibold">Active sessions</h2>
-        <p>{data.sessions.length} sessions (latest 100). Use Sign out everywhere to revoke them.</p>
-        <ul className="space-y-2">
-          {data.sessions.map((s) => (
-            <li key={s.id}>
-              Signed in {new Date(s.created_at).toLocaleString()} · Expires{' '}
-              {new Date(s.expires_at).toLocaleString()}
-            </li>
-          ))}
-        </ul>
-      </section>
-      <section className={card}>
-        <h2 className="text-xl font-semibold">Security history</h2>
-        <ul className="space-y-3">
-          {data.history.map((h, i) => (
-            <li key={i}>
-              <p>
-                {h.action} · {new Date(h.created_at).toLocaleString()}
-              </p>
-              <p>{h.reason}</p>
-            </li>
-          ))}
-        </ul>
-        {!data.history.length && <p>No recorded security changes.</p>}
-      </section>
-    </section>
+        <section className={card}>
+          <h2 className="text-xl font-semibold">Security history</h2>
+          <ul className="space-y-3">
+            {data.history.map((h, i) => (
+              <li key={i}>
+                <p>
+                  {h.action} · {adminDateTime(h.created_at)}
+                </p>
+                <p>{h.reason}</p>
+              </li>
+            ))}
+          </ul>
+          {!data.history.length && <p>No recorded security changes.</p>}
+        </section>
+      </div>
+    </AdminPage>
   );
 }
 export function OperatorEnrollment() {

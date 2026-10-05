@@ -1,20 +1,14 @@
 import Link from '@/components/navigation/NavigationLink';
 import Breadcrumbs from '@/components/portal/Breadcrumbs';
 import CopyChip from '@/components/portal/CopyChip';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { detailTabHref, pickDetailTab } from '@/lib/domain/detail-navigation';
 
 /**
  * Shared admin detail-page layout: identity header, key metrics, URL-backed
  * tabs (`?tab=`) and focused panels. Tabs are links, so a tab is bookmarkable,
  * survives reload and keeps the `from` list context.
  */
-
-const BADGE = {
-  success: 'bg-success-bg text-success ring-success/15',
-  warning: 'bg-warning-bg text-warning ring-warning/20',
-  danger: 'bg-danger-bg text-danger ring-danger/15',
-  info: 'bg-info-bg text-info ring-info/15',
-  neutral: 'bg-ink-100 text-ink-700 ring-ink-200',
-};
 
 const METRIC = {
   neutral: 'text-ink-900',
@@ -37,9 +31,7 @@ export function initials(text) {
 }
 
 /** The requested tab when known, otherwise the first. */
-export function pickTab(value, tabs) {
-  return tabs.some((tab) => tab.key === value) ? value : tabs[0].key;
-}
+export const pickTab = pickDetailTab;
 
 export function DetailHeader({ breadcrumbs, avatar, title, badges = [], id, chips = [], actions }) {
   return (
@@ -56,12 +48,9 @@ export function DetailHeader({ breadcrumbs, avatar, title, badges = [], id, chip
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="mr-1 text-h1 font-bold break-words text-ink-900">{title}</h1>
             {badges.map((badge) => (
-              <span
-                key={badge.label}
-                className={`inline-flex items-center rounded-full px-2.5 py-1 text-tiny font-bold capitalize ring-1 ${BADGE[badge.tone ?? 'neutral']}`}
-              >
+              <StatusBadge key={badge.label} tone={badge.tone ?? 'neutral'}>
                 {badge.label}
-              </span>
+              </StatusBadge>
             ))}
           </div>
           <ul className="mt-3 flex flex-wrap gap-2" aria-label="Key details">
@@ -80,7 +69,7 @@ export function DetailHeader({ breadcrumbs, avatar, title, badges = [], id, chip
                 </>
               );
               const cls =
-                'inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-full border border-border bg-card px-3 text-tiny font-medium text-ink-800';
+                'inline-flex min-h-11 max-w-full items-center gap-1.5 rounded-full border border-border bg-card px-3 text-tiny font-medium text-ink-800';
               return (
                 <li key={`${chip.label ?? ''}${chip.value}`}>
                   {chip.href ? (
@@ -127,14 +116,7 @@ export function MetricStrip({ items, label = 'Key figures' }) {
  * the first tab has no `tab` parameter so the canonical URL stays clean.
  */
 export function DetailTabs({ tabs, active, basePath, params = {} }) {
-  const href = (key) => {
-    const search = new URLSearchParams(
-      Object.entries(params).filter(([name, value]) => name !== 'tab' && typeof value === 'string'),
-    );
-    if (key !== tabs[0].key) search.set('tab', key);
-    const query = search.toString();
-    return query ? `${basePath}?${query}` : basePath;
-  };
+  const href = (key) => detailTabHref(basePath, key, tabs, params);
   return (
     <nav
       aria-label="Record sections"
@@ -235,7 +217,10 @@ export function Row({ primary, secondary, trailing, href, hrefLabel }) {
       <span className="flex items-center gap-3">
         {trailing}
         {href ? (
-          <Link href={href} className="text-tiny font-bold text-brand-700 hover:underline">
+          <Link
+            href={href}
+            className="inline-flex min-h-11 items-center text-meta font-semibold text-brand-700 hover:underline"
+          >
             {hrefLabel ?? 'Open'} →
           </Link>
         ) : null}

@@ -1,8 +1,10 @@
 import Form from '@/components/navigation/NavigationForm';
 import Link from '@/components/navigation/NavigationLink';
 import { AlertTriangle, Clock, Inbox, MousePointerClick, RotateCcw, UserCheck } from 'lucide-react';
-import { AdminEmpty, StatusBadge } from './AdminPrimitives';
+import { AdminEmpty, AdminFilterBar, AdminTable, StatusBadge } from './AdminPrimitives';
 import Pagination from '@/components/ui/pagination';
+import { adminDateTime } from '@/lib/domain/admin-display';
+import { fieldClass } from '@/components/ui/field';
 import { applicationQueueHref as queueHref } from '@/lib/domain/admin-navigation';
 
 const STATUS = {
@@ -14,24 +16,15 @@ const STATUS = {
   all: 'All',
 };
 const ASSIGNEE = { any: 'Anyone', me: 'Assigned to me', unassigned: 'Unassigned' };
-const tone = (status) =>
-  status === 'approved'
-    ? 'success'
-    : status === 'rejected'
-      ? 'danger'
-      : status === 'submitted'
-        ? 'info'
-        : 'warning';
-
 /** Gate 1 work queue: URL-backed status, assignee, search and page. */
 export default function ApplicationQueue({ data, query = {} }) {
   const here = queueHref(data, query);
   return (
     <section
-      className="mt-6 overflow-hidden rounded-lg border border-border bg-card shadow-xs"
+      className="mt-6 overflow-hidden rounded-lg border border-border bg-card"
       aria-labelledby="queue-title"
     >
-      <div className="space-y-4 border-b border-border p-4 sm:p-5">
+      <AdminFilterBar label="Application filters" className="border-b border-border">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 id="queue-title" className="text-h4 font-bold text-ink-900">
@@ -67,10 +60,10 @@ export default function ApplicationQueue({ data, query = {} }) {
                 name="q"
                 defaultValue={data.q}
                 maxLength={100}
-                className="mt-1 block min-h-10 w-52 max-w-full rounded-md border border-input bg-card px-3 text-base md:text-sm"
+                className={`${fieldClass} mt-1 block w-52 max-w-full`}
               />
             </label>
-            <button className="min-h-10 rounded-md bg-primary px-4 text-tiny font-semibold text-white">
+            <button className="min-h-11 rounded-md bg-primary px-4 text-tiny font-semibold text-white">
               Search
             </button>
           </Form>
@@ -81,7 +74,7 @@ export default function ApplicationQueue({ data, query = {} }) {
               key={key}
               href={queueHref({ ...data, status: key, page: 1 }, query)}
               aria-current={data.status === key ? 'page' : undefined}
-              className={`inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-tiny font-semibold ${
+              className={`inline-flex min-h-11 items-center gap-1.5 rounded-full border px-3 text-tiny font-semibold ${
                 data.status === key
                   ? 'border-brand-700 bg-primary text-white'
                   : 'border-border bg-card text-ink-700 hover:bg-ink-50'
@@ -97,7 +90,7 @@ export default function ApplicationQueue({ data, query = {} }) {
               key={key}
               href={queueHref({ ...data, assignee: key, page: 1 }, query)}
               aria-current={data.assignee === key ? 'page' : undefined}
-              className={`inline-flex min-h-9 items-center rounded-md border px-3 text-tiny font-semibold ${
+              className={`inline-flex min-h-11 items-center rounded-md border px-3 text-tiny font-semibold ${
                 data.assignee === key
                   ? 'border-ink-800 bg-ink-800 text-white'
                   : 'border-border bg-card text-ink-700 hover:bg-ink-50'
@@ -107,76 +100,96 @@ export default function ApplicationQueue({ data, query = {} }) {
             </Link>
           ))}
         </nav>
-      </div>
+      </AdminFilterBar>
 
-      {data.items.length ? (
-        <ul className="divide-y divide-border">
-          {data.items.map((item) => (
-            <li key={item.id}>
+      <AdminTable
+        label="Owner applications"
+        columns={['Owner', 'Submitted (IST)', 'Waiting', 'State', 'Reviewer', 'Review']}
+        framed={false}
+        minWidth={900}
+        empty={
+          !data.items.length ? (
+            <AdminEmpty
+              icon={Inbox}
+              title={data.q ? 'No applications match this search' : 'Nothing in this view'}
+              description={
+                data.status === 'submitted'
+                  ? 'No submitted applications are waiting for this filter.'
+                  : 'Choose another status or reviewer filter.'
+              }
+            />
+          ) : null
+        }
+      >
+        {data.items.map((item) => (
+          <tr key={item.id}>
+            <th scope="row" className="min-w-56 text-left font-normal">
               <Link
                 href={`/admin/applications/${item.id}?from=${encodeURIComponent(here)}`}
-                className="group flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-4 hover:bg-ink-50 sm:px-5"
+                className="inline-flex min-h-11 items-center font-semibold text-ink-900 hover:text-brand-700"
               >
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-meta font-semibold text-ink-900">
-                    {item.legalName || item.email}
-                  </span>
-                  <span className="block truncate text-tiny text-ink-500">
-                    {item.email}
-                    {item.clientType === 'authorised_agent' ? ' · agent' : ''}
-                  </span>
-                </span>
-                <StatusBadge tone={tone(item.status)}>
-                  {STATUS[item.status] ?? item.status}
-                </StatusBadge>
+                {item.legalName || item.email}
+              </Link>
+              <p className="break-all text-meta text-ink-600">
+                {item.email}
+                {item.clientType === 'authorised_agent' ? ' · agent' : ''}
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
                 {item.resubmission ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-info-bg px-2.5 py-1 text-tiny font-bold text-ink-700">
-                    <RotateCcw className="size-3" aria-hidden="true" /> Resubmitted
-                  </span>
+                  <StatusBadge tone="info">
+                    <RotateCcw className="size-3" aria-hidden="true" />
+                    Resubmitted
+                  </StatusBadge>
                 ) : null}
                 {item.blocker ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-danger-bg px-2.5 py-1 text-tiny font-bold text-danger">
-                    <AlertTriangle className="size-3" aria-hidden="true" /> {item.blocker}
-                  </span>
+                  <StatusBadge tone="danger">
+                    <AlertTriangle className="size-3" aria-hidden="true" />
+                    {item.blocker}
+                  </StatusBadge>
                 ) : null}
                 {item.strikeCount > 0 ? (
-                  <span className="rounded-full bg-warning-bg px-2.5 py-1 text-tiny font-bold text-warning">
-                    strike {item.strikeCount}/3
-                  </span>
+                  <StatusBadge tone="warning">Strike {item.strikeCount}/3</StatusBadge>
                 ) : null}
                 {item.ctaClicks >= 2 ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-1 text-tiny font-bold text-brand-700">
-                    <MousePointerClick className="size-3" aria-hidden="true" /> {item.ctaClicks}{' '}
-                    tries
-                  </span>
+                  <StatusBadge tone="neutral">
+                    <MousePointerClick className="size-3" aria-hidden="true" />
+                    {item.ctaClicks} tries
+                  </StatusBadge>
                 ) : null}
-                <span className="inline-flex items-center gap-1 text-tiny text-ink-600">
-                  <UserCheck className="size-3" aria-hidden="true" />
-                  {item.assignee ? (item.assignedToMe ? 'You' : item.assignee.email) : 'Unassigned'}
-                </span>
-                {item.ageHours != null ? (
-                  <span
-                    className={`inline-flex items-center gap-1 text-tiny font-bold tabular ${item.overdue ? 'text-danger' : 'text-ink-600'}`}
-                  >
-                    <Clock className="size-3" aria-hidden="true" /> {item.ageHours}h
-                    {item.overdue ? ' · overdue' : ''}
-                  </span>
-                ) : null}
+              </div>
+            </th>
+            <td className="whitespace-nowrap">{adminDateTime(item.submittedAt)}</td>
+            <td className="whitespace-nowrap">
+              <span
+                className={`inline-flex items-center gap-1 tabular ${item.overdue ? 'font-semibold text-danger' : 'text-ink-600'}`}
+              >
+                <Clock className="size-4" aria-hidden="true" />
+                {item.ageHours == null
+                  ? 'Not waiting'
+                  : `${item.ageHours}h${item.overdue ? ' · overdue' : ''}`}
+              </span>
+            </td>
+            <td>
+              <StatusBadge domain="application" state={item.status} />
+            </td>
+            <td>
+              <span className="inline-flex items-center gap-1">
+                <UserCheck className="size-4 shrink-0" aria-hidden="true" />
+                {item.assignee ? (item.assignedToMe ? 'You' : item.assignee.email) : 'Unassigned'}
+              </span>
+            </td>
+            <td>
+              <Link
+                href={`/admin/applications/${item.id}?from=${encodeURIComponent(here)}`}
+                aria-label={`Review application for ${item.legalName || item.email}`}
+                className="inline-flex min-h-11 items-center rounded-md px-3 font-semibold text-brand-700 hover:bg-brand-50"
+              >
+                Review
               </Link>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <AdminEmpty
-          icon={Inbox}
-          title={data.q ? 'No applications match this search' : 'Nothing in this view'}
-          description={
-            data.status === 'submitted'
-              ? 'No submitted applications are waiting for this filter.'
-              : 'Choose another status or reviewer filter.'
-          }
-        />
-      )}
+            </td>
+          </tr>
+        ))}
+      </AdminTable>
 
       <Pagination
         page={data.page}

@@ -6,7 +6,7 @@ import RetryButton from '@/components/portal/RetryButton';
 import { assignApplication } from '@/lib/actions/admin';
 
 /** Claim, release or take over; the reviewer on record is who decides. */
-export default function AssignmentPanel({ applicationId, review }) {
+export default function AssignmentPanel({ applicationId, review, canWrite = false }) {
   const [state, action, pending] = useActionState(assignApplication, {});
   const mine = review.assignedToMe;
   const other = review.assignee && !mine;
@@ -15,7 +15,7 @@ export default function AssignmentPanel({ applicationId, review }) {
   return (
     <section
       aria-labelledby="assignment-title"
-      className="overflow-hidden rounded-lg border border-border bg-card shadow-xs"
+      className="overflow-hidden rounded-lg border border-border bg-card"
     >
       <h2
         id="assignment-title"
@@ -27,7 +27,7 @@ export default function AssignmentPanel({ applicationId, review }) {
         <p className="text-meta text-ink-800">
           {mine ? 'Assigned to you' : other ? `Assigned to ${review.assignee.email}` : 'Unassigned'}
         </p>
-        {other ? (
+        {other && canWrite ? (
           <p className="mt-1 text-tiny text-ink-500">
             Take over only after agreeing it with them; the change is recorded.
           </p>
@@ -40,18 +40,24 @@ export default function AssignmentPanel({ applicationId, review }) {
             </div>
           </div>
         ) : null}
-        <form action={action} className="mt-3">
-          <input type="hidden" name="applicationId" value={applicationId} />
-          <input type="hidden" name="action" value={command} />
-          <button
-            type="submit"
-            disabled={pending}
-            className="inline-flex min-h-10 items-center gap-2 rounded-md border border-border bg-card px-3 text-tiny font-semibold text-ink-800 hover:bg-ink-50 disabled:cursor-wait disabled:opacity-70"
-          >
-            {pending ? <LoaderCircle className="size-4" aria-hidden="true" /> : null}
-            {label}
-          </button>
-        </form>
+        {canWrite ? (
+          <form action={action} className="mt-3">
+            <input type="hidden" name="applicationId" value={applicationId} />
+            <input type="hidden" name="action" value={command} />
+            <button
+              type="submit"
+              disabled={pending}
+              className="inline-flex min-h-11 items-center gap-2 rounded-md border border-border bg-card px-3 text-meta font-semibold text-ink-800 hover:bg-ink-50 disabled:cursor-wait disabled:opacity-70"
+            >
+              {pending ? <LoaderCircle className="size-4" aria-hidden="true" /> : null}
+              {label}
+            </button>
+          </form>
+        ) : (
+          <p className="mt-3 text-meta text-ink-600">
+            Read-only reviewer access. Assignment changes require applications write permission.
+          </p>
+        )}
       </div>
     </section>
   );

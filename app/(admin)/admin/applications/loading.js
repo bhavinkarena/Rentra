@@ -1,5 +1,5 @@
 import AdminLoading from '@/components/admin/AdminLoading';
 
 export default function Loading() {
-  return <AdminLoading screen="payments" label="admin finance payments" />;
+  return <AdminLoading screen="applications" label="owner applications" />;
 }

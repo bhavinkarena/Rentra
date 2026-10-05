@@ -79,6 +79,7 @@ export default function AdminShell({ children, admin, logoutAction, counts = {} 
     <PortalShell
       config={{
         home: '/admin',
+        adminNavigation: true,
         product: 'Admin',
         workspace: 'Admin workspace',
         navLabel: 'Admin navigation',

@@ -11,7 +11,14 @@ import { requireAdmin } from '@/lib/api/session';
 import { adminApi } from '@/lib/api/endpoints';
 import { SLA_HOURS } from '@/lib/constants';
 import ApplicationQueue from '@/components/admin/ApplicationQueue';
+import {
+  AdminPage,
+  AdminPageHeader,
+  AdminKpiCard as Stat,
+  StatusBadge,
+} from '@/components/admin/AdminPrimitives';
 import PortalState from '@/components/portal/PortalState';
+import { settle } from '@/lib/api/page-state';
 
 export const metadata = {
   title: 'Owner applications',
@@ -30,21 +37,25 @@ export default async function AdminQueuePage({ searchParams }) {
   if (!admin.capabilities?.includes('admin.applications.read'))
     return <PortalState kind="forbidden" backHref="/admin" backLabel="Admin home" />;
   const params = await searchParams;
-  const [queue, stats, recent] = await Promise.all([
-    adminApi.applications({
-      status: params?.status,
-      assignee: params?.assignee,
-      q: params?.q,
-      page: params?.page,
-    }),
-    adminApi.applicationStats(),
-    adminApi.recentDecisions(8),
-  ]);
+  const { data, failure } = await settle(
+    Promise.all([
+      adminApi.applications({
+        status: params?.status,
+        assignee: params?.assignee,
+        q: params?.q,
+        page: params?.page,
+      }),
+      adminApi.applicationStats(),
+      adminApi.recentDecisions(8),
+    ]),
+  );
+  if (failure) return <PortalState kind={failure} backHref="/admin" backLabel="Admin home" />;
+  const [queue, stats, recent] = data;
   const waiting = stats.submitted ?? 0;
   const overdue = stats.overdue ?? 0;
 
   return (
-    <div className="mx-auto w-full max-w-(--container-workspace) px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+    <AdminPage>
       {params?.decided && DECIDED_MESSAGE[params.decided] ? (
         <div className="mb-6 flex items-start gap-3 rounded-lg border border-brand-200 bg-success-bg p-4 text-meta text-brand-900">
           <CircleCheckBig className="mt-0.5 size-5 shrink-0 text-brand-700" aria-hidden="true" />
@@ -52,25 +63,22 @@ export default async function AdminQueuePage({ searchParams }) {
         </div>
       ) : null}
 
-      <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <h1 className="text-h1 text-ink-900">Owner applications</h1>
-          <p className="mt-2 max-w-2xl text-meta leading-6 text-ink-600">
-            Review partner applications, keep decisions consistent, and make sure nothing misses the
-            service window.
-          </p>
-        </div>
-        <div
-          className={`inline-flex w-fit items-center gap-2 rounded-full px-3 py-2 text-tiny font-bold ${overdue ? 'bg-danger-bg text-danger' : 'bg-brand-50 text-brand-800'}`}
-        >
-          {overdue ? (
-            <AlertTriangle className="size-4" aria-hidden="true" />
-          ) : (
-            <CheckCircle2 className="size-4" aria-hidden="true" />
-          )}
-          {overdue ? `${overdue} past SLA` : 'SLA on track'}
-        </div>
-      </header>
+      <AdminPageHeader
+        title="Owner applications"
+        description="Review owner applications, keep decisions consistent, and make sure nothing misses the service window."
+        action={
+          <div
+            className={`inline-flex w-fit items-center gap-2 rounded-full px-3 py-2 text-tiny font-bold ${overdue ? 'bg-danger-bg text-danger' : 'bg-brand-50 text-brand-800'}`}
+          >
+            {overdue ? (
+              <AlertTriangle className="size-4" aria-hidden="true" />
+            ) : (
+              <CheckCircle2 className="size-4" aria-hidden="true" />
+            )}
+            {overdue ? `${overdue} past SLA` : 'SLA on track'}
+          </div>
+        }
+      />
 
       <section
         className="mt-7 grid grid-cols-2 gap-3 xl:grid-cols-4"
@@ -81,14 +89,14 @@ export default async function AdminQueuePage({ searchParams }) {
           value={waiting}
           hint="Ready for an admin decision"
           icon={FileClock}
-          tone={waiting ? 'act' : 'calm'}
+          tone={waiting ? 'brand' : 'neutral'}
         />
         <Stat
           label={`Past ${SLA_HOURS}h SLA`}
           value={overdue}
           hint="Applications needing priority"
           icon={Clock}
-          tone={overdue ? 'bad' : 'calm'}
+          tone={overdue ? 'danger' : 'neutral'}
         />
         <Stat
           label="Sent back"
@@ -108,7 +116,7 @@ export default async function AdminQueuePage({ searchParams }) {
       <ApplicationQueue data={queue} query={params} />
 
       {recent.length > 0 ? (
-        <section className="mt-6 overflow-hidden rounded-lg border border-border bg-card shadow-xs">
+        <section className="mt-6 overflow-hidden rounded-lg border border-border bg-card">
           <div className="border-b border-border px-4 py-4 sm:px-5">
             <h2 className="text-h4 font-bold text-ink-900">Recently decided</h2>
             <p className="mt-0.5 text-tiny text-ink-500">
@@ -127,11 +135,7 @@ export default async function AdminQueuePage({ searchParams }) {
                 >
                   {decision.email}
                 </Link>
-                <span
-                  className={`shrink-0 rounded-full px-2.5 py-1 text-tiny font-bold ${statusTone(decision.status)}`}
-                >
-                  {decision.status.replace(/_/g, ' ')}
-                </span>
+                <StatusBadge domain="application" state={decision.status} />
                 <span className="shrink-0 text-tiny text-ink-500">
                   {decision.accountStatus}
                   {decision.adminEmail ? ` · by ${decision.adminEmail}` : ''}
@@ -141,42 +145,6 @@ export default async function AdminQueuePage({ searchParams }) {
           </ul>
         </section>
       ) : null}
-    </div>
+    </AdminPage>
   );
-}
-
-function Stat({ label, value, hint, icon: Icon, tone = 'calm' }) {
-  const tones = {
-    calm: 'border-border bg-card text-ink-700',
-    act: 'border-brand-200 bg-brand-50 text-brand-700',
-    bad: 'border-danger/25 bg-danger-bg text-danger',
-    success: 'border-border bg-card text-success',
-  };
-
-  return (
-    <article className={`rounded-lg border p-4 shadow-xs sm:p-5 ${tones[tone]}`}>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-tiny font-semibold text-ink-500">{label}</p>
-          <p
-            className="mt-1 text-[1.75rem] leading-none font-extrabold text-ink-900 tabular"
-            data-money
-          >
-            {value}
-          </p>
-        </div>
-        <span className="grid size-9 place-items-center rounded-md bg-white/70 ring-1 ring-current/10">
-          <Icon className="size-[18px]" aria-hidden="true" />
-        </span>
-      </div>
-      <p className="mt-3 hidden text-tiny leading-4 text-ink-500 sm:block">{hint}</p>
-    </article>
-  );
-}
-
-function statusTone(status) {
-  if (status === 'approved') return 'bg-brand-50 text-brand-700';
-  if (status === 'rejected') return 'bg-danger-bg text-danger';
-  if (status === 'more_info_needed') return 'bg-warning-bg text-warning';
-  return 'bg-ink-100 text-ink-600';
 }
