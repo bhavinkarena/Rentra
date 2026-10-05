@@ -2,6 +2,7 @@ import Link from '@/components/navigation/NavigationLink';
 import { Flag, MessageSquareWarning, ShieldCheck, Star } from 'lucide-react';
 import {
   AdminEmpty,
+  AdminTable,
   AdminKpiCard,
   AdminPage,
   AdminPageHeader,
@@ -21,8 +22,7 @@ export default function AdminReviewQueue({ data }) {
   return (
     <AdminPage>
       <AdminPageHeader
-        eyebrow="Trust and safety"
-        title="Customer review moderation"
+        title="Guest reviews"
         description="Apply the same publication rules to every score. Remove only policy violations such as private information, harassment, spam, or unrelated content."
       />
       <section className="mt-7 grid grid-cols-2 gap-3 xl:grid-cols-4" aria-label="Review summary">
@@ -33,23 +33,23 @@ export default function AdminReviewQueue({ data }) {
           icon={Star}
         />
         <AdminKpiCard
-          label="Pending"
+          label="Pending on page"
           value={pending}
-          hint="Awaiting a publication decision"
+          hint="Awaiting a decision on this page"
           icon={ShieldCheck}
           tone={pending ? 'warning' : 'neutral'}
         />
         <AdminKpiCard
-          label="Published"
+          label="Published on page"
           value={published}
           hint="Visible customer feedback"
           icon={Star}
           tone="brand"
         />
         <AdminKpiCard
-          label="Open reports"
+          label="Loaded open reports"
           value={data.reports.length}
-          hint="Reports requiring resolution"
+          hint="Reports returned by the current queue"
           icon={Flag}
           tone={data.reports.length ? 'danger' : 'neutral'}
         />
@@ -61,49 +61,51 @@ export default function AdminReviewQueue({ data }) {
             Moderation reasons are shared with the author
           </p>
         </div>
-        {data.rows.length ? (
-          <ul className="divide-y divide-border">
-            {data.rows.map((review) => (
-              <li key={review.id} className="grid gap-5 p-5 lg:grid-cols-[minmax(0,1fr)_360px]">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="font-bold text-ink-900">{review.title}</h3>
-                    <StatusBadge tone={tone(review.moderation_state)}>
-                      {review.moderation_state}
-                    </StatusBadge>
-                  </div>
-                  <p className="mt-2 text-tiny font-semibold text-warning">
-                    {'★'.repeat(review.rating)}
-                    {'☆'.repeat(5 - review.rating)} · {review.rating}/5
+        <AdminTable
+          framed={false}
+          label="Guest reviews"
+          columns={['Property and score', 'Feedback', 'Moderation', 'Review']}
+          empty={
+            !data.rows.length && (
+              <AdminEmpty
+                icon={MessageSquareWarning}
+                title="No reviews on this page"
+                description="New guest feedback will appear here."
+              />
+            )
+          }
+        >
+          {data.rows.map((review) => (
+            <tr key={review.id}>
+              <td className="px-4 py-4">
+                <p className="font-semibold">{review.title}</p>
+                <p>{review.rating} out of 5</p>
+              </td>
+              <td className="max-w-md px-4 py-4">
+                <p className="whitespace-pre-wrap break-words">{review.body}</p>
+                {review.owner_reply && (
+                  <p className="mt-3 whitespace-pre-wrap break-words">
+                    <strong>Owner reply: </strong>
+                    {review.owner_reply}
                   </p>
-                  <p className="mt-4 whitespace-pre-wrap text-meta leading-6 text-ink-700">
-                    {review.body}
-                  </p>
-                  {review.owner_reply ? (
-                    <div className="mt-4 rounded-md bg-ink-50 p-3">
-                      <p className="text-tiny font-bold text-ink-700">Owner reply</p>
-                      <p className="mt-1 text-meta text-ink-600">{review.owner_reply}</p>
-                    </div>
-                  ) : null}
-                </div>
-                <div className="rounded-lg border border-border bg-ink-25 p-4">
-                  <Link
-                    className="inline-flex min-h-11 items-center underline"
-                    href={`/admin/reviews/${review.id}`}
-                  >
-                    Review detail and moderation
-                  </Link>
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <AdminEmpty
-            icon={MessageSquareWarning}
-            title="No reviews on this page"
-            description="New customer reviews will appear here for a consistent publication decision."
-          />
-        )}
+                )}
+              </td>
+              <td className="px-4 py-4">
+                <StatusBadge tone={tone(review.moderation_state)}>
+                  {review.moderation_state}
+                </StatusBadge>
+              </td>
+              <td className="px-4 py-4">
+                <Link
+                  className="inline-flex min-h-11 items-center underline"
+                  href={`/admin/reviews/${review.id}?from=${encodeURIComponent(`/admin/reviews?page=${data.page}`)}`}
+                >
+                  View<span className="sr-only"> review of {review.title}</span>
+                </Link>
+              </td>
+            </tr>
+          ))}
+        </AdminTable>
         <footer className="flex justify-end border-t border-border px-5 py-4">
           <Pager
             page={data.page}
@@ -136,7 +138,7 @@ export default function AdminReviewQueue({ data }) {
                 <div className="space-y-4">
                   <Link
                     className="inline-flex min-h-11 items-center underline"
-                    href={`/admin/reviews/${report.review_id}#report-${report.id}`}
+                    href={`/admin/reviews/${report.review_id}?from=${encodeURIComponent(`/admin/reviews?page=${data.page}`)}#report-${report.id}`}
                   >
                     Report detail and resolution
                   </Link>

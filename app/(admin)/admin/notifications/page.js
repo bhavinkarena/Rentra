@@ -2,9 +2,13 @@ import Link from '@/components/navigation/NavigationLink';
 import { AlertTriangle, CheckCircle2, Clock3, Send } from 'lucide-react';
 import { requireAdmin } from '@/lib/api/session';
 import { adminApi } from '@/lib/api/endpoints';
-import NotificationControls from '@/components/customer/NotificationControls';
+import { deliveryMeta } from '@/lib/domain/admin-delivery';
+import { adminDateTime as date } from '@/lib/domain/admin-display';
+import { settle } from '@/lib/api/page-state';
+import PortalState from '@/components/portal/PortalState';
 import {
   AdminEmpty,
+  AdminTable,
   AdminKpiCard,
   AdminPage,
   AdminPageHeader,
@@ -13,26 +17,12 @@ import {
 import Pagination from '@/components/ui/pagination';
 
 export const metadata = { title: 'Notification delivery', robots: { index: false, follow: false } };
-const date = (value) =>
-  value
-    ? new Date(value).toLocaleString('en-IN', {
-        timeZone: 'Asia/Kolkata',
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      })
-    : 'Not scheduled';
-const tone = (state) =>
-  ['delivered', 'sent'].includes(state)
-    ? 'success'
-    : ['failed', 'blocked', 'undelivered'].includes(state)
-      ? 'danger'
-      : ['unknown', 'retry'].includes(state)
-        ? 'warning'
-        : 'info';
-
 export default async function Monitor({ searchParams }) {
   const admin = await requireAdmin();
-  const data = await adminApi.notifications({ page: (await searchParams)?.page || 1 });
+  const { data, failure } = await settle(
+    adminApi.notifications({ page: (await searchParams)?.page || 1 }),
+  );
+  if (failure) return <PortalState kind={failure} />;
   const count = (state) => data.counts.find((row) => row.state === state)?.count || 0;
   const total = data.counts.reduce((sum, row) => sum + row.count, 0);
   const attention = data.counts
@@ -41,8 +31,7 @@ export default async function Monitor({ searchParams }) {
   return (
     <AdminPage>
       <AdminPageHeader
-        eyebrow="Messaging operations"
-        title="Notification delivery"
+        title="Message delivery"
         description="Track provider handoff and resolve messages safely. Provider acceptance is not handset delivery; unknown sends must be reconciled, never resent blindly."
       />
       <section className="mt-7 grid grid-cols-2 gap-3 xl:grid-cols-4">
@@ -83,64 +72,76 @@ export default async function Monitor({ searchParams }) {
                 key={row.state}
                 className="rounded-full bg-ink-50 px-2.5 py-1 text-tiny font-semibold capitalize text-ink-600"
               >
-                {row.state}: {row.count}
+                {deliveryMeta(row.state).label}: {row.count}
               </span>
             ))}
           </div>
         </div>
-        {data.rows.length ? (
-          <div className="divide-y divide-border">
-            {data.rows.map((message) => (
-              <article
-                key={message.id}
-                className="grid gap-4 p-5 lg:grid-cols-[minmax(0,1fr)_220px]"
-              >
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
+        <AdminTable
+          framed={false}
+          label="Message delivery"
+          columns={[
+            'Message',
+            'Delivery outcome',
+            'Attempts and evidence',
+            'Scheduled (IST)',
+            'Inspect',
+          ]}
+          empty={
+            !data.rows.length && (
+              <AdminEmpty
+                icon={Send}
+                title="No messages on this page"
+                description="Messages appear here when queued."
+              />
+            )
+          }
+        >
+          {data.rows.map((message) => {
+            const meta = deliveryMeta(message.state);
+            return (
+              <tr key={message.id}>
+                <td className="px-4 py-4">
+                  <p className="font-semibold">{message.template.replaceAll('_', ' ')}</p>
+                  {admin.capabilities?.includes('admin.records.read') ? (
                     <Link
-                      className="font-semibold text-brand-700 hover:underline"
+                      className="inline-flex min-h-11 items-center underline"
                       href={`/admin/bookings/${message.order_id}`}
                     >
                       {message.reference}
                     </Link>
-                    <StatusBadge tone={tone(message.state)}>{message.state}</StatusBadge>
-                    <span className="text-tiny text-ink-500">
-                      {message.attempts} attempt{message.attempts === 1 ? '' : 's'}
+                  ) : (
+                    <p>{message.reference}</p>
+                  )}
+                </td>
+                <td className="px-4 py-4">
+                  <StatusBadge tone={meta.tone}>{meta.label}</StatusBadge>
+                </td>
+                <td className="max-w-xs break-all px-4 py-4">
+                  <p>{message.attempts} attempts</p>
+                  <p>{message.failure_code || 'No recorded error'}</p>
+                  <p>{message.provider_id || 'No provider ID'}</p>
+                </td>
+                <td className="px-4 py-4">
+                  <p>{date(message.scheduled_at)}</p>
+                  <p>Next check: {date(message.next_attempt_at)}</p>
+                </td>
+                <td className="px-4 py-4">
+                  <Link
+                    className="inline-flex min-h-11 items-center underline"
+                    href={`/admin/notifications/${message.id}?from=${encodeURIComponent(`/admin/notifications?page=${data.page}`)}`}
+                  >
+                    View
+                    <span className="sr-only">
+                      {' '}
+                      {message.template.replaceAll('_', ' ')} for {message.reference}
                     </span>
-                  </div>
-                  <p className="mt-2 text-meta font-medium capitalize text-ink-800">
-                    <Link
-                      href={`/admin/notifications/${message.id}`}
-                      className="text-brand-700 hover:underline"
-                    >
-                      {message.template.replaceAll('_', ' ')} · inspect delivery
-                    </Link>
-                  </p>
-                  <p className="mt-2 break-all text-tiny text-ink-500">
-                    {message.failure_code || 'No delivery error'} ·{' '}
-                    {message.provider_id || 'No provider ID'}
-                  </p>
-                  <p className="mt-2 text-tiny text-ink-500">
-                    Scheduled {date(message.scheduled_at)} · Next check{' '}
-                    {date(message.next_attempt_at)}
-                  </p>
-                </div>
-                {admin.capabilities?.includes('admin.notifications.write') &&
-                ['blocked', 'failed', 'retry', 'unknown'].includes(message.state) ? (
-                  <div className="rounded-md border border-border bg-ink-25 p-3">
-                    <NotificationControls id={message.id} unknown={message.state === 'unknown'} />
-                  </div>
-                ) : null}
-              </article>
-            ))}
-          </div>
-        ) : (
-          <AdminEmpty
-            icon={Send}
-            title="No notifications on this page"
-            description="Delivery attempts will appear here as messages are queued."
-          />
-        )}
+                  </Link>
+                </td>
+              </tr>
+            );
+          })}
+        </AdminTable>
         <Pagination
           page={data.page}
           pageSize={30}

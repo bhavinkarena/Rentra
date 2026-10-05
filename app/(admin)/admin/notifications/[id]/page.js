@@ -4,33 +4,54 @@ import { adminApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
 import PortalState from '@/components/portal/PortalState';
 import NotificationControls from '@/components/customer/NotificationControls';
-import { AdminPage, AdminPageHeader, StatusBadge } from '@/components/admin/AdminPrimitives';
+import {
+  AdminPage,
+  AdminPageHeader,
+  AdminReadOnly,
+  StatusBadge,
+} from '@/components/admin/AdminPrimitives';
+import { safeReturnPath } from '@/lib/domain/portal-state';
 export const metadata = { title: 'Notification detail', robots: { index: false, follow: false } };
-const date = (value) =>
-  value ? new Date(value).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'Not recorded';
-export default async function Page({ params }) {
+import { adminDateTime as date } from '@/lib/domain/admin-display';
+import { deliveryMeta, deliveryOperation } from '@/lib/domain/admin-delivery';
+export default async function Page({ params, searchParams }) {
+  const listHref = safeReturnPath((await searchParams)?.from, '/admin/notifications');
   const admin = await requireAdmin();
   const { id } = await params;
   const { data, failure } = await settle(adminApi.notification(id));
   if (failure) return <PortalState kind={failure} />;
+  const meta = deliveryMeta(data.state);
+  const operation = deliveryOperation(data);
   return (
     <AdminPage>
       <AdminPageHeader
-        eyebrow="Delivery"
-        title="Notification detail"
+        title="Message delivery detail"
         description="Provider acceptance and confirmed delivery are separate states. Unknown sends require reconciliation against the original SID."
       />
-      <Link href="/admin/notifications" className="mt-4 inline-block text-brand-700 underline">
+      <Link
+        href={listHref}
+        className="mt-4 inline-flex min-h-11 items-center text-brand-700 underline"
+      >
         Back to delivery log
       </Link>
+      {!admin.capabilities?.includes('admin.notifications.write') && (
+        <div className="mt-4">
+          <AdminReadOnly />
+        </div>
+      )}
       <section className="mt-5 rounded-lg border border-border bg-card p-5">
         <div className="flex gap-3">
-          <StatusBadge tone={data.state === 'delivered' ? 'success' : 'warning'}>
-            {data.state}
-          </StatusBadge>
-          <Link href={`/admin/bookings/${data.order_id}`} className="text-brand-700 underline">
-            {data.reference}
-          </Link>
+          <StatusBadge tone={meta.tone}>{meta.label}</StatusBadge>
+          {admin.capabilities?.includes('admin.records.read') ? (
+            <Link
+              href={`/admin/bookings/${data.order_id}`}
+              className="inline-flex min-h-11 items-center text-brand-700 underline"
+            >
+              {data.reference}
+            </Link>
+          ) : (
+            <p>{data.reference}</p>
+          )}
         </div>
         <dl className="mt-5 grid gap-4 sm:grid-cols-2">
           {[
@@ -52,10 +73,9 @@ export default async function Page({ params }) {
             </div>
           ))}
         </dl>
-        {admin.capabilities?.includes('admin.notifications.write') &&
-        ['blocked', 'failed', 'retry', 'unknown'].includes(data.state) ? (
+        {admin.capabilities?.includes('admin.notifications.write') && operation ? (
           <div className="mt-5 max-w-md">
-            <NotificationControls id={data.id} unknown={data.state === 'unknown'} />
+            <NotificationControls id={data.id} unknown={operation === 'reconcile'} />
           </div>
         ) : null}
       </section>

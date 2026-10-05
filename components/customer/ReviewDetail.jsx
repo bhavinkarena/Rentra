@@ -1,16 +1,29 @@
 import Link from '@/components/navigation/NavigationLink';
 import { ReviewControl } from './ReviewForms';
-const time = (value) => new Date(value).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+import { adminDateTime as time } from '@/lib/domain/admin-display';
+import { AdminPageHeader, AdminReadOnly } from '@/components/admin/AdminPrimitives';
 const link = 'inline-flex min-h-11 items-center underline';
-export default function ReviewDetail({ record: r, admin = false, canWrite = true }) {
+export default function ReviewDetail({
+  record: r,
+  admin = false,
+  canWrite = true,
+  capabilities = [],
+  listHref,
+}) {
   const base = admin ? '/admin' : '/partner';
   return (
     <article className="mx-auto max-w-4xl space-y-6 break-words p-4 sm:p-6">
-      <Link className={link} href={`${base}/reviews`}>
+      <Link className={link} href={listHref || `${base}/reviews`}>
         Back to reviews
       </Link>
+      {admin && (
+        <AdminPageHeader
+          title={`Review of ${r.title}`}
+          description="Apply the same publication rules to every score."
+        />
+      )}
       <header>
-        <h1 className="text-h1">Review of {r.title}</h1>
+        {!admin && <h1 className="text-h1">Review of {r.title}</h1>}
         <p>
           {r.rating} out of 5 · {r.state} · {r.public ? 'Public' : 'Not public'}
         </p>
@@ -19,13 +32,20 @@ export default function ReviewDetail({ record: r, admin = false, canWrite = true
         </p>
       </header>
       <nav className="flex flex-wrap gap-5">
-        <Link className={link} href={`${base}/listings/${r.propertyId}${admin ? '' : '/overview'}`}>
-          Property detail
-        </Link>
-        <Link className={link} href={`${base}/bookings/${r.orderId}`}>
-          Booking and visit evidence
-        </Link>
-        {admin && (
+        {(!admin || capabilities.includes('admin.properties.read')) && (
+          <Link
+            className={link}
+            href={`${base}/${admin ? 'properties' : 'listings'}/${r.propertyId}${admin ? '' : '/overview'}`}
+          >
+            Property detail
+          </Link>
+        )}
+        {(!admin || capabilities.includes('admin.records.read')) && (
+          <Link className={link} href={`${base}/bookings/${r.orderId}`}>
+            Booking and visit evidence
+          </Link>
+        )}
+        {admin && capabilities.includes('admin.customers.read') && (
           <Link className={link} href={`/admin/customers/${r.authorId}`}>
             Customer detail
           </Link>
@@ -51,6 +71,7 @@ export default function ReviewDetail({ record: r, admin = false, canWrite = true
         </section>
       )}
       {admin && r.moderationReason && <p>Latest reason shared with author: {r.moderationReason}</p>}
+      {admin && !canWrite && <AdminReadOnly />}
       {canWrite && (admin || r.public) && (
         <section className="space-y-3 rounded-md border border-border p-4">
           <h2 className="text-h3">{admin ? 'Publication decision' : 'Public owner reply'}</h2>

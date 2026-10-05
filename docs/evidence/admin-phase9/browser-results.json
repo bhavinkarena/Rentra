@@ -1,0 +1,115 @@
+{
+  "checks": [
+    "Three queues and conversation responsive/keyboard/accessibility 1280",
+    "Three queues and conversation responsive/keyboard/accessibility 768",
+    "Three queues and conversation responsive/keyboard/accessibility 360",
+    "Independent communication read grants: evidence, no writes or unauthorized record links",
+    "Direct moderation, support reply and delivery mutation denied",
+    "Provider acceptance, delivery, failure, uncertain dispatch and suppression distinct",
+    "Unknown dispatch has original-SID reconciliation only",
+    "Safe retry refreshes durable state; repeated and ambiguous retries refused",
+    "Stale reply refuses the write and preserves the entered draft",
+    "Filtered return, escalation, saved reply and internal note survive refresh",
+    "Low score publication and report closure preserve original rating and public aggregate"
+  ],
+  "accessibility": [
+    {
+      "screen": "Guest reviews-1280",
+      "violations": []
+    },
+    {
+      "screen": "Support requests-1280",
+      "violations": []
+    },
+    {
+      "screen": "Message delivery-1280",
+      "violations": []
+    },
+    {
+      "screen": "support-detail-1280",
+      "violations": []
+    },
+    {
+      "screen": "reviews-detail-1280",
+      "violations": []
+    },
+    {
+      "screen": "notifications-detail-1280",
+      "violations": []
+    },
+    {
+      "screen": "Guest reviews-768",
+      "violations": []
+    },
+    {
+      "screen": "Support requests-768",
+      "violations": []
+    },
+    {
+      "screen": "Message delivery-768",
+      "violations": []
+    },
+    {
+      "screen": "support-detail-768",
+      "violations": []
+    },
+    {
+      "screen": "reviews-detail-768",
+      "violations": []
+    },
+    {
+      "screen": "notifications-detail-768",
+      "violations": []
+    },
+    {
+      "screen": "Guest reviews-360",
+      "violations": []
+    },
+    {
+      "screen": "Support requests-360",
+      "violations": []
+    },
+    {
+      "screen": "Message delivery-360",
+      "violations": []
+    },
+    {
+      "screen": "support-detail-360",
+      "violations": []
+    },
+    {
+      "screen": "reviews-detail-360",
+      "violations": []
+    },
+    {
+      "screen": "notifications-detail-360",
+      "violations": []
+    },
+    {
+      "screen": "reader-support",
+      "violations": []
+    },
+    {
+      "screen": "reader-reviews",
+      "violations": []
+    },
+    {
+      "screen": "reader-notifications",
+      "violations": []
+    },
+    {
+      "screen": "unknown-delivery",
+      "violations": []
+    },
+    {
+      "screen": "saved-conversation",
+      "violations": []
+    },
+    {
+      "screen": "moderated-review",
+      "violations": []
+    }
+  ],
+  "pageErrors": [],
+  "scope": "Disposable local; no providers or production access"
+}

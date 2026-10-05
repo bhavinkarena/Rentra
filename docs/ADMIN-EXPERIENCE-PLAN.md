@@ -4,13 +4,13 @@
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Prepared           | 4 October 2026                                                                                                                                                                         |
 | Scope              | Admin dashboard, navigation, section tabs, tables, record details, review workflows, finance, support, configuration and release QA                                                    |
-| Status | Phases 1–8 complete; Phases 9–12 pending |
+| Status | Phases 1–9 complete; Phases 10–12 pending |
 | Method             | Repository review plus Phase 1 disposable-local role, viewport, permission and integration baseline; inspected saved owner and current admin screenshots                               |
 | Verification limit | Phase 1 adds authenticated disposable-local browser/API/database evidence below. Production workflows and providers were not exercised; historical owner test results remain separate. |
 
 ## Phase completion tracker
 
-**Progress:** 8 of 12 phases complete · 0 in progress · 4 pending. Phase 8 is implemented and locally verified; Phase 9 is next. Existing admin functionality does not count as completion of these redesign phases.
+**Progress:** 9 of 12 phases complete · 0 in progress · 3 pending. Phase 9 is implemented and locally verified; Phase 10 is next. Existing admin functionality does not count as completion of these redesign phases.
 
 | Phase | Work                                                            | Status      | Completed on | Notes / remaining work                                                                                       |
 | ----- | --------------------------------------------------------------- | ----------- | ------------ | ------------------------------------------------------------------------------------------------------------ |
@@ -22,7 +22,7 @@
 | 6 | Bookings and booking cases | ✅ Complete | 5 Oct 2026 | ADM-BOOK-01–05 delivered; [checks](evidence/admin-phase6/checks.json), [browser evidence](evidence/admin-phase6/browser-checks.json), [runbook](ADMIN-BOOKING-WORKSPACE.md) |
 | 7 | People: owners and customers | ✅ Complete | 5 Oct 2026 | ADM-PEOPLE-01–04 delivered; [checks](evidence/admin-phase7/checks.json), [browser evidence](evidence/admin-phase7/browser-checks.json), [runbook](ADMIN-PEOPLE-WORKSPACE.md); optional sheets deferred |
 | 8 | Finance workspace | ✅ Complete | 5 Oct 2026 | ADM-FIN-01–06 delivered; [checks](evidence/admin-phase8/checks.json), [browser evidence](evidence/admin-phase8/browser-results.json), [runbook](ADMIN-FINANCE-WORKSPACE.md); locally verified, not deployed |
-| 9     | Guest reviews, support and message delivery                     | ⏳ Pending  | —            | Refresh moderation, support and delivery screens                                                             |
+| 9 | Guest reviews, support and message delivery | ✅ Complete | 5 Oct 2026 | ADM-COMMS-01–05 delivered; [checks](evidence/admin-phase9/checks.json), [browser evidence](evidence/admin-phase9/browser-results.json), [runbook](ADMIN-COMMUNICATION-WORKSPACE.md); locally verified, not deployed |
 | 10    | Operations, privacy, audit and configuration                    | ⏳ Pending  | —            | Organize operational tools, exports and configuration                                                        |
 | 11    | Global search and cross-workspace links                         | ⏳ Pending  | —            | Improve authorized search and expand supported scopes                                                        |
 | 12    | Responsive, accessibility, performance and release verification | ⏳ Pending  | —            | Complete regression checks and record release evidence                                                       |
@@ -560,7 +560,7 @@ Run the complete redesigned journey with disposable fixtures: sign-in/2FA → da
 | A1 | 2–3 | Clear sidebar, section tabs and consistent primitives; application route migrated | Complete; locally verified, not deployed |
 | A2 | 4 | Authorized dashboard, actionable queues and defined analytics | Complete; locally verified, not deployed |
 | A3 | 5–7 | Review, booking/case and people workspaces | Complete; locally verified, not deployed |
-| A4      | 8–9    | Finance, guest-review and support workflows                                       | In progress                         |
+| A4      | 8–9    | Finance, guest-review and support workflows                                       | Complete (locally verified)                         |
 | A5      | 10–11  | Operations/configuration and expanded search                                      | Not started                         |
 | A6      | 12     | Full regression evidence and release readiness decision                           | Not started                         |
 
@@ -665,6 +665,24 @@ Account lifecycle, customer profile correction/session revocation and payout-met
 
 **Next phase:** Phase 9 — guest reviews, support and message delivery. Release A4 remains in progress.
 
+### Phase 9 — Complete (locally verified, 5 October 2026)
+
+**Implemented IDs:** ADM-COMMS-01–05. Guest reviews, Support inbox and Message delivery use the shared semantic, keyboard-scrollable admin tables in their existing navigation groups. Scores, complete submitted feedback, owner replies, moderation states and separate open reports remain visible. Page-derived counts explicitly identify their loaded scope. Support retains subject, category, participant, state, assignment, matching total and pagination; owner categories now resolve correctly. Review and delivery details retain list-page return context. Operator dates use deterministic IST.
+
+**Preserved workflows and authorization:** publication preview/confirmation, original immutable score/text, public rating aggregates, report resolution and history remain authoritative. Support retains assignment, escalation, replies, internal notes, private photos, history and separate booking/privacy workflows. Read-only operators inspect without command forms; independent read grants govern related owner/customer/property/booking/privacy links. Private photos remain audited, authenticated, non-prefetching downloads. Delivery distinguishes Queued, Provider accepted, Delivered, Failed, Dispatch unknown and Suppressed. Only definitely undispatched failures offer retry; unknown dispatch uses original-SID reconciliation. Existing atomic backend predicates refuse repeated or ambiguous retries.
+
+**Regression proved and fixed:** a committed support reply could leave the inspected conversation stale through the streamed action response. Successful admin replies now redirect back to the same canonical conversation with a validated filtered return link and replace history. Failed/stale replies keep the entered draft. The browser gate verifies refreshed saved replies and internal notes, durable reloads and stale-refusal input retention. Owner/customer reply protocols remain unchanged.
+
+**API/database:** existing APIs and capabilities only; backend production services are unchanged. The sole backend edit is an opt-in disposable communication fixture. Admin unread tracking and manual suppression have no supported command/read contract: no fabricated unread count, suppression control, live-chat promise or external channel was added. Existing owner unread behavior is covered by support integrations. No migration or dependency additions; journal remains **64 entries**.
+
+**Verification:** frontend **98 tests passed**; **five focused backend integrations passed, zero skipped**, covering score-neutral previews/immutable review history/public aggregates, participant isolation/internal notes/private photos/owner unread updates, assignment/replay/races/storage refusal and safe delivery retry/reconciliation. Production browser gate **11 checks, 24 axe scans, zero violations, zero page errors**, across 1280/768/360 px, all three queues/details, keyboard/local table scroll, restricted communication roles and direct API denial, durable replies/notes/escalation, stale drafts, low-score publication and separate report closure. Changed-source lint/format, backend lint, fixture formatting, Python syntax, production Webpack build and diff whitespace checks pass. Bounded screenshot review and Impeccable detector have no unresolved primary findings.
+
+**Recorded unrelated limits:** full frontend lint still reports 418 existing review-script formatting errors and three icon image warnings; frontend global formatting flags the unchanged launch roadmap; backend global formatting flags the unchanged `.prettierrc`. Build retains configured public sitemap policy API warnings. The full backend suite was not rerun for this frontend phase; focused communication integrations are recorded separately. Production providers, delivery workers and Phase 12 release journeys remain unverified. Not deployed.
+
+**Evidence and reproduction:** [checks](evidence/admin-phase9/checks.json), [browser results](evidence/admin-phase9/browser-results.json), [phone support](evidence/admin-phase9/support-requests-360.png), [desktop delivery](evidence/admin-phase9/message-delivery-1280.png) and [Communication workspace runbook](ADMIN-COMMUNICATION-WORKSPACE.md). The runbook documents endpoint limits and disposable commands. Evidence contains no session tokens or configured credentials. Release A4 is complete locally.
+
+**Next phase:** Phase 10 — operations, privacy, audit and configuration.
+
 ## 7. Implementation defaults and boundaries
 
 - Use existing Rentra tokens/components; no new brand theme or chart dependency is required by this plan.
@@ -675,4 +693,4 @@ Account lifecycle, customer profile correction/session revocation and payout-met
 - Add no editable platform calendar, admin impersonation, automated bulk approvals, live chat or payout execution as part of this UI redesign.
 - UI-only phases should need no migration. Dashboard/search/index changes are scoped and verified separately when evidence requires them.
 
-Phases 1–8 are complete and locally verified. The next implementation step is Phase 9: guest reviews, support and message delivery.
+Phases 1–9 are complete and locally verified. The next implementation step is Phase 10: operations, privacy, audit and configuration.

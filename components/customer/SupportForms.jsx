@@ -155,6 +155,7 @@ export function SupportReplyForm({ record, requestKey, admin = false, owner = fa
       className="space-y-4"
     >
       <input type="hidden" name="id" value={record.id} />
+      {admin && <input type="hidden" name="from" value={record.from || '/admin/support'} />}
       <input type="hidden" name="version" value={record.version} />
       <input type="hidden" name="requestKey" value={key} />
       {admin && (

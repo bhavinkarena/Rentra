@@ -1,0 +1,151 @@
+"""Phase 9 communication workspace; disposable local services only."""
+import json, os, re
+from pathlib import Path
+from urllib.parse import urlparse
+from playwright.sync_api import sync_playwright, expect
+expect.set_options(timeout=15000)
+web = os.environ.get('GATE_WEB_ORIGIN', 'http://127.0.0.1:3169')
+api = os.environ.get('GATE_API_ORIGIN', 'http://127.0.0.1:4169/api/v1')
+assert all(urlparse(u).hostname in ['127.0.0.1','localhost'] for u in [web,api])
+f = json.loads(Path(os.environ['ADMIN_BASELINE_FIXTURE']).read_text())
+assert urlparse(f['databaseUrl']).path.startswith('/rentra_test_')
+root = Path(__file__).resolve().parents[2]
+out = root / 'docs/evidence/admin-phase9'
+out.mkdir(parents=True,exist_ok=True)
+axe = (root/'node_modules/axe-core/axe.min.js').read_text()
+r = {'checks':[], 'accessibility':[], 'pageErrors':[], 'scope':'Disposable local; no providers or production access'}
+def passed(name):
+    r['checks'].append(name)
+    print('PASS',name,flush=True)
+def visit(page,path):
+    page.goto(web+path)
+    page.wait_for_load_state('domcontentloaded')
+    page.evaluate('document.fonts.ready')
+    expect(page.get_by_role('heading',level=1).first).to_be_visible()
+    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), path
+def audit(page,name):
+    page.add_script_tag(content=axe)
+    v=page.evaluate("async () => (await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa']}})).violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)}))")
+    r['accessibility'].append({'screen':name,'violations':v})
+    assert not v, json.dumps(v)
+with sync_playwright() as p:
+    b=p.chromium.launch(channel='chrome',headless=True)
+    c=b.new_context(viewport={'width':1280,'height':900},reduced_motion='reduce')
+    page=c.new_page()
+    page.on('pageerror',lambda e:r['pageErrors'].append(str(e)))
+    def role(name):
+        c.clear_cookies()
+        c.add_cookies([{'name':'rentra_admin','value':f['tokens'][name],'url':web}])
+    def headers(name): return {'Cookie':'rentra_admin='+f['tokens'][name]}
+    try:
+        role('full')
+        for width in [1280,768,360]:
+            page.set_viewport_size({'width':width,'height':900})
+            for path,label in [('/admin/reviews','Guest reviews'),('/admin/support','Support requests'),('/admin/notifications','Message delivery')]:
+                visit(page,path)
+                region=page.get_by_role('region',name=label,exact=True)
+                expect(region).to_be_visible()
+                assert region.locator('th:not([scope="col"])').count()==0
+                region.focus()
+                page.keyboard.press('ArrowRight')
+                if width==360: assert region.evaluate('el=>el.scrollWidth>el.clientWidth')
+                audit(page,label+'-'+str(width))
+                region.evaluate('el=>el.scrollLeft=0')
+                page.evaluate('window.scrollTo(0,0)')
+                page.screenshot(path=str(out/(label.lower().replace(' ','-')+'-'+str(width)+'.png')),full_page=True)
+            visit(page,'/admin/support/'+f['support'])
+            audit(page,'support-detail-'+str(width))
+            page.screenshot(path=str(out/('support-detail-'+str(width)+'.png')),full_page=True)
+            for detail in ['/admin/reviews/'+f['comms']['reviewId'], '/admin/notifications/'+f['comms']['messages']['unknown']]:
+                visit(page,detail)
+                audit(page,detail.split('/')[2]+'-detail-'+str(width))
+            passed('Three queues and conversation responsive/keyboard/accessibility '+str(width))
+        page.set_viewport_size({'width':1280,'height':900})
+        role('commsReader')
+        for path in ['/admin/support/'+f['support'],'/admin/reviews/'+f['comms']['reviewId'],'/admin/notifications/'+f['comms']['messages']['failed']]:
+            visit(page,path)
+            expect(page.get_by_role('heading',name='Read-only access',exact=True)).to_be_visible()
+            expect(page.locator('main form')).to_have_count(0)
+            assert not page.locator('main a[href*="/admin/bookings/"],main a[href*="/admin/customers/"],main a[href*="/admin/clients/"],main a[href*="/admin/properties/"]').count()
+            audit(page,'reader-'+path.split('/')[2])
+        passed('Independent communication read grants: evidence, no writes or unauthorized record links')
+        for path in ['/admin/reviews/moderate','/admin/support/'+f['support']+'/reply','/admin/notifications/manage']:
+            response=c.request.post(api+path,headers=headers('commsReader'),multipart={'id':f['comms']['reviewId']})
+            assert response.status==403,(path,response.status)
+        passed('Direct moderation, support reply and delivery mutation denied')
+        role('full')
+        visit(page,'/admin/notifications')
+        for label in ['Queued','Provider accepted','Delivered','Failed','Dispatch unknown','Suppressed']:
+            expect(page.get_by_role('table').get_by_text(label,exact=True).first).to_be_visible()
+        passed('Provider acceptance, delivery, failure, uncertain dispatch and suppression distinct')
+        visit(page,'/admin/notifications/'+f['comms']['messages']['accepted'])
+        expect(page.locator('main form')).to_have_count(0)
+        visit(page,'/admin/notifications/'+f['comms']['messages']['unknown'])
+        expect(page.get_by_role('button',name='Reconcile original delivery')).to_be_visible()
+        expect(page.get_by_role('button',name='Retry safe delivery')).to_have_count(0)
+        audit(page,'unknown-delivery')
+        passed('Unknown dispatch has original-SID reconciliation only')
+        visit(page,'/admin/notifications/'+f['comms']['messages']['failed'])
+        page.get_by_role('button',name='Retry safe delivery').click()
+        expect(page.get_by_text('Queued',exact=True)).to_be_visible()
+        expect(page.locator('main form')).to_have_count(0)
+        page.reload()
+        expect(page.get_by_text('Queued',exact=True)).to_be_visible()
+        response=c.request.post(api+'/admin/notifications/manage',headers=headers('full'),multipart={'id':f['comms']['messages']['failed'],'operation':'retry'})
+        assert 'could not complete' in response.text()
+        response=c.request.post(api+'/admin/notifications/manage',headers=headers('full'),multipart={'id':f['comms']['messages']['unknown'],'operation':'retry'})
+        assert 'could not complete' in response.text()
+        passed('Safe retry refreshes durable state; repeated and ambiguous retries refused')
+        visit(page,'/admin/support?state=unresolved&participant=client&assignment=unassigned&page=1')
+        page.get_by_role('table').get_by_role('link',name=re.compile('^View')).first.click()
+        expect(page).to_have_url(re.compile('.*from=.*'))
+        page.get_by_role('combobox',name='Priority',exact=True).select_option('urgent')
+        page.get_by_label('Reason',exact=True).fill('Escalate this fixture question for review.')
+        page.get_by_role('button',name='Save assignment',exact=True).click()
+        expect(page.get_by_label('Reason',exact=True)).to_have_value('')
+        page.reload()
+        expect(page.get_by_role('combobox',name='Priority',exact=True)).to_have_value('urgent')
+        page.get_by_label('Your reply',exact=True).fill('We have saved this support response in the conversation.')
+        page.get_by_role('button',name='Save reply and status',exact=True).click()
+        expect(page.get_by_text('We have saved this support response in the conversation.',exact=True)).to_be_visible()
+        page.reload()
+        expect(page.get_by_text('We have saved this support response in the conversation.',exact=True)).to_be_visible()
+        version=c.request.get(api+'/admin/support/'+f['support'],headers=headers('full')).json()['data']['version']
+        changed=c.request.post(api+'/admin/support/'+f['support']+'/manage',headers=headers('full'),multipart={'version':str(version),'priority':'urgent','reason':'Competing operator update for stale reply verification.'})
+        assert changed.status==200
+        page.get_by_label('Your reply',exact=True).fill('Keep this draft after a refused stale reply.')
+        page.get_by_role('button',name='Save reply and status',exact=True).click()
+        expect(page.get_by_role('alert').filter(has_text='This conversation changed.')).to_be_visible()
+        expect(page.get_by_label('Your reply',exact=True)).to_have_value('Keep this draft after a refused stale reply.')
+        page.get_by_role('button',name='Reload conversation',exact=True).click()
+        expect(page.get_by_label('Your reply',exact=True)).to_have_value('')
+        passed('Stale reply refuses the write and preserves the entered draft')
+        page.get_by_role('combobox',name='Visibility',exact=True).select_option('true')
+        page.get_by_label('Internal note',exact=True).fill('This fixture note stays within authorized administration.')
+        page.get_by_role('button',name='Save internal note',exact=True).click()
+        expect(page.get_by_text('This fixture note stays within authorized administration.',exact=True)).to_be_visible()
+        audit(page,'saved-conversation')
+        passed('Filtered return, escalation, saved reply and internal note survive refresh')
+        visit(page,'/admin/reviews/'+f['comms']['reviewId'])
+        page.get_by_label('Policy reason (shared with author)').fill('Meets publication policy regardless of the low score.')
+        page.get_by_role('button',name='Preview publication change',exact=True).click()
+        expect(page.get_by_role('status',name='Publication preview')).to_be_visible()
+        expect(page.get_by_text('Original rating: 1/5',exact=True)).to_be_visible()
+        page.get_by_role('button',name='Confirm publication change',exact=True).click()
+        expect(page.get_by_text('Property public rating: 1',exact=False)).to_be_visible()
+        page.reload()
+        expect(page.get_by_text('Property public rating: 1',exact=False)).to_be_visible()
+        page.get_by_label('Resolution',exact=True).fill('Investigated and closed; negative feedback meets policy.')
+        page.get_by_role('button',name='Close report',exact=True).click()
+        expect(page.get_by_role('button',name='Close report',exact=True)).to_have_count(0)
+        expect(page.get_by_text('Property public rating: 1',exact=False)).to_be_visible()
+        audit(page,'moderated-review')
+        passed('Low score publication and report closure preserve original rating and public aggregate')
+        assert not r['pageErrors'],r['pageErrors']
+    except Exception:
+        print('FAILED URL',page.url,flush=True)
+        print(page.locator('main').inner_text(),flush=True)
+        raise
+    finally:
+        (out/'browser-results.json').write_text(json.dumps(r,indent=2)+'\n')
+        b.close()
