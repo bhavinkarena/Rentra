@@ -5,7 +5,18 @@ import { randomUUID } from 'node:crypto';
 import AccountLifecyclePanel from './AccountLifecyclePanel';
 import { FailDestinationForm } from './PayoutDestinationAdmin';
 import { changeClientLifecycle } from '@/lib/actions/admin';
-import { AdminEmpty, AdminPage, AdminPageHeader, StatusBadge } from './AdminPrimitives';
+import {
+  AdminEmpty,
+  AdminPage,
+  AdminPageHeader,
+  AdminFilterBar,
+  AdminTable,
+  AdminReadOnly,
+  StatusBadge,
+} from './AdminPrimitives';
+import { fieldClass } from '@/components/ui/field';
+import { adminDateTime } from '@/lib/domain/admin-display';
+import { bookingTime } from '@/lib/domain/booking-record';
 import Pagination from '@/components/ui/pagination';
 import {
   DetailHeader,
@@ -31,9 +42,11 @@ const statusTone = (status) =>
     : status === 'suspended' || status === 'blocked'
       ? 'danger'
       : 'warning';
-export const label = (value) => String(value ?? '—').replaceAll('_', ' ');
-export const when = (value, options = { dateStyle: 'medium' }) =>
-  value ? new Date(value).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', ...options }) : '—';
+export const label = (value) =>
+  String(value ?? '—')
+    .replaceAll('_', ' ')
+    .replace(/\bclient\b/gi, 'owner');
+export const when = adminDateTime;
 
 function listHref({ q, status, page }) {
   const params = new URLSearchParams();
@@ -49,7 +62,6 @@ export function AdminClientList({ data }) {
   return (
     <AdminPage>
       <AdminPageHeader
-        eyebrow="People"
         title="Owners"
         description="Owners and authorised agents: onboarding, properties, upcoming visits and account status."
       />
@@ -60,7 +72,7 @@ export function AdminClientList({ data }) {
             key={key}
             href={listHref({ q: data.q, status: key, page: 1 })}
             aria-current={data.status === key ? 'page' : undefined}
-            className={`inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-tiny font-semibold ${
+            className={`inline-flex min-h-11 items-center gap-1.5 rounded-md border px-3 text-meta font-semibold ${
               data.status === key
                 ? 'border-brand-700 bg-primary text-white'
                 : 'border-border bg-card text-ink-700 hover:bg-ink-50'
@@ -76,94 +88,91 @@ export function AdminClientList({ data }) {
         className="mt-4 overflow-hidden rounded-lg border border-border bg-card shadow-xs"
         aria-labelledby="client-list-title"
       >
-        <div className="flex flex-col gap-4 border-b border-border p-5 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 id="client-list-title" className="text-h4 font-bold text-ink-900">
-              {STATUS[data.status]} clients
-            </h2>
-            <p className="mt-1 text-tiny text-ink-500">
-              Newest first · Loaded {when(new Date(), { timeStyle: 'short' })}
-            </p>
+        <AdminFilterBar label="Owners filters" className="border-b border-border">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 id="client-list-title" className="text-h4 font-bold text-ink-900">
+                {STATUS[data.status]} owners
+              </h2>
+              <p className="mt-1 text-meta text-ink-600">
+                Newest first · {data.total} matching owners
+              </p>
+            </div>
+            <Form
+              action="/admin/clients"
+              className="flex min-w-0 flex-wrap items-end gap-2"
+              role="search"
+            >
+              {data.status !== 'all' ? (
+                <input type="hidden" name="status" value={data.status} />
+              ) : null}
+              <label className="min-w-0 flex-1 text-meta font-semibold text-ink-600">
+                Name, email or phone
+                <input
+                  name="q"
+                  defaultValue={data.q}
+                  maxLength={100}
+                  className={`${fieldClass} mt-1 sm:w-56`}
+                />
+              </label>
+              <button className="min-h-11 rounded-md bg-primary px-4 text-meta font-semibold text-white hover:bg-primary-hover">
+                Search
+              </button>
+            </Form>
           </div>
-          <Form action="/admin/clients" className="flex items-end gap-2" role="search">
-            {data.status !== 'all' ? (
-              <input type="hidden" name="status" value={data.status} />
-            ) : null}
-            <label className="text-tiny font-semibold text-ink-600">
-              Name, email or phone
-              <input
-                name="q"
-                defaultValue={data.q}
-                maxLength={100}
-                className="mt-1 block min-h-10 w-56 max-w-full rounded-md border border-input bg-card px-3 text-base md:text-sm"
-              />
-            </label>
-            <button className="min-h-10 rounded-md bg-primary px-4 text-tiny font-semibold text-white">
-              Search
-            </button>
-          </Form>
-        </div>
+        </AdminFilterBar>
 
         {data.items.length ? (
-          <div
-            className="relative overflow-x-auto"
-            tabIndex={0}
-            role="region"
-            aria-label="Owners table"
+          <AdminTable
+            label="Owners table"
+            columns={[
+              'Owner',
+              'Status',
+              'Application',
+              'Properties',
+              'Upcoming visits',
+              'Joined',
+              'Actions',
+            ]}
+            minWidth={820}
+            framed={false}
           >
-            <table className="w-full min-w-[820px] text-left">
-              <thead className="bg-ink-25 text-tiny font-bold tracking-wider text-ink-500 uppercase">
-                <tr>
-                  <th className="px-5 py-3">Owner</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Application</th>
-                  <th className="px-4 py-3">Properties</th>
-                  <th className="px-4 py-3">Upcoming visits</th>
-                  <th className="px-4 py-3">Joined</th>
-                  <th className="px-5 py-3">
-                    <span className="sr-only">Action</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {data.items.map((client) => (
-                  <tr key={client.id} className="hover:bg-ink-25">
-                    <td className="px-5 py-4">
-                      <p className="font-semibold text-ink-900">{client.name || 'Name not set'}</p>
-                      <p className="mt-0.5 text-tiny break-all text-ink-500">{client.email}</p>
-                    </td>
-                    <td className="px-4 py-4">
-                      <StatusBadge tone={statusTone(client.accountStatus)}>
-                        {STATUS[client.accountStatus]}
-                      </StatusBadge>
-                    </td>
-                    <td className="px-4 py-4 text-tiny text-ink-600 capitalize">
-                      {label(client.applicationStatus)}
-                    </td>
-                    <td className="px-4 py-4 text-tiny text-ink-600 tabular">
-                      {client.liveCount} live / {client.listingCount}
-                    </td>
-                    <td className="px-4 py-4 text-tiny text-ink-600 tabular">
-                      {client.upcomingVisits}
-                    </td>
-                    <td className="px-4 py-4 text-tiny text-ink-600">{when(client.createdAt)}</td>
-                    <td className="px-5 py-4 text-right">
-                      <Link
-                        className="text-tiny font-bold text-brand-700 hover:underline"
-                        href={`/admin/clients/${client.id}?from=${encodeURIComponent(here)}`}
-                      >
-                        Open<span className="sr-only"> {client.name || client.email}</span> →
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+            {data.items.map((client) => (
+              <tr key={client.id} className="hover:bg-ink-25">
+                <td className="px-5 py-4">
+                  <p className="font-semibold text-ink-900">{client.name || 'Name not set'}</p>
+                  <p className="mt-0.5 text-tiny break-all text-ink-500">{client.email}</p>
+                </td>
+                <td className="px-4 py-4">
+                  <StatusBadge tone={statusTone(client.accountStatus)}>
+                    {STATUS[client.accountStatus]}
+                  </StatusBadge>
+                </td>
+                <td className="px-4 py-4 text-meta text-ink-600 capitalize">
+                  {label(client.applicationStatus)}
+                </td>
+                <td className="px-4 py-4 text-meta text-ink-600 tabular">
+                  {client.liveCount} live / {client.listingCount}
+                </td>
+                <td className="px-4 py-4 text-meta text-ink-600 tabular">
+                  {client.upcomingVisits}
+                </td>
+                <td className="px-4 py-4 text-meta text-ink-600">{when(client.createdAt)}</td>
+                <td className="px-5 py-4 text-right">
+                  <Link
+                    className="inline-flex min-h-11 items-center text-meta font-semibold text-brand-700 hover:underline"
+                    href={`/admin/clients/${client.id}?from=${encodeURIComponent(here)}`}
+                  >
+                    View<span className="sr-only"> owner {client.name || client.email}</span>
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </AdminTable>
         ) : (
           <AdminEmpty
             icon={Users}
-            title={data.q ? 'No clients match this search' : 'No clients in this view'}
+            title={data.q ? 'No owners match this search' : 'No owners in this view'}
             description="Try another status or a shorter search."
           />
         )}
@@ -175,7 +184,7 @@ export function AdminClientList({ data }) {
           pages={data.pages}
           pageSizes={null}
           label="Owner pages"
-          noun="clients"
+          noun="owners"
           className="border-t border-border px-5 py-4"
         />
       </section>
@@ -197,13 +206,13 @@ const CLIENT_TABS = (data) => [
   { key: 'history', label: 'Activity log', count: data.history.length },
 ];
 
-function VisitRow({ visit }) {
+function VisitRow({ visit, canReadRecords }) {
   return (
     <Row
       primary={`${visit.slot === 'hourly' ? visit.label : `${visit.day} · ${label(visit.slot)}`} · ${visit.listingTitle}`}
-      secondary={`${visit.reference} · ${visit.guests} guest${visit.guests === 1 ? '' : 's'} · ${when(visit.startsAt, { timeZone: visit.timeZone, dateStyle: 'medium', timeStyle: 'short' })} (${visit.timeZone})`}
+      secondary={`${visit.reference} · ${visit.guests} guest${visit.guests === 1 ? '' : 's'} · ${bookingTime(visit.startsAt, visit.timeZone)} (${visit.timeZone})`}
       trailing={<StatusBadge tone="info">{label(visit.state)}</StatusBadge>}
-      href={visit.orderId ? `/admin/bookings/${visit.orderId}` : null}
+      href={canReadRecords && visit.orderId ? `/admin/bookings/${visit.orderId}` : null}
       hrefLabel={
         <>
           Booking<span className="sr-only"> {visit.orderReference}</span>
@@ -213,7 +222,7 @@ function VisitRow({ visit }) {
   );
 }
 
-function ListingRow({ listing }) {
+function ListingRow({ listing, canReadProperties }) {
   return (
     <Row
       primary={listing.title}
@@ -222,6 +231,12 @@ function ListingRow({ listing }) {
         <StatusBadge tone={listing.status === 'live' ? 'success' : 'neutral'}>
           {label(listing.status)}
         </StatusBadge>
+      }
+      href={canReadProperties ? `/admin/properties/${listing.id}` : null}
+      hrefLabel={
+        <>
+          Review property<span className="sr-only"> {listing.title}</span>
+        </>
       }
     />
   );
@@ -244,21 +259,21 @@ export function HistoryList({ history, statuses = STATUS }) {
               {event.adminEmail ? `by ${event.adminEmail}` : event.actorType}
             </span>
             {event.fields ? (
-              <span className="block text-tiny text-ink-600">
+              <span className="block text-meta text-ink-600">
                 Fields: {event.fields.join(', ')}
               </span>
             ) : null}
             {event.fromStatus || event.toStatus ? (
-              <span className="block text-tiny text-ink-600">
+              <span className="block text-meta text-ink-600">
                 {statuses[event.fromStatus] ?? event.fromStatus} →{' '}
                 {statuses[event.toStatus] ?? event.toStatus}
               </span>
             ) : null}
             {event.revoked != null ? (
-              <span className="block text-tiny text-ink-600">{event.revoked} session(s) ended</span>
+              <span className="block text-meta text-ink-600">{event.revoked} session(s) ended</span>
             ) : null}
             {event.reason ? (
-              <span className="block text-tiny text-ink-600">&ldquo;{event.reason}&rdquo;</span>
+              <span className="block text-meta text-ink-600">&ldquo;{event.reason}&rdquo;</span>
             ) : null}
           </span>
         </li>
@@ -267,21 +282,14 @@ export function HistoryList({ history, statuses = STATUS }) {
   );
 }
 
-function NotYetAvailable() {
+function AccountBoundaries() {
   return (
-    <SectionCard id="later" title="Not yet available">
-      <ul className="space-y-2 text-tiny text-ink-600">
-        <li>
-          <strong className="text-ink-800">Statements and payouts</strong> — arrive with payout
-          destinations and statements (CP21–CP22).
-        </li>
-        <li>
-          <strong className="text-ink-800">Team and caretakers</strong> — arrive with team access
-          (CP16).
-        </li>
+    <SectionCard id="account-boundaries" title="Account boundaries">
+      <ul className="space-y-2 text-meta text-ink-600">
+        <li>Admin and owner sessions stay separate. Staff cannot sign in as this owner.</li>
         <li>
           <strong className="text-ink-800">Ownership transfer</strong> — unavailable. Moving a
-          property to another client needs a reviewed transfer that preserves historical booking and
+          property to another owner needs a reviewed transfer that preserves historical booking and
           payee attribution; there is no owner-ID edit.
         </li>
       </ul>
@@ -289,23 +297,38 @@ function NotYetAvailable() {
   );
 }
 
-export function AdminClientDetail({ data, listHref: backHref = '/admin/clients', tab, params }) {
+export function AdminClientDetail({
+  data,
+  listHref: backHref = '/admin/clients',
+  tab,
+  params,
+  capabilities = [],
+}) {
   const { client, application, listings, upcoming, history } = data;
   const title = client.name || client.email;
   const tabs = CLIENT_TABS(data);
   const active = pickTab(tab, tabs);
   const live = listings.filter((listing) => listing.status === 'live').length;
   const strikes = application?.strikeCount ?? 0;
+  const canWrite = capabilities.includes('admin.clients.write');
+  const canReadProperties = capabilities.includes('admin.properties.read');
+  const canReadRecords = capabilities.includes('admin.records.read');
   const lifecycle = (
     <AccountLifecyclePanel
       subjectId={client.id}
-      preview={data.lifecycle}
+      preview={{
+        ...data.lifecycle,
+        consequences: data.lifecycle.consequences.map((line) =>
+          line.replace(/\bclient\b/gi, 'owner'),
+        ),
+      }}
       command={changeClientLifecycle}
+      canWrite={canWrite}
     />
   );
   const hiddenNote =
     client.accountStatus !== 'active' && live ? (
-      <p className="px-5 pb-4 text-tiny text-ink-600">
+      <p className="px-5 pb-4 text-meta text-ink-600">
         Live listings are hidden from the public while this account is not active.
       </p>
     ) : null;
@@ -313,14 +336,16 @@ export function AdminClientDetail({ data, listHref: backHref = '/admin/clients',
     <RowList
       items={items}
       empty="No upcoming visits."
-      render={(visit) => <VisitRow key={visit.id} visit={visit} />}
+      render={(visit) => <VisitRow key={visit.id} visit={visit} canReadRecords={canReadRecords} />}
     />
   );
   const listingRows = (items) => (
     <RowList
       items={items}
       empty="No properties yet."
-      render={(listing) => <ListingRow key={listing.id} listing={listing} />}
+      render={(listing) => (
+        <ListingRow key={listing.id} listing={listing} canReadProperties={canReadProperties} />
+      )}
     />
   );
 
@@ -411,7 +436,7 @@ export function AdminClientDetail({ data, listHref: backHref = '/admin/clients',
                 {listingRows(listings.slice(0, 5))}
                 {hiddenNote}
               </SectionCard>
-              <NotYetAvailable />
+              <AccountBoundaries />
             </div>
             <div className="space-y-5 lg:sticky lg:top-24">{lifecycle}</div>
           </div>
@@ -443,7 +468,7 @@ export function AdminClientDetail({ data, listHref: backHref = '/admin/clients',
             {visitRows(upcoming.items)}
             {client.accountStatus === 'suspended' && upcoming.total ? (
               <p className="m-5 rounded-md bg-info-bg p-3 text-tiny text-ink-700">
-                Resolution path: these visits stay confirmed for customers. The client cannot sign
+                Resolution path: these visits stay confirmed for customers. The owner cannot sign
                 in, so Rentra operates them from the admin booking records.
               </p>
             ) : null}
@@ -453,12 +478,12 @@ export function AdminClientDetail({ data, listHref: backHref = '/admin/clients',
         {active === 'application' ? (
           <SectionCard
             id="application"
-            title="Partner application"
+            title="Owner application"
             action={
-              application ? (
+              application && capabilities.includes('admin.applications.read') ? (
                 <Link
                   href={`/admin/applications/${application.id}`}
-                  className="text-tiny font-bold text-brand-700 hover:underline"
+                  className="inline-flex min-h-11 items-center text-meta font-semibold text-brand-700 hover:underline"
                 >
                   Open application review →
                 </Link>
@@ -574,7 +599,7 @@ export function AdminClientDetail({ data, listHref: backHref = '/admin/clients',
                           Failed by {d.decidedBy ?? 'admin'}: {d.failureReason}
                         </p>
                       ) : null}
-                      {['submitted', 'verified'].includes(d.state) ? (
+                      {canWrite && ['submitted', 'verified'].includes(d.state) ? (
                         <FailDestinationForm
                           key={`${d.id}-${d.state}`}
                           clientId={client.id}
@@ -588,6 +613,12 @@ export function AdminClientDetail({ data, listHref: backHref = '/admin/clients',
               ) : (
                 <p>No payout destination submitted.</p>
               )}
+              {!canWrite ? (
+                <AdminReadOnly>
+                  Inspect payout methods and history. Marking a method failed requires owners write
+                  permission.
+                </AdminReadOnly>
+              ) : null}
             </div>
           </SectionCard>
         ) : null}

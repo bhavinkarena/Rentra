@@ -4,6 +4,7 @@ import { useActionState, useRef, useState } from 'react';
 import LoaderCircle from '@/components/ui/rentra-loader';
 import RetryButton from '@/components/portal/RetryButton';
 import ValidationSummary from '@/components/portal/ValidationSummary';
+import { AdminReadOnly } from './AdminPrimitives';
 
 const STATUS = {
   active: 'Active',
@@ -30,6 +31,7 @@ export default function AccountLifecyclePanel({
   command,
   verbs = VERBS,
   statuses = STATUS,
+  canWrite = false,
 }) {
   const [state, action, pending] = useActionState(command, {});
   const [reason, setReason] = useState('');
@@ -39,6 +41,14 @@ export default function AccountLifecyclePanel({
     state.code,
   );
 
+  if (!canWrite)
+    return (
+      <AdminReadOnly>
+        Current account status: {statuses[preview.fromStatus]}. Account changes require write
+        permission for this directory.
+      </AdminReadOnly>
+    );
+
   return (
     <section
       id="lifecycle"
@@ -46,7 +56,7 @@ export default function AccountLifecyclePanel({
       className="scroll-mt-24 rounded-lg border border-border bg-card p-5"
     >
       <h2 id="lifecycle-title" className="text-h4 font-bold text-ink-900">
-        Account status
+        Account controls
       </h2>
       <p className="mt-1 text-tiny text-ink-500">
         Current: <strong className="text-ink-800">{statuses[preview.fromStatus]}</strong> · version{' '}
@@ -60,11 +70,18 @@ export default function AccountLifecyclePanel({
       ) : null}
 
       {!preview.allowed ? (
-        <p className="mt-3 rounded-md border-l-4 border-border bg-ink-25 p-3 text-meta text-ink-700">
+        <p className="mt-3 rounded-md bg-ink-25 p-3 text-meta text-ink-700">
           {preview.blockedReason}
         </p>
       ) : (
-        <form ref={formRef} action={action} className="mt-4 space-y-4">
+        <form
+          ref={formRef}
+          action={action}
+          onReset={(event) => {
+            if (!state.ok) event.preventDefault();
+          }}
+          className="mt-4 space-y-4"
+        >
           <input type="hidden" name="id" value={subjectId} />
           <input type="hidden" name="action" value={preview.action} />
           <input type="hidden" name="expectedVersion" value={preview.expectedVersion} />
@@ -81,17 +98,14 @@ export default function AccountLifecyclePanel({
             {suspend && preview.upcomingVisits?.length ? (
               <p className="mt-2">
                 Next visit: {preview.upcomingVisits[0].reference} ·{' '}
-                {preview.upcomingVisits[0].listingTitle} · {preview.upcomingVisits[0].day}. See
-                Upcoming visits below for the fulfillment list.
+                {preview.upcomingVisits[0].listingTitle} · {preview.upcomingVisits[0].day}. See the
+                Upcoming visits record section for the fulfillment list.
               </p>
             ) : null}
           </div>
 
           {state.error && !state.errors ? (
-            <div
-              role="alert"
-              className="rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger"
-            >
+            <div role="alert" className="rounded-md bg-danger-bg p-3 text-meta text-danger">
               <p>{state.error}</p>
               {stale ? (
                 <div className="mt-3">

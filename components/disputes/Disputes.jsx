@@ -1,3 +1,4 @@
+import { AdminPage, AdminPageHeader, AdminTable } from '@/components/admin/AdminPrimitives';
 import OwnerTable from '@/components/partner/OwnerTable';
 import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import Link from '@/components/navigation/NavigationLink';
@@ -24,20 +25,31 @@ const primary = `${sharedButtonVariants({ shape: 'pill', size: 'default' })} `;
 const select =
   'block min-h-10 rounded-full border border-border bg-card px-3 text-base capitalize sm:text-meta';
 
-export function DisputeList({ data, kind }) {
+export function DisputeList({ data, kind, canWrite = kind !== 'admin' }) {
   const base = disputeBase(kind),
     f = data.filters,
     time = timeFor(kind);
+  const EvidenceTable = kind === 'admin' ? AdminTable : OwnerTable;
   return (
-    <div className={kind === 'owner' ? 'mx-auto max-w-7xl space-y-5' : 'mx-auto max-w-3xl'}>
+    <div
+      className={
+        kind === 'admin'
+          ? 'mx-auto max-w-(--container-workspace) space-y-6 px-4 py-6 sm:px-6 lg:px-8'
+          : kind === 'owner'
+            ? 'mx-auto max-w-7xl space-y-5'
+            : 'mx-auto max-w-3xl'
+      }
+    >
       <PageHeader
         title="Disputes and deposit cases"
         description="Service complaints, deposit concerns and provider disputes are separate case types. This workspace cannot charge a participant or submit a provider dispute."
         actions={
-          <Link className={primary} href={`${base}/new`}>
-            <Plus className="size-4" aria-hidden="true" />
-            Open a dispute
-          </Link>
+          canWrite && (
+            <Link className={primary} href={`${base}/new`}>
+              <Plus className="size-4" aria-hidden="true" />
+              Open a dispute
+            </Link>
+          )
         }
       />
       <form className="flex flex-wrap items-end gap-3">
@@ -60,8 +72,8 @@ export function DisputeList({ data, kind }) {
         <button className={pill}>Apply filters</button>
       </form>
       {data.items.length ? (
-        kind === 'owner' ? (
-          <OwnerTable
+        kind === 'owner' || kind === 'admin' ? (
+          <EvidenceTable
             label="Disputes"
             columns={['Subject / reference', 'Type', 'Status', 'Response due', 'Action']}
           >
@@ -90,7 +102,7 @@ export function DisputeList({ data, kind }) {
                 </td>
               </tr>
             ))}
-          </OwnerTable>
+          </EvidenceTable>
         ) : (
           <ul className="mt-5 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
             {data.items.map((c) => (
@@ -248,17 +260,32 @@ export function NewDispute({ context, kind, bookings = [], bookingPages, default
     </div>
   );
 }
-export function DisputeDetail({ data: d, kind }) {
+export function DisputeDetail({
+  data: d,
+  kind,
+  canRefund = false,
+  canReadRecords = kind !== 'admin',
+}) {
   const admin = kind === 'admin',
     base = disputeBase(kind),
     time = timeFor(kind),
     book = admin ? '/admin/bookings' : kind === 'owner' ? '/partner/bookings' : '/bookings';
+  const Container = admin ? AdminPage : 'div';
   return (
-    <div className="mx-auto max-w-3xl space-y-6 wrap-break-word">
+    <Container className="mx-auto max-w-3xl space-y-6 wrap-break-word">
+      {admin && (
+        <AdminPageHeader
+          eyebrow="Finance · Dispute evidence"
+          title={d.subject}
+          description={`${d.reference} · ${words(d.kind)} · ${words(d.state)}`}
+          backHref={base}
+          backLabel="Disputes"
+        />
+      )}
       <header>
-        <BackLink href={base}>All disputes</BackLink>
+        {!admin && <BackLink href={base}>All disputes</BackLink>}
         <div className="mt-1 flex flex-wrap items-center gap-2">
-          <h1 className="text-h2">{d.subject}</h1>
+          {!admin && <h1 className="text-h2">{d.subject}</h1>}
           <StateBadge state={d.state} />
         </div>
         <p className="mt-2 text-ink-700">
@@ -268,7 +295,7 @@ export function DisputeDetail({ data: d, kind }) {
         <p className="mt-1 font-mono text-tiny break-all text-ink-500">
           {d.reference} · {d.title}
         </p>
-        {d.bookingLinkAvailable && (
+        {d.bookingLinkAvailable && canReadRecords && (
           <Link className={`${pill} mt-3`} href={`${book}/${d.orderId}`}>
             <FileText className="size-4" aria-hidden="true" />
             Booking and visit evidence
@@ -316,7 +343,7 @@ export function DisputeDetail({ data: d, kind }) {
             ))}
           </ul>
         ) : null}
-        {admin && (
+        {admin && canRefund && (
           <Link
             className="inline-flex min-h-11 items-center font-semibold text-brand-700 underline"
             href={`/admin/finance/refunds/new?order=${d.orderId}`}
@@ -422,6 +449,6 @@ export function DisputeDetail({ data: d, kind }) {
           )}
         </section>
       )}
-    </div>
+    </Container>
   );
 }

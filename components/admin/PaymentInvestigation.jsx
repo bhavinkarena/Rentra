@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import Link from '@/components/navigation/NavigationLink';
 import { ReceiptText, Search, TriangleAlert } from 'lucide-react';
 import {
+  AdminReadOnly,
   AdminEmpty,
   AdminFilterBar,
   AdminTable,
@@ -108,10 +109,8 @@ function Totals({ totals, asOf }) {
               </div>
             ))}
             <div>
-              <dt className="text-tiny text-ink-600">Actual bank money</dt>
-              <dd className="font-semibold tabular">
-                {money(t.environment === 'live' ? t.capturedMinor : 0)}
-              </dd>
+              <dt className="text-tiny text-ink-600">Bank settlement evidence</dt>
+              <dd className="font-semibold tabular">Not available</dd>
             </div>
           </dl>
         </div>
@@ -296,7 +295,7 @@ function Rows({ items, empty, render }) {
   );
 }
 
-export function PaymentDetail({ payment: p }) {
+export function PaymentDetail({ payment: p, capabilities = [] }) {
   return (
     <AdminPage width="max-w-[1180px]">
       <AdminPageHeader
@@ -311,30 +310,38 @@ export function PaymentDetail({ payment: p }) {
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <EnvironmentBadge environment={p.environment} />
         <StatusBadge tone={TONE[p.status.key]}>{p.status.label}</StatusBadge>
-        <Link
-          href={`/admin/bookings/${p.booking.id}?tab=payments`}
-          className="min-h-11 content-center text-meta font-semibold text-brand-700 underline"
-        >
-          Booking record
-        </Link>
-        <Link
-          href={`/admin/bookings/${p.booking.id}?tab=cases`}
-          className="min-h-11 content-center text-meta font-semibold text-brand-700 underline"
-        >
-          Open a booking case
-        </Link>
-        <Link
-          href={`/admin/customers/${p.booking.customerId}`}
-          className="min-h-11 content-center text-meta font-semibold text-brand-700 underline"
-        >
-          Customer
-        </Link>
-        <Link
-          href={`/admin/properties/${p.booking.propertyId}`}
-          className="min-h-11 content-center text-meta font-semibold text-brand-700 underline"
-        >
-          Property
-        </Link>
+        {capabilities.includes('admin.records.read') && (
+          <Link
+            href={`/admin/bookings/${p.booking.id}?tab=payments`}
+            className="min-h-11 content-center text-meta font-semibold text-brand-700 underline"
+          >
+            Booking record
+          </Link>
+        )}
+        {capabilities.includes('admin.records.read') && (
+          <Link
+            href={`/admin/bookings/${p.booking.id}?tab=cases`}
+            className="min-h-11 content-center text-meta font-semibold text-brand-700 underline"
+          >
+            Open a booking case
+          </Link>
+        )}
+        {capabilities.includes('admin.customers.read') && (
+          <Link
+            href={`/admin/customers/${p.booking.customerId}`}
+            className="min-h-11 content-center text-meta font-semibold text-brand-700 underline"
+          >
+            Customer
+          </Link>
+        )}
+        {capabilities.includes('admin.properties.read') && (
+          <Link
+            href={`/admin/properties/${p.booking.propertyId}`}
+            className="min-h-11 content-center text-meta font-semibold text-brand-700 underline"
+          >
+            Property
+          </Link>
+        )}
       </div>
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
         <div className="space-y-6">
@@ -348,8 +355,8 @@ export function PaymentDetail({ payment: p }) {
                 { label: 'Refunded · verified', value: money(p.refundedMinor) },
                 { label: 'Refunds pending', value: money(p.refundPendingMinor) },
                 {
-                  label: 'Actual bank money',
-                  value: money(p.environment === 'live' ? p.capturedMinor : 0),
+                  label: 'Bank settlement evidence',
+                  value: 'Not available',
                 },
                 { label: 'Payment state', value: p.state },
                 { label: 'Provider order', value: p.providerOrderId ?? 'Not linked', mono: true },
@@ -418,7 +425,9 @@ export function PaymentDetail({ payment: p }) {
             title="Refunds"
             description="Open a refund for its status, provider events and commands"
             action={
-              p.environment === 'test' && p.capturedMinor > 0 ? (
+              capabilities.includes('admin.payments.write') &&
+              p.environment === 'test' &&
+              p.capturedMinor > 0 ? (
                 <Link
                   href={`/admin/finance/refunds/new?order=${p.booking.id}`}
                   className="text-tiny font-semibold text-brand-700 underline"
@@ -535,7 +544,11 @@ export function PaymentDetail({ payment: p }) {
                   Payment is now {p.reconciliations[0].stateAfter}.
                 </p>
               ) : null}
-              {p.canReconcile ? (
+              {!capabilities.includes('admin.payments.write') ? (
+                <AdminReadOnly>
+                  Provider reconciliation requires Finance write access.
+                </AdminReadOnly>
+              ) : p.canReconcile ? (
                 <ReconcilePayment key={p.state} paymentId={p.id} requestKey={randomUUID()} />
               ) : (
                 <p className="text-ink-600">Nothing to re-fetch: {p.status.label.toLowerCase()}.</p>

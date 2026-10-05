@@ -1,6 +1,7 @@
+import { requireAdmin } from '@/lib/api/session';
 import { randomUUID } from 'node:crypto';
 import Link from '@/components/navigation/NavigationLink';
-import { AdminPage, AdminPageHeader } from '@/components/admin/AdminPrimitives';
+import { AdminPage, AdminPageHeader, AdminReadOnly } from '@/components/admin/AdminPrimitives';
 import { RefundRequest } from '@/components/admin/RefundCommands';
 import PortalState from '@/components/portal/PortalState';
 import { adminApi } from '@/lib/api/endpoints';
@@ -10,6 +11,18 @@ export const metadata = { title: 'Request a refund', robots: { index: false, fol
 
 /** Preview, then request a refund of a visit's remaining verified capture (CP20). */
 export default async function NewRefundPage({ searchParams }) {
+  const admin = await requireAdmin();
+  if (!admin.capabilities.includes('admin.payments.write'))
+    return (
+      <AdminPage>
+        <AdminPageHeader
+          title="Request a refund"
+          backHref="/admin/finance/refunds"
+          backLabel="Refunds"
+        />
+        <AdminReadOnly>Refund requests require Finance write access.</AdminReadOnly>
+      </AdminPage>
+    );
   const orderId = String((await searchParams)?.order ?? '');
   const { data, failure } = await settle(adminApi.refundableVisits(orderId));
   if (failure)

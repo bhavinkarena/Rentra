@@ -5,9 +5,11 @@ import { StatusBadge as SharedStatusBadge } from '@/components/ui/status-badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { adminStatusMeta, humaniseStatus } from '@/lib/domain/status';
 
-export function AdminPage({ children, width = 'max-w-(--container-workspace)' }) {
+export function AdminPage({ children, width = 'max-w-(--container-workspace)', className = '' }) {
   return (
-    <div className={`mx-auto w-full min-w-0 ${width} px-4 py-6 sm:px-6 sm:py-8 lg:px-8`}>
+    <div
+      className={`mx-auto w-full min-w-0 ${width} px-4 py-6 sm:px-6 sm:py-8 lg:px-8 ${className}`}
+    >
       {children}
     </div>
   );
@@ -99,7 +101,7 @@ export function AdminTable({ label, columns, children, empty, minWidth = 760, fr
       role="region"
       aria-label={label}
       tabIndex={0}
-      className={`admin-table min-w-0 max-w-full overflow-x-auto overscroll-x-contain bg-card ${framed ? 'rounded-lg border border-border' : ''}`}
+      className={`admin-table relative min-w-0 max-w-full overflow-x-auto overscroll-x-contain bg-card ${framed ? 'rounded-lg border border-border' : ''}`}
     >
       <table className="w-full border-collapse text-left text-meta" style={{ minWidth }}>
         <caption className="sr-only">{label}</caption>

@@ -8,15 +8,12 @@ import ValidationSummary from '@/components/portal/ValidationSummary';
 import { customerAccountCommand } from '@/lib/actions/admin';
 
 const CONFLICTS = ['ACCOUNT_CONFLICT', 'PROFILE_CONFLICT', 'LIFECYCLE_NOT_ALLOWED'];
-const inputCls = `${sharedFieldClass} mt-1 min-h-10`;
+const inputCls = `${sharedFieldClass} mt-1`;
 
 function Failure({ state }) {
   if (!state.error || (state.errors && !state.errors._)) return null;
   return (
-    <div
-      role="alert"
-      className="rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger"
-    >
+    <div role="alert" className="rounded-md bg-danger-bg p-3 text-meta text-danger">
       <p>{state.errors?._ ?? state.error}</p>
       {CONFLICTS.includes(state.code) ? (
         <div className="mt-3">
@@ -43,9 +40,14 @@ function Reason({ id, value, onChange, error }) {
         value={value}
         onChange={(event) => onChange(event.target.value)}
         aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${id}-error` : undefined}
         className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2 text-base md:text-sm"
       />
-      {error ? <p className="mt-1 text-tiny font-medium text-danger">{error}</p> : null}
+      {error ? (
+        <p id={`${id}-error`} className="mt-1 text-meta font-medium text-danger">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -68,8 +70,13 @@ export function CustomerProfileCorrection({ customer }) {
   const e = state.errors ?? {};
 
   return (
-    <form ref={formRef} action={action} className="mt-4 space-y-3 border-t border-border pt-4">
-      <h3 className="text-meta font-bold text-ink-900">Correct identity details</h3>
+    <form
+      ref={formRef}
+      action={action}
+      onReset={(event) => event.preventDefault()}
+      className="mt-4 space-y-3 border-t border-border pt-4"
+    >
+      <h3 className="text-meta font-bold text-ink-900">Profile correction</h3>
       <p className="text-tiny text-ink-500">
         The phone number is the sign-in credential and cannot be edited here; it changes only
         through the customer&apos;s verified phone-change flow. A changed email needs verification

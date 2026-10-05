@@ -4,13 +4,13 @@
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Prepared           | 4 October 2026                                                                                                                                                                         |
 | Scope              | Admin dashboard, navigation, section tabs, tables, record details, review workflows, finance, support, configuration and release QA                                                    |
-| Status | Phases 1–6 complete; Phases 7–12 pending |
+| Status | Phases 1–7 complete; Phases 8–12 pending |
 | Method             | Repository review plus Phase 1 disposable-local role, viewport, permission and integration baseline; inspected saved owner and current admin screenshots                               |
 | Verification limit | Phase 1 adds authenticated disposable-local browser/API/database evidence below. Production workflows and providers were not exercised; historical owner test results remain separate. |
 
 ## Phase completion tracker
 
-**Progress:** 6 of 12 phases complete · 0 in progress · 6 pending. Phase 6 is implemented and locally verified; Phase 7 is next. Existing admin functionality does not count as completion of these redesign phases.
+**Progress:** 8 of 12 phases complete · 0 in progress · 4 pending. Phase 8 is implemented and locally verified; Phase 9 is next. Existing admin functionality does not count as completion of these redesign phases.
 
 | Phase | Work                                                            | Status      | Completed on | Notes / remaining work                                                                                       |
 | ----- | --------------------------------------------------------------- | ----------- | ------------ | ------------------------------------------------------------------------------------------------------------ |
@@ -20,7 +20,7 @@
 | 4 | Dashboard and analytics | ✅ Complete | 5 Oct 2026 | ADM-HOME-01–07 delivered; [contract](ADMIN-DASHBOARD-CONTRACT.md), [checks](evidence/admin-phase4/checks.json), [browser evidence](evidence/admin-phase4/browser-checks.json) |
 | 5 | Owner applications and property review | ✅ Complete | 5 Oct 2026 | ADM-REV-01–06 delivered; [checks](evidence/admin-phase5/checks.json), [browser evidence](evidence/admin-phase5/browser-checks.json) |
 | 6 | Bookings and booking cases | ✅ Complete | 5 Oct 2026 | ADM-BOOK-01–05 delivered; [checks](evidence/admin-phase6/checks.json), [browser evidence](evidence/admin-phase6/browser-checks.json), [runbook](ADMIN-BOOKING-WORKSPACE.md) |
-| 7     | People: owners and customers                                    | ⏳ Pending  | —            | Refresh directories, record tabs and account controls                                                        |
+| 7 | People: owners and customers | ✅ Complete | 5 Oct 2026 | ADM-PEOPLE-01–04 delivered; [checks](evidence/admin-phase7/checks.json), [browser evidence](evidence/admin-phase7/browser-checks.json), [runbook](ADMIN-PEOPLE-WORKSPACE.md); optional sheets deferred |
 | 8     | Finance workspace                                               | ⏳ Pending  | —            | Organize finance tabs and verify money/evidence definitions                                                  |
 | 9     | Guest reviews, support and message delivery                     | ⏳ Pending  | —            | Refresh moderation, support and delivery screens                                                             |
 | 10    | Operations, privacy, audit and configuration                    | ⏳ Pending  | —            | Organize operational tools, exports and configuration                                                        |
@@ -559,8 +559,8 @@ Run the complete redesigned journey with disposable fixtures: sign-in/2FA → da
 | A0      | 1      | Verified inventory and baseline                                                   | Complete (audit); findings recorded |
 | A1 | 2–3 | Clear sidebar, section tabs and consistent primitives; application route migrated | Complete; locally verified, not deployed |
 | A2 | 4 | Authorized dashboard, actionable queues and defined analytics | Complete; locally verified, not deployed |
-| A3 | 5–7 | Review, booking/case and people workspaces | In progress; Phases 5–6 complete locally, Phase 7 pending |
-| A4      | 8–9    | Finance, guest-review and support workflows                                       | Not started                         |
+| A3 | 5–7 | Review, booking/case and people workspaces | Complete; locally verified, not deployed |
+| A4      | 8–9    | Finance, guest-review and support workflows                                       | In progress                         |
 | A5      | 10–11  | Operations/configuration and expanded search                                      | Not started                         |
 | A6      | 12     | Full regression evidence and release readiness decision                           | Not started                         |
 
@@ -631,6 +631,40 @@ Frontend repository lint, changed-file formatting, backend lint/format and migra
 
 **Next phase:** Phase 7 — people: owners and customers.
 
+### Phase 7 — Complete (locally verified, 5 October 2026)
+
+**Status:** ADM-PEOPLE-01–04 implemented on the same frontend `main` branch. The backend's existing `master` branch is unchanged except for a disposable test helper. Release A3 is complete locally; nothing was deployed.
+
+**Delivered:** Owners and Customers reuse the existing People section tabs, shared semantic tables/filter bars/native fields, API counts, status/search/pagination and matching loading states. UI uses Owner while `/admin/clients/**` and existing API terminology remain compatible. Independent full-page details retain every record section, filtered return context, history and authorized application/property/booking/support/review/privacy links. Optional View sheets are deferred; View opens the complete full-page record. No admin impersonation or account switching changes were introduced.
+
+Account lifecycle, customer profile correction/session revocation and payout-method failure use explicit directory write grants. Read-only operators see inspection states, and related record links use independent module read grants. Existing API denial, reason/version checks, payout preview/apply/request-key/recent-authentication safeguards and masked destination history remain authoritative. Operator events use deterministic IST dates; visits keep the property timezone. Shared tables now contain visually hidden row labels inside their local scroll region.
+
+**Regressions proved and fixed:** the initial read-only gate failed because owner account forms remained visible. A real competing profile update also reproduced a controlled Language select resetting from Gujarati to English after a refused save. Existing reset-cancellation behavior now preserves all profile fields; lifecycle confirmation stays checked after refusal and resets after success. Both cases pass in the final authenticated browser run, including retained reasons, stale-update refusal, reinstatement, session revocation and durable audit history.
+
+**Verification:** frontend tests **97 passed**. Disposable owner lifecycle, customer controls and payout-destination integrations: **3 passed, 0 skipped**. [Browser gate](evidence/admin-phase7/browser-checks.json): **30 checks, 12 WCAG axe scans, zero violations, zero page errors**, across 1280/768/360 px, full/read-only/customer-only roles, literal search, page reset, encoded filtered returns, tab refresh, empty states, direct document/command denial, linked records, payout concurrency and account controls. Frontend/backend lint, changed-frontend formatting, backend formatting, Python syntax and production Webpack build pass. Migration journal: **64 entries; no migration added**. Fresh code review has no unresolved findings.
+
+**Recorded unrelated limits:** full backend suite: **233 passed, 1 failed, 3 skipped**; unchanged `CP25 publication, immutable history, rollback and checkout acceptance` still expects four history entries but receives five at `content.integration.test.js:204`. Frontend global formatting still flags the unchanged `Rentra_Post_Development_Launch_Roadmap.md`. Disk exhaustion interrupted initial checks; inactive generated caches were removed and the disposable services recovered before final verification. Intermittent local dev-manifest JSON errors were avoided by running the final browser gate against the verified production build. These interruptions are not reported as passing checks. Existing detail result limits remain documented; production providers and Phase 12 release journeys remain unverified.
+
+**Evidence and reproduction:** [checks](evidence/admin-phase7/checks.json), [desktop owners](evidence/admin-phase7/clients-1280.png), [phone customers](evidence/admin-phase7/customers-360.png), [phone account controls](evidence/admin-phase7/customers-account-360.png) and [People workspace runbook](ADMIN-PEOPLE-WORKSPACE.md). Backend production services, scoped read contracts, schema and identity separation are unchanged. Disposable fixtures use no production credentials or providers.
+
+**Next phase:** Phase 8 — finance workspace.
+
+### Phase 8 — Complete (locally verified, 5 October 2026)
+
+**Implemented IDs:** ADM-FIN-01–06. Existing Finance tabs and Gateway settings placement are retained. Refunds, statements, payouts and disputes use shared semantic admin tables; financial evidence details use admin headers. Provider capture/refund evidence no longer claims to be “Actual bank money.” Booking quotes, verified receipts, successful refunds, reservations, accounting eligibility and recorded payout evidence remain distinct; bank verification and live payout execution remain unavailable.
+
+**Authorization and preserved tasks:** read-only operators see evidence without reconciliation/refund/dispute command forms; new command pages check Finance write capability before fetching command context. Independent read capabilities govern links into Bookings, People and Properties. Backend authority, private dispute attachments, replies/history, refund preview hash/request keys, CSV scope/audit and payout destination pinning remain intact. Refund preview retains unsaved protection until a recorded result; changed amounts require a fresh preview.
+
+**Backend impact:** statements, CSV and payout periods now use explicit inclusive/exclusive IST month boundaries and default month, matching owner evidence and dashboard scope. The former admin UTC cohort is intentionally replaced. No route/DTO/schema/migration additions; migration journal remains **64 entries**.
+
+**Verified checks:** frontend **97 tests passed**; **five focused backend finance/refund/dispute integration checks passed**; production browser gate **15 checks, 21 axe scans, zero violations, zero page errors** at 1280/768/390 px. Scoped CSV excludes other environments and denies missing Finance read access. Seeded statement receipts/refunds reconcile to allocation details. Frontend/backend lint, changed-frontend formatting, backend formatting, Python gate syntax, production Webpack build and diff whitespace checks pass. Old boundary allocation selection and lost preview guard both fail before their fixes and pass afterward. Fresh code review, screenshot review and Impeccable detector have no unresolved findings.
+
+**Recorded unrelated limits:** full backend suite **234 passed, 1 failed, 3 skipped**; existing CP25 history-length assertion still expects four entries and receives five at `content.integration.test.js:204`. Frontend global formatting still flags only unchanged `Rentra_Post_Development_Launch_Roadmap.md`. No production provider calls or transfers were made; full release journeys remain Phase 12 work.
+
+**Evidence and reproduction:** [checks](evidence/admin-phase8/checks.json), [browser results](evidence/admin-phase8/browser-results.json), [phone statements](evidence/admin-phase8/statement-allocations-390.png), [refund preview](evidence/admin-phase8/refund-preview.png) and [Finance workspace runbook](ADMIN-FINANCE-WORKSPACE.md). Changes remain on the existing branches; Phase 7 work is preserved.
+
+**Next phase:** Phase 9 — guest reviews, support and message delivery. Release A4 remains in progress.
+
 ## 7. Implementation defaults and boundaries
 
 - Use existing Rentra tokens/components; no new brand theme or chart dependency is required by this plan.
@@ -641,4 +675,4 @@ Frontend repository lint, changed-file formatting, backend lint/format and migra
 - Add no editable platform calendar, admin impersonation, automated bulk approvals, live chat or payout execution as part of this UI redesign.
 - UI-only phases should need no migration. Dashboard/search/index changes are scoped and verified separately when evidence requires them.
 
-Phases 1–6 are complete and locally verified. The next implementation step is Phase 7: people — owners and customers.
+Phases 1–8 are complete and locally verified. The next implementation step is Phase 9: guest reviews, support and message delivery.

@@ -1,0 +1,107 @@
+{
+  "scope": "Disposable localhost; no provider or production access",
+  "checks": [
+    "Read-only commands hidden: /admin/finance/payments/3a4afcb6-2e75-47eb-bc64-8aa3c8113aa6",
+    "Read-only commands hidden: /admin/finance/refunds/49f523fb-443c-444c-af2e-882b56ca86e7",
+    "Read-only commands hidden: /admin/finance/refunds/new",
+    "Read-only commands hidden: /admin/disputes/new",
+    "Read-only dispute evidence without write actions",
+    "Direct finance mutations denied for read-only role",
+    "Five finance tabs: tables, keyboard scroll, accessibility, viewport 1280",
+    "Five finance tabs: tables, keyboard scroll, accessibility, viewport 768",
+    "Five finance tabs: tables, keyboard scroll, accessibility, viewport 390",
+    "Payment, refund, allocation, payout and dispute detail evidence retained",
+    "Preview remains protected from leaving without saving",
+    "Refund preview requires a matching amount before confirmation",
+    "Statement CSV retains IST period and Test scope",
+    "Statement totals and allocation details reconcile seeded evidence",
+    "Statement download denied without Finance read access"
+  ],
+  "accessibility": [
+    {
+      "screen": "Payment records-1280",
+      "violations": []
+    },
+    {
+      "screen": "Refund obligations-1280",
+      "violations": []
+    },
+    {
+      "screen": "Statement allocations-1280",
+      "violations": []
+    },
+    {
+      "screen": "Payout records-1280",
+      "violations": []
+    },
+    {
+      "screen": "Disputes-1280",
+      "violations": []
+    },
+    {
+      "screen": "Payment records-768",
+      "violations": []
+    },
+    {
+      "screen": "Refund obligations-768",
+      "violations": []
+    },
+    {
+      "screen": "Statement allocations-768",
+      "violations": []
+    },
+    {
+      "screen": "Payout records-768",
+      "violations": []
+    },
+    {
+      "screen": "Disputes-768",
+      "violations": []
+    },
+    {
+      "screen": "Payment records-390",
+      "violations": []
+    },
+    {
+      "screen": "Refund obligations-390",
+      "violations": []
+    },
+    {
+      "screen": "Statement allocations-390",
+      "violations": []
+    },
+    {
+      "screen": "Payout records-390",
+      "violations": []
+    },
+    {
+      "screen": "Disputes-390",
+      "violations": []
+    },
+    {
+      "screen": "payment-detail",
+      "violations": []
+    },
+    {
+      "screen": "refund-detail",
+      "violations": []
+    },
+    {
+      "screen": "allocation-detail",
+      "violations": []
+    },
+    {
+      "screen": "payout-detail",
+      "violations": []
+    },
+    {
+      "screen": "dispute-detail",
+      "violations": []
+    },
+    {
+      "screen": "refund-preview",
+      "violations": []
+    }
+  ],
+  "pageErrors": []
+}

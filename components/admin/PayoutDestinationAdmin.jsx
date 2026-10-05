@@ -66,9 +66,10 @@ export function FailDestinationForm({ clientId, destination, requestKey }) {
           maxLength={500}
           className={field}
           aria-invalid={Boolean(state.errors?.reason)}
+          aria-describedby={state.errors?.reason ? `${id}-reason-error` : undefined}
         />
         {state.errors?.reason ? (
-          <p role="alert" className="text-tiny text-danger">
+          <p id={`${id}-reason-error`} role="alert" className="text-meta text-danger">
             {state.errors.reason}
           </p>
         ) : null}

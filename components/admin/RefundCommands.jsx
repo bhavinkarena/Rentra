@@ -2,7 +2,7 @@
 
 import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
-import { useActionState, useState, useTransition } from 'react';
+import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { RefreshCw, Send } from 'lucide-react';
 import RentraLoader from '@/components/ui/rentra-loader';
 import { Outcome, useKeptInputAction } from '@/components/booking/EvidenceForms';
@@ -10,7 +10,7 @@ import { previewAdminRefund, reconcileAdminRefund, requestAdminRefund } from '@/
 import { bookingMoney as money } from '@/lib/domain/booking-record';
 
 const primary = `${sharedButtonVariants({ shape: 'default', size: 'default' })} `;
-const field = `${sharedFieldClass} mt-1 min-h-11`;
+const field = `${sharedFieldClass} mt-1 block min-h-11`;
 
 /**
  * Send a queued obligation or check an existing one. The engine POSTs a refund
@@ -91,9 +91,17 @@ export function RefundRequest({ order, requestKey }) {
     return data;
   };
   const done = requestState.refundIds?.length;
+  const forms = useRef(null);
+  useEffect(() => {
+    if (done)
+      forms.current?.querySelectorAll('form').forEach((form) => {
+        form.dispatchEvent(new Event('rentra:form-saved', { bubbles: true }));
+      });
+  }, [done]);
   return (
-    <div className="space-y-5">
+    <div ref={forms} className="space-y-5">
       <form
+        data-unsaved-until-saved
         className="space-y-4"
         onSubmit={(event) => {
           event.preventDefault();
@@ -194,6 +202,7 @@ export function RefundRequest({ order, requestKey }) {
             </p>
           ) : (
             <form
+              data-unsaved-until-saved
               className="space-y-3"
               onSubmit={(event) => {
                 event.preventDefault();

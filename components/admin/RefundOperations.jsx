@@ -2,7 +2,14 @@ import Form from '@/components/navigation/NavigationForm';
 import { randomUUID } from 'node:crypto';
 import Link from '@/components/navigation/NavigationLink';
 import { TriangleAlert } from 'lucide-react';
-import { AdminEmpty, AdminPage, AdminPageHeader, StatusBadge } from './AdminPrimitives';
+import {
+  AdminEmpty,
+  AdminReadOnly,
+  AdminTable,
+  AdminPage,
+  AdminPageHeader,
+  StatusBadge,
+} from './AdminPrimitives';
 import Pagination from '@/components/ui/pagination';
 import { FieldGrid, SectionCard } from '@/components/portal/DetailLayout';
 import { bookingMoney as money, bookingTime as time } from '@/lib/domain/booking-record';
@@ -170,7 +177,6 @@ export function RefundList({ data }) {
                   ['Requested', t.expectedMinor],
                   ['Refunded · verified', t.refundedMinor],
                   ['Pending or uncertain', t.pendingMinor],
-                  ['Actual bank money', t.environment === 'live' ? t.refundedMinor : 0],
                 ].map(([label, value]) => (
                   <div key={label}>
                     <dt className="text-tiny text-ink-600">{label}</dt>
@@ -186,40 +192,56 @@ export function RefundList({ data }) {
         </section>
       ) : null}
 
-      <section
-        aria-label="Refund obligations"
-        className="mt-6 overflow-hidden rounded-lg border border-border bg-card"
-      >
-        {data.items.length ? (
-          <ul className="divide-y divide-border">
-            {data.items.map((r) => (
-              <li
-                key={r.id}
-                className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 text-meta"
-              >
-                <div className="min-w-0">
-                  <Link
-                    href={`/admin/finance/refunds/${r.id}`}
-                    className="font-semibold text-brand-700 underline"
-                  >
-                    {money(r.expectedMinor)} · {r.bookingReference}
-                  </Link>
-                  <p className="text-tiny text-ink-600">
-                    {SOURCE[r.source]} · {r.title} · requested {time(r.createdAt, TZ)}
-                    {r.execution.failureCode ? ` · ${r.execution.failureCode}` : ''}
-                  </p>
-                </div>
+      <div className="mt-6">
+        <AdminTable
+          label="Refund obligations"
+          columns={[
+            'Booking / source',
+            'Environment',
+            'Requested',
+            'Successful refund',
+            'Status',
+            'Action',
+          ]}
+          empty={
+            !data.items.length ? (
+              <AdminEmpty
+                title="No refunds match"
+                description="Try another environment, status or search."
+              />
+            ) : null
+          }
+        >
+          {data.items.map((r) => (
+            <tr key={r.id}>
+              <td>
+                <strong className="block">{r.bookingReference}</strong>
+                <span>
+                  {r.title} · {SOURCE[r.source]}
+                </span>
+                <span className="block text-tiny">
+                  Requested {time(r.createdAt, TZ)}
+                  {r.execution.failureCode ? ` · ${r.execution.failureCode}` : ''}
+                </span>
+              </td>
+              <td>{r.environment}</td>
+              <td className="tabular">{money(r.expectedMinor)}</td>
+              <td className="tabular">{money(r.actualMinor)}</td>
+              <td>
                 <Status status={r.status} />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <AdminEmpty
-            title="No refunds match"
-            description="Try another environment, status or search."
-          />
-        )}
-      </section>
+              </td>
+              <td>
+                <Link
+                  href={`/admin/finance/refunds/${r.id}`}
+                  className="inline-flex min-h-11 items-center font-semibold text-brand-700 underline"
+                >
+                  View refund<span className="sr-only"> · {r.bookingReference}</span>
+                </Link>
+              </td>
+            </tr>
+          ))}
+        </AdminTable>
+      </div>
       <Pagination
         page={data.page}
         pageSize={25}
@@ -242,13 +264,15 @@ const ORIGIN = {
   other: 'Other',
 };
 
-export function RefundDetail({ refund: r }) {
+export function RefundDetail({ refund: r, capabilities = [] }) {
   return (
     <AdminPage width="max-w-[1320px]">
       <AdminPageHeader
         eyebrow="Finance · Refund"
         title={`${money(r.expectedMinor)} refund · ${r.bookingReference}`}
         description={`${r.reference} · ${r.environment}`}
+        backHref="/admin/finance/refunds"
+        backLabel="Refunds"
         action={<Status status={r.status} />}
       />
       <div className="mt-4 flex flex-wrap gap-4">
@@ -264,13 +288,15 @@ export function RefundDetail({ refund: r }) {
         >
           Payment
         </Link>
-        <Link
-          href={`/admin/bookings/${r.booking.id}`}
-          className="min-h-11 content-center text-meta font-semibold text-brand-700 underline"
-        >
-          Booking
-        </Link>
-        {r.origin.caseId ? (
+        {capabilities.includes('admin.records.read') && (
+          <Link
+            href={`/admin/bookings/${r.booking.id}`}
+            className="min-h-11 content-center text-meta font-semibold text-brand-700 underline"
+          >
+            Booking
+          </Link>
+        )}
+        {r.origin.caseId && capabilities.includes('admin.records.read') ? (
           <Link
             href={`/admin/booking-cases/${r.origin.caseId}`}
             className="min-h-11 content-center text-meta font-semibold text-brand-700 underline"
@@ -297,8 +323,8 @@ export function RefundDetail({ refund: r }) {
                 { label: 'Requested', value: money(r.expectedMinor) },
                 { label: 'Refunded · verified', value: money(r.actualMinor) },
                 {
-                  label: 'Actual bank money',
-                  value: money(r.environment === 'live' ? r.actualMinor : 0),
+                  label: 'Bank settlement evidence',
+                  value: 'Not available',
                 },
                 {
                   label: 'Verified at',
@@ -377,7 +403,11 @@ export function RefundDetail({ refund: r }) {
           ) : null}
         </div>
         <div className="space-y-6">
-          {r.status.command ? (
+          {!capabilities.includes('admin.payments.write') ? (
+            <AdminReadOnly>
+              Sending or reconciling refunds requires Finance write access.
+            </AdminReadOnly>
+          ) : r.status.command ? (
             <SectionCard
               id="command"
               title={r.status.command === 'send' ? 'Send to provider' : 'Check with provider'}

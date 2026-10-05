@@ -3,7 +3,7 @@ import Skeleton from '@/components/ui/skeleton';
 import { AdminPage } from './AdminPrimitives';
 
 export default function AdminLoading({ label = 'workspace', screen = 'table' }) {
-  if (['applications', 'properties', 'payments'].includes(screen))
+  if (['applications', 'properties', 'payments', 'people'].includes(screen))
     return (
       <AdminPage>
         <div role="status" aria-busy="true" aria-label={`Loading ${label}`}>
