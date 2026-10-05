@@ -4,7 +4,7 @@
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Prepared           | 4 October 2026                                                                                                                                                                         |
 | Scope              | Admin dashboard, navigation, section tabs, tables, record details, review workflows, finance, support, configuration and release QA                                                    |
-| Status | Phases 1–7 complete; Phases 8–12 pending |
+| Status | Phases 1–8 complete; Phases 9–12 pending |
 | Method             | Repository review plus Phase 1 disposable-local role, viewport, permission and integration baseline; inspected saved owner and current admin screenshots                               |
 | Verification limit | Phase 1 adds authenticated disposable-local browser/API/database evidence below. Production workflows and providers were not exercised; historical owner test results remain separate. |
 
@@ -21,7 +21,7 @@
 | 5 | Owner applications and property review | ✅ Complete | 5 Oct 2026 | ADM-REV-01–06 delivered; [checks](evidence/admin-phase5/checks.json), [browser evidence](evidence/admin-phase5/browser-checks.json) |
 | 6 | Bookings and booking cases | ✅ Complete | 5 Oct 2026 | ADM-BOOK-01–05 delivered; [checks](evidence/admin-phase6/checks.json), [browser evidence](evidence/admin-phase6/browser-checks.json), [runbook](ADMIN-BOOKING-WORKSPACE.md) |
 | 7 | People: owners and customers | ✅ Complete | 5 Oct 2026 | ADM-PEOPLE-01–04 delivered; [checks](evidence/admin-phase7/checks.json), [browser evidence](evidence/admin-phase7/browser-checks.json), [runbook](ADMIN-PEOPLE-WORKSPACE.md); optional sheets deferred |
-| 8     | Finance workspace                                               | ⏳ Pending  | —            | Organize finance tabs and verify money/evidence definitions                                                  |
+| 8 | Finance workspace | ✅ Complete | 5 Oct 2026 | ADM-FIN-01–06 delivered; [checks](evidence/admin-phase8/checks.json), [browser evidence](evidence/admin-phase8/browser-results.json), [runbook](ADMIN-FINANCE-WORKSPACE.md); locally verified, not deployed |
 | 9     | Guest reviews, support and message delivery                     | ⏳ Pending  | —            | Refresh moderation, support and delivery screens                                                             |
 | 10    | Operations, privacy, audit and configuration                    | ⏳ Pending  | —            | Organize operational tools, exports and configuration                                                        |
 | 11    | Global search and cross-workspace links                         | ⏳ Pending  | —            | Improve authorized search and expand supported scopes                                                        |
