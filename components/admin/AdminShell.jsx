@@ -1,6 +1,7 @@
 'use client';
 
 import Form from '@/components/navigation/NavigationForm';
+import { permittedSearchTypes } from '@/lib/domain/admin-search';
 import {
   Activity,
   CalendarDays,
@@ -71,9 +72,9 @@ export default function AdminShell({ children, admin, logoutAction, counts = {} 
       icon: MessageSquareText,
       badge: counts.waitingSupport,
     });
-  const searchable = ['admin.clients.read', 'admin.customers.read', 'admin.applications.read'].some(
-    (capability) => capabilities.includes(capability),
-  );
+  const searchTypes = permittedSearchTypes(capabilities);
+  const searchable = searchTypes.length > 0;
+  const searchLabel = `Search ${searchTypes.map((type) => type.label.toLowerCase()).join(', ')}`;
 
   return (
     <PortalShell
@@ -105,14 +106,14 @@ export default function AdminShell({ children, admin, logoutAction, counts = {} 
               aria-hidden="true"
             />
             <label htmlFor="admin-search" className="sr-only">
-              Search owners, customers and applications
+              {searchLabel}
             </label>
             <input
               id="admin-search"
               name="q"
               type="search"
               maxLength={100}
-              placeholder="Search owners, customers, applications…"
+              placeholder={searchLabel}
               className="min-h-9 w-full rounded-md border border-input bg-ink-25 pr-3 pl-9 text-base md:text-sm placeholder:text-ink-500 focus:border-brand-600 focus:bg-card"
             />
           </Form>

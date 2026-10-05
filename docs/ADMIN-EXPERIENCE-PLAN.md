@@ -4,13 +4,13 @@
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Prepared           | 4 October 2026                                                                                                                                                                         |
 | Scope              | Admin dashboard, navigation, section tabs, tables, record details, review workflows, finance, support, configuration and release QA                                                    |
-| Status | Phases 1–10 complete; Phases 11–12 pending |
+| Status | Phases 1–11 complete; Phase 12 pending |
 | Method             | Repository review plus Phase 1 disposable-local role, viewport, permission and integration baseline; inspected saved owner and current admin screenshots                               |
 | Verification limit | Phase 1 adds authenticated disposable-local browser/API/database evidence below. Production workflows and providers were not exercised; historical owner test results remain separate. |
 
 ## Phase completion tracker
 
-**Progress:** 10 of 12 phases complete · 0 in progress · 2 pending. Phase 10 is implemented and locally verified; Phase 11 is next. Existing admin functionality does not count as completion of these redesign phases.
+**Progress:** 11 of 12 phases complete · 0 in progress · 1 pending. Phase 11 is implemented and locally verified; Phase 12 is next. Existing admin functionality does not count as completion of these redesign phases.
 
 | Phase | Work                                                            | Status      | Completed on | Notes / remaining work                                                                                       |
 | ----- | --------------------------------------------------------------- | ----------- | ------------ | ------------------------------------------------------------------------------------------------------------ |
@@ -24,7 +24,7 @@
 | 8 | Finance workspace | ✅ Complete | 5 Oct 2026 | ADM-FIN-01–06 delivered; [checks](evidence/admin-phase8/checks.json), [browser evidence](evidence/admin-phase8/browser-results.json), [runbook](ADMIN-FINANCE-WORKSPACE.md); locally verified, not deployed |
 | 9 | Guest reviews, support and message delivery | ✅ Complete | 5 Oct 2026 | ADM-COMMS-01–05 delivered; [checks](evidence/admin-phase9/checks.json), [browser evidence](evidence/admin-phase9/browser-results.json), [runbook](ADMIN-COMMUNICATION-WORKSPACE.md); locally verified, not deployed |
 | 10 | Operations, privacy, audit and configuration | ✅ Complete | 5 Oct 2026 | ADM-OPS-01–06 delivered; [checks](evidence/admin-phase10/checks.json), [browser evidence](evidence/admin-phase10/browser-results.json), [runbook](ADMIN-OPERATIONS-WORKSPACE.md); locally verified, not deployed |
-| 11    | Global search and cross-workspace links                         | ⏳ Pending  | —            | Improve authorized search and expand supported scopes                                                        |
+| 11 | Global search and cross-workspace links | ✅ Complete | 5 Oct 2026 | ADM-SEARCH-01–04 delivered; [checks](evidence/admin-phase11/checks.json), [browser evidence](evidence/admin-phase11/browser-results.json), [runbook](ADMIN-SEARCH-WORKSPACE.md); locally verified, not deployed |
 | 12    | Responsive, accessibility, performance and release verification | ⏳ Pending  | —            | Complete regression checks and record release evidence                                                       |
 
 **Status key:** ⏳ Pending · 🔄 In progress · ✅ Complete · 🚧 Blocked.
@@ -148,7 +148,7 @@ Skeletons match each screen's layout. Background refresh retains records and lab
 
 ## 5. Implementation phases
 
-Phases 1–10 are **Complete (locally verified)**; Phases 11–12 are **Not started**. Phase 1 establishes the baseline; Phases 2–4 create the shared foundation and dashboard; the remaining modules ship incrementally. Each phase includes its own verification before proceeding.
+Phases 1–11 are **Complete (locally verified)**; Phase 12 is **Not started**. Phase 1 establishes the baseline; Phases 2–4 create the shared foundation and dashboard; the remaining modules ship incrementally. Each phase includes its own verification before proceeding.
 
 ### Phase 1 — Admin inventory and behavior baseline
 
@@ -561,7 +561,7 @@ Run the complete redesigned journey with disposable fixtures: sign-in/2FA → da
 | A2 | 4 | Authorized dashboard, actionable queues and defined analytics | Complete; locally verified, not deployed |
 | A3 | 5–7 | Review, booking/case and people workspaces | Complete; locally verified, not deployed |
 | A4      | 8–9    | Finance, guest-review and support workflows                                       | Complete (locally verified)                         |
-| A5      | 10–11  | Operations/configuration and expanded search                                      | In progress; Phase 10 complete locally |
+| A5      | 10–11  | Operations/configuration and expanded search                                      | Complete (locally verified) |
 | A6      | 12     | Full regression evidence and release readiness decision                           | Not started                         |
 
 Phase 4 API definition can begin during Phase 1. Module phases can ship independently after the shared foundation; finance remains high priority even though it is listed later. Every release receives targeted accessibility, role and workflow checks. A6 adds the complete journey rather than postponing verification until the end.
@@ -699,6 +699,22 @@ Account lifecycle, customer profile correction/session revocation and payout-met
 
 **Next phase:** Phase 11 — global search and cross-workspace links.
 
+### Phase 11 — Complete (locally verified, 5 October 2026)
+
+**Implemented IDs:** ADM-SEARCH-01–04. Search covers owners, customers, applications, properties, booking/visit references and booking cases using existing paginated APIs. The shell affordance and type selector share the same capability map, including application-only, property-only and booking-record-only roles. Capability checks occur before directory requests; blank queries make no request. Each type retains its own full matching total, 20-row page and independently named URL page parameter. Changing the term/type resets pages; literal percent/underscore queries cannot widen matches.
+
+**Links and failure handling:** full record links preserve a canonical, bounded search return through record tabs and reload; directory links carry matching scope, term and page. Application decisions keep the matching application queue and committed outcome; old root application bookmarks remain compatible. Copy uses the existing shared control with accessible success confirmation and visible clipboard-denial feedback. A real directory 503 leaves other permitted results available. Retry reuses the existing refresh button to refetch the current server render; a same-URL link had reused the cached failure, and the browser proves recovery after the fix.
+
+**Contract limits:** Support has no text/reference query contract, so support requests are explicitly excluded along with documents and private message bodies. Applications advertise name/email, not phone. Property codes retain their exact comparison; existing reference/name searches retain literal substring matching. No unified endpoint, new production service, capability, schema, migration, dependency or stored preference was introduced. Backend edits are disposable fixture changes only.
+
+**Verification:** frontend **102 tests passed**, including pre-request permission gating, selected scope, bounded/repeated inputs, partial failure, safe returns and application decision context; **five focused backend regression tests passed, zero skipped**, covering dashboard scopes/aggregates, booking records, property/application review and the original busy owner-visit fixture. Production browser gate **12 checks, 14 axe scans, zero violations and page errors** at 1280/768/360 px. Each supported type has 23 synthetic matches: pages contain 20 and 3 records without overlap. APIs verify literal wildcards/private-body exclusion and property, booking, visit and case reference lookups. The gate checks copy/clipboard denial, six full-page drill-downs and tabs/refresh, independent pagination, changed-query reset, five eligible restricted roles, unsupported/empty roles, direct API denials, unavailable-type URLs, actual directory failure/recovery and legacy root bookmarks. Production Webpack build, changed-source lint/format, backend lint, fixture formatting, Python syntax and diff whitespace pass; the migration checker verifies **64 entries**. Bounded screenshot review and Impeccable detector have no unresolved primary findings.
+
+**Remaining limits:** existing frontend global lint has 418 review-script formatting errors and three icon warnings; global formatting still flags the launch roadmap and backend `.prettierrc`. Build retains configured public sitemap policy API warnings. Full backend suite, production providers and the complete release/performance journey were not rerun; those remain Phase 12 work. Not deployed.
+
+**Evidence and reproduction:** [checks](evidence/admin-phase11/checks.json), [browser results](evidence/admin-phase11/browser-results.json), [desktop search](evidence/admin-phase11/search-1280.png), [phone property page](evidence/admin-phase11/property-page2-360.png), [partial failure](evidence/admin-phase11/partial-failure.png) and [Search workspace runbook](ADMIN-SEARCH-WORKSPACE.md). Evidence contains no credentials or session tokens. Release A5 is complete locally.
+
+**Next phase:** Phase 12 — responsive, accessibility, performance and release verification.
+
 ## 7. Implementation defaults and boundaries
 
 - Use existing Rentra tokens/components; no new brand theme or chart dependency is required by this plan.
@@ -709,4 +725,4 @@ Account lifecycle, customer profile correction/session revocation and payout-met
 - Add no editable platform calendar, admin impersonation, automated bulk approvals, live chat or payout execution as part of this UI redesign.
 - UI-only phases should need no migration. Dashboard/search/index changes are scoped and verified separately when evidence requires them.
 
-Phases 1–10 are complete and locally verified. The next implementation step is Phase 11: global search and cross-workspace links.
+Phases 1–11 are complete and locally verified. The next implementation step is Phase 12: responsive, accessibility, performance and release verification.

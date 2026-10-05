@@ -183,7 +183,13 @@ export function BookingCaseDetail({
       }
     >
       <AdminPageHeader
-        breadcrumbs={[{ href: listHref, label: 'Booking cases' }, { label: c.reference }]}
+        breadcrumbs={[
+          {
+            href: listHref,
+            label: listHref.startsWith('/admin/search') ? 'Search results' : 'Booking cases',
+          },
+          { label: c.reference },
+        ]}
         eyebrow={c.typeLabel}
         title={`${c.reference} · ${c.order.title}`}
         description={c.reason}

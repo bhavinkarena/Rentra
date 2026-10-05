@@ -303,7 +303,13 @@ export function AdminCustomerDetail({
   return (
     <AdminPage width="max-w-[1320px]">
       <DetailHeader
-        breadcrumbs={[{ href: backHref, label: 'Customers' }, { label: title }]}
+        breadcrumbs={[
+          {
+            href: backHref,
+            label: backHref.startsWith('/admin/search') ? 'Search results' : 'Customers',
+          },
+          { label: title },
+        ]}
         title={title}
         badges={[
           { label: STATUS[customer.accountStatus], tone: tone(customer.accountStatus) },

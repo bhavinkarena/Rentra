@@ -1,6 +1,6 @@
 import { adminApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
-import { safeReturnPath } from '@/lib/domain/portal-state';
+import { adminRecordReturnHref } from '@/lib/domain/admin-search';
 import PortalState from '@/components/portal/PortalState';
 import { AdminCustomerDetail } from '@/components/admin/AdminCustomers';
 import { requireAdmin } from '@/lib/api/session';
@@ -10,7 +10,7 @@ export const metadata = { title: 'Customer', robots: { index: false, follow: fal
 export default async function Page({ params, searchParams }) {
   const admin = await requireAdmin();
   const query = (await searchParams) ?? {};
-  const listHref = safeReturnPath(query.from, '/admin/customers');
+  const listHref = adminRecordReturnHref(query.from, '/admin/customers');
   const { data, failure } = await settle(adminApi.customer((await params).id));
   if (failure) return <PortalState kind={failure} backHref={listHref} backLabel="Customers" />;
   return (

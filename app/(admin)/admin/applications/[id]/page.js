@@ -5,6 +5,7 @@ import { adminApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
 import PortalState from '@/components/portal/PortalState';
 import AssignmentPanel from '@/components/admin/AssignmentPanel';
+import { adminRecordReturnHref } from '@/lib/domain/admin-search';
 import { applicationReturnHref } from '@/lib/domain/admin-navigation';
 import DecisionPanel from '@/components/admin/DecisionPanel';
 import DocumentViewer from '@/components/admin/DocumentViewer';
@@ -62,9 +63,17 @@ export default async function ApplicationReviewPage({ params, searchParams }) {
   const { id } = await params; // Next 16: params is a Promise
   const query = (await searchParams) ?? {};
   const queueHref = applicationReturnHref(query.from);
+  const backHref = adminRecordReturnHref(query.from, queueHref);
 
   const { data, failure } = await settle(adminApi.application(id));
-  if (failure) return <PortalState kind={failure} backHref={queueHref} backLabel="Applications" />;
+  if (failure)
+    return (
+      <PortalState
+        kind={failure}
+        backHref={backHref}
+        backLabel={backHref.startsWith('/admin/search') ? 'Search results' : 'Applications'}
+      />
+    );
 
   const { app, user, trail, listings, completion, review } = data;
   const documents = data.documents ?? [];
@@ -89,7 +98,13 @@ export default async function ApplicationReviewPage({ params, searchParams }) {
   return (
     <AdminPage width="max-w-[1320px]">
       <DetailHeader
-        breadcrumbs={[{ href: queueHref, label: 'Applications' }, { label: title }]}
+        breadcrumbs={[
+          {
+            href: backHref,
+            label: backHref.startsWith('/admin/search') ? 'Search results' : 'Applications',
+          },
+          { label: title },
+        ]}
         title={title}
         avatar={app.legalName || user.name || user.email}
         badges={[

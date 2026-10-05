@@ -352,7 +352,13 @@ export function AdminClientDetail({
   return (
     <AdminPage width="max-w-[1320px]">
       <DetailHeader
-        breadcrumbs={[{ href: backHref, label: 'Owners' }, { label: title }]}
+        breadcrumbs={[
+          {
+            href: backHref,
+            label: backHref.startsWith('/admin/search') ? 'Search results' : 'Owners',
+          },
+          { label: title },
+        ]}
         title={title}
         badges={[
           { label: STATUS[client.accountStatus], tone: statusTone(client.accountStatus) },

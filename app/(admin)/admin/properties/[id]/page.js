@@ -4,7 +4,7 @@ import { CalendarDays, CheckCircle2, CircleAlert, Hash, Mail, UserCheck } from '
 import { requireAdmin } from '@/lib/api/session';
 import { adminApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
-import { safeReturnPath } from '@/lib/domain/portal-state';
+import { adminRecordReturnHref } from '@/lib/domain/admin-search';
 import PortalState from '@/components/portal/PortalState';
 import {
   DetailHeader,
@@ -73,7 +73,7 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
   const admin = await requireAdmin();
   const { id } = await params,
     query = await searchParams;
-  const back = safeReturnPath(query?.from, '/admin/properties');
+  const back = adminRecordReturnHref(query?.from, '/admin/properties');
   const { data, failure } = await settle(adminApi.property(id));
   if (failure) return <PortalState kind={failure} backHref={back} />;
   const tab = pickTab(query?.tab, tabs),
@@ -103,7 +103,13 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
   return (
     <AdminPage width="max-w-[1320px]">
       <DetailHeader
-        breadcrumbs={[{ href: back, label: 'Property review' }, { label: data.property.title }]}
+        breadcrumbs={[
+          {
+            href: back,
+            label: back.startsWith('/admin/search') ? 'Search results' : 'Property review',
+          },
+          { label: data.property.title },
+        ]}
         title={data.property.title}
         badges={[
           {

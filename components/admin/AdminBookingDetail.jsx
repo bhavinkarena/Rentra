@@ -75,7 +75,13 @@ export default function AdminBookingDetail({
       {!writable ? <AdminReadOnly /> : null}
 
       <DetailHeader
-        breadcrumbs={[{ href: listHref, label: 'Bookings' }, { label: record.reference }]}
+        breadcrumbs={[
+          {
+            href: listHref,
+            label: listHref.startsWith('/admin/search') ? 'Search results' : 'Bookings',
+          },
+          { label: record.reference },
+        ]}
         title={record.title}
         avatar={record.title}
         badges={[

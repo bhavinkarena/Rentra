@@ -1,129 +1,217 @@
 import Link from '@/components/navigation/NavigationLink';
+import Form from '@/components/navigation/NavigationForm';
 import { requireAdmin } from '@/lib/api/session';
 import { adminApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
-import { AdminPage, AdminPageHeader, StatusBadge } from '@/components/admin/AdminPrimitives';
-import { Row, RowList, SectionCard } from '@/components/portal/DetailLayout';
+import { adminSearchHref, loadAdminSearch } from '@/lib/domain/admin-search';
+import {
+  AdminPage,
+  AdminPageHeader,
+  AdminTable,
+  AdminEmpty,
+  AdminFilterBar,
+  StatusBadge,
+} from '@/components/admin/AdminPrimitives';
+import Pagination from '@/components/ui/pagination';
+import CopyChip from '@/components/portal/CopyChip';
+import RetryButton from '@/components/portal/RetryButton';
+import { fieldClass } from '@/components/ui/field';
+import { buttonVariants } from '@/components/ui/button';
 
 export const metadata = { title: 'Search', robots: { index: false, follow: false } };
 
-const label = (value) => String(value ?? '—').replaceAll('_', ' ');
+function record(type, item) {
+  if (type === 'clients' || type === 'customers')
+    return {
+      title: item.name || item.email || 'Name not set',
+      description: [item.email, item.phone && `+91 ${item.phone}`].filter(Boolean).join(' \u00b7 '),
+      reference: item.id,
+      state: item.accountStatus,
+    };
+  if (type === 'applications')
+    return {
+      title: item.legalName || item.email,
+      description: item.email,
+      reference: item.id,
+      state: item.status,
+    };
+  if (type === 'properties')
+    return {
+      title: item.title,
+      description: item.publicCode,
+      reference: item.publicCode || item.id,
+      state: item.status,
+    };
+  return {
+    title: item.title || 'Booked property',
+    description:
+      type === 'cases' ? `Booking ${item.orderReference}` : `${item.visitCount ?? 0} visits`,
+    reference: item.reference,
+    state: item.state,
+  };
+}
 
-/**
- * One query across the admin directories. Each section loads independently:
- * a forbidden or failed section says so instead of hiding the others.
- */
 export default async function SearchPage({ searchParams }) {
   const admin = await requireAdmin();
-  const can = (scope) => admin.capabilities?.includes(`admin.${scope}.read`);
-  const q = String((await searchParams)?.q ?? '')
-    .trim()
-    .slice(0, 100);
-  const [clients, customers, applications] = q
-    ? await Promise.all([
-        can('clients') ? settle(adminApi.clients({ q })) : null,
-        can('customers') ? settle(adminApi.customers({ q })) : null,
-        can('applications') ? settle(adminApi.applications({ q, status: 'all' })) : null,
-      ])
-    : [null, null, null];
-  const sections = [
-    {
-      key: 'clients',
-      title: 'Owners',
-      result: clients,
-      all: `/admin/clients?q=${encodeURIComponent(q)}`,
-      row: (item) => (
-        <Row
-          key={item.id}
-          primary={item.name || item.email}
-          secondary={`${item.email ?? ''}${item.phone ? ` · +91 ${item.phone}` : ''}`}
-          trailing={<StatusBadge tone="neutral">{label(item.accountStatus)}</StatusBadge>}
-          href={`/admin/clients/${item.id}`}
-        />
-      ),
-    },
-    {
-      key: 'customers',
-      title: 'Customers',
-      result: customers,
-      all: `/admin/customers?q=${encodeURIComponent(q)}`,
-      row: (item) => (
-        <Row
-          key={item.id}
-          primary={item.name || 'Name not set'}
-          secondary={`${item.phone ? `+91 ${item.phone}` : 'No phone'}${item.email ? ` · ${item.email}` : ''}`}
-          trailing={<StatusBadge tone="neutral">{label(item.accountStatus)}</StatusBadge>}
-          href={`/admin/customers/${item.id}`}
-        />
-      ),
-    },
-    {
-      key: 'applications',
-      title: 'Applications',
-      result: applications,
-      all: `/admin/applications?status=all&q=${encodeURIComponent(q)}`,
-      row: (item) => (
-        <Row
-          key={item.id}
-          primary={item.legalName || item.email}
-          secondary={item.email}
-          trailing={<StatusBadge tone="neutral">{label(item.status)}</StatusBadge>}
-          href={`/admin/applications/${item.id}`}
-        />
-      ),
-    },
-  ];
-
+  const input = (await searchParams) ?? {};
+  const { q, type, types, results } = await loadAdminSearch(
+    adminApi,
+    admin.capabilities,
+    input,
+    settle,
+  );
+  const here = adminSearchHref(input);
+  const available = types.map((t) => t.label.toLowerCase()).join(', ');
   return (
-    <AdminPage width="max-w-5xl">
+    <AdminPage className="space-y-6">
       <AdminPageHeader
-        eyebrow="Search"
-        title={q ? `Results for “${q}”` : 'Search'}
-        description="Owners, customers and owner applications, by name, email or phone."
+        title="Search"
+        description={
+          types.length
+            ? `Search ${available}. Each directory checks its own access and shows its own page of results.`
+            : 'Your access does not include a searchable directory.'
+        }
       />
-      {!q ? (
-        <p className="mt-6 text-meta text-ink-600">Type in the search box at the top.</p>
-      ) : (
-        <div className="mt-6 space-y-5">
-          {sections
-            .filter((section) => can(section.key))
-            .map((section) => (
-              <SectionCard
-                key={section.key}
-                id={`search-${section.key}`}
-                title={section.title}
-                description={
-                  section.result?.data ? `${section.result.data.total} match(es)` : undefined
+      {types.length > 0 && (
+        <AdminFilterBar label="Search filters" className="rounded-lg border border-border">
+          <Form action="/admin/search" className="flex flex-wrap items-end gap-4">
+            <label className="min-w-0 flex-1 basis-64">
+              Search term
+              <input
+                className={`${fieldClass} mt-1`}
+                name="q"
+                type="search"
+                defaultValue={q}
+                maxLength={100}
+                required
+                placeholder={
+                  types.find((t) => t.key === type)?.hint ??
+                  'Name, email, phone or record reference'
                 }
-                action={
-                  section.result?.data?.total ? (
-                    <Link
-                      href={section.all}
-                      className="text-tiny font-bold text-brand-700 hover:underline"
-                    >
-                      See all →
-                    </Link>
-                  ) : null
-                }
-                flush
+              />
+            </label>
+            <label>
+              Record type
+              <select
+                className={`${fieldClass} mt-1`}
+                name="type"
+                defaultValue={types.some((t) => t.key === type) ? type : 'all'}
               >
-                {section.result?.failure ? (
-                  <p className="p-5 text-meta text-ink-600">
-                    {section.result.failure === 'forbidden'
-                      ? 'You do not have access to this directory.'
-                      : 'This directory could not load. Try again.'}
-                  </p>
-                ) : (
-                  <RowList
-                    items={section.result.data.items.slice(0, 5)}
-                    empty="No matches."
-                    render={section.row}
-                  />
-                )}
-              </SectionCard>
-            ))}
-        </div>
+                <option value="all">All permitted types</option>
+                {types.map((t) => (
+                  <option key={t.key} value={t.key}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button className={buttonVariants({ size: 'default' })}>Search records</button>
+          </Form>
+          <p className="text-meta text-ink-600">
+            Use a record type to see its supported fields. Support messages, documents and private
+            message bodies are not searched.
+          </p>
+        </AdminFilterBar>
       )}
+      {q && <p className="break-words text-meta text-ink-600">Results for “{q}”</p>}
+      {!q && types.length > 0 && (
+        <AdminEmpty
+          title="Find a record"
+          description="Enter a name, contact detail or record reference. Matching uses literal text, including percent and underscore characters."
+        />
+      )}
+      {q && !results.length && (
+        <AdminEmpty
+          title="No permitted search type"
+          description="Choose one of the record types available to your account."
+        />
+      )}
+      {results.map((section) => {
+        const data = section.result.data;
+        const pageSize = data?.pageSize ?? 20;
+        const all = `${section.path}?${new URLSearchParams({ ...section.filters, q, page: String(data?.page ?? 1) })}`;
+        return (
+          <section
+            key={section.key}
+            aria-labelledby={`search-${section.key}`}
+            className="space-y-3"
+          >
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 id={`search-${section.key}`} className="text-h3 font-semibold">
+                  {section.label}
+                </h2>
+                <p className="mt-1 text-meta text-ink-600">
+                  {section.hint}
+                  {data ? ` \u00b7 ${data.total} matches` : ''}
+                </p>
+              </div>
+              <Link href={all} className="inline-flex min-h-11 items-center underline">
+                Open {section.label.toLowerCase()} directory
+              </Link>
+            </div>
+            {section.result.failure ? (
+              <p role="status" className="rounded-lg border border-border bg-card p-5 text-meta">
+                {section.result.failure === 'forbidden'
+                  ? 'Access to this directory is unavailable.'
+                  : 'This directory could not load.'}{' '}
+                <RetryButton label="Retry search" />
+              </p>
+            ) : (
+              <>
+                <AdminTable
+                  label={`${section.label} search results`}
+                  columns={['Record', 'Reference', 'State', 'Open']}
+                  empty={
+                    !data.items.length && (
+                      <AdminEmpty
+                        title="No matches"
+                        description={`Try another ${section.hint.toLowerCase()}.`}
+                      />
+                    )
+                  }
+                >
+                  {data.items.map((item) => {
+                    const row = record(section.key, item);
+                    return (
+                      <tr key={item.id}>
+                        <td className="max-w-sm break-words px-4 py-4">
+                          <p className="font-semibold">{row.title}</p>
+                          <p className="mt-1 break-all text-ink-600">{row.description}</p>
+                        </td>
+                        <td className="max-w-xs px-4 py-4 [&_button]:min-h-11">
+                          <CopyChip label={`${section.label} reference`} value={row.reference} />
+                        </td>
+                        <td className="px-4 py-4">
+                          <StatusBadge tone="neutral">{row.state}</StatusBadge>
+                        </td>
+                        <td className="px-4 py-4">
+                          <Link
+                            className="inline-flex min-h-11 items-center underline"
+                            href={`${section.path}/${encodeURIComponent(item.id)}?from=${encodeURIComponent(here)}`}
+                          >
+                            Open<span className="sr-only"> {row.title}</span>
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </AdminTable>
+                <Pagination
+                  page={data.page}
+                  pageSize={pageSize}
+                  total={data.total}
+                  pages={data.pages}
+                  pageSizes={null}
+                  pageParam={`${section.key}Page`}
+                  label={`${section.label} search pages`}
+                  className="[&_a]:min-h-11"
+                />
+              </>
+            )}
+          </section>
+        );
+      })}
     </AdminPage>
   );
 }
