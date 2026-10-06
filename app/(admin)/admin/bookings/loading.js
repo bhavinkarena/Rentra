@@ -1,5 +1,5 @@
-import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
+import BookingsLoading from '@/components/admin/BookingsLoading';
 
 export default function Loading() {
-  return <ScreenSkeleton layout="portal" screen="bookings" label="Loading admin bookings" />;
+  return <BookingsLoading />;
 }
