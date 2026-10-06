@@ -1,3 +1,4 @@
+import { adminRecordReturnHref } from '@/lib/domain/admin-search';
 import { requireAdmin } from '@/lib/api/session';
 import { PayoutDetail } from '@/components/finance/Statements';
 import { FinanceFilterError } from '@/components/finance/Statements';
@@ -7,10 +8,14 @@ import { settleFinance } from '@/lib/api/finance-state';
 export const metadata = { title: 'Finance evidence', robots: { index: false, follow: false } };
 export default async function Page({ params, searchParams }) {
   const admin = await requireAdmin();
+  const query = await searchParams;
+  const listHref = adminRecordReturnHref(query.from, '/admin/finance/payouts');
   const { data, failure, invalid } = await settleFinance(
     financeApi.payout(true, (await params).id),
   );
   if (invalid) return <FinanceFilterError message={invalid} admin={true} />;
   if (failure) return <PortalState kind={failure} backHref="/admin" backLabel="Overview" />;
-  return <PayoutDetail row={data} capabilities={admin.capabilities} admin={true} />;
+  return (
+    <PayoutDetail row={data} capabilities={admin.capabilities} listHref={listHref} admin={true} />
+  );
 }

@@ -1,17 +1,16 @@
 import Form from '@/components/navigation/NavigationForm';
 import { randomUUID } from 'node:crypto';
 import Link from '@/components/navigation/NavigationLink';
-import { TriangleAlert } from 'lucide-react';
+import { TriangleAlert, ArrowUpRight } from 'lucide-react';
 import {
   AdminEmpty,
   AdminReadOnly,
-  AdminTable,
   AdminPage,
   AdminPageHeader,
   StatusBadge,
 } from './AdminPrimitives';
 import Pagination from '@/components/ui/pagination';
-import { FieldGrid, SectionCard } from '@/components/portal/DetailLayout';
+import { DetailTabs, pickTab, FieldGrid, SectionCard } from '@/components/portal/DetailLayout';
 import { bookingMoney as money, bookingTime as time } from '@/lib/domain/booking-record';
 import { RefundCommand } from './RefundCommands';
 
@@ -39,7 +38,7 @@ const SOURCE = {
   other: 'Other',
 };
 const tab = (active) =>
-  `inline-flex min-h-11 items-center rounded-full border px-4 text-meta font-semibold ${active ? 'border-brand-700 bg-primary text-white' : 'border-border bg-card text-ink-700 hover:bg-ink-50'}`;
+  `inline-flex min-h-11 items-center border-b-2 px-3 text-meta font-semibold ${active ? 'border-brand-700 text-brand-800' : 'border-transparent text-ink-600 hover:border-ink-300 hover:text-ink-900'}`;
 
 function href(data, changes) {
   const params = {
@@ -70,7 +69,6 @@ export function RefundList({ data }) {
   return (
     <AdminPage width="max-w-[1320px]">
       <AdminPageHeader
-        eyebrow="Finance"
         title="Refunds"
         description="Every refund obligation, from request to the provider's verified outcome. Nothing reads as refunded until Razorpay confirms it."
       />
@@ -88,7 +86,10 @@ export function RefundList({ data }) {
           </Link>
         </p>
       ) : null}
-      <nav aria-label="Refund environment" className="mt-6 flex flex-wrap gap-2">
+      <nav
+        aria-label="Refund environment"
+        className="mt-6 flex flex-wrap gap-1 border-b border-border"
+      >
         {ENVIRONMENTS.map(([value, label]) => (
           <Link
             key={value}
@@ -100,31 +101,36 @@ export function RefundList({ data }) {
           </Link>
         ))}
       </nav>
-      <nav aria-label="Refund status" className="mt-2 flex flex-wrap gap-2">
-        {STATUSES.map(([value, label]) => (
-          <Link
-            key={value}
-            href={href(data, { status: value, page: '1' })}
-            className={tab(data.status === value)}
-            aria-current={data.status === value ? 'page' : undefined}
-          >
-            {label}
-          </Link>
-        ))}
-      </nav>
-      <Form action="/admin/finance/refunds" className="mt-4 flex flex-wrap items-end gap-3">
+      <Form
+        action="/admin/finance/refunds"
+        role="search"
+        className="mt-5 grid items-end gap-3 border-b border-border pb-5 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_minmax(0,2fr)_auto]"
+      >
         <input type="hidden" name="environment" value={data.environment} />
         {data.dashboard ? <input type="hidden" name="dashboard" value={data.dashboard} /> : null}
         {data.from ? <input type="hidden" name="from" value={data.from} /> : null}
         {data.to ? <input type="hidden" name="to" value={data.to} /> : null}
 
-        <input type="hidden" name="status" value={data.status} />
+        <label className="text-meta font-semibold">
+          Status
+          <select
+            name="status"
+            defaultValue={data.status}
+            className="mt-1 block min-h-11 w-full rounded-md border border-input bg-card p-2 text-base md:text-sm"
+          >
+            {STATUSES.map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
         <label className="text-meta font-semibold">
           Source
           <select
             name="source"
             defaultValue={data.source}
-            className="mt-1 block min-h-11 rounded-md border border-input bg-card p-2 text-base md:text-sm"
+            className="mt-1 block min-h-11 w-full rounded-md border border-input bg-card p-2 text-base md:text-sm"
           >
             <option value="all">All sources</option>
             {Object.entries(SOURCE).map(([value, label]) => (
@@ -140,7 +146,7 @@ export function RefundList({ data }) {
             name="q"
             defaultValue={data.q}
             placeholder="Refund or booking reference, rfnd_ id"
-            className="mt-1 block min-h-11 w-72 max-w-full rounded-md border border-input bg-card p-2 text-base md:text-sm"
+            className="mt-1 block min-h-11 w-full min-w-0 rounded-md border border-input bg-card p-2 text-base md:text-sm"
           />
         </label>
         <button className="min-h-11 rounded-md border border-border bg-card px-4 font-semibold">
@@ -149,99 +155,109 @@ export function RefundList({ data }) {
       </Form>
 
       {data.totals.length ? (
-        <section aria-label="Totals by environment" className="mt-6 space-y-3">
-          {data.totals.map((t) => (
-            <div key={t.environment} className="rounded-lg border border-border bg-card p-4">
-              <p className="flex flex-wrap items-center gap-2 text-meta font-semibold">
-                <StatusBadge
-                  tone={
-                    t.environment === 'live'
-                      ? 'danger'
-                      : t.environment === 'test'
-                        ? 'info'
-                        : 'neutral'
-                  }
-                >
-                  {t.environment}
-                </StatusBadge>
-                {t.count} refund{t.count === 1 ? '' : 's'}
-                {t.attention ? (
-                  <span className="inline-flex items-center gap-1 text-danger">
-                    <TriangleAlert className="size-4" aria-hidden="true" /> {t.attention} need
-                    attention
-                  </span>
-                ) : null}
-              </p>
-              <dl className="mt-3 grid grid-cols-2 gap-3 text-meta sm:grid-cols-4">
-                {[
-                  ['Requested', t.expectedMinor],
-                  ['Refunded · verified', t.refundedMinor],
-                  ['Pending or uncertain', t.pendingMinor],
-                ].map(([label, value]) => (
-                  <div key={label}>
-                    <dt className="text-tiny text-ink-600">{label}</dt>
-                    <dd className="font-semibold tabular">{money(value)}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-          ))}
-          <p className="text-tiny text-ink-600">
-            As of {time(data.asOf, TZ)} · filtered view · environments are never added together.
-          </p>
-        </section>
+        <details className="mt-5 border-b border-border pb-4">
+          <summary className="min-h-11 content-center cursor-pointer text-meta font-semibold text-ink-700">
+            View filtered totals by environment
+          </summary>
+          <section aria-label="Totals by environment" className="mt-4 space-y-3">
+            {data.totals.map((t) => (
+              <div key={t.environment} className="rounded-lg border border-border bg-card p-4">
+                <p className="flex flex-wrap items-center gap-2 text-meta font-semibold">
+                  <StatusBadge
+                    tone={
+                      t.environment === 'live'
+                        ? 'danger'
+                        : t.environment === 'test'
+                          ? 'info'
+                          : 'neutral'
+                    }
+                  >
+                    {t.environment}
+                  </StatusBadge>
+                  {t.count} refund{t.count === 1 ? '' : 's'}
+                  {t.attention ? (
+                    <span className="inline-flex items-center gap-1 text-danger">
+                      <TriangleAlert className="size-4" aria-hidden="true" /> {t.attention} need
+                      attention
+                    </span>
+                  ) : null}
+                </p>
+                <dl className="mt-3 grid grid-cols-2 gap-3 text-meta sm:grid-cols-4">
+                  {[
+                    ['Requested', t.expectedMinor],
+                    ['Refunded · verified', t.refundedMinor],
+                    ['Pending or uncertain', t.pendingMinor],
+                  ].map(([label, value]) => (
+                    <div key={label}>
+                      <dt className="text-tiny text-ink-600">{label}</dt>
+                      <dd className="font-semibold tabular">{money(value)}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            ))}
+            <p className="text-tiny text-ink-600">
+              As of {time(data.asOf, TZ)} · filtered view · environments are never added together.
+            </p>
+          </section>
+        </details>
       ) : null}
 
-      <div className="mt-6">
-        <AdminTable
-          label="Refund obligations"
-          columns={[
-            'Booking / source',
-            'Environment',
-            'Requested',
-            'Successful refund',
-            'Status',
-            'Action',
-          ]}
-          empty={
-            !data.items.length ? (
-              <AdminEmpty
-                title="No refunds match"
-                description="Try another environment, status or search."
-              />
-            ) : null
-          }
-        >
-          {data.items.map((r) => (
-            <tr key={r.id}>
-              <td>
-                <strong className="block">{r.bookingReference}</strong>
-                <span>
-                  {r.title} · {SOURCE[r.source]}
-                </span>
-                <span className="block text-tiny">
-                  Requested {time(r.createdAt, TZ)}
-                  {r.execution.failureCode ? ` · ${r.execution.failureCode}` : ''}
-                </span>
-              </td>
-              <td>{r.environment}</td>
-              <td className="tabular">{money(r.expectedMinor)}</td>
-              <td className="tabular">{money(r.actualMinor)}</td>
-              <td>
-                <Status status={r.status} />
-              </td>
-              <td>
+      <section
+        aria-label="Refund obligations"
+        className="mt-6 overflow-hidden rounded-lg border border-border bg-card"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-5 py-4">
+          <h2 className="text-h4 font-semibold">Refund records</h2>
+          <p className="text-meta text-ink-600">{data.total} matching records</p>
+        </div>
+        {!data.items.length ? (
+          <AdminEmpty
+            title="No refunds match"
+            description="Try another environment, status or search."
+          />
+        ) : (
+          <ul className="divide-y divide-border">
+            {data.items.map((r) => (
+              <li key={r.id}>
                 <Link
-                  href={`/admin/finance/refunds/${r.id}`}
-                  className="inline-flex min-h-11 items-center font-semibold text-brand-700 underline"
+                  href={`/admin/finance/refunds/${r.id}?from=${encodeURIComponent(href(data, {}))}`}
+                  className="grid gap-4 px-5 py-5 transition-colors hover:bg-ink-25 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]"
                 >
-                  View refund<span className="sr-only"> · {r.bookingReference}</span>
+                  <div className="min-w-0">
+                    <p className="font-semibold">
+                      {r.bookingReference} · {r.title}
+                    </p>
+                    <p className="mt-1 text-meta text-ink-600">
+                      {SOURCE[r.source]} · {r.environment}
+                    </p>
+                    <p className="mt-2 text-tiny text-ink-600">
+                      Requested {time(r.createdAt, TZ)}
+                      {r.execution.failureCode ? ` · ${r.execution.failureCode}` : ''}
+                    </p>
+                  </div>
+                  <dl className="grid grid-cols-2 gap-4 text-meta">
+                    <div>
+                      <dt className="text-ink-600">Requested</dt>
+                      <dd className="font-semibold tabular">{money(r.expectedMinor)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-ink-600">Refunded · verified</dt>
+                      <dd className="font-semibold tabular">{money(r.actualMinor)}</dd>
+                    </div>
+                  </dl>
+                  <div className="flex flex-wrap items-center gap-2 md:flex-col md:items-end">
+                    <Status status={r.status} />
+                    <span className="mt-1 text-meta font-semibold text-brand-700">
+                      Inspect refund <ArrowUpRight className="inline size-4" aria-hidden="true" />
+                    </span>
+                  </div>
                 </Link>
-              </td>
-            </tr>
-          ))}
-        </AdminTable>
-      </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
       <Pagination
         page={data.page}
         pageSize={25}
@@ -264,24 +280,30 @@ const ORIGIN = {
   other: 'Other',
 };
 
-export function RefundDetail({ refund: r, capabilities = [] }) {
+export function RefundDetail({
+  refund: r,
+  capabilities = [],
+  tab,
+  params = {},
+  listHref = '/admin/finance/refunds',
+}) {
+  const tabs = [
+    { key: 'overview', label: 'Overview' },
+    { key: 'evidence', label: 'Provider evidence' },
+    { key: 'activity', label: 'Activity' },
+    { key: 'control', label: 'Provider check' },
+  ];
+  const active = pickTab(tab, tabs);
   return (
     <AdminPage width="max-w-[1320px]">
       <AdminPageHeader
-        eyebrow="Finance · Refund"
         title={`${money(r.expectedMinor)} refund · ${r.bookingReference}`}
         description={`${r.reference} · ${r.environment}`}
-        backHref="/admin/finance/refunds"
+        backHref={listHref}
         backLabel="Refunds"
         action={<Status status={r.status} />}
       />
       <div className="mt-4 flex flex-wrap gap-4">
-        <Link
-          href="/admin/finance/refunds"
-          className="min-h-11 content-center text-meta font-semibold text-brand-700 underline"
-        >
-          All refunds
-        </Link>
         <Link
           href={`/admin/finance/payments/${r.paymentOrderId}`}
           className="min-h-11 content-center text-meta font-semibold text-brand-700 underline"
@@ -305,83 +327,98 @@ export function RefundDetail({ refund: r, capabilities = [] }) {
           </Link>
         ) : null}
       </div>
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_380px]">
+      <DetailTabs
+        tabs={tabs}
+        active={active}
+        basePath={`/admin/finance/refunds/${r.id}`}
+        params={params}
+        wrap
+      />
+      <div className="mt-6 space-y-6">
         <div className="space-y-6">
-          <SectionCard id="status" title="Where this refund stands">
-            <p className="text-meta">{r.status.explanation}</p>
-            {r.status.recovery ? (
-              <p className="mt-2 text-meta text-ink-700">{r.status.recovery}</p>
-            ) : null}
-          </SectionCard>
-          <SectionCard
-            id="money"
-            title="Amounts"
-            description="Requested versus what the provider verified"
-          >
-            <FieldGrid
-              fields={[
-                { label: 'Requested', value: money(r.expectedMinor) },
-                { label: 'Refunded · verified', value: money(r.actualMinor) },
-                {
-                  label: 'Bank settlement evidence',
-                  value: 'Not available',
-                },
-                {
-                  label: 'Verified at',
-                  value: r.verifiedAt ? time(r.verifiedAt, TZ) : 'Not verified',
-                },
-                {
-                  label: 'Provider refund',
-                  value: r.providerRefundId ?? 'Not known yet',
-                  mono: true,
-                },
-                { label: 'Original capture', value: r.providerPaymentId ?? '—', mono: true },
-                { label: 'Reason', value: r.reason },
-                { label: 'Refund record id', value: r.id, mono: true },
-              ]}
-            />
-          </SectionCard>
-          <SectionCard
-            id="allocations"
-            title="Visits and components"
-            description="Each line is capped by its verified capture and earlier refunds"
-            flush
-          >
-            <ul className="divide-y divide-border">
-              {r.allocations.map((a) => (
-                <li key={`${a.visitReference}-${a.component}`} className="px-5 py-3 text-meta">
-                  <span className="font-semibold">
-                    {a.visitReference} · {a.component}
-                  </span>{' '}
-                  ({a.visitState}) · refund {money(a.expectedMinor)} of {money(a.capturedMinor)}{' '}
-                  captured · verified {money(a.actualMinor)}
-                </li>
-              ))}
-            </ul>
-          </SectionCard>
-          <SectionCard
-            id="events"
-            title="Provider events"
-            description="Signed Razorpay webhooks for this refund"
-            flush
-          >
-            {r.events.length ? (
+          {active === 'overview' ? (
+            <SectionCard id="status" title="Where this refund stands">
+              <p className="text-meta">{r.status.explanation}</p>
+              {r.status.recovery ? (
+                <p className="mt-2 text-meta text-ink-700">{r.status.recovery}</p>
+              ) : null}
+            </SectionCard>
+          ) : null}
+          {active === 'overview' ? (
+            <SectionCard
+              id="money"
+              title="Amounts"
+              description="Requested versus what the provider verified"
+            >
+              <FieldGrid
+                fields={[
+                  { label: 'Requested', value: money(r.expectedMinor) },
+                  { label: 'Refunded · verified', value: money(r.actualMinor) },
+                  {
+                    label: 'Bank settlement evidence',
+                    value: 'Not available',
+                  },
+                  {
+                    label: 'Verified at',
+                    value: r.verifiedAt ? time(r.verifiedAt, TZ) : 'Not verified',
+                  },
+                  {
+                    label: 'Provider refund',
+                    value: r.providerRefundId ?? 'Not known yet',
+                    mono: true,
+                  },
+                  { label: 'Original capture', value: r.providerPaymentId ?? '—', mono: true },
+                  { label: 'Reason', value: r.reason },
+                  { label: 'Refund record id', value: r.id, mono: true },
+                ]}
+              />
+            </SectionCard>
+          ) : null}
+          {active === 'evidence' ? (
+            <SectionCard
+              id="allocations"
+              title="Visits and components"
+              description="Each line is capped by its verified capture and earlier refunds"
+              flush
+            >
               <ul className="divide-y divide-border">
-                {r.events.map((e) => (
-                  <li key={e.id} className="px-5 py-3 text-meta">
-                    <span className="font-semibold">{e.type}</span> · {e.state}
-                    {e.failureCode ? ` · ${e.failureCode}` : ''} · received {time(e.receivedAt, TZ)}{' '}
-                    · {e.attempts} attempt{e.attempts === 1 ? '' : 's'}
+                {r.allocations.map((a) => (
+                  <li key={`${a.visitReference}-${a.component}`} className="px-5 py-3 text-meta">
+                    <span className="font-semibold">
+                      {a.visitReference} · {a.component}
+                    </span>{' '}
+                    ({a.visitState}) · refund {money(a.expectedMinor)} of {money(a.capturedMinor)}{' '}
+                    captured · verified {money(a.actualMinor)}
                   </li>
                 ))}
               </ul>
-            ) : (
-              <p className="px-5 py-4 text-meta text-ink-600">
-                No provider event received for this refund.
-              </p>
-            )}
-          </SectionCard>
-          {r.siblings.length ? (
+            </SectionCard>
+          ) : null}
+          {active === 'evidence' ? (
+            <SectionCard
+              id="events"
+              title="Provider events"
+              description="Signed Razorpay webhooks for this refund"
+              flush
+            >
+              {r.events.length ? (
+                <ul className="divide-y divide-border">
+                  {r.events.map((e) => (
+                    <li key={e.id} className="px-5 py-3 text-meta">
+                      <span className="font-semibold">{e.type}</span> · {e.state}
+                      {e.failureCode ? ` · ${e.failureCode}` : ''} · received{' '}
+                      {time(e.receivedAt, TZ)} · {e.attempts} attempt{e.attempts === 1 ? '' : 's'}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="px-5 py-4 text-meta text-ink-600">
+                  No provider event received for this refund.
+                </p>
+              )}
+            </SectionCard>
+          ) : null}
+          {active === 'activity' && r.siblings.length ? (
             <SectionCard id="siblings" title="Other refunds on this payment" flush>
               <ul className="divide-y divide-border">
                 {r.siblings.map((s) => (
@@ -403,68 +440,82 @@ export function RefundDetail({ refund: r, capabilities = [] }) {
           ) : null}
         </div>
         <div className="space-y-6">
-          {!capabilities.includes('admin.payments.write') ? (
-            <AdminReadOnly>
-              Sending or reconciling refunds requires Finance write access.
-            </AdminReadOnly>
-          ) : r.status.command ? (
-            <SectionCard
-              id="command"
-              title={r.status.command === 'send' ? 'Send to provider' : 'Check with provider'}
-            >
-              <p className="mb-3 text-meta text-ink-700">
-                {r.status.command === 'send'
-                  ? 'Sends this refund to Razorpay Test now. It is sent only once; every later action only looks it up.'
-                  : 'Asks Razorpay Test for its own record of this refund. Nothing is resent.'}
+          {active === 'control' ? (
+            !capabilities.includes('admin.payments.write') ? (
+              <AdminReadOnly>
+                Sending or reconciling refunds requires Finance write access.
+              </AdminReadOnly>
+            ) : r.status.command ? (
+              <SectionCard
+                id="command"
+                title={r.status.command === 'send' ? 'Send to provider' : 'Check with provider'}
+              >
+                <p className="mb-3 text-meta text-ink-700">
+                  {r.status.command === 'send'
+                    ? 'Sends this refund to Razorpay Test now. It is sent only once; every later action only looks it up.'
+                    : 'Asks Razorpay Test for its own record of this refund. Nothing is resent.'}
+                </p>
+                <RefundCommand
+                  key={`${r.status.key}-${r.commands.length}`}
+                  refundId={r.id}
+                  command={r.status.command}
+                  requestKey={randomUUID()}
+                />
+              </SectionCard>
+            ) : (
+              <p className="text-meta text-ink-600">
+                No provider command is available for this refund.
               </p>
-              <RefundCommand
-                key={`${r.status.key}-${r.commands.length}`}
-                refundId={r.id}
-                command={r.status.command}
-                requestKey={randomUUID()}
+            )
+          ) : null}
+          {active === 'overview' ? (
+            <SectionCard id="origin" title="Where it came from">
+              <p className="text-meta">
+                {ORIGIN[r.origin.kind] ?? r.origin.kind}
+                {r.origin.caseReference ? ` · ${r.origin.caseReference}` : ''}
+                {r.origin.by ? ` · by ${r.origin.by}` : ''}
+                {r.origin.at ? ` · ${time(r.origin.at, TZ)}` : ''}
+              </p>
+              {r.origin.reason ? (
+                <p className="mt-1 text-meta text-ink-700">{r.origin.reason}</p>
+              ) : null}
+            </SectionCard>
+          ) : null}
+          {active === 'control' ? (
+            <SectionCard id="execution" title="Execution">
+              <FieldGrid
+                fields={[
+                  {
+                    label: 'Sent to provider',
+                    value: r.execution.dispatchedAt
+                      ? time(r.execution.dispatchedAt, TZ)
+                      : 'Not yet',
+                  },
+                  {
+                    label: 'Next automatic check',
+                    value: r.execution.nextCheckAt ? time(r.execution.nextCheckAt, TZ) : '—',
+                  },
+                  { label: 'Last provider problem', value: r.execution.failureCode ?? 'None' },
+                ]}
               />
             </SectionCard>
           ) : null}
-          <SectionCard id="origin" title="Where it came from">
-            <p className="text-meta">
-              {ORIGIN[r.origin.kind] ?? r.origin.kind}
-              {r.origin.caseReference ? ` · ${r.origin.caseReference}` : ''}
-              {r.origin.by ? ` · by ${r.origin.by}` : ''}
-              {r.origin.at ? ` · ${time(r.origin.at, TZ)}` : ''}
-            </p>
-            {r.origin.reason ? (
-              <p className="mt-1 text-meta text-ink-700">{r.origin.reason}</p>
-            ) : null}
-          </SectionCard>
-          <SectionCard id="execution" title="Execution">
-            <FieldGrid
-              fields={[
-                {
-                  label: 'Sent to provider',
-                  value: r.execution.dispatchedAt ? time(r.execution.dispatchedAt, TZ) : 'Not yet',
-                },
-                {
-                  label: 'Next automatic check',
-                  value: r.execution.nextCheckAt ? time(r.execution.nextCheckAt, TZ) : '—',
-                },
-                { label: 'Last provider problem', value: r.execution.failureCode ?? 'None' },
-              ]}
-            />
-          </SectionCard>
-          <SectionCard id="commands" title="Operator actions">
-            {r.commands.length ? (
-              <ol className="space-y-2 text-meta">
-                {r.commands.map((c, index) => (
-                  <li key={index}>
-                    {time(c.at, TZ)} · {c.by ?? 'Admin'} · {c.outcome}
-                    {c.code ? ` · ${c.code}` : ''} · now {c.stateAfter}
-                  </li>
-                ))}
-              </ol>
-            ) : (
-              <p className="text-meta text-ink-600">No operator action yet.</p>
-            )}
-          </SectionCard>
+          {active === 'activity' ? (
+            <SectionCard id="commands" title="Operator actions">
+              {r.commands.length ? (
+                <ol className="space-y-2 text-meta">
+                  {r.commands.map((c, index) => (
+                    <li key={index}>
+                      {time(c.at, TZ)} · {c.by ?? 'Admin'} · {c.outcome}
+                      {c.code ? ` · ${c.code}` : ''} · now {c.stateAfter}
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p className="text-meta text-ink-600">No operator action yet.</p>
+              )}
+            </SectionCard>
+          ) : null}
         </div>
       </div>
     </AdminPage>
