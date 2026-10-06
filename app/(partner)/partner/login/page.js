@@ -69,15 +69,16 @@ export default async function PartnerLoginPage({ searchParams }) {
         <LoginForm next={params?.next || ''} />
       </div>
 
-      <p className="mt-8 border-t border-border pt-6 text-meta text-ink-600">
-        Looking to book instead?{' '}
+      {/* A div, not a p: the switch button renders its own <form>. */}
+      <div className="mt-8 flex flex-wrap items-center gap-x-1 border-t border-border pt-6 text-meta text-ink-600">
+        Looking to book instead?
         <AccountSwitchButton
           role="customer"
           className="font-semibold text-brand-700 hover:underline"
         >
           Book a property
         </AccountSwitchButton>
-      </p>
+      </div>
     </AuthLayout>
   );
 }

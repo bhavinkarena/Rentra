@@ -700,8 +700,10 @@
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      min-block-size: 2.75rem;
-      padding: 0.625rem 0.75rem;
+      min-block-size: calc(var(--spacing) * 9);
+      padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 3);
+      font-size: var(--text-meta);
+      line-height: 1.4;
       border: 0;
       border-radius: var(--radius-sm);
       background: transparent;
@@ -862,6 +864,13 @@
     ) {
       font-size: 1rem !important;
     }
+  }
+}
+/* Unlayered so it outranks per-select `text-base` utilities: dropdowns read at
+   the meta size on desktop. Phones keep 16px so iOS never zooms on focus. */
+@media (width >= 48rem) {
+  select:not([multiple]) {
+    font-size: var(--text-meta);
   }
 }
 /* Unlayered by design: a legacy appearance utility must not revert a themed
@@ -1168,7 +1177,6 @@
 }
 :is(.owner-portal, .owner-wizard)
   :is(input:not([type='checkbox']):not([type='radio']):not([type='hidden']), select, textarea) {
-  font-size: 16px;
   max-width: 100%;
 }
 :is(.owner-portal, .owner-wizard) label:has(> input:is([type='checkbox'], [type='radio'])) {
