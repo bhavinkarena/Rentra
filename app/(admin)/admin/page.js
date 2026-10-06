@@ -11,14 +11,14 @@ export const metadata = {
   robots: { index: false, follow: false, nocache: true },
 };
 
-export default async function AdminHome({ searchParams }) {
+export default async function AdminHome({ searchParams, view = 'overview' }) {
   await requireAdmin();
   const query = await searchParams;
-  const legacy = legacyApplicationHref(query);
+  const legacy = view === 'overview' ? legacyApplicationHref(query) : null;
   if (legacy) redirect(legacy);
   const { data, failure } = await settle(
     adminApi.dashboard({ period: query?.period, environment: query?.environment }),
   );
   if (failure) return <PortalState kind={failure} backHref="/admin" />;
-  return <AdminDashboard data={data} />;
+  return <AdminDashboard data={data} view={view} />;
 }

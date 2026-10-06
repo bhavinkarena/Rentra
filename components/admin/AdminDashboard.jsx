@@ -1,7 +1,10 @@
 import Link from '@/components/navigation/NavigationLink';
 import Form from '@/components/navigation/NavigationForm';
 import RetryButton from '@/components/portal/RetryButton';
-import { AdminPage, AdminPageHeader, AdminTable, AdminEmpty } from './AdminPrimitives';
+import { ArrowUpRight, ChevronRight } from 'lucide-react';
+import { AdminPage, AdminPageHeader, AdminEmpty, StatusBadge } from './AdminPrimitives';
+import { Field, Select } from '@/components/ui/field';
+import { buttonVariants } from '@/components/ui/button';
 import AdminAnalytics from './AdminAnalytics';
 import { displayMoney } from '@/lib/domain/display-money';
 import { adminDateTime } from '@/lib/domain/admin-display';
@@ -15,367 +18,447 @@ const names = {
   support: 'Support',
   health: 'Service health',
 };
+const destinations = {
+  overview: '/admin',
+  analytics: '/admin/analytics',
+  activity: '/admin/activity',
+};
+const descriptions = {
+  overview: "Priority work and today's visits across your authorized workspaces.",
+  analytics: 'Marketplace activity and financial evidence for the selected period.',
+  activity: 'Recent decisions and the latest recorded service observations.',
+};
 const linkClass =
-  'inline-flex min-h-11 items-center text-meta font-semibold text-brand-700 underline';
+  'inline-flex min-h-11 items-center gap-2 text-meta font-semibold text-brand-700 underline-offset-4 hover:underline';
+const groupClass = 'overflow-hidden rounded-lg border border-border bg-card';
 
-function Metric({ metric }) {
+function value(metric) {
+  return metric.availability === 'unavailable'
+    ? 'Unavailable'
+    : metric.unit === 'minor'
+      ? displayMoney(metric.value)
+      : BigInt(metric.value).toLocaleString('en-IN');
+}
+
+function SectionHeading({ title, children, href, action }) {
   return (
-    <article className="min-w-0 rounded-lg border border-border bg-card p-5">
-      <h3 className="text-meta font-semibold text-ink-700">{metric.label}</h3>
-      <p className="mt-2 break-words text-h2 font-bold text-ink-900 tabular">
-        {metric.availability === 'unavailable'
-          ? 'Unavailable'
-          : metric.unit === 'minor'
-            ? displayMoney(metric.value)
-            : BigInt(metric.value).toLocaleString('en-IN')}
-      </p>
-      <p className="mt-3 text-tiny leading-5 text-ink-600">{metric.dateBasis}</p>
-      {metric.availability === 'unavailable' ? (
-        <p className="mt-2 text-tiny text-ink-600">No provider capture evidence in this scope.</p>
+    <div className="mb-4 flex flex-wrap items-start justify-between gap-x-6 gap-y-1">
+      <div>
+        <h2 className="text-h3 font-semibold tracking-tight text-ink-900">{title}</h2>
+        {children ? (
+          <p className="mt-1 max-w-[65ch] text-meta leading-6 text-ink-600">{children}</p>
+        ) : null}
+      </div>
+      {href ? (
+        <Link href={href} className={linkClass}>
+          {action}
+          <ArrowUpRight className="size-4" aria-hidden="true" />
+        </Link>
       ) : null}
-      <Link className={linkClass} href={metric.href}>
-        Open {metric.label.toLowerCase()}
-      </Link>
-    </article>
+    </div>
   );
 }
 
-export default function AdminDashboard({ data }) {
+function AttentionRows({ rows }) {
+  return (
+    <ul className="divide-y divide-border">
+      {rows.map((row) => (
+        <li key={row.href}>
+          <Link
+            href={row.href}
+            className="flex min-h-20 items-center gap-4 px-5 py-4 transition-colors hover:bg-ink-25 sm:px-6"
+          >
+            <div className="min-w-0 flex-1">
+              <p className="break-words text-base font-semibold text-ink-900">{row.label}</p>
+              <p className="mt-1 text-meta text-ink-600">
+                {humaniseStatus(row.state)} <span aria-hidden="true">/</span> {names[row.module]}
+              </p>
+            </div>
+            {row.urgent ? <StatusBadge tone="warning">Urgent</StatusBadge> : null}
+            <ChevronRight className="size-4 shrink-0 text-ink-500" aria-hidden="true" />
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export default function AdminDashboard({ data, view = 'overview' }) {
   const { scope, modules } = data;
-  const available = Object.values(modules).filter((m) => m.availability === 'available');
-  const metrics = available.flatMap((m) => m.metrics ?? []);
-  const priority = [
-    'applications',
-    'properties',
-    'bookings',
-    'visits',
-    'rent',
-    'captured',
-    'support',
-    'cases',
-    'refunded',
-    'refundPending',
-  ];
-  const summary = [...metrics]
-    .sort((a, b) => priority.indexOf(a.key) - priority.indexOf(b.key))
-    .slice(0, 6);
-  const waiting = summary.filter((m) => m.dateBasis === 'Waiting now');
-  const period = summary.filter((m) => m.dateBasis !== 'Waiting now');
-  const additional = metrics.filter((m) => !summary.includes(m));
+  const available = Object.entries(modules).filter(([, m]) => m.availability === 'available');
+  const metrics = available.flatMap(([, m]) => m.metrics ?? []);
+  const waiting = metrics.filter((m) => m.dateBasis === 'Waiting now');
+  const period = metrics.filter((m) => m.dateBasis !== 'Waiting now' && m.key !== 'visits');
   const attention = available
-    .flatMap((m) => m.attention ?? [])
+    .flatMap(([key, m]) => (m.attention ?? []).map((row) => ({ ...row, module: key })))
     .sort((a, b) => Number(!!b.urgent) - Number(!!a.urgent));
-  const urgent = attention.filter((row) => row.urgent);
   const bookings = modules.bookings?.availability === 'available' ? modules.bookings : null;
   const applications =
     modules.applications?.availability === 'available' ? modules.applications : null;
   const health = modules.health?.availability === 'available' ? modules.health : null;
+  const query = new URLSearchParams({ period: scope.period, environment: scope.environment });
+  const unavailable = Object.entries(modules).filter(([, m]) => m.availability === 'unavailable');
   return (
     <AdminPage>
       <AdminPageHeader
-        eyebrow="Admin workspace"
-        title="Dashboard"
-        description="Review urgent work, today's visits and marketplace activity within your permissions."
+        title={view === 'overview' ? 'Dashboard' : view === 'analytics' ? 'Analytics' : 'Activity'}
+        description={descriptions[view]}
         action={<RetryButton label="Refresh" />}
       />
-      <Form
-        action="/admin"
-        className="mt-6 flex flex-wrap items-end gap-3 rounded-lg border border-border bg-card p-4"
-      >
-        <label className="text-meta font-semibold text-ink-700">
-          IST period
-          <select
-            name="period"
-            defaultValue={scope.period}
-            className="mt-1 block min-h-11 rounded-md border border-input bg-card px-3"
+      <nav aria-label="Dashboard views" className="mt-6 flex gap-6 border-b border-border sm:gap-8">
+        {Object.entries(destinations).map(([key, href]) => (
+          <Link
+            key={key}
+            href={`${href}?${query}`}
+            aria-current={view === key ? 'page' : undefined}
+            className={`flex min-h-12 items-center border-b-2 px-1 text-meta font-semibold transition-colors ${view === key ? 'border-brand-600 text-brand-800' : 'border-transparent text-ink-600 hover:text-ink-900'}`}
           >
-            {[
-              ['today', 'Today'],
-              ['7d', 'Last 7 days'],
-              ['30d', 'Last 30 days'],
-              ['90d', 'Last 90 days'],
-            ].map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <details open className="sm:contents">
-          <summary className="cursor-pointer py-3 text-meta font-semibold text-brand-700 sm:hidden">
-            Filters
-          </summary>
-          <label className="block text-meta font-semibold text-ink-700">
-            Environment
-            <select
-              name="environment"
-              defaultValue={scope.environment}
-              className="mt-1 block min-h-11 rounded-md border border-input bg-card px-3"
+            {key === 'overview' ? 'Overview' : humaniseStatus(key)}
+          </Link>
+        ))}
+      </nav>
+      <div className="mt-5 mb-8 flex flex-wrap items-end justify-between gap-4">
+        <Form action={destinations[view]} className="flex flex-wrap items-end gap-3">
+          <Field id="dashboard-period" label="Period (IST)">
+            <Select
+              id="dashboard-period"
+              name="period"
+              defaultValue={scope.period}
+              className="mt-1 block w-auto min-w-36"
             >
-              {['live', 'test', 'simulated'].map((value) => (
-                <option key={value} value={value}>
-                  {humaniseStatus(value)}
+              {[
+                ['today', 'Today'],
+                ['7d', 'Last 7 days'],
+                ['30d', 'Last 30 days'],
+                ['90d', 'Last 90 days'],
+              ].map(([v, label]) => (
+                <option key={v} value={v}>
+                  {label}
                 </option>
               ))}
-            </select>
-          </label>
-        </details>
-        <button className="min-h-11 rounded-md bg-primary px-4 text-meta font-semibold text-white">
-          Apply
-        </button>
-        <p className="w-full text-tiny text-ink-600">
-          {scope.from} to {scope.to} (IST) · {humaniseStatus(scope.environment)} · Refreshed{' '}
-          {adminDateTime(scope.generatedAt)}
+            </Select>
+          </Field>
+          <Field id="dashboard-environment" label="Environment">
+            <Select
+              id="dashboard-environment"
+              name="environment"
+              defaultValue={scope.environment}
+              className="mt-1 block w-auto min-w-28"
+            >
+              {['live', 'test', 'simulated'].map((v) => (
+                <option key={v} value={v}>
+                  {humaniseStatus(v)}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <button className={buttonVariants({ variant: 'outline' })}>Apply</button>
+        </Form>
+        <p className="text-meta leading-6 text-ink-600">
+          {scope.from} to {scope.to} (IST)
+          <br />
+          Refreshed {adminDateTime(scope.generatedAt)}
         </p>
-      </Form>
+      </div>
       {scope.environment !== 'live' ? (
-        <p className="mt-3 rounded-md bg-warning-bg p-4 text-meta text-warning">
+        <p role="status" className="mb-6 rounded-md bg-warning-bg p-4 text-meta text-warning">
           {humaniseStatus(scope.environment)} data. These figures do not represent live bank money.
         </p>
       ) : null}
+      {unavailable.length ? (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-5">
+          <p className="text-meta text-ink-700">
+            {unavailable.map(([key]) => names[key]).join(', ')} unavailable. Other authorized
+            modules remain available.
+          </p>
+          <RetryButton />
+        </div>
+      ) : null}
       {!Object.keys(modules).length ? (
-        <div className="mt-6">
+        <div className={groupClass}>
           <AdminEmpty
             title="No dashboard modules assigned"
             description="Open an authorized workspace from the navigation, or contact an operator administrator for access."
-          />
-          <Link href="/admin/help" className={linkClass}>
-            Help & guide
-          </Link>
+          >
+            <Link href="/admin/help" className={linkClass}>
+              Help & guide
+            </Link>
+          </AdminEmpty>
         </div>
       ) : null}
-      {Object.entries(modules)
-        .filter(([, m]) => m.availability === 'unavailable')
-        .map(([key]) => (
-          <section key={key} className="mt-4 rounded-lg border border-border bg-card p-5">
-            <h2 className="text-h4 font-semibold">{names[key]} unavailable</h2>
-            <p className="my-3 text-meta text-ink-600">
-              This module could not be loaded. Other authorized modules remain available.
-            </p>
-            <RetryButton />
-          </section>
-        ))}
-      {urgent.length ? (
-        <aside
-          aria-label="Urgent attention"
-          className="mt-6 rounded-lg border border-warning/30 bg-warning-bg p-5"
-        >
-          <h2 className="text-h4 font-semibold text-ink-900">Urgent attention</h2>
-          <p className="mt-2 text-meta text-ink-700">
-            {applications?.counts.overdue
-              ? `${applications.counts.overdue} applications past 48 hours. `
-              : ''}
-            {modules.finance?.exceptions
-              ? `${modules.finance.exceptions} financial exceptions. `
-              : ''}
-            {modules.support?.counts?.urgent
-              ? `${modules.support.counts.urgent} urgent support requests. `
-              : ''}
-            Open incidents and oldest urgent records appear below.
-          </p>
-          <div className="mt-2 flex flex-wrap gap-x-5">
-            {urgent.slice(0, 4).map((row) => (
-              <Link key={row.href} className={linkClass} href={row.href}>
-                {row.label}
-              </Link>
-            ))}
+      {view === 'overview' && available.length ? (
+        <>
+          <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
+            <section className="min-w-0">
+              <SectionHeading title="Needs attention">
+                Urgent items first, then waiting records from each queue.
+              </SectionHeading>
+              <div className={groupClass}>
+                {attention.length ? (
+                  <>
+                    <AttentionRows rows={attention.slice(0, 6)} />
+                    {attention.length > 6 ? (
+                      <details className="border-t border-border">
+                        <summary className="cursor-pointer px-6 py-4 text-meta font-semibold text-brand-700">
+                          Show {attention.length - 6} more records
+                        </summary>
+                        <AttentionRows rows={attention.slice(6)} />
+                      </details>
+                    ) : null}
+                  </>
+                ) : (
+                  <AdminEmpty
+                    title="No waiting records"
+                    description="No waiting records were returned by your authorized queues."
+                  />
+                )}
+              </div>
+              <p className="mt-3 text-meta text-ink-600">
+                Up to eight records per queue; totals use the full dataset.
+              </p>
+            </section>
+            {waiting.length ? (
+              <aside aria-label="Current queues" className="min-w-0">
+                <SectionHeading title="Current queues">
+                  Waiting now, across environments unless labelled.
+                </SectionHeading>
+                <div className={groupClass}>
+                  <ul className="divide-y divide-border">
+                    {waiting.map((m) => (
+                      <li key={m.key}>
+                        <Link
+                          href={m.href}
+                          className="flex items-start justify-between gap-4 px-5 py-4 hover:bg-ink-25"
+                        >
+                          <div className="min-w-0">
+                            <p className="text-meta font-medium leading-6 text-ink-700">
+                              {m.label}
+                            </p>
+                            {m.environment !== 'all' ? (
+                              <p className="mt-1 text-meta text-ink-600">
+                                {humaniseStatus(m.environment)} environment
+                              </p>
+                            ) : null}
+                          </div>
+                          <span className="shrink-0 text-h4 font-semibold text-ink-900 tabular">
+                            {value(m)}
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                {applications ? (
+                  <p className="mt-3 text-meta leading-6 text-ink-600">
+                    {applications.counts.unassigned} unassigned applications;{' '}
+                    {applications.counts.overdue} past the 48-hour SLA.
+                  </p>
+                ) : null}
+                {modules.support?.availability === 'available' ? (
+                  <p className="mt-2 text-meta leading-6 text-ink-600">
+                    {modules.support.counts.urgent} urgent support requests in total.
+                  </p>
+                ) : null}
+              </aside>
+            ) : null}
           </div>
-        </aside>
-      ) : null}
-      {waiting.length ? (
-        <section className="mt-8" aria-label="Waiting now">
-          <h2 className="mb-4 text-h3 font-semibold">Waiting now</h2>
-          <p className="mb-3 text-tiny text-ink-600">
-            Current queues across environments; pending refunds follow the selected environment.
-          </p>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {waiting.map((m) => (
-              <Metric key={m.key} metric={m} />
-            ))}
-          </div>
-          {applications ? (
-            <p className="mt-3 text-meta text-ink-600">
-              {applications.counts.unassigned} unassigned applications ·{' '}
-              {applications.counts.overdue} past the 48-hour SLA
-            </p>
+          {bookings ? (
+            <section className="mt-10">
+              <SectionHeading
+                title="Today's visits"
+                href={bookings.todayHref}
+                action="All today's visits"
+              >
+                {bookings.visits.arrivals} arrivals / {bookings.visits.departures} departures /{' '}
+                {bookings.visits.hourly} hourly. Arrivals and departures can overlap.
+              </SectionHeading>
+              <div className={groupClass}>
+                {bookings.todayVisits.length ? (
+                  <ul className="divide-y divide-border">
+                    {bookings.todayVisits.map((row) => (
+                      <li key={row.id}>
+                        <Link
+                          href={row.href}
+                          className="grid gap-3 px-5 py-5 hover:bg-ink-25 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-center sm:px-6"
+                        >
+                          <div className="min-w-0">
+                            <p className="break-words text-base font-semibold text-ink-900">
+                              {row.title}
+                            </p>
+                            <p className="mt-1 text-meta text-ink-600">
+                              {row.reference} / {row.order_reference}
+                            </p>
+                          </div>
+                          <p className="text-meta leading-6 text-ink-600">
+                            {row.hours_known ? (
+                              <>
+                                {adminDateTime(row.starts_at)}
+                                <br />
+                                {adminDateTime(row.ends_at)}
+                              </>
+                            ) : (
+                              'Hours not recorded'
+                            )}
+                          </p>
+                          <span className="flex items-center gap-3">
+                            <StatusBadge domain="visit" state={row.state} />
+                            <ChevronRight className="size-4" aria-hidden="true" />
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <AdminEmpty
+                    title="No visits scheduled today"
+                    description="No visits were returned for today in this environment."
+                  />
+                )}
+              </div>
+              <p className="mt-3 text-meta text-ink-600">
+                {bookings.metrics.find((m) => m.key === 'visits')?.value} visits in total; up to
+                eight shown. {bookings.visits.hours_unknown} with hours not recorded.
+              </p>
+            </section>
           ) : null}
-        </section>
+        </>
       ) : null}
-      {period.length ? (
-        <section className="mt-8" aria-label="Period and today totals">
-          <h2 className="mb-4 text-h3 font-semibold">Period & today totals</h2>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {period.map((m) => (
-              <Metric key={m.key} metric={m} />
-            ))}
-          </div>
-        </section>
+      {view === 'analytics' ? (
+        <>
+          {period.length ? (
+            <section>
+              <SectionHeading title="Selected-period totals">
+                Each measure uses its own date basis. Booked rent, captures and refunds are separate
+                measures.
+              </SectionHeading>
+              <div className={groupClass}>
+                <dl className="grid sm:grid-cols-2">
+                  {period.map((m) => (
+                    <div key={m.key} className="border-b border-border p-5 last:border-b-0 sm:p-6">
+                      <dt>
+                        <Link href={m.href} className={linkClass}>
+                          {m.label}
+                          <ArrowUpRight className="size-4" aria-hidden="true" />
+                        </Link>
+                      </dt>
+                      <dd className="mt-1 break-words text-h2 font-semibold text-ink-900 tabular">
+                        {value(m)}
+                      </dd>
+                      <dd className="mt-2 max-w-[65ch] text-meta leading-6 text-ink-600">
+                        {m.dateBasis}
+                        {m.availability === 'unavailable'
+                          ? '. No provider capture evidence in this scope.'
+                          : ''}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            </section>
+          ) : null}
+          <AdminAnalytics key={`${scope.period}-${scope.environment}`} modules={modules} />
+          {!period.length && !bookings && !applications && Object.keys(modules).length ? (
+            <AdminEmpty
+              title="No analytics available"
+              description="Analytics need access to booking, financial or application data."
+            />
+          ) : null}
+        </>
       ) : null}
-      <AdminAnalytics modules={modules} />
-      {additional.length ? (
-        <section className="mt-8">
-          <h2 className="mb-4 text-h3 font-semibold">Other authorized totals</h2>
-          <AdminTable
-            label="Other authorized totals"
-            columns={['Metric', 'Value', 'Date basis']}
-            minWidth={560}
-          >
-            {additional.map((m) => (
-              <tr key={m.key}>
-                <td className="px-4 py-3">
-                  <Link className={linkClass} href={m.href}>
-                    Open {m.label.toLowerCase()}
-                  </Link>
-                </td>
-                <td className="px-4 py-3 tabular">
-                  {m.availability === 'unavailable'
-                    ? 'Unavailable'
-                    : m.unit === 'minor'
-                      ? displayMoney(m.value)
-                      : m.value}
-                </td>
-                <td className="px-4 py-3">{m.dateBasis}</td>
-              </tr>
-            ))}
-          </AdminTable>
-        </section>
+      {view === 'activity' ? (
+        <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          {applications ? (
+            <section className="min-w-0">
+              <SectionHeading
+                title="Recent decisions"
+                href={applications.historyHref}
+                action="All decisions"
+              >
+                Recorded decisions in the selected IST period.
+              </SectionHeading>
+              <div className={groupClass}>
+                {applications.recentActivity.length ? (
+                  <ul className="divide-y divide-border">
+                    {applications.recentActivity.map((row) => (
+                      <li key={row.id}>
+                        <Link
+                          href={row.href}
+                          className="flex flex-wrap items-start gap-3 px-5 py-5 hover:bg-ink-25 sm:px-6"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <p className="break-words text-base font-semibold text-ink-900">
+                              {row.label}
+                            </p>
+                            <p className="mt-1 text-meta text-ink-600">{adminDateTime(row.at)}</p>
+                          </div>
+                          <StatusBadge domain="application" state={row.state} />
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <AdminEmpty
+                    title="No decisions in this period"
+                    description="Recorded application decisions will appear here."
+                  />
+                )}
+              </div>
+            </section>
+          ) : null}
+          {health ? (
+            <section className="min-w-0">
+              <SectionHeading
+                title="Service observations"
+                href={health.href}
+                action="Service health"
+              >
+                Recorded observations, not a live uptime guarantee.
+              </SectionHeading>
+              <div className={groupClass}>
+                {health.services.length ? (
+                  <ul className="divide-y divide-border">
+                    {health.services.map((row) => (
+                      <li
+                        key={row.service}
+                        className="flex flex-wrap items-start gap-3 px-5 py-5 sm:px-6"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="text-base font-semibold text-ink-900">
+                            {humaniseStatus(row.service)}
+                          </p>
+                          <p className="mt-1 text-meta text-ink-600">
+                            Checked {adminDateTime(row.checked_at)}
+                          </p>
+                        </div>
+                        <StatusBadge
+                          tone={row.stale ? 'neutral' : row.healthy ? 'success' : 'warning'}
+                        >
+                          {row.stale
+                            ? 'Stale observation'
+                            : row.healthy
+                              ? 'Healthy'
+                              : 'Needs attention'}
+                        </StatusBadge>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <AdminEmpty
+                    title="No service observations recorded"
+                    description="Service health is unavailable until an observation is recorded."
+                  />
+                )}
+              </div>
+            </section>
+          ) : null}
+          {!applications && !health && Object.keys(modules).length ? (
+            <AdminEmpty
+              title="No activity available"
+              description="This view needs access to application decisions or service observations."
+            />
+          ) : null}
+        </div>
       ) : null}
-      {available.length ? (
-        <section className="mt-8">
-          <h2 className="mb-4 text-h3 font-semibold">Needs attention</h2>
-          <AdminTable
-            label="Needs attention"
-            columns={['Record or queue', 'State', 'Priority']}
-            minWidth={560}
-            empty={!attention.length ? 'No waiting records in the authorized queues.' : null}
-          >
-            {attention.map((row) => (
-              <tr key={row.href}>
-                <td className="px-4 py-3">
-                  <Link href={row.href} className={linkClass}>
-                    {row.label}
-                  </Link>
-                </td>
-                <td className="px-4 py-3">{humaniseStatus(row.state)}</td>
-                <td className="px-4 py-3">{row.urgent ? 'Urgent' : 'Queue'}</td>
-              </tr>
-            ))}
-          </AdminTable>
-          <p className="mt-2 text-tiny text-ink-600">
-            Up to eight records per queue; totals use the full dataset.
-          </p>
-          <div className="flex flex-wrap gap-x-5">
-            {Object.entries(modules)
-              .filter(([, m]) => m.availability === 'available' && m.href)
-              .map(([key, m]) => (
-                <Link key={key} href={m.href} className={linkClass}>
-                  All {names[key].toLowerCase()}
-                </Link>
-              ))}
-          </div>
-        </section>
-      ) : null}
-      {bookings ? (
-        <section className="mt-8">
-          <h2 className="mb-3 text-h3 font-semibold">Today&apos;s visits</h2>
-          <p className="mb-4 text-meta text-ink-600">
-            {bookings.visits.arrivals} arrivals · {bookings.visits.departures} departures ·{' '}
-            {bookings.visits.hourly} hourly · {bookings.visits.hours_unknown} with hours not
-            recorded. Arrival and departure counts can overlap.
-          </p>
-          <AdminTable
-            label="Today's visits"
-            columns={['Visit / booking', 'Property', 'State', 'Start / end (IST)']}
-            minWidth={760}
-            empty={
-              !bookings.todayVisits.length
-                ? 'No visits scheduled for today in this environment.'
-                : null
-            }
-          >
-            {bookings.todayVisits.map((row) => (
-              <tr key={row.id}>
-                <td className="px-4 py-3">
-                  <Link className={linkClass} href={row.href}>
-                    {row.reference}
-                  </Link>
-                  <p className="text-tiny text-ink-600">{row.order_reference}</p>
-                </td>
-                <td className="px-4 py-3">{row.title}</td>
-                <td className="px-4 py-3">{humaniseStatus(row.state)}</td>
-                <td className="px-4 py-3">
-                  {row.hours_known ? (
-                    <>
-                      {adminDateTime(row.starts_at)}
-                      <br />
-                      {adminDateTime(row.ends_at)}
-                    </>
-                  ) : (
-                    'Hours not recorded'
-                  )}
-                </td>
-              </tr>
-            ))}
-          </AdminTable>
-          <Link className={linkClass} href={bookings.todayHref}>
-            All today&apos;s visits
-          </Link>
-        </section>
-      ) : null}
-      <div className="mt-8 grid gap-4 xl:grid-cols-2">
-        {applications ? (
-          <section className="min-w-0">
-            <h2 className="mb-4 text-h3 font-semibold">Recent decisions</h2>
-            <AdminTable
-              label="Recent decisions"
-              columns={['Application', 'Decision', 'At (IST)']}
-              minWidth={560}
-              empty={!applications.recentActivity.length ? 'No decisions in this period.' : null}
-            >
-              {applications.recentActivity.map((row) => (
-                <tr key={row.id}>
-                  <td className="px-4 py-3">
-                    <Link className={linkClass} href={row.href}>
-                      {row.label}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3">{humaniseStatus(row.state)}</td>
-                  <td className="px-4 py-3">{adminDateTime(row.at)}</td>
-                </tr>
-              ))}
-            </AdminTable>
-            <Link className={linkClass} href={applications.historyHref}>
-              All decisions
-            </Link>
-          </section>
-        ) : null}
-        {health ? (
-          <section className="min-w-0">
-            <h2 className="mb-4 text-h3 font-semibold">Service health</h2>
-            <AdminTable
-              label="Service health"
-              columns={['Service', 'Health', 'Last checked (IST)']}
-              minWidth={560}
-              empty={
-                !health.services.length ? 'Unavailable: no service observations recorded.' : null
-              }
-            >
-              {health.services.map((row) => (
-                <tr key={row.service}>
-                  <td className="px-4 py-3">{humaniseStatus(row.service)}</td>
-                  <td className="px-4 py-3">
-                    {row.stale ? 'Stale observation' : row.healthy ? 'Healthy' : 'Needs attention'}
-                  </td>
-                  <td className="px-4 py-3">{adminDateTime(row.checked_at)}</td>
-                </tr>
-              ))}
-            </AdminTable>
-            <Link href={health.href} className={linkClass}>
-              Open service health
-            </Link>
-          </section>
-        ) : null}
-      </div>
     </AdminPage>
   );
 }

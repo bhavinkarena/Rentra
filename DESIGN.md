@@ -386,6 +386,9 @@ Rules for `/admin/**` (ADMIN-EXPERIENCE-PLAN Phase 3), scoped by `data-admin-wor
 - Shared record headers and sections use the shared status presentation and navigational record-section links. `detailTabHref` preserves encoded list context and repeated parameters; sections survive refresh. Operator timestamps use `adminDateTime` with fixed month names, punctuation and IST time-zone text across server/browser locales.
 - Queue/payment skeletons match their summary/filter/table geometry, with one accessible loading announcement. Missing, forbidden and unavailable use `PortalState`; filtered-empty results use `AdminEmpty` and do not claim a service outage.
 - Admin detail sheets are not enabled in this phase. Follow [ADMIN-DETAIL-SHEETS.md](docs/ADMIN-DETAIL-SHEETS.md) before shipping View sheets; complex review and finance decisions remain full-page workflows.
+- Dashboard: Overview leads with urgent-first attention rows beside current queues, then today's visits; Analytics and Activity have separate routes. Route links preserve applied period/environment scope, and shared native fields apply scope to the current view. Divided white groups and readable stacked phone rows retain the portal vocabulary.
+- Dashboard analytics: select one daily measure at a time, with a native disclosure for exact tabular values and matching-record links. Keep current queues distinct from selected-period totals, backend-defined date bases explicit, and booked rent, provider captures and refunds separate; format minor-unit amounts with `displayMoney`.
+- Dashboard states: omit unauthorized modules, preserve available modules during partial failure, and label unavailable capture evidence and stale service observations truthfully. Route-specific loading mirrors each composition in flow with one accessible loading announcement.
 
 ## Owner portal
 

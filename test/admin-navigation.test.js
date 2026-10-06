@@ -29,6 +29,9 @@ test('every delivered destination and detail selects exactly one section and tab
   assert.equal(adminSectionForPath('/admin/payments')?.key, 'settings');
   assert.equal(adminSectionForPath('/admin/finance/payments/id')?.key, 'finance');
   assert.equal(adminSectionForPath('/admin/clients-unrelated'), undefined);
+  assert.equal(adminSectionForPath('/admin/analytics')?.key, 'dashboard');
+  assert.equal(adminSectionForPath('/admin/activity')?.key, 'dashboard');
+  assert.equal(adminSectionForPath('/admin/analytics-unrelated'), undefined);
 });
 
 test('restricted roles open their first permitted child and omit empty workspaces', () => {
