@@ -1,7 +1,5 @@
-import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
+import PeopleLoading from '@/components/admin/PeopleLoading';
 
 export default function Loading() {
-  return (
-    <ScreenSkeleton layout="portal" screen="profile" label="Loading admin customers details" />
-  );
+  return <PeopleLoading detail />;
 }

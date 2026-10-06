@@ -1,31 +1,22 @@
-import Form from '@/components/navigation/NavigationForm';
+import PeopleDirectory from './PeopleDirectory';
+import CopyChip from '@/components/portal/CopyChip';
+import { detailTabHref } from '@/lib/domain/detail-navigation';
+import { buttonVariants } from '@/components/ui/button';
 import Link from '@/components/navigation/NavigationLink';
-import { CalendarDays, Clock, Mail, Phone, UserRound } from 'lucide-react';
 import AccountLifecyclePanel from './AccountLifecyclePanel';
 import { CustomerProfileCorrection, CustomerSessionRevocation } from './CustomerAccountForms';
 import { HistoryList, label, when } from './AdminClients';
 import {
-  DetailHeader,
   DetailTabs,
   FieldGrid,
-  MetricStrip,
   Row,
   RowList,
   SectionCard,
   pickTab,
 } from '@/components/portal/DetailLayout';
-import {
-  AdminEmpty,
-  AdminPage,
-  AdminPageHeader,
-  AdminFilterBar,
-  AdminTable,
-  AdminReadOnly,
-  StatusBadge,
-} from './AdminPrimitives';
-import { fieldClass } from '@/components/ui/field';
-import Pagination from '@/components/ui/pagination';
+import { AdminPage, AdminPageHeader, AdminReadOnly, StatusBadge } from './AdminPrimitives';
 import { customerAccountCommand } from '@/lib/actions/admin';
+import { formatLocalDate } from '@/lib/domain/booking-dates';
 
 const STATUS = {
   all: 'All',
@@ -41,146 +32,8 @@ const verbsFor = (status) => ({
 const tone = (status) =>
   status === 'active' ? 'success' : status === 'pending_application' ? 'warning' : 'danger';
 
-function listHref({ q, status, page }) {
-  const params = new URLSearchParams();
-  if (q) params.set('q', q);
-  if (status && status !== 'all') params.set('status', status);
-  if (page > 1) params.set('page', String(page));
-  const query = params.toString();
-  return query ? `/admin/customers?${query}` : '/admin/customers';
-}
-
 export function AdminCustomerList({ data }) {
-  const here = listHref(data);
-  return (
-    <AdminPage>
-      <AdminPageHeader
-        title="Customers"
-        description="Guest accounts with their bookings, support, reviews and privacy requests."
-      />
-      <nav aria-label="Filter by status" className="mt-6 flex flex-wrap gap-2">
-        {Object.entries(STATUS).map(([key, text]) => (
-          <Link
-            key={key}
-            href={listHref({ q: data.q, status: key, page: 1 })}
-            aria-current={data.status === key ? 'page' : undefined}
-            className={`inline-flex min-h-11 items-center gap-1.5 rounded-md border px-3 text-meta font-semibold ${
-              data.status === key
-                ? 'border-brand-700 bg-primary text-white'
-                : 'border-border bg-card text-ink-700 hover:bg-ink-50'
-            }`}
-          >
-            {text}
-            <span className="tabular">{data.counts[key]}</span>
-          </Link>
-        ))}
-      </nav>
-
-      <section
-        className="mt-4 overflow-hidden rounded-lg border border-border bg-card shadow-xs"
-        aria-labelledby="customer-list-title"
-      >
-        <AdminFilterBar label="Customers filters" className="border-b border-border">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 id="customer-list-title" className="text-h4 font-bold text-ink-900">
-                {STATUS[data.status]} customers
-              </h2>
-              <p className="mt-1 text-meta text-ink-600">
-                Newest first · {data.total} matching customers
-              </p>
-            </div>
-            <Form
-              action="/admin/customers"
-              className="flex min-w-0 flex-wrap items-end gap-2"
-              role="search"
-            >
-              {data.status !== 'all' ? (
-                <input type="hidden" name="status" value={data.status} />
-              ) : null}
-              <label className="min-w-0 flex-1 text-meta font-semibold text-ink-600">
-                Name, email or phone digits
-                <input
-                  name="q"
-                  defaultValue={data.q}
-                  maxLength={100}
-                  className={`${fieldClass} mt-1 sm:w-56`}
-                />
-              </label>
-              <button className="min-h-11 rounded-md bg-primary px-4 text-meta font-semibold text-white hover:bg-primary-hover">
-                Search
-              </button>
-            </Form>
-          </div>
-        </AdminFilterBar>
-
-        {data.items.length ? (
-          <AdminTable
-            label="Customers table"
-            columns={[
-              'Customer',
-              'Phone',
-              'Status',
-              'Bookings',
-              'Open support',
-              'Joined',
-              'Actions',
-            ]}
-            minWidth={760}
-            framed={false}
-          >
-            {data.items.map((customer) => (
-              <tr key={customer.id} className="hover:bg-ink-25">
-                <td className="px-5 py-4">
-                  <p className="font-semibold text-ink-900">{customer.name || 'Name not set'}</p>
-                  <p className="mt-0.5 text-tiny break-all text-ink-500">
-                    {customer.email || 'No email'}
-                  </p>
-                </td>
-                <td className="whitespace-nowrap px-4 py-4 text-meta text-ink-700 tabular">
-                  {customer.phone ? `+91 ${customer.phone}` : '—'}
-                </td>
-                <td className="px-4 py-4">
-                  <StatusBadge tone={tone(customer.accountStatus)}>
-                    {STATUS[customer.accountStatus] ?? label(customer.accountStatus)}
-                  </StatusBadge>
-                </td>
-                <td className="px-4 py-4 text-meta text-ink-600 tabular">{customer.orderCount}</td>
-                <td className="px-4 py-4 text-meta text-ink-600 tabular">{customer.openSupport}</td>
-                <td className="px-4 py-4 text-meta text-ink-600">{when(customer.createdAt)}</td>
-                <td className="px-5 py-4 text-right">
-                  <Link
-                    className="inline-flex min-h-11 items-center text-meta font-semibold text-brand-700 hover:underline"
-                    href={`/admin/customers/${customer.id}?from=${encodeURIComponent(here)}`}
-                  >
-                    View
-                    <span className="sr-only"> customer {customer.name || customer.phone}</span>
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </AdminTable>
-        ) : (
-          <AdminEmpty
-            icon={UserRound}
-            title={data.q ? 'No customers match this search' : 'No customers in this view'}
-            description="Try another status or fewer phone digits."
-          />
-        )}
-
-        <Pagination
-          page={data.page}
-          pageSize={data.pageSize}
-          total={data.total}
-          pages={data.pages}
-          pageSizes={null}
-          label="Customer pages"
-          noun="customers"
-          className="border-t border-border px-5 py-4"
-        />
-      </section>
-    </AdminPage>
-  );
+  return <PeopleDirectory type="customers" data={data} statuses={STATUS} />;
 }
 
 const CUSTOMER_TABS = (data) => [
@@ -189,15 +42,15 @@ const CUSTOMER_TABS = (data) => [
   { key: 'support', label: 'Support', count: data.support.total },
   { key: 'reviews', label: 'Reviews', count: data.reviews.total },
   { key: 'privacy', label: 'Privacy', count: data.privacy.length },
-  { key: 'account', label: 'Account details' },
-  { key: 'history', label: 'Activity log', count: data.history.length },
+  { key: 'account', label: 'Account' },
+  { key: 'history', label: 'Activity', count: data.history.length },
 ];
 
 function BookingRow({ order, canReadRecords }) {
   return (
     <Row
       primary={order.title}
-      secondary={`${order.reference} · first visit ${order.firstVisit ?? '—'} · booked ${when(order.createdAt)}`}
+      secondary={`${order.reference} / first visit ${order.firstVisit ? formatLocalDate(order.firstVisit) : 'Not recorded'} / booked ${when(order.createdAt)}`}
       trailing={<StatusBadge tone="info">{label(order.state)}</StatusBadge>}
       href={canReadRecords ? `/admin/bookings/${order.id}` : null}
       hrefLabel={
@@ -248,7 +101,12 @@ export function AdminCustomerDetail({
       description={`${sessions.open} open session${sessions.open === 1 ? '' : 's'} · latest sign-in ${when(sessions.latest, { dateStyle: 'medium', timeStyle: 'short' })}`}
     >
       {canWrite ? (
-        <CustomerSessionRevocation customer={customer} openSessions={sessions.open} />
+        <details>
+          <summary className="min-h-11 cursor-pointer content-center text-meta font-semibold text-brand-700">
+            Sign out devices
+          </summary>
+          <CustomerSessionRevocation customer={customer} openSessions={sessions.open} />
+        </details>
       ) : (
         <p className="text-meta text-ink-600">
           Read-only session history. Signing out devices requires customers write permission.
@@ -267,7 +125,7 @@ export function AdminCustomerDetail({
         statuses={STATUS}
         canWrite={canWrite}
       />
-      <p className="px-1 text-tiny text-ink-500">
+      <p className="px-1 text-meta text-ink-500">
         No impersonation: staff never sign in as a customer. Authentication recovery (a lost phone)
         is not available here.
       </p>
@@ -301,59 +159,32 @@ export function AdminCustomerDetail({
   );
 
   return (
-    <AdminPage width="max-w-[1320px]">
-      <DetailHeader
-        breadcrumbs={[
-          {
-            href: backHref,
-            label: backHref.startsWith('/admin/search') ? 'Search results' : 'Customers',
-          },
-          { label: title },
-        ]}
+    <AdminPage className="[&_dt]:text-meta [&_dt]:font-medium [&_dt]:tracking-normal [&_dt]:normal-case [&_.text-tiny]:text-meta [&_h2+p]:text-meta">
+      <AdminPageHeader
         title={title}
-        badges={[
-          { label: STATUS[customer.accountStatus], tone: tone(customer.accountStatus) },
-          { label: 'Customer', tone: 'info' },
-          customer.phoneVerifiedAt ? { label: 'Phone verified', tone: 'success' } : null,
-        ].filter(Boolean)}
-        id={{ label: 'Customer ID', value: customer.id, display: customer.id.slice(0, 8) }}
-        chips={[
-          customer.phone ? { icon: Phone, value: `+91 ${customer.phone}` } : null,
-          customer.email ? { icon: Mail, value: customer.email } : null,
-          { icon: CalendarDays, label: 'Joined', value: when(customer.createdAt) },
-          {
-            icon: Clock,
-            label: 'Last sign-in',
-            value: when(customer.lastLoginAt, { dateStyle: 'medium', timeStyle: 'short' }),
-          },
-        ]}
+        description={
+          customer.email || (customer.phone ? `+91 ${customer.phone}` : 'Contact not recorded')
+        }
+        backHref={backHref}
+        backLabel={backHref.startsWith('/admin/search') ? 'Search results' : 'Customers'}
+        action={
+          <Link
+            href={detailTabHref(`/admin/customers/${customer.id}`, 'account', tabs, params)}
+            className={buttonVariants({ variant: 'outline' })}
+          >
+            Manage account
+          </Link>
+        }
       />
-
-      <MetricStrip
-        items={[
-          { label: 'Bookings', value: bookings.total, hint: 'booking orders' },
-          {
-            label: 'Upcoming visits',
-            value: effects.upcomingVisits,
-            hint: 'confirmed or in progress',
-          },
-          {
-            label: 'Open support',
-            value: effects.openSupport,
-            hint: 'not resolved',
-            tone: effects.openSupport ? 'warning' : 'neutral',
-          },
-          { label: 'Reviews', value: reviews.total, hint: 'written' },
-          { label: 'Open sessions', value: sessions.open, hint: 'signed-in devices' },
-          {
-            label: 'Privacy',
-            value: privacy.filter((request) => request.state !== 'closed').length,
-            hint: 'open requests',
-          },
-        ]}
-      />
-
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <StatusBadge tone={tone(customer.accountStatus)}>
+          {STATUS[customer.accountStatus]}
+        </StatusBadge>
+        <CopyChip label="Customers ID" value={customer.id} display={customer.id.slice(0, 8)} />
+        {customer.phoneVerifiedAt ? <StatusBadge tone="success">Phone verified</StatusBadge> : null}
+      </div>
       <DetailTabs
+        wrap
         tabs={tabs}
         active={active}
         basePath={`/admin/customers/${customer.id}`}
@@ -362,7 +193,7 @@ export function AdminCustomerDetail({
 
       <div className="mt-6">
         {active === 'overview' ? (
-          <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+          <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
             <div className="space-y-5">
               <SectionCard id="recent-bookings" title="Recent bookings" flush>
                 {bookingRows(bookings.items.slice(0, 5))}
@@ -376,7 +207,42 @@ export function AdminCustomerDetail({
                 {supportRows(support.items.slice(0, 5))}
               </SectionCard>
             </div>
-            {sidebar}
+            <SectionCard title="Customer context">
+              <dl className="space-y-4 text-meta">
+                <div>
+                  <dt className="text-ink-600">Mobile</dt>
+                  <dd className="mt-1">
+                    {customer.phone ? `+91 ${customer.phone}` : 'Not recorded'}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-ink-600">Upcoming visits</dt>
+                  <dd className="mt-1 tabular">{effects.upcomingVisits}</dd>
+                </div>
+                <div>
+                  <dt className="text-ink-600">Open support</dt>
+                  <dd className="mt-1 tabular">{effects.openSupport}</dd>
+                </div>
+                <div>
+                  <dt className="text-ink-600">Open sessions</dt>
+                  <dd className="mt-1 tabular">{sessions.open}</dd>
+                </div>
+                <div>
+                  <dt className="text-ink-600">Open privacy requests in this record</dt>
+                  <dd className="mt-1 tabular">
+                    {privacy.filter((request) => request.state !== 'closed').length}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-ink-600">Joined</dt>
+                  <dd className="mt-1">{when(customer.createdAt)}</dd>
+                </div>
+                <div>
+                  <dt className="text-ink-600">Last sign-in</dt>
+                  <dd className="mt-1">{when(customer.lastLoginAt)}</dd>
+                </div>
+              </dl>
+            </SectionCard>
           </div>
         ) : null}
 
@@ -468,7 +334,7 @@ export function AdminCustomerDetail({
         ) : null}
 
         {active === 'account' ? (
-          <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+          <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
             <SectionCard id="profile" title="Account details">
               <FieldGrid
                 fields={[
@@ -499,7 +365,12 @@ export function AdminCustomerDetail({
                 ]}
               />
               {canWrite ? (
-                <CustomerProfileCorrection customer={customer} />
+                <details className="mt-5 border-t border-border pt-3">
+                  <summary className="min-h-11 cursor-pointer content-center text-meta font-semibold text-brand-700">
+                    Correct profile
+                  </summary>
+                  <CustomerProfileCorrection customer={customer} />
+                </details>
               ) : (
                 <p className="mt-4 text-meta text-ink-600">
                   Read-only profile. Corrections require customers write permission.

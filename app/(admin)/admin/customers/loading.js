@@ -1,5 +1,5 @@
-import AdminLoading from '@/components/admin/AdminLoading';
+import PeopleLoading from '@/components/admin/PeopleLoading';
 
 export default function Loading() {
-  return <AdminLoading label="customers" screen="people" />;
+  return <PeopleLoading />;
 }
