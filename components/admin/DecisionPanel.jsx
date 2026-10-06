@@ -71,8 +71,8 @@ export default function DecisionPanel({
           className="mt-3 rounded-md border border-danger/25 bg-danger-bg p-3 text-meta text-danger"
         >
           <p>{anyError}</p>
-          <p className="mt-1 text-tiny">
-            Nothing was decided. Reload to see the current application.
+          <p className="mt-1 text-meta">
+            Reload to confirm the current application before trying again.
           </p>
           <div className="mt-3">
             <RetryButton label="Reload application" />
@@ -81,7 +81,7 @@ export default function DecisionPanel({
       ) : null}
 
       {mode === null ? (
-        <div className="mt-4 grid gap-2 sm:grid-cols-3">
+        <div className="mt-5 flex flex-wrap gap-3">
           <button type="button" onClick={() => setMode('approve')} className={btn('brand')}>
             <Check className="size-4" aria-hidden="true" /> Approve
           </button>
@@ -96,6 +96,7 @@ export default function DecisionPanel({
 
       {mode === 'approve' ? (
         <form ref={formRef} action={approveAction} className="mt-4 space-y-3">
+          <ValidationSummary errors={approveState.errors} scope={formRef} />
           <input type="hidden" name="applicationId" value={applicationId} />
           <input type="hidden" name="from" value={returnHref} />
           <input type="hidden" name="expectedVersion" value={reviewVersion} />
@@ -109,6 +110,9 @@ export default function DecisionPanel({
           </label>
           <textarea
             id="approval-note"
+            disabled={busy}
+            aria-invalid={Boolean(approveState.errors?.reason)}
+            aria-describedby={approveState.errors?.reason ? 'approval-error' : undefined}
             name="reason"
             value={reasons.approve}
             onChange={(event) => setReasons({ ...reasons, approve: event.target.value })}
@@ -116,7 +120,12 @@ export default function DecisionPanel({
             placeholder="Internal note, optional — e.g. “PAN and light bill both in her name”"
             className={ta}
           />
-          <div className="flex gap-2">
+          {approveState.errors?.reason ? (
+            <p id="approval-error" className="text-meta text-danger">
+              {approveState.errors.reason}
+            </p>
+          ) : null}
+          <div className="flex flex-wrap gap-2">
             <Button type="submit" size="lg" disabled={busy}>
               {approving ? <Loader2 className="size-4 " /> : <Check className="size-4" />}
               Approve and activate
@@ -139,7 +148,10 @@ export default function DecisionPanel({
           <input type="hidden" name="applicationId" value={applicationId} />
           <input type="hidden" name="from" value={returnHref} />
           <input type="hidden" name="expectedVersion" value={reviewVersion} />
-          <fieldset>
+          <fieldset
+            disabled={busy}
+            aria-describedby={infoState.errors?.flagged ? 'correction-fields-error' : undefined}
+          >
             <legend className="mb-1.5 text-meta font-semibold text-ink-700">
               Which steps need attention?
             </legend>
@@ -147,7 +159,7 @@ export default function DecisionPanel({
               {FLAGGABLE.map((f) => (
                 <label
                   key={f.id}
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-input px-3 py-1.5 text-meta hover:bg-ink-50"
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-input px-3 py-1.5 text-meta hover:bg-ink-50"
                 >
                   <input
                     type="checkbox"
@@ -174,6 +186,7 @@ export default function DecisionPanel({
             </label>
             <textarea
               id="correction-reason"
+              disabled={busy}
               aria-invalid={Boolean(infoState.errors?.reason)}
               aria-describedby={infoState.errors?.reason ? 'correction-error' : undefined}
               name="reason"
@@ -185,18 +198,20 @@ export default function DecisionPanel({
               className={ta}
             />
             {infoState.errors?.flagged ? (
-              <p className="mt-1.5 text-tiny font-medium text-danger">{infoState.errors.flagged}</p>
+              <p id="correction-fields-error" className="mt-1.5 text-meta font-medium text-danger">
+                {infoState.errors.flagged}
+              </p>
             ) : null}
             {infoState.errors?.reason ? (
-              <p id="correction-error" className="mt-1.5 text-tiny font-medium text-danger">
+              <p id="correction-error" className="mt-1.5 text-meta font-medium text-danger">
                 {infoState.errors.reason}
               </p>
             ) : null}
           </div>
-          <p className="text-tiny text-ink-500">
+          <p className="text-meta text-ink-500">
             Not a strike. Returns the application to their hands so they can edit and resubmit.
           </p>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button type="submit" size="lg" variant="secondary" disabled={busy}>
               {requestingInfo ? <Loader2 className="size-4 " /> : null}
               Send back with questions
@@ -225,6 +240,7 @@ export default function DecisionPanel({
             </label>
             <textarea
               id="rejection-reason"
+              disabled={busy}
               aria-invalid={Boolean(rejectState.errors?.reason)}
               aria-describedby={rejectState.errors?.reason ? 'rejection-error' : undefined}
               name="reason"
@@ -236,12 +252,12 @@ export default function DecisionPanel({
               className={ta}
             />
             {rejectState.errors?.reason ? (
-              <p id="rejection-error" className="mt-1.5 text-tiny font-medium text-danger">
+              <p id="rejection-error" className="mt-1.5 text-meta font-medium text-danger">
                 {rejectState.errors.reason}
               </p>
             ) : null}
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button type="submit" size="lg" variant="destructive" disabled={busy}>
               {rejecting ? <Loader2 className="size-4 " /> : <X className="size-4" />}
               {willBlock ? 'Reject and block' : 'Reject'}

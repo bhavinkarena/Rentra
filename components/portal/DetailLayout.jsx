@@ -115,14 +115,14 @@ export function MetricStrip({ items, label = 'Key figures' }) {
  * Tabs as links. `params` are the current search params to keep (e.g. `from`);
  * the first tab has no `tab` parameter so the canonical URL stays clean.
  */
-export function DetailTabs({ tabs, active, basePath, params = {} }) {
+export function DetailTabs({ tabs, active, basePath, params = {}, wrap = false }) {
   const href = (key) => detailTabHref(basePath, key, tabs, params);
   return (
     <nav
       aria-label="Record sections"
       className="mt-6 overflow-x-auto overflow-y-hidden border-b border-border [scrollbar-width:thin]"
     >
-      <ul className="flex min-w-max gap-1">
+      <ul className={wrap ? 'flex flex-wrap gap-1' : 'flex min-w-max gap-1'}>
         {tabs.map((tab) => {
           const current = tab.key === active;
           return (

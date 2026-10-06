@@ -1,11 +1,5 @@
-import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
+import ApplicationsLoading from '@/components/admin/ApplicationsLoading';
 
 export default function Loading() {
-  return (
-    <ScreenSkeleton
-      layout="portal"
-      screen="case-detail"
-      label="Loading admin applications details"
-    />
-  );
+  return <ApplicationsLoading detail />;
 }

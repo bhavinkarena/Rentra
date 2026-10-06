@@ -1,5 +1,7 @@
 import Link from '@/components/navigation/NavigationLink';
-import { AlertTriangle, CalendarDays, Check, Clock, Mail, Phone, X } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
+import CopyChip from '@/components/portal/CopyChip';
+import { detailTabHref } from '@/lib/domain/detail-navigation';
 import { requireAdmin } from '@/lib/api/session';
 import { adminApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
@@ -10,15 +12,9 @@ import { applicationReturnHref } from '@/lib/domain/admin-navigation';
 import DecisionPanel from '@/components/admin/DecisionPanel';
 import DocumentViewer from '@/components/admin/DocumentViewer';
 import { adminDateTime } from '@/lib/domain/admin-display';
-import { AdminPage } from '@/components/admin/AdminPrimitives';
-import {
-  DetailHeader,
-  DetailTabs,
-  MetricStrip,
-  RowList,
-  SectionCard,
-  pickTab,
-} from '@/components/portal/DetailLayout';
+import { AdminPage, AdminPageHeader, StatusBadge } from '@/components/admin/AdminPrimitives';
+import { buttonVariants } from '@/components/ui/button';
+import { DetailTabs, RowList, SectionCard, pickTab } from '@/components/portal/DetailLayout';
 
 export const metadata = {
   title: 'Application review',
@@ -45,7 +41,7 @@ function ReviewState({ review }) {
           : ''}
       </p>
       {review.changedSinceLastDecision ? (
-        <p className="mt-2 text-tiny text-ink-700">
+        <p className="mt-2 text-meta text-ink-700">
           {review.changedSinceLastDecision.length
             ? `Changed since the last decision: ${review.changedSinceLastDecision
                 .map((field) => FIELD_LABELS[field] ?? field)
@@ -97,75 +93,46 @@ export default async function ApplicationReviewPage({ params, searchParams }) {
 
   return (
     <AdminPage width="max-w-[1320px]">
-      <DetailHeader
-        breadcrumbs={[
-          {
-            href: backHref,
-            label: backHref.startsWith('/admin/search') ? 'Search results' : 'Applications',
-          },
-          { label: title },
-        ]}
+      <AdminPageHeader
+        backHref={backHref}
+        backLabel={backHref.startsWith('/admin/search') ? 'Search results' : 'Applications'}
         title={title}
-        avatar={app.legalName || user.name || user.email}
-        badges={[
-          { label: app.status.replace(/_/g, ' '), tone: STATUS_TONE[app.status] },
-          {
-            label: user.clientType === 'authorised_agent' ? 'Authorised agent' : 'Owner',
-            tone: 'info',
-          },
-          app.payoutNameMatch === false ? { label: 'Payout name mismatch', tone: 'danger' } : null,
-          review.overdue ? { label: 'Past 48h window', tone: 'danger' } : null,
-        ].filter(Boolean)}
-        id={{ label: 'Application ID', value: app.id, display: app.id.slice(0, 8) }}
-        chips={[
-          { icon: Mail, value: user.email },
-          user.phone ? { icon: Phone, value: `+91 ${user.phone}` } : null,
-          { icon: CalendarDays, label: 'Submitted', value: when(app.submittedAt) },
-          { icon: Clock, label: 'Joined', value: when(user.createdAt, { dateStyle: 'medium' }) },
-        ]}
-        actions={
+        description={user.email}
+        action={
           admin.capabilities.includes('admin.clients.read') ? (
             <Link
               href={`/admin/clients/${user.id}`}
-              className="inline-flex min-h-9 items-center rounded-md border border-border bg-card px-3 text-tiny font-semibold text-ink-800 hover:bg-ink-50"
+              className={buttonVariants({ variant: 'outline' })}
             >
-              Open owner record →
+              Owner record
+              <ArrowUpRight className="size-4" aria-hidden="true" />
             </Link>
           ) : null
         }
       />
-
-      <MetricStrip
-        items={[
-          {
-            label: 'Waiting',
-            value: waitingHours == null ? '—' : `${waitingHours}h`,
-            hint: 'since submission',
-            tone: review.overdue ? 'danger' : 'neutral',
-          },
-          {
-            label: 'Steps complete',
-            value: `${completion.done} / ${completion.total}`,
-            hint: 'client side',
-            tone: completion.done === completion.total ? 'success' : 'warning',
-          },
-          { label: 'Documents', value: documents.length, hint: 'uploaded' },
-          {
-            label: 'Strikes',
-            value: `${app.strikeCount} / 3`,
-            hint: 'rejections',
-            tone: app.strikeCount >= 2 ? 'danger' : 'neutral',
-          },
-          {
-            label: 'Submissions',
-            value: review.submissions,
-            hint: `review version ${review.reviewVersion}`,
-          },
-          { label: 'Properties', value: listings.length, hint: 'already created' },
-        ]}
-      />
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <StatusBadge tone={STATUS_TONE[app.status]} state={app.status} domain="application" />
+        <span className="text-meta text-ink-600">
+          {user.clientType === 'authorised_agent' ? 'Authorised agent' : 'Owner'}
+        </span>
+        <CopyChip label="Application ID" value={app.id} display={app.id.slice(0, 8)} />
+        {app.payoutNameMatch === false ? (
+          <StatusBadge tone="danger">Payout name mismatch</StatusBadge>
+        ) : null}
+        {app.status === 'submitted' ? (
+          <span
+            className={`text-meta ${review.overdue ? 'font-semibold text-danger' : 'text-ink-600'}`}
+          >
+            {waitingHours == null
+              ? 'Not waiting'
+              : `${waitingHours}h waiting${review.overdue ? ' / past 48h window' : ''}`}
+          </span>
+        ) : null}
+      </div>
+      <p className="mt-3 mb-6 text-meta text-ink-600">Submitted {when(app.submittedAt)}</p>
 
       <DetailTabs
+        wrap
         tabs={tabs}
         active={active}
         basePath={`/admin/applications/${app.id}`}
@@ -176,104 +143,130 @@ export default async function ApplicationReviewPage({ params, searchParams }) {
         {active === 'overview' ? (
           <>
             {notAwaiting}
-            <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
-              <ReviewState review={review} />
-              <AssignmentPanel applicationId={app.id} review={review} canWrite={canWrite} />
+            <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+              <section
+                id="checklist"
+                className="min-w-0 scroll-mt-24 overflow-hidden rounded-lg border border-border bg-card"
+              >
+                <Panel title="Identity">
+                  <Row label="Email" value={user.email} />
+                  <Row
+                    label="Email verification"
+                    value={user.emailVerifiedAt ? 'Verified' : 'Not verified'}
+                  />
+                  <Row
+                    label="Mobile verification"
+                    value={user.phoneVerifiedAt ? 'Verified' : 'Not verified'}
+                  />
+                  <Row
+                    label="Mobile"
+                    value={user.phone ? `+91 ${user.phone}` : '—'}
+                    ok={Boolean(user.phoneVerifiedAt)}
+                  />
+                  <Row label="Language" value={user.preferredLocale} />
+                  <Row
+                    label="Listing as"
+                    value={user.clientType === 'authorised_agent' ? 'Authorised agent' : 'Owner'}
+                  />
+                  {user.clientType === 'authorised_agent' ? (
+                    <>
+                      <Row
+                        label="Owner's name"
+                        value={app.ownerName || '—'}
+                        ok={Boolean(app.ownerName)}
+                      />
+                      <Row label="Relationship" value={app.ownerRelationship || '—'} />
+                    </>
+                  ) : null}
+                </Panel>
+
+                <Panel title="Address">
+                  <Row
+                    label="Address"
+                    value={app.residentialAddress || '—'}
+                    ok={Boolean(app.residentialAddress)}
+                  />
+                  <Row label="Pincode" value={app.pincode || '—'} />
+                  <Row label="Plans to list" value={app.intendedListingCount ?? '—'} />
+                </Panel>
+
+                <Panel title="Payout" tone={app.payoutNameMatch === false ? 'bad' : undefined}>
+                  <Row
+                    label="Method"
+                    value={app.payoutUpiId ? 'UPI' : app.payoutAccountRef ? 'Bank' : '—'}
+                  />
+                  <Row
+                    label="Destination"
+                    value={app.payoutUpiId ?? app.payoutAccountRef ?? '—'}
+                    mono
+                  />
+                  {app.payoutIfsc ? <Row label="IFSC" value={app.payoutIfsc} mono /> : null}
+                  <Row label="Holder name" value={app.payoutHolderName ?? '—'} />
+                  <Row
+                    label="Name comparison (not verification)"
+                    value={
+                      app.payoutNameMatch === true
+                        ? 'Yes'
+                        : app.payoutNameMatch === false
+                          ? 'NO'
+                          : 'Not compared'
+                    }
+                    ok={app.payoutNameMatch === true}
+                    bad={app.payoutNameMatch === false}
+                  />
+                  {app.payoutNameMatch === false ? (
+                    <p className="mt-3 text-meta leading-6 text-danger">
+                      Blocks approval. Ask for a payout destination in the applicant&apos;s own
+                      name.
+                    </p>
+                  ) : null}
+                </Panel>
+
+                <Panel title="Consent">
+                  <Row
+                    label="Accepted terms"
+                    value={app.consentAt ? when(app.consentAt) : '—'}
+                    ok={Boolean(app.consentAt)}
+                  />
+                  <Row label="From IP" value={app.consentIp ?? '—'} mono />
+                </Panel>
+
+                <Panel title="Account">
+                  <Row label="Status" value={user.accountStatus.replace(/_/g, ' ')} />
+                  <Row label="Joined" value={when(user.createdAt)} />
+                  <Row
+                    label="Identity documents"
+                    value={user.kycStatus === 'verified' ? 'reviewed by Rentra' : user.kycStatus}
+                  />
+                  <Row
+                    label="Steps complete"
+                    value={`${completion.done} of ${completion.total}`}
+                    ok={completion.done === completion.total}
+                  />
+                  <Row
+                    label="Strikes"
+                    value={`${app.strikeCount} of 3`}
+                    bad={app.strikeCount >= 2}
+                  />
+                  <Row label="Existing listings" value={listings.length} />
+                </Panel>
+              </section>
+              <aside className="min-w-0 space-y-5">
+                <AssignmentPanel applicationId={app.id} review={review} canWrite={canWrite} />
+                <ReviewState review={review} />
+                <Link
+                  href={detailTabHref(`/admin/applications/${app.id}`, 'decision', tabs, query)}
+                  className={buttonVariants({ className: 'w-full' })}
+                >
+                  Open decision
+                </Link>
+                <p className="text-meta leading-6 text-ink-600">
+                  {completion.done} of {completion.total} onboarding steps complete.{' '}
+                  {documents.length} documents uploaded; {listings.length} properties already
+                  created.
+                </p>
+              </aside>
             </div>
-            <section
-              id="checklist"
-              className="grid scroll-mt-24 gap-4 sm:grid-cols-2 xl:grid-cols-3"
-            >
-              <Panel title="Identity">
-                <Row label="Email" value={user.email} ok={Boolean(user.emailVerifiedAt)} />
-                <Row
-                  label="Mobile"
-                  value={user.phone ? `+91 ${user.phone}` : '—'}
-                  ok={Boolean(user.phoneVerifiedAt)}
-                />
-                <Row label="Language" value={user.preferredLocale} />
-                <Row
-                  label="Listing as"
-                  value={user.clientType === 'authorised_agent' ? 'Authorised agent' : 'Owner'}
-                />
-                {user.clientType === 'authorised_agent' ? (
-                  <>
-                    <Row
-                      label="Owner's name"
-                      value={app.ownerName || '—'}
-                      ok={Boolean(app.ownerName)}
-                    />
-                    <Row label="Relationship" value={app.ownerRelationship || '—'} />
-                  </>
-                ) : null}
-              </Panel>
-
-              <Panel title="Address">
-                <Row
-                  label="Address"
-                  value={app.residentialAddress || '—'}
-                  ok={Boolean(app.residentialAddress)}
-                />
-                <Row label="Pincode" value={app.pincode || '—'} />
-                <Row label="Plans to list" value={app.intendedListingCount ?? '—'} />
-              </Panel>
-
-              <Panel title="Payout" tone={app.payoutNameMatch === false ? 'bad' : undefined}>
-                <Row
-                  label="Method"
-                  value={app.payoutUpiId ? 'UPI' : app.payoutAccountRef ? 'Bank' : '—'}
-                />
-                <Row
-                  label="Destination"
-                  value={app.payoutUpiId ?? app.payoutAccountRef ?? '—'}
-                  mono
-                />
-                {app.payoutIfsc ? <Row label="IFSC" value={app.payoutIfsc} mono /> : null}
-                <Row label="Holder name" value={app.payoutHolderName ?? '—'} />
-                <Row
-                  label="Name comparison (not verification)"
-                  value={
-                    app.payoutNameMatch === true
-                      ? 'Yes'
-                      : app.payoutNameMatch === false
-                        ? 'NO'
-                        : 'Not compared'
-                  }
-                  ok={app.payoutNameMatch === true}
-                  bad={app.payoutNameMatch === false}
-                />
-                {app.payoutNameMatch === false ? (
-                  <p className="mt-2 text-tiny text-danger">
-                    Blocks approval. Paying out to a third-party account is how a marketplace
-                    becomes a laundering route — ask for a destination in their own name.
-                  </p>
-                ) : null}
-              </Panel>
-
-              <Panel title="Consent">
-                <Row
-                  label="Accepted terms"
-                  value={app.consentAt ? when(app.consentAt) : '—'}
-                  ok={Boolean(app.consentAt)}
-                />
-                <Row label="From IP" value={app.consentIp ?? '—'} mono />
-              </Panel>
-
-              <Panel title="Account">
-                <Row label="Status" value={user.accountStatus} />
-                <Row
-                  label="Identity documents"
-                  value={user.kycStatus === 'verified' ? 'reviewed by Rentra' : user.kycStatus}
-                />
-                <Row
-                  label="Steps complete"
-                  value={`${completion.done} of ${completion.total}`}
-                  ok={completion.done === completion.total}
-                />
-                <Row label="Strikes" value={`${app.strikeCount} of 3`} bad={app.strikeCount >= 2} />
-                <Row label="Existing listings" value={listings.length} />
-              </Panel>
-            </section>
           </>
         ) : null}
 
@@ -331,12 +324,12 @@ export default async function ApplicationReviewPage({ params, searchParams }) {
                     <span className="block font-semibold text-ink-900 capitalize">
                       {t.action.replace(/_/g, ' ')}
                     </span>
-                    <span className="block text-tiny text-ink-500">
+                    <span className="block text-meta text-ink-500">
                       {when(t.at)} · {t.adminEmail ? `by ${t.adminEmail}` : t.actorType}
                       {t.ip ? ` · ${t.ip}` : ''}
                     </span>
                     {t.reason ? (
-                      <span className="block text-tiny text-ink-600">&ldquo;{t.reason}&rdquo;</span>
+                      <span className="block text-meta text-ink-600">&ldquo;{t.reason}&rdquo;</span>
                     ) : null}
                   </span>
                 </li>
@@ -365,35 +358,24 @@ const FIELD_LABELS = {
   documents: 'uploaded documents',
 };
 
-function Panel({ title, tone, children }) {
-  const border =
-    tone === 'bad' ? 'border-danger/40' : tone === 'warn' ? 'border-warning/30' : 'border-border';
+function Panel({ title, children }) {
   return (
-    <div className={`rounded-lg border bg-card p-4 ${border}`}>
-      <h2 className="text-h4 font-semibold text-ink-900">{title}</h2>
-      <dl className="mt-2">{children}</dl>
-    </div>
+    <section className="border-b border-border p-5 last:border-b-0 sm:p-6">
+      <h2 className="mb-3 text-h3 font-semibold text-ink-900">{title}</h2>
+      <div>{children}</div>
+    </section>
   );
 }
 
-function Row({ label, value, ok, bad, mono }) {
+function Row({ label, value, bad, mono }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 border-b border-dashed border-border py-1.5 text-meta last:border-b-0">
-      <dt className="shrink-0 text-ink-600">{label}</dt>
+    <dl className="grid gap-1 border-b border-border py-3 text-meta last:border-0 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] sm:gap-6">
+      <dt className="text-ink-600">{label}</dt>
       <dd
-        className={`min-w-0 break-words text-right font-medium ${
-          bad ? 'text-danger' : ok ? 'text-brand-700' : 'text-ink-900'
-        } ${mono ? 'font-mono text-tiny' : ''}`}
+        className={`min-w-0 break-words font-medium ${bad ? 'text-danger' : 'text-ink-900'} ${mono ? 'font-mono' : ''}`}
       >
-        {ok === true ? <Check className="mr-1 inline size-3.5" aria-hidden="true" /> : null}
-        {bad === true ? (
-          <AlertTriangle className="mr-1 inline size-3.5" aria-hidden="true" />
-        ) : null}
-        {ok === false && bad !== true ? (
-          <X className="mr-1 inline size-3.5 text-muted-foreground" aria-hidden="true" />
-        ) : null}
         {String(value)}
       </dd>
-    </div>
+    </dl>
   );
 }

@@ -26,7 +26,7 @@ export default function ValidationSummary({ errors, scope }) {
       ref={ref}
       tabIndex={-1}
       role="alert"
-      className="mt-3 rounded-md border-l-4 border-danger bg-danger-bg p-3 text-meta text-danger focus:outline-2 focus:outline-offset-2 focus:outline-danger"
+      className="mt-3 rounded-md border border-danger/30 bg-danger-bg p-3 text-meta text-danger focus:outline-2 focus:outline-offset-2 focus:outline-danger"
     >
       <p className="font-semibold">
         {entries.length === 1 ? 'Fix 1 field to save' : `Fix ${entries.length} fields to save`}

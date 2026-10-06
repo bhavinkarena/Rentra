@@ -32,7 +32,7 @@ export default function DocumentViewer({
     return (
       <div className="rounded-lg border border-warning/30 bg-warning-bg p-4">
         <p className="text-meta font-semibold text-warning">No identity document uploaded</p>
-        <p className="mt-1 text-tiny text-ink-700">
+        <p className="mt-1 text-meta text-ink-700">
           Request photos of an ID if identity evidence is missing from this application.
         </p>
       </div>
@@ -49,11 +49,9 @@ export default function DocumentViewer({
   return (
     <section className="rounded-lg border border-border bg-card p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-tiny font-bold tracking-wider text-brand-700 uppercase">
-          Identity document
-        </h2>
+        <h2 className="text-h3 font-semibold text-ink-900">Identity document</h2>
         <span
-          className={`text-tiny font-bold ${
+          className={`text-meta font-bold ${
             nameMatch === 'exact'
               ? 'text-brand-700'
               : nameMatch === 'mismatch'
@@ -70,31 +68,31 @@ export default function DocumentViewer({
       </div>
 
       <dl className="mt-2 text-meta">
-        <div className="flex justify-between gap-3 border-b border-dashed border-border py-1.5">
+        <div className="flex flex-wrap justify-between gap-3 border-b border-dashed border-border py-1.5">
           <dt className="text-ink-600">Name on document</dt>
-          <dd className="font-medium">{kycNameOnDoc || '—'}</dd>
+          <dd className="min-w-0 break-words font-medium">{kycNameOnDoc || '—'}</dd>
         </div>
-        <div className="flex justify-between gap-3 py-1.5">
+        <div className="flex flex-wrap justify-between gap-3 py-1.5">
           <dt className="text-ink-600">Account name</dt>
-          <dd className="font-medium">{accountName || '—'}</dd>
+          <dd className="min-w-0 break-words font-medium">{accountName || '—'}</dd>
         </div>
       </dl>
 
       {nameMatch === 'mismatch' ? (
-        <p className="mt-2 rounded-md bg-warning-bg p-2.5 text-tiny text-warning">
+        <p className="mt-2 rounded-md bg-warning-bg p-2.5 text-meta text-warning">
           A family or HUF name here is the most common real case and is <strong>not</strong> a
           rejection — ask for a relationship proof or a no-objection letter, or approve them as an
           authorised agent so the listing publicly says &ldquo;Authorised manager&rdquo;.
         </p>
       ) : null}
 
-      <ul className="mt-3 space-y-2">
+      <ul className="mt-5 divide-y divide-border border-t border-border">
         {documents.map((d) => (
           <DocRow key={d.id} doc={d} canRead={canRead} canWrite={canWrite} />
         ))}
       </ul>
 
-      <p className="mt-3 text-tiny text-ink-500">
+      <p className="mt-3 text-meta text-ink-500">
         Documents are streamed through Rentra, never linked from storage. Access is re-checked on
         every request and every view is recorded against your name.
       </p>
@@ -110,22 +108,22 @@ function DocRow({ doc, canRead, canWrite }) {
   const label = ID_DOCUMENT_BY_ID[doc.docType]?.label ?? doc.docType;
 
   return (
-    <li className="rounded-md border border-border p-3">
+    <li className="py-5">
       <div className="flex flex-wrap items-center gap-3">
         <FileText className="size-4 shrink-0 text-ink-500" aria-hidden="true" />
-        <span className="min-w-0 flex-1">
+        <span className="w-full min-w-0 sm:w-auto sm:flex-1">
           <span className="block text-meta font-semibold text-ink-900">
             {label}
             <span className="ml-1.5 font-normal text-ink-500">· {doc.side}</span>
           </span>
-          <span className="block text-tiny text-ink-500">
+          <span className="block text-meta text-ink-500">
             {Math.round((doc.bytes ?? 0) / 1024)}KB · {doc.mimeType} ·{' '}
             {adminDateTime(doc.uploadedAt)}
           </span>
         </span>
 
         <span
-          className={`shrink-0 rounded-full px-2 py-0.5 text-tiny font-bold ${
+          className={`shrink-0 rounded-full px-2 py-0.5 text-meta font-bold ${
             status === 'accepted'
               ? 'bg-brand-50 text-brand-700'
               : status === 'rejected'
@@ -158,11 +156,17 @@ function DocRow({ doc, canRead, canWrite }) {
           cannot be verified", and conflating them loses information. */}
       {canWrite ? (
         <div className="mt-3 flex flex-wrap items-end gap-2 border-t border-dashed border-border pt-3">
-          <label className="min-w-0 flex-1">
-            <span className="mb-1 block text-tiny font-semibold text-ink-700">
+          <label className="w-full min-w-0 sm:w-auto sm:flex-1">
+            <span className="mb-1 block text-meta font-semibold text-ink-700">
               Note (required to reject — the Client sees it)
             </span>
             <input
+              id={`document-note-${doc.id}`}
+              disabled={reviewing}
+              aria-invalid={Boolean(reviewState.errors?.note)}
+              aria-describedby={
+                reviewState.errors?.note ? `document-note-error-${doc.id}` : undefined
+              }
               value={note}
               onChange={(ev) => setNote(ev.target.value)}
               placeholder="e.g. the back is blurred, please re-take it in better light"
@@ -211,13 +215,18 @@ function DocRow({ doc, canRead, canWrite }) {
         </p>
       ) : null}
       {reviewState.errors?.note ? (
-        <p className="mt-1.5 text-tiny font-medium text-danger">{reviewState.errors.note}</p>
+        <p
+          id={`document-note-error-${doc.id}`}
+          className="mt-1.5 text-meta font-medium text-danger"
+        >
+          {reviewState.errors.note}
+        </p>
       ) : null}
       {reviewState.errors?._ ? (
-        <p className="mt-1.5 text-tiny font-medium text-danger">{reviewState.errors._}</p>
+        <p className="mt-1.5 text-meta font-medium text-danger">{reviewState.errors._}</p>
       ) : null}
       {doc.reviewNote && !reviewState.ok ? (
-        <p className="mt-1.5 text-tiny text-ink-600">
+        <p className="mt-1.5 text-meta text-ink-600">
           Previous note: &ldquo;{doc.reviewNote}&rdquo;
         </p>
       ) : null}

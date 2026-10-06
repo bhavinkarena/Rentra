@@ -28,12 +28,12 @@ export default function AssignmentPanel({ applicationId, review, canWrite = fals
           {mine ? 'Assigned to you' : other ? `Assigned to ${review.assignee.email}` : 'Unassigned'}
         </p>
         {other && canWrite ? (
-          <p className="mt-1 text-tiny text-ink-500">
+          <p className="mt-1 text-meta text-ink-500">
             Take over only after agreeing it with them; the change is recorded.
           </p>
         ) : null}
         {state.error ? (
-          <div role="alert" className="mt-2 rounded-md bg-danger-bg p-2 text-tiny text-danger">
+          <div role="alert" className="mt-2 rounded-md bg-danger-bg p-2 text-meta text-danger">
             <p>{state.error}</p>
             <div className="mt-2">
               <RetryButton label="Reload" />

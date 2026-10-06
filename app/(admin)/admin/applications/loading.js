@@ -1,5 +1,5 @@
-import AdminLoading from '@/components/admin/AdminLoading';
+import ApplicationsLoading from '@/components/admin/ApplicationsLoading';
 
 export default function Loading() {
-  return <AdminLoading screen="applications" label="owner applications" />;
+  return <ApplicationsLoading />;
 }
