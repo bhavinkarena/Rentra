@@ -13,7 +13,6 @@ import {
   Lock,
   LogOut,
   Menu,
-  Search,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
@@ -427,7 +426,7 @@ export default function PortalShell({ config, children }) {
               <Menu className="size-5" aria-hidden="true" />
             </button>
           )}
-          <div className={owner ? 'hidden' : 'min-w-0'}>
+          <div className={owner || config.adminNavigation ? 'hidden' : 'min-w-0'}>
             <p className="truncate text-tiny font-medium text-ink-500">{config.workspace}</p>
             <p className="truncate text-meta font-semibold text-ink-900">
               {config.routeLabel(pathname)}
@@ -438,18 +437,9 @@ export default function PortalShell({ config, children }) {
               <OwnerGlobalSearch />
             </div>
           ) : config.search ? (
-            <div className="ml-auto hidden w-full max-w-md md:block">{config.search}</div>
+            <div className="min-w-0 flex-1 sm:max-w-xl">{config.search}</div>
           ) : null}
-          <div className={`flex items-center gap-2 ${config.search ? 'md:ml-3' : ''} ml-auto`}>
-            {config.search ? (
-              <Link
-                href="/admin/search"
-                aria-label="Search workspace"
-                className="grid size-11 place-items-center rounded-md border border-input text-primary md:hidden"
-              >
-                <Search className="size-5" aria-hidden="true" />
-              </Link>
-            ) : null}
+          <div className="ml-auto flex items-center gap-2">
             {config.headerNote}
             {config.bookingAction}
             {!owner && !config.bookingAction && (

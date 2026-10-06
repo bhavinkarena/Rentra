@@ -1,21 +1,25 @@
 'use client';
 
-import Form from '@/components/navigation/NavigationForm';
-import { permittedSearchTypes } from '@/lib/domain/admin-search';
+import { adminSearchHref, permittedSearchTypes } from '@/lib/domain/admin-search';
+import { searchAdminRecords } from '@/lib/actions/admin';
 import {
   Activity,
+  Building2,
   CalendarDays,
   ClipboardList,
   CreditCard,
+  FileText,
   LayoutDashboard,
   LifeBuoy,
   MessageSquareText,
-  Search,
   Settings,
+  ShieldAlert,
   TriangleAlert,
+  UserRound,
   Users,
 } from 'lucide-react';
 import PortalShell from '@/components/portal/PortalShell';
+import OwnerGlobalSearch from '@/components/partner/OwnerGlobalSearch';
 import AdminSectionNav from './AdminSectionNav';
 import {
   adminRouteLabel,
@@ -33,6 +37,26 @@ const ICONS = {
   settings: Settings,
   help: LifeBuoy,
 };
+
+const SEARCH_SECTIONS = {
+  clients: { icon: Users, style: 'bg-brand-50 text-brand-600' },
+  customers: { icon: UserRound, style: 'bg-info-bg text-info' },
+  applications: { icon: FileText, style: 'bg-warning-bg text-warning' },
+  properties: { icon: Building2, style: 'bg-event-adjustment-bg text-event-adjustment' },
+  bookings: { icon: CalendarDays, style: 'bg-amber-100 text-amber-700' },
+  cases: { icon: ShieldAlert, style: 'bg-danger-bg text-danger' },
+};
+
+async function adminSearch(q, type) {
+  const sections = await searchAdminRecords(q, type);
+  return {
+    items: sections.flatMap((section) => section.items),
+    totals: Object.fromEntries(sections.map((section) => [section.key, section.total])),
+    failed: sections.filter((section) => section.failure).map((section) => section.key),
+  };
+}
+
+const searchResultsHref = (q, type) => adminSearchHref({ q, type });
 
 function initials(email) {
   return (
@@ -100,23 +124,17 @@ export default function AdminShell({ children, admin, logoutAction, counts = {} 
           </span>
         ) : null,
         search: searchable ? (
-          <Form action="/admin/search" role="search" className="relative">
-            <Search
-              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-500"
-              aria-hidden="true"
-            />
-            <label htmlFor="admin-search" className="sr-only">
-              {searchLabel}
-            </label>
-            <input
-              id="admin-search"
-              name="q"
-              type="search"
-              maxLength={100}
-              placeholder={searchLabel}
-              className="min-h-9 w-full rounded-md border border-input bg-ink-25 pr-3 pl-9 text-base md:text-sm placeholder:text-ink-500 focus:border-brand-600 focus:bg-card"
-            />
-          </Form>
+          <OwnerGlobalSearch
+            search={adminSearch}
+            label={searchLabel}
+            placeholder="Search owners, bookings and more"
+            pages={sections.flatMap((section) => section.tabs.map((t) => [t.label, t.href]))}
+            types={Object.fromEntries(
+              searchTypes.map((t) => [t.key, { label: t.label, ...SEARCH_SECTIONS[t.key] }]),
+            )}
+            filters={[['all', 'All'], ...searchTypes.map((t) => [t.key, t.label])]}
+            moreHref={searchResultsHref}
+          />
         ) : null,
       }}
     >

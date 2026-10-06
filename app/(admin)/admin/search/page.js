@@ -3,7 +3,7 @@ import Form from '@/components/navigation/NavigationForm';
 import { requireAdmin } from '@/lib/api/session';
 import { adminApi } from '@/lib/api/endpoints';
 import { settle } from '@/lib/api/page-state';
-import { adminSearchHref, loadAdminSearch } from '@/lib/domain/admin-search';
+import { adminSearchHref, adminSearchRecord, loadAdminSearch } from '@/lib/domain/admin-search';
 import {
   AdminPage,
   AdminPageHeader,
@@ -19,37 +19,6 @@ import { fieldClass } from '@/components/ui/field';
 import { buttonVariants } from '@/components/ui/button';
 
 export const metadata = { title: 'Search', robots: { index: false, follow: false } };
-
-function record(type, item) {
-  if (type === 'clients' || type === 'customers')
-    return {
-      title: item.name || item.email || 'Name not set',
-      description: [item.email, item.phone && `+91 ${item.phone}`].filter(Boolean).join(' \u00b7 '),
-      reference: item.id,
-      state: item.accountStatus,
-    };
-  if (type === 'applications')
-    return {
-      title: item.legalName || item.email,
-      description: item.email,
-      reference: item.id,
-      state: item.status,
-    };
-  if (type === 'properties')
-    return {
-      title: item.title,
-      description: item.publicCode,
-      reference: item.publicCode || item.id,
-      state: item.status,
-    };
-  return {
-    title: item.title || 'Booked property',
-    description:
-      type === 'cases' ? `Booking ${item.orderReference}` : `${item.visitCount ?? 0} visits`,
-    reference: item.reference,
-    state: item.state,
-  };
-}
 
 export default async function SearchPage({ searchParams }) {
   const admin = await requireAdmin();
@@ -172,7 +141,7 @@ export default async function SearchPage({ searchParams }) {
                   }
                 >
                   {data.items.map((item) => {
-                    const row = record(section.key, item);
+                    const row = adminSearchRecord(section.key, item);
                     return (
                       <tr key={item.id}>
                         <td className="max-w-sm break-words px-4 py-4">
