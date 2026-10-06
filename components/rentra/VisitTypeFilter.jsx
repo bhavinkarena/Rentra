@@ -28,7 +28,7 @@ export default function VisitTypeFilter({
             aria-pressed={value === item.id}
             disabled={disabled || (prices != null && !prices[item.id])}
             onClick={() => onChange(item.id)}
-            className="inline-flex min-h-12 min-w-0 items-center justify-center gap-1.5 rounded-[19px] px-1.5 py-2 text-xs font-semibold text-ink-600 transition-[color,background-color,box-shadow] duration-200 hover:text-brand-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring aria-pressed:bg-white aria-pressed:text-brand-800 aria-pressed:shadow-sm disabled:cursor-not-allowed disabled:opacity-40 motion-reduce:transition-none sm:gap-2 sm:px-3 sm:text-meta"
+            className="inline-flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-[19px] px-1.5 py-2 text-xs font-semibold whitespace-nowrap text-ink-600 transition-[color,background-color,box-shadow] duration-200 hover:text-brand-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring aria-pressed:bg-white aria-pressed:text-brand-800 aria-pressed:shadow-sm disabled:cursor-not-allowed disabled:opacity-40 motion-reduce:transition-none sm:text-meta"
           >
             <Icon className="size-4 shrink-0 sm:size-5" aria-hidden="true" />
             <span>{item.label}</span>

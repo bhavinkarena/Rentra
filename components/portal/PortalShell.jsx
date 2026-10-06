@@ -90,7 +90,7 @@ function RailTip({ children }) {
 function NavItem({ item, pathname, rail, onNavigate }) {
   const Icon = item.icon;
   const active = isActive(pathname, item);
-  const base = `group relative flex items-center gap-2.5 rounded-md text-meta font-semibold transition-colors ${
+  const base = `group relative flex items-center gap-3 rounded-md text-meta font-medium transition-colors ${
     rail ? 'size-11 justify-center' : 'min-h-11 px-2.5'
   }`;
 

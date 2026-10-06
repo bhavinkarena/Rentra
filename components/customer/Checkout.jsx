@@ -28,13 +28,11 @@ import {
   Timer,
   TimerOff,
   TriangleAlert,
-  Undo2,
   UserRound,
   Wallet,
   ExternalLink,
 } from 'lucide-react';
 import {
-  releaseCustomerCheckout,
   holdCustomerCheckout,
   startCustomerTestPayment,
   verifyCustomerTestPayment,
@@ -184,7 +182,7 @@ export default function Checkout({ data }) {
   const [accepted, setAccepted] = useState(false);
   const [message, setMessage] = useState('');
   const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
-  // Which action is in flight: 'hold' | 'status' | 'release' | 'pay' | 'verify'.
+  // Which action is in flight: 'hold' | 'status' | 'pay' | 'verify'.
   const [busyAction, setBusyAction] = useState('');
   const busy = Boolean(busyAction);
   const [scriptReady, setScriptReady] = useState(false);
@@ -307,21 +305,6 @@ export default function Checkout({ data }) {
       setBusyAction('');
     }
   }
-  async function replaceQuote() {
-    if (gate.current) return;
-    gate.current = true;
-    setBusyAction('release');
-    const sequence = ++statusSequence.current;
-    try {
-      if (receive(await releaseCustomerCheckout(checkout.orderId), sequence))
-        router.push(data.listingHref);
-    } catch {
-      setMessage('Could not release this hold. Check its status before requesting another quote.');
-    } finally {
-      gate.current = false;
-      setBusyAction('');
-    }
-  }
   async function pay() {
     if (gate.current || !scriptReady || !mayLaunchCheckout(checkout, remaining)) return;
     gate.current = true;
@@ -372,7 +355,7 @@ export default function Checkout({ data }) {
             );
           } catch {
             setMessage(
-              'Verification is pending. Use Check payment status; do not start a new booking.',
+              'Verification is pending. Reload this page in a moment; do not start a new booking.',
             );
           } finally {
             release();
@@ -606,26 +589,11 @@ export default function Checkout({ data }) {
                   Opens Razorpay’s secure payment window.
                 </p>
               ) : null}
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                {statusButton}
-                {stage === 'timeUp' ? datesLink : null}
-                {checkout.state === 'held' &&
-                checkout.executionState === 'ready' &&
-                stage !== 'timeUp' ? (
-                  <button type="button" disabled={busy} onClick={replaceQuote} className={textLink}>
-                    {busyAction === 'release' ? (
-                      <RentraLoader label="Releasing hold" />
-                    ) : (
-                      <Undo2 className="size-4" aria-hidden="true" />
-                    )}
-                    Release hold and change dates
-                  </button>
-                ) : null}
-              </div>
+              {stage === 'timeUp' ? <div className="mt-4">{datesLink}</div> : null}
               {!verifyingPayment && (
                 <p className="mt-4 text-xs text-ink-600">
-                  Paid already but still seeing this? Check the payment status first so you don’t
-                  pay twice. You can reload this page anytime — your hold is saved.
+                  Paid already but still seeing this? Reload this page before paying again so you
+                  don’t pay twice. Your hold is saved.
                 </p>
               )}
             </section>

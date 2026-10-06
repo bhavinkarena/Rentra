@@ -910,10 +910,11 @@
  * portal shell, so the customer site keeps its own scale and typeface.
  */
 .portal-ui {
-  --text-h1: 1.875rem;
-  --text-h2: 1.5rem;
-  --text-h3: 1.0625rem;
+  --text-h1: 1.625rem;
+  --text-h2: 1.3125rem;
+  --text-h3: 1rem;
   --text-h4: 0.9375rem;
+  --text-stat: 1.5rem;
   --text-body-lg: 0.9375rem;
   /* DS-01: body is one step above meta, so the two read differently. */
   --text-body: 0.9375rem;
@@ -922,6 +923,17 @@
   font-family: var(--font-portal), var(--font-sans);
   font-size: 0.875rem;
   font-feature-settings: 'cv11', 'ss01';
+}
+/*
+ * Compact density for mouse and trackpad. Every Tailwind spacing utility is
+ * `calc(var(--spacing) * n)`, so this one value tightens padding, margins,
+ * gaps and control heights across the portals. Touch screens keep the default
+ * scale, so their tap targets stay at 44px.
+ */
+@media (pointer: fine) {
+  .portal-ui {
+    --spacing: 0.21rem;
+  }
 }
 .portal-ui .tabular,
 .portal-ui td,
@@ -932,7 +944,7 @@
 /* Admin presentation only; owner/customer control density stays unchanged. */
 .portal-ui[data-admin-workspace]
   :is(button, a, select, input:not([type='hidden']):not([type='checkbox']):not([type='radio'])) {
-  min-height: 44px;
+  min-height: calc(var(--spacing) * 11);
 }
 .portal-ui[data-admin-workspace]
   :is(button, a, input, select, textarea, [tabindex='0']):focus-visible {
@@ -941,7 +953,7 @@
 }
 .portal-ui[data-admin-workspace] label:has(> :is(input[type='checkbox'], input[type='radio'])) {
   display: flex;
-  min-height: 44px;
+  min-height: calc(var(--spacing) * 11);
   align-items: center;
   gap: 0.5rem;
 }
@@ -950,7 +962,7 @@
   scrollbar-color: var(--color-brand-300) var(--color-ink-25);
 }
 .portal-ui[data-admin-workspace] .admin-table :is(td, th[scope='row']) {
-  padding: 1rem;
+  padding: calc(var(--spacing) * 4);
   vertical-align: top;
 }
 .portal-ui[data-admin-workspace] .admin-table tbody tr:hover {
@@ -1143,8 +1155,8 @@
 /* Owner mobile geometry applies to shared controls without affecting public pages. */
 :is(.owner-portal, .owner-wizard) :is(button, a, summary, [role='button']) {
   touch-action: manipulation;
-  min-height: 44px;
-  min-width: 44px;
+  min-height: calc(var(--spacing) * 11);
+  min-width: calc(var(--spacing) * 11);
 }
 :is(.owner-portal, .owner-wizard) :is(a, summary) {
   overflow-wrap: anywhere;
@@ -1160,7 +1172,7 @@
   max-width: 100%;
 }
 :is(.owner-portal, .owner-wizard) label:has(> input:is([type='checkbox'], [type='radio'])) {
-  min-height: 44px;
+  min-height: calc(var(--spacing) * 11);
 }
 :is(.owner-portal, .owner-wizard) dialog {
   overscroll-behavior: contain;
@@ -1193,7 +1205,7 @@
 
 /* Owner record lists share cell spacing and a quiet hover state. */
 .owner-table td {
-  padding: 0.875rem 1rem;
+  padding: calc(var(--spacing) * 3.5) calc(var(--spacing) * 4);
   vertical-align: top;
 }
 .owner-table tbody tr:hover {

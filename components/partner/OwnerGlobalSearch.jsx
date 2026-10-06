@@ -12,6 +12,8 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from '@/components/navigation/NavigationLink';
+import LoaderCircle from '@/components/ui/rentra-loader';
+import Skeleton from '@/components/ui/skeleton';
 import { partnerApi } from '@/lib/api/endpoints';
 
 const pages = [
@@ -116,7 +118,11 @@ export default function OwnerGlobalSearch({
         data-field-shell
         className="flex min-h-11 w-full items-center gap-2 rounded-lg border border-input bg-ink-25 px-3 focus-within:border-brand-600"
       >
-        <Search className="size-4 shrink-0 text-ink-600" aria-hidden="true" />
+        {visible && !current ? (
+          <LoaderCircle className="size-4 shrink-0 text-brand-600" aria-hidden="true" />
+        ) : (
+          <Search className="size-4 shrink-0 text-ink-600" aria-hidden="true" />
+        )}
         <input
           type="search"
           name="q"
@@ -174,7 +180,22 @@ export default function OwnerGlobalSearch({
             </>
           )}
           <div role="status" className="text-meta text-ink-600">
-            {!current && <p className="px-3 py-2">Searching…</p>}
+            {!current && (
+              <>
+                <span className="sr-only">Searching…</span>
+                <div className="space-y-1 p-2">
+                  {[0, 1, 2].map((row) => (
+                    <div key={row} className="flex items-center gap-3 px-3 py-3">
+                      <span className="min-w-0 flex-1 space-y-2">
+                        <Skeleton className="h-3.5 w-2/5" />
+                        <Skeleton className="h-3 w-3/5" />
+                      </span>
+                      <Skeleton className="h-5 w-14 rounded-full" />
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
             {current?.error && <p className="px-3 py-2">Could not load results. Try again.</p>}
             {current && !current.error && !current.items.length && (
               <p className="px-3 py-2">No matching results.</p>
