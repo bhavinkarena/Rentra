@@ -1,5 +1,6 @@
 import localFont from 'next/font/local';
 import './globals.css';
+import { siteUrl } from '@/lib/seo/site-url';
 
 /**
  * The existing Google Fonts latin variable file is now checked in. next/font
@@ -17,8 +18,6 @@ const jakarta = localFont({
   variable: '--font-jakarta',
   display: 'swap',
 });
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
 export const viewport = {
   themeColor: '#FAF9F6',

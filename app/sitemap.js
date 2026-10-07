@@ -3,7 +3,7 @@ import { degradeOnFailure } from '@/lib/api/resilient';
 import { listingUrl } from '@/lib/domain/listing-url';
 import { absolutePublicUrl } from '@/lib/domain/listing-content';
 import { publicContent } from '@/lib/api/content';
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+import { siteUrl } from '@/lib/seo/site-url';
 export default async function sitemap() {
   /**
    * A sitemap that cannot reach the API still has to be a valid sitemap.

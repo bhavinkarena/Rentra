@@ -6,8 +6,7 @@ import ListingStatusBadge from '@/components/partner/ListingStatusBadge';
 import ShareButton from '@/components/rentra/listing/ShareButton';
 import { publicPhotoUrl } from '@/lib/domain/listing-content';
 import PauseButton from './PauseButton';
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+import { siteUrl } from '@/lib/seo/site-url';
 
 const TABS = [
   ['overview', 'Overview', (id) => `/partner/listings/${id}/overview`],

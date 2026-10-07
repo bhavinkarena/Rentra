@@ -50,8 +50,8 @@ import {
   VenueFacts,
   VenueRules,
 } from '@/components/rentra/listing/VenueSections';
+import { siteUrl } from '@/lib/seo/site-url';
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 /** The lowest and highest a guest could pay here, across slots and rates. */
 export function priceBand(prices) {
   const all = Object.values(prices ?? {})

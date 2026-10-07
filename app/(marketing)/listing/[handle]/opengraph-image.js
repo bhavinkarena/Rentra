@@ -6,6 +6,7 @@ import { discoveryApi } from '@/lib/api/endpoints';
 import { absolutePublicUrl } from '@/lib/domain/listing-content';
 import { cheapestSlot, formatINR, SLOTS } from '@/lib/domain/pricing';
 import { listingFacts } from '@/lib/domain/vertical-ui';
+import { siteUrl } from '@/lib/seo/site-url';
 
 /**
  * The real storefront. A forwarded WhatsApp card is seen by more people than
@@ -21,8 +22,6 @@ import { listingFacts } from '@/lib/domain/vertical-ui';
 export const alt = 'Rentra listing';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/jpeg';
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
 /** The cover photo cropped to the card, as a JPEG data URI; null keeps the text-only card. */
 async function coverPhoto(photo) {

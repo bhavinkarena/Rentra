@@ -52,9 +52,9 @@ import {
 } from '@/components/rentra/listing/VenueSections';
 
 import { ListingDetail, priceBand, venueMetadata } from '@/components/rentra/listing/ListingDetail';
+import { siteUrl } from '@/lib/seo/site-url';
 // Resolve current publication/slug at request time. Reading selection only on
 // renamed URLs under ISR caused production static-to-dynamic 500 responses.
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
 /**
  * /listing/[slug]-[code]. The CODE resolves the page, never the slug, so
