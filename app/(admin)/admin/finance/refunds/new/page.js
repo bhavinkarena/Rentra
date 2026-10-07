@@ -1,6 +1,5 @@
 import { requireAdmin } from '@/lib/api/session';
 import { randomUUID } from 'node:crypto';
-import Link from '@/components/navigation/NavigationLink';
 import { AdminPage, AdminPageHeader, AdminReadOnly } from '@/components/admin/AdminPrimitives';
 import { RefundRequest } from '@/components/admin/RefundCommands';
 import PortalState from '@/components/portal/PortalState';
@@ -30,19 +29,12 @@ export default async function NewRefundPage({ searchParams }) {
   return (
     <AdminPage width="max-w-[1000px]">
       <AdminPageHeader
-        eyebrow="Finance · Refunds"
+        backHref="/admin/finance/refunds"
+        backLabel="Refunds"
         title={`Request a refund · ${data.reference}`}
         description={`${data.title}. Refunds come only from verified captures and never exceed what earlier refunds left.`}
       />
-      <div className="mt-4">
-        <Link
-          href="/admin/finance/refunds"
-          className="text-meta font-semibold text-brand-700 underline"
-        >
-          All refunds
-        </Link>
-      </div>
-      <section className="mt-6 rounded-lg border border-border bg-card p-5">
+      <section aria-label="Refund request" className="mt-6 border-t border-border pt-6">
         {data.testOnly ? (
           <RefundRequest order={data} requestKey={randomUUID()} />
         ) : (

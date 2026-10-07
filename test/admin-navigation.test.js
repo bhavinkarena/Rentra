@@ -14,7 +14,7 @@ import {
 test('every delivered destination and detail selects exactly one section and tab', () => {
   for (const section of ADMIN_SECTIONS) {
     for (const entry of section.tabs) {
-      for (const path of entry.href === '/admin'
+      for (const path of ['/admin', '/admin/finance'].includes(entry.href)
         ? [entry.href]
         : [entry.href, `${entry.href}/record`]) {
         assert.equal(adminSectionForPath(path)?.key, section.key);
@@ -38,7 +38,7 @@ test('restricted roles open their first permitted child and omit empty workspace
   for (const [capability, key, href] of [
     ['admin.customers.read', 'people', '/admin/customers'],
     ['admin.records.read', 'bookings', '/admin/bookings'],
-    ['admin.payments.read', 'finance', '/admin/finance/payments'],
+    ['admin.payments.read', 'finance', '/admin/finance'],
     ['admin.reviews.read', 'reviews', '/admin/reviews'],
   ]) {
     const sections = permittedAdminSections([capability]);

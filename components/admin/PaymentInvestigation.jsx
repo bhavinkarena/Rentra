@@ -2,18 +2,10 @@ import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import Form from '@/components/navigation/NavigationForm';
 import { randomUUID } from 'node:crypto';
 import Link from '@/components/navigation/NavigationLink';
-import { ReceiptText, Search, TriangleAlert } from 'lucide-react';
-import {
-  AdminReadOnly,
-  AdminEmpty,
-  AdminFilterBar,
-  AdminTable,
-  AdminPage,
-  AdminPageHeader,
-  StatusBadge,
-} from './AdminPrimitives';
+import { ReceiptText, Search, TriangleAlert, ArrowUpRight } from 'lucide-react';
+import { AdminEmpty, AdminPage, AdminPageHeader, StatusBadge } from './AdminPrimitives';
 import Pagination from '@/components/ui/pagination';
-import { FieldGrid, SectionCard } from '@/components/portal/DetailLayout';
+import { DetailTabs, pickTab, FieldGrid, SectionCard } from '@/components/portal/DetailLayout';
 import { bookingMoney as money, bookingTime as time } from '@/lib/domain/booking-record';
 import ReconcilePayment from './ReconcilePayment';
 import { adminStatusMeta } from '@/lib/domain/status';
@@ -38,7 +30,7 @@ const TONE = {
   legacy: 'neutral',
 };
 const tab = (active) =>
-  `inline-flex min-h-11 items-center rounded-full border px-4 text-meta font-semibold ${active ? 'border-brand-700 bg-primary text-white' : 'border-border bg-card text-ink-700 hover:bg-ink-50'}`;
+  `inline-flex min-h-11 items-center border-b-2 px-3 text-meta font-semibold ${active ? 'border-brand-700 text-brand-800' : 'border-transparent text-ink-600 hover:border-ink-300 hover:text-ink-900'}`;
 const field = `${sharedFieldClass} mt-1 min-h-11`;
 const RECONCILE_OUTCOME = {
   checked: 'Re-fetched from the provider. Only what the provider verified was recorded.',
@@ -126,7 +118,6 @@ export function PaymentList({ data }) {
   return (
     <AdminPage width="max-w-[1320px]">
       <AdminPageHeader
-        eyebrow="Finance"
         title="Payments"
         description="Investigate payments from verified provider facts. Gateway settings stay separate."
         action={
@@ -147,8 +138,11 @@ export function PaymentList({ data }) {
           </Link>
         </p>
       ) : null}
-      <AdminFilterBar label="Payment filters" className="mt-6 rounded-lg border border-border">
-        <nav aria-label="Payment environment" className="flex flex-wrap gap-2">
+      <section aria-label="Payment filters" className="mt-6 border-b border-border pb-5">
+        <nav
+          aria-label="Payment environment"
+          className="flex flex-wrap gap-1 border-b border-border"
+        >
           {ENVIRONMENTS.map(([value, label]) => (
             <Link
               key={value}
@@ -172,13 +166,13 @@ export function PaymentList({ data }) {
         <Form
           action="/admin/finance/payments"
           role="search"
-          className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5"
+          className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,2fr)_1fr_1fr_1fr_auto]"
         >
           <input type="hidden" name="environment" value={data.environment} />
           {data.basis ? <input type="hidden" name="basis" value={data.basis} /> : null}
 
           <input type="hidden" name="attention" value={data.attention} />
-          <label className="block lg:col-span-2">
+          <label className="block ">
             <span className="text-meta font-medium">Booking reference, payment or provider id</span>
             <input name="q" defaultValue={data.q} className={field} />
           </label>
@@ -200,78 +194,81 @@ export function PaymentList({ data }) {
             <span className="text-meta font-medium">To (India date)</span>
             <input type="date" name="to" defaultValue={data.to} className={field} />
           </label>
-          <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-primary px-4 font-semibold text-white lg:col-start-5">
+          <button className="inline-flex min-h-11 self-end items-center justify-center gap-2 rounded-md bg-primary px-4 font-semibold text-white">
             <Search className="size-4" aria-hidden="true" /> Filter
           </button>
         </Form>
-      </AdminFilterBar>
-      <Totals totals={data.totals} asOf={data.asOf} />
-      <div className="mt-6">
-        <AdminTable
-          label="Payment records"
-          minWidth={1100}
-          columns={[
-            'Booking & guest',
-            'State',
-            'Environment',
-            'Expected',
-            'Captured / simulated',
-            'Refund pending',
-            'Details',
-          ]}
-          empty={
-            !data.items.length ? (
-              <AdminEmpty
-                icon={ReceiptText}
-                title="No payments match this view"
-                description="Change the environment or filters. An empty list is a real result, not an outage."
-              />
-            ) : null
-          }
-        >
-          {data.items.map((p) => (
-            <tr key={p.id}>
-              <th scope="row" className="min-w-60 text-left font-normal">
+      </section>
+      <details className="mt-5 border-b border-border pb-4">
+        <summary className="min-h-11 content-center cursor-pointer text-meta font-semibold text-ink-700">
+          View filtered totals by environment
+        </summary>
+        <Totals totals={data.totals} asOf={data.asOf} />
+      </details>
+      <section
+        aria-label="Payment records"
+        className="mt-6 overflow-hidden rounded-lg border border-border bg-card"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-5 py-4">
+          <h2 className="text-h4 font-semibold">Payment records</h2>
+          <p className="text-meta text-ink-600">{data.total} matching records</p>
+        </div>
+        {!data.items.length ? (
+          <AdminEmpty
+            icon={ReceiptText}
+            title="No payments match this view"
+            description="Change the environment or filters to search again."
+          />
+        ) : (
+          <ul className="divide-y divide-border">
+            {data.items.map((p) => (
+              <li key={p.id}>
                 <Link
-                  href={`/admin/finance/payments/${p.id}`}
-                  className="inline-flex min-h-11 items-center font-semibold text-brand-800 hover:underline"
-                  aria-label={`Open payment for ${p.bookingReference}`}
+                  href={`/admin/finance/payments/${p.id}?from=${encodeURIComponent(href(data, {}))}`}
+                  className="grid gap-4 px-5 py-5 transition-colors hover:bg-ink-25 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]"
                 >
-                  {p.bookingReference}
+                  <div className="min-w-0">
+                    <p className="font-semibold text-ink-900">
+                      {p.bookingReference} · {p.title}
+                    </p>
+                    <p className="mt-1 text-meta text-ink-600">
+                      {p.customerName || 'Customer'} · {p.purpose}
+                    </p>
+                    <p className="mt-2 text-tiny text-ink-600">Created {time(p.createdAt, TZ)}</p>
+                  </div>
+                  <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-meta">
+                    <div>
+                      <dt className="text-ink-600">Expected</dt>
+                      <dd className="font-semibold tabular">{money(p.expectedMinor)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-ink-600">
+                        {p.environment === 'simulated'
+                          ? 'Simulated · no money'
+                          : 'Captured · verified'}
+                      </dt>
+                      <dd className="font-semibold tabular">
+                        {money(p.environment === 'simulated' ? p.simulatedMinor : p.capturedMinor)}
+                      </dd>
+                    </div>
+                    <div className="col-span-2">
+                      <dt className="inline text-ink-600">Refund pending </dt>
+                      <dd className="inline tabular">{money(p.refundPendingMinor)}</dd>
+                    </div>
+                  </dl>
+                  <div className="flex flex-wrap items-center gap-2 md:flex-col md:items-end">
+                    <StatusBadge tone={TONE[p.status.key]}>{p.status.label}</StatusBadge>
+                    <EnvironmentBadge environment={p.environment} />
+                    <span className="mt-1 text-meta font-semibold text-brand-700">
+                      Inspect payment <ArrowUpRight className="inline size-4" aria-hidden="true" />
+                    </span>
+                  </div>
                 </Link>
-                <p className="text-meta text-ink-600">
-                  {p.title} · {p.customerName || 'Customer'}
-                </p>
-                <p className="mt-1 text-meta text-ink-600">
-                  {p.purpose} · created {time(p.createdAt, TZ)}
-                </p>
-              </th>
-              <td>
-                <StatusBadge tone={TONE[p.status.key]}>{p.status.label}</StatusBadge>
-              </td>
-              <td>
-                <EnvironmentBadge environment={p.environment} />
-              </td>
-              <td className="whitespace-nowrap tabular">{money(p.expectedMinor)}</td>
-              <td className="whitespace-nowrap font-semibold tabular">
-                {p.environment === 'simulated'
-                  ? `Simulated ${money(p.simulatedMinor)}`
-                  : `Captured ${money(p.capturedMinor)}`}
-              </td>
-              <td className="whitespace-nowrap tabular">{money(p.refundPendingMinor)}</td>
-              <td>
-                <Link
-                  href={`/admin/finance/payments/${p.id}`}
-                  aria-label={`Inspect payment for ${p.bookingReference}`}
-                  className="inline-flex min-h-11 items-center rounded-md px-3 font-semibold text-brand-700 hover:bg-brand-50"
-                >
-                  Inspect
-                </Link>
-              </td>
-            </tr>
-          ))}
-        </AdminTable>
-      </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <Pagination
         page={data.page}
@@ -295,15 +292,25 @@ function Rows({ items, empty, render }) {
   );
 }
 
-export function PaymentDetail({ payment: p, capabilities = [] }) {
+export function PaymentDetail({
+  payment: p,
+  capabilities = [],
+  tab,
+  params = {},
+  listHref = '/admin/finance/payments',
+}) {
+  const tabs = [
+    { key: 'overview', label: 'Overview' },
+    { key: 'evidence', label: 'Provider evidence' },
+    { key: 'refunds', label: 'Refunds', count: p.refunds.length },
+    { key: 'activity', label: 'Activity' },
+    { key: 'control', label: 'Reconcile' },
+  ];
+  const active = pickTab(tab, tabs);
   return (
     <AdminPage width="max-w-[1180px]">
       <AdminPageHeader
-        breadcrumbs={[
-          { href: '/admin/finance/payments', label: 'Payments' },
-          { label: p.bookingReference },
-        ]}
-        eyebrow="Payment investigation"
+        breadcrumbs={[{ href: listHref, label: 'Payments' }, { label: p.bookingReference }]}
         title={`${p.booking.title} · ${p.bookingReference}`}
         description={`${p.provider} · ${p.purpose} collection · created ${time(p.createdAt, TZ)}`}
       />
@@ -343,240 +350,264 @@ export function PaymentDetail({ payment: p, capabilities = [] }) {
           </Link>
         )}
       </div>
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
+      <DetailTabs
+        tabs={tabs}
+        active={active}
+        basePath={`/admin/finance/payments/${p.id}`}
+        params={params}
+        wrap
+      />
+      <div className="mt-6 space-y-6">
         <div className="space-y-6">
-          <SectionCard id="summary" title="Money" description="Verified provider facts only">
-            <FieldGrid
-              fields={[
-                { label: 'Expected', value: money(p.expectedMinor) },
-                p.environment === 'simulated'
-                  ? { label: 'Simulated (no money moved)', value: money(p.simulatedMinor) }
-                  : { label: 'Captured · verified', value: money(p.capturedMinor) },
-                { label: 'Refunded · verified', value: money(p.refundedMinor) },
-                { label: 'Refunds pending', value: money(p.refundPendingMinor) },
-                {
-                  label: 'Bank settlement evidence',
-                  value: 'Not available',
-                },
-                { label: 'Payment state', value: p.state },
-                { label: 'Provider order', value: p.providerOrderId ?? 'Not linked', mono: true },
-                { label: 'Payment record id', value: p.id, mono: true },
-              ]}
-            />
-          </SectionCard>
-          <SectionCard id="attempts" title="Attempts" flush>
-            <Rows
-              items={p.attempts}
-              empty="No provider attempt was started."
-              render={(a) => (
-                <li key={a.id} className="px-5 py-3 text-meta">
-                  <p className="font-semibold">
-                    Attempt {a.number} · {a.state}
-                  </p>
-                  <p className="text-ink-600">
-                    {a.providerPaymentId ?? 'no provider payment id'} · {money(a.expectedMinor)} ·
-                    started {time(a.startedAt, TZ)}
-                    {a.completedAt ? ` · completed ${time(a.completedAt, TZ)}` : ''}
-                    {a.failureCode ? ` · ${a.failureCode}` : ''}
-                  </p>
-                </li>
-              )}
-            />
-          </SectionCard>
-          <SectionCard
-            id="transactions"
-            title="Verified transactions and allocations"
-            description="Allocations split each capture across visits and components"
-            flush
-          >
-            <Rows
-              items={p.transactions}
-              empty="No verified transaction. Nothing has been captured."
-              render={(t) => (
-                <li key={t.id} className="space-y-2 px-5 py-4 text-meta">
-                  <p className="font-semibold">
-                    {t.kind} · {t.outcome} ·{' '}
-                    {money(
-                      t.kind === 'simulated'
-                        ? t.simulatedMinor
-                        : t.capturedMinor || t.authorizedMinor,
-                    )}
-                  </p>
-                  <p className="text-ink-600">
-                    {t.providerPaymentId ?? t.reference} · verified {time(t.verifiedAt, TZ)}{' '}
-                    {t.evidence ? `· evidence ${t.evidence}` : ''}
-                  </p>
-                  {t.allocations.length ? (
-                    <ul className="list-inside list-disc text-ink-700">
-                      {t.allocations.map((x) => (
-                        <li key={x.id}>
-                          {x.visitReference} ({x.visitState}) · {x.component} ·{' '}
-                          {money(x.actualMinor || x.simulatedMinor)}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
-                </li>
-              )}
-            />
-          </SectionCard>
-          <SectionCard
-            id="refunds"
-            title="Refunds"
-            description="Open a refund for its status, provider events and commands"
-            action={
-              capabilities.includes('admin.payments.write') &&
-              p.environment === 'test' &&
-              p.capturedMinor > 0 ? (
-                <Link
-                  href={`/admin/finance/refunds/new?order=${p.booking.id}`}
-                  className="text-tiny font-semibold text-brand-700 underline"
-                >
-                  Request a refund
-                </Link>
-              ) : null
-            }
-            flush
-          >
-            <Rows
-              items={p.refunds}
-              empty="No refund obligation."
-              render={(r) => (
-                <li key={r.id} className="space-y-1 px-5 py-4 text-meta">
-                  <p className="flex flex-wrap items-center gap-2 font-semibold">
-                    <Link
-                      href={`/admin/finance/refunds/${r.id}`}
-                      className="text-brand-700 underline"
-                    >
-                      {money(r.expectedMinor)}
-                    </Link>{' '}
-                    ·{' '}
-                    <StatusBadge
-                      tone={
-                        r.state === 'succeeded'
-                          ? 'success'
-                          : r.state === 'unknown'
-                            ? 'danger'
-                            : 'warning'
-                      }
-                    >
-                      {r.state}
-                    </StatusBadge>
-                  </p>
-                  <p className="text-ink-600">
-                    {r.reason} · requested {time(r.createdAt, TZ)}
-                    {r.providerRefundId ? ` · ${r.providerRefundId}` : ''}
-                    {r.execution.failureCode ? ` · ${r.execution.failureCode}` : ''}
-                  </p>
-                  <p className="text-ink-700">
-                    {r.allocations
-                      .map((x) => `${x.visitReference} ${x.component} ${money(x.expectedMinor)}`)
-                      .join(' · ')}
-                  </p>
-                </li>
-              )}
-            />
-          </SectionCard>
-          <SectionCard
-            id="events"
-            title="Provider events"
-            description="Signed webhooks, stored as allowlisted fields only"
-            flush
-          >
-            <Rows
-              items={p.events}
-              empty="No provider event received for this payment."
-              render={(e) => (
-                <li key={e.id} className="px-5 py-3 text-meta">
-                  <p className="flex flex-wrap items-center gap-2 font-semibold">
-                    {e.type}{' '}
-                    <StatusBadge
-                      tone={
-                        e.state === 'processed'
-                          ? 'success'
-                          : e.state === 'failed'
-                            ? 'danger'
-                            : 'warning'
-                      }
-                    >
-                      {e.state}
-                    </StatusBadge>
-                  </p>
-                  <p className="text-ink-600">
-                    {e.externalEventId} · signature verified · received {time(e.receivedAt, TZ)}
-                    {e.processedAt ? ` · processed ${time(e.processedAt, TZ)}` : ''} · attempts{' '}
-                    {e.attempts}
-                    {e.failureCode ? ` · ${e.failureCode}` : ''}
-                  </p>
-                </li>
-              )}
-            />
-          </SectionCard>
+          {active === 'overview' ? (
+            <SectionCard id="summary" title="Money" description="Verified provider facts only">
+              <FieldGrid
+                fields={[
+                  { label: 'Expected', value: money(p.expectedMinor) },
+                  p.environment === 'simulated'
+                    ? { label: 'Simulated (no money moved)', value: money(p.simulatedMinor) }
+                    : { label: 'Captured · verified', value: money(p.capturedMinor) },
+                  { label: 'Refunded · verified', value: money(p.refundedMinor) },
+                  { label: 'Refunds pending', value: money(p.refundPendingMinor) },
+                  {
+                    label: 'Bank settlement evidence',
+                    value: 'Not available',
+                  },
+                  { label: 'Payment state', value: p.state },
+                  { label: 'Provider order', value: p.providerOrderId ?? 'Not linked', mono: true },
+                  { label: 'Payment record id', value: p.id, mono: true },
+                ]}
+              />
+            </SectionCard>
+          ) : null}
+          {active === 'evidence' ? (
+            <SectionCard id="attempts" title="Attempts" flush>
+              <Rows
+                items={p.attempts}
+                empty="No provider attempt was started."
+                render={(a) => (
+                  <li key={a.id} className="px-5 py-3 text-meta">
+                    <p className="font-semibold">
+                      Attempt {a.number} · {a.state}
+                    </p>
+                    <p className="text-ink-600">
+                      {a.providerPaymentId ?? 'no provider payment id'} · {money(a.expectedMinor)} ·
+                      started {time(a.startedAt, TZ)}
+                      {a.completedAt ? ` · completed ${time(a.completedAt, TZ)}` : ''}
+                      {a.failureCode ? ` · ${a.failureCode}` : ''}
+                    </p>
+                  </li>
+                )}
+              />
+            </SectionCard>
+          ) : null}
+          {active === 'evidence' ? (
+            <SectionCard
+              id="transactions"
+              title="Verified transactions and allocations"
+              description="Allocations split each capture across visits and components"
+              flush
+            >
+              <Rows
+                items={p.transactions}
+                empty="No verified transaction. Nothing has been captured."
+                render={(t) => (
+                  <li key={t.id} className="space-y-2 px-5 py-4 text-meta">
+                    <p className="font-semibold">
+                      {t.kind} · {t.outcome} ·{' '}
+                      {money(
+                        t.kind === 'simulated'
+                          ? t.simulatedMinor
+                          : t.capturedMinor || t.authorizedMinor,
+                      )}
+                    </p>
+                    <p className="text-ink-600">
+                      {t.providerPaymentId ?? t.reference} · verified {time(t.verifiedAt, TZ)}{' '}
+                      {t.evidence ? `· evidence ${t.evidence}` : ''}
+                    </p>
+                    {t.allocations.length ? (
+                      <ul className="list-inside list-disc text-ink-700">
+                        {t.allocations.map((x) => (
+                          <li key={x.id}>
+                            {x.visitReference} ({x.visitState}) · {x.component} ·{' '}
+                            {money(x.actualMinor || x.simulatedMinor)}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </li>
+                )}
+              />
+            </SectionCard>
+          ) : null}
+          {active === 'refunds' ? (
+            <SectionCard
+              id="refunds"
+              title="Refunds"
+              description="Open a refund for its status, provider events and commands"
+              action={
+                capabilities.includes('admin.payments.write') &&
+                p.environment === 'test' &&
+                p.capturedMinor > 0 ? (
+                  <Link
+                    href={`/admin/finance/refunds/new?order=${p.booking.id}`}
+                    className="text-tiny font-semibold text-brand-700 underline"
+                  >
+                    Request a refund
+                  </Link>
+                ) : null
+              }
+              flush
+            >
+              <Rows
+                items={p.refunds}
+                empty="No refund obligation."
+                render={(r) => (
+                  <li key={r.id} className="space-y-1 px-5 py-4 text-meta">
+                    <p className="flex flex-wrap items-center gap-2 font-semibold">
+                      <Link
+                        href={`/admin/finance/refunds/${r.id}`}
+                        className="text-brand-700 underline"
+                      >
+                        {money(r.expectedMinor)}
+                      </Link>{' '}
+                      ·{' '}
+                      <StatusBadge
+                        tone={
+                          r.state === 'succeeded'
+                            ? 'success'
+                            : r.state === 'unknown'
+                              ? 'danger'
+                              : 'warning'
+                        }
+                      >
+                        {r.state}
+                      </StatusBadge>
+                    </p>
+                    <p className="text-ink-600">
+                      {r.reason} · requested {time(r.createdAt, TZ)}
+                      {r.providerRefundId ? ` · ${r.providerRefundId}` : ''}
+                      {r.execution.failureCode ? ` · ${r.execution.failureCode}` : ''}
+                    </p>
+                    <p className="text-ink-700">
+                      {r.allocations
+                        .map((x) => `${x.visitReference} ${x.component} ${money(x.expectedMinor)}`)
+                        .join(' · ')}
+                    </p>
+                  </li>
+                )}
+              />
+            </SectionCard>
+          ) : null}
+          {active === 'evidence' ? (
+            <SectionCard
+              id="events"
+              title="Provider events"
+              description="Signed webhooks, stored as allowlisted fields only"
+              flush
+            >
+              <Rows
+                items={p.events}
+                empty="No provider event received for this payment."
+                render={(e) => (
+                  <li key={e.id} className="px-5 py-3 text-meta">
+                    <p className="flex flex-wrap items-center gap-2 font-semibold">
+                      {e.type}{' '}
+                      <StatusBadge
+                        tone={
+                          e.state === 'processed'
+                            ? 'success'
+                            : e.state === 'failed'
+                              ? 'danger'
+                              : 'warning'
+                        }
+                      >
+                        {e.state}
+                      </StatusBadge>
+                    </p>
+                    <p className="text-ink-600">
+                      {e.externalEventId} · signature verified · received {time(e.receivedAt, TZ)}
+                      {e.processedAt ? ` · processed ${time(e.processedAt, TZ)}` : ''} · attempts{' '}
+                      {e.attempts}
+                      {e.failureCode ? ` · ${e.failureCode}` : ''}
+                    </p>
+                  </li>
+                )}
+              />
+            </SectionCard>
+          ) : null}
         </div>
         <div className="space-y-6">
-          <SectionCard id="reconcile" title="Reconciliation">
-            <div className="space-y-3 text-meta">
-              {p.execution ? (
-                <FieldGrid
-                  fields={[
-                    { label: 'Execution', value: p.execution.state },
-                    { label: 'Next check', value: time(p.execution.nextCheckAt, TZ) },
-                    { label: 'Gateway config', value: `Version ${p.execution.configVersion}` },
-                    { label: 'Pinned key', value: p.execution.credential, mono: true },
-                    p.execution.failureCode
-                      ? { label: 'Last provider error', value: p.execution.failureCode }
-                      : null,
-                  ]}
-                />
-              ) : (
-                <p>No provider execution: {p.status.label.toLowerCase()}.</p>
-              )}
-              {!p.gatewayEnabled && p.environment === 'test' ? (
-                <p className="rounded-md bg-warning-bg p-2 text-warning">
-                  New payment attempts are paused. This existing payment is still reconciled.
-                </p>
-              ) : null}
-              {p.reconciliations[0] ? (
-                <p role="status" className="rounded-md bg-info-bg p-2 text-ink-800">
-                  Last re-fetch · {p.reconciliations[0].by ?? 'admin'} ·{' '}
-                  {time(p.reconciliations[0].at, TZ)}:{' '}
-                  {RECONCILE_OUTCOME[p.reconciliations[0].outcome] ?? p.reconciliations[0].outcome}{' '}
-                  Payment is now {p.reconciliations[0].stateAfter}.
-                </p>
-              ) : null}
-              {!capabilities.includes('admin.payments.write') ? (
-                <AdminReadOnly>
-                  Provider reconciliation requires Finance write access.
-                </AdminReadOnly>
-              ) : p.canReconcile ? (
-                <ReconcilePayment key={p.state} paymentId={p.id} requestKey={randomUUID()} />
-              ) : (
-                <p className="text-ink-600">Nothing to re-fetch: {p.status.label.toLowerCase()}.</p>
-              )}
-            </div>
-          </SectionCard>
-          <SectionCard id="history" title="History" flush>
-            <Rows
-              items={[
-                ...p.history.map((h) => ({
-                  ...h,
-                  key: `${h.kind}-${h.at}`,
-                  text: h.kind.replaceAll('_', ' '),
-                })),
-                ...p.reconciliations.map((r) => ({
-                  at: r.at,
-                  key: `r-${r.at}`,
-                  text: `re-fetch by ${r.by ?? 'admin'}: ${r.outcome}${r.code ? ` (${r.code})` : ''} → ${r.stateAfter}`,
-                })),
-              ].sort((a, b) => (a.at < b.at ? -1 : 1))}
-              empty="No recorded history."
-              render={(h) => (
-                <li key={h.key} className="px-5 py-3 text-meta">
-                  <span className="font-semibold capitalize">{h.text}</span> · {time(h.at, TZ)}
-                </li>
-              )}
-            />
-          </SectionCard>
+          {active === 'control' ? (
+            <SectionCard id="reconcile" title="Reconciliation">
+              <div className="space-y-3 text-meta">
+                {p.execution ? (
+                  <FieldGrid
+                    fields={[
+                      { label: 'Execution', value: p.execution.state },
+                      { label: 'Next check', value: time(p.execution.nextCheckAt, TZ) },
+                      { label: 'Gateway config', value: `Version ${p.execution.configVersion}` },
+                      { label: 'Pinned key', value: p.execution.credential, mono: true },
+                      p.execution.failureCode
+                        ? { label: 'Last provider error', value: p.execution.failureCode }
+                        : null,
+                    ]}
+                  />
+                ) : (
+                  <p>No provider execution: {p.status.label.toLowerCase()}.</p>
+                )}
+                {!p.gatewayEnabled && p.environment === 'test' ? (
+                  <p className="rounded-md bg-warning-bg p-2 text-warning">
+                    New payment attempts are paused. This existing payment is still reconciled.
+                  </p>
+                ) : null}
+                {p.reconciliations[0] ? (
+                  <p role="status" className="rounded-md bg-info-bg p-2 text-ink-800">
+                    Last re-fetch · {p.reconciliations[0].by ?? 'admin'} ·{' '}
+                    {time(p.reconciliations[0].at, TZ)}:{' '}
+                    {RECONCILE_OUTCOME[p.reconciliations[0].outcome] ??
+                      p.reconciliations[0].outcome}{' '}
+                    Payment is now {p.reconciliations[0].stateAfter}.
+                  </p>
+                ) : null}
+                {!capabilities.includes('admin.payments.write') ? (
+                  <p className="text-meta text-ink-600">
+                    Read-only access. Provider reconciliation requires Finance write access.
+                  </p>
+                ) : p.canReconcile ? (
+                  <ReconcilePayment key={p.state} paymentId={p.id} requestKey={randomUUID()} />
+                ) : (
+                  <p className="text-ink-600">
+                    Nothing to re-fetch: {p.status.label.toLowerCase()}.
+                  </p>
+                )}
+              </div>
+            </SectionCard>
+          ) : null}
+          {active === 'activity' ? (
+            <SectionCard id="history" title="History" flush>
+              <Rows
+                items={[
+                  ...p.history.map((h) => ({
+                    ...h,
+                    key: `${h.kind}-${h.at}`,
+                    text: h.kind.replaceAll('_', ' '),
+                  })),
+                  ...p.reconciliations.map((r) => ({
+                    at: r.at,
+                    key: `r-${r.at}`,
+                    text: `re-fetch by ${r.by ?? 'admin'}: ${r.outcome}${r.code ? ` (${r.code})` : ''} → ${r.stateAfter}`,
+                  })),
+                ].sort((a, b) => (a.at < b.at ? -1 : 1))}
+                empty="No recorded history."
+                render={(h) => (
+                  <li key={h.key} className="px-5 py-3 text-meta">
+                    <span className="font-semibold capitalize">{h.text}</span> · {time(h.at, TZ)}
+                  </li>
+                )}
+              />
+            </SectionCard>
+          ) : null}
         </div>
       </div>
     </AdminPage>

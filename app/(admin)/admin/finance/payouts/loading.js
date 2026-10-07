@@ -1,5 +1,4 @@
-import ScreenSkeleton from '@/components/loading/ScreenSkeleton';
-
+import FinanceLoading from '@/components/admin/FinanceLoading';
 export default function Loading() {
-  return <ScreenSkeleton layout="portal" screen="finance" label="Loading admin finance payouts" />;
+  return <FinanceLoading label="payouts" view="list" />;
 }
