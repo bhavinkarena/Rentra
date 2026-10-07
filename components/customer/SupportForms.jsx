@@ -1,4 +1,5 @@
 'use client';
+import { preparePhotoInput } from '@/lib/domain/photo-upload';
 import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import RentraLoader from '@/components/ui/rentra-loader';
@@ -118,6 +119,7 @@ export function OpenSupportForm({
             className={field}
             type="file"
             name="photos"
+            onChange={preparePhotoInput}
             multiple
             accept="image/jpeg,image/png,image/webp"
           />
@@ -211,6 +213,7 @@ export function SupportReplyForm({ record, requestKey, admin = false, owner = fa
           className={field}
           type="file"
           name="photos"
+          onChange={preparePhotoInput}
           multiple
           accept="image/jpeg,image/png,image/webp"
         />

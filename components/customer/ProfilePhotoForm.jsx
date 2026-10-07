@@ -5,6 +5,7 @@ import { updateCustomerPhoto } from '@/lib/actions/customer';
 import { Button } from '@/components/ui/button';
 import ProfileAvatar from './ProfileAvatar';
 import { FormStatus } from './AccountForms';
+import { preparePhotoInput } from '@/lib/domain/photo-upload';
 
 export default function ProfilePhotoForm({ account }) {
   const [preview, setPreview] = useState(null);
@@ -50,16 +51,19 @@ export default function ProfilePhotoForm({ account }) {
               name="photo"
               accept="image/jpeg,image/png,image/webp"
               disabled={pending || !account.complete}
-              onChange={(event) => {
-                const next = event.target.files?.[0];
+              onChange={async (event) => {
+                const input = event.currentTarget;
                 setError(null);
+                const prepared = await preparePhotoInput(event, { longEdge: 1024 });
+                if (!prepared) return;
+                const next = prepared[0];
                 if (
                   next &&
                   (next.size > 2 * 1024 * 1024 ||
                     !['image/jpeg', 'image/png', 'image/webp'].includes(next.type))
                 ) {
                   setError('Choose a JPG, PNG or WebP photo smaller than 2 MB.');
-                  event.target.value = '';
+                  input.value = '';
                   setFile(null);
                   return;
                 }

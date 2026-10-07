@@ -1,6 +1,7 @@
 import { discoveryApi } from '@/lib/api/endpoints';
 import { degradeOnFailure } from '@/lib/api/resilient';
 import { listingUrl } from '@/lib/domain/listing-url';
+import { absolutePublicUrl } from '@/lib/domain/listing-content';
 import { publicContent } from '@/lib/api/content';
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 export default async function sitemap() {
@@ -41,6 +42,8 @@ export default async function sitemap() {
       lastModified: l.updatedAt,
       changeFrequency: 'weekly',
       priority: 0.8,
+      // Listing photos for Google Images; an older API sends none.
+      images: (l.images ?? []).map((url) => absolutePublicUrl(siteUrl, url)).filter(Boolean),
     })),
   ];
 }

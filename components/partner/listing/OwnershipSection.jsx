@@ -1,6 +1,7 @@
 'use client';
 import { useActionState, useState } from 'react';
 import { Upload, Pause } from 'lucide-react';
+import { preparePhotoInput } from '@/lib/domain/photo-upload';
 import { uploadOwnershipDocument } from '@/lib/actions/partner';
 import { ownershipDocTypesFor } from '@/lib/domain/listing-completion';
 import { useStepFormId } from './chrome';
@@ -131,9 +132,9 @@ export function OwnershipSection({ listing, documents, clientType, kycName }) {
           <input
             id="file"
             name="file"
-            onChange={(event) => {
+            onChange={async (event) => {
               const form = event.currentTarget.form;
-              if (form?.checkValidity()) form.requestSubmit();
+              if ((await preparePhotoInput(event)) && form?.checkValidity()) form.requestSubmit();
             }}
             type="file"
             accept="image/jpeg,image/png,image/webp,application/pdf"

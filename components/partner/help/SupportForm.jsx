@@ -1,4 +1,5 @@
 'use client';
+import { preparePhotoInput } from '@/lib/domain/photo-upload';
 import { useActionState, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { openOwnerSupport, replyOwnerSupport } from '@/lib/actions/partner';
@@ -116,6 +117,7 @@ export default function SupportForm({
           <input
             type="file"
             name="photos"
+            onChange={preparePhotoInput}
             className={`${field} py-2 text-meta font-normal`}
             multiple
             accept="image/jpeg,image/png,image/webp"

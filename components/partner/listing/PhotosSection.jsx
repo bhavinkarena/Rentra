@@ -57,7 +57,7 @@ export function PhotosSection({ listing, photos = [] }) {
     update(tile.id, { status: 'uploading', error: '' });
     try {
       const prepared = await prepareIdentityFile(tile.file, {
-        longEdge: 2000,
+        longEdge: 2560,
         quality: 0.82,
         allowPdf: false,
       });

@@ -4,6 +4,7 @@ import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import { useActionState, useId, useRef, useState, useTransition } from 'react';
 import { Camera, History, ShieldAlert, CircleCheck } from 'lucide-react';
 import RentraLoader from '@/components/ui/rentra-loader';
+import { preparePhotoInput } from '@/lib/domain/photo-upload';
 import { reportOwnerIncident } from '@/lib/actions/partner';
 import { closeAdminIncident, correctAdminEvidence, reportAdminIncident } from '@/lib/actions/admin';
 
@@ -81,8 +82,10 @@ export function Outcome({ state }) {
 export function PhotoField({ error }) {
   const id = useId();
   const [picked, setPicked] = useState('');
-  const check = (event) => {
-    const files = [...event.target.files];
+  const check = async (event) => {
+    const input = event.currentTarget;
+    const files = await preparePhotoInput(event);
+    if (!files) return;
     const problem =
       files.length > MAX_PHOTOS
         ? `Choose up to ${MAX_PHOTOS} photos.`
@@ -91,7 +94,7 @@ export function PhotoField({ error }) {
           : files.some((file) => file.type && !TYPES.includes(file.type))
             ? 'Photos must be JPG, PNG or WebP images.'
             : '';
-    event.target.setCustomValidity(problem);
+    input.setCustomValidity(problem);
     setPicked(problem || (files.length ? `${files.length} selected` : ''));
   };
   return (

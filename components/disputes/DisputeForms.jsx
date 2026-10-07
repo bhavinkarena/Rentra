@@ -1,4 +1,5 @@
 'use client';
+import { preparePhotoInput } from '@/lib/domain/photo-upload';
 import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
@@ -202,6 +203,7 @@ export function DisputeForm({ kind, command, record, context, defaultVisitId }) 
               aria-label="Evidence photos"
               type="file"
               name="photos"
+              onChange={preparePhotoInput}
               accept="image/jpeg,image/png,image/webp"
               multiple
               className={field}
