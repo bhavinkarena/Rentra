@@ -1,7 +1,7 @@
 // CP36 venue checkout (entertainment plan, Phase 10). Disposable stack only:
 //   GATE_DB_JSON  {url} of a disposable DB seeded with venue-fixture (venue001), test payments on,
 //                 and an active customer 9898981234 named "QA Player"
-//   API :4106 with RAZORPAY_TEST_KEY_SECRET=$GATE_RZP_SECRET and the file-backed fake Razorpay at
+//   API :4106 with RAZORPAY_KEY_SECRET=$GATE_RZP_SECRET and the file-backed fake Razorpay at
 //   $FAKE_RAZORPAY_STATE; web :3106 (next dev); PLAYWRIGHT_DIR has playwright-core + @axe-core/playwright.
 // Venue → time → OTP login hand-off → review → hold → test payment → confirmed → .ics →
 // booking record → cancel preview (hour bands) → book again, plus the farmhouse-unchanged copy check.

@@ -596,7 +596,7 @@ Competitor pattern: Airbnb, Booking.com and StayVista show a full-width swipeabl
 - QA harness extended for payments (all local, disposable):
   - `rentra-backend/.qa-serve.mjs` (untracked, QA-only) starts the API with `fetch` for `api.razorpay.com` routed to `test/helpers/fake-razorpay.mjs` (file-backed). It refuses any DB but `127.0.0.1:55432/rentra_cp02`.
   - `rentra-backend/.qa-payments.mjs` (untracked) enables the Razorpay Test gateway via `setPaymentGatewayConfiguration`.
-  - QA env adds `RAZORPAY_TEST_KEY_ID/KEY_SECRET/WEBHOOK_SECRET` (fixture values), `FAKE_RAZORPAY_STATE`, and **`CORS_ALLOWED_ORIGINS`** (the backend reads this name; `CORS_ORIGINS` in the old gate doc is ignored — that was why browser availability reads failed).
+  - QA env adds `RAZORPAY_KEY_ID/KEY_SECRET/WEBHOOK_SECRET` (fixture values), `FAKE_RAZORPAY_STATE`, and **`CORS_ALLOWED_ORIGINS`** (the backend reads this name; `CORS_ORIGINS` in the old gate doc is ignored — that was why browser availability reads failed).
   - Playwright replaces `checkout.razorpay.com/v1/checkout.js` with a stub whose `open()` asks Node to record a captured payment in the fake provider and sign `order|payment` with the fixture key. The real verify endpoint then confirms the booking.
   - Journey script `p7journey.mjs` (scratchpad): listing → calendar → quote → deposit tick → review → purpose + terms tick → hold → pay → confirmed.
 

@@ -25,9 +25,9 @@ Run `npm run worker` as a separate process, or `npm run worker -- --once` for on
 
 ## Configuration and rollout
 
-Use `.env.example` for `RAZORPAY_TEST_KEY_ID`, `RAZORPAY_TEST_KEY_SECRET` and `RAZORPAY_TEST_WEBHOOK_SECRET`. Admin settings remain the source of enablement and collection purpose. No credentials or admin enablement are supplied by this change.
+Use `.env.example` for `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` and `RAZORPAY_WEBHOOK_SECRET`. Admin settings remain the source of enablement and collection purpose. No credentials or admin enablement are supplied by this change.
 
-When rotating an API key, retain old Test credentials in `RAZORPAY_TEST_KEYRING_JSON`, mapping the old `rzp_test_…` ID to `{ "keySecret": "…" }`. Retain previous webhook secrets in `RAZORPAY_TEST_PREVIOUS_WEBHOOK_SECRETS` while old deliveries can retry. These are server secrets, never public environment variables. Removing a pinned key stops reconciliation for its existing orders until restored.
+When rotating an API key, retain old Test credentials in `RAZORPAY_KEYRING_JSON`, mapping the old `rzp_test_…` ID to `{ "keySecret": "…" }`. Retain previous webhook secrets in `RAZORPAY_PREVIOUS_WEBHOOK_SECRETS` while old deliveries can retry. These are server secrets, never public environment variables. Removing a pinned key stops reconciliation for its existing orders until restored.
 
 Migration `0015_customer_checkout.sql` adds payment executions, event jobs, lifecycle hooks and accepted-term protections. It was applied successfully to the configured database on 20 September 2026 after disposable-database verification. The preflight confirmed it was the only pending migration. Apply it before running updated inventory readers or workers in other environments. No configured seed, backfill, SMS, provider payment, gateway enablement or deployment was run.
 

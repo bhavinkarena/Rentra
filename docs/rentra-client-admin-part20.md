@@ -78,7 +78,7 @@ Status: **COMPLETE — 27 September 2026.** A disposable-PostgreSQL integration 
 | Backend `npm test` with the disposable-DB URLs | 120/120, including `test/integration/refund-operations.integration.test.js`, `test/services/refund-status.test.js` and the refund capability test |
 | Backend `db:check`, drizzle drift check, ESLint, Prettier | Pass (33 migrations; no drift) |
 | Frontend `npm test`, ESLint, Prettier, `next build --webpack` | 23/23; 0 errors (4 existing OG-image warnings); pass; pass |
-| CP20 gate `scripts/portal-gate/cp20_gate.py` (published fixture with `FAKE_RAZORPAY_STATE` and `RAZORPAY_TEST_*`, then `seed-pricing-operations-gate.mjs` and `seed-payment-investigation-gate.mjs`; API :4106, frontend :3106) | **42/42**, three runs, the last on the final build — [results](rentra-client-admin-part20-gate.json) |
+| CP20 gate `scripts/portal-gate/cp20_gate.py` (published fixture with `FAKE_RAZORPAY_STATE` and `RAZORPAY_*`, then `seed-pricing-operations-gate.mjs` and `seed-payment-investigation-gate.mjs`; API :4106, frontend :3106) | **42/42**, three runs, the last on the final build — [results](rentra-client-admin-part20-gate.json) |
 | Regression gates on this build | CP19 34/34 · CP18 34/34 · CP17 39/39 (after the attachment fix) · CP16 51/51 · CP15 38/38 · CP14 34/34 · CP13 31/31 · CP11/12 44/44 · CP10 37/37 · CP09 41/41 · CP08 56/56 · CP07 53/53 · CP06 39/39 · CP05 35/35 · CP04 38/38 · CP03 35/35 · CP02 34/34 |
 
 The `.mjs` gates were replayed with a scratchpad `playwright-core`, and their rewritten result files were restored. Outage and fault-proxy gates were not re-run.

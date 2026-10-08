@@ -58,7 +58,7 @@ Chromium's accessibility tree verifies exposed landmarks/headings, and axe cover
 
 ## Reproduce
 
-Use only disposable localhost PostgreSQL. Start `serve-property-review.mjs` with `FIXTURE_STAGE=published`, `CP06_GATE_FIXTURE=/private/tmp/rentra-cp31-fixture.json`, `PORTAL_TEST_DATABASE_URL=postgres://bhavinkarena@127.0.0.1:55433/postgres`, `CORS_ALLOWED_ORIGINS=http://localhost:3106` and the port-remap preload. Configure `FAKE_RAZORPAY_STATE` and fixture-only `RAZORPAY_TEST_*` values; use the same values for `seed-payment-investigation-gate.mjs`. The test-only fetcher must be enabled so no provider is called.
+Use only disposable localhost PostgreSQL. Start `serve-property-review.mjs` with `FIXTURE_STAGE=published`, `CP06_GATE_FIXTURE=/private/tmp/rentra-cp31-fixture.json`, `PORTAL_TEST_DATABASE_URL=postgres://bhavinkarena@127.0.0.1:55433/postgres`, `CORS_ALLOWED_ORIGINS=http://localhost:3106` and the port-remap preload. Configure `FAKE_RAZORPAY_STATE` and fixture-only `RAZORPAY_*` values; use the same values for `seed-payment-investigation-gate.mjs`. The test-only fetcher must be enabled so no provider is called.
 
 Run, in order, `seed-pricing-operations-gate.mjs`, `seed-payment-investigation-gate.mjs`, then `seed-operator-quality-gate.mjs` from the backend with its alias loader. Start `scripts/portal-gate/fault-proxy.mjs` from the frontend. Build/start Next with `RENTRA_BROWSER_FIXTURE=1`, `RENTRA_BROWSER_FIXTURE_ID=cp31`, `NEXT_PUBLIC_API_URL=http://localhost:4106/api/v1`, `NEXT_PUBLIC_SITE_URL=http://localhost:3106`, Webpack and port 3106. Then:
 

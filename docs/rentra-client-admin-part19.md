@@ -133,7 +133,7 @@ All runtime checks used disposable databases on a local PostgreSQL 14 server and
 **Re-run the gates:**
 
 1. Disposable PostgreSQL on `:55432`; backend `npm test` with both variables.
-2. Export the same `FAKE_RAZORPAY_STATE` and `RAZORPAY_TEST_KEY_ID`/`KEY_SECRET`/`WEBHOOK_SECRET` for both the fixture API and the seeds.
+2. Export the same `FAKE_RAZORPAY_STATE` and `RAZORPAY_KEY_ID`/`KEY_SECRET`/`WEBHOOK_SECRET` for both the fixture API and the seeds.
 3. Start `serve-property-review.mjs` (`FIXTURE_STAGE=published`), then run `seed-pricing-operations-gate.mjs` and `seed-payment-investigation-gate.mjs`.
 4. Start isolated Next on `:3106` with `--webpack`.
 5. `GATE_TOKENS=<json> GATE_WEBHOOK_SECRET=<webhook secret> GATE_KEY_ID=<key id> node scripts/portal-gate/cp19_gate.mjs`.

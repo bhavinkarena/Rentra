@@ -1,5 +1,5 @@
 """CP20 browser/API gate: refund queue, detail, guarded provider commands and operator refunds.
-Requires serve-property-review.mjs with FIXTURE_STAGE=published, FAKE_RAZORPAY_STATE and RAZORPAY_TEST_*
+Requires serve-property-review.mjs with FIXTURE_STAGE=published, FAKE_RAZORPAY_STATE and RAZORPAY_*
 (API :4106), then seed-pricing-operations-gate.mjs and seed-payment-investigation-gate.mjs, and isolated
 Next on :3106. GATE_TOKENS points to the fixture JSON; GATE_WEBHOOK_SECRET equals the fixture's secret.
 """

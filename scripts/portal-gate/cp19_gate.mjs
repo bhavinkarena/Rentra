@@ -1,7 +1,7 @@
 // CP19 browser/API gate. Requires the disposable published fixture on :4106 started with
-// FAKE_RAZORPAY_STATE and RAZORPAY_TEST_* set, seeded with seed-pricing-operations-gate.mjs then
+// FAKE_RAZORPAY_STATE and RAZORPAY_* set, seeded with seed-pricing-operations-gate.mjs then
 // seed-payment-investigation-gate.mjs (same variables), and isolated Next on :3106.
-// GATE_WEBHOOK_SECRET must equal the fixture's RAZORPAY_TEST_WEBHOOK_SECRET.
+// GATE_WEBHOOK_SECRET must equal the fixture's RAZORPAY_WEBHOOK_SECRET.
 import { readFile, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { createHmac, randomUUID } from 'node:crypto';

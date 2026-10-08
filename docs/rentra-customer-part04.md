@@ -20,7 +20,7 @@ Deployment sequence:
 
 1. Review/apply migrations with `npm run db:migrate` against the intended deployment database, following the Part 02/03 legacy audit/backfill runbooks.
 2. Resolve uncertain active intervals and owner blocks. Owners must explicitly configure hours and add missing bookable dates; setup refuses unresolved active inventory. Do not copy assumed default hours into historical reservations.
-3. Set `RAZORPAY_TEST_KEY_ID`, `RAZORPAY_TEST_KEY_SECRET` and `RAZORPAY_TEST_WEBHOOK_SECRET` on the server. Generic/live keys are not accepted as a fallback. Secrets never appear in quotes or admin responses.
+3. Set `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` and `RAZORPAY_WEBHOOK_SECRET` on the server. Use sandbox credential values for development; there is no separate test credential namespace. Secrets never appear in quotes or admin responses.
 4. An active admin can save a Test configuration. Enabling this setting alone does not activate checkout: provider execution remains disabled until Parts 11/12 are implemented and verified.
 
 For rollback, disable new payment configuration and revert public readers as needed while preserving all committed reservations and financial records. Do not remove ledger rows or migrations to roll back the UI.
