@@ -5,15 +5,28 @@ import { RentraLogo } from '@/components/rentra/Logo';
 import Link from '@/components/navigation/NavigationLink';
 import { ChapterBar } from './WizardProgress';
 import { inputCls } from './SectionPrimitives';
-export default function NewListingStart({ categories, verticals = [], progress, venueProgress }) {
+const CHOICE_LABEL = {
+  farmhouse: 'Farmhouse or villa',
+  entertainment: 'Sports or play venue',
+  hotel: 'Hotel or resort',
+};
+
+export default function NewListingStart({
+  categories,
+  verticals = [],
+  progress,
+  venueProgress,
+  hotelProgress,
+}) {
   const [state, action, pending] = useActionState(createListingFromBasics, {});
-  const choices = ['farmhouse', 'entertainment']
+  const choices = ['farmhouse', 'entertainment', 'hotel']
     .map((code) => verticals.find((v) => v.code === code) || { code })
     .filter((v) => categories.some((c) => (c.vertical || 'farmhouse') === v.code));
   const [vertical, setVertical] = useState('farmhouse');
   const shown = categories.filter((c) => (c.vertical || 'farmhouse') === vertical);
   const farmhouseCategory = shown.find((c) => c.slug === 'farmhouse') || shown[0];
-  const current = vertical === 'entertainment' ? venueProgress : progress;
+  const current =
+    vertical === 'entertainment' ? venueProgress : vertical === 'hotel' ? hotelProgress : progress;
   return (
     <div className="flex min-h-dvh flex-col bg-background">
       <header className="border-b bg-card p-4">
@@ -44,14 +57,12 @@ export default function NewListingStart({ categories, verticals = [], progress, 
                     checked={vertical === v.code}
                     onChange={() => setVertical(v.code)}
                   />
-                  <span>
-                    {v.code === 'farmhouse' ? 'Farmhouse or villa' : 'Sports or play venue'}
-                  </span>
+                  <span>{CHOICE_LABEL[v.code] ?? v.name ?? v.code}</span>
                 </label>
               ))}
             </div>
           </fieldset>
-          {vertical === 'entertainment' ? (
+          {vertical !== 'farmhouse' ? (
             <label className="block text-meta font-semibold">
               Category
               <select name="categoryId" required defaultValue="" className={inputCls}>

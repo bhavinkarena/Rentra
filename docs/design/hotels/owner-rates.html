@@ -1,0 +1,66 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hotels mock · Rates &amp; rooms calendar</title>
+<link rel="stylesheet" href="mock.css"><link rel="stylesheet" href="hotels.css">
+<style>.toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 16px 0 4px; } .ptitle { min-width: 150px; text-align: center; font-weight: 700; }
+.dayl .day { background: #fff; border: 1px solid var(--ink-200); border-radius: 16px; padding: 14px; margin-bottom: 12px; } .dayl .rtl { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--ink-100); font-size: 14px; }
+.cellerr { position: absolute; z-index: 5; background: var(--danger); color: #fff; font-size: 12px; font-weight: 600; padding: 6px 10px; border-radius: 8px; white-space: nowrap; transform: translate(-30%, 4px); }</style></head>
+<body data-shell="owner" data-nav="calendar" data-states="grid:Grid,bulk:Bulk edit drawer,edit:Inline edit,error:Edit refused">
+<div class="shell">
+  <div id="side"></div>
+  <div>
+    <div class="ptop"><div class="grow"><b>Rates &amp; rooms</b></div><a class="btn sm sq" href="?state=bulk"><i data-icon="edit"></i>Bulk edit</a></div>
+    <div class="pmain">
+      <h1>Rates &amp; rooms</h1><p class="pdesc">What Rentra can sell each night. Click a cell to edit, or drag across cells to bulk edit.</p>
+      <div class="toolbar"><span class="seg2"><a href="#" aria-label="Previous"><i data-icon="back"></i></a><a href="#">Today</a><a href="#" aria-label="Next"><i data-icon="next"></i></a></span><span class="ptitle">18 – 24 Nov 2026</span>
+        <span class="seg2"><a href="#" aria-current="page">Week</a><a href="#">2 weeks</a><a href="#">Month</a></span><span class="grow"></span><span class="btn ghost sm">Holiday presets ▾</span></div>
+      <div class="legend"><span><i class="l-we"></i>Weekend night</span><span><i class="l-ovr"></i>Custom price</span><span><i class="l-closed"></i>Closed</span><span><i class="l-low"></i>2 or fewer open</span><span>“auto” = follows the base plan</span></div>
+
+      <div class="ari-wrap desk" style="position:relative">
+        <table class="ari">
+          <thead><tr><th class="rh">Room type</th><th class="today">Wed<b>18</b></th><th>Thu<b>19</b></th><th class="we">Fri<b>20</b></th><th class="we">Sat<b>21</b></th><th>Sun<b>22</b></th><th>Mon<b>23</b></th><th>Tue<b>24</b></th></tr></thead>
+          <tbody>
+            <tr class="rt"><th class="rh">Deluxe Double · 12 rooms</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><th class="rh">Rooms open to Rentra</th><td>5</td><td>6</td><td class="low" data-hide="error">2</td><td class="edit" data-show="error"><span>6</span></td><td class="closed">Closed</td><td class="low">2</td><td>8</td><td>8</td></tr>
+            <tr><th class="rh">Booked</th><td>7</td><td>6</td><td>8</td><td>10</td><td>10</td><td>4</td><td>4</td></tr>
+            <tr><th class="rh">Room only ₹</th><td>2,600</td><td data-hide="edit">2,600</td><td class="edit" data-show="edit"><span>2,450</span></td><td>3,000</td><td class="ovr">3,400</td><td class="ovr">3,400</td><td>2,600</td><td>2,600</td></tr>
+            <tr><th class="rh">Breakfast</th><td class="auto">auto</td><td class="auto">auto</td><td class="auto">auto</td><td class="auto">auto</td><td class="auto">auto</td><td class="auto">auto</td><td class="auto">auto</td></tr>
+            <tr><th class="rh">Min nights</th><td>1</td><td>1</td><td>1</td><td>2</td><td>1</td><td>1</td><td>1</td></tr>
+            <tr class="rt"><th class="rh">Standard Twin · 14 rooms</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            <tr><th class="rh">Rooms open to Rentra</th><td>6</td><td data-hide="bulk">6</td><td class="sel" data-show="bulk">6</td><td>6</td><td class="zero">0</td><td>4</td><td>8</td><td>8</td></tr>
+            <tr><th class="rh">Booked</th><td>4</td><td>3</td><td>6</td><td>6</td><td>2</td><td>1</td><td>0</td></tr>
+            <tr><th class="rh">Room only ₹</th><td>2,000</td><td>2,000</td><td>2,300</td><td class="ovr">2,600</td><td>2,000</td><td>2,000</td><td>2,000</td></tr>
+          </tbody>
+        </table>
+        <span class="cellerr" data-show="error" style="left:420px;top:150px" role="alert">Max 4 on Fri 20: 8 of 12 Deluxe rooms are booked</span>
+      </div>
+      <div class="banner ok" data-show="edit" style="margin-top:12px"><i data-icon="check"></i><div><b>Press Enter to save ₹2,450 for Thu 19 Nov</b>Esc cancels. Saved prices show for new searches within a minute.</div></div>
+
+      <div class="dayl">
+        <div class="day"><div class="between"><b>Wed 18 Nov · Today</b><span class="small muted">72% booked</span></div>
+          <div class="rtl"><span><b>Deluxe</b><br><span class="muted">7 booked</span></span><span class="stepper"><button aria-label="Fewer"><i data-icon="minus"></i></button><output>5</output><button aria-label="More"><i data-icon="plus"></i></button></span><span class="tabular b">₹2,600</span></div>
+          <div class="rtl"><span><b>Standard</b><br><span class="muted">4 booked</span></span><span class="stepper"><button aria-label="Fewer"><i data-icon="minus"></i></button><output>6</output><button aria-label="More"><i data-icon="plus"></i></button></span><span class="tabular b">₹2,000</span></div>
+          <a class="btn ghost sm" style="margin-top:8px" href="#"><i data-icon="lock"></i>Close all for tonight</a></div>
+        <div class="day"><div class="between"><b>Sat 21 Nov</b><span class="bdg bad">Deluxe closed</span></div>
+          <div class="rtl"><span><b>Deluxe</b><br><span class="muted">10 booked · min 2 nights</span></span><span class="btn ghost sm">Open</span><span class="tabular b">₹3,400</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<aside class="drawer" data-show="bulk" role="dialog" aria-labelledby="bt">
+  <header><h2 id="bt" style="font-size:18px">Bulk edit</h2><a class="iconbtn" href="?state=grid" aria-label="Close"><i data-icon="x"></i></a></header>
+  <div class="dbody stack">
+    <div class="field2"><label class="fld">From<input type="date" value="2026-12-01"></label><label class="fld">To<input type="date" value="2026-12-31"></label></div>
+    <div class="fld">Nights<div class="dayseg"><span class="on">M</span><span class="on">T</span><span class="on">W</span><span class="on">T</span><span class="on">F</span><span class="on">S</span><span class="on">S</span></div></div>
+    <div class="fld">Room types<label class="check"><input type="checkbox" checked>Deluxe Double</label><label class="check"><input type="checkbox">Standard Twin</label></div>
+    <div class="fld">Change<div class="stack">
+      <label class="radio-card on"><input type="radio" name="op" checked>Set price<input class="mini" value="₹3,200"></label>
+      <label class="radio-card"><input type="radio" name="op">Change price by %<input class="mini" placeholder="+10%"></label>
+      <label class="radio-card"><input type="radio" name="op">Rooms open to Rentra<input class="mini" placeholder="e.g. 6"></label>
+      <label class="radio-card"><input type="radio" name="op">Close (stop selling)</label>
+      <label class="radio-card"><input type="radio" name="op">Minimum nights<input class="mini" placeholder="2"></label></div></div>
+    <div class="banner info"><i data-icon="info"></i><div><b>31 nights change</b>Deluxe base price → ₹3,200. Breakfast and other plans follow automatically. Existing bookings keep their price.</div></div>
+  </div>
+  <footer><a class="btn light" href="?state=grid">Cancel</a><a class="btn" href="?state=grid">Apply to 31 nights</a></footer>
+</aside>
+<script src="chrome.js"></script><script src="icons.js"></script>
+</body></html>

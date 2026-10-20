@@ -10,7 +10,13 @@ export function TypeSection({ listing, categories }) {
       <form id={useStepFormId()} action={action} className="space-y-4">
         <input type="hidden" name="id" value={listing.id} />
         <VersionField listing={listing} states={[state]} />
-        <p>{listing.rentalUnit === 'hour' ? 'Sports or play venue' : 'Farmhouse or villa'}</p>
+        <p>
+          {listing.rentalUnit === 'hour'
+            ? 'Sports or play venue'
+            : listing.rentalUnit === 'night'
+              ? 'Hotel or resort'
+              : 'Farmhouse or villa'}
+        </p>
         <label className="block">
           Category
           <select name="categoryId" defaultValue={listing.categoryId} className={inputCls}>

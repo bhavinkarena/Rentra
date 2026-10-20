@@ -78,3 +78,39 @@ test('map pixel coordinates round trip without changing the selected location', 
     assert.ok(Math.abs(l.lng - lng) < 1e-8);
   }
 });
+
+test('hotels (hotel plan, Phase 3): same eleven steps, hotel wording, and their own resume point', async () => {
+  const { listingModel, getStep } = await import('../../lib/domain/listing-steps.js');
+  const { ownershipDocTypesFor, minPhotosFor, maxPhotosFor } =
+    await import('../../lib/domain/listing-completion.js');
+  assert.equal(listingModel({ rentalUnit: 'night' }), 'night');
+  const chapters = chaptersFor('night');
+  assert.deepEqual(
+    chapters.flatMap((c) => c.steps.map((s) => s.id)),
+    ids,
+  );
+  assert.deepEqual(
+    chapters.map((c) => c.label),
+    ['Your hotel', 'Make it shine', 'Rates, rules and submit'],
+  );
+  assert.deepEqual(
+    ['space', 'pricing', 'availability', 'rules', 'ownership'].map(
+      (id) => getStep(id, 'night').label,
+    ),
+    ['Rooms', 'Rates', 'Check-in and check-out', 'House rules', 'Proof and GST'],
+  );
+  assert.equal(getStep('space', 'slot').label, 'Space', 'farmhouse wording unchanged');
+  assert.equal(getStep('space', 'hour').label, 'Courts', 'venue wording unchanged');
+  const completion = {
+    sections: ids.slice(0, -1).map((id) => ({ id, done: !['pricing', 'rules'].includes(id) })),
+    done: 8,
+    total: 10,
+  };
+  assert.equal(firstIncompleteStepId(completion, 'night'), 'pricing');
+  assert.equal(wizardProgress(completion, 'space', 'night').chapterLabel, 'Your hotel');
+  assert.equal(ownershipDocTypesFor('night')[0].id, 'rent_agreement');
+  assert.deepEqual(
+    [minPhotosFor('night'), maxPhotosFor('night'), minPhotosFor('slot'), maxPhotosFor('slot')],
+    [8, 40, 6, 15],
+  );
+});

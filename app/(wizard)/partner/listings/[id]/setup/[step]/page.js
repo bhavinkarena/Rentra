@@ -33,6 +33,11 @@ import {
   VenueSection,
   HoursSection,
   HourlyPricingSection,
+  HotelRoomsSection,
+  HotelRatesSection,
+  HotelStaySection,
+  HotelRulesSection,
+  HotelGstForm,
 } from '@/components/partner/listing/ListingSections';
 
 export const metadata = {
@@ -65,18 +70,18 @@ export default async function SetupStepPage({ params }) {
   if (failure)
     return <PortalState kind={failure} backHref="/partner/listings" backLabel="All properties" />;
 
-  // Farmhouse (slot) or venue (hour): the steps and their reference data differ.
+  // Farmhouse (slot), venue (hour) or hotel (night): the steps and their reference data differ.
   const model = listingModel(data.listing);
   const vertical = data.listing.vertical;
   if (!isListingStep(stepId, model)) notFound();
   const referenceResult = await settle(
     stepId === 'amenities'
       ? partnerApi.amenityCatalogue(vertical)
-      : ['type', 'space', 'pricing'].includes(stepId)
+      : stepId === 'type' || (['space', 'pricing'].includes(stepId) && model === 'hour')
         ? partnerApi.categories(vertical)
         : stepId === 'location'
           ? partnerApi.places()
-          : stepId === 'availability'
+          : stepId === 'availability' && model !== 'night'
             ? partnerApi.listingHours(id)
             : Promise.resolve(null),
   );
@@ -90,6 +95,7 @@ export default async function SetupStepPage({ params }) {
     );
 
   const { listing, prices, amenities, photos, documents, resources = [], hourlyRates = [] } = data;
+  const hotel = data.hotel ?? { profile: null, roomTypes: [], ratePlans: [] };
   const completion = listingCompletion(listing, data);
   const step = getStep(stepId, model);
   const progress = wizardProgress(completion, stepId, model);
@@ -97,9 +103,12 @@ export default async function SetupStepPage({ params }) {
   // Only fetch what this step actually renders. The amenity catalogue has no
   // business being queried on the pricing step.
   const catalogue = stepId === 'amenities' ? referenceResult.data : null;
-  const categories = ['type', 'space', 'pricing'].includes(stepId) ? referenceResult.data : null;
+  const categories =
+    stepId === 'type' || (['space', 'pricing'].includes(stepId) && model === 'hour')
+      ? referenceResult.data
+      : null;
   const cities = stepId === 'location' ? referenceResult.data : null;
-  const calendar = stepId === 'availability' ? referenceResult.data : null;
+  const calendar = stepId === 'availability' && model !== 'night' ? referenceResult.data : null;
 
   const next = nextStepId(stepId, model);
   const prev = prevStepId(stepId, model);
@@ -136,17 +145,26 @@ export default async function SetupStepPage({ params }) {
       {stepId === 'type' ? <TypeSection listing={listing} categories={categories} /> : null}
       {stepId === 'story' ? <BasicsSection listing={listing} storyOnly /> : null}
       {stepId === 'location' ? <LocationSection listing={listing} cities={cities} /> : null}
-      {stepId === 'space' && model !== 'hour' ? <CapacitySection listing={listing} /> : null}
+      {stepId === 'space' && model === 'slot' ? <CapacitySection listing={listing} /> : null}
+      {stepId === 'space' && model === 'night' ? (
+        <HotelRoomsSection listing={listing} roomTypes={hotel.roomTypes} />
+      ) : null}
       {stepId === 'amenities' ? (
         <AmenitiesSection listing={listing} catalogue={catalogue} selected={amenities} />
       ) : null}
       {stepId === 'space' && model === 'hour' ? (
         <VenueSection listing={listing} resources={resources} activities={categories} />
       ) : null}
-      {stepId === 'availability' ? (
+      {stepId === 'availability' && model !== 'night' ? (
         <AvailabilitySection listing={listing} calendar={calendar} prices={prices} />
       ) : null}
-      {stepId === 'rules' ? <RulesSection listing={listing} /> : null}
+      {stepId === 'availability' && model === 'night' ? (
+        <HotelStaySection listing={listing} profile={hotel.profile} />
+      ) : null}
+      {stepId === 'rules' && model !== 'night' ? <RulesSection listing={listing} /> : null}
+      {stepId === 'rules' && model === 'night' ? (
+        <HotelRulesSection listing={listing} profile={hotel.profile} />
+      ) : null}
       {stepId === 'pricing' && model === 'hour' ? (
         <HourlyPricingSection
           listing={listing}
@@ -155,11 +173,20 @@ export default async function SetupStepPage({ params }) {
           activities={categories}
         />
       ) : null}
-      {stepId === 'pricing' && model !== 'hour' ? (
+      {stepId === 'pricing' && model === 'slot' ? (
         <PricingSection listing={listing} prices={prices} />
       ) : null}
+      {stepId === 'pricing' && model === 'night' ? (
+        <HotelRatesSection
+          listing={listing}
+          roomTypes={hotel.roomTypes}
+          ratePlans={hotel.ratePlans}
+        />
+      ) : null}
       {stepId === 'terms' ? <TermsSection listing={listing} /> : null}
-      {stepId === 'photos' ? <PhotosSection listing={listing} photos={photos} /> : null}
+      {stepId === 'photos' ? (
+        <PhotosSection listing={listing} photos={photos} roomTypes={hotel.roomTypes} />
+      ) : null}
       {stepId === 'ownership' ? (
         <OwnershipSection
           listing={listing}
@@ -167,6 +194,9 @@ export default async function SetupStepPage({ params }) {
           clientType={user.clientType}
           kycName={user.name}
         />
+      ) : null}
+      {stepId === 'ownership' && model === 'night' ? (
+        <HotelGstForm listing={listing} profile={hotel.profile} />
       ) : null}
       {stepId === 'preview' ? (
         <WizardReview

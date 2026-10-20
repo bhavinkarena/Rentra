@@ -1,0 +1,97 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hotels mock · Hotels home</title>
+<link rel="stylesheet" href="mock.css"><link rel="stylesheet" href="hotels.css">
+<style>
+.hero { background: linear-gradient(120deg, #1d3b30, #3f5a4c 55%, #6b5a3e); }
+.sbar .seg.where { flex: 1.3; } .sbar { position: relative; }
+.pop.guests { top: calc(100% + 10px); right: 120px; width: 360px; }
+.pop.dates { top: calc(100% + 10px); left: 22%; }
+.types { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; } .types a { text-decoration: none; }
+.cities { display: flex; flex-wrap: wrap; gap: 8px; }
+.card .p small { color: var(--ink-500); }
+@media (max-width: 767px) { .types { grid-template-columns: repeat(2, 1fr); } .pop.guests, .pop.dates { position: fixed; inset: auto 0 0 0; width: auto; border-radius: 20px 20px 0 0; left: 0; right: 0; } .cal { grid-template-columns: 1fr; } .cal > div + div { display: none; } .cal .g { grid-template-columns: repeat(7, 1fr); } .mtabs { grid-template-columns: repeat(3, 1fr); } .mtabs a { font-size: 13px; } }
+</style></head>
+<body data-shell="customer" data-vertical="hotel" data-states="default:Default,dates:Dates open,guests:Rooms & guests open">
+<div id="hdr"></div>
+<section class="hero"><div class="wrap">
+  <div class="mtabs on-photo"><a href="#"><i data-icon="tab-farmhouse"></i>Farmhouse</a><a href="#"><i data-icon="tab-entertainment"></i>Play</a><a href="#" aria-current="page"><i data-icon="tab-hotel"></i>Hotels</a></div>
+  <p class="eyebrow">Hotels · Surat first</p>
+  <h1 class="display">Verified hotels across Gujarat. Total price shown up front.</h1>
+  <form class="sbar" role="search" aria-label="Find a hotel">
+    <div class="sgrid" style="display:contents">
+      <div class="seg where"><b><i data-icon="pin"></i>Where</b><i>City, area, landmark or hotel</i></div>
+      <div class="seg"><b><i data-icon="calendar"></i>Check-in – Check-out</b><i>Wed 18 Nov – Fri 20 Nov · 2 nights</i></div>
+      <div class="seg"><b><i data-icon="users"></i>Rooms &amp; guests</b><i>1 room · 2 adults</i></div>
+    </div>
+    <button class="sbtn" type="button"><i data-icon="search"></i>Search</button>
+    <div class="pop dates" data-show="dates" role="dialog" aria-label="Choose dates">
+      <div class="between" style="margin-bottom:12px"><b>18 Nov → 20 Nov · 2 nights</b><span class="small muted">Min 1 night · max 30</span></div>
+      <div class="cal">
+        <div><h4>November 2026</h4><div class="g"><i>M</i><i>T</i><i>W</i><i>T</i><i>F</i><i>S</i><i>S</i>
+          <span></span><span></span><span></span><span></span><span></span><span></span><span class="past">1</span>
+          <span class="past">2</span><span class="past">3</span><span class="past">4</span><span class="past">5</span><span class="past">6</span><span class="past">7</span><span class="past">8</span>
+          <span class="past">9</span><span class="past">10</span><span class="past">11</span><span class="past">12</span><span class="past">13</span><span class="past">14</span><span class="past">15</span>
+          <span class="past">16</span><span class="past">17</span><span class="s">18</span><span class="in">19</span><span class="e">20</span><span>21</span><span>22</span>
+          <span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span></div></div>
+        <div><h4>December 2026</h4><div class="g"><i>M</i><i>T</i><i>W</i><i>T</i><i>F</i><i>S</i><i>S</i>
+          <span></span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span>
+          <span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span>
+          <span>28</span><span>29</span><span>30</span><span>31</span></div></div>
+      </div>
+      <div class="between" style="margin-top:12px"><a href="#" class="small b">Clear dates</a><span class="btn sm">Apply</span></div>
+    </div>
+    <div class="pop guests" data-show="guests" role="dialog" aria-label="Rooms and guests">
+      <div class="gp-room"><h4>Room 1</h4>
+        <div class="gp-line"><span>Adults<small>18+</small></span><span class="stepper"><button type="button" aria-label="Fewer adults"><i data-icon="minus"></i></button><output>2</output><button type="button" aria-label="More adults"><i data-icon="plus"></i></button></span></div>
+        <div class="gp-line"><span>Children<small>0–17</small></span><span class="stepper"><button type="button" aria-label="Fewer children"><i data-icon="minus"></i></button><output>1</output><button type="button" aria-label="More children"><i data-icon="plus"></i></button></span></div>
+        <div class="gp-line"><span>Age of child 1<small>Needed for child pricing</small></span><select class="sel-native" aria-label="Age of child 1"><option>7 years</option></select></div>
+      </div>
+      <div class="gp-room"><h4>Room 2 <a href="#" class="small" style="color:var(--danger)">Remove</a></h4>
+        <div class="gp-line"><span>Adults</span><span class="stepper"><button type="button" aria-label="Fewer adults"><i data-icon="minus"></i></button><output>1</output><button type="button" aria-label="More adults"><i data-icon="plus"></i></button></span></div>
+        <div class="gp-line"><span>Children</span><span class="stepper"><button type="button" disabled aria-label="Fewer children"><i data-icon="minus"></i></button><output>0</output><button type="button" aria-label="More children"><i data-icon="plus"></i></button></span></div>
+      </div>
+      <div class="between" style="margin-top:12px"><a href="#" class="small b" style="color:var(--brand-600)">+ Add room</a><span class="btn sm">Done</span></div>
+    </div>
+  </form>
+  <div class="chips on-photo"><span class="chip"><i data-icon="moon"></i>Tonight</span><span class="chip">This weekend</span><span class="chip"><i data-icon="couple"></i>Couple-friendly</span><span class="chip">Under ₹2,000</span><span class="chip"><i data-icon="coffee"></i>With breakfast</span><span class="chip"><i data-icon="pool"></i>Pool</span></div>
+</div><span class="ph-label">Hotel photo (licensed fallback until 3 live hotels have photos)</span></section>
+
+<div class="wrap">
+  <div class="trust">
+    <div><span class="well"><i data-icon="shield"></i></span><span><b>Verified by Rentra</b>Visited or video-checked</span></div>
+    <div><span class="well"><i data-icon="rupee"></i></span><span><b>Price incl. taxes</b>No surprise at checkout</span></div>
+    <div><span class="well"><i data-icon="calendar"></i></span><span><b>Clear cancellation</b>Exact date and time shown</span></div>
+  </div>
+
+  <section class="blk"><div class="row-head"><div><h2>Stays in Surat</h2><p class="sub">18–20 Nov · 2 adults · total for 2 nights</p></div><div class="arrows"><span><i data-icon="back"></i></span><span><i data-icon="next"></i></span></div></div>
+    <div class="cards">
+      <a class="card" href="hotel.html" style="text-decoration:none;color:inherit"><div class="photo">Hotel photo<span class="badge">Verified</span><span class="heart"><i data-icon="heart"></i></span></div>
+        <div class="meta">Adajan<small><i data-icon="star"></i>4.4 (212)</small></div><p class="t">The Riverside Residency</p><p class="f">Hotel · Breakfast · Free cancellation</p><p class="p"><b>₹6,510</b> <small>for 2 nights · incl. taxes</small></p></a>
+      <a class="card" href="hotel.html" style="text-decoration:none;color:inherit"><div class="photo">Hotel photo<span class="heart"><i data-icon="heart"></i></span></div>
+        <div class="meta">Vesu<small><i data-icon="star"></i>4.6 (88)</small></div><p class="t">Hotel Sai Palace</p><p class="f">Business hotel · Couple-friendly</p><p class="p"><b>₹4,200</b> <small>for 2 nights · incl. taxes</small></p></a>
+      <a class="card" href="hotel.html" style="text-decoration:none;color:inherit"><div class="photo">Hotel photo<span class="badge">Verified</span><span class="heart"><i data-icon="heart"></i></span></div>
+        <div class="meta">Dumas Road<small>New</small></div><p class="t">Green Leaf Resort</p><p class="f">Resort · Pool · All meals</p><p class="p"><b>₹14,280</b> <small>for 2 nights · incl. taxes</small></p></a>
+      <a class="card" href="hotel.html" style="text-decoration:none;color:inherit"><div class="photo">Hotel photo<span class="heart"><i data-icon="heart"></i></span></div>
+        <div class="meta">Ring Road<small><i data-icon="star"></i>4.1 (340)</small></div><p class="t">Hotel Textile Inn</p><p class="f">Hotel · Near Surat Railway Station</p><p class="p"><b>₹3,360</b> <small>for 2 nights · incl. taxes</small></p></a>
+    </div>
+    <p class="note">Prices are totals for your dates and guests, including GST. Without dates, cards show “from ₹X / night”.</p>
+  </section>
+
+  <section class="blk"><div class="row-head"><div><h2>Find the right kind of stay</h2><p class="sub">Counts are live hotels in Surat</p></div></div>
+    <div class="types">
+      <a class="tile" href="results.html"><i data-icon="building"></i><b>Hotels</b><i>58 stays</i></a>
+      <a class="tile" href="results.html"><i data-icon="pool"></i><b>Resorts</b><i>9 stays</i></a>
+      <a class="tile" href="results.html"><i data-icon="key"></i><b>Boutique</b><i>6 stays</i></a>
+      <a class="tile" href="results.html"><i data-icon="clipboard"></i><b>Business</b><i>13 stays</i></a>
+      <a class="tile" href="results.html"><i data-icon="couple"></i><b>Couple-friendly</b><i>31 stays</i></a>
+    </div>
+  </section>
+
+  <section class="blk"><h2 style="margin-bottom:14px">Hotels by city</h2>
+    <div class="cities"><span class="chip">Surat · 86</span><span class="chip">Ahmedabad · soon</span><span class="chip">Vadodara · soon</span><span class="chip">Rajkot · soon</span><span class="chip">Saputara · soon</span></div>
+  </section>
+
+  <div class="cta"><div><h2>Own a hotel?</h2><p class="sub">10% founding-partner commission · weekly payouts · free owner app</p></div><a class="btn" href="owner-onboarding.html">List your hotel</a></div>
+</div>
+<div id="ftr"></div>
+<script src="chrome.js"></script><script src="icons.js"></script>
+</body></html>

@@ -19,6 +19,11 @@ import {
   VenueSection,
   HoursSection,
   HourlyPricingSection,
+  HotelRoomsSection,
+  HotelRatesSection,
+  HotelStaySection,
+  HotelRulesSection,
+  HotelGstForm,
   SubmitBar,
   ReviewFlags,
 } from '@/components/partner/listing/ListingSections';
@@ -66,6 +71,8 @@ export default async function ListingBuilderPage(props) {
   if (failure) return <PortalState kind={failure} backHref={listHref} backLabel="All properties" />;
 
   const venue = data.listing.rentalUnit === 'hour';
+  const hotelListing = data.listing.rentalUnit === 'night';
+  const hotel = data.hotel ?? { profile: null, roomTypes: [], ratePlans: [] };
   const vertical = data.listing.vertical;
   const [catalogue, categories, cities, calendar] = await Promise.all([
     partnerApi.amenityCatalogue(vertical),
@@ -202,13 +209,27 @@ export default async function ListingBuilderPage(props) {
             <LocationSection listing={listing} cities={cities} />
             {venue ? (
               <VenueSection listing={listing} resources={resources} activities={categories} />
+            ) : hotelListing ? (
+              <HotelRoomsSection listing={listing} roomTypes={hotel.roomTypes} />
             ) : (
               <CapacitySection listing={listing} />
             )}
             <AmenitiesSection listing={listing} catalogue={catalogue} selected={amenities} />
             {venue ? <HoursSection listing={listing} calendar={calendar} /> : null}
-            <RulesSection listing={listing} />
-            {venue ? (
+            {hotelListing ? (
+              <>
+                <HotelStaySection listing={listing} profile={hotel.profile} />
+                <HotelRulesSection listing={listing} profile={hotel.profile} />
+                <HotelRatesSection
+                  listing={listing}
+                  roomTypes={hotel.roomTypes}
+                  ratePlans={hotel.ratePlans}
+                />
+              </>
+            ) : (
+              <RulesSection listing={listing} />
+            )}
+            {hotelListing ? null : venue ? (
               <HourlyPricingSection
                 listing={listing}
                 hourlyRates={hourlyRates}
@@ -218,14 +239,15 @@ export default async function ListingBuilderPage(props) {
             ) : (
               <PricingSection listing={listing} prices={prices} />
             )}
-            <TermsSection listing={listing} />
-            <PhotosSection listing={listing} photos={photos} />
+            {hotelListing ? null : <TermsSection listing={listing} />}
+            <PhotosSection listing={listing} photos={photos} roomTypes={hotel.roomTypes} />
             <OwnershipSection
               listing={listing}
               documents={documents}
               clientType={user.clientType}
               kycName={user.name}
             />
+            {hotelListing ? <HotelGstForm listing={listing} profile={hotel.profile} /> : null}
           </div>
         </ReviewFlags>
       </ListingChrome>

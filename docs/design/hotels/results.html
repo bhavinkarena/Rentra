@@ -1,0 +1,125 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hotels mock · Search results</title>
+<link rel="stylesheet" href="mock.css"><link rel="stylesheet" href="hotels.css">
+<style>
+.mbar-top { display: none; }
+.sk-card { display: grid; grid-template-columns: 240px 1fr; gap: 18px; padding: 16px; background: #fff; border: 1px solid var(--ink-200); border-radius: 16px; margin-bottom: 14px; }
+@media (max-width: 767px) {
+  .rhead .sbar { display: none; } .mbar-top { display: flex; }
+  .mbar-top .sum { flex: 1; border: 1px solid var(--ink-300); border-radius: 99px; padding: 6px 16px; font-size: 13px; } .mbar-top .sum b { display: block; font-size: 14px; }
+  .mfilters { display: flex; gap: 8px; overflow: hidden; margin-top: 10px; } .sk-card { grid-template-columns: 1fr; }
+  .sheet { position: fixed; inset: 0; background: rgba(31,41,36,.45); z-index: 80; display: flex; align-items: flex-end; }
+  .sheet > div { background: #fff; width: 100%; max-height: 88vh; border-radius: 20px 20px 0 0; display: flex; flex-direction: column; }
+  .sheet .sb { overflow: auto; padding: 0 16px; } .sheet .filters { display: block; position: static; max-height: none; }
+}
+@media (min-width: 768px) { .mfilters, .sheet { display: none !important; } }
+</style></head>
+<body data-shell="customer" data-vertical="hotel" data-tabs="off" data-states="default:Results,loading:Loading,empty:No results,soldout:Busy dates,filters:Mobile filter sheet">
+<div id="hdr"></div>
+<div class="rhead"><div class="wrap">
+  <div class="sbar compact" role="search"><div class="seg"><b><i data-icon="pin"></i>Where</b><i>Surat · Adajan</i></div><div class="seg"><b><i data-icon="calendar"></i>Dates</b><i>18 – 20 Nov · 2 nights</i></div><div class="seg"><b><i data-icon="users"></i>Rooms &amp; guests</b><i>1 room · 2 adults</i></div><button class="sbtn" type="button"><i data-icon="search"></i>Update</button></div>
+  <div class="mbar-top row"><a class="iconbtn" href="home.html" aria-label="Back"><i data-icon="back"></i></a><div class="sum"><b>Surat · Adajan</b>18–20 Nov · 1 room · 2 guests</div><span class="iconbtn" aria-label="Edit search"><i data-icon="edit"></i></span></div>
+  <div class="mfilters"><a class="chip" href="?state=filters"><i data-icon="sliders"></i>Filters · 3</a><span class="chip"><i data-icon="sort"></i>Recommended</span><span class="chip" style="background:var(--brand-50);border-color:var(--brand-200)">Couple-friendly ✓</span><span class="chip">Breakfast</span></div>
+</div></div>
+
+<div class="wrap rlayout">
+  <aside class="filters" aria-label="Filters">
+    <div class="between"><b>Filters</b><a href="#" class="small">Clear all</a></div>
+    <div class="fgroup"><h4>Price per night <span class="muted tabular">₹1,200 – ₹5,000</span></h4>
+      <div class="hist"><span class="out" style="height:20%"></span><span style="height:45%"></span><span style="height:80%"></span><span style="height:100%"></span><span style="height:70%"></span><span style="height:52%"></span><span style="height:30%"></span><span class="out" style="height:22%"></span><span class="out" style="height:12%"></span><span class="out" style="height:8%"></span></div>
+      <div class="range"></div></div>
+    <div class="fgroup"><h4>Popular</h4>
+      <label class="fopt"><input type="checkbox" checked>Free cancellation<em>41</em></label>
+      <label class="fopt"><input type="checkbox" checked>Couple-friendly<em>31</em></label>
+      <label class="fopt"><input type="checkbox">Breakfast included<em>27</em></label>
+      <label class="fopt"><input type="checkbox">Local ID accepted<em>22</em></label></div>
+    <div class="fgroup"><h4>Guest rating</h4>
+      <label class="fopt"><input type="radio" name="r">4.5+ Excellent<em>9</em></label><label class="fopt"><input type="radio" name="r" checked>4+ Very good<em>24</em></label><label class="fopt"><input type="radio" name="r">3.5+ Good<em>33</em></label></div>
+    <div class="fgroup"><h4>Property type</h4>
+      <label class="fopt"><input type="checkbox">Hotel<em>30</em></label><label class="fopt"><input type="checkbox">Resort<em>2</em></label><label class="fopt"><input type="checkbox">Boutique<em>1</em></label><label class="fopt off"><input type="checkbox" disabled>Homestay<em>0</em></label></div>
+    <div class="fgroup"><h4>Food</h4><label class="fopt"><input type="checkbox">Pure veg kitchen<em>12</em></label><label class="fopt"><input type="checkbox">Jain food on request<em>8</em></label></div>
+    <div class="fgroup"><h4>Amenities <a href="#" class="small">Show all 14</a></h4>
+      <label class="fopt"><input type="checkbox">Free parking<em>28</em></label><label class="fopt"><input type="checkbox">Pool<em>3</em></label><label class="fopt"><input type="checkbox">Restaurant<em>19</em></label><label class="fopt"><input type="checkbox">Power backup<em>30</em></label></div>
+    <div class="fgroup"><h4>Distance from Adajan</h4><label class="fopt"><input type="radio" name="d">Within 1 km<em>6</em></label><label class="fopt"><input type="radio" name="d" checked>Within 3 km<em>18</em></label><label class="fopt"><input type="radio" name="d">Within 5 km<em>31</em></label></div>
+  </aside>
+
+  <main>
+    <div class="between"><div><h1 style="font-size:22px">18 stays in Adajan, Surat</h1><p class="small muted">Totals for 2 nights · 2 adults · incl. taxes</p></div>
+      <label class="small row">Sort <select class="sel-native"><option>Recommended</option><option>Price: low to high</option><option>Price: high to low</option><option>Guest rating</option><option>Distance</option></select></label></div>
+    <div class="applied"><span>Free cancellation <i data-icon="x"></i></span><span>Couple-friendly <i data-icon="x"></i></span><span>4+ rating <i data-icon="x"></i></span><span>Within 3 km <i data-icon="x"></i></span></div>
+
+    <div data-hide="loading empty soldout">
+      <article class="hcard hl">
+        <div class="photo">Hotel photo<span class="heart"><i data-icon="heart"></i></span><span class="dots3"><i></i><i></i><i></i></span></div>
+        <div class="body">
+          <div class="between"><h3><a href="hotel.html" style="text-decoration:none">The Riverside Residency</a></h3><span class="verified"><i data-icon="shield"></i>Verified</span></div>
+          <span class="score"><b>8.8</b> Very good · 212 reviews · Hotel ★★★</span>
+          <div class="facts-line"><span><i data-icon="pin"></i>Adajan · 1.2 km from Riverfront</span></div>
+          <div class="facts-line"><span><i data-icon="bed"></i>Deluxe Double · 1 king bed</span><span><i data-icon="coffee"></i>Breakfast included</span></div>
+          <span class="ok-line"><i data-icon="check"></i>Free cancellation until Mon 16 Nov, 12:00</span>
+          <div class="facts-line"><span><i data-icon="couple"></i>Couple-friendly</span><span><i data-icon="idcard"></i>Local ID accepted</span></div>
+          <div class="pricebox"><span class="warn-line"><i data-icon="alert"></i>2 rooms left at this price</span><div class="amt"><small>2 nights · 2 adults</small><b>₹6,510</b><small>incl. ₹310 taxes</small></div></div>
+        </div>
+      </article>
+      <article class="hcard">
+        <div class="photo">Hotel photo<span class="heart"><i data-icon="heart"></i></span><span class="dots3"><i></i><i></i><i></i></span></div>
+        <div class="body">
+          <h3>Hotel Sai Palace</h3>
+          <span class="score"><b>9.2</b> Excellent · 88 reviews · Business hotel</span>
+          <div class="facts-line"><span><i data-icon="pin"></i>Vesu · 2.8 km</span></div>
+          <div class="facts-line"><span><i data-icon="bed"></i>Standard Twin · 2 single beds</span><span><i data-icon="wifi"></i>Free Wi-Fi</span></div>
+          <span class="ok-line"><i data-icon="check"></i>Free cancellation until Tue 17 Nov, 12:00</span>
+          <div class="facts-line"><span><i data-icon="couple"></i>Couple-friendly</span><span><i data-icon="leaf"></i>Pure veg kitchen</span></div>
+          <div class="pricebox"><span></span><div class="amt"><small>2 nights · 2 adults</small><b>₹4,200</b><small>incl. ₹200 taxes</small></div></div>
+        </div>
+      </article>
+      <article class="hcard">
+        <div class="photo">Hotel photo<span class="heart"><i data-icon="heart"></i></span></div>
+        <div class="body">
+          <h3>Hotel Textile Inn</h3>
+          <span class="score"><b>8.2</b> Very good · 340 reviews · Hotel</span>
+          <div class="facts-line"><span><i data-icon="pin"></i>Ring Road · 2.9 km</span></div>
+          <div class="facts-line"><span><i data-icon="bed"></i>Standard Double</span></div>
+          <span class="ok-line"><i data-icon="check"></i>Free cancellation until Tue 17 Nov, 12:00</span>
+          <div class="pricebox"><span></span><div class="amt"><small>2 nights · 2 adults</small><b>₹3,360</b><small>incl. ₹160 taxes</small></div></div>
+        </div>
+      </article>
+      <p class="note">Showing 3 of 18 · <a href="#">Load more</a></p>
+    </div>
+
+    <div data-show="loading" role="status" aria-label="Loading stays">
+      <div class="sk-card"><div class="sk" style="height:190px"></div><div class="stack"><div class="sk" style="height:22px;width:60%"></div><div class="sk" style="height:16px;width:40%"></div><div class="sk" style="height:16px;width:75%"></div><div class="sk" style="height:16px;width:50%"></div><div class="sk" style="height:28px;width:30%;margin-left:auto"></div></div></div>
+      <div class="sk-card"><div class="sk" style="height:190px"></div><div class="stack"><div class="sk" style="height:22px;width:55%"></div><div class="sk" style="height:16px;width:35%"></div><div class="sk" style="height:16px;width:70%"></div></div></div>
+    </div>
+
+    <div data-show="empty" class="panel empty"><span class="well"><i data-icon="sliders"></i></span><h3>No stays match all your filters</h3><p>4 filters are on. Couple-friendly + 4+ rating removes the most stays.</p>
+      <div class="row" style="justify-content:center"><span class="btn">Clear 4 filters</span><span class="btn light">Remove “4+ rating”</span></div>
+      <p class="small muted" style="margin-top:20px">Nearest matches without “Within 3 km”: 6 stays</p></div>
+
+    <div data-show="soldout" class="panel empty"><span class="well"><i data-icon="calendar"></i></span><h3>Adajan is busy on 18–20 Nov</h3><p>All 18 stays are full or closed for these dates.</p>
+      <div class="row" style="justify-content:center"><span class="btn">Try 19–21 Nov · 9 stays</span><span class="btn light">Search all of Surat</span></div></div>
+  </main>
+
+  <aside class="mapbox" aria-label="Map of results (list has the same stays)">
+    <div class="river"></div><div class="road r1"></div><div class="road r2"></div>
+    <label class="mapctl"><input type="checkbox">Search as I move the map</label>
+    <span class="landmark" style="left:58%;top:40%"><i></i>Riverfront</span>
+    <span class="pin on" style="left:52%;top:52%">₹6,510</span>
+    <span class="pin" style="left:30%;top:70%">₹4,200</span>
+    <span class="pin" style="left:72%;top:24%">₹3,360</span>
+    <span class="pin" style="left:20%;top:30%">₹5,880</span>
+    <span class="pin sold" style="left:80%;top:78%">Full</span>
+  </aside>
+</div>
+<a class="mfab" href="#"><i data-icon="map"></i>Map</a>
+
+<div class="sheet" data-show="filters" role="dialog" aria-label="Filters"><div>
+  <div class="between" style="padding:16px"><a href="?state=default" class="iconbtn" aria-label="Close"><i data-icon="x"></i></a><b>Filters</b><a href="#" class="small b">Clear all</a></div>
+  <div class="sb"><div class="filters">
+    <div class="fgroup"><h4>Popular</h4><label class="fopt"><input type="checkbox" checked>Free cancellation<em>41</em></label><label class="fopt"><input type="checkbox" checked>Couple-friendly<em>31</em></label><label class="fopt"><input type="checkbox">Breakfast included<em>27</em></label><label class="fopt"><input type="checkbox">Local ID accepted<em>22</em></label></div>
+    <div class="fgroup"><h4>Guest rating</h4><label class="fopt"><input type="radio" name="m">4.5+<em>9</em></label><label class="fopt"><input type="radio" name="m" checked>4+<em>24</em></label></div>
+    <div class="fgroup"><h4>Food</h4><label class="fopt"><input type="checkbox">Pure veg kitchen<em>12</em></label></div>
+  </div></div>
+  <div style="padding:12px 16px;border-top:1px solid var(--ink-200)"><a class="btn block" href="?state=default">Show 18 stays</a></div>
+</div></div>
+<script src="chrome.js"></script><script src="icons.js"></script>
+</body></html>

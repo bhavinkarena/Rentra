@@ -1,0 +1,20 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hotels mock · Booking confirmed</title>
+<link rel="stylesheet" href="mock.css"><link rel="stylesheet" href="hotels.css">
+<style>.narrow { max-width: 720px; margin: 0 auto; padding-bottom: 64px; } .okhero h1 { font-size: 30px; letter-spacing: -.02em; } .cross { display: flex; gap: 14px; align-items: center; }</style></head>
+<body data-shell="customer" data-vertical="hotel" data-tabs="off" data-states="default:Confirmed,confirming:Confirming payment">
+<div id="hdr"></div>
+<div class="wrap narrow">
+  <div data-show="confirming" class="okhero" role="status"><span class="spinner" style="border-color:var(--ink-200);border-top-color:var(--brand-600);width:40px;height:40px;display:inline-block"></span><h1 style="margin-top:14px">Confirming your payment…</h1><p class="muted">This usually takes a few seconds. Don't close this page or pay again.</p></div>
+  <div data-hide="confirming">
+    <div class="okhero"><div class="tick"><i data-icon="check"></i></div><h1>You're booked!</h1><p class="muted">Confirmation sent to WhatsApp +91 98250 12345</p><p class="mono" style="margin-top:6px">Ref RS-8K2QX</p></div>
+    <div class="panel">
+      <div class="between"><div><b style="font-size:18px">The Riverside Residency</b><p class="small muted">12, Riverfront Road, Adajan, Surat</p></div><span class="bdg ok dot">Confirmed</span></div>
+      <dl class="kv" style="margin-top:14px"><dt>Check-in</dt><dd><b>Wed 18 Nov</b> from 12:00</dd><dt>Check-out</dt><dd><b>Fri 20 Nov</b> until 11:00</dd><dt>Room</dt><dd>1 × Deluxe Double · Breakfast · 2 adults</dd><dt>Paid</dt><dd><b class="tabular">₹6,510</b> incl. ₹310 GST · UPI</dd><dt>Free cancellation</dt><dd>Until Mon 16 Nov, 12:00</dd><dt>Front desk</dt><dd>+91 261 000 0000</dd></dl>
+      <div class="acts" style="margin-top:16px"><a href="#"><i data-icon="map"></i>Directions</a><a href="#"><i data-icon="download"></i>Voucher &amp; invoice</a><a href="#"><i data-icon="calendar"></i>Add to calendar</a><a href="trip.html"><i data-icon="clipboard"></i>Manage booking</a></div>
+    </div>
+    <div class="panel"><b>Before you go</b><ul style="margin-top:8px;padding-left:18px;font-size:15px;line-height:1.9"><li>Carry an ID for each adult (Aadhaar, passport, driving licence or voter ID).</li><li>We'll WhatsApp directions 24 hours before check-in.</li></ul></div>
+    <div class="panel cross"><i data-icon="tab-farmhouse" style="width:40px;height:40px"></i><div class="grow"><b>Planning a day out in Surat?</b><p class="small muted">Farmhouses near Adajan for day visits.</p></div><a class="btn light sm" href="#">Explore</a></div>
+  </div>
+</div>
+<script src="chrome.js"></script><script src="icons.js"></script>
+</body></html>

@@ -1,0 +1,73 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hotels mock · Owner onboarding (rooms &amp; rates)</title>
+<link rel="stylesheet" href="mock.css"><link rel="stylesheet" href="hotels.css">
+<style>h1 { font-size: 26px; letter-spacing: -.02em; } .rtcard h3 { font-size: 17px; } .rtgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 14px; } .rtgrid.two { grid-template-columns: 1fr 1fr; }
+.sumrow { display: flex; gap: 14px; align-items: center; } .sumrow .photo { width: 72px; aspect-ratio: 1; border-radius: 10px; font-size: 10px; }
+@media (max-width: 767px) { .rtgrid, .rtgrid.two { grid-template-columns: 1fr; } }</style></head>
+<body data-shell="owner" data-states="rooms:Step 6 · Rooms,rates:Step 7 · Rates & plans,review:Step 10 · Submit">
+<div class="wiz">
+  <aside>
+    <a class="slogo" href="index.html" style="color:var(--brand-800);padding:0 8px"><img src="../../../public/brand/rentra-mark.svg" alt="" style="filter:none">Add your hotel</a>
+    <div style="padding:0 8px"><div class="between small"><span class="muted">Setup progress</span><b class="tabular" data-show="rooms">50%</b><b class="tabular" data-show="rates">60%</b><b class="tabular" data-show="review">100%</b></div><div class="prog"><i style="width:60%"></i></div></div>
+    <ol>
+      <li class="d"><b>✓</b>Account</li><li class="d"><b>✓</b>Property basics</li><li class="d"><b>✓</b>Location</li><li class="d"><b>✓</b>Photos</li><li class="d"><b>✓</b>Amenities</li>
+      <li class="on" data-show="rooms"><b>6</b>Room types</li><li class="d" data-hide="rooms"><b>✓</b>Room types</li>
+      <li class="on" data-show="rates"><b>7</b>Rates &amp; plans</li><li data-show="rooms"><b>7</b>Rates &amp; plans</li><li class="d" data-show="review"><b>✓</b>Rates &amp; plans</li>
+      <li data-hide="review"><b>8</b>Policies</li><li data-hide="review"><b>9</b>Tax &amp; payouts</li><li data-hide="review"><b>10</b>Agreement &amp; submit</li>
+      <li class="d" data-show="review"><b>✓</b>Policies</li><li class="d" data-show="review"><b>✓</b>Tax &amp; payouts</li><li class="on" data-show="review"><b>10</b>Agreement &amp; submit</li>
+    </ol>
+    <p class="tiny muted" style="padding:16px 8px 0">Saved automatically · 2 min ago<br>Need help? Your Rentra onboarding contact can fill this with you</p>
+  </aside>
+  <main>
+    <!-- Step 6: room types -->
+    <div data-show="rooms">
+      <p class="eyebrow2">Step 6 of 10</p><h1>Room types</h1><p class="pdesc">Group identical rooms. Guests book a type; you assign the room number at check-in.</p>
+      <div class="banner info" style="margin-top:16px"><i data-icon="info"></i><div><b>26 of 32 rooms added</b>Your basics say 32 rooms. Add the remaining 6, or update the total.</div></div>
+      <div class="rtcard"><div class="sumrow"><div class="photo">4 photos</div><div class="grow"><h3>Deluxe Double</h3><p class="small muted">12 rooms · 1 king bed · max 3 guests · 24 m²</p></div><a class="btn ghost sm" href="#">Edit</a></div></div>
+      <div class="rtcard open">
+        <div class="between"><h3>Standard Twin</h3><span class="small muted">Unsaved changes</span></div>
+        <div class="rtgrid two"><label class="fld">Room type name<select><option>Standard Twin</option><option>Standard Double</option><option>Deluxe</option><option>Suite</option><option>Family room</option><option>Custom name…</option></select></label><label class="fld">Number of rooms of this type<input value="14" inputmode="numeric"><span class="hint">Rooms you can sell. You can give Rentra fewer on any date.</span></label></div>
+        <div class="fld" style="margin-top:14px">Beds<div class="bedline"><span>2 × Single <button class="iconbtn" style="width:28px;height:28px" aria-label="Remove"><i data-icon="x"></i></button></span><a class="chip" href="#">+ Add bed</a></div></div>
+        <div class="rtgrid"><label class="fld">Max adults<input value="2"></label><label class="fld">Max children<input value="1"></label><label class="fld">Price includes (guests)<input value="2"><span class="hint">Extra guests pay extra</span></label></div>
+        <div class="rtgrid"><label class="fld">Size (m², optional)<input value="18"></label><label class="fld">View (optional)<select><option>No view</option><option>City</option><option>River</option><option>Garden</option></select></label><label class="fld">Smoking<select><option>Non-smoking</option></select></label></div>
+        <div class="fld" style="margin-top:14px">Room amenities<div class="row" style="flex-wrap:wrap"><span class="chip" style="background:var(--brand-50);border-color:var(--brand-200)">✓ AC</span><span class="chip" style="background:var(--brand-50);border-color:var(--brand-200)">✓ Wi-Fi</span><span class="chip" style="background:var(--brand-50);border-color:var(--brand-200)">✓ TV</span><span class="chip">Kettle</span><span class="chip">Work desk</span><span class="chip">Mini fridge</span><span class="chip">+ 14 more</span></div></div>
+        <div class="fld" style="margin-top:14px">Photos (at least 2)<div class="row"><div class="photo" style="width:96px;aspect-ratio:4/3;border-radius:10px">Photo</div><a class="btn ghost sm" href="#"><i data-icon="upload"></i>Add photos</a><span class="hint">1 of 2 · JPG or PNG, at least 1200 × 800</span></div></div>
+        <div class="row" style="justify-content:flex-end;margin-top:16px"><span class="btn ghost sm">Cancel</span><span class="btn sm">Save room type</span></div>
+      </div>
+      <a class="btn light" style="margin-top:14px" href="#">+ Add room type</a>
+    </div>
+
+    <!-- Step 7: rates -->
+    <div data-show="rates">
+      <p class="eyebrow2">Step 7 of 10</p><h1>Rates &amp; plans</h1><p class="pdesc">Set a weekday and weekend price per room type. Add plans guests can choose.</p>
+      <div class="rtcard open">
+        <div class="between"><h3>Deluxe Double · 12 rooms</h3><span class="bdg info">Price for 2 guests</span></div>
+        <div class="rtgrid"><label class="fld">Weekday (Sun–Thu nights)<input value="₹2,600"></label><label class="fld">Weekend (Fri–Sat nights)<input value="₹3,000"></label><label class="fld">Extra adult / night<input value="₹700"></label></div>
+        <div class="taxprev" style="margin-top:14px"><span>Weekday room rate</span><span>₹2,600</span><span>GST 5% (rate ₹7,500 or less)</span><span>₹130</span><span class="t">Guest pays per night</span><span class="t">₹2,730</span><span class="muted">Rentra commission 10% (founding partner)</span><span class="muted">−₹260</span></div>
+        <p class="small b" style="margin-top:16px">Plans guests can choose</p>
+        <div class="planrow"><i data-icon="bed"></i><span><b>Room only</b> · base plan</span><span class="tog" aria-label="On"></span></div>
+        <div class="planrow"><i data-icon="coffee"></i><span><b>Breakfast included</b> · + ₹250 per guest / night</span><span class="tog" aria-label="On"></span></div>
+        <div class="planrow"><i data-icon="lock"></i><span><b>Non-refundable</b> · 10% cheaper, no refund</span><span class="tog off" aria-label="Off"></span></div>
+        <label class="fld" style="margin-top:14px">Cancellation for refundable plans<select><option>Flexible — free until 24 h before check-in</option><option>Moderate — free until 3 days before</option><option>Strict — free until 7 days before</option></select><span class="hint">Guests see: “Free cancellation until Mon 16 Nov, 12:00”. After that, the first night is charged.</span></label>
+      </div>
+      <div class="rtcard"><div class="between"><h3>Standard Twin · 14 rooms</h3><span class="warn-line"><i data-icon="alert"></i>Add a price</span></div></div>
+    </div>
+
+    <!-- Step 10: submit -->
+    <div data-show="review">
+      <p class="eyebrow2">Step 10 of 10</p><h1>Check and submit</h1><p class="pdesc">Rentra reviews documents in 2 working days, then books a video walkthrough.</p>
+      <div class="panel" style="margin-top:16px"><div class="checks">
+        <div><i data-icon="check" class="y"></i><span>Property basics, location and 28 photos</span><a class="small" href="#">Edit</a></div>
+        <div><i data-icon="check" class="y"></i><span>3 room types · 32 rooms · 6 plans</span><a class="small" href="#">Edit</a></div>
+        <div><i data-icon="check" class="y"></i><span>Policies: check-in 12:00 · couples · local ID</span><a class="small" href="#">Edit</a></div>
+        <div><i data-icon="check" class="y"></i><span>PAN, GSTIN 24AAB…1Z2, bank account (verified)</span><a class="small" href="#">Edit</a></div>
+        <div><i data-icon="check" class="y"></i><span>Trade licence and lease agreement uploaded</span><a class="small" href="#">Edit</a></div>
+      </div></div>
+      <div class="panel"><h2>Your terms</h2><dl class="kv"><dt>Commission</dt><dd>10% of room price (founding partner, until Nov 2027), then 13%</dd><dt>Payouts</dt><dd>Every Tuesday for stays that started by Sunday</dd><dt>Taxes</dt><dd>Rentra collects 0.5% TCS and deducts 0.1% TDS (194-O) from payouts</dd></dl>
+        <label class="check" style="margin-top:14px"><input type="checkbox" checked><span>I have read and accept the <a href="#">Rentra hotel partner agreement</a>. We'll send an OTP to confirm.</span></label></div>
+    </div>
+  </main>
+  <div class="foot"><a class="btn light" href="#">Back</a><span class="small muted" data-hide="review">Saved · you can leave and continue later</span>
+    <span class="btn" data-hide="review">Save and continue</span><span class="btn" data-show="review">Submit for review</span></div>
+</div>
+<script src="chrome.js"></script><script src="icons.js"></script>
+</body></html>

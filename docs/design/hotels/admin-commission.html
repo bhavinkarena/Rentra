@@ -1,0 +1,32 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hotels mock · Admin commission rules</title>
+<link rel="stylesheet" href="mock.css"><link rel="stylesheet" href="hotels.css"></head>
+<body data-shell="admin" data-nav="commission" data-states="list:Rules,add:Add rule">
+<div class="shell">
+  <div id="side"></div>
+  <div>
+    <div class="ptop"><div class="grow"><b>Commission</b></div><a class="btn sm sq" href="?state=add">Add rule</a></div>
+    <div class="pmain">
+      <h1>Commission rules</h1><p class="pdesc">The most specific active rule wins: property, then city, then vertical.</p>
+      <div class="filterbar"><span class="chip on">Hotels</span><span class="chip">Farmhouse</span><span class="chip">Entertainment</span><span class="chip">Show ended rules</span></div>
+      <div class="ari-wrap"><table class="reg resp"><thead><tr><th>Applies to</th><th>Tier</th><th style="text-align:right">Rate</th><th>Valid</th><th>Hotels</th><th>Set by</th></tr></thead><tbody>
+        <tr><td><b>All hotels</b><br><span class="small muted">Vertical default</span></td><td class="hide-m">Standard</td><td class="n"><b>13%</b></td><td class="hide-m">From 1 Dec 2026</td><td class="hide-m">—</td><td class="hide-m">Bhavin · 20 Oct</td></tr>
+        <tr><td><b>Surat · founding partners</b><br><span class="small muted">City rule</span></td><td class="hide-m"><span class="bdg ch">Founding</span></td><td class="n"><b>10%</b></td><td class="hide-m">1 Dec 2026 – 30 Nov 2027</td><td class="hide-m">41 of 50 slots</td><td class="hide-m">Bhavin · 20 Oct</td></tr>
+        <tr><td><b>Green Leaf Resort</b><br><span class="small muted">Property rule</span></td><td class="hide-m">Preferred</td><td class="n"><b>15%</b></td><td class="hide-m">From 1 Jan 2027</td><td class="hide-m">1</td><td class="hide-m">Ops team · 18 Oct</td></tr>
+      </tbody></table></div>
+    </div>
+  </div>
+</div>
+<aside class="drawer" data-show="add" role="dialog" aria-labelledby="ar">
+  <header><h2 id="ar" style="font-size:18px">Add commission rule</h2><a class="iconbtn" href="?state=list" aria-label="Close"><i data-icon="x"></i></a></header>
+  <div class="dbody stack">
+    <label class="fld">Applies to<select><option>One property</option><option>A city</option><option>All hotels</option></select></label>
+    <label class="fld">Property<input value="Hotel Sai Palace, Vesu"></label>
+    <div class="field2"><label class="fld">Rate %<input value="12"></label><label class="fld">Tier<select><option>Standard</option><option>Founding</option><option>Preferred</option><option>Chain</option></select></label></div>
+    <div class="field2"><label class="fld">From<input type="date" value="2026-12-01"></label><label class="fld">To (optional)<input type="date"></label></div>
+    <label class="fld">Reason (audit log)<textarea>Agreed in renewal call, 18 Oct.</textarea></label>
+    <div class="banner info"><i data-icon="info"></i><div><b>Replaces 10% (Surat founding) for this hotel from 1 Dec</b>Bookings made before then keep their rate. On a ₹3,000 room night the hotel pays ₹360 + GST.</div></div>
+  </div>
+  <footer><a class="btn light" href="?state=list">Cancel</a><a class="btn" href="?state=list">Save rule</a></footer>
+</aside>
+<script src="chrome.js"></script><script src="icons.js"></script>
+</body></html>

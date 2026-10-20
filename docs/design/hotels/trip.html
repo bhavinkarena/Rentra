@@ -1,0 +1,47 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hotels mock · My trips</title>
+<link rel="stylesheet" href="mock.css"><link rel="stylesheet" href="hotels.css">
+<style>
+.narrow { max-width: 880px; margin: 0 auto; padding: 16px 0 64px; } h1 { font-size: 28px; letter-spacing: -.02em; }
+.tcard { display: grid; grid-template-columns: 200px minmax(0,1fr); gap: 16px; background: #fff; border: 1px solid var(--ink-200); border-radius: 16px; padding: 12px; margin-top: 12px; }
+.tcard .photo { aspect-ratio: 4/3; } .tcard h3 { font-size: 17px; }
+@media (max-width: 767px) { .tcard { grid-template-columns: 112px minmax(0,1fr); } .tcard .acts a { min-height: 40px; padding: 0 12px; font-size: 13px; } }
+</style></head>
+<body data-shell="customer" data-vertical="hotel" data-tabs="off" data-states="list:My trips,detail:Booking detail,cancel:Cancel dialog,cancelled:Cancelled">
+<div id="hdr"></div>
+<div class="wrap narrow">
+  <div data-show="list">
+    <h1>My trips</h1>
+    <div class="filterbar"><span class="chip on" style="background:var(--brand-600);color:#fff">Upcoming · 2</span><span class="chip">Past · 9</span><span class="chip">Cancelled · 1</span></div>
+    <article class="tcard"><div class="photo">Hotel photo</div><div><div class="between"><h3>The Riverside Residency</h3><span class="bdg ok dot">Confirmed</span></div>
+      <p class="small muted"><i data-icon="tab-hotel" style="width:16px;height:16px;vertical-align:-3px"></i> Hotel · 18–20 Nov · 2 nights · 1 room · <span class="mono">RS-8K2QX</span></p>
+      <div class="acts" style="margin-top:10px"><a href="#"><i data-icon="map"></i>Directions</a><a href="#"><i data-icon="phone"></i>Call hotel</a><a href="?state=detail"><i data-icon="next"></i>Manage</a></div></div></article>
+    <article class="tcard"><div class="photo">Farmhouse photo</div><div><div class="between"><h3>Green Acres Farmhouse</h3><span class="bdg ok dot">Confirmed</span></div>
+      <p class="small muted"><i data-icon="tab-farmhouse" style="width:16px;height:16px;vertical-align:-3px"></i> Farmhouse · Sat 28 Nov · Day visit · <span class="mono">FH-2M9PL</span></p>
+      <div class="acts" style="margin-top:10px"><a href="#"><i data-icon="next"></i>Manage</a></div></div></article>
+  </div>
+
+  <div data-hide="list">
+    <a href="?state=list" class="row small" style="text-decoration:none"><i data-icon="back"></i>My trips</a>
+    <div class="between" style="margin-top:10px;flex-wrap:wrap"><div><h1>The Riverside Residency</h1><p class="muted">18–20 Nov 2026 · 2 nights · <span class="mono">RS-8K2QX</span></p></div>
+      <span class="bdg ok dot" data-hide="cancelled">Confirmed</span><span class="bdg neu dot" data-show="cancelled">Cancelled</span></div>
+    <div data-show="cancelled" class="banner ok" style="margin-top:14px"><i data-icon="check"></i><div><b>Cancelled. ₹6,510 refund started.</b>To your UPI account in 5–7 working days. Refund ID rfnd_8KQ2… · <a href="#">Track refund</a></div></div>
+    <div class="panel" style="margin-top:16px">
+      <ol class="tl" data-hide="cancelled"><li class="d">Booked</li><li class="d">Paid</li><li class="n">Check-in day</li><li>Stayed</li><li>Review</li></ol>
+      <ol class="tl" data-show="cancelled"><li class="d">Booked</li><li class="d">Paid</li><li class="d">Cancelled</li><li class="n">Refund sent</li><li>Refund received</li></ol>
+    </div>
+    <div class="panel"><dl class="kv"><dt>Check-in</dt><dd>Wed 18 Nov from 12:00</dd><dt>Check-out</dt><dd>Fri 20 Nov until 11:00</dd><dt>Room</dt><dd>1 × Deluxe Double · Breakfast · 2 adults · Priya Shah</dd><dt>Paid</dt><dd class="tabular">₹6,510 (₹6,200 room + ₹310 GST) · UPI</dd><dt>Address</dt><dd>12, Riverfront Road, Adajan, Surat 395009</dd></dl>
+      <div class="acts" style="margin-top:16px"><a href="#"><i data-icon="map"></i>Directions</a><a href="#"><i data-icon="phone"></i>Call hotel</a><a href="#"><i data-icon="download"></i>Invoice</a><a href="#"><i data-icon="lifebuoy"></i>Get help</a></div></div>
+    <div class="panel" data-hide="cancelled"><div class="between" style="flex-wrap:wrap"><div><b>Cancellation</b><p class="ok-line" style="margin-top:4px"><i data-icon="check"></i>Free until Mon 16 Nov, 12:00 · 3 days left</p></div><a class="btn danger" href="?state=cancel">Cancel booking</a></div>
+      <p class="small muted" style="margin-top:8px">Want different dates? Cancel for free and book again. Changing dates in place is coming later.</p></div>
+  </div>
+</div>
+
+<div class="sheet-modal" data-show="cancel" role="dialog" aria-modal="true" aria-labelledby="ct"><div class="dlg">
+  <h2 id="ct" style="font-size:20px">Cancel this booking?</h2>
+  <div class="banner ok" style="margin-top:12px"><i data-icon="rupee"></i><div><b>You'll get ₹6,510 back</b>Full refund to your UPI account in 5–7 working days.</div></div>
+  <p class="small b" style="margin-top:14px">Why are you cancelling? (optional)</p>
+  <div class="reason"><label class="on"><input type="radio" name="w" checked>My plans changed</label><label><input type="radio" name="w">Found a better price</label><label><input type="radio" name="w">Booked by mistake</label><label><input type="radio" name="w">Something else</label></div>
+  <div class="between"><a class="btn light" href="?state=detail">Keep booking</a><a class="btn" style="background:var(--danger)" href="?state=cancelled">Cancel and refund ₹6,510</a></div>
+</div></div>
+<script src="chrome.js"></script><script src="icons.js"></script>
+</body></html>

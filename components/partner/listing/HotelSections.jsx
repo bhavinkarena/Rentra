@@ -1,0 +1,986 @@
+'use client';
+import { useActionState, useState } from 'react';
+import { ArrowDown, ArrowUp, Copy, Plus, RotateCcw, Trash2 } from 'lucide-react';
+import {
+  saveHotelGst,
+  saveHotelRates,
+  saveHotelRooms,
+  saveHotelStay,
+  saveRules,
+} from '@/lib/actions/partner';
+import { displayMoney } from '@/lib/domain/display-money';
+import { useStepFormId } from './chrome';
+import { Field, Input, SaveButton, Section, VersionField, inputCls } from './SectionPrimitives';
+
+/**
+ * The hotel walkthrough's own steps (hotel plan, Phase 3): room types, rates,
+ * check-in and check-out, house rules and GST. Saved rows keep their id;
+ * removing a saved row deactivates it (the API refuses while rooms are booked ahead).
+ */
+const MAX_ROOM_TYPES = 30;
+const BEDS = [
+  ['king', 'King'],
+  ['queen', 'Queen'],
+  ['double', 'Double'],
+  ['single', 'Single'],
+  ['sofa_bed', 'Sofa bed'],
+  ['bunk', 'Bunk'],
+];
+const VIEWS = [
+  ['', 'No particular view'],
+  ['city', 'City'],
+  ['garden', 'Garden'],
+  ['river', 'River'],
+  ['sea', 'Sea'],
+  ['pool', 'Pool'],
+  ['hill', 'Hill'],
+  ['courtyard', 'Courtyard'],
+];
+const ROOM_NAMES = ['Standard', 'Deluxe', 'Super Deluxe', 'Executive', 'Suite', 'Family Room'];
+const CANCELLATION = [
+  ['flexible', 'Flexible', 'Free until 24 hours before check-in, then the first night is charged'],
+  ['moderate', 'Moderate', 'Free until 3 days before check-in, then the first night is charged'],
+  ['strict', 'Strict', 'Free until 7 days before check-in, then the whole stay is charged'],
+  ['non_refundable', 'Non-refundable', 'No refund after booking (usually a cheaper rate)'],
+];
+const MEALS = [
+  ['EP', 'Room only'],
+  ['CP', 'Breakfast'],
+  ['MP', 'Breakfast and one meal'],
+  ['AP', 'All meals'],
+];
+const DAYS = [
+  [0, 'Sun'],
+  [1, 'Mon'],
+  [2, 'Tue'],
+  [3, 'Wed'],
+  [4, 'Thu'],
+  [5, 'Fri'],
+  [6, 'Sat'],
+];
+const ID_TYPES = [
+  ['aadhaar', 'Aadhaar'],
+  ['passport', 'Passport'],
+  ['driving_licence', 'Driving licence'],
+  ['voter_id', 'Voter ID'],
+];
+
+/** API field errors ("rooms.0.name") as one list the owner can read. */
+function Errors({ state }) {
+  const messages = Object.values(state?.errors ?? {})
+    .flat()
+    .filter(Boolean);
+  return messages.length ? (
+    <ul role="alert" className="space-y-1 text-meta font-medium text-danger">
+      {[...new Set(messages)].map((message) => (
+        <li key={message}>{message}</li>
+      ))}
+    </ul>
+  ) : null;
+}
+
+function IconButton({ label, children, ...props }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      className="inline-flex size-11 items-center justify-center rounded-full border border-border text-ink-700 hover:bg-ink-50 disabled:opacity-40"
+      {...props}
+    >
+      {children}
+    </button>
+  );
+}
+
+function Segmented({ name, value, options, onChange, legend }) {
+  return (
+    <fieldset>
+      <legend className="mb-1.5 text-meta font-semibold text-ink-800">{legend}</legend>
+      <div className="inline-flex flex-wrap rounded-full border border-border p-1">
+        {options.map(([option, label]) => {
+          const checked = value === option;
+          return (
+            <label
+              key={option}
+              className="inline-flex min-h-11 cursor-pointer items-center rounded-full px-4 text-meta text-ink-700 has-[:checked]:bg-brand-600 has-[:checked]:font-semibold has-[:checked]:text-white has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring"
+            >
+              <input
+                type="radio"
+                className="sr-only"
+                name={name}
+                value={option}
+                checked={onChange ? checked : undefined}
+                defaultChecked={onChange ? undefined : checked}
+                onChange={onChange ? () => onChange(option) : undefined}
+              />
+              {label}
+            </label>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}
+
+/* ------------------------------------------------------------------ rooms */
+
+const blankRoom = (index, key = `new-${index}`) => ({
+  key,
+  name: ROOM_NAMES[index] ?? `Room type ${index + 1}`,
+  beds: [{ type: 'double', count: 1 }],
+  sizeSqm: '',
+  view: '',
+  maxAdults: 2,
+  maxChildren: 1,
+  maxOccupancy: 3,
+  baseOccupancy: 2,
+  roomCount: 1,
+  extraAdult: 0,
+  extraChild: 0,
+  isActive: true,
+  upcomingRooms: 0,
+});
+const roomFromApi = (row) => ({
+  ...row,
+  key: row.id,
+  sizeSqm: row.sizeSqm ?? '',
+  view: row.view ?? '',
+  isActive: row.isActive !== false,
+});
+
+export function HotelRoomsSection({ listing, roomTypes = [] }) {
+  const [state, action, pending] = useActionState(saveHotelRooms, {});
+  const [rooms, setRooms] = useState(() =>
+    roomTypes.length ? roomTypes.map(roomFromApi) : [blankRoom(1, 'new-0')],
+  );
+  const active = rooms.filter((r) => r.isActive);
+  const removed = rooms.filter((r) => !r.isActive);
+  const total = active.reduce((sum, r) => sum + (Number(r.roomCount) || 0), 0);
+  const update = (key, patch) =>
+    setRooms((rows) => rows.map((row) => (row.key === key ? { ...row, ...patch } : row)));
+  const move = (key, delta) =>
+    setRooms((rows) => {
+      const list = rows.filter((r) => r.isActive);
+      const index = list.findIndex((r) => r.key === key);
+      const target = index + delta;
+      if (target < 0 || target >= list.length) return rows;
+      [list[index], list[target]] = [list[target], list[index]];
+      return [...list, ...rows.filter((r) => !r.isActive)];
+    });
+  const remove = (room) =>
+    setRooms((rows) =>
+      room.id
+        ? rows.map((r) => (r.key === room.key ? { ...r, isActive: false } : r))
+        : rows.filter((r) => r.key !== room.key),
+    );
+  const num = (value) => (value === '' || value == null ? null : Number(value));
+  const payload = [...active, ...removed].map((r, index) => ({
+    ...(r.id ? { id: r.id } : {}),
+    name: r.name.trim(),
+    beds: r.beds.map((b) => ({ type: b.type, count: Number(b.count) || 1 })),
+    sizeSqm: num(r.sizeSqm),
+    view: r.view || null,
+    maxAdults: Number(r.maxAdults) || 0,
+    maxChildren: Number(r.maxChildren) || 0,
+    maxOccupancy: Number(r.maxOccupancy) || 0,
+    baseOccupancy: Number(r.baseOccupancy) || 0,
+    roomCount: Number(r.roomCount) || 0,
+    extraAdult: Number(r.extraAdult) || 0,
+    extraChild: Number(r.extraChild) || 0,
+    amenities: r.amenities ?? [],
+    sortOrder: (index + 1) * 10,
+    isActive: r.isActive,
+  }));
+  const numberField = (room, field, label, { min = 0, max = 500, hint } = {}) => (
+    <Field id={`room-${room.key}-${field}`} label={label} hint={hint}>
+      <Input
+        id={`room-${room.key}-${field}`}
+        type="number"
+        inputMode="numeric"
+        min={min}
+        max={max}
+        value={room[field]}
+        className="tabular"
+        onChange={(event) => update(room.key, { [field]: event.target.value })}
+      />
+    </Field>
+  );
+
+  return (
+    <Section
+      id="rooms"
+      title="Rooms"
+      intro="Group identical rooms into a room type. Guests book a type; you choose the room number at check-in."
+      state={state}
+      pending={pending}
+    >
+      <form id={useStepFormId()} action={action} className="space-y-4">
+        <input type="hidden" name="id" value={listing.id} />
+        <VersionField listing={listing} states={[state]} />
+        <input type="hidden" name="rooms" value={JSON.stringify(payload)} />
+        <Errors state={state} />
+        <p role="status" className="text-meta text-ink-600">
+          {active.length} room type{active.length === 1 ? '' : 's'} · {total} room
+          {total === 1 ? '' : 's'} in total
+        </p>
+        <ol className="space-y-3">
+          {active.map((room, index) => (
+            <li key={room.key} className="rounded-lg border border-border bg-card p-4">
+              <fieldset className="space-y-4">
+                <legend className="sr-only">Room type {index + 1}</legend>
+                <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_9rem]">
+                  <Field id={`room-${room.key}-name`} label="Room type name">
+                    <Input
+                      id={`room-${room.key}-name`}
+                      value={room.name}
+                      list="hotel-room-names"
+                      maxLength={60}
+                      required
+                      onChange={(event) => update(room.key, { name: event.target.value })}
+                    />
+                  </Field>
+                  {numberField(room, 'roomCount', 'Rooms of this type', { min: 1, max: 500 })}
+                </div>
+
+                <div role="group" aria-label={`Beds in ${room.name || `room type ${index + 1}`}`}>
+                  <p className="mb-1.5 text-meta font-semibold text-ink-800">Beds</p>
+                  <div className="flex flex-wrap gap-2">
+                    {room.beds.map((bed, bedIndex) => (
+                      <span
+                        key={bedIndex}
+                        className="inline-flex items-center gap-2 rounded-full border border-border py-1 pl-2 pr-1"
+                      >
+                        <select
+                          aria-label="Bed count"
+                          className="min-h-11 rounded-md bg-transparent px-1 text-meta"
+                          value={bed.count}
+                          onChange={(event) =>
+                            update(room.key, {
+                              beds: room.beds.map((b, i) =>
+                                i === bedIndex ? { ...b, count: Number(event.target.value) } : b,
+                              ),
+                            })
+                          }
+                        >
+                          {[1, 2, 3, 4].map((n) => (
+                            <option key={n}>{n}</option>
+                          ))}
+                        </select>
+                        <select
+                          aria-label="Bed type"
+                          className="min-h-11 rounded-md bg-transparent px-1 text-meta"
+                          value={bed.type}
+                          onChange={(event) =>
+                            update(room.key, {
+                              beds: room.beds.map((b, i) =>
+                                i === bedIndex ? { ...b, type: event.target.value } : b,
+                              ),
+                            })
+                          }
+                        >
+                          {BEDS.map(([value, label]) => (
+                            <option key={value} value={value}>
+                              {label}
+                            </option>
+                          ))}
+                        </select>
+                        <IconButton
+                          label="Remove bed"
+                          disabled={room.beds.length === 1}
+                          onClick={() =>
+                            update(room.key, { beds: room.beds.filter((_, i) => i !== bedIndex) })
+                          }
+                        >
+                          <Trash2 className="size-4" aria-hidden="true" />
+                        </IconButton>
+                      </span>
+                    ))}
+                    {room.beds.length < 4 ? (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          update(room.key, { beds: [...room.beds, { type: 'single', count: 1 }] })
+                        }
+                        className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-dashed border-border px-3.5 text-meta font-semibold text-brand-700"
+                      >
+                        <Plus className="size-4" aria-hidden="true" /> Add beds
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
+                  {numberField(room, 'maxAdults', 'Max adults', { min: 1, max: 12 })}
+                  {numberField(room, 'maxChildren', 'Max children', { min: 0, max: 12 })}
+                  {numberField(room, 'maxOccupancy', 'Max guests', { min: 1, max: 16 })}
+                  {numberField(room, 'baseOccupancy', 'Price includes', {
+                    min: 1,
+                    max: 16,
+                    hint: 'guests',
+                  })}
+                </div>
+                <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
+                  {numberField(room, 'extraAdult', 'Extra adult ₹', {
+                    max: 50000,
+                    hint: 'per night',
+                  })}
+                  {numberField(room, 'extraChild', 'Extra child ₹', {
+                    max: 50000,
+                    hint: 'per night',
+                  })}
+                  {numberField(room, 'sizeSqm', 'Size m²', { min: 4, max: 2000, hint: 'optional' })}
+                  <Field id={`room-${room.key}-view`} label="View">
+                    <select
+                      id={`room-${room.key}-view`}
+                      className={inputCls}
+                      value={room.view}
+                      onChange={(event) => update(room.key, { view: event.target.value })}
+                    >
+                      {VIEWS.map(([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <IconButton
+                    label="Move up"
+                    disabled={index === 0}
+                    onClick={() => move(room.key, -1)}
+                  >
+                    <ArrowUp className="size-4" aria-hidden="true" />
+                  </IconButton>
+                  <IconButton
+                    label="Move down"
+                    disabled={index === active.length - 1}
+                    onClick={() => move(room.key, 1)}
+                  >
+                    <ArrowDown className="size-4" aria-hidden="true" />
+                  </IconButton>
+                  <IconButton
+                    label="Duplicate"
+                    disabled={rooms.length >= MAX_ROOM_TYPES}
+                    onClick={() =>
+                      setRooms((rows) => [
+                        ...rows,
+                        {
+                          ...room,
+                          key: `copy-${rows.length}-${room.key}`,
+                          id: undefined,
+                          name: `${room.name} copy`,
+                          upcomingRooms: 0,
+                        },
+                      ])
+                    }
+                  >
+                    <Copy className="size-4" aria-hidden="true" />
+                  </IconButton>
+                  <IconButton
+                    label="Remove"
+                    disabled={active.length === 1 || room.upcomingRooms > 0}
+                    onClick={() => remove(room)}
+                  >
+                    <Trash2 className="size-4" aria-hidden="true" />
+                  </IconButton>
+                  {room.upcomingRooms > 0 ? (
+                    <p className="self-center text-tiny text-ink-600">
+                      {room.upcomingRooms} room{room.upcomingRooms === 1 ? '' : 's'} booked ahead:
+                      this type stays on sale.
+                    </p>
+                  ) : null}
+                </div>
+              </fieldset>
+            </li>
+          ))}
+        </ol>
+        <datalist id="hotel-room-names">
+          {ROOM_NAMES.map((name) => (
+            <option key={name} value={name} />
+          ))}
+        </datalist>
+        <button
+          type="button"
+          disabled={rooms.length >= MAX_ROOM_TYPES}
+          onClick={() =>
+            setRooms((rows) => [...rows, blankRoom(active.length, `new-${rows.length}`)])
+          }
+          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border px-4 text-meta font-semibold text-brand-700 hover:bg-brand-50 disabled:opacity-50"
+        >
+          <Plus className="size-4" aria-hidden="true" /> Add a room type
+        </button>
+        {removed.length ? (
+          <details className="rounded-md border border-border p-3 text-meta">
+            <summary className="min-h-11 cursor-pointer font-semibold">
+              Removed room types ({removed.length})
+            </summary>
+            <ul className="mt-2 space-y-2">
+              {removed.map((room) => (
+                <li key={room.key} className="flex items-center justify-between gap-3">
+                  <span>{room.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => update(room.key, { isActive: true })}
+                    className="inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-tiny font-semibold text-brand-700 hover:bg-brand-50"
+                  >
+                    <RotateCcw className="size-3.5" aria-hidden="true" /> Restore
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </details>
+        ) : null}
+        <SaveButton pending={pending} label="Save rooms" />
+      </form>
+    </Section>
+  );
+}
+
+/* ------------------------------------------------------------------ rates */
+
+/** GST at today's rate, per room per night (the API's tax slabs are the source of truth). */
+const withGst = (rupees) => Math.round(rupees * (rupees <= 7500 ? 1.05 : 1.18));
+
+const planFromApi = (row) => ({ ...row, key: row.id });
+const basePlan = (room) => ({
+  key: `base-${room.id}`,
+  roomTypeId: room.id,
+  name: 'Room only',
+  mealPlan: 'EP',
+  derivedFrom: null,
+  weekday: '',
+  weekend: '',
+  adjustPct: 0,
+  perGuest: 0,
+  cancellation: 'flexible',
+  minNights: 1,
+  isActive: true,
+});
+
+export function HotelRatesSection({ listing, roomTypes = [], ratePlans = [] }) {
+  const [state, action, pending] = useActionState(saveHotelRates, {});
+  const formId = useStepFormId();
+  const rooms = roomTypes.filter((r) => r.isActive !== false);
+  const [plans, setPlans] = useState(() => {
+    const saved = ratePlans.map(planFromApi);
+    return [
+      ...saved,
+      ...rooms.filter((r) => !saved.some((p) => p.roomTypeId === r.id)).map(basePlan),
+    ];
+  });
+  const update = (key, patch) =>
+    setPlans((rows) => rows.map((row) => (row.key === key ? { ...row, ...patch } : row)));
+  const add = (room, kind) => {
+    const base = plans.find((p) => p.roomTypeId === room.id && !p.derivedFrom && p.isActive);
+    const key = `${kind}-${room.id}-${plans.length}`;
+    if (kind === 'breakfast' && base)
+      setPlans((rows) => [
+        ...rows,
+        {
+          ...basePlan(room),
+          key,
+          name: 'Breakfast included',
+          mealPlan: 'CP',
+          derivedFrom: base.id ?? base.key,
+          perGuest: 250,
+          cancellation: base.cancellation,
+        },
+      ]);
+    else if (kind === 'nonref' && base)
+      setPlans((rows) => [
+        ...rows,
+        {
+          ...basePlan(room),
+          key,
+          name: 'Non-refundable',
+          derivedFrom: base.id ?? base.key,
+          adjustPct: -10,
+          cancellation: 'non_refundable',
+        },
+      ]);
+    else setPlans((rows) => [...rows, { ...basePlan(room), key, name: 'Another rate' }]);
+  };
+  const remove = (plan) =>
+    setPlans((rows) =>
+      plan.id
+        ? rows.map((r) => (r.key === plan.key ? { ...r, isActive: false } : r))
+        : rows.filter((r) => r.key !== plan.key && r.derivedFrom !== plan.key),
+    );
+  const payload = plans
+    .filter((p) => rooms.some((r) => r.id === p.roomTypeId))
+    .map((p, index) => ({
+      ...(p.id ? { id: p.id } : { key: p.key }),
+      roomTypeId: p.roomTypeId,
+      name: p.name.trim(),
+      mealPlan: p.mealPlan,
+      derivedFrom: p.derivedFrom,
+      weekday: p.derivedFrom ? null : p.weekday === '' ? null : Number(p.weekday),
+      weekend: p.derivedFrom ? null : p.weekend === '' ? null : Number(p.weekend),
+      adjustPct: Number(p.adjustPct) || 0,
+      perGuest: Number(p.perGuest) || 0,
+      cancellation: p.cancellation,
+      minNights: Number(p.minNights) || 1,
+      sortOrder: index,
+      isActive: p.isActive,
+    }));
+
+  if (!rooms.length)
+    return (
+      <Section id="rates" title="Rates">
+        <p className="text-body">Add your room types first. Each one gets its own rates.</p>
+      </Section>
+    );
+
+  return (
+    <Section
+      id="rates"
+      title="Rates"
+      intro="Set a weekday and weekend price for each room type, then add plans guests can choose, like breakfast or non-refundable."
+      state={state}
+      pending={pending}
+    >
+      <form id={formId} action={action} className="space-y-5">
+        <input type="hidden" name="id" value={listing.id} />
+        <VersionField listing={listing} states={[state]} />
+        <input type="hidden" name="plans" value={JSON.stringify(payload)} />
+        <Errors state={state} />
+        {rooms.map((room) => {
+          const own = plans.filter((p) => p.roomTypeId === room.id && p.isActive);
+          const base = own.find((p) => !p.derivedFrom);
+          return (
+            <section key={room.id} className="rounded-lg border border-border bg-card p-4">
+              <h3 className="text-h4">
+                {room.name}{' '}
+                <span className="text-meta font-normal text-ink-600">
+                  · {room.roomCount} rooms · price for {room.baseOccupancy} guests
+                </span>
+              </h3>
+              <ul className="mt-3 divide-y divide-border">
+                {own.map((plan) => {
+                  const parent = plan.derivedFrom
+                    ? plans.find((p) => (p.id ?? p.key) === plan.derivedFrom)
+                    : null;
+                  const weekday = Number(plan.derivedFrom ? parent?.weekday : plan.weekday) || 0;
+                  const adjust = (amount) =>
+                    plan.derivedFrom
+                      ? Math.round(
+                          amount * (1 + (Number(plan.adjustPct) || 0) / 100) +
+                            (Number(plan.perGuest) || 0) * room.baseOccupancy,
+                        )
+                      : amount;
+                  return (
+                    <li key={plan.key} className="space-y-3 py-3">
+                      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_12rem]">
+                        <Field id={`plan-${plan.key}-name`} label="Plan name">
+                          <Input
+                            id={`plan-${plan.key}-name`}
+                            value={plan.name}
+                            maxLength={60}
+                            onChange={(event) => update(plan.key, { name: event.target.value })}
+                          />
+                        </Field>
+                        <Field id={`plan-${plan.key}-meal`} label="Meals">
+                          <select
+                            id={`plan-${plan.key}-meal`}
+                            className={inputCls}
+                            value={plan.mealPlan}
+                            onChange={(event) => update(plan.key, { mealPlan: event.target.value })}
+                          >
+                            {MEALS.map(([value, label]) => (
+                              <option key={value} value={value}>
+                                {label}
+                              </option>
+                            ))}
+                          </select>
+                        </Field>
+                      </div>
+                      {plan.derivedFrom ? (
+                        <div className="grid gap-3 grid-cols-2">
+                          <Field
+                            id={`plan-${plan.key}-pct`}
+                            label="Change vs room only, %"
+                            hint="e.g. -10 for 10% off"
+                          >
+                            <Input
+                              id={`plan-${plan.key}-pct`}
+                              type="number"
+                              inputMode="numeric"
+                              min={-50}
+                              max={50}
+                              value={plan.adjustPct}
+                              className="tabular"
+                              onChange={(event) =>
+                                update(plan.key, { adjustPct: event.target.value })
+                              }
+                            />
+                          </Field>
+                          <Field
+                            id={`plan-${plan.key}-guest`}
+                            label="Plus per guest ₹"
+                            hint="per night, e.g. breakfast"
+                          >
+                            <Input
+                              id={`plan-${plan.key}-guest`}
+                              type="number"
+                              inputMode="numeric"
+                              min={0}
+                              max={10000}
+                              value={plan.perGuest}
+                              className="tabular"
+                              onChange={(event) =>
+                                update(plan.key, { perGuest: event.target.value })
+                              }
+                            />
+                          </Field>
+                        </div>
+                      ) : (
+                        <div className="grid gap-3 grid-cols-2">
+                          {['weekday', 'weekend'].map((day) => (
+                            <Field
+                              key={day}
+                              id={`plan-${plan.key}-${day}`}
+                              label={day === 'weekday' ? 'Weekday ₹ / night' : 'Weekend ₹ / night'}
+                            >
+                              <Input
+                                id={`plan-${plan.key}-${day}`}
+                                type="number"
+                                inputMode="numeric"
+                                min={300}
+                                max={200000}
+                                required
+                                value={plan[day]}
+                                className="tabular"
+                                onChange={(event) =>
+                                  update(plan.key, { [day]: event.target.value })
+                                }
+                              />
+                            </Field>
+                          ))}
+                        </div>
+                      )}
+                      <Field id={`plan-${plan.key}-cancel`} label="Cancellation">
+                        <select
+                          id={`plan-${plan.key}-cancel`}
+                          className={inputCls}
+                          value={plan.cancellation}
+                          onChange={(event) =>
+                            update(plan.key, { cancellation: event.target.value })
+                          }
+                        >
+                          {CANCELLATION.map(([value, label, text]) => (
+                            <option key={value} value={value}>
+                              {label} — {text}
+                            </option>
+                          ))}
+                        </select>
+                      </Field>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-meta text-ink-700" aria-live="polite">
+                          {weekday >= 300
+                            ? `Guests pay ${displayMoney(withGst(adjust(weekday)) * 100)} on a weekday incl. GST (${adjust(weekday) <= 7500 ? 5 : 18}%)`
+                            : 'Enter a price to see what guests pay'}
+                        </p>
+                        <IconButton
+                          label={`Remove ${plan.name}`}
+                          disabled={!plan.derivedFrom && own.length > 1}
+                          onClick={() => remove(plan)}
+                        >
+                          <Trash2 className="size-4" aria-hidden="true" />
+                        </IconButton>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {base
+                  ? [
+                      ['breakfast', '+ Breakfast plan'],
+                      ['nonref', '+ Non-refundable'],
+                    ].map(([kind, label]) => (
+                      <button
+                        key={kind}
+                        type="button"
+                        onClick={() => add(room, kind)}
+                        className="inline-flex min-h-11 items-center rounded-full border border-border px-4 text-meta font-semibold text-brand-700 hover:bg-brand-50"
+                      >
+                        {label}
+                      </button>
+                    ))
+                  : null}
+              </div>
+            </section>
+          );
+        })}
+        <SaveButton pending={pending} label="Save rates" />
+      </form>
+    </Section>
+  );
+}
+
+/* ------------------------------------------------------------ stay, rules, GST */
+
+const hhmm = (minute) =>
+  `${String(Math.floor(minute / 60)).padStart(2, '0')}:${String(minute % 60).padStart(2, '0')}`;
+
+export function HotelStaySection({ listing, profile }) {
+  const [state, action, pending] = useActionState(saveHotelStay, {});
+  const weekend = profile?.weekendNights ?? [5, 6];
+  const e = state.errors ?? {};
+  return (
+    <Section
+      id="stay"
+      title="Check-in and check-out"
+      intro="Guests see these times on the hotel page and their booking."
+      state={state}
+      pending={pending}
+    >
+      <form id={useStepFormId()} action={action} className="space-y-5">
+        <input type="hidden" name="id" value={listing.id} />
+        <VersionField listing={listing} states={[state]} />
+        <div className="grid gap-4 grid-cols-2">
+          <Field id="checkInTime" label="Check-in from" error={e.checkInTime}>
+            <Input
+              id="checkInTime"
+              name="checkInTime"
+              type="time"
+              defaultValue={hhmm(profile?.checkInMinute ?? 720)}
+              required
+            />
+          </Field>
+          <Field id="checkOutTime" label="Check-out by" error={e.checkOutTime}>
+            <Input
+              id="checkOutTime"
+              name="checkOutTime"
+              type="time"
+              defaultValue={hhmm(profile?.checkOutMinute ?? 660)}
+              required
+            />
+          </Field>
+        </div>
+        <div className="grid gap-4 grid-cols-2">
+          <Field
+            id="childFreeAge"
+            label="Children stay free under"
+            hint="years, using existing beds"
+            error={e.childFreeAge}
+          >
+            <Input
+              id="childFreeAge"
+              name="childFreeAge"
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={17}
+              defaultValue={profile?.childFreeAge ?? 5}
+              className="tabular"
+            />
+          </Field>
+          <Field id="starRating" label="Star category" hint="optional, only if certified">
+            <select
+              id="starRating"
+              name="starRating"
+              className={inputCls}
+              defaultValue={profile?.starRating ?? ''}
+            >
+              <option value="">Not star-rated</option>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <option key={n} value={n}>
+                  {n} star
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
+        <fieldset>
+          <legend className="mb-1.5 text-meta font-semibold text-ink-800">
+            Nights priced as weekend
+          </legend>
+          <div className="flex flex-wrap gap-2">
+            {DAYS.map(([day, label]) => (
+              <label
+                key={day}
+                className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md border border-border px-3 text-meta font-semibold has-[:checked]:border-brand-600 has-[:checked]:bg-brand-600 has-[:checked]:text-white has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring"
+              >
+                <input
+                  type="checkbox"
+                  className="sr-only"
+                  name="weekendNights"
+                  value={day}
+                  defaultChecked={weekend.includes(day)}
+                />
+                {label}
+              </label>
+            ))}
+          </div>
+          <p className="mt-1.5 text-meta text-muted-foreground">
+            The night of the day you tick. Friday and Saturday nights are the usual choice.
+          </p>
+        </fieldset>
+        <SaveButton pending={pending} label="Save times" />
+      </form>
+    </Section>
+  );
+}
+
+export function HotelRulesSection({ listing, profile }) {
+  const [state, action, pending] = useActionState(saveRules, {});
+  const p = profile?.policies ?? {};
+  const yesNo = (value) => (value == null ? '' : value ? 'yes' : 'no');
+  const e = state.errors ?? {};
+  return (
+    <Section
+      id="rules"
+      title="House rules"
+      intro="Clear answers here decide which filters your hotel appears in, like couple-friendly and local ID."
+      state={state}
+      pending={pending}
+    >
+      <form id={useStepFormId()} action={action} className="space-y-5">
+        <input type="hidden" name="id" value={listing.id} />
+        <VersionField listing={listing} states={[state]} />
+        <Segmented
+          name="couples"
+          legend="Unmarried couples can stay with valid ID"
+          value={yesNo(p.couples)}
+          options={[
+            ['yes', 'Yes'],
+            ['no', 'No'],
+          ]}
+        />
+        {e.couples ? <p className="text-meta text-danger">{e.couples}</p> : null}
+        <Segmented
+          name="localId"
+          legend="Guests with a local (same-city) ID are accepted"
+          value={yesNo(p.localId)}
+          options={[
+            ['yes', 'Yes'],
+            ['no', 'No'],
+          ]}
+        />
+        {e.localId ? <p className="text-meta text-danger">{e.localId}</p> : null}
+        <fieldset>
+          <legend className="mb-1.5 text-meta font-semibold text-ink-800">
+            ID accepted at check-in
+          </legend>
+          <div className="flex flex-wrap gap-2">
+            {ID_TYPES.map(([value, label]) => (
+              <label
+                key={value}
+                className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-border px-3.5 text-meta has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50 has-[:checked]:text-brand-800 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring"
+              >
+                <input
+                  type="checkbox"
+                  className="sr-only"
+                  name="idTypes"
+                  value={value}
+                  defaultChecked={(
+                    p.idTypes ?? ['aadhaar', 'passport', 'driving_licence', 'voter_id']
+                  ).includes(value)}
+                />
+                {label}
+              </label>
+            ))}
+          </div>
+          {e.idTypes ? <p className="mt-1 text-meta text-danger">{e.idTypes}</p> : null}
+        </fieldset>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {[
+            ['pets', 'Pets allowed', p.pets],
+            ['smoking', 'Smoking in rooms', p.smoking],
+            ['parties', 'Parties allowed', p.parties],
+          ].map(([name, legend, value]) => (
+            <Segmented
+              key={name}
+              name={name}
+              legend={legend}
+              value={yesNo(value ?? false)}
+              options={[
+                ['yes', 'Yes'],
+                ['no', 'No'],
+              ]}
+            />
+          ))}
+        </div>
+        <Field
+          id="extraRules"
+          label="Anything else guests must know"
+          hint="optional, up to 500 characters"
+        >
+          <textarea
+            id="extraRules"
+            name="extraRules"
+            maxLength={500}
+            rows={3}
+            defaultValue={p.notes ?? ''}
+            className={`${inputCls} py-3`}
+          />
+        </Field>
+        <SaveButton pending={pending} label="Save rules" />
+      </form>
+    </Section>
+  );
+}
+
+export function HotelGstForm({ listing, profile }) {
+  const [state, action, pending] = useActionState(saveHotelGst, {});
+  const answered = profile?.policies?.gstAnswered === true;
+  const [registered, setRegistered] = useState(
+    answered ? (profile.gstRegistered ? 'yes' : 'no') : '',
+  );
+  const e = state.errors ?? {};
+  return (
+    <form action={action} className="space-y-4 rounded-lg border border-border bg-card p-4">
+      <input type="hidden" name="id" value={listing.id} />
+      <VersionField listing={listing} states={[state]} />
+      <h3 className="text-h4">GST</h3>
+      <p className="text-meta text-ink-600">
+        It decides who pays GST on your bookings and what your invoices show.
+      </p>
+      <Segmented
+        name="gstRegistered"
+        legend="Is the hotel registered for GST?"
+        value={registered}
+        onChange={setRegistered}
+        options={[
+          ['yes', 'Yes'],
+          ['no', 'No'],
+        ]}
+      />
+      {e.gstRegistered ? <p className="text-meta text-danger">{e.gstRegistered}</p> : null}
+      {registered === 'yes' ? (
+        <Field id="gstin" label="GSTIN" hint="15 characters, e.g. 24ABCDE1234F1Z5" error={e.gstin}>
+          <Input
+            id="gstin"
+            name="gstin"
+            defaultValue={profile?.gstin ?? ''}
+            maxLength={15}
+            autoCapitalize="characters"
+            className="font-mono uppercase"
+          />
+        </Field>
+      ) : null}
+      <div className="flex items-center gap-3">
+        <button
+          type="submit"
+          disabled={pending || !registered}
+          className="inline-flex min-h-11 items-center rounded-md bg-primary px-5 text-meta font-semibold text-primary-foreground disabled:opacity-50"
+        >
+          {pending ? 'Saving…' : 'Save GST'}
+        </button>
+        {state.ok ? (
+          <p role="status" className="text-meta text-success">
+            Saved
+          </p>
+        ) : answered ? (
+          <p className="text-meta text-ink-600">
+            {profile.gstRegistered ? `Registered · ${profile.gstin}` : 'Not registered'}
+          </p>
+        ) : null}
+      </div>
+    </form>
+  );
+}
