@@ -1,6 +1,8 @@
 import AccountSwitchButton from '@/components/auth/AccountSwitchButton';
 import Link from '@/components/navigation/NavigationLink';
 import ListingCard from './ListingCard';
+import HotelResultsMap from './hotels/HotelResultsMap';
+import { formatINRMinor } from '@/lib/domain/booking-money';
 import DiscoveryFilters from './DiscoveryFilters';
 import { addLocalDays, formatLocalDate } from '@/lib/domain/booking-dates';
 import { clock12 } from '@/lib/domain/vertical-ui';
@@ -9,6 +11,7 @@ import {
   parseDiscoveryQuery,
   discoveryQuery,
   SEARCH_SORTS,
+  HOTEL_SORTS,
   areaDiscoveryPath,
   intentDiscoveryPath,
   intentsFor,
@@ -35,7 +38,11 @@ export default async function DiscoveryResults({ query, registry: registryInput,
        filters it searched on and the ones rendered as chips above cannot
        drift apart. `path` scopes the search to a landing route. */
     try {
-      result = await discoveryApi.search({ ...query, ...(route ? { path: route.path } : {}) });
+      // A landmark page is a preset hotel search (`near`), not a registry route.
+      result = await discoveryApi.search({
+        ...query,
+        ...(route && !route.landmark ? { path: route.path } : {}),
+      });
     } catch (error) {
       if (error.code === 'VERTICAL_MISMATCH') result = { ...result, errors: [error.message] };
       else failed = true;
@@ -44,17 +51,19 @@ export default async function DiscoveryResults({ query, registry: registryInput,
   const registry = await registryInput;
   // Entertainment (time-booked venues) or farmhouse; a landing route decides, else the query.
   const vertical = route?.verticalCode ?? filters.vertical;
-  const play = vertical !== 'farmhouse';
+  const stayView = vertical === 'hotel';
+  const play = vertical !== 'farmhouse' && !stayView;
   const date = play ? filters.dates[0] : null;
   const messages = [...errors, ...(result.errors ?? [])];
-  const path = route?.path || '/search';
+  // Refining a landmark page is an ordinary search, so changing Where is not pinned to the landmark.
+  const path = (!route?.landmark && route?.path) || '/search';
   const href = (changes) => `${path}?${discoveryQuery(filters, { page: 1, ...changes })}`;
   const clearChip = (key) =>
     key === 'city'
       ? { city: '', area: '' }
       : {
           [key]:
-            key === 'dates' || key === 'amenities'
+            key === 'dates' || key === 'amenities' || key === 'children'
               ? []
               : key === 'guests'
                 ? 1
@@ -92,11 +101,25 @@ export default async function DiscoveryResults({ query, registry: registryInput,
       ? `${filters.cancellation[0].toUpperCase() + filters.cancellation.slice(1)} cancellation`
       : null,
     amenities: filters.amenities.map((value) => amenityNames[value] || value).join(' · '),
+    near: (registry.landmarks ?? []).find((item) => item.slug === filters.near)?.name,
+    freecancel: filters.freecancel === '1' ? 'Free cancellation' : null,
+    breakfast: filters.breakfast === '1' ? 'Breakfast included' : null,
+    couples: filters.couples === '1' ? 'Couple-friendly' : null,
+    localid: filters.localid === '1' ? 'Local ID accepted' : null,
+    rating: filters.rating ? `Rated ${filters.rating}+` : null,
   };
+  if (stayView) {
+    chipLabels.min =
+      filters.min != null ? `From ₹${filters.min.toLocaleString('en-IN')} / night` : null;
+    chipLabels.max =
+      filters.max != null ? `Up to ₹${filters.max.toLocaleString('en-IN')} / night` : null;
+  }
   // Fields the search bar already shows are not repeated as chips.
-  const inBar = play
-    ? ['city', 'area', 'dates', 'category', 'slot', 'guests']
-    : ['city', 'area', 'dates', 'slot', 'guests'];
+  const inBar = stayView
+    ? ['city', 'area', 'near', 'dates', 'slot', 'guests']
+    : play
+      ? ['city', 'area', 'dates', 'category', 'slot', 'guests']
+      : ['city', 'area', 'dates', 'slot', 'guests'];
   const chips = Object.entries(chipLabels).filter(
     ([key, label]) =>
       label &&
@@ -147,7 +170,9 @@ export default async function DiscoveryResults({ query, registry: registryInput,
           )}
         </div>
       ) : (
-        <h1 className="sr-only">{play ? 'Search venues' : 'Search places'}</h1>
+        <h1 className="sr-only">
+          {stayView ? 'Search hotels' : play ? 'Search venues' : 'Search places'}
+        </h1>
       )}
       <DiscoveryFilters
         key={JSON.stringify(query)}
@@ -214,7 +239,17 @@ export default async function DiscoveryResults({ query, registry: registryInput,
           <>
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
               <div>
-                {play ? (
+                {stayView ? (
+                  <h2 className="text-h3">
+                    {result.total} {result.total === 1 ? 'hotel' : 'hotels'}
+                    {result.landmark
+                      ? ` within ${result.landmark.km} km of ${result.landmark.name}`
+                      : ''}
+                    {filters.checkin
+                      ? ` · ${formatLocalDate(filters.checkin)} – ${formatLocalDate(filters.checkout)}`
+                      : ''}
+                  </h2>
+                ) : play ? (
                   <h2 className="text-h3">
                     {result.total} {result.total === 1 ? 'venue' : 'venues'}
                     {date ? ` with free times on ${formatLocalDate(date)}` : ''}
@@ -233,7 +268,18 @@ export default async function DiscoveryResults({ query, registry: registryInput,
                 ) : null}
               </div>
               <div className="flex items-center gap-2">
-                <SortSelect value={filters.sort} options={SEARCH_SORTS} />
+                <SortSelect
+                  value={filters.sort}
+                  options={
+                    stayView
+                      ? Object.fromEntries(
+                          Object.entries(HOTEL_SORTS).filter(
+                            ([key]) => key !== 'distance' || filters.near,
+                          ),
+                        )
+                      : SEARCH_SORTS
+                  }
+                />
                 <noscript>
                   <button form="discovery-filters" className="min-h-10 text-brand-700 underline">
                     Apply
@@ -292,7 +338,37 @@ export default async function DiscoveryResults({ query, registry: registryInput,
                 </AccountSwitchButton>
               </EmptyState>
             ) : null}
-            {!result.total && !play && (
+            {!result.total && stayView ? (
+              <EmptyState
+                as="h3"
+                icon={SearchX}
+                title={
+                  filters.checkin
+                    ? 'No rooms left for these dates and guests'
+                    : 'No hotels match these filters'
+                }
+                description="Try other dates, fewer rooms, or remove a filter."
+              >
+                {chips.length ? (
+                  <Link className={cn(buttonVariants(), 'rounded-full px-5')} href={path}>
+                    Clear {chips.length} filter{chips.length === 1 ? '' : 's'}
+                  </Link>
+                ) : null}
+                {filters.checkin ? (
+                  <Link
+                    className={pill}
+                    href={href({
+                      checkin: addLocalDays(filters.checkin, 1),
+                      checkout: addLocalDays(filters.checkout, 1),
+                    })}
+                  >
+                    Try {formatLocalDate(addLocalDays(filters.checkin, 1))} –{' '}
+                    {formatLocalDate(addLocalDays(filters.checkout, 1))}
+                  </Link>
+                ) : null}
+              </EmptyState>
+            ) : null}
+            {!result.total && !play && !stayView && (
               <EmptyState
                 as="h3"
                 icon={SearchX}
@@ -312,11 +388,46 @@ export default async function DiscoveryResults({ query, registry: registryInput,
                 </Link>
               </EmptyState>
             )}
-            <div className="mt-4 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {result.items.map((listing) => (
-                <ListingCard key={listing.id} listing={listing} showPriceNote={!sharedPriceNote} />
-              ))}
-            </div>
+            {stayView && result.total ? (
+              <div className="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(340px,38%)]">
+                <div className="grid content-start gap-x-6 gap-y-10 sm:grid-cols-2">
+                  {result.items.map((listing) => (
+                    <ListingCard
+                      key={listing.id}
+                      listing={listing}
+                      showPriceNote={!sharedPriceNote}
+                    />
+                  ))}
+                </div>
+                <HotelResultsMap
+                  places={result.items.map((item) => ({
+                    id: item.id,
+                    title: item.title,
+                    href: item.href,
+                    location: item.location,
+                    priceLabel:
+                      item.priceMinor != null
+                        ? formatINRMinor(item.priceMinor)
+                        : item.price != null
+                          ? `from ₹${item.price.toLocaleString('en-IN')}`
+                          : 'See rooms',
+                  }))}
+                  landmark={
+                    (registry.landmarks ?? []).find((item) => item.slug === filters.near) ?? null
+                  }
+                />
+              </div>
+            ) : (
+              <div className="mt-4 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {result.items.map((listing) => (
+                  <ListingCard
+                    key={listing.id}
+                    listing={listing}
+                    showPriceNote={!sharedPriceNote}
+                  />
+                ))}
+              </div>
+            )}
             {sharedPriceNote ? (
               <p className="mt-8 border-t border-border pt-4 text-tiny text-ink-600">
                 {sharedPriceNote}
@@ -329,7 +440,7 @@ export default async function DiscoveryResults({ query, registry: registryInput,
               pages={result.totalPages}
               pageSizes={null}
               label="Search pagination"
-              noun="places"
+              noun={stayView ? 'hotels' : 'places'}
               className="mt-8"
             />
           </>
@@ -380,6 +491,14 @@ export default async function DiscoveryResults({ query, registry: registryInput,
                 )),
             )
           )}
+          {stayView
+            ? (registry.landmarks ?? []).map((item) => (
+                <Link className={locationChip} key={item.slug} href={`/hotels/near/${item.slug}`}>
+                  <MapPin className="size-4" aria-hidden="true" />
+                  Hotels near {item.name}
+                </Link>
+              ))
+            : null}
         </div>
       </nav>
     </section>

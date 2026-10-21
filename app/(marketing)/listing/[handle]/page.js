@@ -51,7 +51,12 @@ import {
   VenueRules,
 } from '@/components/rentra/listing/VenueSections';
 
-import { ListingDetail, priceBand, venueMetadata } from '@/components/rentra/listing/ListingDetail';
+import {
+  ListingDetail,
+  priceBand,
+  venueMetadata,
+  hotelMetadata,
+} from '@/components/rentra/listing/ListingDetail';
 import { siteUrl } from '@/lib/seo/site-url';
 // Resolve current publication/slug at request time. Reading selection only on
 // renamed URLs under ISR caused production static-to-dynamic 500 responses.
@@ -96,6 +101,7 @@ export async function generateMetadata({ params }) {
 
   const { listing } = found;
   if (listing.rentalUnit === 'hour') return venueMetadata(listing);
+  if (listing.vertical === 'hotel') return hotelMetadata(listing);
   const band = priceBand(listing.prices);
   const canonical = listingPath(listing.slug, listing.publicCode);
 
@@ -135,6 +141,14 @@ export default async function ListingPage({ params, searchParams }) {
   if (requestedSlug !== listing.slug) {
     const query = await searchParams;
     const path = listingPath(listing.slug, listing.publicCode);
+    if (listing.vertical === 'hotel') {
+      // Hotel links carry the stay; the rooms list validates it on arrival.
+      const keep = ['checkin', 'checkout', 'rooms', 'adults', 'children'];
+      const kept = new URLSearchParams(
+        keep.filter((k) => typeof query?.[k] === 'string').map((k) => [k, query[k]]),
+      ).toString();
+      permanentRedirect(kept ? `${path}?${kept}` : path);
+    }
     if (listing.rentalUnit === 'hour') {
       // Venue links carry activity, date, start…; the picker validates them on arrival.
       const keep = ['activity', 'date', 'start', 'duration', 'players', 'court'];

@@ -17,9 +17,9 @@ Phases are delivered one at a time; the owner asks for the next one. Work happen
 | 3 → Owner onboarding & property management | ✅ Complete (local; moderated owner test open) | 20 Oct 2026 |
 | 4 → Admin verification & settings | ✅ Complete (local; assisted mode awaits owner decision) | 21 Oct 2026 |
 | 5 → Extranet operations | ✅ Complete (local; migration 0065 not on Neon) | 21 Oct 2026 |
-| 6 → Customer discovery | ⏳ Next | |
-| 7 → Booking, payment & cancellation | ⏳ | |
-| 8 → Post-stay: reviews, payouts, analytics | ⏳ | |
+| 6 → Customer discovery | ✅ Complete (local; migration 0066 not on Neon; Hotels stays non-public until Phase 9) | 21 Oct 2026 |
+| 7 → Booking, payment & cancellation | ✅ Complete (local; migration 0067 not on Neon; Test gateway only) | 21 Oct 2026 |
+| 8 → Post-stay: reviews, payouts, analytics | ⏳ Next | |
 | 9 → Hardening, beta & launch | ⏳ | |
 | 10 → Post-launch growth | ⏳ | |
 
@@ -1515,11 +1515,146 @@ Commission and tax use the finance permissions (`admin.payments.read` / `write`)
 - **Deliverables:** Hotels vertical tab; Hotels home; autocomplete with landmarks; results list + map + filters + sort; city/area/landmark SEO landing pages with JSON-LD; hotel page with gallery, facts, amenities, policies, reviews, location; room selection with live availability.
 - **Acceptance:** search p95 < 300 ms on 500 seeded hotels; Lighthouse mobile performance ≥ 85 on hotel page; axe: zero serious violations; prices on card = prices on hotel page = quote total for the same inputs (automated check).
 
+#### Phase 6 completion record (21 Oct 2026)
+
+**Status:** ✅ Complete locally, on branch `feat/hotels` in both repos, uncommitted. New migration `0066_landmarks.sql` is **not** applied to Neon. Guests still cannot see Hotels in production: the vertical stays `partners` and the launch guard refuses `public` until Phase 9. Every check below ran with Hotels set to `public` by SQL on the disposable database.
+
+**What guests get (once Hotels is public)**
+
+| Area | What changed |
+| --- | --- |
+| **Hotels tab and home** (`/hotels`) | A third vertical tab with the approved duotone hotel icon. The home has a photo hero, the hotel search bar and quick chips: Tonight, This weekend, Couple-friendly, Under ₹2,000, With breakfast and Pool. Below that: a trust strip (total price with taxes, cancellation terms on every rate, live room availability), "Stays in {city}" rows, Browse by type tiles, city and landmark chips, and an owner call to action. |
+| **Search bar** | Three cells. **Where** suggests Cities, Areas, Landmarks and Hotels as you type (200 ms debounce); a hotel suggestion opens that hotel. **Check-in – Check-out** is one range calendar, up to 30 nights, with the night count shown. **Rooms & guests** has steppers for rooms (up to 8), adults and children, and a required age for each child. |
+| **Results** (`/search?vertical=hotel…`, `/{city}/hotels`, area, type and intent landings) | Without dates, a card says "from ₹X / night" (the lowest room rate, before taxes). With dates, a card shows the **total for the stay including taxes**, the room and meals, "Free cancellation until {date}" (only while it is still in the future), "Only N rooms left" (only at 3 or fewer, and only when true), and up to 2 policy chips. Sort options: Recommended, Price, Guest rating, and Distance (shown only for a landmark search). A **map** with price pins sits beside the list on desktop; on phones a floating **Map** button opens it full screen. Empty results offer "Clear N filters" or the next dates. |
+| Filters | Quick chips for Free cancellation, Breakfast included and Couple-friendly. The Filters panel adds: budget per night (buckets under ₹2k, 2–4k, 4–7.5k, 7.5k+), property type, guest rating (3.5+, 4+, 4.5+), free cancellation, breakfast, couple-friendly, local ID accepted, verified places and amenities. Every filter is in the URL. |
+| **Landmarks** | `/hotels/near/{landmark}` lists hotels within 5 km, sorted by distance, with "1.7 km from Surat Railway Station" on each card. The page is indexed only when 3 or more hotels are nearby. Couple-friendly and local-ID landings count by hotel policy, and the sitemap lists only routes with 3 or more hotels. |
+| **Hotel page** | Shares the gallery and header. It adds section links, a facts row (type, stars, check-in and check-out times, rooms) and **Rooms**: the stay form (dates, rooms, guests, child ages), one card per room type (beds, size, guests, view, amenities, "Only N left") and one row per rate (meals; free cancellation until a date and time, or "No refund after booking"; the total for your party including tax; a room stepper). The rail and the phone bottom bar show your selection and the **server-quoted total**. Also on the page: About, amenities, policies written as sentences from the owner's answers (check-in and check-out, children, ID, couples, pets, smoking, parties), reviews with hotel score labels, location (the exact pin and address when the owner chose to show them, otherwise the area) and nearby landmarks with km. JSON-LD `Hotel`/`Resort` with breadcrumbs; `geo` only when the address is public. **Reserve** is shown but disabled ("Online booking for hotels opens soon"): checkout is Phase 7. |
+| **Admin: Catalogues → Landmarks** | Add and edit landmarks: name, link (fixed once saved, because it is a public URL), city, kind, latitude/longitude, order, active, and a required reason. Saves are audited. |
+
+**Backend:** `0066_landmarks.sql` (latitude/longitude columns; distances are computed in the API, so search runs the same with or without PostGIS). New `domain/geo.js` (EWKB point parse/write, great-circle km). `booking/hotel-stays.js` gains `hotelSearchOffers` (one snapshot prices every candidate with the same functions as the page and the quote), `splitParty`, and party pricing in `getHotelAvailability`. `db/discovery.js` gains `searchHotels`, `suggestDestinations`, landmarks in the registry, and policy- and landmark-aware landing counts. `domain/discovery.js` (both repos) adds the hotel query keys and `HOTEL_SORTS`. `queries.js` adds hotel card fields and hotel detail (profile, room types and plans without prices, nearby landmarks). New public routes: `GET /discovery/suggest`, `GET /discovery/listings/:code/rooms`, `POST /discovery/listings/:code/stay-quote` (rate-limited, no-store). Admin: `catalogues/landmarks.js` on `/admin/catalogues/landmarks`. `seed-hotels.js` adds 7 Surat landmarks and map pins for the demo hotels.
+
+**Frontend:** `app/(marketing)/hotels/page.js`, `hotels/near/[landmark]/page.js`; `components/rentra/hotels/` (`HotelRooms`, `HotelFacts`, `HotelResultsMap`); a hotel branch in `SearchFields`, `DiscoveryFilters`, `DiscoveryResults`, `ListingCard` and `ListingDetail`; `lib/domain/hotel-ui.js`; `LocationMap` can show an exact pin; landmark admin in `components/catalogues/Catalogues.jsx`.
+
+**Verification (local only)**
+- Backend: new `test/integration/hotel-discovery.integration.test.js` (9 checks):
+  - hidden or partners-only Hotels cannot be searched;
+  - undated "from" prices;
+  - **card total = cheapest bookable rate on the hotel page = quote total** for 2 rooms, 3 adults and a 7-year-old;
+  - each filter: free cancellation, breakfast, couples, rating and budget;
+  - landmark radius and distance sort;
+  - autocomplete groups;
+  - sitemap floors for policy and landmark pages;
+  - **dated search over 500 hotels: p50 146 ms, p95 156 ms** (target under 300 ms; run alone with `PERF_GATES=1`). In the full parallel suite the bound is 2 s, because a shared machine measured p95 741 ms while `next build` ran at the same time.
+
+  Full suite: 287 tests, 284 pass, 3 skipped (the same three), 0 fail once the perf bound applies. `db:check` passes (67 files).
+- Frontend: `npm test` 104/104; ESLint clean on changed files; `next build` passes.
+- Browser gate on the disposable stack: new `scripts/portal-gate/hotel_discovery_gate.mjs` **24/24**. It covers:
+  - the Hotels tab and "Where" landmark suggestions;
+  - 16 dated results with map pins;
+  - the free-cancellation chip (12/12 cards show the deadline);
+  - the landmark page (4 hotels, 1.7–4.2 km, in order);
+  - **card ₹5,292 = page ₹5,292 = quote ₹5,292**;
+  - JSON-LD and policy text;
+  - the admin landmarks list;
+  - axe 0 violations at 1440 and no overflow at 390 on all 5 screens; no console errors.
+- **Lighthouse mobile performance 85** on the hotel page (`next start`, 2 runs). Accessibility 100, SEO 92. The farmhouse listing page measured 79 in the same setup. The hotel page reached 85 after it preconnected to the API that prices the rooms.
+- Gate stack note: the API must allow the web origin (`CORS_ALLOWED_ORIGINS=http://localhost:3106`), because rooms, quotes and suggestions are fetched from the browser. `fixture-migrate.mjs` now keeps hex map pins.
+
+**Not done / changes from the plan**
+- Landmarks use latitude/longitude columns, not a PostGIS column (local and test databases have no PostGIS). Distances are straight-line km.
+- **Recommended** ranking is still the shared rule (verified first). The weighted formula in §4.4 needs conversion and reliability data from Phase 8.
+- Price histogram, star-category filter, the Distance filter values (1/3/5/10 km; the radius is fixed at 5 km), "Search as I move the map", hover-linked pins and cards, the lightbox with photo categories, and the review traveller-type filter are not built. The Rooms & guests picker sets party totals, not per-room adults; the API spreads guests across rooms, the same way for the card, the page and the quote.
+- **Reserve** is disabled until checkout (Phase 7).
+- Card layout: the existing grid card plus hotel lines, not the horizontal card from the mockup.
+
+**Owner actions:** none to continue. Before production: Neon password rotation, the pending migrations, then 0064–0066 with the release. Add real landmarks per city in Catalogues → Landmarks; the seeded Surat coordinates are approximate.
+
 ### Phase 7 — Booking, payment & cancellation (Weeks 11–14)
 
 - **Objective:** end-to-end booking with money moving correctly.
 - **Deliverables:** order + hold, guest details, GSTIN capture, review & pay, Razorpay integration, webhooks, confirmation page, voucher PDF + `.ics`, notifications; My trips hotel cards and detail; self-serve cancellation with preview; refunds; hotel-initiated cancellation + relocation in admin.
 - **Acceptance:** fake-Razorpay gate (♻ `test/helpers/fake-razorpay.mjs`) covers: success, failure, pending UPI, late capture after hold expiry (auto-refund), duplicate webhook, refund success/failure; zero double bookings in 1,000-iteration concurrency test.
+
+#### Phase 7 completion record (21 Oct 2026)
+
+**Status:** ✅ Complete locally, on branch `feat/hotels` in both repos, uncommitted. New migration `0067_hotel_checkout.sql` is **not** applied to Neon. Payments run on the Razorpay **Test** gateway only, the same as every other vertical today. Hotels stays partners-only until Phase 9, so guests cannot reach this flow in production yet.
+
+**What guests get**
+
+| Step | What changed |
+| --- | --- |
+| **Reserve** (hotel page) | The rail and the phone bar show **Reserve** once a total is quoted. A guest who is not logged in sees "Log in to reserve". The stay they were pricing is kept through login, and the hotel page restores it afterwards. |
+| **Review** (`/checkout/review/{quote}`) | "Your stay" shows check-in and check-out with the hotel times, rooms and rates ("1 × Deluxe Double · Room only") and guests. Price details: rooms, taxes (GST on the room tariff), total, and **"Pay now, in full"** with no fee or deposit. The cancellation rule is shown per rate ("Free cancellation until Thu 19 Nov, 12:00 pm. After that, the first night is charged" or "Non-refundable"). Guest details: a **guest name for each room** (room 1 is filled from the account), expected arrival, requests, and an optional **GST invoice** section with GSTIN (validated) and business name. |
+| **Hold and pay** | Rooms are held for **15 minutes** (booking_room rows, counted in room_night). The existing Razorpay Test checkout runs unchanged, including retry, "Check payment status" and pending UPI. |
+| **Confirmed** | The existing confirmation screen, worded for a stay: "Enjoy your stay", check-in time, carry ID, and who the hotel invoices for GST. Tiles: View booking, Add to calendar (.ics), Hotel details, Get help. |
+| **My trips** | Cards show "Fri 20 Nov – Sun 22 Nov · 2 nights". The booking detail adds **Your rooms** (room, rate, guest, price with tax) and the arrival, requests and GST details. Price breakdown shows rooms + taxes. The downloadable summary lists the rooms and GST details. |
+| **Cancel** | The existing preview → accept → confirm flow. Each room's own rate rule is applied (free before the deadline, then first night or whole stay; non-refundable gives nothing back). The refund is split over room and tax in the proportion paid. Cancelled rooms go back on sale at once. |
+| **Hotel-initiated cancellation and relocation** | The existing owner/admin booking-case flow. A full-refund resolution now refunds the room **and** its tax. Relocation is handled by support on the case. |
+
+**How money moves:** a stay quote is stored in `booking_quote` like any other quote, so review, hold, payment, webhooks, settlement, refunds and records reuse the existing code. One `stay` booking per order. Collection is always **full**, even when the gateway default is an advance; the database rule allowing this applies to stay orders only. The capture is allocated as **rent (room) + tax**, and refunds are allocated against those parts.
+
+**Backend:**
+- New `booking/hotel-checkout.js`: stay quote, revalidation at hold, guest details schema with GSTIN.
+- `checkout.js` gains `holdStay`.
+- `settlement.js`: held rooms count as held inventory; the room + tax allocation.
+- `cancellation.js`: per-rate stay entitlement, and the tax component in `allocateRefund`.
+- `checkout-service.js`: stay terms recheck before payment.
+- `gateway-settings.js`: a pinned hotel snapshot may collect in full.
+- `domain/booking-cases.js`: full refund includes tax.
+- `records.js`: stay rooms and details; the arrival pin is parsed in JS.
+- `checkout-review.js`: stay selection and times.
+- `customer-selection.js` / `customer-actions.js`: stay login hand-off.
+- New route `POST /bookings/stay-quote` (customer only).
+- `0067_hotel_checkout.sql`:
+  - a confirmed booking moves its held rooms to booked;
+  - `booking_order.guest_details`;
+  - the checkout scope rule allows full collection for stays only.
+
+**Frontend:**
+- New `components/customer/checkout/StayGuestForm.jsx`.
+- Stay variants in `checkout/parts.jsx` (facts, price, per-rate cancellation, terms), `Checkout.jsx`, `ConfirmedView.jsx`, `BookingRecords.jsx` (Your rooms), `BookingHistory.jsx` and `CancelVisits.jsx`.
+- Reserve, login hand-off and stay quote in `HotelRooms.jsx`; `requestStayQuote` action and endpoint.
+
+**Verification (local only)**
+- Backend: new `test/integration/hotel-checkout.integration.test.js`, **10/10**, against the file-backed fake Razorpay:
+  - **success** (2 rooms, GST details; the capture is allocated room + tax; the record and the summary carry the GSTIN);
+  - guest details are required, and GSTIN is validated and needs a business name;
+  - **failure** keeps the hold, and expiry releases the rooms;
+  - **pending UPI** (authorized → processing → captured → confirmed);
+  - a **duplicate webhook** is processed once;
+  - **late capture after hold expiry** leaves the rooms free and auto-refunds, with **refund success and refund failure** (failure stays `unknown` for review);
+  - self-serve cancellation refunds in full before the deadline (room + tax) and releases the rooms;
+  - a non-refundable rate refunds ₹0;
+  - **1,000 concurrent quote+hold attempts on 5 rooms: exactly 5 held, 995 refused, held + sold = 5 (zero double bookings).**
+
+  Full suite: 297 tests, 294 pass, 3 skipped (the same three), 0 fail. `db:check` passes (68 files).
+- Frontend: `npm test` 104/104; ESLint clean on changed files; `next build` passes.
+- Browser gate: new `scripts/portal-gate/hotel_checkout_gate.mjs` **23/23** (Razorpay `checkout.js` stubbed, real HMAC and verify). It covers:
+  - the logged-out Reserve goes to login;
+  - the review total equals the hotel page total (₹6,300);
+  - the guest name is prefilled and the GST details are entered;
+  - the hold keeps the room;
+  - payment confirms with the room booked and the money split rent + tax;
+  - the "Enjoy your stay" confirmation;
+  - the record lists the rooms and the GST details;
+  - the `.ics` file;
+  - the trips list shows "· 2 nights";
+  - cancellation releases the room and requests a refund of exactly ₹6,300 (room + tax);
+  - axe 0 violations at 1440 and no overflow at 390 on all 5 screens; no console errors.
+
+  The Phase 6 discovery gate still passes, 24/24.
+- Gate stack: API started with `RAZORPAY_KEY_ID=rzp_test_…`, `RAZORPAY_KEY_SECRET`, `FAKE_RAZORPAY_STATE` and `CORS_ALLOWED_ORIGINS`. Test gateway enabled with `.qa-payments.mjs`; guest session from `.qa-customer-token.mjs` (both untracked QA helpers).
+
+**Not done / changes from the plan**
+- **Voucher PDF:** the existing text booking summary and `.ics` are used; there is no PDF. A tax invoice is the hotel's document. Propose a printable voucher page in Phase 9 if the owner wants one.
+- **Partial cancellation of one room** in a multi-room stay is not offered; the whole stay is cancelled. Each room's own rule still decides its refund.
+- **Prices are locked at hold:** between hold and payment, only the hold and quote life are rechecked, not a fresh price (the rooms are already held at the quoted price).
+- **Hold extension** ("Keep holding" once) is not built; the 15-minute hold and the existing timer apply.
+- **Notifications:** the existing confirmation and owner alerts fire on confirmation (the owner alert text has been stay-aware since Phase 5). No new hotel-specific guest message templates.
+- **Relocation** is a support action on the booking case, not a dedicated admin screen.
+- The checkout's shared secure-payment note still mentions "deposit and remaining amount" for stays; this is harmless but should be reworded in a copy pass.
+
+**Owner actions:** none to continue. Before production: Neon password rotation, the pending migrations, then 0064–0067 with the release, and live Razorpay keys when real payments are switched on platform-wide.
 
 ### Phase 8 — Post-stay: reviews, payouts, analytics (Weeks 13–15)
 

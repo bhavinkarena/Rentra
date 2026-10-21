@@ -40,6 +40,25 @@ export const PLAY_TRUST = [
   },
 ];
 
+/** Hotels (hotel plan §4.3): true statements only. Booking opens in Phase 7–9. */
+export const STAY_TRUST = [
+  {
+    Icon: ReceiptIndianRupee,
+    title: 'Total price with taxes',
+    body: 'Add dates and guests to see the full price for your stay, taxes included.',
+  },
+  {
+    Icon: ShieldCheck,
+    title: 'Cancellation terms per rate',
+    body: 'Every room rate says whether, and until when, you can cancel free of charge.',
+  },
+  {
+    Icon: Clock,
+    title: 'Live room availability',
+    body: 'Rooms left are counted for every night of your stay and checked again when you book.',
+  },
+];
+
 export default function TrustStrip({ items = ITEMS }) {
   return (
     <ul className="grid gap-5 sm:grid-cols-3">

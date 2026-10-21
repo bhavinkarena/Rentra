@@ -1,0 +1,46 @@
+.shell {
+  display: none;
+}
+.open {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: block;
+  background: var(--card);
+}
+@media (min-width: 1024px) {
+  .shell {
+    position: sticky;
+    top: 88px;
+    display: block;
+    height: calc(100vh - 112px);
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--secondary);
+  }
+}
+.pin {
+  background: none;
+  border: none;
+}
+.pin a {
+  display: inline-block;
+  pointer-events: auto;
+  transform: translate(-50%, -100%);
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--foreground);
+  font: 700 13px/1.4 inherit;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgb(6 78 59 / 18%);
+  text-decoration: none;
+}
+.pin a:hover,
+.pin a:focus-visible {
+  background: #064e3b;
+  color: #fff;
+  outline: none;
+  transform: translate(-50%, -100%) scale(1.15);
+}

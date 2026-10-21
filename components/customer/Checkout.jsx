@@ -44,6 +44,7 @@ import { checkoutStage, mayLaunchCheckout } from '@/lib/domain/checkout-display'
 import { formatINRMinor as money } from '@/lib/domain/booking-money';
 import PaymentVerification from './checkout/PaymentVerification';
 import ConfirmedView from './checkout/ConfirmedView';
+import StayGuestForm from './checkout/StayGuestForm';
 import {
   CancellationPolicy,
   HoldTimer,
@@ -55,6 +56,7 @@ import {
   StatusBanner,
   StayFacts,
   isHourly,
+  isStay,
   Stepper,
   SummaryCard,
   TermsVersion,
@@ -179,6 +181,17 @@ export default function Checkout({ data }) {
   const router = useRouter();
   const [checkout, setCheckout] = useState(data.checkout ?? null);
   const [purpose, setPurpose] = useState(data.purpose ?? '');
+  const stayCheckout = isStay(quote);
+  // Hotel stays: one guest name per room (the first defaults to the account name), arrival, requests, GST.
+  const [guests, setGuests] = useState(() => ({
+    guestNames: (quote.visits[0]?.rooms ?? []).map((_, index) =>
+      index === 0 ? (contact.name ?? '') : '',
+    ),
+    arrivalTime: '',
+    requests: '',
+    gstin: '',
+    businessName: '',
+  }));
   const [accepted, setAccepted] = useState(false);
   const [message, setMessage] = useState('');
   const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
@@ -291,7 +304,7 @@ export default function Checkout({ data }) {
         version: quote.version,
         accepted: true,
         idempotencyKey: quote.id,
-        purpose,
+        ...(stayCheckout ? { stay: guests } : { purpose }),
       });
       const held = receive(result, sequence);
       // The quote UUID is a stable request key across reloads and tabs. Persisted ownership is authoritative.
@@ -610,7 +623,7 @@ export default function Checkout({ data }) {
 
           <Section
             icon={CalendarDays}
-            title={isHourly(quote) ? 'Your booking' : 'Your trip'}
+            title={stayCheckout ? 'Your stay' : isHourly(quote) ? 'Your booking' : 'Your trip'}
             action={
               review ? (
                 <Link href={data.listingHref} className={textLink}>
@@ -665,10 +678,23 @@ export default function Checkout({ data }) {
             <CancellationPolicy quote={quote} now={serverNow} />
           </Section>
 
-          <Section icon={ScrollText} title={isHourly(quote) ? 'Venue rules' : 'House rules'}>
-            <HouseRules rules={quote.policy.houseRules} />
-            <TermsVersion quote={quote} />
-          </Section>
+          {stayCheckout ? (
+            <Section icon={ScrollText} title="Hotel policies">
+              <p className="text-sm text-ink-700">
+                Check-in and ID rules, couples, children and pets are on the{' '}
+                <Link href={data.listingHref} className="font-semibold text-brand-700 underline">
+                  hotel page
+                </Link>
+                . Carry a valid photo ID for every adult.
+              </p>
+              <TermsVersion quote={quote} />
+            </Section>
+          ) : (
+            <Section icon={ScrollText} title={isHourly(quote) ? 'Venue rules' : 'House rules'}>
+              <HouseRules rules={quote.policy.houseRules} />
+              <TermsVersion quote={quote} />
+            </Section>
+          )}
 
           {review ? (
             <form
@@ -681,36 +707,46 @@ export default function Checkout({ data }) {
               <h2 id="confirm-heading" className="text-h4">
                 Confirm and book
               </h2>
-              <label htmlFor="checkout-purpose" className="mt-5 block text-sm font-semibold">
-                Purpose of your visit
-              </label>
-              <div role="group" aria-label="Quick picks" className="mt-2.5 flex flex-wrap gap-2">
-                {(isHourly(quote) ? VENUE_PURPOSES : PURPOSES).map((option) => (
-                  <button
-                    key={option}
-                    type="button"
-                    aria-pressed={purpose === option}
-                    onClick={() => setPurpose(option)}
-                    className="min-h-10 rounded-full border border-ink-300 bg-card px-3.5 text-sm text-ink-700 transition-colors hover:border-brand-500 aria-pressed:border-brand-600 aria-pressed:bg-primary aria-pressed:font-semibold aria-pressed:text-white"
+              {stayCheckout ? (
+                <StayGuestForm quote={quote} value={guests} onChange={setGuests} />
+              ) : (
+                <>
+                  <label htmlFor="checkout-purpose" className="mt-5 block text-sm font-semibold">
+                    Purpose of your visit
+                  </label>
+                  <div
+                    role="group"
+                    aria-label="Quick picks"
+                    className="mt-2.5 flex flex-wrap gap-2"
                   >
-                    {option}
-                  </button>
-                ))}
-              </div>
-              <input
-                id="checkout-purpose"
-                required
-                minLength={3}
-                maxLength={160}
-                value={purpose}
-                onChange={(event) => setPurpose(event.target.value)}
-                placeholder="Or type your own"
-                aria-describedby="checkout-purpose-count"
-                className="mt-3 block min-h-12 w-full rounded-md border border-input bg-card px-4 text-base md:text-sm outline-none focus:border-brand-600"
-              />
-              <p id="checkout-purpose-count" className="mt-1.5 text-right text-xs text-ink-500">
-                {purpose.length}/160
-              </p>
+                    {(isHourly(quote) ? VENUE_PURPOSES : PURPOSES).map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        aria-pressed={purpose === option}
+                        onClick={() => setPurpose(option)}
+                        className="min-h-10 rounded-full border border-ink-300 bg-card px-3.5 text-sm text-ink-700 transition-colors hover:border-brand-500 aria-pressed:border-brand-600 aria-pressed:bg-primary aria-pressed:font-semibold aria-pressed:text-white"
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    id="checkout-purpose"
+                    required
+                    minLength={3}
+                    maxLength={160}
+                    value={purpose}
+                    onChange={(event) => setPurpose(event.target.value)}
+                    placeholder="Or type your own"
+                    aria-describedby="checkout-purpose-count"
+                    className="mt-3 block min-h-12 w-full rounded-md border border-input bg-card px-4 text-base md:text-sm outline-none focus:border-brand-600"
+                  />
+                  <p id="checkout-purpose-count" className="mt-1.5 text-right text-xs text-ink-500">
+                    {purpose.length}/160
+                  </p>
+                </>
+              )}
               <nav aria-label="Applicable public policies" className="mt-4 flex flex-wrap gap-2">
                 {Object.entries(quote.policy.publications || {}).map(([kind, policy]) => (
                   <Link
@@ -735,7 +771,12 @@ export default function Checkout({ data }) {
                 <span className="block font-semibold text-ink-900">
                   I agree to these booking terms
                 </span>
-                {hourly ? (
+                {stayCheckout ? (
+                  <span className="mt-0.5 block text-ink-600">
+                    The linked terms, privacy notice, the rooms, dates and total price above, and
+                    the cancellation rule of each rate.
+                  </span>
+                ) : hourly ? (
                   <span className="mt-0.5 block text-ink-600">
                     The linked terms and cancellation explanations, privacy notice, booking time,
                     price and venue rules above
@@ -775,9 +816,19 @@ export default function Checkout({ data }) {
                   <>
                     <RentraLoader
                       inverse
-                      label={hourly ? 'Reserving your time…' : 'Reserving your dates…'}
+                      label={
+                        stayCheckout
+                          ? 'Holding your rooms…'
+                          : hourly
+                            ? 'Reserving your time…'
+                            : 'Reserving your dates…'
+                      }
                     />
-                    {hourly ? 'Reserving your time…' : 'Reserving your dates…'}
+                    {stayCheckout
+                      ? 'Holding your rooms…'
+                      : hourly
+                        ? 'Reserving your time…'
+                        : 'Reserving your dates…'}
                   </>
                 ) : (
                   <>
@@ -789,9 +840,11 @@ export default function Checkout({ data }) {
               <p className="mt-3 text-center text-xs text-ink-600">
                 {remaining <= 0
                   ? words('This price expired. Go back to your dates for a fresh quote.')
-                  : words(
-                      `We hold your dates for up to ${BOOKING_POLICY.holdMinutes} minutes while you pay on the next step. You won’t be charged yet.`,
-                    )}
+                  : stayCheckout
+                    ? 'We hold your rooms for up to 15 minutes while you pay on the next step. You won’t be charged yet.'
+                    : words(
+                        `We hold your dates for up to ${BOOKING_POLICY.holdMinutes} minutes while you pay on the next step. You won’t be charged yet.`,
+                      )}
               </p>
             </form>
           ) : null}

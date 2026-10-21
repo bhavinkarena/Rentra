@@ -320,7 +320,11 @@ export function Reviews({ listing, noun = ['stay', 'stays'] }) {
             {SUB_SCORES.map(([key, farmLabel]) => {
               // Venues rate the court where farmhouses rate the photos' accuracy.
               const label =
-                listing.rentalUnit === 'hour' ? subScoreLabels('entertainment')[key] : farmLabel;
+                listing.rentalUnit === 'hour'
+                  ? subScoreLabels('entertainment')[key]
+                  : listing.vertical === 'hotel'
+                    ? subScoreLabels('hotel')[key]
+                    : farmLabel;
               const value = subScores[key];
               if (value == null) return null;
               return (

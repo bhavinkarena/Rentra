@@ -12,7 +12,7 @@ const ATTRIBUTION =
   process.env.NEXT_PUBLIC_MAP_ATTRIBUTION ||
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
-function MapCanvas({ center, label, expanded = false }) {
+function MapCanvas({ center, label, expanded = false, exact = false }) {
   const container = useRef(null);
   const [state, setState] = useState('loading');
   const [attempt, setAttempt] = useState(0);
@@ -62,7 +62,7 @@ function MapCanvas({ center, label, expanded = false }) {
             }),
           })
             .addTo(map)
-            .bindTooltip('Exact location provided after booking', {
+            .bindTooltip(exact ? label : 'Exact location provided after booking', {
               permanent: true,
               direction: 'top',
               offset: [0, -46],
@@ -83,7 +83,7 @@ function MapCanvas({ center, label, expanded = false }) {
       resize?.disconnect();
       map?.remove();
     };
-  }, [latitude, longitude, attempt]);
+  }, [latitude, longitude, attempt, exact, label]);
 
   return (
     <div className={`${styles.frame} ${expanded ? styles.expanded : ''}`}>
@@ -91,7 +91,7 @@ function MapCanvas({ center, label, expanded = false }) {
         ref={container}
         className={styles.canvas}
         role="region"
-        aria-label={`Approximate location: ${label}. Use the plus and minus buttons to zoom.`}
+        aria-label={`${exact ? 'Location' : 'Approximate location'}: ${label}. Use the plus and minus buttons to zoom.`}
       />
       {state !== 'ready' ? (
         <div className={styles.status} role="status">
@@ -115,7 +115,8 @@ function MapCanvas({ center, label, expanded = false }) {
   );
 }
 
-export default function LocationMap({ areaName, cityName, center }) {
+/** `exact`: the owner chose to show the real pin (hotels); otherwise an area centre. */
+export default function LocationMap({ areaName, cityName, center, exact = false }) {
   const label = [areaName, cityName].filter(Boolean).join(', ');
   const hasCenter =
     Number.isFinite(center?.latitude) &&
@@ -134,14 +135,15 @@ export default function LocationMap({ areaName, cityName, center }) {
   return (
     <Dialog.Root>
       <div className="relative isolate">
-        <MapCanvas center={center} label={label} />
+        <MapCanvas center={center} label={label} exact={exact} />
         <Dialog.Trigger className={styles.expandButton} aria-label="Expand location map">
           <Expand className="size-5" aria-hidden="true" />
         </Dialog.Trigger>
       </div>
       <p className="mt-4 flex items-center gap-2 text-sm text-ink-600">
         <MapPin className="size-4 shrink-0" aria-hidden="true" />
-        {label} · Approximate location
+        {label}
+        {exact ? '' : ' · Approximate location'}
       </p>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[90] bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=open]:fade-in data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:duration-150 duration-200" />
@@ -150,7 +152,9 @@ export default function LocationMap({ areaName, cityName, center }) {
             <div>
               <Dialog.Title className="text-lg font-bold">{label}</Dialog.Title>
               <Dialog.Description className="mt-1 text-sm text-ink-600">
-                Approximate location. Exact location provided after booking.
+                {exact
+                  ? 'Location shown by the hotel.'
+                  : 'Approximate location. Exact location provided after booking.'}
               </Dialog.Description>
             </div>
             <Dialog.Close
@@ -160,7 +164,7 @@ export default function LocationMap({ areaName, cityName, center }) {
               <X className="size-5" />
             </Dialog.Close>
           </div>
-          <MapCanvas center={center} label={label} expanded />
+          <MapCanvas center={center} label={label} expanded exact={exact} />
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

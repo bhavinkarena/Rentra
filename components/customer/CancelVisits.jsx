@@ -14,7 +14,7 @@ import { displayMoney as money, StateBadge } from './BookingDisplay';
 const pill =
   'inline-flex min-h-10 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-semibold text-ink-800 transition-colors hover:border-brand-300 hover:bg-brand-50 disabled:opacity-50';
 const visitLabel = (v) =>
-  v.slot === 'hourly'
+  v.slot === 'hourly' || v.slot === 'stay'
     ? v.label
     : `${v.date ? formatLocalDate(v.date, { year: 'numeric' }) : 'Date not recorded'} · ${SLOTS[v.slot]?.label ?? v.slot.replaceAll('_', ' ')}`;
 

@@ -23,6 +23,8 @@ import {
   StayPhoto,
   TestBadge,
   isHourly,
+  isStay,
+  CancellationPolicy,
   visitHours,
 } from './parts';
 
@@ -57,6 +59,7 @@ export default function ConfirmedView({ data, checkout }) {
   const base = `/bookings/${checkout.orderId}`;
   const later = quote.payment.remainingMinor > 0;
   const hourly = isHourly(quote);
+  const stay = isStay(quote);
   const tier = (hourly ? CANCELLATION_TIERS_HOURLY : CANCELLATION_TIERS)[
     quote.policy.cancellationTier
   ];
@@ -86,8 +89,8 @@ export default function ConfirmedView({ data, checkout }) {
     {
       href: `${base}#getting-there`,
       icon: MapPinned,
-      label: 'Arrival details',
-      hint: 'Address & host',
+      label: stay ? 'Hotel details' : 'Arrival details',
+      hint: stay ? 'Address & phone' : 'Address & host',
     },
     {
       href: `/support/new?order=${checkout.orderId}`,
@@ -107,26 +110,32 @@ export default function ConfirmedView({ data, checkout }) {
       title: 'Arrival details unlocked',
       text: 'The address and host contact are now in your booking.',
     },
-    hourly && !later && !quote.totals.depositMinor
+    (hourly || stay) && !later && !quote.totals.depositMinor
       ? null
       : {
           icon: Wallet,
           title: later ? 'Remaining amount and deposit' : 'Refundable deposit',
           text: `${later ? `${money(quote.payment.remainingMinor)} is not collected now. ` : ''}The ${money(quote.totals.depositMinor)} refundable deposit is paid separately.`,
         },
-    first && hourly
+    first && stay
       ? {
           icon: PartyPopper,
-          title: 'Enjoy your game',
-          text: `${first.resourceName ? `${first.resourceName}, ` : ''}${shortDay(first.startsAt, quote.timeZone)}, ${visitHours(quote)}.${arriveEarly ? ` ${arriveEarly}` : ''}`,
+          title: 'Enjoy your stay',
+          text: `Check in from ${clockTime(first.startsAt, quote.timeZone)} on ${shortDay(first.startsAt, quote.timeZone)}. Carry a photo ID for every adult. The hotel issues your tax invoice${data.guestDetails?.gstin ? ` to ${data.guestDetails.businessName}` : ''}.`,
         }
-      : first
+      : first && hourly
         ? {
             icon: PartyPopper,
-            title: 'Enjoy your visit',
-            text: `${quote.visits.length > 1 ? 'Your first visit starts' : 'Arrive from'} ${clockTime(first.startsAt, quote.timeZone)} on ${shortDay(first.startsAt, quote.timeZone)}.`,
+            title: 'Enjoy your game',
+            text: `${first.resourceName ? `${first.resourceName}, ` : ''}${shortDay(first.startsAt, quote.timeZone)}, ${visitHours(quote)}.${arriveEarly ? ` ${arriveEarly}` : ''}`,
           }
-        : null,
+        : first
+          ? {
+              icon: PartyPopper,
+              title: 'Enjoy your visit',
+              text: `${quote.visits.length > 1 ? 'Your first visit starts' : 'Arrive from'} ${clockTime(first.startsAt, quote.timeZone)} on ${shortDay(first.startsAt, quote.timeZone)}.`,
+            }
+          : null,
   ].filter(Boolean);
 
   return (
@@ -225,16 +234,22 @@ export default function ConfirmedView({ data, checkout }) {
             <ShieldCheck className="size-4 text-brand-700" aria-hidden="true" />
             Cancellation
           </h2>
-          <p className="mt-3 text-sm text-ink-700">
-            {!tier
-              ? 'No cancellation policy was set for this booking. Contact support if your plans change.'
-              : nextRefund?.rate === 1
-                ? `Full rent refund if you cancel before ${shortDay(nextRefund.until, quote.timeZone)}, ${clockTime(nextRefund.until, quote.timeZone)}.`
-                : nextRefund?.rate > 0
-                  ? `${Math.round(nextRefund.rate * 100)}% rent refund if you cancel before ${shortDay(nextRefund.until, quote.timeZone)}, ${clockTime(nextRefund.until, quote.timeZone)}.`
-                  : 'This booking is no longer eligible for a rent refund.'}
-          </p>
-          {tier ? (
+          {stay ? (
+            <div className="mt-3">
+              <CancellationPolicy quote={quote} now={checkout.serverNow} />
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-ink-700">
+              {!tier
+                ? 'No cancellation policy was set for this booking. Contact support if your plans change.'
+                : nextRefund?.rate === 1
+                  ? `Full rent refund if you cancel before ${shortDay(nextRefund.until, quote.timeZone)}, ${clockTime(nextRefund.until, quote.timeZone)}.`
+                  : nextRefund?.rate > 0
+                    ? `${Math.round(nextRefund.rate * 100)}% rent refund if you cancel before ${shortDay(nextRefund.until, quote.timeZone)}, ${clockTime(nextRefund.until, quote.timeZone)}.`
+                    : 'This booking is no longer eligible for a rent refund.'}
+            </p>
+          )}
+          {tier && !stay ? (
             <p className="mt-2 text-xs text-ink-600">
               {tier.label} policy ·{' '}
               {hourly
@@ -246,7 +261,7 @@ export default function ConfirmedView({ data, checkout }) {
             href={`${base}/cancel`}
             className="mt-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-brand-700 underline-offset-4 hover:underline"
           >
-            Manage or cancel visits
+            {stay ? 'Manage or cancel stay' : 'Manage or cancel visits'}
             <ArrowRight className="size-4" aria-hidden="true" />
           </Link>
         </section>

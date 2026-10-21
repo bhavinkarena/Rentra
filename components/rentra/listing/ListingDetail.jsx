@@ -51,6 +51,14 @@ import {
   VenueRules,
 } from '@/components/rentra/listing/VenueSections';
 import { siteUrl } from '@/lib/seo/site-url';
+import HotelRooms from '@/components/rentra/hotels/HotelRooms';
+import { preconnect } from 'react-dom';
+import { API_URL } from '@/lib/api/config';
+import {
+  HotelFactsRow,
+  HotelPolicies,
+  NearbyLandmarks,
+} from '@/components/rentra/hotels/HotelFacts';
 
 /** The lowest and highest a guest could pay here, across slots and rates. */
 export function priceBand(prices) {
@@ -69,6 +77,7 @@ function pickDefaults({ prices }) {
 
 export function ListingDetail({ listing, preview = false }) {
   if (listing.rentalUnit === 'hour') return <VenueListing listing={listing} preview={preview} />;
+  if (listing.vertical === 'hotel') return <HotelListing listing={listing} preview={preview} />;
 
   // First paint must not wait for the inventory transaction. The calendar
   // checks live availability after hydration; guests explicitly choose dates.
@@ -501,6 +510,189 @@ function VenueListing({ listing, preview = false }) {
       )}
     </Booking>
   );
+}
+
+export function hotelMetadata(listing) {
+  const from = listing.price;
+  const title = from
+    ? `${listing.title}, ${listing.areaName} — rooms from ${formatINR(from)}/night`
+    : `${listing.title}, ${listing.areaName}`;
+  const description =
+    `${listing.title} in ${listing.areaName}, ${listing.cityName}. ` +
+    `${listingFacts(listing).join(', ')}. See rooms, live prices with taxes, cancellation terms and hotel policies.`;
+  return publicMetadata({
+    title,
+    description,
+    path: listingPath(listing.slug, listing.publicCode),
+    images: listing.photos.slice(0, 4).map((photo) => ({
+      url: absolutePublicUrl(siteUrl, photo.url),
+      alt: photo.alt,
+    })),
+  });
+}
+
+/**
+ * The hotel layout (hotel plan §4.5–4.6): gallery and header shared; facts,
+ * rooms with live rates, amenities, policies, reviews, location with nearby
+ * landmarks. Rooms are priced in the browser from the API for the guest's stay.
+ */
+function HotelListing({ listing, preview = false }) {
+  const shareUrl = listingUrl(siteUrl, listing.slug, listing.publicCode);
+  const crumbs = [
+    { name: 'Home', href: '/' },
+    { name: 'Hotels', href: '/hotels' },
+    { name: listing.cityName, href: `/${listing.citySlug}/${listing.categorySlug}` },
+    { name: listing.title },
+  ];
+  const exact = listing.hotel?.exactLocation;
+  // Rooms are priced from the browser right after hydration: open the API connection early.
+  if (!preview) preconnect(new URL(API_URL).origin, { crossOrigin: 'use-credentials' });
+  return (
+    <>
+      {!preview && <MeasuredView event="listing_viewed" />}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildHotelJsonLd({ listing, crumbs })) }}
+      />
+      <div className="mx-auto max-w-(--container-page) px-4 py-6 sm:px-6">
+        <Breadcrumbs crumbs={crumbs} />
+        <div className="mt-4">
+          <PhotoGallery photos={listing.photos} title={listing.title} />
+        </div>
+        <span id="gallery-end" aria-hidden="true" className="block" />
+        <div className="mt-8">
+          <ListingHeader
+            listing={listing}
+            shareUrl={shareUrl}
+            fromText={listing.price ? ` — rooms from ${formatINR(listing.price)}/night` : ''}
+            preview={preview}
+          />
+          <nav aria-label="On this page" className="mt-6 flex gap-2 overflow-x-auto text-meta">
+            {[
+              ['rooms', 'Rooms'],
+              ['amenities', 'Amenities'],
+              ['policies', 'Policies'],
+              ['reviews', 'Reviews'],
+              ['location', 'Location'],
+            ].map(([id, label]) => (
+              <a
+                key={id}
+                href={`#${id}`}
+                className="inline-flex min-h-10 shrink-0 items-center rounded-full border border-border px-4 font-medium text-ink-700 hover:border-brand-300 hover:bg-brand-50"
+              >
+                {label}
+              </a>
+            ))}
+          </nav>
+          <div className="mt-8">
+            <HotelFactsRow listing={listing} />
+          </div>
+        </div>
+
+        <Section id="rooms" title="Rooms" className="mt-10">
+          {preview ? (
+            <p className="rounded-md border bg-card p-4 text-meta">
+              Room prices are not shown in this preview.
+            </p>
+          ) : listing.roomTypes?.length ? (
+            <Suspense fallback={null}>
+              <HotelRooms
+                code={listing.publicCode}
+                rentableId={listing.id}
+                roomTypes={listing.roomTypes}
+              />
+            </Suspense>
+          ) : (
+            <p className="text-meta text-ink-600">This hotel has not opened rooms on Rentra yet.</p>
+          )}
+        </Section>
+
+        {listing.description ? (
+          <Section id="about" title="About this hotel" className="mt-10">
+            <p className="max-w-prose text-body whitespace-pre-line [overflow-wrap:anywhere] text-ink-700">
+              {listing.description}
+            </p>
+          </Section>
+        ) : null}
+
+        <Section id="amenities" title="What this hotel has" className="mt-10">
+          <AmenityGrid amenities={listing.amenities} />
+        </Section>
+
+        <Section id="policies" title="Hotel policies" className="mt-10">
+          <HotelPolicies hotel={listing.hotel} />
+        </Section>
+
+        <Section id="reviews" title="Reviews" className="mt-10">
+          <Reviews listing={listing} />
+        </Section>
+
+        <Section id="location" title="Location" className="mt-12">
+          <LocationMap
+            areaName={listing.areaName}
+            cityName={listing.cityName}
+            center={exact ?? listing.approximateLocation}
+            exact={Boolean(exact)}
+          />
+          {exact?.address ? <p className="mt-2 text-meta text-ink-700">{exact.address}</p> : null}
+          <NearbyLandmarks landmarks={listing.landmarks} />
+        </Section>
+
+        <Suspense fallback={null}>
+          {!preview && <SimilarListings listing={listing} heading="More hotels near" />}
+        </Suspense>
+        <div className="h-20 lg:hidden" aria-hidden="true" />
+      </div>
+    </>
+  );
+}
+
+/** Hotel + BreadcrumbList. geo only when the owner shows the address; no unearned rating. */
+function buildHotelJsonLd({ listing, crumbs }) {
+  const url = listingUrl(siteUrl, listing.slug, listing.publicCode);
+  const exact = listing.hotel?.exactLocation;
+  const hotel = {
+    '@type': listing.categorySlug === 'resort' ? 'Resort' : 'Hotel',
+    '@id': url,
+    name: listing.title,
+    description: listing.description ?? undefined,
+    url,
+    image: listing.photos.slice(0, 6).map((p) => absolutePublicUrl(siteUrl, p.url)),
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: exact?.address ?? undefined,
+      addressLocality: listing.areaName,
+      addressRegion: listing.cityName,
+      addressCountry: 'IN',
+    },
+    geo: exact
+      ? { '@type': 'GeoCoordinates', latitude: exact.latitude, longitude: exact.longitude }
+      : undefined,
+    starRating: listing.hotel?.starRating
+      ? { '@type': 'Rating', ratingValue: listing.hotel.starRating }
+      : undefined,
+    checkinTime: listing.hotel?.checkIn,
+    checkoutTime: listing.hotel?.checkOut,
+    petsAllowed: listing.hotel?.policies?.pets ?? undefined,
+    numberOfRooms:
+      (listing.roomTypes ?? []).reduce((sum, room) => sum + room.roomCount, 0) || undefined,
+    priceRange: listing.price ? `From ${formatINR(listing.price)} per night` : undefined,
+    amenityFeature: listing.amenities.included.slice(0, 20).map((name) => ({
+      '@type': 'LocationFeatureSpecification',
+      name,
+      value: true,
+    })),
+  };
+  if (listing.reviewCount > 0 && listing.rating) {
+    hotel.aggregateRating = {
+      '@type': 'AggregateRating',
+      ratingValue: listing.rating,
+      reviewCount: listing.reviewCount,
+      bestRating: 5,
+      worstRating: 1,
+    };
+  }
+  return { '@context': 'https://schema.org', '@graph': [hotel, breadcrumbLd(crumbs, url)] };
 }
 
 async function SimilarListings({ listing, heading = 'Similar farmhouses near' }) {

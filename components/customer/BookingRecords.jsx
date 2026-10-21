@@ -21,6 +21,7 @@ import {
   CircleX,
   Scale,
   PenLine,
+  BedDouble,
 } from 'lucide-react';
 import { randomUUID } from 'node:crypto';
 import { bookingTime as time } from '@/lib/domain/booking-record';
@@ -249,17 +250,30 @@ export function BookingDetail({
             <Wallet className={headingIcon} aria-hidden="true" />
             Price breakdown
           </h2>
-          <dl className="text-meta">
-            <Row label="Rent">{money(record.rentMinor)}</Row>
-            <Row label="Platform fee">{money(record.feeMinor)}</Row>
-            <Row label="Total" strong>
-              {money(totalPrice(record))}
-            </Row>
-            <Row label="Separate deposit" muted>
-              {money(record.depositMinor)}
-            </Row>
-          </dl>
+          {record.stay ? (
+            <dl className="text-meta">
+              <Row label="Rooms">{money(record.stay.roomMinor)}</Row>
+              <Row label="Taxes">{money(record.stay.taxMinor)}</Row>
+              <Row label="Total" strong>
+                {money(totalPrice(record))}
+              </Row>
+            </dl>
+          ) : (
+            <dl className="text-meta">
+              <Row label="Rent">{money(record.rentMinor)}</Row>
+              <Row label="Platform fee">{money(record.feeMinor)}</Row>
+              <Row label="Total" strong>
+                {money(totalPrice(record))}
+              </Row>
+              <Row label="Separate deposit" muted>
+                {money(record.depositMinor)}
+              </Row>
+            </dl>
+          )}
         </section>
+        {record.stay ? (
+          <StayRooms stay={record.stay} card={card} headingIcon={headingIcon} />
+        ) : null}
         <section className={`lg:col-span-2 ${card}`}>
           <h2 className="flex items-center gap-2 text-h4">
             <CalendarDays className={headingIcon} aria-hidden="true" />
@@ -276,6 +290,8 @@ export function BookingDetail({
                     <h3 className="font-semibold">
                       {v.slot === 'hourly' ? (
                         `${v.label} · ${plural(v.guests, 'player')}`
+                      ) : v.slot === 'stay' ? (
+                        `${v.label} · ${plural(v.guests, 'guest')}`
                       ) : (
                         <>
                           {v.date
@@ -515,5 +531,49 @@ export function BookingDetail({
         </details>
       </div>
     </article>
+  );
+}
+
+/** Hotel stay (hotel plan, Phase 7): each room, its rate and guest, and the checkout details. */
+function StayRooms({ stay, card, headingIcon }) {
+  const d = stay.details ?? {};
+  return (
+    <section className={`lg:col-span-2 ${card}`}>
+      <h2 className="flex items-center gap-2 text-h4">
+        <BedDouble className={headingIcon} aria-hidden="true" />
+        Your rooms
+      </h2>
+      <ul className="mt-4 divide-y divide-border rounded-lg border border-border">
+        {stay.rooms.map((room) => (
+          <li
+            key={room.id}
+            className="flex flex-wrap items-start justify-between gap-2 p-4 text-meta"
+          >
+            <div className="min-w-0">
+              <p className="font-semibold">
+                {room.name} · {room.plan?.name}
+              </p>
+              <p className="text-ink-600">
+                {room.guestName || 'Guest'} · {plural(room.adults, 'adult')}
+                {room.childAges?.length
+                  ? ` · ${room.childAges.length} ${room.childAges.length === 1 ? 'child' : 'children'}`
+                  : ''}
+              </p>
+            </div>
+            <p className="text-right tabular">
+              {money(room.roomMinor + room.taxMinor)}
+              <span className="block text-tiny text-ink-500">incl. {money(room.taxMinor)} tax</span>
+            </p>
+          </li>
+        ))}
+      </ul>
+      {d.arrivalTime || d.requests || d.gstin ? (
+        <dl className="mt-4 grid gap-x-8 text-meta sm:grid-cols-2">
+          {d.arrivalTime ? <Row label="Expected arrival">{d.arrivalTime}</Row> : null}
+          {d.requests ? <Row label="Requests">{d.requests}</Row> : null}
+          {d.gstin ? <Row label="GST invoice to">{`${d.businessName} · ${d.gstin}`}</Row> : null}
+        </dl>
+      ) : null}
+    </section>
   );
 }

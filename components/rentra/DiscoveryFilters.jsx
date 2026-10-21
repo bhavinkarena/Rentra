@@ -15,6 +15,10 @@ import {
   BedDouble,
   Wallet,
   Check,
+  CircleCheck,
+  Coffee,
+  HeartHandshake,
+  IdCard,
 } from 'lucide-react';
 import SearchFields from './SearchFields';
 import { discoveryQuery } from '@/lib/domain/discovery';
@@ -30,6 +34,28 @@ const quickChoices = [
   ['swimming_pool', 'With pool', Waves],
   ['open_lawn', 'Open lawn', Trees],
   ['bonfire', 'Bonfire', Flame],
+];
+/** Hotels: one-tap filters are query flags, not amenities (hotel plan §4.3). */
+const hotelQuick = [
+  ['freecancel', 'Free cancellation', CircleCheck],
+  ['breakfast', 'Breakfast included', Coffee],
+  ['couples', 'Couple-friendly', HeartHandshake],
+];
+const hotelToggles = [
+  [
+    'freecancel',
+    'Free cancellation',
+    'At least one rate you can cancel free of charge.',
+    CircleCheck,
+  ],
+  ['breakfast', 'Breakfast included', 'Rates with breakfast or more meals.', Coffee],
+  [
+    'couples',
+    'Couple-friendly',
+    'The hotel welcomes unmarried couples with valid ID.',
+    HeartHandshake,
+  ],
+  ['localid', 'Local ID accepted', 'Guests with an ID from the same city can stay.', IdCard],
 ];
 const amenityGroups = [
   [
@@ -58,8 +84,11 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
   usePublishDiscovery(filters, route, path);
   // Venues pick the activity in the search bar; players and indoor are their own filters.
   const vertical = route?.verticalCode ?? filters.vertical;
-  const play = vertical !== 'farmhouse';
+  const stayMode = vertical === 'hotel';
+  const play = vertical !== 'farmhouse' && !stayMode;
   const activeFilters =
+    hotelToggles.filter(([key]) => filters[key] === '1').length +
+    Number(Boolean(filters.rating)) +
     Number(Boolean(filters.q)) +
     Number(!play && !route?.category && Boolean(filters.category)) +
     Number(play && filters.players != null) +
@@ -76,18 +105,19 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
     (item) => !item.verticals?.length || item.verticals.includes(vertical),
   );
   const assigned = amenityGroups.flatMap(([, slugs]) => slugs);
-  const groups = play
-    ? [['Facilities', ownAmenities]]
-    : [
-        ...amenityGroups.map(([title, slugs]) => [
-          title,
-          ownAmenities.filter((item) => slugs.includes(item.slug)),
-        ]),
-        [
-          'More facilities & accessibility',
-          ownAmenities.filter((item) => !assigned.includes(item.slug)),
-        ],
-      ];
+  const groups =
+    play || stayMode
+      ? [['Facilities', ownAmenities]]
+      : [
+          ...amenityGroups.map(([title, slugs]) => [
+            title,
+            ownAmenities.filter((item) => slugs.includes(item.slug)),
+          ]),
+          [
+            'More facilities & accessibility',
+            ownAmenities.filter((item) => !assigned.includes(item.slug)),
+          ],
+        ];
   const href = (changes) => `${path}?${discoveryQuery(filters, { page: 1, ...changes })}`;
   function closeFilters(event) {
     setAdvanced(false);
@@ -136,7 +166,7 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
           registry={registry}
           route={route}
           vertical={vertical}
-          submitLabel={play ? 'Show venues' : 'Show places'}
+          submitLabel={stayMode ? 'Show hotels' : play ? 'Show venues' : 'Show places'}
         />
       </div>
 
@@ -159,6 +189,24 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
           className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto"
           aria-label="Popular filters"
         >
+          {stayMode
+            ? hotelQuick.map(([key, label, Icon]) => {
+                const selected = filters[key] === '1';
+                return (
+                  <Link
+                    key={key}
+                    href={href({ [key]: selected ? '' : '1' })}
+                    aria-label={`${selected ? 'Remove' : 'Add'} ${label} filter`}
+                    aria-current={selected ? 'true' : undefined}
+                    className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-3 text-tiny font-medium hover:border-brand-300 ${selected ? 'border-brand-300 bg-brand-50 text-brand-800' : 'border-border bg-card text-ink-700'}`}
+                  >
+                    <Icon className="size-4" aria-hidden="true" />
+                    {label}
+                    {selected && <Check className="size-3.5" aria-hidden="true" />}
+                  </Link>
+                );
+              })
+            : null}
           {quickChoices
             .filter(
               ([slug]) =>
@@ -223,13 +271,19 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
               Your budget
             </h3>
             <p className="mt-1 text-tiny text-ink-600">
-              {play
-                ? 'Prices are per hour of play.'
-                : 'Select dates for a total including rent and platform fees. Without dates, filters use base rent. Refundable deposits are extra.'}
+              {stayMode
+                ? 'Per room per night. With dates, prices include taxes.'
+                : play
+                  ? 'Prices are per hour of play.'
+                  : 'Select dates for a total including rent and platform fees. Without dates, filters use base rent. Refundable deposits are extra.'}
             </p>
             <div className="mt-3 grid grid-cols-2 gap-3">
               <label className="text-tiny font-medium">
-                {play ? 'Minimum price per hour (₹)' : 'Minimum price (₹)'}
+                {play
+                  ? 'Minimum price per hour (₹)'
+                  : stayMode
+                    ? 'Minimum per night (₹)'
+                    : 'Minimum price (₹)'}
                 <input
                   name="min"
                   type="number"
@@ -242,7 +296,11 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
                 />
               </label>
               <label className="text-tiny font-medium">
-                {play ? 'Maximum price per hour (₹)' : 'Maximum price (₹)'}
+                {play
+                  ? 'Maximum price per hour (₹)'
+                  : stayMode
+                    ? 'Maximum per night (₹)'
+                    : 'Maximum price (₹)'}
                 <input
                   name="max"
                   type="number"
@@ -263,12 +321,21 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
               </p>
             )}
             <div className="mt-3 flex flex-wrap gap-2" hidden={play}>
-              {[
-                ['Any budget', '', ''],
-                ['Up to ₹5,000', '', 5000],
-                ['₹5,000–₹10,000', 5000, 10000],
-                ['₹10,000+', 10000, ''],
-              ].map(([label, min, max]) => (
+              {(stayMode
+                ? [
+                    ['Any budget', '', ''],
+                    ['Under ₹2,000', '', 2000],
+                    ['₹2,000–₹4,000', 2000, 4000],
+                    ['₹4,000–₹7,500', 4000, 7500],
+                    ['₹7,500+', 7500, ''],
+                  ]
+                : [
+                    ['Any budget', '', ''],
+                    ['Up to ₹5,000', '', 5000],
+                    ['₹5,000–₹10,000', 5000, 10000],
+                    ['₹10,000+', 10000, ''],
+                  ]
+              ).map(([label, min, max]) => (
                 <button
                   key={label}
                   type="button"
@@ -286,10 +353,37 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
           <section className="border-t border-border pt-5" aria-labelledby="filter-place">
             <h3 id="filter-place" className="flex items-center gap-2 font-semibold">
               <BedDouble className="size-4 text-brand-600" aria-hidden="true" />
-              {play ? 'The right venue' : 'The right space'}
+              {stayMode ? 'The right stay' : play ? 'The right venue' : 'The right space'}
             </h3>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              {play ? (
+              {stayMode ? (
+                <>
+                  {!route?.category && (
+                    <label className="text-tiny font-medium">
+                      Property type
+                      <select name="category" defaultValue={filters.category} className={control}>
+                        <option value="">Any type</option>
+                        {ownCategories.map((item) => (
+                          <option key={item.id} value={item.slug}>
+                            {item.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
+                  <label className="text-tiny font-medium">
+                    Guest rating
+                    <select name="rating" defaultValue={filters.rating} className={control}>
+                      <option value="">Any rating</option>
+                      {['4.5', '4', '3.5'].map((value) => (
+                        <option key={value} value={value}>
+                          {value}+
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </>
+              ) : play ? (
                 <>
                   <label className="text-tiny font-medium">
                     Players
@@ -349,27 +443,57 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
                 </>
               )}
               <label className="text-tiny font-medium">
-                {play ? 'Venue name or locality' : 'Property name or locality'}
+                {play
+                  ? 'Venue name or locality'
+                  : stayMode
+                    ? 'Hotel name or locality'
+                    : 'Property name or locality'}
                 <input
                   name="q"
                   defaultValue={filters.q}
                   maxLength={100}
-                  placeholder={play ? 'For example, Vesu' : 'For example, Kamrej'}
+                  placeholder={play || stayMode ? 'For example, Vesu' : 'For example, Kamrej'}
                   className={control}
                 />
               </label>
-              <label className="text-tiny font-medium">
-                Cancellation
-                <select name="cancellation" defaultValue={filters.cancellation} className={control}>
-                  <option value="">Any policy</option>
-                  {['flexible', 'moderate', 'strict'].map((value) => (
-                    <option key={value} value={value}>
-                      {value[0].toUpperCase() + value.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              {stayMode ? null : (
+                <label className="text-tiny font-medium">
+                  Cancellation
+                  <select
+                    name="cancellation"
+                    defaultValue={filters.cancellation}
+                    className={control}
+                  >
+                    <option value="">Any policy</option>
+                    {['flexible', 'moderate', 'strict'].map((value) => (
+                      <option key={value} value={value}>
+                        {value[0].toUpperCase() + value.slice(1)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
             </div>
+            {stayMode ? (
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                {hotelToggles.map(([key, label, hint, Icon]) => (
+                  <label key={key} className={choice}>
+                    <Icon className="size-5 shrink-0 text-brand-600" aria-hidden="true" />
+                    <span className="flex-1">
+                      <span className="block font-semibold">{label}</span>
+                      <span className="mt-0.5 block text-tiny text-ink-600">{hint}</span>
+                    </span>
+                    <input
+                      type="checkbox"
+                      name={key}
+                      value="1"
+                      defaultChecked={filters[key] === '1'}
+                      className="size-5 shrink-0"
+                    />
+                  </label>
+                ))}
+              </div>
+            ) : null}
             <label className="mt-4 flex cursor-pointer items-center gap-3 rounded-xl bg-brand-50 p-3">
               <ShieldCheck className="size-5 shrink-0 text-brand-600" aria-hidden="true" />
               <span className="flex-1">
