@@ -169,6 +169,20 @@ function PropertyChoices({ properties, selected, setSelected, error }) {
   );
 }
 
+/** Hotels (hotel plan, Phase 5): what this person may do in Rates & rooms. */
+function HotelRoleChoice({ defaultValue = '' }) {
+  return (
+    <label className="block text-meta font-semibold text-ink-800">
+      Hotel role (only for hotels)
+      <select name="hotelRole" defaultValue={defaultValue ?? ''} className={`${input} font-normal`}>
+        <option value="">None — visits only</option>
+        <option value="front_desk">Front desk — can open and close rooms</option>
+        <option value="manager">Manager — can change rates and rooms</option>
+      </select>
+    </label>
+  );
+}
+
 function EvidenceChoice({ checked, onChange }) {
   return (
     <label className="flex items-start gap-2 text-meta">
@@ -254,6 +268,7 @@ export function InviteForm({ properties }) {
         error={e.propertyIds}
       />
       <EvidenceChoice checked={evidence} onChange={setEvidence} />
+      <HotelRoleChoice />
       <label className="flex min-h-11 items-center gap-2">
         <input type="hidden" name="guestContact" value="false" />
         <input type="checkbox" name="guestContact" defaultChecked={true} />
@@ -302,6 +317,7 @@ export function AccessForm({ member, properties }) {
         error={state?.errors?.propertyIds}
       />
       <EvidenceChoice checked={evidence} onChange={setEvidence} />
+      <HotelRoleChoice defaultValue={member.permissions.hotelRole} />
       <label className="flex min-h-11 items-center gap-2">
         <input type="hidden" name="guestContact" value="false" />
         <input

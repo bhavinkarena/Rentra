@@ -190,7 +190,8 @@ function TodayTile({ visits }) {
                       {EVENTS[row.event].label}
                     </span>
                     <span className="block truncate text-meta text-on-dark-muted">
-                      {row.title} · {row.guests ?? 0} guests
+                      {row.title} · {row.rooms ? `${row.rooms} · ` : ''}
+                      {row.guests ?? 0} guests
                     </span>
                   </span>
                   <Link

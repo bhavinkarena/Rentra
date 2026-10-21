@@ -1,6 +1,6 @@
 # Rentra Stays — Hotel Booking Vertical: Product, UX & Implementation Plan
 
-**Version:** 1.1 · **Date:** 20 Oct 2026 · **Status:** Phases 1–3 complete (design; inventory engine; owner wizard — local); owner decisions (§13) and Phase 0 business validation still open
+**Version:** 1.1 · **Date:** 20 Oct 2026 · **Status:** Phases 1–5 complete (design; inventory engine; owner wizard; admin review and finance; hotel operations — local); owner decisions (§13) and Phase 0 business validation still open
 **Scope:** Add hotel search and booking for customers, hotel onboarding and an extranet for hotel owners and managers, and the matching admin tools, as a third vertical next to **Farmhouse** and **Entertainment**.
 
 ---
@@ -15,9 +15,9 @@ Phases are delivered one at a time; the owner asks for the next one. Work happen
 | 1 → Product & UX design | ✅ Complete (owner approval and usability sessions open, see Phase 1 completion record) | 20 Oct 2026 |
 | 2 → Data model & inventory engine | ✅ Complete (local; migration 0064 not applied to Neon) | 20 Oct 2026 |
 | 3 → Owner onboarding & property management | ✅ Complete (local; moderated owner test open) | 20 Oct 2026 |
-| 4 → Admin verification & settings | ⏳ Next | |
-| 5 → Extranet operations | ⏳ | |
-| 6 → Customer discovery | ⏳ | |
+| 4 → Admin verification & settings | ✅ Complete (local; assisted mode awaits owner decision) | 21 Oct 2026 |
+| 5 → Extranet operations | ✅ Complete (local; migration 0065 not on Neon) | 21 Oct 2026 |
+| 6 → Customer discovery | ⏳ Next | |
 | 7 → Booking, payment & cancellation | ⏳ | |
 | 8 → Post-stay: reviews, payouts, analytics | ⏳ | |
 | 9 → Hardening, beta & launch | ⏳ | |
@@ -1408,11 +1408,106 @@ Each phase lists objective, deliverables, and acceptance criteria. Phases follow
 - **Deliverables:** hotel application queue with checklist (§6); request-changes per field; verification visit scheduling (♻); commission rules UI; tax slabs UI; landmarks UI; hotel amenity catalogue; vertical status switch to `partners`.
 - **Acceptance:** an application goes draft → approved with every check recorded in `audit_log`; commission preview is correct for rentable/city/vertical overrides.
 
+#### Phase 4 completion record (21 Oct 2026)
+
+**Status:** ✅ Complete locally, on branch `feat/hotels` in both repos, uncommitted (the owner committed Phases 1–3 as `b18d23e` / `dfa6480`). Nothing reached Neon, and there are no new migrations.
+
+**What admins can do now**
+
+| Area | What changed |
+| --- | --- |
+| Property review (`/admin/properties/[id]`) | Hotel facts: room types, rooms, check-in/out, free child age, weekend nights, stars, GST. House rules as readable lines. New **Room types** pane (rooms, beds, guests, price includes, extra adult/child, status) and **Rates** pane (each rate with meals, price or how it follows the base rate, cancellation, minimum nights). Farmhouse deposit/cancellation fields are hidden for hotels. |
+| Decision | Hotel sections can be flagged for correction: `rooms`, `rates`, `stay` (check-in and check-out), `gst`, plus the shared ones. Each flag sends the owner to the right wizard step (`rooms → Rooms`, `rates → Rates`, `stay → Check-in`, `gst → Proof and GST`). |
+| Verification | Hotel checklist replaces "safe for guests" with **Rooms match** (types, beds, count), **Fire safety** (extinguishers, exits, fire NOC where required) and **Guest register** (ID checks, Form C for foreign guests). |
+| Publication | A hotel publishes only when it is bookable: at least one room type, a weekday and weekend price for every room type, and check-in times confirmed. The publish panel says "Bookable: N rooms on sale…" or the exact reason it is not. |
+| Launch switch | Hotels can now be set to **Partners** (owners can list and submit). **Public** is still refused ("Hotels cannot go public until guest booking ships"); Phase 9 lifts that. |
+| Finance → **Hotel commission** (`/admin/finance/commission`) | Rules for all hotels, a city, or one hotel; tier; start and optional end; reason. Preview shows what it replaces and the commission + GST on a ₹3,000 night; Confirm saves. Overlapping rules for the same hotels are refused; rules cannot start or end in the past; a rule is ended, never edited. |
+| Finance → **Hotel tax** (`/admin/finance/tax`) | Current and scheduled GST bands. New bands are scheduled from tomorrow or later (the current ones end the day before), with a reason such as the notification number. Preview shows example rates at ₹2,000 / ₹7,500 / ₹7,501 / ₹12,000. |
+
+Commission and tax use the finance permissions (`admin.payments.read` / `write`), and every change is written to `audit_log`.
+
+**Backend:** `services/admin/verification.js` (hotel checklist, hotel readiness, publication rule), `services/admin/listings.js` (hotel review sections), `services/domain/listing-steps.js` (flag → step), `services/catalogues/verticals.js` (partners allowed, public refused), new `services/admin/hotel-finance.js` + `controllers/hotel-finance.controller.js`, routes `GET/POST /admin/payments/hotel-commission` and `/admin/payments/hotel-tax-slabs`.
+
+**Frontend:** `app/(admin)/admin/properties/[id]/page.js` (hotel facts, rules and panes), `components/admin/PropertyReviewForm.jsx` (hotel sections), new `components/admin/HotelFinance.jsx`, pages `app/(admin)/admin/finance/commission` and `/tax`, `lib/actions/hotel-finance.js`, `lib/api/endpoints.js`, finance tabs in `lib/domain/admin-navigation.js`, and the shared `lib/domain/listing-steps.js`.
+
+**Verification (local only)**
+- Backend: new `test/integration/hotel-admin-flow.integration.test.js`:
+  - corrections flagged on rooms, rates and GST (and the steps they map to), then resubmit and approve;
+  - the farmhouse checklist is refused, then a visit passes with the hotel checklist;
+  - an unpriced room type blocks publication; then publish (5 rooms on sale), with admin actions in `audit_log`;
+  - commission: preview text, stale preview, overlap, past start, city rule replacing the vertical rule, ending a rule, and read-only refusal;
+  - tax: bands scheduled from a future date, then a quote either side of that date (18% the night before, 12% from the new date).
+
+  The launch-switch test now checks that partners is allowed and public is refused. Full suite: 270 tests, 267 pass, 0 fail, 3 skipped (the same three). `npm run db:check` passes.
+- Frontend: `npm test` 104/104; ESLint clean on the changed files; `next build` passes.
+- Browser gates on the disposable stack: `hotel_wizard_gate.mjs` 42/42 (still green), new `scripts/portal-gate/hotel_admin_gate.mjs` **30/30**. An admin reviews the hotel's room and rate panes, flags only hotel sections, approves, schedules a video visit, records it with the hotel checklist, and publishes. Admins see public refused, save a commission rule (and have an overlapping one refused), and schedule new tax bands. axe 0 violations at 1440 and no overflow at 390 on all 7 admin screens; no console errors.
+- Found and fixed during the gate:
+  - The new finance APIs first returned 403. Admin route permissions come from the first path segment, so the routes moved under `/admin/payments/...`.
+  - In the rates pane, a plan named like its meal read "Room only · Room only".
+  - Room guest counts read "1 children".
+
+**Not done / changes from the plan**
+- **Assisted mode** (Rentra staff filling the wizard for an owner) is not built. It means an admin acting as an owner; that needs an explicit owner decision on the safety rules (who may do it, owner consent, a visible banner, everything audited) before it is built.
+- **Landmarks UI** moved to Phase 6 with the landmark table (search needs them first).
+- The hotel amenity catalogue needed nothing new: the existing catalogue already scopes amenities by vertical, and `seed:hotels` fills it.
+- The application queue is the existing property queue; hotels appear in it with their category. There is no separate hotel-only queue.
+
+**Owner actions:** decide on assisted mode (above). When ready to pilot with real hotels, an admin can set Hotels to **Partners** in Catalogues → Verticals. Before that reaches production, the hotel migration and code must be deployed (Neon steps as in Phase 2). Commission rules must exist before Phase 8 payouts.
+
 ### Phase 5 — Extranet operations (Weeks 8–11)
 
 - **Objective:** hotels can run day-to-day on Rentra.
 - **Deliverables:** Today dashboard; rates & availability grid (desktop) and day list (mobile); bulk edit drawer; holiday presets; reservations list/detail; check-in, no-show, cancel-with-relocation; team roles for hotels; new-booking alerts (WhatsApp + in-app).
 - **Acceptance:** bulk edit of 90 days × 4 room types completes < 2 s; front desk cannot change rates (API returns 403); "rooms to sell" cannot drop below booked.
+
+#### Phase 5 completion record (21 Oct 2026)
+
+**Status:** ✅ Complete locally, on branch `feat/hotels` in both repos, uncommitted (Phase 4 is also still uncommitted). New migration `0065_hotel_booking_sync.sql` is **not** applied to Neon.
+
+**What hotel owners and staff get**
+
+| Area | What changed |
+| --- | --- |
+| **Rates & rooms** (Calendar → a hotel) | A grid of room types × 14 nights. Each cell shows rooms still open (amber at 2 or fewer), rooms booked, the room-only price (purple when it is a date price), a lock when closed, and minimum nights / no-arrival marks. Earlier / Today / Later navigation. Farmhouse day/night lanes no longer appear for hotels. |
+| Edit drawer | One drawer for one night (click a cell) or a range: from / to, nights of the week, room types, and one change — set price, change price by %, back to the normal price, rooms open to Rentra, close, open, minimum nights on arrival, no arrivals / allow arrivals. Quick dates: next 4 weekends, next 30 days, Uttarayan (14–15 Jan), Christmas – New Year. Preview shows "This changes N room-nights" before saving. |
+| Phone | The grid becomes a list per night with one-tap Open / Close per room type. |
+| Rules | Rooms open can never go below rooms booked (the night and count are named). Past nights cannot be changed. Prices stay within ₹300–₹2,00,000. |
+| **Team roles** | Team → invite / manage now has a **Hotel role**: None (visits only), **Front desk** (open and close rooms), **Manager** (rates and rooms). Hotel staff get a Rates & rooms screen in the staff app (`/staff/hotels/[id]`). Front desk asking for any other change gets `ROLE_FORBIDDEN` (403). |
+| **Today** | Hotel stays already appeared as arrivals, in-house and departures (one stay = one booking with check-in and check-out times). Rows now show the rooms ("2 × Deluxe Double"), and every booking surface labels a stay "Wed 18 Nov – Fri 20 Nov · 2 nights". |
+| **Bookings** | The existing Bookings list and detail show stays with the same label. Check-in and check-out use the existing visit check-in (handover/return), which works for stays. No-show and owner cancellation use the existing booking-case flow (owner opens a case; Rentra decides, refunds and relocates). |
+| Rooms follow the booking | New trigger: whenever a stay booking is cancelled (by the guest, a Rentra case, or an expired hold), its rooms go back on sale; a no-show or a completed stay marks its rooms accordingly. This replaces the expiry-only release added in Phase 2. |
+| **New-booking alerts** | The existing owner alert (WhatsApp/SMS/email + in-app) now reads "Riverside Residency · 2026-11-18 to 2026-11-20 · 2 rooms · 4 guests" for a stay instead of a slot name. It fires once checkout (Phase 7) confirms hotel bookings. |
+| Fixed for hotels | The farmhouse "dates running out" alert and the related Needs-you items would have fired for every live hotel (hotels have no farmhouse open dates). They now skip hotels. |
+
+**Backend:** new `services/booking/hotel-ari.js` (grid, change, `hotelAccess` roles), `controllers/hotel-ops.controller.js`, routes `GET/POST /partner/listings/:id/calendar/hotel` and `GET/POST /staff/hotels/:id/rooms`; `0065_hotel_booking_sync.sql`; hotel role in `services/auth/staff-team.js`, `staff-session.js` and `capabilities.js` (`staff.hotel-rooms.read|write` only with a hotel role); room summary in `owner-visits.js`; stay label in `domain/booking-record.js` (both repos); stay alert text in `notifications/owner-jobs.js` / `owner-domain.js`; farmhouse-only date alerts in `owner-today.js` / `owner-jobs.js`; hotels skip slot cells in `owner-calendar.js`.
+
+**Frontend:** new `components/partner/HotelRatesCalendar.jsx`, `lib/actions/hotel-ops.js`, `app/(staff)/staff/hotels/[id]/page.js`; the calendar page switches to it for hotels; Today rows show rooms; team forms and list show the hotel role; staff home links to Rates & rooms.
+
+**Verification (local only)**
+- Backend: new `test/integration/hotel-ari.integration.test.js`. The acceptance targets:
+  - **360 room-nights (90 nights × 4 room types) saved in 5–6 ms per change** (target under 2 s).
+  - **Front desk gets `ROLE_FORBIDDEN` for prices and room counts**, while managers and owners can change them.
+  - **Rooms below booked are refused.**
+
+  It also covers percentage changes on chosen weekdays, reset, strangers and revoked staff seeing nothing, team roles and capabilities, the booking→rooms trigger (cancel releases; no-show and completed keep rooms sold), the alert text and the stay label. Full suite: 278 tests, 275 pass, 0 fail, 3 skipped (the same three). `db:check` passes (66 files).
+- Frontend: `npm test` 104/104; ESLint clean on changed files; `next build` passes.
+- Browser gates on the disposable stack, run in sequence: wizard **42/42**, admin **30/30**, new `scripts/portal-gate/hotel_ops_gate.mjs` **19/19**. The ops gate covers:
+  - the grid shows 3 room types;
+  - a bulk edit of 270 room-nights is previewed and applied (204 ms including the round trip) and shows in the grid;
+  - one night is closed from a cell;
+  - setting rooms below a held room is refused, naming the night;
+  - the phone shows the day list with Open/Close;
+  - the team invite offers hotel roles;
+  - axe 0 violations at 1440 and no overflow at 390 on all 4 screens; no console errors.
+
+**Not done / changes from the plan**
+- **Relocation and owner cancellation** use the existing case flow; there is no separate hotel relocation screen. Rentra support handles relocation on the case.
+- **No-show charges** under each rate's rule (first night or full stay) are applied when checkout stores the hotel policy on the order (Phase 7). Until then the existing no-show case applies its existing policy.
+- Holiday presets cover fixed-date periods only. Diwali and Navratri move every year and are not hard-coded; owners pick their dates.
+- The bookings detail shows the stay label but not a per-room breakdown yet (rooms are on Today). Proposed with the guest-side booking pages in Phase 7.
+- Staff screens were checked by the backend tests; the browser gate covers the owner screens (staff sign-in needs a phone code).
+
+**Owner actions:** none to continue. Before production: Neon password rotation, the pending migrations, then 0064 and 0065 with the release.
 
 ### Phase 6 — Customer discovery (Weeks 8–12)
 

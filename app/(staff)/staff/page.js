@@ -50,6 +50,22 @@ export default async function StaffHome({ searchParams }) {
         <StaffSignOut />
       </div>
 
+      {staff.permissions.hotelRole && staff.properties.some((p) => p.hotel) ? (
+        <nav aria-label="Hotel rates and rooms" className="flex flex-wrap gap-2">
+          {staff.properties
+            .filter((p) => p.hotel)
+            .map((p) => (
+              <Link
+                key={p.id}
+                href={`/staff/hotels/${p.id}`}
+                className="inline-flex min-h-11 items-center rounded-md border border-border bg-card px-3 text-meta font-semibold text-brand-700 hover:bg-brand-50"
+              >
+                Rates &amp; rooms · {p.title}
+              </Link>
+            ))}
+        </nav>
+      ) : null}
+
       {failure ? (
         <PortalState kind={failure} />
       ) : (

@@ -154,9 +154,13 @@ export default function TeamPanel({ team, view = 'team' }) {
                         <p className="text-meta font-medium text-ink-700">
                           {m.state === 'revoked'
                             ? 'Access ended'
-                            : m.permissions.evidence
-                              ? 'May record visits'
-                              : 'View visits only'}
+                            : m.permissions.hotelRole === 'manager'
+                              ? 'Hotel manager'
+                              : m.permissions.hotelRole === 'front_desk'
+                                ? 'Front desk'
+                                : m.permissions.evidence
+                                  ? 'May record visits'
+                                  : 'View visits only'}
                         </p>
                         <p className="mt-1 text-tiny text-ink-500">
                           {m.state === 'revoked'
