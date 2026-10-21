@@ -19,8 +19,8 @@ Phases are delivered one at a time; the owner asks for the next one. Work happen
 | 5 → Extranet operations | ✅ Complete (local; migration 0065 not on Neon) | 21 Oct 2026 |
 | 6 → Customer discovery | ✅ Complete (local; migration 0066 not on Neon; Hotels stays non-public until Phase 9) | 21 Oct 2026 |
 | 7 → Booking, payment & cancellation | ✅ Complete (local; migration 0067 not on Neon; Test gateway only) | 21 Oct 2026 |
-| 8 → Post-stay: reviews, payouts, analytics | ⏳ Next | |
-| 9 → Hardening, beta & launch | ⏳ | |
+| 8 → Post-stay: reviews, payouts, analytics | ✅ Complete (local; migration 0068 not on Neon; live payout funding untested) | 21 Oct 2026 |
+| 9 → Hardening, beta & launch | ⏳ Next | |
 | 10 → Post-launch growth | ⏳ | |
 
 ---
@@ -1661,6 +1661,91 @@ Commission and tax use the finance permissions (`admin.payments.read` / `write`)
 - **Objective:** close the loop for guests, hotels and Rentra finance.
 - **Deliverables:** review request + form with sub-scores; owner replies; payout eligibility rules; weekly payout run with commission, TCS, TDS; statements and commission invoices; owner analytics (MVP metrics); admin hotel analytics.
 - **Acceptance:** payout statement for a test week reconciles to the paisa with payments minus refunds minus commission minus TCS/TDS; reviews only possible for stayed bookings.
+
+#### Phase 8 completion record (21 Oct 2026)
+
+**Status:** ✅ Complete locally, on branch `feat/hotels` in both repos, uncommitted. New migration `0068_hotel_post_stay.sql` is **not** applied to Neon. The owner started this phase; the draft was reviewed, corrected and completed.
+
+**What changed for each audience**
+
+| Audience | What they get |
+| --- | --- |
+| **Guests** | After a completed stay, the existing review request (sent on check-out) leads to a hotel review form with **six sub-scores**: cleanliness, staff and service, location, room comfort, value for money and facilities. It also asks who travelled (business, couple, family, friends, solo). Hotel pages show the six sub-scores. **Only a completed stay can be reviewed**, within 30 days of check-out. |
+| **Owners** | Owners reply to reviews with the existing reply flow. **Earnings → Hotel earnings** (`/partner/earnings/hotels`) shows: <ul><li>month tiles (stays, room nights, room revenue, GST, refunds, cancellations);</li><li>a **Next payout** card with the Tuesday date, net amount, bank destination, the breakdown room + GST − commission − GST on commission − TCS − TDS = net, and held stays with their reason;</li><li>**payout statements**, one line per stay, with print/PDF;</li><li>a **commission invoice** per run (commission + 18% GST, split into CGST and SGST).</li></ul>**Hotel analytics** (`/partner/earnings/hotels/analytics`) shows occupancy, ADR, RevPAR, room nights sold and offered, bookings, cancellation rate, no-shows, a daily rooms chart, the review score with six sub-score bars, and traveller types. |
+| **Rentra finance** | **Finance → Hotel payouts** (`/admin/finance/hotel-payouts`) shows: <ul><li>a Live/Test switch;</li><li>the next run as a statement: tiles and the full reconciliation sentence, per-owner groups with per-stay lines, and held stays with their reason;</li><li>**Make payout run**, which executes exactly the previewed run;</li><li>past runs with **Record transfer (UTR)**.</li></ul>**Finance → Hotel analytics** shows occupancy, ADR, RevPAR, payments, refunds, commission, take rate, top hotels, top cities and supply. |
+
+**Payout rules (as built):**
+- **When a stay is payable:**
+  - after check-in is marked, or 24 hours after check-in time;
+  - a cancelled or no-show stay pays out what the guest was charged;
+  - a fully refunded stay is skipped.
+- **The weekly run:**
+  - every Tuesday; a stay is paid in one run only (advisory lock, never re-added);
+  - stays without a verified payout method, or without a commission rule for the stay date, are **held** with the reason, never guessed.
+- **Per stay, from money kept** (captured − refunds, including refunds in flight):
+  - commission at the hotel's rule (property, then city, then vertical);
+  - 18% GST on the commission;
+  - **TCS 0.5%** on room revenue, only for GST-registered hotels;
+  - **TDS 0.1%** on room revenue, excluding GST.
+- **GST:**
+  - a GST-registered hotel receives the GST;
+  - for an unregistered hotel, Rentra owes the GST under s.9(5) and it is not paid out.
+- **What a run creates:** a **Live** run creates funded payout rows (room, plus a separate GST pass-through row). A **Test** run is a statement only and moves no money; the database already refuses funded payouts from Test captures.
+- **Statement record:** each run stores its statement (`payout_run.snapshot`), so statements and invoices never change after the fact.
+
+**Fixed from the draft:**
+- GSTIN was read from `rentable`; it is now read from `hotel_profile`.
+- Refunds and kept cancellation charges were ignored.
+- A stay already in a run could be added to the next one again.
+- The run was not locked and was computed outside its transaction.
+- Payout rows were funded from Test captures; the database rejects that.
+- The commission invoice had an **invented Rentra GSTIN, PAN and address**. Issuer details now come from `RENTRA_LEGAL_NAME`, `RENTRA_GSTIN` and `RENTRA_LEGAL_ADDRESS`, and the invoice is marked **Draft** until they are set (and for Test runs).
+- Analytics:
+  - the daily series counted **other owners' bookings** (a scoping leak);
+  - it used a column that does not exist (`room_type.inventory_count`);
+  - review joins double-counted revenue;
+  - room nights counted bookings, not rooms.
+- A stay without a commission rule crashed the whole preview (500).
+- Duplicate routes were removed.
+- 0068 compared the new `stay` enum value inside the same migration transaction (55P04). It now compares text.
+
+**Migration 0068:**
+- review sub-score columns, traveller type, and review eligibility for stays (completed, within 30 days; the farmhouse three-evidence rule is unchanged);
+- `payout_run` with environment and snapshot, and `payout.payout_run_id`;
+- the payout funding guard (`rentra_financial_scope`) now accepts, for **stays only**, check-in / 24 h / kept-cancellation eligibility and the `tax` component. Every other visit keeps the existing rule (completed, rent only).
+
+**Verification (local only)**
+- Backend: `test/integration/hotel-post-stay.integration.test.js` **7/7**, on stays paid through the real checkout with fake Razorpay:
+  - **Money rules:** `stayLine` unit checks, including the reconciliation identity, 9(5) and the next-Tuesday date.
+  - **Eligibility:** the week's payable stays are exactly the checked-in stay, the kept non-refundable cancellation and the unregistered hotel's stay. The fully refunded stay and the future stay are excluded.
+  - **Acceptance:** the statement total **reconciles to the paisa with payments − refunds − (GST Rentra owes) − commission − GST on commission − TCS − TDS**, with payments and refunds read independently from the ledger.
+  - **Held stays:** a stay without a commission rule is held, not guessed.
+  - **Running and settling:** a stale preview is refused; one run is made and no stay is paid twice; a Test run funds nothing; UTR validation and settle work; settling twice is refused.
+  - **Owner views:** owner statements are isolated per owner; the invoice is a draft without configured company details and numbered once configured; CGST + SGST = GST on commission.
+  - **Analytics:** owner scoping, with another owner's hotel → 403; admin commission equals the run.
+  - **Reviews:** a confirmed (not completed) stay is refused; a completed stay stores six sub-scores and traveller type; then publish and owner reply.
+- Full suite: 304 tests, 301 pass, 3 skipped, 0 fail. `db:check` passes (69 files).
+- Frontend: `npm test` 104/104; ESLint clean on all changed files; `next build` passes.
+- Browser gate: new `scripts/portal-gate/hotel_post_stay_gate.mjs` **24/24**. It covers:
+  - the admin preview, with the reconciliation sentence shown;
+  - **Make payout run** → one run, reconciles (₹10,752 − ₹1,024 − ₹184.32 − ₹51.20 − ₹10.24 = ₹9,482.24), no money moved;
+  - UTR recorded → run settled;
+  - admin analytics, owner hotel earnings, the statement (net ₹9,482.24 and the UTR shown), the draft invoice and owner analytics;
+  - axe 0 violations at 1440 and no overflow at 390 on all 6 screens; no console errors.
+
+  The gate data comes from `.qa-hotel-payable.mjs` (an untracked QA helper that pays two stays and moves them into the past).
+
+**Not done / to confirm**
+- **Live funding is not exercised:** no live captures exist locally. The database rule for stays was rewritten and is covered for Test runs only. Check one live payout on a Neon branch before real money moves.
+- **CA confirmation** (Phase 0 kit §7): TCS/TDS rates and bases (TDS taken on room revenue excluding GST, per CBDT guidance), 9(5) handling, the commission invoice format, and whether commission is charged on cancellation charges. These are constants in `PAYOUT_POLICY`.
+- **Bank transfer is manual:** finance pays the hotels and records the UTR. No payout API integration.
+- **Monthly invoice:** a commission invoice per run, not monthly (the plan's §5.8 says monthly); GSTR-8 support data is not exported yet.
+- A dedicated review-request message for hotels was not needed: the existing "How was your visit?" invitation fires on check-out. Its wording still says "visit".
+
+**Owner actions:**
+- Set `RENTRA_LEGAL_NAME`, `RENTRA_GSTIN` and `RENTRA_LEGAL_ADDRESS` before issuing real invoices.
+- Get the CA's confirmation of the rates above.
+- Before production: apply 0064–0068 to Neon (0064–0067 are still pending there).
 
 ### Phase 9 — Hardening, beta & launch (Weeks 15–18)
 

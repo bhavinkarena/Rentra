@@ -290,6 +290,15 @@ const SUB_SCORES = [
   ['accuracy', 'Matches the photos'],
   ['valueForMoney', 'Value for money'],
 ];
+/** Hotels (hotel plan, Phase 8): six sub-scores; accuracy is not asked. */
+const HOTEL_SUB_SCORES = [
+  ['cleanliness', 'Cleanliness'],
+  ['staff', 'Staff and service'],
+  ['location', 'Location'],
+  ['comfort', 'Room comfort'],
+  ['valueForMoney', 'Value for money'],
+  ['facilities', 'Facilities'],
+];
 
 export function Reviews({ listing, noun = ['stay', 'stays'] }) {
   const { reviews = [], subScores, rating, reviewCount } = listing;
@@ -317,33 +326,31 @@ export function Reviews({ listing, noun = ['stay', 'stays'] }) {
 
         {subScores ? (
           <dl className="grid content-center gap-2.5">
-            {SUB_SCORES.map(([key, farmLabel]) => {
-              // Venues rate the court where farmhouses rate the photos' accuracy.
-              const label =
-                listing.rentalUnit === 'hour'
-                  ? subScoreLabels('entertainment')[key]
-                  : listing.vertical === 'hotel'
-                    ? subScoreLabels('hotel')[key]
-                    : farmLabel;
-              const value = subScores[key];
-              if (value == null) return null;
-              return (
-                <div key={key} className="flex items-center gap-3">
-                  <dt className="w-40 shrink-0 text-meta text-ink-600">{label}</dt>
-                  <dd className="flex flex-1 items-center gap-2.5">
-                    <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-ink-100">
-                      <span
-                        className="block h-full rounded-full bg-brand-600"
-                        style={{ width: `${(value / 5) * 100}%` }}
-                      />
-                    </span>
-                    <span className="w-7 text-right text-meta font-bold tabular">
-                      {value.toFixed(1)}
-                    </span>
-                  </dd>
-                </div>
-              );
-            })}
+            {(listing.vertical === 'hotel' ? HOTEL_SUB_SCORES : SUB_SCORES).map(
+              ([key, farmLabel]) => {
+                // Venues rate the court where farmhouses rate the photos' accuracy.
+                const label =
+                  listing.rentalUnit === 'hour' ? subScoreLabels('entertainment')[key] : farmLabel;
+                const value = subScores[key];
+                if (value == null) return null;
+                return (
+                  <div key={key} className="flex items-center gap-3">
+                    <dt className="w-40 shrink-0 text-meta text-ink-600">{label}</dt>
+                    <dd className="flex flex-1 items-center gap-2.5">
+                      <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-ink-100">
+                        <span
+                          className="block h-full rounded-full bg-brand-600"
+                          style={{ width: `${(value / 5) * 100}%` }}
+                        />
+                      </span>
+                      <span className="w-7 text-right text-meta font-bold tabular">
+                        {value.toFixed(1)}
+                      </span>
+                    </dd>
+                  </div>
+                );
+              },
+            )}
           </dl>
         ) : null}
       </div>
