@@ -53,7 +53,7 @@ export const revalidate = 3600;
 /** The Hotels home (hotel plan §4.3): the farmhouse home's skeleton, for stays. */
 export default async function HotelsHomePage() {
   const registry = await degradeOnFailure(
-    () => discoveryApi.registry(),
+    () => discoveryApi.betaRegistry(),
     EMPTY_REGISTRY,
     'hotels home registry',
   );

@@ -15,6 +15,7 @@ import {
   LoaderCircle,
   Minus,
   Plus,
+  RefreshCw,
   Ruler,
   Users,
 } from 'lucide-react';
@@ -48,6 +49,13 @@ export default function HotelRooms({ code, rentableId, roomTypes }) {
   const [isCustomer, setIsCustomer] = useState(false);
   const [reserving, startReserve] = useTransition();
   const [reserveError, setReserveError] = useState('');
+  // ?change=<orderId>: this stay replaces an existing booking once it is paid.
+  const change = params.get('change');
+  const replacesOrderId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+    change ?? '',
+  )
+    ? change
+    : null;
 
   // After login the guest comes back to the bare hotel URL: restore the stay they were pricing.
   useEffect(() => {
@@ -62,6 +70,7 @@ export default function HotelRooms({ code, rentableId, roomTypes }) {
           checkout: saved.checkOut,
           rooms: String(saved.rooms),
           adults: String(saved.adults),
+          ...(saved.replacesOrderId ? { change: saved.replacesOrderId } : {}),
         });
         if (saved.children?.length) query.set('children', saved.children.join(','));
         router.replace(`${pathname}?${query}`, { scroll: false });
@@ -146,6 +155,7 @@ export default function HotelRooms({ code, rentableId, roomTypes }) {
         const result = await beginCustomerLogin({
           kind: 'stay',
           rentableId,
+          ...(replacesOrderId ? { replacesOrderId } : {}),
           checkIn: filters.checkin,
           checkOut: filters.checkout,
           rooms: filters.rooms,
@@ -165,6 +175,7 @@ export default function HotelRooms({ code, rentableId, roomTypes }) {
           adults,
           childAges,
         })),
+        ...(replacesOrderId ? { replacesOrderId } : {}),
       });
       if (result?.quote?.id) router.push(`/checkout/review/${result.quote.id}`);
       else setReserveError(result?.error ?? 'Could not start checkout. Try again.');
@@ -176,6 +187,15 @@ export default function HotelRooms({ code, rentableId, roomTypes }) {
   return (
     <div className="grid items-start gap-x-10 gap-y-6 lg:grid-cols-[minmax(0,1fr)_340px]">
       <div className="min-w-0 space-y-5">
+        {replacesOrderId ? (
+          <p className="flex items-start gap-2 rounded-lg bg-info-bg p-3 text-meta text-ink-800">
+            <RefreshCw className="mt-0.5 size-4 shrink-0 text-info" aria-hidden="true" />
+            <span>
+              Changing booking — your current booking is cancelled and refunded in full once the new
+              one is paid.
+            </span>
+          </p>
+        ) : null}
         <StayForm
           filters={filters}
           onApply={(query) => router.replace(`${pathname}?${query}`, { scroll: false })}

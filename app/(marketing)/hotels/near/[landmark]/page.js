@@ -5,7 +5,7 @@ import { discoveryApi } from '@/lib/api/endpoints';
 
 /** Landmark landing (hotel plan §4.1): hotels within 5 km of e.g. Surat Railway Station. */
 async function landmarkOf(slug) {
-  const registry = await discoveryApi.registry();
+  const registry = await discoveryApi.betaRegistry();
   const landmark = (registry.landmarks ?? []).find((item) => item.slug === slug);
   return { registry, landmark };
 }

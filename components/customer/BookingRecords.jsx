@@ -22,6 +22,8 @@ import {
   Scale,
   PenLine,
   BedDouble,
+  CalendarSync,
+  Ticket,
 } from 'lucide-react';
 import { randomUUID } from 'node:crypto';
 import { bookingTime as time } from '@/lib/domain/booking-record';
@@ -57,6 +59,21 @@ function shortDate(value) {
 }
 const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
 const words = (value) => value.replaceAll('_', ' ');
+
+/** Hotel page prefilled with the stay's dates and party; checkout then replaces this booking. */
+function changeHref(record) {
+  const rooms = record.stay.rooms.filter((room) => room.state === 'booked');
+  const query = new URLSearchParams({
+    change: record.id,
+    checkin: record.stay.checkIn,
+    checkout: record.stay.checkOut,
+    rooms: String(rooms.length),
+    adults: String(rooms.reduce((sum, room) => sum + room.adults, 0)),
+  });
+  const children = rooms.flatMap((room) => room.childAges ?? []);
+  if (children.length) query.set('children', children.join(','));
+  return `${record.stay?.listingHref ?? record.listingHref}?${query}`;
+}
 
 /** Label on the left, value on the right; `strong` for totals. */
 function Row({ label, children, strong = false, muted = false }) {
@@ -102,6 +119,14 @@ export function BookingDetail({
             ? [[`/checkout/${record.id}`, RefreshCw, 'View checkout and payment recovery']]
             : []),
           ...(test ? [[`/bookings/${record.id}/cancel`, CircleX, 'Cancel visits']] : []),
+          ...(record.stay
+            ? [
+                [`/bookings/${record.id}/voucher`, Ticket, 'Voucher'],
+                ...((record.stay?.listingHref ?? record.listingHref)
+                  ? [[changeHref(record), CalendarSync, 'Change dates or rooms']]
+                  : []),
+              ]
+            : []),
         ]),
     [
       `${operational ? '/partner/disputes' : '/disputes'}/new?order=${record.id}`,

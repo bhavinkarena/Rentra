@@ -16,6 +16,7 @@ import {
   CircleX,
   CreditCard,
   Hourglass,
+  Info,
   Landmark,
   Lock,
   MessageSquareText,
@@ -707,6 +708,13 @@ export default function Checkout({ data }) {
               <h2 id="confirm-heading" className="text-h4">
                 Confirm and book
               </h2>
+              {stayCheckout && quote.selection?.replacesOrderId ? (
+                <p className="mt-3 flex items-start gap-2 rounded-lg bg-info-bg p-3 text-meta text-ink-800">
+                  <Info className="mt-0.5 size-4 shrink-0 text-info" aria-hidden="true" />
+                  This booking replaces your earlier one, which is cancelled and refunded in full
+                  when payment completes.
+                </p>
+              ) : null}
               {stayCheckout ? (
                 <StayGuestForm quote={quote} value={guests} onChange={setGuests} />
               ) : (

@@ -1161,6 +1161,26 @@
   }
 }
 
+/* Stay voucher: print only the voucher, whatever chrome surrounds it. */
+@media print {
+  body:has(.voucher-print) * {
+    visibility: hidden;
+  }
+  body:has(.voucher-print) .voucher-print,
+  body:has(.voucher-print) .voucher-print * {
+    visibility: visible;
+  }
+  .voucher-print {
+    position: absolute;
+    inset: 0 0 auto;
+    color: black;
+    font-size: 10pt;
+  }
+  .voucher-print tr {
+    break-inside: avoid;
+  }
+}
+
 /* Owner mobile geometry applies to shared controls without affecting public pages. */
 :is(.owner-portal, .owner-wizard) :is(button, a, summary, [role='button']) {
   touch-action: manipulation;

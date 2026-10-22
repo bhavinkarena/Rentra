@@ -1,5 +1,9 @@
 import {
+  BadgeCheck,
   BedDouble,
+  Filter,
+  LifeBuoy,
+  RefreshCw,
   Building2,
   CalendarRange,
   ChartColumn,
@@ -25,6 +29,7 @@ import {
 const money = formatINRMinor;
 const pct = (value) =>
   `${Number(value ?? 0).toLocaleString('en-IN', { maximumFractionDigits: 1 })}%`;
+const maybePct = (value) => (value == null ? '—' : pct(value));
 const num = (value) => Number(value ?? 0).toLocaleString('en-IN');
 const dateLabel = (value) =>
   value
@@ -97,6 +102,44 @@ function DailyChart({ daily }) {
           </AdminTable>
         </div>
       </details>
+    </section>
+  );
+}
+
+/** Last seven days, whatever the range above (hotel plan, Phase 9 KPIs). */
+function WeeklyKpis({ weekly: w }) {
+  const tiles = [
+    [
+      'Quote → paid',
+      maybePct(w.quoteToPaid),
+      Filter,
+      `${num(w.quotes)} quotes → ${num(w.holds)} holds → ${num(w.paid)} paid`,
+    ],
+    ['Hold → paid', maybePct(w.holdToPaid), Filter],
+    [
+      'Cancellations',
+      num((w.guestCancelled ?? 0) + (w.hotelCancelled ?? 0)),
+      XCircle,
+      `${num(w.guestCancelled)} by guests · ${num(w.hotelCancelled)} by hotels`,
+    ],
+    ['Cases per 100 bookings', w.casesPer100 == null ? '—' : num(w.casesPer100), LifeBuoy],
+    [
+      'Fresh inventory',
+      `${num(w.freshHotels)} / ${num(w.liveHotels)}`,
+      RefreshCw,
+      'Live hotels with recently updated rates',
+    ],
+    ['Payouts on time', maybePct(w.payoutsOnTime), BadgeCheck],
+    ['Refund rate', maybePct(w.refundRate), Undo2],
+  ];
+  return (
+    <section className="space-y-3">
+      <h2 className="text-h4">Weekly KPIs</h2>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {tiles.map(([label, value, icon, hint]) => (
+          <AdminKpiCard key={label} label={label} value={value} icon={icon} hint={hint} />
+        ))}
+      </div>
     </section>
   );
 }
@@ -214,6 +257,8 @@ export function HotelAnalytics({ data, cityId }) {
           </div>
         </>
       )}
+
+      {data.weekly ? <WeeklyKpis weekly={data.weekly} /> : null}
 
       <section className="space-y-3">
         <h2 className="text-h4">Supply</h2>

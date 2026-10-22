@@ -12,7 +12,7 @@ import {
   AdminEmpty,
   AdminReadOnly,
 } from '@/components/admin/AdminPrimitives';
-import { catalogueCommand } from '@/lib/actions/catalogues';
+import { catalogueCommand, betaInviteCommand } from '@/lib/actions/catalogues';
 import { ActivityIcon } from '@/components/rentra/icons/activity-icons';
 import { VerticalIcon } from '@/components/rentra/icons/vertical-icons';
 import {
@@ -33,6 +33,7 @@ const names = {
   categories: 'Categories',
   amenities: 'Amenities',
   landmarks: 'Landmarks',
+  beta: 'Hotel beta',
 };
 /** Icon keys the frontend ships (components/rentra/icons). */
 const ICON_KEYS = [
@@ -1072,5 +1073,109 @@ function IconKeyField({ defaultValue }) {
         </span>
       </span>
     </label>
+  );
+}
+
+/**
+ * Closed beta invites (hotel plan, Phase 9): phones that may open Hotels while it
+ * is open to partners only. Guests use the invite link /beta after logging in.
+ */
+export function BetaGuests({ data }) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const [phones, setPhones] = useState('');
+  const [note, setNote] = useState('');
+  const [result, setResult] = useState(null);
+  const run = (input) =>
+    start(async () => {
+      const outcome = await betaInviteCommand('hotel', input);
+      setResult(outcome);
+      if (outcome?.ok) {
+        setPhones('');
+        router.refresh();
+      }
+    });
+  const inBeta = data.vertical.status === 'partners';
+  return (
+    <AdminPage className="space-y-6">
+      <Nav type="beta" />
+      <AdminPageHeader title="Hotel beta" />
+      <p>
+        While Hotels is open to partners only, the guests below can see and book hotels after they
+        log in and open <strong>/beta</strong>. Everyone else, and search engines, see nothing. A
+        removed guest keeps access for up to 7 days.
+      </p>
+      {!inBeta ? (
+        <p role="status" className="rounded-md bg-ink-50 p-3">
+          Hotels is {data.vertical.status}. Invites work only while it is open to partners.
+        </p>
+      ) : null}
+      {!data.canWrite && <AdminReadOnly />}
+      {data.canWrite && inBeta ? (
+        <form
+          className="space-y-3 rounded-md border border-ink-200 p-4"
+          onSubmit={(event) => {
+            event.preventDefault();
+            run({ action: 'invite', phones, note: note || undefined });
+          }}
+        >
+          <label className="block">
+            Mobile numbers (one per line)
+            <textarea
+              required
+              rows={4}
+              value={phones}
+              onChange={(event) => setPhones(event.target.value)}
+              className={inputClass}
+            />
+          </label>
+          <label className="block max-w-sm">
+            Note (optional)
+            <input
+              maxLength={120}
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+              className={inputClass}
+            />
+          </label>
+          <button disabled={pending} className={sharedButtonVariants()}>
+            {pending ? 'Inviting…' : 'Invite'}
+          </button>
+        </form>
+      ) : null}
+      {result?.error ? <p role="alert">{result.error}</p> : null}
+      {result?.ok && result.added != null ? (
+        <p role="status">
+          {result.added} invited
+          {result.alreadyInvited ? `, ${result.alreadyInvited} already on the list` : ''}.
+        </p>
+      ) : null}
+      <p role="status">{data.items.length} invited guests</p>
+      <ul className="divide-y divide-ink-200 rounded-md border border-ink-200">
+        {data.items.map((guest) => (
+          <li key={guest.id} className="flex flex-wrap items-center justify-between gap-3 p-3">
+            <span>
+              <strong>{guest.phone}</strong>
+              {guest.note ? ` · ${guest.note}` : ''}
+              <span className="block text-tiny text-ink-600">
+                {guest.hasAccount ? 'Has a Rentra account' : 'No account yet'} · invited by{' '}
+                {guest.invitedBy}
+              </span>
+            </span>
+            {data.canWrite ? (
+              <button
+                type="button"
+                disabled={pending}
+                onClick={() => run({ action: 'revoke', id: guest.id })}
+                className="min-h-11 underline"
+                aria-label={`Remove ${guest.phone} from the beta`}
+              >
+                Remove
+              </button>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    </AdminPage>
   );
 }

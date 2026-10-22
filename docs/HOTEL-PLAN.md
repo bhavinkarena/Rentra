@@ -20,8 +20,8 @@ Phases are delivered one at a time; the owner asks for the next one. Work happen
 | 6 → Customer discovery | ✅ Complete (local; migration 0066 not on Neon; Hotels stays non-public until Phase 9) | 21 Oct 2026 |
 | 7 → Booking, payment & cancellation | ✅ Complete (local; migration 0067 not on Neon; Test gateway only) | 21 Oct 2026 |
 | 8 → Post-stay: reviews, payouts, analytics | ✅ Complete (local; migration 0068 not on Neon; live payout funding untested) | 21 Oct 2026 |
-| 9 → Hardening, beta & launch | ⏳ Next | |
-| 10 → Post-launch growth | ⏳ | |
+| 9 → Hardening, beta & launch | ✅ Engineering complete (local; 0069 not on Neon). Beta run, 50 bookings and launch sign-off are owner/ops work | 22 Oct 2026 |
+| 10 → Post-launch growth | ✅ Sprint 1 complete (booking flow): local, uncommitted. Later V1.1/V2 items stay in §12 | 22 Oct 2026 |
 
 ---
 
@@ -1753,9 +1753,92 @@ Commission and tax use the finance permissions (`admin.payments.read` / `write`)
 - **Deliverables:** security review (§8.9), load test, monitoring and alerts, runbooks (payment incident, overbooking, refund failure), support playbooks, closed beta (vertical `partners` + invite-only guests: Rentra team, friends, 100 existing customers), bug bash, launch campaign assets, switch vertical to `public`.
 - **Acceptance:** 2 weeks of beta with ≥ 50 real bookings, zero overbookings, zero payment mismatches; all P1/P2 bugs closed; launch checklist (§11.4) signed.
 
+#### Phase 9 completion record (22 Oct 2026)
+
+**Status:** ✅ The engineering for a safe closed beta and launch is complete locally, uncommitted. Migration `0069_vertical_beta.sql` is **not** on Neon. The acceptance itself has to be run by Rentra: 2 weeks of beta, at least 50 real bookings, zero overbookings and payment mismatches, P1/P2 bugs closed, and the launch checklist signed. The tools below measure it.
+
+**Built**
+
+| Deliverable | What it is |
+| --- | --- |
+| **Closed beta, invite-only** | **Admin → Catalogues → Hotel beta:** paste mobile numbers to invite; remove to revoke. Invites work only while Hotels is open to partners. <br>**Invited guest:** logs in, opens **/beta**, and receives a signed 7-day pass (HMAC). The frontend sends the pass as `X-Rentra-Beta` (an opt-in on public calls, so static pages stay static). For that request only, every guest read (registry, hotel search, suggestions, hotel page, rooms, quotes, checkout) treats Hotels as visible. <br>**Everyone else** sees nothing. **Sitemaps, landing counts and indexing never include beta**, and the shared registry cache never stores a beta view. A revoked guest keeps access until the pass expires (7 days at most). |
+| **Launch switch with a readiness inspection** | `npm run release:hotels -- beta|public` is read-only and checks the following. Beta checks: <ul><li>Hotels open to partners;</li><li>live hotels, each with rooms and rates, a commission rule covering today, a verified payout method and a GST answer;</li><li>tax slabs cover today;</li><li>**no overbooked room-night**;</li><li>**every confirmed stay paid exactly**;</li><li>no expired room hold older than an hour;</li><li>no stay refund stuck for a day.</li></ul>Public adds: <ul><li>at least 40 live hotels (`HOTEL_LAUNCH_MIN_HOTELS`) with 8+ photos;</li><li>open on most of the next 90 nights;</li><li>live payments enabled;</li><li>booking policies published.</li></ul>**The admin vertical switch now refuses Public until the inspection passes, and names what is missing.** This replaces the hard "not until Phase 9" block. |
+| **Monitoring and alerts** | Admin → Operations → Service health gains `overbooked_room_nights`, `stuck_room_holds` and `stay_hold_expiry_spike` (20+ expired stay holds in an hour), next to the existing webhook, refund, payment-worker and capture-allocation alerts. |
+| **Security review (§8.9)** | New cross-tenant test covering: <ul><li>another owner, and that owner's manager staff, are refused hotel A's rates grid and changes, rooms, rules and analytics;</li><li>non-admins are refused payout runs, admin analytics, beta invites and landmarks;</li><li>owner earnings never include another owner's lines.</li></ul>Existing controls already in place: rate limits on discovery, quotes, holds and suggestions, a maximum of 3 live holds per customer, signed webhooks, idempotency, and database money guards. |
+| **Load test** | `rentra-backend/scripts/hotel-load.mjs` covers search with dates, rooms and suggestions. It refuses production URLs. |
+| **Runbooks and support playbooks** | New `Rentra/docs/HOTEL-RUNBOOKS.md`: <ul><li>payment incident;</li><li>overbooking and relocation;</li><li>refund failure;</li><li>Tuesday payout;</li><li>daily closed-beta operations and the beta exit criteria;</li><li>launch switch;</li><li>guest and hotel support answers;</li><li>on-call contacts to fill in.</li></ul> |
+
+**Verification (local only)**
+- Backend:
+  - `hotel-launch.integration.test.js` **6/6**: the pass is signed, expiring and unforgeable; invites; visibility only with a pass, never in the sitemap, never cached; revoke; the beta inspection passes; Public is refused with reasons.
+  - `hotel-security.integration.test.js` **5/5**.
+  - Full suite: **310 tests, 307 pass, 3 skipped, 0 fail**, run with `DATABASE_URL` pointed at an unreachable address (see the incident below).
+- Frontend: `npm test` 104/104; ESLint clean; `next build` passes.
+- Browser gate `scripts/portal-gate/hotel_beta_gate.mjs` **14/14**:
+  - anonymous guests see no Hotels home and no hotels in search;
+  - the admin invites 2 numbers;
+  - the invited guest opens /beta and receives the 7-day pass, then sees the Hotels home, 12 hotels in a dated search and the hotel page with rooms, and reaches checkout;
+  - another browser still sees nothing;
+  - axe 0 violations at 1440 and no overflow at 390; no console errors.
+- **Load test** (local API, 30 s, 25 concurrent): **search 22,207 requests, all 200, p50 19 ms, p95 61 ms** (~740 requests/s from one machine). Rooms and suggestions answered `429` after the first 120 per minute from one IP: the per-IP limiter working. Real capacity for those endpoints has to be measured from many IPs on staging.
+
+**Incident during this phase (reported to the owner):** an early version of `beta-access.js` imported the database client at import time. During two local test runs (the full suite and one rerun of the onboarding test), tests that import services at the top of the file reached **the hosted Neon database in `.env`** before switching to their disposable database. Fixture rows were very likely written there: for example `new-owner@fixture.invalid`, and other rows with `@fixture.invalid` emails created on 22 Oct 2026. The import is fixed (the beta module has no database import), and the full suite now passes with `DATABASE_URL` unreachable. **Still open:** a reviewed check and clean-up of those rows on Neon, which needs the owner's approval.
+
+**Not done / owner and ops**
+- The beta itself, 50 real bookings, the bug bash, launch campaign assets, and the paper items of the launch checklist (agreements, templates, support rota, CA sample invoices, restore drill).
+- **Search has no per-IP rate limit.** Server-side rendering calls it from a few frontend IPs, so a per-IP limit would throttle real pages. A limit at the CDN/edge is the right place.
+- Sentry wiring (the plan's "Sentry errors") was not changed; the alerts live in Service health.
+- MFA for admins is V1.1 (§12.1).
+
 ### Phase 10 — Post-launch growth (Month 5 onward)
 
 See §12 for the V1.1 and V2 backlog. Run in 2-week sprints, prioritised by KPIs.
+
+#### Phase 10 sprint 1 completion record (22 Oct 2026): completing the hotel booking flow
+
+**Status:** ✅ Complete locally, uncommitted. There is no new migration. Requested by the owner: "complete all hotel booking flow". This sprint closes the guest booking-flow gaps left by Phases 7–9 and adds the §12.3 weekly KPIs. The rest of §12 (pay at hotel, coupons, channel manager, Google Hotels, corporate accounts, Route split, MFA, V2) stays in the backlog and waits for its trigger.
+
+| Feature | What the guest or operator gets |
+| --- | --- |
+| **Cancel some rooms** | A guest with a multi-room stay ticks the rooms to cancel. Each room is refunded under its own rate rule (room + tax in the proportion paid); the other rooms stay booked and the released rooms go back on sale at once. Cancelling the last rooms cancels the stay. |
+| **Change dates or rooms** (§12.1 "Modify booking") | Booking detail → **Change dates or rooms** opens the hotel page pre-filled, with a "Changing booking" banner. Checkout says the new booking replaces the old one. **When the new stay is paid, the old stay is cancelled and refunded in full automatically**, in the same transaction as the confirmation. Allowed only while every room of the old stay can still be cancelled free with an hour to spare, and at the same hotel. The change survives the login hand-off. |
+| **Printable voucher** | Booking detail → **Voucher**: one print page with hotel, reference, guests per room, dates and times, rooms and rates, cancellation rule per rate, total paid and taxes, address and phone once confirmed, and the GST invoice details. It is marked "not a tax invoice". |
+| **Stay-worded messages** | Guest SMS and notifications for stays say "Hotel booking confirmed", "Your hotel stay is coming up", "Check-out recorded" and "How was your stay?". Other verticals are unchanged. |
+| **Weekly KPIs** (§12.3) | Admin → Finance → Hotel analytics → **Weekly KPIs** for the chosen dates: <ul><li>quotes → holds → paid with conversion;</li><li>guest-caused and hotel-caused cancellations;</li><li>cases per 100 bookings;</li><li>inventory freshness (hotels that updated rates or rooms in the last 7 days);</li><li>payouts settled on time;</li><li>refund rate.</li></ul> |
+
+**Backend:**
+- `cancellation.js`: optional `roomIds`, per-room stay entitlement, and the shared `applyCancellation`. For stays, earlier refunds cap a later one rather than being subtracted from it, so cancelling room 2 after room 1 refunds room 2 in full. Farmhouse and venue rules are unchanged.
+- `hotel-checkout.js`: `replacesOrderId` in the stay selection, `checkChangeable` (checked at quote and at hold), and `completeStayChange` (run by settlement on confirmation).
+- `records.js`: `stay.listingHref`.
+- `customer-selection.js`: the login intent carries the change.
+- `domain/notifications.js` + `jobs.js`: stay labels.
+- `hotel-analytics.js`: `weekly`.
+
+**Frontend:** `CancelVisits.jsx` (room picker), `BookingRecords.jsx` (Voucher and Change pills), `HotelRooms.jsx` (change banner, `replacesOrderId`, login hand-off), `Checkout.jsx` (replacement note), the new `bookings/[orderId]/voucher` page with its print CSS, and `HotelAnalytics.jsx` (Weekly KPIs).
+
+**Verification (local only)**
+- Backend:
+  - new `hotel-growth.integration.test.js` **6/6**:
+    - one room of two cancelled: exact refund, room released, stay still confirmed; the last room then refunds in full;
+    - dates changed: new stay confirmed, old cancelled with a full refund and a "Changed to booking …" reason;
+    - a non-refundable stay, or another customer's stay, cannot be changed;
+    - stay message wording;
+    - weekly KPIs.
+  - Phase 7 checkout tests 10/10 and CP20 refund operations still pass. A regression in the refund reason category was found and fixed.
+  - Full suite **321 tests, 318 pass, 3 skipped, 0 fail**, run with `DATABASE_URL` unreachable.
+- Frontend: `npm test` 104/104; ESLint clean; `next build` passes.
+- Browser gate `scripts/portal-gate/hotel_growth_gate.mjs` **17/17**:
+  - 2 rooms booked through the UI, then one cancelled from the room picker (booked + released);
+  - the voucher;
+  - Change dates or rooms → banner → checkout replacement note → pay → **old booking cancelled with ₹5,460 refunded of ₹5,460 paid**;
+  - admin Weekly KPIs;
+  - axe 0 violations at 1440 and no overflow at 390 on all 4 new screens; no console errors.
+
+**Not done / limits**
+- **Same room type:** a change to dates that overlap the old stay can show the old stay's own room as taken. If that room type is full, change to other dates or another room type, or cancel and rebook.
+- **Changes at a lower price:** the new stay is paid in full and the old one refunded in full. There is no top-up or difference-only charge, because the existing payment flow takes one full payment per order.
+- **"Keep holding" is not built:** accepted checkout terms, including the hold expiry, cannot be changed in the database once payment starts. The 15-minute hold stands.
+- **Coupons, pay at hotel, channel manager, Google Hotels feed, corporate accounts, Route split, admin MFA:** still V1.1 backlog items waiting for their triggers in §12.1.
 
 ---
 
