@@ -271,7 +271,7 @@ export default function SearchFields({
                     ? 'Where would you like to go?'
                     : label === 'When'
                       ? 'Choose your visit dates'
-                      : label === 'Who'
+                      : label === 'Who' || label === 'Rooms & guests'
                         ? 'Who’s coming along?'
                         : 'Make a day of it')}
               </h2>

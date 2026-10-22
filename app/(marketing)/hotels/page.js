@@ -71,7 +71,7 @@ export default async function HotelsHomePage() {
     .slice(0, CITY_ROWS);
   const [heroCards, cityRows] = await Promise.all([
     degradeOnFailure(
-      () => discoveryApi.listings({ vertical: VERTICAL, limit: 5 }),
+      () => discoveryApi.listings({ vertical: VERTICAL, limit: 5 }, { beta: true }),
       [],
       'hotels home listings',
     ),
@@ -79,7 +79,11 @@ export default async function HotelsHomePage() {
       rowCities.map(async (city) => ({
         city,
         places: await degradeOnFailure(
-          () => discoveryApi.listings({ vertical: VERTICAL, citySlug: city.slug, limit: 10 }),
+          () =>
+            discoveryApi.listings(
+              { vertical: VERTICAL, citySlug: city.slug, limit: 10 },
+              { beta: true },
+            ),
           [],
           `hotels home listings ${city.slug}`,
         ),

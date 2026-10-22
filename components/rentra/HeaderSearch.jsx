@@ -19,6 +19,7 @@ import { measureBrowser } from '@/lib/domain/browser-measurement';
 import SearchBar, { useDiscovery, useSearchDraft } from './SearchBar';
 import SearchFields from './SearchFields';
 import HeaderVerticalSwitch from './HeaderVerticalSwitch';
+import { useBetaRegistry } from './VerticalTabs';
 
 const PANEL_ID = 'header-search-panel';
 const noSubscribe = () => () => {};
@@ -31,7 +32,8 @@ const noSubscribe = () => () => {};
  * bar beneath the header, over a dimmed page, focused on the field tapped.
  * It collapses on Escape, an outside tap, focus leaving, or a real scroll.
  */
-export default function HeaderSearch({ registry }) {
+export default function HeaderSearch({ registry: shared }) {
+  const registry = useBetaRegistry(shared);
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   // document.body after hydration, null on the server — no mount effect needed.
@@ -87,9 +89,10 @@ export default function HeaderSearch({ registry }) {
     }
   }, [pathname, registry]);
 
-  // The homes (`/`, `/entertainment`) and discovery pages; nowhere else.
+  // The homes (`/`, `/entertainment`, `/hotels`) and discovery pages; nowhere else.
   const playHome = !discovery && pathname === '/entertainment';
-  if (pathname !== '/' && !playHome && !discovery) return null;
+  const stayHome = !discovery && pathname === '/hotels';
+  if (pathname !== '/' && !playHome && !stayHome && !discovery) return null;
   // Entertainment: the home's draft, or a venue search's own filters.
   const play = playHome || discoveryVertical(discovery) === 'entertainment';
   const venue = playHome
@@ -113,7 +116,7 @@ export default function HeaderSearch({ registry }) {
   };
   const categoryItems = verticalTabs(
     registry,
-    play ? 'entertainment' : 'farmhouse',
+    stayHome ? 'hotel' : play ? 'entertainment' : 'farmhouse',
     discovery
       ? (code) =>
           searchTabHref(code, {
@@ -134,30 +137,45 @@ export default function HeaderSearch({ registry }) {
   const segment =
     'flex h-full min-w-0 cursor-pointer items-center truncate rounded-full px-3 text-meta font-medium text-ink-900 transition-colors hover:bg-ink-50';
   const expand = { 'aria-expanded': open, 'aria-controls': PANEL_ID };
-  // Entertainment: What · When · Time instead of When · Visit type · Who.
-  const segments = play
+  // Entertainment: What · When · Time; hotels: Dates · Rooms; farmhouse: When · Visit type · Who.
+  const segments = stayHome
     ? [
         [
-          'activity',
-          'What',
-          registry.categories.find((c) => c.slug === venue.activity)?.name || 'Any activity',
+          'stay',
+          'Dates',
+          draft.stay.length === 2
+            ? `${formatLocalDate(draft.stay[0], { weekday: undefined })} – ${formatLocalDate(draft.stay[1], { weekday: undefined })}`
+            : 'Add dates',
         ],
         [
-          'date',
-          'When',
-          venue.date ? formatLocalDate(venue.date, { weekday: undefined }) : 'Any date',
-        ],
-        [
-          'time',
-          'Time',
-          `${venue.start ? `From ${clock12(venue.start)}` : 'Any time'} · ${venue.duration / 60} hr`,
+          'party',
+          'Rooms and guests',
+          `${draft.rooms} room${draft.rooms === 1 ? '' : 's'} · ${draft.adults + draft.childAges.length} guests`,
         ],
       ]
-    : [
-        ['dates', 'When', when],
-        ['slot', 'Visit type', SLOTS[slot]?.label],
-        ['guests', 'Guests', who],
-      ];
+    : play
+      ? [
+          [
+            'activity',
+            'What',
+            registry.categories.find((c) => c.slug === venue.activity)?.name || 'Any activity',
+          ],
+          [
+            'date',
+            'When',
+            venue.date ? formatLocalDate(venue.date, { weekday: undefined }) : 'Any date',
+          ],
+          [
+            'time',
+            'Time',
+            `${venue.start ? `From ${clock12(venue.start)}` : 'Any time'} · ${venue.duration / 60} hr`,
+          ],
+        ]
+      : [
+          ['dates', 'When', when],
+          ['slot', 'Visit type', SLOTS[slot]?.label],
+          ['guests', 'Guests', who],
+        ];
 
   return (
     <>
@@ -246,7 +264,7 @@ export default function HeaderSearch({ registry }) {
                     ) : (
                       <SearchBar
                         registry={registry}
-                        vertical={play ? 'entertainment' : 'farmhouse'}
+                        vertical={stayHome ? 'hotel' : play ? 'entertainment' : 'farmhouse'}
                       />
                     ))}
                 </div>

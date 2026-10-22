@@ -116,7 +116,7 @@ function readBetaCodes() {
   return match && Number(match[2]) > Date.now() ? decodeURIComponent(match[1]) : '';
 }
 const noSubscription = () => () => {};
-function useBetaRegistry(registry) {
+export function useBetaRegistry(registry) {
   const codes = useSyncExternalStore(noSubscription, readBetaCodes, () => '');
   const beta = codes ? codes.split('+') : [];
   const missing = beta.filter(
