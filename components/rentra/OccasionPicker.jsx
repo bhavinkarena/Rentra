@@ -5,7 +5,7 @@ import { Select } from '@/components/ui/field';
 import { ArrowUpRight, Sun, Waves, Flame, Camera, Users } from 'lucide-react';
 import Link from '@/components/navigation/NavigationLink';
 import Image from './PropertyImage';
-import { DISCOVERY_INTENTS } from '@/lib/domain/discovery';
+import { intentsFor } from '@/lib/domain/discovery';
 import picnic from '@/public/images/occasions/day-picnic.webp';
 import pool from '@/public/images/occasions/with-pool.webp';
 import bonfire from '@/public/images/occasions/bonfire-allowed.webp';
@@ -66,7 +66,7 @@ const STORIES = {
   },
 };
 
-const INTENTS = DISCOVERY_INTENTS.filter((intent) => STORIES[intent.slug]);
+const INTENTS = intentsFor().filter((intent) => STORIES[intent.slug]);
 
 export default function OccasionPicker({ cities, category }) {
   const [active, setActive] = useState(0);

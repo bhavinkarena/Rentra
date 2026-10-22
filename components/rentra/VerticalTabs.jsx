@@ -1,6 +1,6 @@
 'use client';
 
-import { useOptimistic, useTransition } from 'react';
+import { useOptimistic, useSyncExternalStore, useTransition } from 'react';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import { LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -71,7 +71,8 @@ export default function VerticalTabs({ items, variant = 'header' }) {
 }
 
 /** The header copy: which tab is active, and where each goes, from the current page. */
-export function HeaderVerticalTabs({ registry }) {
+export function HeaderVerticalTabs({ registry: shared }) {
+  const registry = useBetaRegistry(shared);
   const pathname = usePathname();
   if ((registry.verticals ?? []).length < 2) return null;
   // Only /search reads the query string: reading it on a static page would make it render client-side.
@@ -101,4 +102,30 @@ function HeaderSlot({ items }) {
       <VerticalTabs items={items} />
     </div>
   );
+}
+
+/**
+ * Closed beta (hotel plan, Phase 9): the header registry is the shared, cached,
+ * public one. A guest holding a beta pass also gets the Hotels tab, read from
+ * the pass cookie after mount so cached pages stay static for everyone else.
+ */
+const BETA_TABS = { hotel: { code: 'hotel', slug: 'hotels', name: 'Hotels', sortOrder: 30 } };
+/** `verticals` of a live pass cookie (`verticals.expiry.signature`); the API checks the signature. */
+function readBetaCodes() {
+  const match = document.cookie.match(/(?:^|; )rentra_beta=([^;.]+)\.(\d+)\./);
+  return match && Number(match[2]) > Date.now() ? decodeURIComponent(match[1]) : '';
+}
+const noSubscription = () => () => {};
+function useBetaRegistry(registry) {
+  const codes = useSyncExternalStore(noSubscription, readBetaCodes, () => '');
+  const beta = codes ? codes.split('+') : [];
+  const missing = beta.filter(
+    (code) => BETA_TABS[code] && !(registry.verticals ?? []).some((v) => v.code === code),
+  );
+  return missing.length
+    ? {
+        ...registry,
+        verticals: [...(registry.verticals ?? []), ...missing.map((code) => BETA_TABS[code])],
+      }
+    : registry;
 }
