@@ -68,18 +68,24 @@ const STORIES = {
 
 const INTENTS = intentsFor().filter((intent) => STORIES[intent.slug]);
 
-export default function OccasionPicker({ cities, category }) {
+export default function OccasionPicker({ cities, category, stays }) {
+  const items = stays ?? INTENTS;
+  const prefix = stays ? 'stay' : 'occasion';
   const [active, setActive] = useState(0);
   const [city, setCity] = useState(
     cities.find((c) => c.slug === 'surat')?.slug || cities[0]?.slug || '',
   );
-  const intent = INTENTS[active];
-  const story = STORIES[intent.slug];
-  const href = city && category ? `/${city}/${category}/intent/${intent.slug}` : '/search';
+  const intent = items[active];
+  const story = stays ? intent : STORIES[intent.slug];
+  const href = stays
+    ? `/search?vertical=hotel${city ? `&city=${encodeURIComponent(city)}` : ''}&${intent.query}`
+    : city && category
+      ? `/${city}/${category}/intent/${intent.slug}`
+      : '/search';
 
   // Tabs pattern: arrow keys move between occasions, Tab leaves the list.
   function onKeyDown(event, index) {
-    const last = INTENTS.length - 1;
+    const last = items.length - 1;
     const next = {
       ArrowRight: index === last ? 0 : index + 1,
       ArrowLeft: index === 0 ? last : index - 1,
@@ -89,18 +95,18 @@ export default function OccasionPicker({ cities, category }) {
     if (next === undefined) return;
     event.preventDefault();
     setActive(next);
-    document.getElementById(`occasion-tab-${next}`)?.focus();
+    document.getElementById(`${prefix}-tab-${next}`)?.focus();
   }
 
   return (
     <section
       className="mx-auto max-w-(--container-page) px-6 py-14"
-      aria-labelledby="occasion-heading"
+      aria-labelledby={`${prefix}-heading`}
     >
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-        <h2 id="occasion-heading" className="text-h1 font-semibold">
+        <h2 id={`${prefix}-heading`} className="text-h1 font-semibold">
           What does your
-          <br className="hidden sm:block" /> kind of day look like?
+          <br className="hidden sm:block" /> kind of {stays ? 'stay' : 'day'} look like?
         </h2>
         <p className="text-body text-ink-600 md:text-right">
           Start with the feeling.
@@ -111,20 +117,20 @@ export default function OccasionPicker({ cities, category }) {
 
       <div
         role="tablist"
-        aria-label="Choose your occasion"
+        aria-label={stays ? 'Choose your kind of stay' : 'Choose your occasion'}
         className="-mx-4 mt-8 flex gap-3 overflow-x-auto px-4 sm:-mx-6 sm:px-6 [scrollbar-width:none] md:mx-0 md:px-0"
       >
-        {INTENTS.map((item, index) => {
-          const { Icon } = STORIES[item.slug];
+        {items.map((item, index) => {
+          const { Icon } = stays ? item : STORIES[item.slug];
           const selected = active === index;
           return (
             <button
               key={item.slug}
               type="button"
               role="tab"
-              id={`occasion-tab-${index}`}
+              id={`${prefix}-tab-${index}`}
               aria-selected={selected}
-              aria-controls="occasion-panel"
+              aria-controls={`${prefix}-panel`}
               tabIndex={selected ? 0 : -1}
               onClick={() => setActive(index)}
               onKeyDown={(event) => onKeyDown(event, index)}
@@ -142,10 +148,11 @@ export default function OccasionPicker({ cities, category }) {
       </div>
 
       <div
-        id="occasion-panel"
+        id={`${prefix}-panel`}
         role="tabpanel"
-        aria-labelledby={`occasion-tab-${active}`}
-        className={`mt-5 grid overflow-hidden rounded-xl transition-colors duration-300 md:grid-cols-[1fr_1.05fr] ${story.tint}`}
+        tabIndex={0}
+        aria-labelledby={`${prefix}-tab-${active}`}
+        className={`mt-5 grid overflow-hidden rounded-xl transition-colors duration-300 motion-reduce:transition-none md:grid-cols-[1fr_1.05fr] ${story.tint}`}
       >
         <div className="p-7 sm:p-10 lg:p-12">
           <h3 className="text-[clamp(1.875rem,3.4vw,3rem)] leading-[1.12] font-medium tracking-[-0.035em] whitespace-pre-line text-ink-900">
@@ -175,21 +182,23 @@ export default function OccasionPicker({ cities, category }) {
             href={href}
             className="mt-5 inline-flex min-h-12 items-center gap-6 rounded-full bg-primary px-5 text-body font-medium text-white transition-colors hover:bg-primary-hover active:bg-brand-900"
           >
-            Explore {intent.label.toLowerCase()}
+            {story.action ?? `Explore ${intent.label.toLowerCase()}`}
             <ArrowUpRight className="size-5" aria-hidden="true" />
           </Link>
-          <p className="mt-6 max-w-md text-meta text-ink-600">{intent.description}</p>
+          <p className="mt-6 max-w-md text-meta text-ink-600">
+            {stays ? story.detail : intent.description}
+          </p>
         </div>
 
         <div
           key={intent.slug}
-          className="relative min-h-72 animate-in duration-300 fade-in md:min-h-[26rem]"
+          className="relative min-h-72 motion-safe:animate-in motion-safe:duration-300 motion-safe:fade-in md:min-h-[26rem]"
         >
           <Image
             src={story.image}
             alt={story.alt}
             fill
-            placeholder="blur"
+            placeholder={typeof story.image === 'object' ? 'blur' : undefined}
             sizes="(min-width: 1024px) 650px, (min-width: 768px) 50vw, 100vw"
             className="object-cover"
           />

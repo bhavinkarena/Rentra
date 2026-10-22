@@ -16,6 +16,8 @@ export default function CityRow({
   children,
   title = `Near ${city}`,
   subtitle = <>Luxury farmhouses near {city} for birthday &amp; pool parties.</>,
+  linkLabel = `View all in ${city}`,
+  railLabel = `Places near ${city}`,
 }) {
   const rail = useRef(null);
   const [edge, setEdge] = useState({ start: true, end: false });
@@ -63,7 +65,7 @@ export default function CityRow({
             href={href}
             className="hidden text-meta font-semibold text-brand-700 hover:underline sm:inline"
           >
-            View all in {city} →
+            {linkLabel} →
           </Link>
           <div className="hidden gap-2 md:flex">
             <button
@@ -71,7 +73,9 @@ export default function CityRow({
               className={arrow}
               onClick={() => move(-1)}
               disabled={edge.start}
-              aria-label={`Previous places near ${city}`}
+              aria-label={
+                city ? `Previous places near ${city}` : `Previous ${railLabel.toLowerCase()}`
+              }
             >
               <ArrowLeft className="size-4" aria-hidden="true" />
             </button>
@@ -80,7 +84,7 @@ export default function CityRow({
               className={arrow}
               onClick={() => move(1)}
               disabled={edge.end}
-              aria-label={`More places near ${city}`}
+              aria-label={city ? `More places near ${city}` : `More ${railLabel.toLowerCase()}`}
             >
               <ArrowRight className="size-4" aria-hidden="true" />
             </button>
@@ -91,7 +95,7 @@ export default function CityRow({
       <div
         ref={rail}
         tabIndex={0}
-        aria-label={`Places near ${city}`}
+        aria-label={railLabel}
         className="mt-4 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 [scrollbar-width:none] focus-visible:outline-2 focus-visible:outline-brand-600 max-lg:-mx-4 max-lg:scroll-px-4 max-lg:px-4 sm:max-lg:-mx-6 sm:max-lg:scroll-px-6 sm:max-lg:px-6"
       >
         {Children.map(children, (card) => (
@@ -106,7 +110,7 @@ export default function CityRow({
         href={href}
         className="mt-3 inline-block text-meta font-semibold text-brand-700 hover:underline sm:hidden"
       >
-        View all in {city} →
+        {linkLabel} →
       </Link>
     </section>
   );

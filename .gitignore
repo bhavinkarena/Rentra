@@ -51,3 +51,6 @@ next-env.d.ts
 /.impeccable/redesign/
 .playwright-cli
 .playwright-cli/
+
+# Local design directions, browser captures and QA helpers
+.taste-skill/

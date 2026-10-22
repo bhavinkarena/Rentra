@@ -1,0 +1,37 @@
+{
+  "hero": {
+    "src": "https://res.cloudinary.com/dqmdurkd0/image/upload/v1792662252/rentra/hotel-catalog/mumbai/novotel-mumbai-international-airport/c4fafe661b900652cdc1.jpg",
+    "alt": "Rooftop pool at Novotel Mumbai International Airport",
+    "hotel": "Novotel Mumbai International Airport",
+    "source": "https://www.goibibo.com/hotels/novotel-mumbai-international-airport-hotel-in-mumbai-8022050807849428503/",
+    "usageRights": "unconfirmed"
+  },
+  "weekend": {
+    "src": "https://res.cloudinary.com/dqmdurkd0/image/upload/v1792662264/rentra/hotel-catalog/mumbai/trident-nariman-point/456f23e3b9726903f8b5.jpg",
+    "alt": "Pool and sea view at Trident Nariman Point, Mumbai",
+    "hotel": "Trident Nariman Point",
+    "source": "https://www.tridenthotels.com/hotels-in-mumbai-nariman-point/special-offers/business-travel-plus/",
+    "usageRights": "unconfirmed"
+  },
+  "work": {
+    "src": "https://res.cloudinary.com/dqmdurkd0/image/upload/v1792662138/rentra/hotel-catalog/mumbai/lemon-tree-premier-mumbai-international-airport/8e0509e64e9b513b4999.jpg",
+    "alt": "Bright guest room with a desk at Lemon Tree Premier, Mumbai",
+    "hotel": "Lemon Tree Premier, Mumbai International Airport",
+    "source": "https://www.easemytrip.com/hotels/lemon-tree-premier-mumbai-intl-airport-1637050/",
+    "usageRights": "unconfirmed"
+  },
+  "couple": {
+    "src": "https://res.cloudinary.com/dqmdurkd0/image/upload/v1792662270/rentra/hotel-catalog/mumbai/taj-santacruz-mumbai/6a3810a24cb9dbb5a185.jpg",
+    "alt": "Spacious room and lounge at Taj Santacruz, Mumbai",
+    "hotel": "Taj Santacruz, Mumbai",
+    "source": "https://www.goibibo.com/hotels/rooms-of-taj-santacruz-mumbai-hotel-in-mumbai-4307091612335856069/",
+    "usageRights": "unconfirmed"
+  },
+  "family": {
+    "src": "https://res.cloudinary.com/dqmdurkd0/image/upload/v1792662155/rentra/hotel-catalog/mumbai/radisson-mumbai-andheri-midc/7841b962d07027120beb.jpg",
+    "alt": "Twin guest room at Radisson Mumbai Andheri MIDC",
+    "hotel": "Radisson Mumbai Andheri MIDC",
+    "source": "https://www.radissonhotels.com/en-us/hotels/radisson-mumbai-andheri-midc/rooms",
+    "usageRights": "unconfirmed"
+  }
+}
