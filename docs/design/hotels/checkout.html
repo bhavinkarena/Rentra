@@ -1,0 +1,74 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hotels mock · Checkout</title>
+<link rel="stylesheet" href="mock.css"><link rel="stylesheet" href="hotels.css">
+<style>.colayout { margin-top: 4px; } h1 { font-size: 28px; letter-spacing: -.02em; } .summary { position: sticky; top: 90px; }</style></head>
+<body data-shell="customer" data-vertical="hotel" data-tabs="off" data-states="details:1 · Guest details,pay:2 · Review & pay,low:Hold < 2 min,changed:Price changed,failed:Payment failed,pending:UPI pending,expired:Hold expired">
+<div id="hdr"></div>
+<div class="wrap">
+  <a href="hotel.html" class="row small" style="margin-top:16px;text-decoration:none"><i data-icon="back"></i>Back to The Riverside Residency</a>
+  <div class="steps"><span class="done" data-show="pay low changed failed pending expired"><b>✓</b>Guest details</span><span class="on" data-show="details"><b>1</b>Guest details</span><hr><span class="on" data-show="pay low changed failed pending expired"><b>2</b>Review &amp; pay</span><span data-show="details"><b>2</b>Review &amp; pay</span><hr><span><b>3</b>Confirmed</span></div>
+
+  <div class="colayout">
+    <main>
+      <!-- Step 1 -->
+      <div data-show="details">
+        <h1>Who's staying?</h1><p class="muted" style="margin:4px 0 16px">We share these details with the hotel only after you pay.</p>
+        <div class="panel"><h2>Main guest</h2>
+          <div class="field2">
+            <label class="fld">Full name<input value="Priya Shah" autocomplete="name"><span class="hint">As on the ID you'll show at check-in</span></label>
+            <label class="fld">Mobile<span class="verified-in"><input value="+91 98250 12345" readonly style="width:100%"><span class="ok-line tiny"><i data-icon="check"></i>Verified</span></span><span class="hint">Booking updates on WhatsApp</span></label>
+            <label class="fld bad">Email (optional)<input value="priya@" aria-invalid="true" aria-describedby="e1"><span class="err" id="e1"><i data-icon="alert"></i>Enter a full email, like name@example.com</span></label>
+            <label class="fld">Arrival time (approx.)<select><option>12:00 – 14:00</option><option>I don't know yet</option></select><span class="hint">Helps the front desk keep your room ready</span></label>
+          </div></div>
+        <div class="panel"><h2>Guest name per room</h2>
+          <label class="fld">Room 1 · Deluxe · Breakfast · 2 adults<input value="Priya Shah"></label></div>
+        <div class="panel"><h2>Anything else?</h2>
+          <label class="fld">Special requests (optional)<textarea placeholder="e.g. high floor, Jain breakfast"></textarea><span class="hint">Requests aren't guaranteed. The hotel replies on WhatsApp.</span></label>
+          <label class="check" style="margin-top:14px"><input type="checkbox" checked><span><b>Business trip — add GST details</b><br><span class="muted">The hotel invoice will carry your company GSTIN.</span></span></label>
+          <div class="field2" style="margin-top:12px"><label class="fld">GSTIN<input value="24AAACR1234Q1Z5"></label><label class="fld">Company name<input value="Rajhans Textiles Pvt Ltd"></label></div>
+        </div>
+        <div class="between" style="margin-top:20px"><span class="timer"><i data-icon="clock"></i>Rooms held for <b>14:32</b></span><a class="btn" href="?state=pay">Continue to payment</a></div>
+      </div>
+
+      <!-- Step 2 -->
+      <div data-hide="details">
+        <h1>Review and pay</h1>
+        <div data-show="changed" class="banner info" style="margin-top:14px"><i data-icon="info"></i><div><b>The price changed for your dates</b>The hotel updated its rate after you searched.<div class="cmp"><span>Deluxe · Breakfast · 2 nights</span><s>₹6,510</s><b>₹6,930</b></div></div></div>
+        <div data-show="failed" class="banner bad" style="margin-top:14px"><i data-icon="alert"></i><div><b>Payment didn't go through. You weren't charged.</b>Your bank declined the UPI request. Your rooms are still held.</div></div>
+        <div data-show="pending" class="banner info" style="margin-top:14px"><i data-icon="clock"></i><div><b>Waiting for your bank to confirm</b>Approve the request in your UPI app. We've extended your hold to 30 minutes. Don't pay twice.</div></div>
+        <div data-show="expired" class="banner warn" style="margin-top:14px"><i data-icon="clock"></i><div><b>Your hold expired</b>Rooms are released after 15 minutes. Your details are saved.</div><a class="btn sm" href="?state=pay">Check availability again</a></div>
+
+        <div class="panel" style="margin-top:16px"><h2>Your stay</h2>
+          <dl class="kv"><dt>Dates</dt><dd>Wed 18 Nov → Fri 20 Nov 2026 · 2 nights</dd><dt>Check-in / out</dt><dd>From 12:00 · until 11:00</dd><dt>Room</dt><dd>1 × Deluxe Double · Breakfast included · 2 adults</dd><dt>Guest</dt><dd>Priya Shah · +91 98250 12345 · <a href="?state=details">Edit</a></dd><dt>GST invoice</dt><dd>Rajhans Textiles Pvt Ltd · 24AAACR1234Q1Z5</dd></dl></div>
+        <div class="panel"><h2>Cancellation</h2>
+          <span class="ok-line"><i data-icon="check"></i>Free cancellation until Mon 16 Nov 2026, 12:00 IST</span>
+          <p class="small muted" style="margin-top:6px">After that, the first night (₹3,255) is charged. No-show: first night charged.</p></div>
+        <div class="panel">
+          <label class="check"><input type="checkbox" checked><span>I agree to the <a href="#">hotel's policies</a> and <a href="#">Rentra's booking terms</a>.</span></label>
+          <div class="between" style="margin-top:16px;flex-wrap:wrap" data-hide="expired">
+            <span class="timer" data-hide="low"><i data-icon="clock"></i>Rooms held for <b>12:05</b></span>
+            <span class="timer low" data-show="low"><i data-icon="clock"></i>Hold ends in <b>01:48</b> · <a href="#">Keep holding</a></span>
+            <a class="btn" href="confirmation.html" data-hide="pending changed failed">Pay ₹6,510 securely</a>
+            <a class="btn" href="confirmation.html" data-show="changed">Pay ₹6,930</a>
+            <a class="btn" href="confirmation.html" data-show="failed">Try again</a>
+            <span class="btn" data-show="pending" aria-live="polite"><span class="spinner"></span>Waiting for bank…</span>
+          </div>
+          <div class="payrow"><span>UPI</span><span>Cards</span><span>Netbanking</span><span>Wallets</span><span>Secured by Razorpay</span></div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="summary-col"><div class="panel summary">
+      <div class="photo">Hotel photo</div>
+      <b>The Riverside Residency</b><p class="small muted">Adajan, Surat · <span class="score"><b>8.8</b></span> 212 reviews</p>
+      <div style="margin-top:12px">
+        <div class="line"><span>Deluxe · Breakfast × 2 nights</span><span>₹6,200</span></div>
+        <details><summary>Per night</summary><div class="line"><span>Wed 18 Nov</span><span>₹3,100</span></div><div class="line"><span>Thu 19 Nov</span><span>₹3,100</span></div></details>
+        <div class="line"><span>GST 5% <span class="muted">(₹7,500 or less per night)</span></span><span>₹310</span></div>
+        <div class="line tot"><span>Total</span><span data-hide="changed">₹6,510</span><span data-show="changed">₹6,930</span></div>
+        <p class="tiny muted">Pay now. No fee from Rentra.</p>
+      </div>
+    </div></aside>
+  </div>
+</div>
+<script src="chrome.js"></script><script src="icons.js"></script>
+</body></html>

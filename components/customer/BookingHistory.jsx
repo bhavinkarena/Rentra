@@ -322,7 +322,7 @@ export function BookingHistory({ data, base = '/bookings', operational = false, 
                   <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-600">
                     <span className="inline-flex items-center gap-2">
                       <CalendarDays className="size-4 text-brand-700" aria-hidden="true" />
-                      {item.firstVisitSlot === 'hourly'
+                      {['hourly', 'stay'].includes(item.firstVisitSlot)
                         ? item.firstVisitLabel
                         : shortDate(item.firstVisit)}
                     </span>

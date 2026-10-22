@@ -1,4 +1,5 @@
-// Fixture-only migrator for a disposable local DB without PostGIS.
+// Fixture-only migrator for a disposable local DB without PostGIS. Hex EWKB map pins
+// (seed-hotels --demo) are kept; anything else in a geometry stand-in column is cleared.
 import postgres from 'postgres';
 import { readFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
@@ -21,7 +22,7 @@ for (const { tag } of journal.entries) {
 }
 await sql.unsafe(`
 CREATE FUNCTION fixture_null_geo() RETURNS trigger LANGUAGE plpgsql AS $$
-BEGIN IF TG_TABLE_NAME='area' THEN NEW.centre := NULL; ELSE NEW.location := NULL; END IF; RETURN NEW; END $$;
+BEGIN IF TG_TABLE_NAME='area' THEN NEW.centre := NULL; ELSIF NEW.location !~ '^([0-9a-fA-F]{2})+$' THEN NEW.location := NULL; END IF; RETURN NEW; END $$;
 CREATE TRIGGER fixture_area_geo BEFORE INSERT OR UPDATE ON area FOR EACH ROW EXECUTE FUNCTION fixture_null_geo();
 CREATE TRIGGER fixture_rentable_geo BEFORE INSERT OR UPDATE ON rentable FOR EACH ROW EXECUTE FUNCTION fixture_null_geo();`);
 await sql.end();

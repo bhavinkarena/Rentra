@@ -8,7 +8,9 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  Building2,
   Clock,
+  Landmark,
   MapPin,
   Minus,
   Navigation,
@@ -18,6 +20,7 @@ import {
   Trophy,
   Users,
   X,
+  BedDouble,
 } from 'lucide-react';
 import {
   addLocalDays,
@@ -67,6 +70,8 @@ export default function SearchFields({
 }) {
   // Entertainment searches one date, an activity and a time instead of visit dates and guests.
   const play = vertical === 'entertainment';
+  // Hotels search a check-in/check-out range, rooms and guests (hotel plan, Phase 6).
+  const stayMode = vertical === 'hotel';
   const [active, setActive] = useState(null);
   const [hoverDate, setHoverDate] = useState(null);
   const dismissedByScroll = useRef(false);
@@ -95,7 +100,7 @@ export default function SearchFields({
     return () => window.removeEventListener('scroll', closeOnPageScroll);
   }, [active]);
   const [localFields, setLocalFields] = useState({
-    location: { city: filters.city || '', area: filters.area || '' },
+    location: { city: filters.city || '', area: filters.area || '', near: filters.near || '' },
     slot: route?.intent?.slot || filters.slot || 'day',
     mode: filters.mode || 'single',
     dates: filters.dates || [],
@@ -104,6 +109,10 @@ export default function SearchFields({
     date: filters.dates?.[0] || '',
     start: filters.start || '',
     duration: filters.duration || 60,
+    stay: filters.checkin ? [filters.checkin, filters.checkout] : [],
+    rooms: filters.rooms || 1,
+    adults: filters.adults || 2,
+    childAges: filters.children || [],
   });
   const fields = draft || localFields;
   const { location, slot, mode, dates, guests, activity, date, start, duration } = fields;
@@ -364,9 +373,30 @@ export default function SearchFields({
       className="col-span-2 m-1 flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-brand-600 px-6 text-meta font-semibold text-white transition-colors hover:bg-brand-700 disabled:opacity-70"
     >
       <Search className="size-5" aria-hidden="true" />
-      {pending ? 'Searching…' : (submitLabel ?? (play ? 'Find venues' : 'Search'))}
+      {pending
+        ? 'Searching…'
+        : (submitLabel ?? (play ? 'Find venues' : stayMode ? 'Find hotels' : 'Search'))}
     </button>
   );
+
+  if (stayMode)
+    return (
+      <StayFields
+        {...{
+          fields,
+          setField,
+          route,
+          registry,
+          filters,
+          panel,
+          submit,
+          setActive,
+          today,
+          month,
+          setMonth,
+        }}
+      />
+    );
 
   if (play) {
     const activities = registry.categories?.filter((item) => item.vertical === vertical) ?? [];
@@ -800,7 +830,17 @@ function shiftMonth(month, delta) {
   return date.toISOString().slice(0, 7);
 }
 
-function CalendarMonth({ month, today, lastDate, dates, mode, onSelect, hoverDate, onPreview }) {
+function CalendarMonth({
+  month,
+  today,
+  lastDate,
+  dates,
+  mode,
+  onSelect,
+  hoverDate,
+  onPreview,
+  maxSpan = BOOKING_POLICY.maxVisits - 1,
+}) {
   const start = new Date(`${month}-01T00:00:00Z`);
   const count = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 0)).getUTCDate();
   return (
@@ -825,7 +865,7 @@ function CalendarMonth({ month, today, lastDate, dates, mode, onSelect, hoverDat
             dates.length === 1 &&
             hoverDate > rangeStart &&
             hoverDate <= lastDate &&
-            hoverDate <= addLocalDays(rangeStart, BOOKING_POLICY.maxVisits - 1);
+            hoverDate <= addLocalDays(rangeStart, maxSpan);
           const rangeEnd = previewing ? hoverDate : dates.at(-1);
           const selected =
             mode === 'consecutive'
@@ -843,7 +883,7 @@ function CalendarMonth({ month, today, lastDate, dates, mode, onSelect, hoverDat
             (mode === 'separate' && dates.length >= BOOKING_POLICY.maxVisits && !selected) ||
             (mode === 'consecutive' &&
               dates.length === 1 &&
-              date > addLocalDays(dates[0], BOOKING_POLICY.maxVisits - 1));
+              date > addLocalDays(dates[0], maxSpan));
           return (
             <div
               key={date}
@@ -877,6 +917,449 @@ function CalendarMonth({ month, today, lastDate, dates, mode, onSelect, hoverDat
           );
         })}
       </div>
+    </div>
+  );
+}
+
+const MAX_NIGHTS = 30;
+const MAX_ROOMS = 8;
+const LANDMARK_ICON = { station: Navigation, airport: Navigation };
+
+/**
+ * Hotel search cells (hotel plan §4.4): Where (city, area, landmark or hotel
+ * name, grouped), Check-in – Check-out (one range, up to 30 nights) and Rooms &
+ * guests (children need an age: hotel child rules depend on it).
+ */
+function StayFields({
+  fields,
+  setField,
+  route,
+  registry,
+  filters,
+  panel,
+  submit,
+  setActive,
+  today,
+  month,
+  setMonth,
+}) {
+  const { location, stay, rooms, adults, childAges } = fields;
+  const [query, setQuery] = useState('');
+  const [hoverDate, setHoverDate] = useState(null);
+  const lastDate = addLocalDays(today, 365);
+  const [checkin, checkout] = stay;
+
+  const [answer, setFound] = useState(null);
+  useEffect(() => {
+    const text = query.trim();
+    if (text.length < 2) return;
+    let live = true;
+    const timer = setTimeout(() => {
+      discoveryApi
+        .suggest({ q: text, vertical: 'hotel' })
+        .then((result) => live && setFound({ text, ...result }))
+        .catch(() => live && setFound({ text, error: true }));
+    }, 200);
+    return () => {
+      live = false;
+      clearTimeout(timer);
+    };
+  }, [query]);
+  // Suggestions for an older query never show under a newer one.
+  const found = answer?.text === query.trim() ? answer : null;
+
+  const city = registry.cities.find((item) => item.slug === location.city);
+  const area = registry.areas.find(
+    (item) => item.slug === location.area && item.cityId === city?.id,
+  );
+  const landmark = (registry.landmarks ?? []).find((item) => item.slug === location.near);
+  const where =
+    route?.area?.name ||
+    route?.city?.name ||
+    landmark?.name ||
+    area?.name ||
+    city?.name ||
+    'Anywhere';
+  const nights =
+    checkin && checkout ? Math.round((Date.parse(checkout) - Date.parse(checkin)) / 86400000) : 0;
+  const stayLabel = checkin
+    ? checkout
+      ? `${formatLocalDate(checkin)} – ${formatLocalDate(checkout)} · ${nights} night${nights === 1 ? '' : 's'}`
+      : `${formatLocalDate(checkin)} – choose check-out`
+    : 'Add dates';
+  const children = childAges.length;
+  const partyLabel = `${rooms} room${rooms === 1 ? '' : 's'} · ${adults} adult${adults === 1 ? '' : 's'}${children ? ` · ${children} child${children === 1 ? '' : 'ren'}` : ''}`;
+
+  const choose = (value) => {
+    setField('location', value);
+    setQuery('');
+    setActive('stay');
+  };
+  function selectNight(date) {
+    setHoverDate(null);
+    setField('stay', (current) =>
+      current.length !== 1 || date <= current[0] ? [date] : [current[0], date],
+    );
+    if (stay.length === 1 && date > stay[0]) setActive('party');
+  }
+  const stepper = (label, value, min, max, onChange, hint) => (
+    <div className="flex items-center justify-between gap-3 py-2">
+      <div>
+        <p className="font-semibold">{label}</p>
+        {hint ? <p className="mt-1 text-tiny text-ink-600">{hint}</p> : null}
+      </div>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          aria-label={`Fewer ${label.toLowerCase()}`}
+          className={roundButton}
+          disabled={value <= min}
+          onClick={() => onChange(value - 1)}
+        >
+          <Minus className="size-4" />
+        </button>
+        <span
+          className="w-8 text-center text-meta font-semibold tabular"
+          aria-live="polite"
+          aria-label={`${value} ${label.toLowerCase()}`}
+        >
+          {value}
+        </span>
+        <button
+          type="button"
+          aria-label={`More ${label.toLowerCase()}`}
+          className={roundButton}
+          disabled={value >= max}
+          onClick={() => onChange(value + 1)}
+        >
+          <Plus className="size-4" />
+        </button>
+      </div>
+    </div>
+  );
+  const group = (title, items) =>
+    items?.length ? (
+      <div className="mt-2">
+        <p className="mb-1 px-2 text-tiny font-semibold text-ink-600">{title}</p>
+        {items}
+      </div>
+    ) : null;
+  const landmarksIn = (registry.landmarks ?? []).slice(0, 6);
+
+  return (
+    <div className="grid grid-cols-2 items-center rounded-3xl border border-border bg-ink-50 p-1.5 shadow-sm md:flex md:rounded-full">
+      <input type="hidden" name="vertical" value="hotel" />
+      {!route?.city && (
+        <input type="hidden" name="city" value={location.near ? '' : location.city} />
+      )}
+      {!route?.area && (
+        <input
+          type="hidden"
+          name="area"
+          value={route?.city || location.near ? '' : location.area}
+        />
+      )}
+      {!route?.city && location.near ? (
+        <input type="hidden" name="near" value={location.near} />
+      ) : null}
+      {filters.category && !route?.category ? (
+        <input type="hidden" name="category" value={filters.category} />
+      ) : null}
+      <input type="hidden" name="checkin" value={checkout ? checkin : ''} />
+      <input type="hidden" name="checkout" value={checkout || ''} />
+      <input type="hidden" name="rooms" value={rooms} />
+      <input type="hidden" name="adults" value={adults} />
+      {children ? <input type="hidden" name="children" value={childAges.join(',')} /> : null}
+
+      <div className="col-span-2 min-w-0 md:flex-[1.3]">
+        {panel(
+          'location',
+          'Where',
+          where,
+          MapPin,
+          route?.city ? (
+            <p className="text-meta text-ink-600">
+              Showing hotels in {where}. Use the main search to explore other places.
+            </p>
+          ) : (
+            <>
+              <label
+                data-field-shell
+                className="flex items-center gap-3 rounded-xl border border-ink-300 px-4 focus-within:border-brand-600 focus-within:ring-2 focus-within:ring-brand-100"
+              >
+                <Search className="size-4 text-brand-600" aria-hidden="true" />
+                <input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="City, area, landmark or hotel"
+                  aria-label="Search city, area, landmark or hotel"
+                  className="min-h-11 min-w-0 flex-1 bg-transparent text-base outline-none"
+                />
+              </label>
+              <div role="status" className="sr-only">
+                {found && !found.error
+                  ? `${found.cities.length + found.areas.length + found.landmarks.length + found.hotels.length} suggestions`
+                  : ''}
+              </div>
+              {query.trim().length >= 2 ? (
+                found?.error ? (
+                  <p className="py-4 text-meta text-ink-600">
+                    Suggestions could not load. Try again.
+                  </p>
+                ) : found ? (
+                  <>
+                    {group(
+                      'Cities',
+                      found.cities.map((item) => (
+                        <LocationOption
+                          key={item.slug}
+                          title={item.name}
+                          subtitle="City"
+                          Icon={MapPin}
+                          onClick={() => choose({ city: item.slug, area: '' })}
+                        />
+                      )),
+                    )}
+                    {group(
+                      'Areas',
+                      found.areas.map((item) => (
+                        <LocationOption
+                          key={`${item.city}:${item.slug}`}
+                          title={item.name}
+                          subtitle={item.cityName}
+                          Icon={MapPin}
+                          onClick={() => choose({ city: item.city, area: item.slug })}
+                        />
+                      )),
+                    )}
+                    {group(
+                      'Landmarks',
+                      found.landmarks.map((item) => (
+                        <LocationOption
+                          key={item.slug}
+                          title={item.name}
+                          subtitle={`${item.cityName} · within 5 km`}
+                          Icon={LANDMARK_ICON[item.kind] ?? Landmark}
+                          onClick={() => choose({ city: item.city, area: '', near: item.slug })}
+                        />
+                      )),
+                    )}
+                    {group(
+                      'Hotels',
+                      found.hotels.map((item) => (
+                        <a
+                          key={item.href}
+                          href={item.href}
+                          className="flex min-h-16 w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-brand-50 focus-visible:outline-brand-600"
+                        >
+                          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600">
+                            <Building2 className="size-5" aria-hidden="true" />
+                          </span>
+                          <span className="flex-1">
+                            <span className="block text-meta font-semibold">{item.name}</span>
+                            <span className="mt-1 block text-tiny text-ink-600">{item.place}</span>
+                          </span>
+                        </a>
+                      )),
+                    )}
+                    {!found.cities.length &&
+                    !found.areas.length &&
+                    !found.landmarks.length &&
+                    !found.hotels.length ? (
+                      <p className="py-4 text-meta text-ink-600">
+                        No matches. Try a city, an area or a hotel name.
+                      </p>
+                    ) : null}
+                  </>
+                ) : (
+                  <p className="py-4 text-meta text-ink-600">Searching…</p>
+                )
+              ) : (
+                <>
+                  <LocationOption
+                    title="Anywhere"
+                    subtitle="All hotels on Rentra"
+                    selected={!location.city && !location.near}
+                    onClick={() => choose({ city: '', area: '' })}
+                  />
+                  {group(
+                    'Cities',
+                    registry.cities.map((item) => (
+                      <LocationOption
+                        key={item.slug}
+                        title={item.name}
+                        subtitle="City"
+                        selected={location.city === item.slug && !location.area && !location.near}
+                        onClick={() => choose({ city: item.slug, area: '' })}
+                      />
+                    )),
+                  )}
+                  {group(
+                    'Popular landmarks',
+                    landmarksIn.map((item) => (
+                      <LocationOption
+                        key={item.slug}
+                        title={item.name}
+                        subtitle="Hotels within 5 km"
+                        Icon={LANDMARK_ICON[item.kind] ?? Landmark}
+                        selected={location.near === item.slug}
+                        onClick={() =>
+                          choose({
+                            city: registry.cities.find((c) => c.id === item.cityId)?.slug ?? '',
+                            area: '',
+                            near: item.slug,
+                          })
+                        }
+                      />
+                    )),
+                  )}
+                </>
+              )}
+            </>
+          ),
+          false,
+          'Where are you staying?',
+        )}
+      </div>
+
+      {panel(
+        'stay',
+        'Check-in – Check-out',
+        stayLabel,
+        CalendarDays,
+        <>
+          <div className="mb-2 flex items-center justify-between">
+            <button
+              type="button"
+              aria-label="Previous month"
+              disabled={month <= today.slice(0, 7)}
+              className={roundButton}
+              onClick={() => setMonth(shiftMonth(month, -1))}
+            >
+              <ChevronLeft className="size-4" />
+            </button>
+            <p className="px-2 text-center text-tiny text-ink-600" aria-live="polite">
+              {!checkin || checkout
+                ? 'Choose your check-in date'
+                : `Choose check-out (up to ${MAX_NIGHTS} nights)`}
+            </p>
+            <button
+              type="button"
+              aria-label="Next month"
+              disabled={month >= lastDate.slice(0, 7)}
+              className={roundButton}
+              onClick={() => setMonth(shiftMonth(month, 1))}
+            >
+              <ChevronRight className="size-4" />
+            </button>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2" onPointerLeave={() => setHoverDate(null)}>
+            {[month, shiftMonth(month, 1)].map((value, index) => (
+              <div key={value} className={index ? 'hidden sm:block' : ''}>
+                <CalendarMonth
+                  month={value}
+                  today={today}
+                  lastDate={checkin && !checkout ? addLocalDays(lastDate, 1) : lastDate}
+                  dates={stay}
+                  mode="consecutive"
+                  maxSpan={MAX_NIGHTS}
+                  onSelect={selectNight}
+                  hoverDate={hoverDate}
+                  onPreview={setHoverDate}
+                />
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3">
+            <button
+              type="button"
+              onClick={() => setField('stay', [])}
+              className="min-h-11 text-meta font-semibold text-ink-600 underline underline-offset-4"
+            >
+              Clear dates
+            </button>
+            <span className="text-tiny text-ink-600">
+              {nights ? `${nights} night${nights === 1 ? '' : 's'}` : 'Add dates for exact prices'}
+            </span>
+            <Popover.Close className="min-h-11 rounded-full bg-brand-600 px-5 text-meta font-semibold text-white hover:bg-brand-700">
+              Done
+            </Popover.Close>
+          </div>
+        </>,
+        true,
+        'When are you staying?',
+      )}
+
+      {panel(
+        'party',
+        'Rooms & guests',
+        partyLabel,
+        BedDouble,
+        <>
+          {stepper('Rooms', rooms, 1, MAX_ROOMS, (value) => {
+            setField('rooms', value);
+            if (adults < value) setField('adults', value);
+          })}
+          {stepper(
+            'Adults',
+            adults,
+            rooms,
+            Math.min(48, rooms * 6),
+            (value) => setField('adults', value),
+            'Age 18 or over',
+          )}
+          {stepper(
+            'Children',
+            children,
+            0,
+            Math.min(16, rooms * 4),
+            (value) =>
+              setField(
+                'childAges',
+                value > children ? [...childAges, ''] : childAges.slice(0, value),
+              ),
+            'Age 0–17',
+          )}
+          {children ? (
+            <div className="mt-1 grid grid-cols-2 gap-2 border-t border-border pt-3">
+              {childAges.map((age, index) => (
+                <label key={index} className="text-tiny font-semibold text-ink-700">
+                  Child {index + 1} age
+                  <select
+                    required
+                    value={age}
+                    onChange={(event) =>
+                      setField(
+                        'childAges',
+                        childAges.map((value, i) =>
+                          i === index ? Number(event.target.value) : value,
+                        ),
+                      )
+                    }
+                    className="mt-1 min-h-11 w-full rounded-xl border border-ink-300 bg-card px-3 text-base"
+                  >
+                    <option value="">Age</option>
+                    {Array.from({ length: 18 }, (_, value) => (
+                      <option key={value} value={value}>
+                        {value === 0 ? 'Under 1' : `${value} year${value === 1 ? '' : 's'}`}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ))}
+            </div>
+          ) : null}
+          <p className="mt-2 border-t border-border pt-3 text-meta text-ink-600">
+            Child prices depend on age. Hotels confirm extra beds and cots.
+          </p>
+          <div className="mt-3 flex justify-end">
+            <Popover.Close className="min-h-11 rounded-full bg-brand-600 px-6 text-meta font-semibold text-white hover:bg-brand-700">
+              Done
+            </Popover.Close>
+          </div>
+        </>,
+      )}
+      {submit}
     </div>
   );
 }

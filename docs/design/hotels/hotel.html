@@ -1,0 +1,132 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hotels mock · Hotel page</title>
+<link rel="stylesheet" href="mock.css"><link rel="stylesheet" href="hotels.css">
+<style>
+.crumbs { font-size: 13px; color: var(--ink-500); padding: 16px 0 12px; display: flex; justify-content: space-between; align-items: center; }
+.gal { display: grid; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 200px 200px; gap: 8px; border-radius: 16px; overflow: hidden; position: relative; }
+.gal .photo { aspect-ratio: auto; border-radius: 0; } .gal .photo:first-child { grid-row: span 2; }
+.gal .all { position: absolute; right: 14px; bottom: 14px; background: #fff; border-radius: 99px; padding: 8px 14px; font-size: 14px; font-weight: 700; display: flex; gap: 6px; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,.2); } .gal .all .ic { width: 16px; height: 16px; }
+h1 { font-size: 32px; font-weight: 700; letter-spacing: -.03em; }
+.layout { display: grid; grid-template-columns: minmax(0,1fr) 380px; gap: 48px; margin-top: 8px; padding-bottom: 64px; }
+.sec { padding: 28px 0; border-bottom: 1px solid var(--ink-200); } .sec h2 { font-size: 22px; margin-bottom: 14px; }
+.amen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; font-size: 15px; } .amen span { display: flex; gap: 10px; align-items: center; } .amen .ic { color: var(--ink-700); }
+.hl3 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; } .hl3 div { border: 1px solid var(--ink-200); background: #fff; border-radius: 12px; padding: 12px; font-size: 14px; display: flex; gap: 10px; align-items: center; } .hl3 .ic { color: var(--brand-600); }
+.rail { position: sticky; top: 130px; align-self: start; background: #fff; border: 1px solid var(--ink-200); border-radius: 16px; box-shadow: 0 6px 20px rgba(31,41,36,.08); padding: 20px; }
+.mapmini { height: 220px; border-radius: 16px; position: relative; overflow: hidden; background: linear-gradient(90deg, rgba(255,255,255,.55) 1px, transparent 1px) 0 0/48px 48px, linear-gradient(rgba(255,255,255,.55) 1px, transparent 1px) 0 0/48px 48px, #e4ebe3; }
+.mbar { display: none; }
+@media (max-width: 1023px) { .layout { grid-template-columns: 1fr; } .rail-wrap { display: none; } .mbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; background: #fff; border-top: 1px solid var(--ink-200); padding: 12px 16px; justify-content: space-between; align-items: center; z-index: 60; } body { padding-bottom: 80px; } }
+@media (max-width: 767px) { .gal { grid-template-columns: 1fr; grid-template-rows: 250px; border-radius: 0; margin: 0 -16px; } .gal .photo:not(:first-child) { display: none; } h1 { font-size: 24px; } .amen { grid-template-columns: 1fr 1fr; } .hl3 { grid-template-columns: 1fr 1fr; } .crumbs .acts { display: none; } .secnav { top: 60px; } }
+</style></head>
+<body data-shell="customer" data-vertical="hotel" data-tabs="off" data-pill="<span>Surat</span><span>18–20 Nov</span><span>1 room · 2 guests</span>" class="docked" data-states="default:1 room selected,none:Nothing selected,occupancy:Too many guests,loading:Prices loading">
+<div id="hdr"></div>
+<div class="wrap">
+  <div class="crumbs"><a href="results.html" class="row" style="text-decoration:none"><i data-icon="back"></i>Back to 18 stays in Adajan</a><span class="acts"><a href="#"><i data-icon="share"></i>Share</a><a href="#"><i data-icon="heart"></i>Save</a></span></div>
+  <div class="gal"><div class="photo">Exterior (cover)</div><div class="photo">Lobby</div><div class="photo">Deluxe room</div><div class="photo">Bathroom</div><div class="photo">Restaurant</div><span class="all"><i data-icon="camera"></i>All 28 photos</span></div>
+
+  <div class="between" style="margin-top:22px;align-items:flex-start;flex-wrap:wrap">
+    <div><div class="row" style="gap:10px;flex-wrap:wrap"><h1>The Riverside Residency</h1><span class="bdg neu">Hotel · ★★★</span></div>
+      <div class="row small" style="margin-top:6px;gap:14px;flex-wrap:wrap"><span class="score"><b>8.8</b> Very good · <a href="#reviews">212 reviews</a></span><span class="row muted"><i data-icon="pin"></i>Adajan, Surat · <a href="#location">Show on map</a></span></div></div>
+    <span class="verified"><i data-icon="shield"></i>Verified by Rentra · Oct 2026</span>
+  </div>
+
+  <nav class="secnav" aria-label="Sections"><a href="#" aria-current="true">Rooms</a><a href="#overview">Overview</a><a href="#amenities">Amenities</a><a href="#policies">Policies</a><a href="#reviews">Reviews</a><a href="#location">Location</a></nav>
+
+  <div class="layout">
+    <main>
+      <section class="sec" id="rooms" style="padding-top:20px">
+        <div class="between" style="margin-bottom:14px"><h2 style="margin:0">Choose your rooms</h2><span class="small muted">18–20 Nov · 2 nights · prices incl. taxes</span></div>
+        <div data-show="occupancy" class="banner warn" style="margin-bottom:14px"><i data-icon="users"></i><div><b>Add 1 more room for 5 guests</b>1 Deluxe room fits up to 3 guests. Select another room to continue.</div></div>
+
+        <article class="room">
+          <div class="room-top"><div class="photo">Deluxe room</div>
+            <div><div class="between"><h3>Deluxe Double Room</h3><span class="warn-line"><i data-icon="alert"></i>3 left</span></div>
+              <div class="facts-line" style="margin:8px 0"><span><i data-icon="bed"></i>1 king bed</span><span><i data-icon="ruler"></i>24 m²</span><span><i data-icon="users"></i>Max 3</span><span><i data-icon="window"></i>City view</span><span><i data-icon="snow"></i>AC</span></div>
+              <p class="small muted">Wi-Fi · TV · Kettle · Rain shower · Work desk</p><a class="more" href="#">Room details</a></div></div>
+          <div class="plan"><div><h4>Room only</h4><span class="ok-line"><i data-icon="check"></i>Free cancellation until Mon 16 Nov, 12:00</span></div>
+            <div class="pp"><b data-hide="loading">₹5,460</b><span data-show="loading" class="sk" style="display:block;height:22px;width:90px;margin-left:auto"></span><small>₹2,600 / night + ₹260 tax</small></div>
+            <span class="stepper"><button type="button" disabled aria-label="Fewer Deluxe room only"><i data-icon="minus"></i></button><output>0</output><button type="button" aria-label="More Deluxe room only"><i data-icon="plus"></i></button></span></div>
+          <div class="plan sel" data-hide="none"><div><h4>Breakfast included <span class="bdg ch">Popular</span></h4><span class="ok-line"><i data-icon="check"></i>Free cancellation until Mon 16 Nov, 12:00</span></div>
+            <div class="pp"><b data-hide="loading">₹6,510</b><span data-show="loading" class="sk" style="display:block;height:22px;width:90px;margin-left:auto"></span><small>₹3,100 / night + ₹310 tax</small></div>
+            <span class="stepper"><button type="button" aria-label="Fewer Deluxe with breakfast"><i data-icon="minus"></i></button><output>1</output><button type="button" aria-label="More Deluxe with breakfast"><i data-icon="plus"></i></button></span></div>
+          <div class="plan" data-show="none"><div><h4>Breakfast included <span class="bdg ch">Popular</span></h4><span class="ok-line"><i data-icon="check"></i>Free cancellation until Mon 16 Nov, 12:00</span></div>
+            <div class="pp"><b>₹6,510</b><small>₹3,100 / night + ₹310 tax</small></div>
+            <span class="stepper"><button type="button" disabled aria-label="Fewer"><i data-icon="minus"></i></button><output>0</output><button type="button" aria-label="More"><i data-icon="plus"></i></button></span></div>
+          <div class="plan"><div><h4>Non-refundable <span class="bdg ok">Save 10%</span></h4><span class="warn-line"><i data-icon="alert"></i>No refund after booking</span></div>
+            <div class="pp"><b data-hide="loading">₹4,914</b><span data-show="loading" class="sk" style="display:block;height:22px;width:90px;margin-left:auto"></span><small>₹2,340 / night + ₹234 tax</small></div>
+            <span class="stepper"><button type="button" disabled aria-label="Fewer"><i data-icon="minus"></i></button><output>0</output><button type="button" aria-label="More"><i data-icon="plus"></i></button></span></div>
+        </article>
+
+        <article class="room">
+          <div class="room-top"><div class="photo">Family room</div>
+            <div><h3>Family Suite</h3>
+              <div class="facts-line" style="margin:8px 0"><span><i data-icon="bed"></i>1 king + 1 sofa bed</span><span><i data-icon="ruler"></i>38 m²</span><span><i data-icon="users"></i>Max 5</span><span><i data-icon="snow"></i>AC</span></div>
+              <p class="small muted">Wi-Fi · TV · Mini fridge · Bathtub</p><a class="more" href="#">Room details</a></div></div>
+          <div class="plan soldout"><div><h4>Breakfast included</h4><span class="small">Sold out for your dates · <a href="#">Free from 21 Nov</a></span></div><div class="pp"><b>—</b></div><span class="bdg neu">Sold out</span></div>
+        </article>
+
+        <article class="room">
+          <div class="room-top"><div class="photo">Standard room</div>
+            <div><h3>Standard Twin Room</h3>
+              <div class="facts-line" style="margin:8px 0"><span><i data-icon="bed"></i>2 single beds</span><span><i data-icon="ruler"></i>18 m²</span><span><i data-icon="users"></i>Max 2</span></div>
+              <p class="small muted">Min 2 nights on Saturdays</p></div></div>
+          <div class="plan"><div><h4>Room only</h4><span class="ok-line"><i data-icon="check"></i>Free cancellation until Mon 16 Nov, 12:00</span></div><div class="pp"><b>₹4,200</b><small>₹2,000 / night + ₹200 tax</small></div>
+            <span class="stepper"><button type="button" disabled aria-label="Fewer"><i data-icon="minus"></i></button><output>0</output><button type="button" aria-label="More"><i data-icon="plus"></i></button></span></div>
+        </article>
+      </section>
+
+      <section class="sec" id="overview"><h2>Overview</h2>
+        <div class="hl3"><div><i data-icon="car"></i>Free parking</div><div><i data-icon="coffee"></i>Breakfast 7–10:30</div><div><i data-icon="concierge"></i>24-hour front desk</div><div><i data-icon="plug"></i>Power backup</div></div>
+        <p style="margin-top:14px;max-width:72ch">A 32-room hotel on the Adajan riverfront, 10 minutes from the Diamond Bourse road. Rooms were renovated in 2024. The restaurant serves vegetarian Gujarati and North Indian food; Jain meals on request.</p>
+        <div class="facts-line" style="margin-top:12px"><span><i data-icon="clock"></i>Check-in 12:00</span><span><i data-icon="door"></i>Check-out 11:00</span><span><i data-icon="building"></i>32 rooms · renovated 2024</span></div>
+      </section>
+
+      <section class="sec" id="amenities"><h2>Amenities</h2>
+        <div class="amen"><span><i data-icon="wifi"></i>Free Wi-Fi</span><span><i data-icon="snow"></i>Air conditioning</span><span><i data-icon="car"></i>Free parking</span><span><i data-icon="utensils"></i>Restaurant</span><span><i data-icon="leaf"></i>Pure veg kitchen</span><span><i data-icon="concierge"></i>Room service</span><span><i data-icon="building"></i>Lift</span><span><i data-icon="plug"></i>Power backup</span><span><i data-icon="dumbbell"></i>Gym</span></div>
+        <a class="btn light sm" style="margin-top:16px" href="#">Show all 24 amenities</a>
+      </section>
+
+      <section class="sec" id="policies"><h2>Policies</h2>
+        <ul class="policy">
+          <li><i data-icon="clock"></i><b>Check-in / out</b><span>From 12:00 · until 11:00. Early check-in from 09:00 if a room is free (₹500).</span></li>
+          <li><i data-icon="users"></i><b>Children &amp; beds</b><span>Children under 6 stay free using existing beds. Extra bed ₹800 / night.</span></li>
+          <li><i data-icon="idcard"></i><b>ID at check-in</b><span>Aadhaar, passport, driving licence or voter ID. Local ID (Surat address) accepted.</span></li>
+          <li><i data-icon="couple"></i><b>Couples</b><span>Couple-friendly. Unmarried couples welcome with valid ID for both guests.</span></li>
+          <li><i data-icon="x"></i><b>Not allowed</b><span>Pets · smoking in rooms · parties.</span></li>
+          <li><i data-icon="calendar"></i><b>Cancellation</b><span>Set per rate. Each rate shows its exact free-cancellation deadline above.</span></li>
+        </ul>
+      </section>
+
+      <section class="sec" id="reviews"><h2>Reviews</h2>
+        <div class="row" style="gap:14px;margin-bottom:16px"><span class="score" style="font-size:18px"><b style="font-size:20px;padding:6px 10px">8.8</b></span><div><b>Very good</b><p class="small muted">212 verified stays · only guests who stayed can review</p></div></div>
+        <div class="bars"><div>Cleanliness<span class="t"><i style="width:90%"></i></span>9.0</div><div>Staff<span class="t"><i style="width:92%"></i></span>9.2</div><div>Location<span class="t"><i style="width:88%"></i></span>8.8</div><div>Comfort<span class="t"><i style="width:86%"></i></span>8.6</div><div>Value<span class="t"><i style="width:84%"></i></span>8.4</div><div>Facilities<span class="t"><i style="width:80%"></i></span>8.0</div></div>
+        <div class="row" style="margin-top:16px;flex-wrap:wrap"><span class="chip" style="background:var(--brand-50)">All</span><span class="chip">Couples · 64</span><span class="chip">Families · 71</span><span class="chip">Business · 58</span></div>
+        <div class="rev"><div class="who"><span class="av">P</span><div><b>Priya</b> · Couple · Oct 2026<br><span class="score"><b>10</b> Exceptional</span></div></div><p>Clean room, quick check-in and very good breakfast. Riverfront walk is two minutes away.</p><div class="reply"><b>Reply from the hotel</b> — Thank you, Priya! We hope to host you again.</div></div>
+        <div class="rev"><div class="who"><span class="av">R</span><div><b>Rakesh</b> · Business · Sep 2026<br><span class="score"><b>8</b> Very good</span></div></div><p>Good value for a work trip. Wi-Fi was steady. Parking fills up after 9 pm.</p></div>
+        <a class="btn light sm" style="margin-top:14px" href="#">Read all 212 reviews</a>
+      </section>
+
+      <section class="sec" id="location" style="border:0"><h2>Location</h2>
+        <div class="mapmini"><span class="pin on" style="left:50%;top:55%">Riverside</span></div>
+        <p style="margin-top:10px">12, Riverfront Road, Adajan, Surat 395009</p>
+        <ul class="near" style="margin-top:8px"><li><span>Adajan Riverfront</span><b>0.2 km</b></li><li><span>Surat Railway Station</span><b>6.1 km</b></li><li><span>Surat Diamond Bourse</span><b>14 km</b></li><li><span>Surat Airport</span><b>11 km</b></li></ul>
+      </section>
+    </main>
+
+    <div class="rail-wrap"><aside class="rail" aria-label="Your selection">
+      <div class="edit"><div><small>Check-in</small>Wed 18 Nov</div><div><small>Check-out</small>Fri 20 Nov</div><div class="full"><small>Rooms &amp; guests</small>1 room · 2 adults</div></div>
+      <div data-hide="none occupancy">
+        <div class="line"><span>1 × Deluxe · Breakfast</span><b>₹6,200</b></div>
+        <div class="line"><span class="muted">GST 5% (2 nights)</span><b>₹310</b></div>
+        <div class="line" style="border-top:1px solid var(--ink-200);margin-top:8px;padding-top:10px"><span class="b">Total</span><span class="bigp" data-hide="loading">₹6,510</span><span data-show="loading" class="sk" style="width:110px;height:32px"></span></div>
+        <span class="ok-line" style="margin-top:6px"><i data-icon="check"></i>Free cancellation until 16 Nov</span>
+        <a class="btn block" style="margin-top:14px" href="checkout.html">Reserve</a>
+        <p class="tiny muted" style="text-align:center;margin-top:8px">You won't be charged yet. Rooms are held for 15 minutes at checkout.</p>
+      </div>
+      <div data-show="none"><p class="small muted">Select a room to see your total.</p><span class="btn block" style="margin-top:12px" disabled>Reserve</span><p class="tiny muted" style="text-align:center;margin-top:8px">From ₹4,200 for 2 nights</p></div>
+      <div data-show="occupancy"><div class="line"><span>1 × Deluxe · Breakfast</span><b>₹6,510</b></div><p class="warn-line" style="margin-top:8px"><i data-icon="alert"></i>5 guests need 2 rooms</p><span class="btn block" style="margin-top:12px" disabled>Reserve</span></div>
+    </aside></div>
+  </div>
+</div>
+<div class="mbar"><div><b class="tabular">₹6,510</b> <span class="small muted">· 2 nights · 1 room</span><br><span class="ok-line tiny">Free cancellation until 16 Nov</span></div><a class="btn" href="checkout.html">Reserve</a></div>
+<div id="ftr"></div>
+<script src="chrome.js"></script><script src="icons.js"></script>
+</body></html>

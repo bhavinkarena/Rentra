@@ -7,7 +7,7 @@ import { formatINR } from '@/lib/domain/pricing';
 import { formatINRMinor } from '@/lib/domain/booking-money';
 import { clock12, listingFacts, unitLabel } from '@/lib/domain/vertical-ui';
 import { ActivityIcon } from './icons/activity-icons';
-import { ImageOff } from 'lucide-react';
+import { BedDouble, CircleCheck, Coffee, HeartHandshake, IdCard, ImageOff } from 'lucide-react';
 
 /**
  * A flat ink-100 placeholder. Cheap perceived-performance win on the
@@ -109,6 +109,7 @@ export default function ListingCard({ listing, eager = false, showPriceNote = tr
           </p>
         ) : null}
         <p className="mt-1 text-tiny text-ink-500">{capacityLine}</p>
+        {listing.vertical === 'hotel' ? <HotelFacts listing={listing} /> : null}
 
         <p className="mt-2 flex flex-wrap items-baseline gap-2">
           {isFromPrice && price != null ? (
@@ -122,7 +123,11 @@ export default function ListingCard({ listing, eager = false, showPriceNote = tr
                 : formatINR(price)}
           </span>
           <span className="text-meta text-ink-600">
-            {price == null ? null : listing.times ? `for ${unit}` : `/ ${unitLabel(unit)}`}
+            {price == null
+              ? null
+              : listing.times || listing.offer
+                ? `for ${unit}`
+                : `/ ${unitLabel(unit)}`}
           </span>
           {strikePrice ? (
             <s className="text-meta text-ink-600 tabular" data-money>
@@ -154,5 +159,62 @@ export default function ListingCard({ listing, eager = false, showPriceNote = tr
         )}
       </div>
     </article>
+  );
+}
+
+const freeUntil = (iso) =>
+  new Date(iso).toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'Asia/Kolkata',
+  });
+
+/** Hotel lines (hotel plan §4.4): the priced room and meals, free cancellation, true scarcity, two policy chips. */
+function HotelFacts({ listing }) {
+  const { offer } = listing;
+  const chips = [
+    listing.couples ? [HeartHandshake, 'Couple-friendly'] : null,
+    listing.localId ? [IdCard, 'Local ID OK'] : null,
+  ].filter(Boolean);
+  return (
+    <div className="mt-1.5 space-y-1 text-tiny text-ink-700">
+      {offer ? (
+        <p className="flex items-center gap-1.5">
+          <BedDouble className="size-3.5 shrink-0 text-brand-600" aria-hidden="true" />
+          <span className="truncate">{offer.roomTypeName}</span>
+          {offer.meals ? (
+            <>
+              <Coffee className="ml-1 size-3.5 shrink-0 text-brand-600" aria-hidden="true" />
+              <span className="truncate">{offer.meals}</span>
+            </>
+          ) : null}
+        </p>
+      ) : null}
+      {offer?.freeUntil ? (
+        <p className="flex items-center gap-1.5 text-success">
+          <CircleCheck className="size-3.5 shrink-0" aria-hidden="true" />
+          Free cancellation until {freeUntil(offer.freeUntil)}
+        </p>
+      ) : null}
+      {chips.length ? (
+        <p className="flex flex-wrap gap-1.5">
+          {chips.map(([Icon, label]) => (
+            <span
+              key={label}
+              className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 font-medium text-brand-800"
+            >
+              <Icon className="size-3.5" aria-hidden="true" />
+              {label}
+            </span>
+          ))}
+        </p>
+      ) : null}
+      {offer?.roomsLeft ? (
+        <p className="font-semibold text-warning">
+          {offer.roomsLeft === 1 ? 'Only 1 room left' : `Only ${offer.roomsLeft} rooms left`} at
+          this price
+        </p>
+      ) : null}
+    </div>
   );
 }

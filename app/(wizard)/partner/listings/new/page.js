@@ -22,6 +22,7 @@ export default async function NewListingPage() {
   const progress = wizardProgress(listingCompletion(null), 'type');
   // The rail follows the "What are you listing?" choice.
   const venueProgress = wizardProgress(listingCompletion({ rentalUnit: 'hour' }), 'type', 'hour');
+  const hotelProgress = wizardProgress(listingCompletion({ rentalUnit: 'night' }), 'type', 'night');
 
   return (
     <NewListingStart
@@ -31,6 +32,7 @@ export default async function NewListingPage() {
       verticals={verticals}
       progress={progress}
       venueProgress={venueProgress}
+      hotelProgress={hotelProgress}
     />
   );
 }

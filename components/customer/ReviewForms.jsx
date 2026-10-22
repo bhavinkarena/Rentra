@@ -55,20 +55,43 @@ export function CustomerReviewForm({ visits }) {
       </label>
       <details className="group">
         <summary className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 font-semibold">
-          Optional ratings
+          {visits[0]?.slot === 'stay' ? 'Rate your stay (optional)' : 'Optional ratings'}
           <ChevronDown
             className="size-4 transition-transform duration-150 group-open:rotate-180"
             aria-hidden="true"
           />
         </summary>
-        <div className="space-y-3">
-          <Score name="cleanliness" label="Cleanliness" />
-          <Score
-            name="accuracy"
-            label={visits[0]?.slot === 'hourly' ? 'Court condition' : 'Listing accuracy'}
-          />
-          <Score name="valueForMoney" label="Value for money" />
-        </div>
+        {visits[0]?.slot === 'stay' ? (
+          /* Hotel stays (hotel plan, Phase 8): six sub-scores and who travelled. */
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Score name="cleanliness" label="Cleanliness" />
+            <Score name="staff" label="Staff and service" />
+            <Score name="location" label="Location" />
+            <Score name="comfort" label="Room comfort" />
+            <Score name="valueForMoney" label="Value for money" />
+            <Score name="facilities" label="Facilities" />
+            <label className="block sm:col-span-2">
+              Who travelled
+              <select className={field} name="travellerType" defaultValue="">
+                <option value="">Prefer not to say</option>
+                <option value="business">Business</option>
+                <option value="couple">Couple</option>
+                <option value="family">Family</option>
+                <option value="friends">Friends</option>
+                <option value="solo">Solo</option>
+              </select>
+            </label>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <Score name="cleanliness" label="Cleanliness" />
+            <Score
+              name="accuracy"
+              label={visits[0]?.slot === 'hourly' ? 'Court condition' : 'Listing accuracy'}
+            />
+            <Score name="valueForMoney" label="Value for money" />
+          </div>
+        )}
       </details>
       <p className="text-meta">
         Describe your own visit. Do not include phone numbers, access codes or other private

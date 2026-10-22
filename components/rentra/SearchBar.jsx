@@ -15,7 +15,13 @@ export default function SearchBar({ registry, dock = false, vertical = 'farmhous
       <Form
         action="/search"
         data-surface="light"
-        aria-label={vertical === 'entertainment' ? 'Find a venue' : 'Find your next visit'}
+        aria-label={
+          vertical === 'entertainment'
+            ? 'Find a venue'
+            : vertical === 'hotel'
+              ? 'Find a hotel'
+              : 'Find your next visit'
+        }
         onSubmit={() => measureBrowser('search_submitted')}
         className={`max-w-5xl ${dock ? DOCK_EXIT : ''}`}
       >
@@ -63,9 +69,14 @@ export function useSearchDock(enabled = true) {
 /* One draft shared by the hero bar and the header copy, so what the guest
    typed above the fold is still there when they open search from the header.
    The location carries across tabs; the rest belongs to one vertical
-   (farmhouse: dates, slot, guests; entertainment: activity, date, time). */
+   (farmhouse: dates, slot, guests; entertainment: activity, date, time;
+   hotels: check-in/check-out, rooms, adults and child ages). */
 const INITIAL_DRAFT = {
   location: { city: '', area: '' },
+  stay: [],
+  rooms: 1,
+  adults: 2,
+  childAges: [],
   dates: [],
   mode: 'single',
   slot: 'day',

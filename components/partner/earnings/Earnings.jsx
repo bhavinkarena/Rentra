@@ -1,11 +1,13 @@
 import {
   ArrowDownToLine,
   ArrowUpRight,
+  BarChart3,
   Building2,
   ChevronDown,
   CircleAlert,
   CreditCard,
   FileText,
+  Hotel,
   Info,
   Printer,
 } from 'lucide-react';
@@ -261,6 +263,18 @@ export default function Earnings({ data, statement = false, print = false }) {
         </div>
         <ReportActions filters={f} print={print} />
       </header>
+      {!print && !statement ? (
+        <nav aria-label="Hotels" className="-mt-2 flex flex-wrap gap-x-4 print:hidden">
+          <Link href="/partner/earnings/hotels" className={`${textLink} text-tiny`}>
+            <Hotel className="size-4" aria-hidden="true" />
+            Hotel earnings
+          </Link>
+          <Link href="/partner/earnings/hotels/analytics" className={`${textLink} text-tiny`}>
+            <BarChart3 className="size-4" aria-hidden="true" />
+            Hotel analytics
+          </Link>
+        </nav>
+      ) : null}
       {!print ? <EarningsFilters key={earningsQuery(f)} data={data} statement={statement} /> : null}
       <div className="flex flex-wrap items-center justify-between gap-2 text-tiny">
         <span

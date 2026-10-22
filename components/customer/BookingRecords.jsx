@@ -21,6 +21,9 @@ import {
   CircleX,
   Scale,
   PenLine,
+  BedDouble,
+  CalendarSync,
+  Ticket,
 } from 'lucide-react';
 import { randomUUID } from 'node:crypto';
 import { bookingTime as time } from '@/lib/domain/booking-record';
@@ -56,6 +59,21 @@ function shortDate(value) {
 }
 const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
 const words = (value) => value.replaceAll('_', ' ');
+
+/** Hotel page prefilled with the stay's dates and party; checkout then replaces this booking. */
+function changeHref(record) {
+  const rooms = record.stay.rooms.filter((room) => room.state === 'booked');
+  const query = new URLSearchParams({
+    change: record.id,
+    checkin: record.stay.checkIn,
+    checkout: record.stay.checkOut,
+    rooms: String(rooms.length),
+    adults: String(rooms.reduce((sum, room) => sum + room.adults, 0)),
+  });
+  const children = rooms.flatMap((room) => room.childAges ?? []);
+  if (children.length) query.set('children', children.join(','));
+  return `${record.stay?.listingHref ?? record.listingHref}?${query}`;
+}
 
 /** Label on the left, value on the right; `strong` for totals. */
 function Row({ label, children, strong = false, muted = false }) {
@@ -101,6 +119,14 @@ export function BookingDetail({
             ? [[`/checkout/${record.id}`, RefreshCw, 'View checkout and payment recovery']]
             : []),
           ...(test ? [[`/bookings/${record.id}/cancel`, CircleX, 'Cancel visits']] : []),
+          ...(record.stay
+            ? [
+                [`/bookings/${record.id}/voucher`, Ticket, 'Voucher'],
+                ...((record.stay?.listingHref ?? record.listingHref)
+                  ? [[changeHref(record), CalendarSync, 'Change dates or rooms']]
+                  : []),
+              ]
+            : []),
         ]),
     [
       `${operational ? '/partner/disputes' : '/disputes'}/new?order=${record.id}`,
@@ -249,17 +275,30 @@ export function BookingDetail({
             <Wallet className={headingIcon} aria-hidden="true" />
             Price breakdown
           </h2>
-          <dl className="text-meta">
-            <Row label="Rent">{money(record.rentMinor)}</Row>
-            <Row label="Platform fee">{money(record.feeMinor)}</Row>
-            <Row label="Total" strong>
-              {money(totalPrice(record))}
-            </Row>
-            <Row label="Separate deposit" muted>
-              {money(record.depositMinor)}
-            </Row>
-          </dl>
+          {record.stay ? (
+            <dl className="text-meta">
+              <Row label="Rooms">{money(record.stay.roomMinor)}</Row>
+              <Row label="Taxes">{money(record.stay.taxMinor)}</Row>
+              <Row label="Total" strong>
+                {money(totalPrice(record))}
+              </Row>
+            </dl>
+          ) : (
+            <dl className="text-meta">
+              <Row label="Rent">{money(record.rentMinor)}</Row>
+              <Row label="Platform fee">{money(record.feeMinor)}</Row>
+              <Row label="Total" strong>
+                {money(totalPrice(record))}
+              </Row>
+              <Row label="Separate deposit" muted>
+                {money(record.depositMinor)}
+              </Row>
+            </dl>
+          )}
         </section>
+        {record.stay ? (
+          <StayRooms stay={record.stay} card={card} headingIcon={headingIcon} />
+        ) : null}
         <section className={`lg:col-span-2 ${card}`}>
           <h2 className="flex items-center gap-2 text-h4">
             <CalendarDays className={headingIcon} aria-hidden="true" />
@@ -276,6 +315,8 @@ export function BookingDetail({
                     <h3 className="font-semibold">
                       {v.slot === 'hourly' ? (
                         `${v.label} · ${plural(v.guests, 'player')}`
+                      ) : v.slot === 'stay' ? (
+                        `${v.label} · ${plural(v.guests, 'guest')}`
                       ) : (
                         <>
                           {v.date
@@ -515,5 +556,49 @@ export function BookingDetail({
         </details>
       </div>
     </article>
+  );
+}
+
+/** Hotel stay (hotel plan, Phase 7): each room, its rate and guest, and the checkout details. */
+function StayRooms({ stay, card, headingIcon }) {
+  const d = stay.details ?? {};
+  return (
+    <section className={`lg:col-span-2 ${card}`}>
+      <h2 className="flex items-center gap-2 text-h4">
+        <BedDouble className={headingIcon} aria-hidden="true" />
+        Your rooms
+      </h2>
+      <ul className="mt-4 divide-y divide-border rounded-lg border border-border">
+        {stay.rooms.map((room) => (
+          <li
+            key={room.id}
+            className="flex flex-wrap items-start justify-between gap-2 p-4 text-meta"
+          >
+            <div className="min-w-0">
+              <p className="font-semibold">
+                {room.name} · {room.plan?.name}
+              </p>
+              <p className="text-ink-600">
+                {room.guestName || 'Guest'} · {plural(room.adults, 'adult')}
+                {room.childAges?.length
+                  ? ` · ${room.childAges.length} ${room.childAges.length === 1 ? 'child' : 'children'}`
+                  : ''}
+              </p>
+            </div>
+            <p className="text-right tabular">
+              {money(room.roomMinor + room.taxMinor)}
+              <span className="block text-tiny text-ink-500">incl. {money(room.taxMinor)} tax</span>
+            </p>
+          </li>
+        ))}
+      </ul>
+      {d.arrivalTime || d.requests || d.gstin ? (
+        <dl className="mt-4 grid gap-x-8 text-meta sm:grid-cols-2">
+          {d.arrivalTime ? <Row label="Expected arrival">{d.arrivalTime}</Row> : null}
+          {d.requests ? <Row label="Requests">{d.requests}</Row> : null}
+          {d.gstin ? <Row label="GST invoice to">{`${d.businessName} · ${d.gstin}`}</Row> : null}
+        </dl>
+      ) : null}
+    </section>
   );
 }

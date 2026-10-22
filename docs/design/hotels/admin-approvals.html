@@ -1,0 +1,48 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hotels mock · Admin hotel applications</title>
+<link rel="stylesheet" href="mock.css"><link rel="stylesheet" href="hotels.css">
+<style>.alay { display: grid; grid-template-columns: 300px minmax(0,1fr); gap: 16px; margin-top: 16px; } .detail-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--ink-200); margin: 14px 0; flex-wrap: wrap; }
+.detail-tabs a { padding: 10px 12px; font-size: 14px; font-weight: 600; color: var(--ink-500); text-decoration: none; border-bottom: 2px solid transparent; } .detail-tabs a[aria-current] { color: var(--ink-900); border-color: var(--ink-900); }
+.decide { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; border-top: 1px solid var(--ink-200); padding-top: 14px; margin-top: 8px; }
+@media (max-width: 1023px) { .alay { grid-template-columns: 1fr; } }</style></head>
+<body data-shell="admin" data-nav="applications" data-states="checks:Checks,changes:Request changes">
+<div class="shell">
+  <div id="side"></div>
+  <div>
+    <div class="ptop"><div class="grow"><b>Applications</b> <span class="small muted">· Hotels</span></div><span class="search-in"><i data-icon="search"></i>Search hotel, owner, phone</span></div>
+    <div class="pmain">
+      <h1>Hotel applications</h1>
+      <div class="filterbar"><span class="chip on">Waiting · 7</span><span class="chip">Overdue · 2</span><span class="chip">Visit due · 3</span><span class="chip">Sent back · 4</span><span class="chip">Approved · 41</span></div>
+      <div class="alay">
+        <nav class="queue" aria-label="Applications">
+          <a href="#" aria-current="true"><b>Riverside Residency</b><span class="small muted">Adajan, Surat · 32 rooms</span><br><span class="bdg warn" style="margin-top:6px">Overdue · 2 days</span></a>
+          <a href="#"><b>Hotel Sai Palace</b><span class="small muted">Vesu, Surat · 24 rooms</span><br><span class="bdg info" style="margin-top:6px">Waiting · 1 day</span></a>
+          <a href="#"><b>Green Leaf Resort</b><span class="small muted">Dumas, Surat · 40 rooms</span><br><span class="bdg info" style="margin-top:6px">Waiting · 4 h</span></a>
+        </nav>
+        <section class="panel">
+          <div class="between" style="flex-wrap:wrap"><div><h2 style="margin:0;font-size:20px">The Riverside Residency</h2><p class="small muted">Owner: Mahesh Patel · +91 98250 00000 · submitted 16 Nov, 10:20 IST</p></div><span class="bdg ch">Founding partner · 10%</span></div>
+          <nav class="detail-tabs"><a href="#">Content</a><a href="#">Rooms &amp; rates</a><a href="#">Documents</a><a href="#" aria-current="page">Checks</a><a href="#">History</a></nav>
+          <div class="checks">
+            <div><i data-icon="check" class="y"></i><span><b>PAN matches legal name</b><br><span class="muted">Riverside Hospitality LLP</span></span><a class="small" href="#">View</a></div>
+            <div><i data-icon="check" class="y"></i><span><b>GSTIN active and linked to PAN</b><br><span class="muted">Regular taxpayer · Gujarat</span></span><a class="small" href="#">View</a></div>
+            <div><i data-icon="check" class="y"></i><span><b>Bank account verified</b><br><span class="muted">Penny drop name match 92%</span></span><a class="small" href="#">View</a></div>
+            <div><i data-icon="check" class="y"></i><span><b>Trade licence and lease uploaded</b><br><span class="muted">Lease valid to Mar 2031</span></span><a class="small" href="#">View</a></div>
+            <div><i data-icon="alert" class="w"></i><span><b>3 photos may be stock images</b><br><span class="muted">Reverse image match on Lobby 2, Pool 1, Pool 2</span></span><a class="small" href="#">Review</a></div>
+            <div><i data-icon="clock" class="o"></i><span><b>Video walkthrough</b><br><span class="muted">Not scheduled</span></span><span class="btn ghost sm">Schedule</span></div>
+            <div><i data-icon="clock" class="o"></i><span><b>Test call to front desk</b><br><span class="muted">Confirms the listed phone answers</span></span><span class="btn ghost sm">Log call</span></div>
+          </div>
+          <div class="thumbs" style="margin-top:14px"><div class="photo">Exterior</div><div class="photo">Lobby 1</div><div class="photo flag">Lobby 2</div><div class="photo">Deluxe</div><div class="photo flag">Pool 1</div><div class="photo flag">Pool 2</div></div>
+
+          <div data-show="changes" class="panel" style="margin-top:14px;background:var(--ink-25)"><b>Send back for changes</b>
+            <label class="check" style="margin-top:10px"><input type="checkbox" checked><span>Photos: replace Lobby 2, Pool 1, Pool 2 with your own photos</span></label>
+            <label class="check" style="margin-top:8px"><input type="checkbox"><span>Rooms: total rooms (32) doesn't match room types</span></label>
+            <label class="fld" style="margin-top:10px">Note to owner<textarea>These three look like photos from another website. Please upload photos of your property.</textarea></label></div>
+
+          <div class="decide"><span class="btn danger">Reject…</span><a class="btn ghost" href="?state=changes">Request changes</a><span class="btn" disabled title="2 checks open">Approve</span></div>
+          <p class="tiny muted" style="text-align:right;margin-top:6px">Approve unlocks when every check is done. Each decision is written to the audit log.</p>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="chrome.js"></script><script src="icons.js"></script>
+</body></html>

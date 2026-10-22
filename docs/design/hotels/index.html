@@ -1,0 +1,44 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hotels mock · All screens</title>
+<link rel="stylesheet" href="mock.css"><link rel="stylesheet" href="hotels.css">
+<style>.narrow { max-width: 1080px; margin: 0 auto; padding: 32px 24px 64px; } h1 { font-size: 30px; letter-spacing: -.02em; } h2 { margin: 28px 0 12px; font-size: 20px; }
+.scr { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; } .scr a { display: flex; gap: 12px; align-items: flex-start; background: #fff; border: 1px solid var(--ink-200); border-radius: 14px; padding: 14px; text-decoration: none; }
+.scr a:hover { border-color: var(--brand-300); background: var(--brand-50); } .scr .ic { width: 22px; height: 22px; color: var(--brand-600); margin-top: 2px; } .scr b { display: block; } .scr span span { font-size: 13px; color: var(--ink-500); }
+.flow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 14px; } .flow a { border: 1px solid var(--ink-300); border-radius: 99px; padding: 4px 12px; text-decoration: none; background: #fff; } .flow i { font-style: normal; color: var(--ink-500); }
+@media (max-width: 767px) { .scr { grid-template-columns: 1fr; } .narrow { padding: 20px 16px 48px; } }</style></head>
+<body>
+<div class="narrow">
+  <img src="../../../public/brand/rentra-lockup.svg" alt="Rentra" style="height:28px">
+  <h1 style="margin-top:18px">Hotels · Phase 1 design prototype</h1>
+  <p class="muted">Clickable mockups for owner review. Built on DESIGN.md tokens (Emerald &amp; Champagne, Plus Jakarta Sans). Photos are placeholders; names and numbers are sample data. Use the dark bar at the top of each screen to switch states. Spec: <a href="README.md">README.md</a> · Plan: <a href="../../HOTEL-PLAN.md">HOTEL-PLAN.md</a></p>
+
+  <h2>Guest flow</h2>
+  <div class="flow"><a href="home.html">Hotels home</a><i>→</i><a href="results.html">Results</a><i>→</i><a href="hotel.html">Hotel page</a><i>→</i><a href="checkout.html">Guest details</a><i>→</i><a href="checkout.html?state=pay">Review &amp; pay</a><i>→</i><a href="confirmation.html">Confirmed</a><i>→</i><a href="trip.html?state=detail">Manage</a><i>→</i><a href="trip.html?state=cancel">Cancel</a></div>
+  <div class="scr" style="margin-top:14px">
+    <a href="home.html"><i data-icon="tab-hotel"></i><span><b>Hotels home</b><span>Search, date &amp; rooms pickers, rails, types</span></span></a>
+    <a href="results.html"><i data-icon="list"></i><span><b>Search results</b><span>Filters with counts, list + map, loading, empty, busy dates, mobile sheet</span></span></a>
+    <a href="hotel.html"><i data-icon="building"></i><span><b>Hotel page</b><span>Gallery, rooms × plans, policies, reviews, rail, occupancy warning</span></span></a>
+    <a href="checkout.html"><i data-icon="wallet"></i><span><b>Checkout</b><span>Guest details, GST, pay, hold timer, price changed, failed, pending, expired</span></span></a>
+    <a href="confirmation.html"><i data-icon="check"></i><span><b>Confirmation</b><span>Voucher actions, before-you-go, cross-sell</span></span></a>
+    <a href="trip.html"><i data-icon="bookings"></i><span><b>My trips</b><span>Mixed verticals, detail timeline, cancel with refund preview</span></span></a>
+  </div>
+
+  <h2>Hotel owner</h2>
+  <div class="scr">
+    <a href="owner-onboarding.html"><i data-icon="clipboard"></i><span><b>Onboarding wizard</b><span>Room types, rates &amp; plans with tax preview, submit</span></span></a>
+    <a href="owner-today.html"><i data-icon="sun"></i><span><b>Today</b><span>Arrivals, needs you, revenue, no-show confirm, new booking</span></span></a>
+    <a href="owner-rates.html"><i data-icon="calendar"></i><span><b>Rates &amp; rooms</b><span>Grid, inline edit, refused edit, bulk drawer, phone day list</span></span></a>
+    <a href="owner-bookings.html"><i data-icon="clipboard"></i><span><b>Bookings</b><span>Register, booking drawer with money breakdown, empty</span></span></a>
+    <a href="owner-earnings.html"><i data-icon="wallet"></i><span><b>Earnings &amp; payouts</b><span>Revenue, next payout timeline, statements</span></span></a>
+  </div>
+
+  <h2>Admin</h2>
+  <div class="scr">
+    <a href="admin-approvals.html"><i data-icon="doc"></i><span><b>Hotel applications</b><span>Queue, checks, flagged photos, request changes</span></span></a>
+    <a href="admin-commission.html"><i data-icon="tag"></i><span><b>Commission rules</b><span>Vertical, city and property rules, impact preview</span></span></a>
+  </div>
+
+  <h2>System</h2>
+  <div class="scr"><a href="states.html"><i data-icon="alert"></i><span><b>Loading, empty &amp; error states</b><span>Skeletons, empty states, banners, toasts</span></span></a></div>
+</div>
+<script src="icons.js"></script>
+</body></html>

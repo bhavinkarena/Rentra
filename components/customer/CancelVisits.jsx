@@ -8,13 +8,13 @@ import { bookingTime as time } from '@/lib/domain/booking-record';
 import { formatLocalDate } from '@/lib/domain/booking-dates';
 import { SLOTS } from '@/lib/domain/pricing';
 import { BackLink } from '@/components/ui/page-header';
-import { Info } from 'lucide-react';
+import { BedDouble, Info } from 'lucide-react';
 import { displayMoney as money, StateBadge } from './BookingDisplay';
 
 const pill =
   'inline-flex min-h-10 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-semibold text-ink-800 transition-colors hover:border-brand-300 hover:bg-brand-50 disabled:opacity-50';
 const visitLabel = (v) =>
-  v.slot === 'hourly'
+  v.slot === 'hourly' || v.slot === 'stay'
     ? v.label
     : `${v.date ? formatLocalDate(v.date, { year: 'numeric' }) : 'Date not recorded'} · ${SLOTS[v.slot]?.label ?? v.slot.replaceAll('_', ' ')}`;
 
@@ -26,6 +26,11 @@ export default function CancelVisits({ record }) {
     [accepted, setAccepted] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState('');
+  // A stay with several booked rooms can release just some of them.
+  const bookedRooms = record.stay?.rooms.filter((room) => room.state === 'booked') ?? [];
+  const [rooms, setRooms] = useState(() => bookedRooms.map((room) => room.id));
+  const roomPick = bookedRooms.length > 1;
+  const roomIds = roomPick && rooms.length < bookedRooms.length ? { roomIds: rooms } : {};
   const request = useRef(null),
     gate = useRef(false);
   async function run(commit = false) {
@@ -40,6 +45,7 @@ export default function CancelVisits({ record }) {
         request.current ??= {
           orderId: record.id,
           visitIds: selected,
+          ...roomIds,
           hash: preview.hash,
           accepted: true,
           reason,
@@ -56,6 +62,7 @@ export default function CancelVisits({ record }) {
         const result = await previewCustomerCancellation({
           orderId: record.id,
           visitIds: selected,
+          ...roomIds,
         });
         if (result.error) setError(result.error);
         else {
@@ -89,7 +96,11 @@ export default function CancelVisits({ record }) {
       </p>
       {receipt ? (
         <section role="status" className="space-y-3 rounded-lg bg-brand-50 p-4 text-meta sm:p-5">
-          <p>{receipt.visits.length} visit(s) cancelled. Unselected visits are unchanged.</p>
+          <p>
+            {roomIds.roomIds
+              ? `${roomIds.roomIds.length} room(s) cancelled. Your other rooms stay booked.`
+              : `${receipt.visits.length} visit(s) cancelled. Unselected visits are unchanged.`}
+          </p>
           <p>
             Test refund requested: {money(receipt.refundMinor)}. This is an obligation, not proof of
             a completed refund.
@@ -135,11 +146,54 @@ export default function CancelVisits({ record }) {
               </label>
             ))}
           </fieldset>
+          {roomPick ? (
+            <fieldset disabled={busy} className="space-y-2">
+              <legend className="mb-1 text-h4">Choose rooms</legend>
+              <p className="mb-3 text-meta text-ink-600">
+                Unticked rooms stay booked. Refunds cover only the rooms you cancel.
+              </p>
+              {bookedRooms.map((room) => (
+                <label
+                  key={room.id}
+                  className="flex cursor-pointer items-start gap-3 rounded-lg border border-border bg-card p-4 transition-colors has-checked:border-brand-600 has-checked:bg-brand-50"
+                >
+                  <input
+                    type="checkbox"
+                    className="mt-0.5 size-5 accent-brand-600"
+                    checked={rooms.includes(room.id)}
+                    onChange={(event) => {
+                      setRooms((old) =>
+                        event.target.checked
+                          ? [...old, room.id]
+                          : old.filter((id) => id !== room.id),
+                      );
+                      setPreview(null);
+                      setAccepted(false);
+                      request.current = null;
+                    }}
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-2 font-semibold">
+                      <BedDouble className="size-4 shrink-0 text-brand-700" aria-hidden="true" />
+                      {room.name}
+                    </span>
+                    <span className="mt-0.5 block text-meta text-ink-600">
+                      {[room.plan?.name, room.guestName].filter(Boolean).join(' · ')}
+                    </span>
+                  </span>
+                </label>
+              ))}
+            </fieldset>
+          ) : null}
           <p className="text-meta text-ink-600">
             Started visits need operational help. Open your booking record and contact the host;
             online cancellation will reject a started visit.
           </p>
-          <button disabled={busy || !selected.length} onClick={() => run()} className={pill}>
+          <button
+            disabled={busy || !selected.length || (roomPick && !rooms.length)}
+            onClick={() => run()}
+            className={pill}
+          >
             {busy ? <RentraLoader label="Checking…" /> : 'Preview cancellation'}
           </button>
           {preview ? (

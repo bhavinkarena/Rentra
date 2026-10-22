@@ -1,0 +1,41 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hotels mock · Loading, empty &amp; error states</title>
+<link rel="stylesheet" href="mock.css"><link rel="stylesheet" href="hotels.css">
+<style>.narrow { padding: 24px 0 64px; } h1 { font-size: 28px; margin-bottom: 4px; } h2.g { font-size: 18px; margin: 28px 0 12px; }
+.toast { display: flex; gap: 10px; align-items: center; background: var(--ink-900); color: #fff; border-radius: 12px; padding: 12px 14px; font-size: 14px; } .toast .ic { width: 18px; height: 18px; } .toast a { color: var(--champagne); font-weight: 700; margin-left: auto; }</style></head>
+<body data-shell="customer" data-vertical="hotel" data-tabs="off">
+<div id="hdr"></div>
+<div class="wrap narrow">
+  <h1>Loading, empty and error states</h1><p class="muted">One pattern per situation. Every message says what happened and offers one real next step.</p>
+
+  <h2 class="g">Loading</h2>
+  <div class="gallery-cards">
+    <div><p class="cap">Results card skeleton</p><div class="in"><div class="sk" style="height:140px"></div><div class="sk" style="height:18px;width:70%;margin-top:12px"></div><div class="sk" style="height:14px;width:45%;margin-top:8px"></div></div></div>
+    <div><p class="cap">Price refresh (dates changed)</p><div class="in"><div class="plan" style="border:1px solid var(--ink-200);border-radius:12px;grid-template-columns:1fr auto"><div><h4>Breakfast included</h4><span class="ok-line"><i data-icon="check"></i>Free cancellation</span></div><div class="pp" style="opacity:.5"><b>₹6,510</b><small>updating…</small></div></div><p class="tiny muted" style="margin-top:8px">Old price stays dimmed; the page never goes blank.</p></div></div>
+    <div><p class="cap">Inline pending button</p><div class="in"><span class="btn block"><span class="spinner"></span>Opening payment…</span><p class="tiny muted" style="margin-top:8px">Disabled while pending; one spinner in current colour.</p></div></div>
+  </div>
+
+  <h2 class="g">Empty</h2>
+  <div class="gallery-cards">
+    <div><p class="cap">No trips</p><div class="empty"><span class="well"><i data-icon="bookings"></i></span><h3>No upcoming trips</h3><p>Hotels you book appear here.</p><span class="btn">Find a stay</span></div></div>
+    <div><p class="cap">No reviews yet</p><div class="empty"><span class="well"><i data-icon="star-o"></i></span><h3>No reviews yet</h3><p>New on Rentra. Reviews come from verified stays only.</p></div></div>
+    <div><p class="cap">Admin queue empty</p><div class="empty"><span class="well"><i data-icon="check"></i></span><h3>All caught up</h3><p>No hotel applications are waiting.</p></div></div>
+  </div>
+
+  <h2 class="g">Errors</h2>
+  <div class="stack">
+    <div class="banner warn"><i data-icon="clock"></i><div><b>This price expired</b>Prices are held for 15 minutes. Check again to see today's price.</div><span class="btn sm">Check prices again</span></div>
+    <div class="banner bad"><i data-icon="bed"></i><div><b>The last Deluxe room was just booked</b>Nothing was charged. 2 other room types are still free for your dates.</div><span class="btn sm">See other rooms</span></div>
+    <div class="banner bad"><i data-icon="alert"></i><div><b>Something went wrong on our side. Your booking was not made.</b>Nothing was charged. Error ID 7F3A-21 · <a href="#">Contact support</a></div><span class="btn sm">Try again</span></div>
+    <div class="banner info"><i data-icon="refresh"></i><div><b>You're offline</b>We'll retry when you're back online.</div></div>
+    <div class="banner warn"><i data-icon="lock"></i><div><b>Only the owner can change bank details</b>Ask the owner to update the payout account, or contact Rentra.</div></div>
+  </div>
+
+  <h2 class="g">Toasts (owner save feedback)</h2>
+  <div class="gallery-cards">
+    <div><p class="cap">Saved</p><div class="in"><div class="toast"><i data-icon="check"></i>31 nights updated</div></div></div>
+    <div><p class="cap">Save failed (rolled back)</p><div class="in"><div class="toast"><i data-icon="alert"></i>Couldn't save Thu 19. Price restored.<a href="#">Retry</a></div></div></div>
+    <div><p class="cap">Undo</p><div class="in"><div class="toast"><i data-icon="lock"></i>Deluxe closed for tonight<a href="#">Undo</a></div></div></div>
+  </div>
+</div>
+<script src="chrome.js"></script><script src="icons.js"></script>
+</body></html>

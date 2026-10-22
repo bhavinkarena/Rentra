@@ -23,7 +23,8 @@ const IDLE = {
 export default async function SearchPage({ searchParams }) {
   const query = await searchParams;
   const registry = degradeOnFailure(
-    () => discoveryApi.registry(),
+    // Hotel searches use the beta guest's registry (closed beta, hotel plan Phase 9).
+    () => (query.vertical === 'hotel' ? discoveryApi.betaRegistry() : discoveryApi.registry()),
     EMPTY_REGISTRY,
     'search registry',
   );

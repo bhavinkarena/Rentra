@@ -30,6 +30,25 @@ const VENUE_SECTIONS = [
   'photos',
   'ownership',
 ];
+/** Hotels (hotel plan, Phase 4): room types, rates, check-in and GST. */
+const HOTEL_SECTIONS = [
+  'basics',
+  'location',
+  'rooms',
+  'amenities',
+  'stay',
+  'rules',
+  'rates',
+  'photos',
+  'ownership',
+  'gst',
+];
+const SECTION_LABEL = {
+  stay: 'check-in and check-out',
+  gst: 'GST',
+  venue: 'courts',
+  hours: 'opening hours',
+};
 const control = `${sharedFieldClass} mt-1`;
 
 export default function PropertyReviewForm({
@@ -40,8 +59,9 @@ export default function PropertyReviewForm({
   canDecide,
   writable,
   venue = false,
+  hotel = false,
 }) {
-  const sections = venue ? VENUE_SECTIONS : SLOT_SECTIONS;
+  const sections = hotel ? HOTEL_SECTIONS : venue ? VENUE_SECTIONS : SLOT_SECTIONS;
   const [state, action, pending] = useActionState(propertyReviewCommand, {});
   const [, startTransition] = useTransition();
   const [reason, setReason] = useState('');
@@ -158,7 +178,7 @@ export default function PropertyReviewForm({
                   }
                   className="size-4 accent-brand-700"
                 />
-                {section}
+                {SECTION_LABEL[section] ?? section}
               </label>
             ))}
           </div>

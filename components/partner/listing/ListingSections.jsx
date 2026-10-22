@@ -14,3 +14,11 @@ export { SubmitBar } from './SubmitBar';
 export { VenueSection } from './VenueSection';
 export { HoursSection } from './HoursSection';
 export { HourlyPricingSection } from './HourlyPricingSection';
+// Hotels (hotel plan, Phase 3).
+export {
+  HotelRoomsSection,
+  HotelRatesSection,
+  HotelStaySection,
+  HotelRulesSection,
+  HotelGstForm,
+} from './HotelSections';

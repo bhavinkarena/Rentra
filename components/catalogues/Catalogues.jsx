@@ -12,15 +12,28 @@ import {
   AdminEmpty,
   AdminReadOnly,
 } from '@/components/admin/AdminPrimitives';
-import { catalogueCommand } from '@/lib/actions/catalogues';
+import { catalogueCommand, betaInviteCommand } from '@/lib/actions/catalogues';
 import { ActivityIcon } from '@/components/rentra/icons/activity-icons';
 import { VerticalIcon } from '@/components/rentra/icons/vertical-icons';
+import {
+  Briefcase,
+  FerrisWheel,
+  GraduationCap,
+  Hospital,
+  Landmark,
+  MapPin,
+  Plane,
+  ShoppingBag,
+  TrainFront,
+} from 'lucide-react';
 const names = {
   verticals: 'Verticals',
   cities: 'Cities',
   areas: 'Areas',
   categories: 'Categories',
   amenities: 'Amenities',
+  landmarks: 'Landmarks',
+  beta: 'Hotel beta',
 };
 /** Icon keys the frontend ships (components/rentra/icons). */
 const ICON_KEYS = [
@@ -727,6 +740,308 @@ function VerticalRow({ vertical: v, canWrite }) {
   );
 }
 
+const KIND_ICON = {
+  station: TrainFront,
+  airport: Plane,
+  temple: Landmark,
+  business: Briefcase,
+  hospital: Hospital,
+  attraction: FerrisWheel,
+  education: GraduationCap,
+  mall: ShoppingBag,
+};
+const slugify = (name) =>
+  name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80)
+    .replace(/-+$/, '');
+
+/**
+ * Landmarks guests search near (hotels). No preview step: the API saves directly.
+ * Slugs are public URLs (/hotels/near/{slug}), so they are fixed once saved.
+ */
+export function LandmarkList({ data }) {
+  const [cityId, setCityId] = useState('');
+  const items = cityId ? data.items.filter((l) => l.cityId === cityId) : data.items;
+  const groups = Object.entries(Object.groupBy(items, (l) => l.cityName));
+  return (
+    <AdminPage className="space-y-6">
+      <Nav type="landmarks" />
+      <AdminPageHeader title="Landmarks" />
+      <p>
+        Places guests search hotels near. Each landmark has a public page at /hotels/near/
+        {'{slug}'}; the slug never changes once saved.
+      </p>
+      {!data.canWrite && <AdminReadOnly />}
+      {data.canWrite && (
+        <details className="rounded-md border border-ink-200 p-4">
+          <summary className="inline-flex min-h-11 cursor-pointer items-center font-semibold underline">
+            Add landmark
+          </summary>
+          <LandmarkForm data={data} />
+        </details>
+      )}
+      <label className="block max-w-xs">
+        City
+        <select
+          className={inputClass}
+          value={cityId}
+          onChange={(event) => setCityId(event.target.value)}
+        >
+          <option value="">All cities</option>
+          {data.cities.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+      </label>
+      <p role="status">{items.length} landmarks</p>
+      {!items.length && (
+        <AdminEmpty title="No landmarks" description="Choose another city or add a landmark." />
+      )}
+      {groups.map(([city, list]) => (
+        <section key={city} aria-label={city} className="space-y-3">
+          <h2 className="text-h4 font-semibold">{city}</h2>
+          <ul className="space-y-3">
+            {list.map((l) => (
+              <LandmarkRow key={l.id} landmark={l} data={data} />
+            ))}
+          </ul>
+        </section>
+      ))}
+    </AdminPage>
+  );
+}
+
+function LandmarkRow({ landmark: l, data }) {
+  const Icon = KIND_ICON[l.kind] ?? MapPin;
+  return (
+    <li className="min-w-0 rounded-md border border-ink-200 p-4">
+      <div className="flex min-w-0 items-start gap-3">
+        <span
+          className="grid size-10 shrink-0 place-items-center rounded-md border border-ink-200 text-ink-800"
+          aria-hidden="true"
+        >
+          <Icon className="size-5" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold break-words">
+            {l.name}{' '}
+            <span className="font-normal text-ink-600">
+              · {l.kind}
+              {l.isActive ? '' : ' · Inactive'}
+            </span>
+          </p>
+          <p className="text-meta text-ink-600 tabular">
+            {l.latitude.toFixed(6)}, {l.longitude.toFixed(6)} · Order {l.sortOrder}
+          </p>
+          <Link
+            className="inline-flex min-h-11 items-center break-all underline"
+            href={`/hotels/near/${l.slug}`}
+          >
+            /hotels/near/{l.slug}
+          </Link>
+        </div>
+      </div>
+      {data.canWrite && (
+        <details className="mt-2">
+          <summary className="inline-flex min-h-11 cursor-pointer items-center underline">
+            Edit <span className="sr-only">{l.name}</span>
+          </summary>
+          <LandmarkForm data={data} landmark={l} />
+        </details>
+      )}
+    </li>
+  );
+}
+
+function LandmarkForm({ data, landmark: l }) {
+  const router = useRouter();
+  const creating = !l;
+  const [result, setResult] = useState(null);
+  const [pending, startTransition] = useTransition();
+  const [name, setName] = useState(l?.name ?? '');
+  const [slug, setSlug] = useState(l?.slug ?? '');
+  const [slugEdited, setSlugEdited] = useState(false);
+  const submit = (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const f = new FormData(form);
+    const input = {
+      ...(creating ? {} : { version: l.version }),
+      cityId: String(f.get('cityId')),
+      slug,
+      name: name.trim(),
+      kind: String(f.get('kind')),
+      latitude: Number(f.get('latitude')),
+      longitude: Number(f.get('longitude')),
+      sortOrder: Number(f.get('sortOrder')),
+      isActive: f.get('isActive') === 'on',
+      reason: String(f.get('reason')).trim(),
+    };
+    startTransition(async () => {
+      const saved = await catalogueCommand('landmarks', l?.id || 'new', input);
+      setResult(saved);
+      if (saved.ok) {
+        if (creating) {
+          form.reset();
+          setName('');
+          setSlug('');
+          setSlugEdited(false);
+        }
+        router.refresh();
+      }
+    });
+  };
+  return (
+    <form
+      key={l?.version}
+      onSubmit={submit}
+      onChange={() => setResult(null)}
+      className="mt-3 grid gap-3 sm:grid-cols-2"
+    >
+      <fieldset disabled={pending} className="contents">
+        <label className="block">
+          Name
+          <input
+            name="name"
+            className={inputClass}
+            value={name}
+            onChange={(event) => {
+              setName(event.target.value);
+              if (creating && !slugEdited) setSlug(slugify(event.target.value));
+            }}
+            required
+            minLength={2}
+            maxLength={120}
+          />
+        </label>
+        <label className="block">
+          Permanent slug
+          <input
+            name="slug"
+            className={`${inputClass} read-only:bg-ink-25`}
+            value={slug}
+            onChange={(event) => {
+              setSlug(event.target.value);
+              setSlugEdited(true);
+            }}
+            readOnly={!creating}
+            aria-describedby={creating ? undefined : `slug-note-${l.id}`}
+            required
+            maxLength={80}
+            pattern="[a-z0-9]+(-[a-z0-9]+)*"
+          />
+          {!creating && (
+            <span id={`slug-note-${l.id}`} className="text-tiny text-ink-600">
+              Fixed: this is a public link.
+            </span>
+          )}
+        </label>
+        <label className="block">
+          City
+          <select name="cityId" className={inputClass} defaultValue={l?.cityId} required>
+            {data.cities.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block">
+          Kind
+          <select name="kind" className={inputClass} defaultValue={l?.kind} required>
+            {data.kinds.map((k) => (
+              <option key={k} value={k}>
+                {k}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block">
+          Latitude
+          <input
+            name="latitude"
+            type="number"
+            step="0.000001"
+            min={-90}
+            max={90}
+            className={inputClass}
+            defaultValue={l?.latitude}
+            required
+          />
+        </label>
+        <label className="block">
+          Longitude
+          <input
+            name="longitude"
+            type="number"
+            step="0.000001"
+            min={-180}
+            max={180}
+            className={inputClass}
+            defaultValue={l?.longitude}
+            required
+          />
+        </label>
+        <label className="block">
+          Display order
+          <input
+            name="sortOrder"
+            type="number"
+            min={0}
+            max={10000}
+            className={inputClass}
+            defaultValue={l?.sortOrder ?? 0}
+            required
+          />
+        </label>
+        <label className="flex min-h-11 items-center gap-2 self-end">
+          <input type="checkbox" name="isActive" defaultChecked={l?.isActive ?? true} />
+          Active
+        </label>
+        <label className="block sm:col-span-2">
+          Reason for change
+          <input name="reason" className={inputClass} required minLength={10} maxLength={1000} />
+        </label>
+        <button className={`${buttonClass} sm:col-span-2 sm:justify-self-start`}>
+          {creating ? 'Add landmark' : 'Save changes'}
+        </button>
+      </fieldset>
+      {pending && (
+        <p role="status" className="sm:col-span-2">
+          Saving…
+        </p>
+      )}
+      {result?.error && (
+        <p role="alert" className="rounded-md border border-danger/30 p-3 sm:col-span-2">
+          {result.error}
+        </p>
+      )}
+      {result?.code === 'STALE_PREVIEW' && (
+        <button
+          type="button"
+          className={`${buttonClass} sm:col-span-2 sm:justify-self-start`}
+          onClick={() => {
+            setResult(null);
+            router.refresh();
+          }}
+        >
+          Reload latest record
+        </button>
+      )}
+      {result?.ok && (
+        <p role="status" className="sm:col-span-2">
+          Landmark saved.
+        </p>
+      )}
+    </form>
+  );
+}
+
 /** Icon select with a live preview of what owners and guests will see. */
 function IconKeyField({ defaultValue }) {
   const [iconKey, setIconKey] = useState(defaultValue);
@@ -758,5 +1073,109 @@ function IconKeyField({ defaultValue }) {
         </span>
       </span>
     </label>
+  );
+}
+
+/**
+ * Closed beta invites (hotel plan, Phase 9): phones that may open Hotels while it
+ * is open to partners only. Guests use the invite link /beta after logging in.
+ */
+export function BetaGuests({ data }) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const [phones, setPhones] = useState('');
+  const [note, setNote] = useState('');
+  const [result, setResult] = useState(null);
+  const run = (input) =>
+    start(async () => {
+      const outcome = await betaInviteCommand('hotel', input);
+      setResult(outcome);
+      if (outcome?.ok) {
+        setPhones('');
+        router.refresh();
+      }
+    });
+  const inBeta = data.vertical.status === 'partners';
+  return (
+    <AdminPage className="space-y-6">
+      <Nav type="beta" />
+      <AdminPageHeader title="Hotel beta" />
+      <p>
+        While Hotels is open to partners only, the guests below can see and book hotels after they
+        log in and open <strong>/beta</strong>. Everyone else, and search engines, see nothing. A
+        removed guest keeps access for up to 7 days.
+      </p>
+      {!inBeta ? (
+        <p role="status" className="rounded-md bg-ink-50 p-3">
+          Hotels is {data.vertical.status}. Invites work only while it is open to partners.
+        </p>
+      ) : null}
+      {!data.canWrite && <AdminReadOnly />}
+      {data.canWrite && inBeta ? (
+        <form
+          className="space-y-3 rounded-md border border-ink-200 p-4"
+          onSubmit={(event) => {
+            event.preventDefault();
+            run({ action: 'invite', phones, note: note || undefined });
+          }}
+        >
+          <label className="block">
+            Mobile numbers (one per line)
+            <textarea
+              required
+              rows={4}
+              value={phones}
+              onChange={(event) => setPhones(event.target.value)}
+              className={inputClass}
+            />
+          </label>
+          <label className="block max-w-sm">
+            Note (optional)
+            <input
+              maxLength={120}
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+              className={inputClass}
+            />
+          </label>
+          <button disabled={pending} className={sharedButtonVariants()}>
+            {pending ? 'Inviting…' : 'Invite'}
+          </button>
+        </form>
+      ) : null}
+      {result?.error ? <p role="alert">{result.error}</p> : null}
+      {result?.ok && result.added != null ? (
+        <p role="status">
+          {result.added} invited
+          {result.alreadyInvited ? `, ${result.alreadyInvited} already on the list` : ''}.
+        </p>
+      ) : null}
+      <p role="status">{data.items.length} invited guests</p>
+      <ul className="divide-y divide-ink-200 rounded-md border border-ink-200">
+        {data.items.map((guest) => (
+          <li key={guest.id} className="flex flex-wrap items-center justify-between gap-3 p-3">
+            <span>
+              <strong>{guest.phone}</strong>
+              {guest.note ? ` · ${guest.note}` : ''}
+              <span className="block text-tiny text-ink-600">
+                {guest.hasAccount ? 'Has a Rentra account' : 'No account yet'} · invited by{' '}
+                {guest.invitedBy}
+              </span>
+            </span>
+            {data.canWrite ? (
+              <button
+                type="button"
+                disabled={pending}
+                onClick={() => run({ action: 'revoke', id: guest.id })}
+                className="min-h-11 underline"
+                aria-label={`Remove ${guest.phone} from the beta`}
+              >
+                Remove
+              </button>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    </AdminPage>
   );
 }

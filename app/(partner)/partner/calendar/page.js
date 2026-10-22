@@ -6,6 +6,7 @@ import { settle } from '@/lib/api/page-state';
 import { publicPhotoUrl } from '@/lib/domain/listing-content';
 import PortalState from '@/components/portal/PortalState';
 import PortfolioCalendar from '@/components/partner/PortfolioCalendar';
+import HotelRatesCalendar from '@/components/partner/HotelRatesCalendar';
 import ListingStatusBadge from '@/components/partner/ListingStatusBadge';
 import PortalPage from '@/components/portal/PortalPage';
 import Pagination from '@/components/ui/pagination';
@@ -62,6 +63,16 @@ export default async function CalendarPage({ searchParams }) {
     : null;
   const selected =
     items.find((item) => item.id === propertyId) ?? calendar?.data?.items?.[0] ?? null;
+  // Hotels (hotel plan, Phase 5) sell room types by the night: their own rates and rooms grid.
+  const hotel = calendar?.data?.items?.[0]?.rentalUnit === 'night';
+  const hotelAri = hotel
+    ? await settle(
+        partnerApi.hotelAri(propertyId, {
+          from: isLocalDate(query.from) ? query.from : propertyToday(),
+          days: 14,
+        }),
+      )
+    : null;
   const cover = selected?.cover
     ? publicPhotoUrl(selected.cover)
     : (calendar?.data?.items?.[0]?.photo?.url ?? null);
@@ -283,6 +294,16 @@ export default async function CalendarPage({ searchParams }) {
                     actionLabel="Open booking rules"
                   />
                 </div>
+              ) : hotel ? (
+                hotelAri.failure ? (
+                  <PortalState kind={hotelAri.failure} />
+                ) : (
+                  <HotelRatesCalendar
+                    propertyId={propertyId}
+                    data={hotelAri.data}
+                    baseHref={href({ property: propertyId })}
+                  />
+                )
               ) : (
                 <PortfolioCalendar
                   data={{ ...calendar.data, property: propertyId }}

@@ -65,7 +65,39 @@ export function EntertainmentIcon({ className = 'size-8' }) {
   );
 }
 
-const BY_CODE = { farmhouse: FarmhouseIcon, entertainment: EntertainmentIcon };
+const BY_CODE = { farmhouse: FarmhouseIcon, entertainment: EntertainmentIcon, hotel: HotelIcon };
+
+/** Hotels tab (hotel plan Phase 1 mockups, `tab-hotel`). */
+export function HotelIcon({ className = 'size-8' }) {
+  return (
+    <svg viewBox="0 0 32 32" className={className} aria-hidden="true" focusable="false">
+      <path d="M3 27h26" stroke="#064e3b" strokeWidth="1.6" strokeLinecap="round" />
+      <rect
+        x="8"
+        y="6"
+        width="16"
+        height="21"
+        rx="1.6"
+        fill="#f8e7c9"
+        stroke="#064e3b"
+        strokeWidth="1.6"
+      />
+      <path
+        d="M6 7.2 16 3l10 4.2"
+        fill="none"
+        stroke="#064e3b"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <rect x="11" y="10" width="3" height="3" rx=".6" fill="#609a7d" />
+      <rect x="18" y="10" width="3" height="3" rx=".6" fill="#609a7d" />
+      <rect x="11" y="15.5" width="3" height="3" rx=".6" fill="#609a7d" />
+      <rect x="18" y="15.5" width="3" height="3" rx=".6" fill="#d98a1f" />
+      <rect x="13.8" y="21" width="4.4" height="6" rx=".8" fill="#064e3b" />
+    </svg>
+  );
+}
 
 /** The icon for a vertical code; farmhouse for unknown codes. */
 export function VerticalIcon({ code, className }) {

@@ -12,6 +12,7 @@ import {
 import { prepareIdentityFile } from '@/lib/domain/identity-upload';
 import { publicPhotoUrl } from '@/lib/domain/listing-content';
 import { photoId } from '@/lib/domain/listing-photos';
+import { maxPhotosFor, minPhotosFor } from '@/lib/domain/listing-completion';
 import { Section } from './SectionPrimitives';
 import ConfirmDialog from '@/components/ui/confirm-dialog';
 import { REVIEWED_STATUSES } from '@/lib/domain/listing-trust';
@@ -21,7 +22,9 @@ const message = (result) =>
   Object.values(result.errors || {})
     .flat()
     .join(' ');
-export function PhotosSection({ listing, photos = [] }) {
+export function PhotosSection({ listing, photos = [], roomTypes = [] }) {
+  const minPhotos = minPhotosFor(listing.rentalUnit);
+  const maxPhotos = maxPhotosFor(listing.rentalUnit);
   const router = useRouter(),
     version = useRef(listing.contentVersion),
     attachQueue = useRef(Promise.resolve()),
@@ -123,7 +126,9 @@ export function PhotosSection({ listing, photos = [] }) {
   }
   async function accept(files) {
     const available =
-      15 - photos.length - tiles.filter((t) => ['queued', 'uploading'].includes(t.status)).length;
+      maxPhotos -
+      photos.length -
+      tiles.filter((t) => ['queued', 'uploading'].includes(t.status)).length;
     const batch = Array.from(files)
       .slice(0, Math.max(0, available))
       .map((file) => {
@@ -191,10 +196,14 @@ export function PhotosSection({ listing, photos = [] }) {
     <Section
       id="photos"
       title="Photos"
-      intro="Add at least six photos of the actual property. Choose a cover, then show the spaces guests will use."
+      intro={
+        listing.rentalUnit === 'night'
+          ? 'Add at least eight photos of the actual hotel: outside, lobby, every room type, a bathroom and dining. Choose a cover first.'
+          : 'Add at least six photos of the actual property. Choose a cover, then show the spaces guests will use.'
+      }
     >
       <p role="status" className="text-meta">
-        {photos.length} of 6 minimum · {photos.length} of 15 maximum
+        {photos.length} of {minPhotos} minimum · {photos.length} of {maxPhotos} maximum
       </p>
       {error && (
         <p role="alert" className="text-danger">
@@ -329,7 +338,19 @@ export function PhotosSection({ listing, photos = [] }) {
         >
           {(listing.rentalUnit === 'hour'
             ? ['Court', 'Floodlights', 'Washroom', 'Other']
-            : ['Pool', 'Lawn', 'Rooms', 'Kitchen', 'Night view', 'Other']
+            : listing.rentalUnit === 'night'
+              ? [
+                  'Exterior',
+                  'Lobby',
+                  ...roomTypes
+                    .filter((r) => r.isActive !== false)
+                    .map((r) => `Room: ${r.name}`.slice(0, 40)),
+                  'Bathroom',
+                  'Dining',
+                  'Pool',
+                  'Other',
+                ]
+              : ['Pool', 'Lawn', 'Rooms', 'Kitchen', 'Night view', 'Other']
           ).map((t) => (
             <option key={t}>{t}</option>
           ))}
@@ -341,7 +362,7 @@ export function PhotosSection({ listing, photos = [] }) {
           type="file"
           multiple
           accept="image/jpeg,image/png,image/webp,image/heic"
-          disabled={uploading || photos.length >= 15}
+          disabled={uploading || photos.length >= maxPhotos}
           onChange={(e) => {
             const files = Array.from(e.target.files ?? []);
             e.target.value = '';
@@ -351,7 +372,11 @@ export function PhotosSection({ listing, photos = [] }) {
           className="mt-2 block w-full"
         />
       </label>
-      {photos.length >= 15 && <p>15 of 15 — remove one to add another.</p>}
+      {photos.length >= maxPhotos && (
+        <p>
+          {maxPhotos} of {maxPhotos} — remove one to add another.
+        </p>
+      )}
       <ConfirmDialog
         open={Boolean(ask)}
         title={ask?.kind === 'add' ? 'New photos need a quick review' : 'Remove this photo?'}

@@ -1,6 +1,7 @@
 import Image from '@/components/rentra/PropertyImage';
 import {
   Baby,
+  BedDouble,
   CalendarDays,
   Check,
   CigaretteOff,
@@ -38,6 +39,24 @@ import { cancellationSteps, clockTime, dayTile, shortDay } from '@/lib/domain/ch
 const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
 /** Time-booked venue (entertainment plan, Phase 10): one court, one time range. */
 export const isHourly = (quote) => quote.selection.kind === 'hourly';
+/** Hotel stay (hotel plan, Phase 7): check-in to check-out, rooms with their own rates. */
+export const isStay = (quote) => quote.selection.kind === 'stay';
+const MEALS = { EP: 'Room only', CP: 'Breakfast', MP: 'Breakfast + 1 meal', AP: 'All meals' };
+const stayGuests = (quote) => {
+  const rooms = quote.visits[0]?.rooms ?? [];
+  const adults = rooms.reduce((sum, room) => sum + room.adults, 0);
+  const children = rooms.reduce((sum, room) => sum + (room.childAges?.length ?? 0), 0);
+  return `${plural(adults, 'adult')}${children ? `, ${children} ${children === 1 ? 'child' : 'children'}` : ''}`;
+};
+/** "2 × Deluxe Double · Breakfast" lines, grouped. */
+export function stayRoomLines(quote) {
+  const groups = new Map();
+  for (const room of quote.visits[0]?.rooms ?? []) {
+    const key = `${room.name} · ${room.plan?.name ?? MEALS[room.plan?.mealPlan] ?? ''}`;
+    groups.set(key, (groups.get(key) ?? 0) + 1);
+  }
+  return [...groups].map(([name, count]) => `${count} × ${name}`);
+}
 const hours = (minutes) => `${minutes / 60} hr`;
 
 export function visitHours(quote) {
@@ -175,23 +194,51 @@ function courtFact(quote) {
 /** Icon rows: the facts a guest checks first. `row` lays them side by side from `sm`. */
 export function StayFacts({ quote, row = false, className = '' }) {
   const SlotIcon = SLOT_ICONS[quote.selection.slot] ?? Clock;
-  const rows = isHourly(quote)
+  const visit = quote.visits[0] ?? {};
+  const rows = isStay(quote)
     ? [
-        [CalendarDays, 'Date', visitDates(quote), hours(quote.selection.durationMinutes)],
-        [Clock, 'Time', visitHours(quote), 'India time'],
-        [LayoutGrid, 'Court', ...courtFact(quote)],
         [
-          Dumbbell,
-          'Activity',
-          quote.visits[0]?.activity?.name ?? 'Activity',
-          plural(quote.selection.guests, 'player'),
+          CalendarDays,
+          'Check-in',
+          shortDay(visit.startsAt, quote.timeZone),
+          `From ${clockTime(visit.startsAt, quote.timeZone)}`,
         ],
+        [
+          CalendarDays,
+          'Check-out',
+          shortDay(visit.endsAt, quote.timeZone),
+          `By ${clockTime(visit.endsAt, quote.timeZone)} · ${plural(visit.nights ?? 1, 'night')}`,
+        ],
+        [
+          BedDouble,
+          'Rooms',
+          plural(visit.rooms?.length ?? 1, 'room'),
+          stayRoomLines(quote).join(' · '),
+        ],
+        [Users, 'Guests', stayGuests(quote), 'across all rooms'],
       ]
-    : [
-        [CalendarDays, 'Dates', visitDates(quote), plural(quote.visits.length, 'visit')],
-        [SlotIcon, 'Visit type', SLOTS[quote.selection.slot]?.label ?? 'Visit', visitHours(quote)],
-        [Users, 'Guests', plural(quote.selection.guests, 'guest'), 'per visit'],
-      ];
+    : isHourly(quote)
+      ? [
+          [CalendarDays, 'Date', visitDates(quote), hours(quote.selection.durationMinutes)],
+          [Clock, 'Time', visitHours(quote), 'India time'],
+          [LayoutGrid, 'Court', ...courtFact(quote)],
+          [
+            Dumbbell,
+            'Activity',
+            quote.visits[0]?.activity?.name ?? 'Activity',
+            plural(quote.selection.guests, 'player'),
+          ],
+        ]
+      : [
+          [CalendarDays, 'Dates', visitDates(quote), plural(quote.visits.length, 'visit')],
+          [
+            SlotIcon,
+            'Visit type',
+            SLOTS[quote.selection.slot]?.label ?? 'Visit',
+            visitHours(quote),
+          ],
+          [Users, 'Guests', plural(quote.selection.guests, 'guest'), 'per visit'],
+        ];
   return (
     <dl
       className={`${row ? `grid gap-3 ${rows.length > 3 ? 'sm:grid-cols-2' : 'sm:grid-cols-3'} sm:gap-4` : 'space-y-3'} ${className}`}
@@ -229,6 +276,38 @@ function Line({ label, value, strong = false, className = '' }) {
 export function PriceDetails({ quote, paid = false, titled = true }) {
   const { totals, payment } = quote;
   const later = payment.remainingMinor > 0;
+  if (isStay(quote)) {
+    const visit = quote.visits[0] ?? {};
+    return (
+      <div>
+        {titled ? <h3 className="mb-3 text-sm font-semibold text-ink-900">Price details</h3> : null}
+        <dl className="space-y-2 text-sm text-ink-700">
+          <Line
+            label={`${plural(visit.rooms?.length ?? 1, 'room')} · ${plural(visit.nights ?? 1, 'night')}`}
+            value={money(visit.roomMinor)}
+          />
+          <Line label="Taxes (GST on room tariff)" value={money(visit.taxMinor)} />
+          <Line
+            label="Total"
+            value={money(totals.totalMinor)}
+            strong
+            className="border-t border-border pt-2.5"
+          />
+        </dl>
+        <dl className="mt-4 rounded-xl bg-brand-50 p-3.5 text-sm">
+          <div className="flex items-baseline justify-between gap-4 font-semibold text-brand-900">
+            <dt>{paid ? 'Paid in full' : 'Pay now, in full'}</dt>
+            <dd className="text-base tabular" data-money>
+              {money(payment.expectedMinor)}
+            </dd>
+          </div>
+        </dl>
+        <p className="mt-3 text-xs text-ink-600">
+          No deposit and no fee. The hotel issues the tax invoice for your stay.
+        </p>
+      </div>
+    );
+  }
   return (
     <div>
       {titled ? <h3 className="mb-3 text-sm font-semibold text-ink-900">Price details</h3> : null}
@@ -405,7 +484,50 @@ export function VisitList({ quote }) {
 
 const REFUND_TONES = { full: 'bg-brand-600', partial: 'bg-brand-300', none: 'bg-ink-300' };
 
+/** Hotel: each rate has its own rule, so the policy is listed per room line. */
+function StayCancellation({ quote, now }) {
+  const visit = quote.visits[0] ?? {};
+  const lines = new Map();
+  for (const room of visit.rooms ?? []) {
+    const plan = room.plan ?? {};
+    const until =
+      plan.freeCancelHours != null
+        ? new Date(+new Date(visit.startsAt) - plan.freeCancelHours * 3_600_000)
+        : null;
+    const free = until && until > new Date(now);
+    const late =
+      plan.lateCharge === 'full_stay' ? 'the whole stay is charged' : 'the first night is charged';
+    lines.set(
+      `${room.name} · ${plan.name}`,
+      free
+        ? `Free cancellation until ${shortDay(until.toISOString(), quote.timeZone)}, ${clockTime(until.toISOString(), quote.timeZone)}. After that, ${late}.`
+        : plan.freeCancelHours != null
+          ? `Free cancellation has ended for these dates; ${late}.`
+          : 'Non-refundable: no refund after booking.',
+    );
+  }
+  return (
+    <div>
+      <ul className="space-y-2.5">
+        {[...lines].map(([name, text]) => (
+          <li key={name} className="flex items-start gap-3 text-sm text-ink-800">
+            <CircleCheck className="mt-0.5 size-4 shrink-0 text-brand-700" aria-hidden="true" />
+            <span>
+              <strong className="font-semibold">{name}.</strong> {text}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 text-xs text-ink-600">
+        Charges include the room tax. No-show: the hotel’s no-show rule for the rate applies. Cancel
+        from your booking at any time before check-in.
+      </p>
+    </div>
+  );
+}
+
 export function CancellationPolicy({ quote, now }) {
+  if (isStay(quote)) return <StayCancellation quote={quote} now={now} />;
   const hourly = quote.policy.cancellation?.bandUnit === 'hours';
   const tier = (hourly ? CANCELLATION_TIERS_HOURLY : CANCELLATION_TIERS)[
     quote.policy.cancellationTier
@@ -524,8 +646,9 @@ export function TermsVersion({ quote }) {
         Terms version
       </summary>
       <p className="mt-1">
-        Policy {quote.policy.version} · listing terms {quote.policy.listingConfigVersion} · payment
-        configuration {quote.payment.version}. No tax has been assumed.
+        {isStay(quote)
+          ? `Policy ${quote.policy.version} · payment configuration ${quote.payment.version}. Taxes are included in the room price.`
+          : `Policy ${quote.policy.version} · listing terms ${quote.policy.listingConfigVersion} · payment configuration ${quote.payment.version}. No tax has been assumed.`}
       </p>
     </details>
   );

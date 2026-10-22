@@ -287,23 +287,30 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
                     listing.location?.x != null
                       ? `${listing.location.y}, ${listing.location.x} (lat, lng)`
                       : listing.location,
-                  ...(listing.rentalUnit === 'hour'
-                    ? {
-                        maxPlayers: listing.capacity,
-                        courts: (snap.resources ?? []).filter((r) => r.isActive).length,
-                      }
+                  ...(listing.rentalUnit === 'night'
+                    ? hotelFacts(snap.hotel)
+                    : listing.rentalUnit === 'hour'
+                      ? {
+                          maxPlayers: listing.capacity,
+                          courts: (snap.resources ?? []).filter((r) => r.isActive).length,
+                        }
+                      : {
+                          capacity: listing.capacity,
+                          bedrooms: listing.bedrooms,
+                          farmSize: listing.farmSize,
+                          farmSizeUnit: listing.farmSizeUnit,
+                          checkInFrom: listing.checkInFrom,
+                          checkOutBy: listing.checkOutBy,
+                        }),
+                  // Hotels set cancellation per rate (in the Rates pane), with no deposit.
+                  ...(listing.rentalUnit === 'night'
+                    ? {}
                     : {
-                        capacity: listing.capacity,
-                        bedrooms: listing.bedrooms,
-                        farmSize: listing.farmSize,
-                        farmSizeUnit: listing.farmSizeUnit,
-                        checkInFrom: listing.checkInFrom,
-                        checkOutBy: listing.checkOutBy,
+                        cancellationTier: listing.cancellationTier,
+                        depositAmount: listing.depositAmount,
                       }),
-                  cancellationTier: listing.cancellationTier,
-                  depositAmount: listing.depositAmount,
                   // Venues price per hour; extra-guest charges do not apply to them.
-                  ...(listing.rentalUnit === 'hour'
+                  ...(['hour', 'night'].includes(listing.rentalUnit)
                     ? {}
                     : { extraGuestCharge: listing.extraGuestCharge }),
                 }).map(([label, value]) => ({
@@ -319,7 +326,9 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
               <p className="mt-2 whitespace-pre-wrap text-meta">
                 {listing.rentalUnit === 'hour'
                   ? venueRules(listing.houseRules)
-                  : display(listing.houseRules)}
+                  : listing.rentalUnit === 'night'
+                    ? hotelRules(snap.hotel?.profile)
+                    : display(listing.houseRules)}
               </p>
             </SectionCard>
             {base ? (
@@ -353,6 +362,7 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
             ) : null}
           </div>
           {listing.rentalUnit === 'hour' ? <VenueSubmission snap={snap} listing={listing} /> : null}
+          {listing.rentalUnit === 'night' ? <HotelSubmission hotel={snap.hotel} /> : null}
           <SectionCard title="Photos">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {photos.map((photo, i) => (
@@ -462,6 +472,7 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
               adminId={admin.id}
               canDecide={canDecide}
               venue={data.current?.snapshot?.listing?.rentalUnit === 'hour'}
+              hotel={data.current?.snapshot?.listing?.rentalUnit === 'night'}
               writable={!historical && admin.capabilities.includes('admin.properties.write')}
             />
           ) : (
@@ -787,6 +798,181 @@ function VenueSubmission({ snap, listing }) {
             </li>
           ))}
           {!snap.hourlyRates?.length && <li>No hourly prices submitted.</li>}
+        </ul>
+      </SectionCard>
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------ hotels (hotel plan, Phase 4) */
+
+const clockOf = (minute) =>
+  minute == null
+    ? null
+    : `${String(Math.floor(minute / 60)).padStart(2, '0')}:${String(minute % 60).padStart(2, '0')}`;
+const NIGHT_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const CANCELLATION_LABEL = {
+  flexible: 'Flexible (free until 24 h)',
+  moderate: 'Moderate (free until 3 days)',
+  strict: 'Strict (free until 7 days)',
+  non_refundable: 'Non-refundable',
+  custom: 'Custom',
+};
+const MEAL_LABEL = { EP: 'Room only', CP: 'Breakfast', MP: 'Breakfast + 1 meal', AP: 'All meals' };
+
+/** Summary facts of a submitted hotel revision for the details table. */
+function hotelFacts(hotel) {
+  const rooms = (hotel?.roomTypes ?? []).filter((r) => r.isActive);
+  const p = hotel?.profile;
+  return {
+    roomTypes: rooms.length,
+    rooms: rooms.reduce((sum, r) => sum + r.roomCount, 0),
+    checkIn: clockOf(p?.checkInMinute),
+    checkOut: clockOf(p?.checkOutMinute),
+    childrenFreeUnder: p?.childFreeAge,
+    weekendNights: (p?.weekendNights ?? []).map((n) => NIGHT_NAMES[n]).join(', '),
+    starRating: p?.starRating ?? 'Not star-rated',
+    gst: p?.policies?.gstAnswered
+      ? p.gstRegistered
+        ? `Registered · ${p.gstin}`
+        : 'Not registered'
+      : 'Not answered',
+  };
+}
+
+/** Hotel house rules as the owner chose them, one per line. */
+const hotelRules = (profile) => {
+  const p = profile?.policies ?? {};
+  const yes = (value) => (value == null ? 'Not answered' : value ? 'Yes' : 'No');
+  return [
+    `Unmarried couples with ID: ${yes(p.couples)}`,
+    `Local ID accepted: ${yes(p.localId)}`,
+    `ID accepted: ${(p.idTypes ?? []).map((t) => t.replaceAll('_', ' ')).join(', ') || 'Not answered'}`,
+    `Pets: ${yes(p.pets)} · Smoking in rooms: ${yes(p.smoking)} · Parties: ${yes(p.parties)}`,
+    p.notes ? `Notes: ${p.notes}` : null,
+  ]
+    .filter(Boolean)
+    .join('\n');
+};
+
+/** Room types and rate plans of a submitted hotel revision. */
+function HotelSubmission({ hotel }) {
+  const rooms = hotel?.roomTypes ?? [];
+  const plans = hotel?.ratePlans ?? [];
+  const planPrice = (plan) => {
+    if (!plan.derivedFrom)
+      return `₹${plan.weekday?.toLocaleString('en-IN')} weekday · ₹${plan.weekend?.toLocaleString('en-IN')} weekend`;
+    const parts = [];
+    if (plan.adjustPct) parts.push(`${plan.adjustPct > 0 ? '+' : ''}${plan.adjustPct}%`);
+    if (plan.perGuest) parts.push(`+₹${plan.perGuest} per guest`);
+    const base = plans.find((p) => p.id === plan.derivedFrom);
+    return `${parts.join(' ') || 'Same price'} on ${base?.name ?? 'the base rate'}`;
+  };
+  return (
+    <>
+      <SectionCard
+        title="Room types"
+        description="Each room type as submitted. Rentra checks the beds and room count on the visit."
+      >
+        <div
+          className="relative overflow-x-auto"
+          tabIndex={0}
+          role="region"
+          aria-label="Submitted room types"
+        >
+          <table className="w-full min-w-[640px] text-left text-meta">
+            <thead className="text-tiny uppercase text-ink-500">
+              <tr>
+                {[
+                  'Room type',
+                  'Rooms',
+                  'Beds',
+                  'Guests',
+                  'Price includes',
+                  'Extra adult / child',
+                  'Status',
+                ].map((h) => (
+                  <th key={h} scope="col" className="py-2 pr-3">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rooms.map((r) => (
+                <tr key={r.id} className="border-t border-border align-top">
+                  <th scope="row" className="py-2 pr-3 font-semibold">
+                    {r.name}
+                    {r.sizeSqm || r.view ? (
+                      <span className="block text-tiny font-normal text-ink-600">
+                        {[r.sizeSqm ? `${r.sizeSqm} m²` : null, r.view ? `${r.view} view` : null]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </span>
+                    ) : null}
+                  </th>
+                  <td className="py-2 pr-3 tabular">{r.roomCount}</td>
+                  <td className="py-2 pr-3">
+                    {(r.beds ?? [])
+                      .map((b) => `${b.count} × ${b.type.replaceAll('_', ' ')}`)
+                      .join(', ')}
+                  </td>
+                  <td className="py-2 pr-3 tabular">
+                    {r.maxOccupancy} ({r.maxAdults} adult{r.maxAdults === 1 ? '' : 's'},{' '}
+                    {r.maxChildren} {r.maxChildren === 1 ? 'child' : 'children'})
+                  </td>
+                  <td className="py-2 pr-3 tabular">{r.baseOccupancy}</td>
+                  <td className="py-2 pr-3 tabular">
+                    ₹{r.extraAdult} / ₹{r.extraChild}
+                  </td>
+                  <td className="py-2">{r.isActive ? 'Active' : 'Removed'}</td>
+                </tr>
+              ))}
+              {!rooms.length && (
+                <tr>
+                  <td colSpan={7} className="py-3">
+                    No room types submitted.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </SectionCard>
+      <SectionCard
+        title="Rates"
+        description="Per room per night, before GST. Cancellation is set per rate."
+      >
+        <ul className="divide-y divide-border text-meta">
+          {rooms
+            .filter((r) => r.isActive)
+            .map((room) => (
+              <li key={room.id} className="py-2">
+                <p className="font-semibold">{room.name}</p>
+                <ul className="mt-1 space-y-1">
+                  {plans
+                    .filter((p) => p.roomTypeId === room.id && p.isActive)
+                    .map((plan) => (
+                      <li key={plan.id} className="tabular">
+                        {[
+                          plan.name,
+                          MEAL_LABEL[plan.mealPlan] === plan.name
+                            ? null
+                            : MEAL_LABEL[plan.mealPlan],
+                          planPrice(plan),
+                          CANCELLATION_LABEL[plan.cancellation] ?? plan.cancellation,
+                          plan.minNights > 1 ? `min ${plan.minNights} nights` : null,
+                        ]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </li>
+                    ))}
+                  {!plans.some((p) => p.roomTypeId === room.id && p.isActive) && (
+                    <li>No rate for this room type.</li>
+                  )}
+                </ul>
+              </li>
+            ))}
         </ul>
       </SectionCard>
     </>

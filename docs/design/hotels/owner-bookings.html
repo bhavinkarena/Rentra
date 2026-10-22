@@ -1,0 +1,36 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hotels mock · Owner bookings</title>
+<link rel="stylesheet" href="mock.css"><link rel="stylesheet" href="hotels.css"></head>
+<body data-shell="owner" data-nav="bookings" data-states="list:List,detail:Booking drawer,empty:No bookings">
+<div class="shell">
+  <div id="side"></div>
+  <div>
+    <div class="ptop"><div class="grow"><b>Bookings</b></div><span class="btn ghost sm sq"><i data-icon="download"></i>Export</span><span class="btn ghost sm sq hide-m">Print arrivals</span></div>
+    <div class="pmain">
+      <h1>Bookings</h1><p class="pdesc">Every Rentra booking for this hotel. Times in IST.</p>
+      <div class="filterbar"><span class="chip on">Upcoming · 23</span><span class="chip">In-house · 14</span><span class="chip">Stayed · 312</span><span class="chip">Cancelled · 18</span><span class="chip">No-show · 3</span><span class="grow"></span>
+        <select class="sel-native"><option>Check-in date</option><option>Booked on</option></select><span class="search-in"><i data-icon="search"></i>Ref, guest name or phone</span></div>
+      <div class="ari-wrap" data-hide="empty">
+        <table class="reg resp"><thead><tr><th>Guest &amp; ref</th><th>Stay</th><th>Rooms</th><th>Status</th><th style="text-align:right">You receive</th></tr></thead><tbody>
+          <tr class="sel"><td><b>Priya Shah</b><br><span class="mono muted">RS-8K2QX</span></td><td class="hide-m">Wed 18 – Fri 20 Nov · 2 nights</td><td class="hide-m">1 × Deluxe · Breakfast · 2A</td><td><span class="bdg ok dot">Arriving today</span></td><td class="n">₹5,741</td></tr>
+          <tr><td><b>Amit Patel</b><br><span class="mono muted">RS-4HT7Z</span></td><td class="hide-m">Wed 18 – Thu 19 Nov · 1 night</td><td class="hide-m">2 × Standard · 4A</td><td><span class="bdg ok dot">Arriving today</span></td><td class="n">₹3,704</td></tr>
+          <tr><td><b>Kiran Mehta</b><br><span class="mono muted">RS-7TT1A</span></td><td class="hide-m">Sat 21 – Sun 22 Nov · 1 night</td><td class="hide-m">1 × Deluxe · 2A</td><td><span class="bdg info dot">Upcoming</span></td><td class="n">₹3,149</td></tr>
+          <tr><td><b>Sana Shaikh</b><br><span class="mono muted">RS-1QZ9D</span></td><td class="hide-m">Fri 27 – Sun 29 Nov · 2 nights</td><td class="hide-m">1 × Family Suite · 3A 1C</td><td><span class="bdg neu dot">Cancelled by guest</span></td><td class="n">₹0</td></tr>
+        </tbody></table></div>
+      <div class="panel empty" data-show="empty"><span class="well"><i data-icon="clipboard"></i></span><h3>No bookings yet</h3><p>Guests can book once rooms are open and rates are set for upcoming dates.</p><a class="btn" href="owner-rates.html">Check rates &amp; rooms</a></div>
+    </div>
+  </div>
+</div>
+<aside class="drawer" data-show="detail" role="dialog" aria-labelledby="bd">
+  <header><div><h2 id="bd" style="font-size:18px">Priya Shah</h2><span class="mono muted">RS-8K2QX · booked 2 Nov, 21:14</span></div><a class="iconbtn" href="?state=list" aria-label="Close"><i data-icon="x"></i></a></header>
+  <div class="dbody stack">
+    <span class="bdg ok dot">Arriving today · paid</span>
+    <dl class="kv" style="grid-template-columns:120px 1fr"><dt>Stay</dt><dd>Wed 18 → Fri 20 Nov · 2 nights</dd><dt>Room</dt><dd>1 × Deluxe Double · Breakfast · 2 adults</dd><dt>Arrival</dt><dd>12:00 – 14:00</dd><dt>Request</dt><dd>High floor, Jain breakfast</dd><dt>Phone</dt><dd>+91 98250 12345</dd><dt>GST invoice</dt><dd>Rajhans Textiles Pvt Ltd · 24AAACR1234Q1Z5</dd></dl>
+    <div class="panel" style="padding:14px"><b class="small">Money</b>
+      <div class="summary" style="margin-top:6px"><div class="line"><span>Room (2 nights)</span><span>₹6,200</span></div><div class="line"><span>GST 5% (you file)</span><span>₹310</span></div><div class="line"><span>Commission 10%</span><span>−₹620</span></div><div class="line"><span>GST on commission 18%</span><span>−₹112</span></div><div class="line"><span>TCS 0.5% · TDS 0.1%</span><span>−₹37</span></div><div class="line tot"><span>You receive</span><span>₹5,741</span></div></div>
+      <p class="tiny muted">Payout on Tue 24 Nov after check-in.</p></div>
+    <p class="small muted">Guest policy: free cancellation ended 16 Nov, 12:00. No-show: first night.</p>
+  </div>
+  <footer><span class="btn ghost sm">Message</span><span class="btn danger sm">Cancel…</span><span class="btn sm">Check in</span></footer>
+</aside>
+<script src="chrome.js"></script><script src="icons.js"></script>
+</body></html>
