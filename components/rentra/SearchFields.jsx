@@ -824,13 +824,13 @@ function LocationOption({ title, subtitle, selected, onClick, Icon = MapPin, dis
   );
 }
 
-function shiftMonth(month, delta) {
+export function shiftMonth(month, delta) {
   const date = new Date(`${month}-01T00:00:00Z`);
   date.setUTCMonth(date.getUTCMonth() + delta);
   return date.toISOString().slice(0, 7);
 }
 
-function CalendarMonth({
+export function CalendarMonth({
   month,
   today,
   lastDate,

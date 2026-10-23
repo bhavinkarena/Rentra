@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState, useSyncExternalStore, useTransition } from 'react';
 import { createPortal } from 'react-dom';
+import { Popover } from 'radix-ui';
+import { CalendarMonth, shiftMonth } from '@/components/rentra/SearchFields';
 import { beginCustomerLogin, restoreCustomerSelection } from '@/lib/actions/auth';
 import { requestStayQuote } from '@/lib/actions/customer';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -9,6 +11,9 @@ import {
   AlertTriangle,
   BedDouble,
   CalendarDays,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   CircleCheck,
   Coffee,
   Eye,
@@ -28,6 +33,7 @@ import { parseDiscoveryQuery } from '@/lib/domain/discovery';
 import { MEAL_LABELS, bedsLine, formatInstant, humanize, splitParty } from '@/lib/domain/hotel-ui';
 
 const MAX_ROOMS = 8;
+const MAX_NIGHTS = 30;
 const step =
   'grid size-11 shrink-0 place-items-center rounded-full border border-border text-ink-700 hover:border-brand-600 hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-30';
 
@@ -245,7 +251,7 @@ export default function HotelRooms({ code, rentableId, roomTypes, railId, fromPr
       </div>
       <StayRail
         rail={rail}
-        form={<StayForm key={stayKey} filters={filters} onApply={apply} compact />}
+        form={<StayForm key={stayKey} filters={filters} onApply={apply} />}
         fromPrice={fromPrice}
         filters={filters}
         lines={lines}
@@ -262,18 +268,49 @@ export default function HotelRooms({ code, rentableId, roomTypes, railId, fromPr
 }
 
 /** Dates and party; Apply rewrites the URL so the page, the back button and a shared link agree. */
-function StayForm({ filters, onApply, compact = false }) {
+function StayForm({ filters, onApply }) {
   const today = propertyToday();
-  const [checkin, setCheckin] = useState(filters.checkin);
-  const [checkout, setCheckout] = useState(filters.checkout);
+  const lastDate = addLocalDays(today, 365);
+  const [stay, setStay] = useState(filters.checkin ? [filters.checkin, filters.checkout] : []);
   const [rooms, setRooms] = useState(filters.rooms);
   const [adults, setAdults] = useState(filters.adults);
   const [ages, setAges] = useState(filters.children);
-  const invalid = !checkin || !checkout || checkout <= checkin || ages.some((age) => age === '');
-  const counter = (label, value, min, max, set) => (
-    <div className="flex items-center justify-between gap-2">
-      <span className="text-meta font-semibold">{label}</span>
-      <span className="flex items-center gap-1.5">
+  const [open, setOpen] = useState(null);
+  const [month, setMonth] = useState((filters.checkin || today).slice(0, 7));
+  const [hoverDate, setHoverDate] = useState(null);
+  const [checkin, checkout] = stay;
+  const nights = checkout ? Math.round((Date.parse(checkout) - Date.parse(checkin)) / 86400000) : 0;
+
+  // Farmhouse rail behaviour: the page reprices as soon as the stay is complete.
+  const apply = (next = {}) => {
+    const [from, to] = next.stay ?? stay;
+    const childAges = next.ages ?? ages;
+    if (!from || !to || childAges.some((age) => age === '')) return;
+    const query = new URLSearchParams({
+      checkin: from,
+      checkout: to,
+      rooms: String(next.rooms ?? rooms),
+      adults: String(next.adults ?? adults),
+    });
+    if (childAges.length) query.set('children', childAges.join(','));
+    onApply(query.toString());
+  };
+  const selectNight = (date) => {
+    setHoverDate(null);
+    const next = stay.length !== 1 || date <= stay[0] ? [date] : [stay[0], date];
+    setStay(next);
+    if (next.length === 2) {
+      setOpen(null);
+      apply({ stay: next });
+    }
+  };
+  const counter = (label, value, min, max, set, hint) => (
+    <div className="flex items-center justify-between gap-4 py-2">
+      <div>
+        <p className="font-semibold">{label}</p>
+        {hint ? <p className="mt-0.5 text-xs text-ink-500">{hint}</p> : null}
+      </div>
+      <span className="flex items-center gap-3">
         <button
           type="button"
           className={step}
@@ -283,9 +320,9 @@ function StayForm({ filters, onApply, compact = false }) {
         >
           <Minus className="size-4" />
         </button>
-        <span className="w-6 text-center font-semibold tabular" aria-live="polite">
+        <output aria-live="polite" className="min-w-5 text-center font-semibold tabular">
           {value}
-        </span>
+        </output>
         <button
           type="button"
           className={step}
@@ -298,94 +335,180 @@ function StayForm({ filters, onApply, compact = false }) {
       </span>
     </div>
   );
+  const guests = adults + ages.length;
+  const cell = 'block text-tiny font-bold uppercase';
   return (
-    <form
-      aria-label="Your stay"
-      className={compact ? '' : 'rounded-lg border border-border bg-card p-4'}
-      onSubmit={(event) => {
-        event.preventDefault();
-        if (invalid) return;
-        const query = new URLSearchParams({
-          checkin,
-          checkout,
-          rooms: String(rooms),
-          adults: String(adults),
-        });
-        if (ages.length) query.set('children', ages.join(','));
-        onApply(query.toString());
-      }}
-    >
-      <div className="grid grid-cols-2 gap-3">
-        <label className="text-tiny font-semibold text-ink-700">
-          Check-in
-          <input
-            type="date"
-            value={checkin}
-            min={today}
-            max={addLocalDays(today, 365)}
-            onChange={(event) => {
-              setCheckin(event.target.value);
-              if (!checkout || checkout <= event.target.value)
-                setCheckout(event.target.value ? addLocalDays(event.target.value, 1) : '');
-            }}
-            className="mt-1 min-h-11 w-full rounded-xl border border-ink-300 bg-card px-3 text-base"
-          />
-        </label>
-        <label className="text-tiny font-semibold text-ink-700">
-          Check-out
-          <input
-            type="date"
-            value={checkout}
-            min={checkin ? addLocalDays(checkin, 1) : addLocalDays(today, 1)}
-            max={checkin ? addLocalDays(checkin, 30) : undefined}
-            onChange={(event) => setCheckout(event.target.value)}
-            className="mt-1 min-h-11 w-full rounded-xl border border-ink-300 bg-card px-3 text-base"
-          />
-        </label>
-      </div>
-      <div className={`mt-3 grid gap-3 ${compact ? '' : 'sm:grid-cols-3'}`}>
-        {counter('Rooms', rooms, 1, MAX_ROOMS, (value) => {
-          setRooms(value);
-          if (adults < value) setAdults(value);
-        })}
-        {counter('Adults', adults, rooms, rooms * 6, setAdults)}
-        {counter('Children', ages.length, 0, rooms * 4, (value) =>
-          setAges(value > ages.length ? [...ages, ''] : ages.slice(0, value)),
-        )}
-      </div>
-      {ages.length ? (
-        <div className={`mt-3 grid grid-cols-2 gap-2 ${compact ? '' : 'sm:grid-cols-4'}`}>
-          {ages.map((age, index) => (
-            <label key={index} className="text-tiny font-semibold text-ink-700">
-              Child {index + 1} age
-              <select
-                value={age}
-                required
-                onChange={(event) =>
-                  setAges(
-                    ages.map((value, i) => (i === index ? Number(event.target.value) : value)),
-                  )
-                }
-                className="mt-1 min-h-11 w-full rounded-xl border border-ink-300 bg-card px-2 text-base"
-              >
-                <option value="">Age</option>
-                {Array.from({ length: 18 }, (_, value) => (
-                  <option key={value} value={value}>
-                    {value === 0 ? 'Under 1' : value}
-                  </option>
-                ))}
-              </select>
-            </label>
-          ))}
-        </div>
-      ) : null}
-      <button
-        disabled={invalid}
-        className={`mt-3 min-h-11 w-full rounded-full bg-brand-600 px-5 text-meta font-semibold text-white hover:bg-brand-700 disabled:opacity-50 ${compact ? '' : 'sm:w-auto'}`}
+    <div className="rounded-xl border border-ink-300 bg-card">
+      <Popover.Root
+        open={open === 'dates'}
+        onOpenChange={(value) => {
+          setOpen(value ? 'dates' : null);
+          if (!value && stay.length === 1)
+            setStay(filters.checkin ? [filters.checkin, filters.checkout] : []);
+        }}
       >
-        {filters.checkin ? 'Update prices' : 'Show prices'}
-      </button>
-    </form>
+        <Popover.Trigger
+          aria-label="Choose check-in and check-out dates"
+          className="grid w-full grid-cols-2 rounded-t-xl text-left transition hover:bg-brand-50"
+        >
+          <span className="min-w-0 border-r border-ink-300 px-4 py-2.5">
+            <span className={cell}>Check-in</span>
+            <span className="mt-0.5 block truncate text-sm">
+              {checkin ? formatLocalDate(checkin, { weekday: 'short' }) : 'Add date'}
+            </span>
+          </span>
+          <span className="min-w-0 px-4 py-2.5">
+            <span className={cell}>Check-out</span>
+            <span className="mt-0.5 block truncate text-sm">
+              {checkout ? formatLocalDate(checkout, { weekday: 'short' }) : 'Add date'}
+            </span>
+          </span>
+        </Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Content
+            align="end"
+            sideOffset={8}
+            collisionPadding={16}
+            aria-label="Choose your stay dates"
+            className="z-[70] w-[min(640px,calc(100vw-2rem))] rounded-xl border border-border bg-card p-5 shadow-xl"
+          >
+            <div className="mb-2 flex items-center justify-between">
+              <button
+                type="button"
+                aria-label="Previous month"
+                disabled={month <= today.slice(0, 7)}
+                className={step}
+                onClick={() => setMonth(shiftMonth(month, -1))}
+              >
+                <ChevronLeft className="size-4" />
+              </button>
+              <p className="px-2 text-center text-tiny text-ink-600" aria-live="polite">
+                {stay.length === 1
+                  ? `Choose check-out (up to ${MAX_NIGHTS} nights)`
+                  : 'Choose your check-in date'}
+              </p>
+              <button
+                type="button"
+                aria-label="Next month"
+                disabled={month >= lastDate.slice(0, 7)}
+                className={step}
+                onClick={() => setMonth(shiftMonth(month, 1))}
+              >
+                <ChevronRight className="size-4" />
+              </button>
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2" onPointerLeave={() => setHoverDate(null)}>
+              {[month, shiftMonth(month, 1)].map((value, index) => (
+                <div key={value} className={index ? 'hidden sm:block' : ''}>
+                  <CalendarMonth
+                    month={value}
+                    today={today}
+                    lastDate={stay.length === 1 ? addLocalDays(lastDate, 1) : lastDate}
+                    dates={stay}
+                    mode="consecutive"
+                    maxSpan={MAX_NIGHTS}
+                    onSelect={selectNight}
+                    hoverDate={hoverDate}
+                    onPreview={setHoverDate}
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3">
+              <button
+                type="button"
+                onClick={() => setStay([])}
+                className="min-h-11 text-meta font-semibold text-ink-600 underline underline-offset-4"
+              >
+                Clear dates
+              </button>
+              <span className="text-tiny text-ink-600">
+                {nights
+                  ? `${nights} night${nights === 1 ? '' : 's'}`
+                  : 'Add dates for exact prices'}
+              </span>
+            </div>
+          </Popover.Content>
+        </Popover.Portal>
+      </Popover.Root>
+      <Popover.Root
+        open={open === 'party'}
+        onOpenChange={(value) => {
+          setOpen(value ? 'party' : null);
+          if (!value) apply();
+        }}
+      >
+        <Popover.Trigger
+          aria-label={`Rooms and guests: ${rooms} room${rooms === 1 ? '' : 's'}, ${guests} guests`}
+          className="flex min-h-14 w-full items-center justify-between rounded-b-xl border-t border-ink-300 px-4 py-2.5 text-left hover:bg-brand-50"
+        >
+          <span>
+            <span className={cell}>Rooms &amp; guests</span>
+            <span className="mt-0.5 block text-sm">
+              {rooms} room{rooms === 1 ? '' : 's'} · {adults} adult{adults === 1 ? '' : 's'}
+              {ages.length ? ` · ${ages.length} child${ages.length === 1 ? '' : 'ren'}` : ''}
+            </span>
+          </span>
+          <ChevronDown className={`size-5 transition ${open === 'party' ? 'rotate-180' : ''}`} />
+        </Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Content
+            align="end"
+            sideOffset={8}
+            collisionPadding={16}
+            aria-label="Select rooms and guests"
+            className="z-[70] w-[var(--radix-popover-trigger-width)] min-w-72 max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-card p-5 shadow-xl"
+          >
+            {counter('Rooms', rooms, 1, MAX_ROOMS, (value) => {
+              setRooms(value);
+              if (adults < value) setAdults(value);
+            })}
+            {counter('Adults', adults, rooms, rooms * 6, setAdults, 'Age 18 or over')}
+            {counter(
+              'Children',
+              ages.length,
+              0,
+              rooms * 4,
+              (value) => setAges(value > ages.length ? [...ages, ''] : ages.slice(0, value)),
+              'Age 0–17',
+            )}
+            {ages.length ? (
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {ages.map((age, index) => (
+                  <label key={index} className="text-tiny font-semibold text-ink-700">
+                    Child {index + 1} age
+                    <select
+                      value={age}
+                      required
+                      onChange={(event) =>
+                        setAges(
+                          ages.map((value, i) =>
+                            i === index ? Number(event.target.value) : value,
+                          ),
+                        )
+                      }
+                      className="mt-1 min-h-11 w-full rounded-xl border border-ink-300 bg-card px-2 text-base"
+                    >
+                      <option value="">Age</option>
+                      {Array.from({ length: 18 }, (_, value) => (
+                        <option key={value} value={value}>
+                          {value === 0 ? 'Under 1' : value}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ))}
+              </div>
+            ) : null}
+            <div className="mt-3 text-right">
+              <Popover.Close className="min-h-11 text-sm font-semibold underline underline-offset-4">
+                Done
+              </Popover.Close>
+            </div>
+          </Popover.Content>
+        </Popover.Portal>
+      </Popover.Root>
+    </div>
   );
 }
 
@@ -680,7 +803,7 @@ function StayRail({
           / night
         </p>
       ) : null}
-      <div className="mt-4 border-t border-border pt-4">{form}</div>
+      <div className="mt-4">{form}</div>
       <div className="mt-4 border-t border-border pt-4">{summary}</div>
     </aside>
   ) : (
