@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState, useTransition } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore, useTransition } from 'react';
+import { createPortal } from 'react-dom';
 import { beginCustomerLogin, restoreCustomerSelection } from '@/lib/actions/auth';
 import { requestStayQuote } from '@/lib/actions/customer';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -20,6 +21,7 @@ import {
   Users,
 } from 'lucide-react';
 import { discoveryApi } from '@/lib/api/endpoints';
+import { formatINR } from '@/lib/domain/pricing';
 import { formatINRMinor } from '@/lib/domain/booking-money';
 import { addLocalDays, formatLocalDate, propertyToday } from '@/lib/domain/booking-dates';
 import { parseDiscoveryQuery } from '@/lib/domain/discovery';
@@ -34,7 +36,18 @@ const step =
  * Prices come from the API for the guest's dates and party (the search card's
  * numbers); the total comes from a server quote. The page never prices anything.
  */
-export default function HotelRooms({ code, rentableId, roomTypes }) {
+const noSubscription = () => () => {};
+
+/**
+ * `railId` names the page's sticky booking column (farmhouse layout): the stay
+ * form and the total render there from lg up, inline above the rooms below lg.
+ */
+export default function HotelRooms({ code, rentableId, roomTypes, railId, fromPrice }) {
+  const rail = useSyncExternalStore(
+    noSubscription,
+    () => (railId ? document.getElementById(railId) : null),
+    () => null,
+  );
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -181,11 +194,14 @@ export default function HotelRooms({ code, rentableId, roomTypes }) {
       else setReserveError(result?.error ?? 'Could not start checkout. Try again.');
     });
 
+  const apply = (query) => router.replace(`${pathname}?${query}`, { scroll: false });
   const setCount = (planId, count) =>
     setPicked({ key: stayKey, counts: { ...selection, [planId]: count } });
 
   return (
-    <div className="grid items-start gap-x-10 gap-y-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+    <div
+      className={`grid items-start gap-x-10 gap-y-6 ${rail ? '' : 'lg:grid-cols-[minmax(0,1fr)_340px]'}`}
+    >
       <div className="min-w-0 space-y-5">
         {replacesOrderId ? (
           <p className="flex items-start gap-2 rounded-lg bg-info-bg p-3 text-meta text-ink-800">
@@ -196,10 +212,9 @@ export default function HotelRooms({ code, rentableId, roomTypes }) {
             </span>
           </p>
         ) : null}
-        <StayForm
-          filters={filters}
-          onApply={(query) => router.replace(`${pathname}?${query}`, { scroll: false })}
-        />
+        <div className={rail ? 'lg:hidden' : undefined}>
+          <StayForm key={stayKey} filters={filters} onApply={apply} />
+        </div>
         {live.error && !loading ? (
           <p role="alert" className="flex items-start gap-2 rounded-lg bg-warning-bg p-3 text-meta">
             <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden="true" />
@@ -229,6 +244,9 @@ export default function HotelRooms({ code, rentableId, roomTypes }) {
         </div>
       </div>
       <StayRail
+        rail={rail}
+        form={<StayForm key={stayKey} filters={filters} onApply={apply} compact />}
+        fromPrice={fromPrice}
         filters={filters}
         lines={lines}
         chosenRooms={chosenRooms}
@@ -244,7 +262,7 @@ export default function HotelRooms({ code, rentableId, roomTypes }) {
 }
 
 /** Dates and party; Apply rewrites the URL so the page, the back button and a shared link agree. */
-function StayForm({ filters, onApply }) {
+function StayForm({ filters, onApply, compact = false }) {
   const today = propertyToday();
   const [checkin, setCheckin] = useState(filters.checkin);
   const [checkout, setCheckout] = useState(filters.checkout);
@@ -283,7 +301,7 @@ function StayForm({ filters, onApply }) {
   return (
     <form
       aria-label="Your stay"
-      className="rounded-lg border border-border bg-card p-4"
+      className={compact ? '' : 'rounded-lg border border-border bg-card p-4'}
       onSubmit={(event) => {
         event.preventDefault();
         if (invalid) return;
@@ -297,7 +315,7 @@ function StayForm({ filters, onApply }) {
         onApply(query.toString());
       }}
     >
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-2 gap-3">
         <label className="text-tiny font-semibold text-ink-700">
           Check-in
           <input
@@ -325,7 +343,7 @@ function StayForm({ filters, onApply }) {
           />
         </label>
       </div>
-      <div className="mt-3 grid gap-3 sm:grid-cols-3">
+      <div className={`mt-3 grid gap-3 ${compact ? '' : 'sm:grid-cols-3'}`}>
         {counter('Rooms', rooms, 1, MAX_ROOMS, (value) => {
           setRooms(value);
           if (adults < value) setAdults(value);
@@ -336,7 +354,7 @@ function StayForm({ filters, onApply }) {
         )}
       </div>
       {ages.length ? (
-        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className={`mt-3 grid grid-cols-2 gap-2 ${compact ? '' : 'sm:grid-cols-4'}`}>
           {ages.map((age, index) => (
             <label key={index} className="text-tiny font-semibold text-ink-700">
               Child {index + 1} age
@@ -363,7 +381,7 @@ function StayForm({ filters, onApply }) {
       ) : null}
       <button
         disabled={invalid}
-        className="mt-3 min-h-11 w-full rounded-full bg-brand-600 px-5 text-meta font-semibold text-white hover:bg-brand-700 disabled:opacity-50 sm:w-auto"
+        className={`mt-3 min-h-11 w-full rounded-full bg-brand-600 px-5 text-meta font-semibold text-white hover:bg-brand-700 disabled:opacity-50 ${compact ? '' : 'sm:w-auto'}`}
       >
         {filters.checkin ? 'Update prices' : 'Show prices'}
       </button>
@@ -559,6 +577,9 @@ function PlanRow({
 
 /** Sticky on desktop, a bottom bar on phones: the selected rooms and the quoted total. */
 function StayRail({
+  rail,
+  form,
+  fromPrice,
   filters,
   lines,
   chosenRooms,
@@ -644,15 +665,36 @@ function StayRail({
       )}
     </>
   );
+  const card = rail ? (
+    <aside
+      aria-label="Your selection"
+      className="hidden rounded-lg border border-border bg-card p-5 shadow-sm lg:block"
+    >
+      <h2 className="text-h4">Plan your stay</h2>
+      {fromPrice ? (
+        <p className="mt-3 text-meta text-ink-600">
+          From{' '}
+          <span className="text-h2 font-extrabold text-ink-900 tabular" data-money>
+            {formatINR(fromPrice)}
+          </span>{' '}
+          / night
+        </p>
+      ) : null}
+      <div className="mt-4 border-t border-border pt-4">{form}</div>
+      <div className="mt-4 border-t border-border pt-4">{summary}</div>
+    </aside>
+  ) : (
+    <aside
+      aria-label="Your selection"
+      className="hidden rounded-lg border border-border bg-card p-5 shadow-sm lg:sticky lg:top-24 lg:block"
+    >
+      <h3 className="text-h4">Your stay</h3>
+      <div className="mt-2">{summary}</div>
+    </aside>
+  );
   return (
     <>
-      <aside
-        aria-label="Your selection"
-        className="hidden rounded-lg border border-border bg-card p-5 shadow-sm lg:sticky lg:top-24 lg:block"
-      >
-        <h3 className="text-h4">Your stay</h3>
-        <div className="mt-2">{summary}</div>
-      </aside>
+      {rail ? createPortal(card, rail) : card}
       {chosenRooms ? (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card px-4 py-3 shadow-lg lg:hidden">
           <div className="flex items-center justify-between gap-3">

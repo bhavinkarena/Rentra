@@ -560,72 +560,74 @@ function HotelListing({ listing, preview = false }) {
           <PhotoGallery photos={listing.photos} title={listing.title} />
         </div>
         <span id="gallery-end" aria-hidden="true" className="block" />
-        <div className="mt-8">
-          <ListingHeader
-            listing={listing}
-            shareUrl={shareUrl}
-            fromText={listing.price ? ` — rooms from ${formatINR(listing.price)}/night` : ''}
-            preview={preview}
-          />
-          <nav aria-label="On this page" className="mt-6 flex gap-2 overflow-x-auto text-meta">
-            {[
-              ['rooms', 'Rooms'],
-              ['amenities', 'Amenities'],
-              ['policies', 'Policies'],
-              ['reviews', 'Reviews'],
-              ['location', 'Location'],
-            ].map(([id, label]) => (
-              <a
-                key={id}
-                href={`#${id}`}
-                className="inline-flex min-h-10 shrink-0 items-center rounded-full border border-border px-4 font-medium text-ink-700 hover:border-brand-300 hover:bg-brand-50"
-              >
-                {label}
-              </a>
-            ))}
-          </nav>
-          <div className="mt-8">
-            <HotelFactsRow listing={listing} />
+
+        {/* Same frame as the farmhouse page: content left, sticky booking rail right. */}
+        <div className="mt-8 grid items-start gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,1fr)_380px]">
+          <div className="min-w-0">
+            <ListingHeader
+              listing={listing}
+              shareUrl={shareUrl}
+              fromText={listing.price ? ` — rooms from ${formatINR(listing.price)}/night` : ''}
+              preview={preview}
+            />
+
+            <div className="mt-8">
+              <HotelFactsRow listing={listing} />
+            </div>
+
+            {listing.description ? (
+              <Section id="about" title="About this hotel" className="mt-10">
+                <p className="max-w-prose text-body whitespace-pre-line [overflow-wrap:anywhere] text-ink-700">
+                  {listing.description}
+                </p>
+              </Section>
+            ) : null}
+
+            <Section id="rooms" title="Choose your room" className="mt-10">
+              {preview ? (
+                <p className="rounded-md border bg-card p-4 text-meta">
+                  Room prices are not shown in this preview.
+                </p>
+              ) : listing.roomTypes?.length ? (
+                <Suspense fallback={null}>
+                  <HotelRooms
+                    code={listing.publicCode}
+                    rentableId={listing.id}
+                    roomTypes={listing.roomTypes}
+                    railId="hotel-booking-rail"
+                    fromPrice={listing.price}
+                  />
+                </Suspense>
+              ) : (
+                <p className="text-meta text-ink-600">
+                  This hotel has not opened rooms on Rentra yet.
+                </p>
+              )}
+            </Section>
+
+            <Section id="amenities" title="What this hotel has" className="mt-10">
+              <AmenityGrid amenities={listing.amenities} />
+            </Section>
+
+            <Section id="policies" title="Hotel policies" className="mt-10">
+              <HotelPolicies hotel={listing.hotel} />
+            </Section>
+
+            <Section id="reviews" title="Reviews" className="mt-10">
+              <Reviews listing={listing} />
+            </Section>
           </div>
+
+          <aside className="lg:sticky lg:top-20">
+            {preview ? (
+              <p className="rounded-md border bg-card p-4 text-meta">
+                Booking is disabled in this preview.
+              </p>
+            ) : (
+              <div id="hotel-booking-rail" />
+            )}
+          </aside>
         </div>
-
-        <Section id="rooms" title="Rooms" className="mt-10">
-          {preview ? (
-            <p className="rounded-md border bg-card p-4 text-meta">
-              Room prices are not shown in this preview.
-            </p>
-          ) : listing.roomTypes?.length ? (
-            <Suspense fallback={null}>
-              <HotelRooms
-                code={listing.publicCode}
-                rentableId={listing.id}
-                roomTypes={listing.roomTypes}
-              />
-            </Suspense>
-          ) : (
-            <p className="text-meta text-ink-600">This hotel has not opened rooms on Rentra yet.</p>
-          )}
-        </Section>
-
-        {listing.description ? (
-          <Section id="about" title="About this hotel" className="mt-10">
-            <p className="max-w-prose text-body whitespace-pre-line [overflow-wrap:anywhere] text-ink-700">
-              {listing.description}
-            </p>
-          </Section>
-        ) : null}
-
-        <Section id="amenities" title="What this hotel has" className="mt-10">
-          <AmenityGrid amenities={listing.amenities} />
-        </Section>
-
-        <Section id="policies" title="Hotel policies" className="mt-10">
-          <HotelPolicies hotel={listing.hotel} />
-        </Section>
-
-        <Section id="reviews" title="Reviews" className="mt-10">
-          <Reviews listing={listing} />
-        </Section>
 
         <Section id="location" title="Location" className="mt-12">
           <LocationMap
