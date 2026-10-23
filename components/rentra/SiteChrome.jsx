@@ -11,6 +11,17 @@ import CustomerNavigation from '@/components/customer/CustomerNavigation';
 import Providers from '@/components/providers';
 import HeaderSearch from '@/components/rentra/HeaderSearch';
 import { HeaderVerticalTabs } from '@/components/rentra/VerticalTabs';
+import { VerticalIcon } from '@/components/rentra/icons/vertical-icons';
+import { VERTICAL_UI } from '@/lib/domain/vertical-ui';
+
+const FOOTER_TITLES = { entertainment: 'Play near you', hotel: 'Hotels near you' };
+// Built from the public verticals, so the line never promises one that is not live.
+const FOOTER_PHRASES = {
+  farmhouse: 'Farmhouse days',
+  entertainment: 'game nights',
+  hotel: 'hotel stays',
+};
+const LIST = new Intl.ListFormat('en', { type: 'conjunction' });
 
 /**
  * The public site chrome: skip link, sticky header, main landmark, dark footer
@@ -117,19 +128,27 @@ async function MarketingFooter() {
     'marketing footer registry',
   );
   const farmhouse = categories.find((c) => (c.vertical ?? 'farmhouse') === 'farmhouse');
-  // Venue landings per city, once Entertainment is public (entertainment plan).
-  const play = verticals.find((v) => v.code === 'entertainment');
+  // One city column per public vertical, in header-tab order (farmhouse, play, hotels).
+  const columns = [
+    farmhouse && { code: 'farmhouse', title: 'Farmhouses near you', slug: farmhouse.slug },
+    ...verticals
+      .filter((v) => v.code !== 'farmhouse' && FOOTER_TITLES[v.code])
+      .map((v) => ({ code: v.code, title: FOOTER_TITLES[v.code], slug: v.slug })),
+  ].filter(Boolean);
+  const homes = [
+    { code: 'farmhouse', name: 'Farmhouses' },
+    ...verticals.filter((v) => v.code !== 'farmhouse' && VERTICAL_UI[v.code]),
+  ];
   const heading = 'text-tiny font-semibold tracking-wider text-champagne uppercase';
   const link = 'text-meta text-on-dark-muted transition-colors hover:text-white';
   return (
     <footer data-surface="inverse" className="mt-16 bg-brand-900 text-paper">
       <div className="mx-auto max-w-(--container-page) px-4 pt-12 sm:px-6 pb-6">
         <div
-          className={`grid grid-cols-2 gap-x-6 gap-y-8 lg:gap-10 ${
-            play && cities.length > 0
-              ? 'lg:grid-cols-[1.4fr_1fr_1fr_1.2fr_1.2fr]'
-              : 'lg:grid-cols-[1.5fr_1fr_1fr_1.3fr]'
-          }`}
+          className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-(--footer-columns) lg:gap-10"
+          style={{
+            '--footer-columns': `1.5fr 1fr ${'1.2fr '.repeat(cities.length ? columns.length : 0)}`,
+          }}
         >
           <div className="col-span-2 lg:col-span-1">
             <Link href="/" aria-label="Rentra home" className="inline-block">
@@ -139,19 +158,34 @@ async function MarketingFooter() {
               Make room for <span className="text-champagne">a little getaway.</span>
             </p>
             <p className="mt-2 max-w-xs text-meta text-on-dark-muted max-sm:hidden">
-              Pool days, slow weekends and good company. Find a place to make them happen.
+              {homes.length > 1
+                ? `${LIST.format(homes.map((home) => FOOTER_PHRASES[home.code]).filter(Boolean))}. Find a place to make them happen.`
+                : 'Pool days, slow weekends and good company. Find a place to make them happen.'}
             </p>
+            <AccountSwitchButton
+              role="client"
+              className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-champagne px-4 text-meta font-semibold text-brand-900 transition-colors hover:bg-champagne-hover"
+            >
+              List your space
+              <ArrowUpRight className="size-4" aria-hidden="true" />
+            </AccountSwitchButton>
           </div>
 
-          <nav aria-label="Explore Rentra">
-            <h2 className={heading}>Your next getaway</h2>
+          <nav aria-label="Explore Rentra" className="col-span-2 sm:col-span-1">
+            <h2 className={heading}>Explore</h2>
             <ul className="mt-4 space-y-2">
-              <li>
-                <Link href="/search" className={link}>
-                  Explore all places
-                </Link>
-              </li>
-              <li>
+              {homes.map((home) => (
+                <li key={home.code}>
+                  <Link
+                    href={VERTICAL_UI[home.code]?.path ?? '/'}
+                    className={`${link} inline-flex items-center gap-2`}
+                  >
+                    <VerticalIcon code={home.code} className="size-4 shrink-0" />
+                    {home.name}
+                  </Link>
+                </li>
+              ))}
+              <li className="pt-2">
                 <Link href="/saved" className={link}>
                   Your saved places
                 </Link>
@@ -164,49 +198,26 @@ async function MarketingFooter() {
             </ul>
           </nav>
 
-          <div>
-            <h2 className={heading}>Have a place to share?</h2>
-            <p className="mt-4 max-w-56 text-meta text-on-dark-muted max-sm:hidden">
-              Bring your property to Rentra and welcome your next guests.
-            </p>
-            <AccountSwitchButton
-              role="client"
-              className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-champagne px-4 text-meta font-semibold text-brand-900 transition-colors hover:bg-champagne-hover"
-            >
-              List your space
-              <ArrowUpRight className="size-4" aria-hidden="true" />
-            </AccountSwitchButton>
-          </div>
-
-          {farmhouse && cities.length > 0 ? (
-            <nav aria-label="Farmhouses by city" className="col-span-2 lg:col-span-1">
-              <h2 className={heading}>Farmhouses near you</h2>
-              <ul className="mt-4 grid grid-cols-3 gap-x-4 gap-y-2.5 sm:grid-cols-5 lg:grid-cols-2 lg:gap-x-6">
-                {cities.map((city) => (
-                  <li key={city.slug}>
-                    <Link href={`/${city.slug}/${farmhouse.slug}`} className={link}>
-                      {city.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          ) : null}
-
-          {play && cities.length > 0 ? (
-            <nav aria-label="Play venues by city" className="col-span-2 lg:col-span-1">
-              <h2 className={heading}>Play near you</h2>
-              <ul className="mt-4 grid grid-cols-3 gap-x-4 gap-y-2.5 sm:grid-cols-5 lg:grid-cols-2 lg:gap-x-6">
-                {cities.map((city) => (
-                  <li key={city.slug}>
-                    <Link href={`/${city.slug}/${play.slug}`} className={link}>
-                      {city.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          ) : null}
+          {cities.length > 0
+            ? columns.map((column) => (
+                <nav
+                  key={column.code}
+                  aria-label={column.title}
+                  className="col-span-2 sm:col-span-1"
+                >
+                  <h2 className={heading}>{column.title}</h2>
+                  <ul className="mt-4 grid grid-cols-3 gap-x-4 gap-y-2.5 sm:grid-cols-2 lg:gap-x-6">
+                    {cities.map((city) => (
+                      <li key={city.slug}>
+                        <Link href={`/${city.slug}/${column.slug}`} className={link}>
+                          {city.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              ))
+            : null}
         </div>
 
         <div className="mt-8 flex flex-col gap-3 border-t border-forest-line pt-5 text-tiny text-on-dark-muted md:flex-row md:items-center md:justify-between">
