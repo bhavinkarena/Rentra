@@ -29,7 +29,13 @@ import { SLOT_ICONS } from '@/components/rentra/slot-icons';
 import { SLOTS, CANCELLATION_TIERS, CANCELLATION_TIERS_HOURLY } from '@/lib/domain/pricing';
 import { houseRuleLines } from '@/lib/domain/venue-rules';
 import { formatINRMinor as money } from '@/lib/domain/booking-money';
-import { cancellationSteps, clockTime, dayTile, shortDay } from '@/lib/domain/checkout-display';
+import {
+  cancellationSteps,
+  clockTime,
+  dayTile,
+  holdClock,
+  shortDay,
+} from '@/lib/domain/checkout-display';
 
 /*
  * Presentational pieces of the checkout screens. No state or handlers live
@@ -148,10 +154,7 @@ export function HoldTimer({ label, remaining }) {
         'Time’s up'
       ) : (
         <span>
-          {label}{' '}
-          <span className="tabular">
-            {Math.floor(remaining / 60)}:{String(remaining % 60).padStart(2, '0')}
-          </span>
+          {label} <span className="tabular">{holdClock(remaining)}</span>
         </span>
       )}
     </p>

@@ -5,6 +5,7 @@ import PartnerBookingsScreen from '@/components/partner/PartnerBookingsScreen';
 import { normalizeBookings } from '@/lib/partner/query-args';
 import { partnerCacheEnabled } from '@/lib/partner/flags';
 import OwnerBookings from '@/components/partner/OwnerBookings';
+import BookingRequests from '@/components/partner/BookingRequests';
 import { partnerApi } from '@/lib/api/endpoints';
 import { requireActiveClient } from '@/lib/api/session';
 import { settle } from '@/lib/api/page-state';
@@ -38,9 +39,13 @@ export default async function BookingsPage({ searchParams }) {
       )}
     </OwnerModal>
   ) : null;
+  // Request-to-book properties only; an older API without the route simply shows none.
+  const pending = await settle(partnerApi.bookingRequests());
+  const requests = <BookingRequests requests={pending.data?.requests} />;
   if (partnerCacheEnabled() && user.cacheScope)
     return (
       <>
+        {requests}
         <PartnerBookingsScreen scope={user.cacheScope} args={args} />
         {modal}
       </>
@@ -49,6 +54,7 @@ export default async function BookingsPage({ searchParams }) {
   if (failure) return <PortalState kind={failure} backHref="/partner" backLabel="Overview" />;
   return (
     <>
+      {requests}
       <OwnerBookings data={data} />
       {modal}
     </>

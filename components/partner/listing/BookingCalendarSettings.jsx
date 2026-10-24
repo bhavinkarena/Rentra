@@ -22,7 +22,9 @@ import {
   unblockDates,
   undoCalendarChange,
   turnOnAutoOpen,
+  changeInstantBook,
 } from '@/lib/actions/partner';
+import { CalendarCheck, UserCheck } from 'lucide-react';
 import Link from '@/components/navigation/NavigationLink';
 
 const inputClass = `${sharedFieldClass} mt-1 min-h-11`;
@@ -265,6 +267,92 @@ function AutoOpenOffer({ id }) {
   );
 }
 
+const CONFIRM_MODES = [
+  {
+    instant: true,
+    icon: CalendarCheck,
+    title: 'Automatic confirmation',
+    text: 'Guests proceed directly to payment. Successful payment confirms the booking.',
+    badge: 'Default setting',
+  },
+  {
+    instant: false,
+    icon: UserCheck,
+    title: 'Manual approval',
+    text: 'Guests submit a request. Payment becomes available after the owner approves.',
+  },
+];
+
+/** Instant book (default) or request to book; saved as soon as the owner picks one. */
+function BookingPreferences({ id, instantBook }) {
+  const router = useRouter();
+  const [value, setValue] = useState(instantBook !== false);
+  const [state, setState] = useState({});
+  const [pending, startTransition] = useTransition();
+  function choose(next) {
+    if (next === value || pending) return;
+    const previous = value;
+    setValue(next);
+    startTransition(async () => {
+      const result = await changeInstantBook(id, next);
+      setState(result);
+      if (result.error) setValue(previous);
+      else router.refresh();
+    });
+  }
+  return (
+    <section
+      id="booking-preferences"
+      className="space-y-3 rounded-lg border border-border bg-card p-5"
+    >
+      <div>
+        <h2 className="text-h3">Booking preferences</h2>
+        <p className="text-meta text-ink-600">Control how guests reserve this property.</p>
+      </div>
+      <fieldset disabled={pending} className="space-y-2">
+        <legend className="mb-2 text-sm font-semibold">Who confirms bookings?</legend>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {CONFIRM_MODES.map(({ instant, icon: Icon, title, text, badge }) => (
+            <label
+              key={title}
+              className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition-colors ${value === instant ? 'border-brand-600 bg-brand-50' : 'border-border bg-card hover:border-brand-300'}`}
+            >
+              <input
+                type="radio"
+                name="instant-book"
+                checked={value === instant}
+                onChange={() => choose(instant)}
+                className="mt-1 size-4 shrink-0"
+              />
+              <span className="min-w-0">
+                <span className="flex flex-wrap items-center gap-2 font-semibold">
+                  <Icon className="size-4 text-brand-700" aria-hidden="true" />
+                  {title}
+                  {badge ? (
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-ink-600">
+                      {badge}
+                    </span>
+                  ) : null}
+                </span>
+                <span className="mt-1 block text-meta text-ink-600">{text}</span>
+              </span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      <p role="status" className="text-meta" aria-live="polite">
+        {state.error ? (
+          <span className="text-danger">{state.error}</span>
+        ) : pending ? (
+          'Saving…'
+        ) : state.instantBook !== undefined ? (
+          'Saved. New bookings follow this setting; open requests keep theirs.'
+        ) : null}
+      </p>
+    </section>
+  );
+}
+
 export default function BookingCalendarSettings({
   listing,
   blocks,
@@ -299,6 +387,7 @@ export default function BookingCalendarSettings({
             . Use a block below to close one court or the whole venue for a period.
           </p>
         ) : null}
+        <BookingPreferences id={listing.id} instantBook={listing.instant_book} />
         {!venue && config?.inventoryReady && config.autoOpen === undefined ? (
           <AutoOpenOffer id={listing.id} />
         ) : null}

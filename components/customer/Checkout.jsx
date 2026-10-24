@@ -21,6 +21,8 @@ import {
   Lock,
   MessageSquareText,
   Phone,
+  Send,
+  UserCheck,
   ReceiptText,
   RefreshCw,
   ScrollText,
@@ -41,7 +43,13 @@ import {
   refreshCustomerTestPayment,
 } from '@/lib/actions/customer';
 import { BOOKING_POLICY } from '@/lib/domain/booking-policy';
-import { checkoutStage, mayLaunchCheckout } from '@/lib/domain/checkout-display';
+import {
+  checkoutStage,
+  clockTime,
+  holdClock,
+  mayLaunchCheckout,
+  shortDay,
+} from '@/lib/domain/checkout-display';
 import { formatINRMinor as money } from '@/lib/domain/booking-money';
 import PaymentVerification from './checkout/PaymentVerification';
 import ConfirmedView from './checkout/ConfirmedView';
@@ -84,6 +92,7 @@ const errors = {
     'Test payment is not configured yet. Reload this page to check any recorded booking status.',
   PAYMENTS_DISABLED:
     'Test checkout is currently unavailable. Your existing payment can still be checked.',
+  AWAITING_OWNER: 'The owner has not accepted this request yet. You can pay once they do.',
   IDEMPOTENCY_CONFLICT:
     'This quote already has a checkout request. Reload this page to recover it.',
 };
@@ -129,6 +138,18 @@ const STAGES = {
     icon: ReceiptText,
     title: 'This booking has updates',
     text: 'See each visit’s current status in your booking record.',
+  },
+  awaiting: {
+    tone: 'info',
+    icon: UserCheck,
+    title: 'Request sent to the owner',
+    text: 'You pay only after the owner accepts. We’ll text you when they reply.',
+  },
+  declined: {
+    tone: 'neutral',
+    icon: CircleX,
+    title: 'The owner declined this request',
+    text: 'You were not charged. Your dates are released — choose other dates or another place.',
   },
   resolution: {
     tone: 'warning',
@@ -181,6 +202,8 @@ export default function Checkout({ data }) {
   const { quote, contact } = data;
   const router = useRouter();
   const [checkout, setCheckout] = useState(data.checkout ?? null);
+  // Request to book: the owner accepts before the guest can pay (instant book otherwise).
+  const request = checkout ? Boolean(checkout.approval) : data.instantBook === false;
   const [purpose, setPurpose] = useState(data.purpose ?? '');
   const stayCheckout = isStay(quote);
   // Hotel stays: one guest name per room (the first defaults to the account name), arrival, requests, GST.
@@ -202,7 +225,7 @@ export default function Checkout({ data }) {
   const [scriptReady, setScriptReady] = useState(false);
   const [scriptFailed, setScriptFailed] = useState(false);
   const deadline = checkout?.holdExpiresAt
-    ? checkout.executionState === 'ready'
+    ? checkout.executionState === 'ready' && !checkout.approval
       ? new Date(
           Math.min(+new Date(checkout.holdExpiresAt), +new Date(quote.expiresAt)),
         ).toISOString()
@@ -394,7 +417,7 @@ export default function Checkout({ data }) {
   }
 
   const stage = checkoutStage(checkout, remaining);
-  const clock = `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, '0')}`;
+  const clock = holdClock(remaining);
   const verifyingPayment =
     busyAction === 'verify' || stage === 'pending' || (awaitingConfirmation && stage === 'held');
   const canPay = !verifyingPayment && mayLaunchCheckout(checkout, remaining);
@@ -433,7 +456,20 @@ export default function Checkout({ data }) {
 
   const hourly = isHourly(quote);
   const words = (text) => (hourly && typeof text === 'string' ? forVenue(text) : text);
-  const banner = verifyingPayment ? null : STAGES[stage];
+  const banner = verifyingPayment
+    ? null
+    : stage === 'awaiting'
+      ? {
+          ...STAGES.awaiting,
+          text: `The owner replies by ${shortDay(checkout.holdExpiresAt)}, ${clockTime(checkout.holdExpiresAt)}. ${STAGES.awaiting.text}`,
+        }
+      : stage === 'held' && checkout?.approval === 'approved'
+        ? {
+            ...STAGES.held,
+            title: 'The owner accepted your request',
+            text: 'Pay before the timer ends to confirm your booking.',
+          }
+        : STAGES[stage];
   const alert = message ? (
     <p
       role="alert"
@@ -494,10 +530,14 @@ export default function Checkout({ data }) {
         <div>
           <h1 className="text-h2 sm:text-h1">
             {review
-              ? 'Confirm your booking'
-              : PAYING.includes(stage)
-                ? 'Complete your payment'
-                : 'Your test booking'}
+              ? request
+                ? 'Request to book'
+                : 'Confirm your booking'
+              : stage === 'awaiting'
+                ? 'Request sent'
+                : PAYING.includes(stage)
+                  ? 'Complete your payment'
+                  : 'Your test booking'}
           </h1>
           {review || PAYING.includes(stage) ? (
             <div className="mt-4">
@@ -615,7 +655,7 @@ export default function Checkout({ data }) {
 
           {!review && !PAYING.includes(stage) ? (
             <div className="flex flex-wrap items-center gap-3">
-              {stage === 'expired' ? datesLink : null}
+              {['expired', 'declined'].includes(stage) ? datesLink : null}
               {['expired', 'resolution'].includes(stage) ? statusButton : null}
               {recordLink}
             </div>
@@ -825,18 +865,27 @@ export default function Checkout({ data }) {
                     <RentraLoader
                       inverse
                       label={
-                        stayCheckout
-                          ? 'Holding your rooms…'
-                          : hourly
-                            ? 'Reserving your time…'
-                            : 'Reserving your dates…'
+                        request
+                          ? 'Sending your request…'
+                          : stayCheckout
+                            ? 'Holding your rooms…'
+                            : hourly
+                              ? 'Reserving your time…'
+                              : 'Reserving your dates…'
                       }
                     />
-                    {stayCheckout
-                      ? 'Holding your rooms…'
-                      : hourly
-                        ? 'Reserving your time…'
-                        : 'Reserving your dates…'}
+                    {request
+                      ? 'Sending your request…'
+                      : stayCheckout
+                        ? 'Holding your rooms…'
+                        : hourly
+                          ? 'Reserving your time…'
+                          : 'Reserving your dates…'}
+                  </>
+                ) : request ? (
+                  <>
+                    <Send className="size-4" aria-hidden="true" />
+                    Send booking request
                   </>
                 ) : (
                   <>
@@ -848,11 +897,13 @@ export default function Checkout({ data }) {
               <p className="mt-3 text-center text-xs text-ink-600">
                 {remaining <= 0
                   ? words('This price expired. Go back to your dates for a fresh quote.')
-                  : stayCheckout
-                    ? 'We hold your rooms for up to 15 minutes while you pay on the next step. You won’t be charged yet.'
-                    : words(
-                        `We hold your dates for up to ${BOOKING_POLICY.holdMinutes} minutes while you pay on the next step. You won’t be charged yet.`,
-                      )}
+                  : request
+                    ? `The owner confirms bookings here and replies within ${BOOKING_POLICY.requestHours} hours. You pay only after they accept.`
+                    : stayCheckout
+                      ? 'We hold your rooms for up to 15 minutes while you pay on the next step. You won’t be charged yet.'
+                      : words(
+                          `We hold your dates for up to ${BOOKING_POLICY.holdMinutes} minutes while you pay on the next step. You won’t be charged yet.`,
+                        )}
               </p>
             </form>
           ) : null}
@@ -878,7 +929,8 @@ export default function Checkout({ data }) {
                 {payNow}
               </p>
               <p className="truncate text-xs text-ink-600">
-                Due now · total {money(quote.totals.totalMinor)}
+                {review && request ? 'Due after the owner accepts' : 'Due now'} · total{' '}
+                {money(quote.totals.totalMinor)}
                 {remaining > 0 ? ` · ${clock} left` : ''}
               </p>
             </div>
@@ -891,8 +943,12 @@ export default function Checkout({ data }) {
                 disabled={busy || remaining <= 0 || !quote.payment.enabled}
                 className={`${primary} ml-auto shrink-0`}
               >
-                <Lock className="size-4" aria-hidden="true" />
-                Continue
+                {request ? (
+                  <Send className="size-4" aria-hidden="true" />
+                ) : (
+                  <Lock className="size-4" aria-hidden="true" />
+                )}
+                {request ? 'Send request' : 'Continue'}
               </button>
             ) : (
               <button

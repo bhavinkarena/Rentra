@@ -2,20 +2,13 @@
 import useMobileKeyboard from './useMobileKeyboard';
 import NavigationProgress from '@/components/navigation/NavigationProgress';
 import OwnerGlobalSearch from '@/components/partner/OwnerGlobalSearch';
+import OwnerInboxPopover from '@/components/partner/OwnerInboxPopover';
 
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import Link, { useLinkStatus } from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useFormStatus } from 'react-dom';
-import {
-  Bell,
-  ArrowUpRight,
-  Lock,
-  LogOut,
-  Menu,
-  PanelLeftClose,
-  PanelLeftOpen,
-} from 'lucide-react';
+import { ArrowUpRight, Lock, LogOut, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import LoaderCircle from '@/components/ui/rentra-loader';
 import { RentraLogo, RentraMark } from '@/components/rentra/Logo';
 import NavDrawer from './NavDrawer';
@@ -453,20 +446,7 @@ export default function PortalShell({ config, children }) {
             {owner ? (
               <>
                 {config.headerAction}
-                <Link
-                  href="/partner/updates"
-                  aria-label="Inbox"
-                  aria-describedby="owner-inbox-count"
-                  className="relative grid size-11 place-items-center rounded-md text-ink-700 hover:bg-ink-50"
-                >
-                  <Bell className="size-5" aria-hidden="true" />
-                  <span
-                    id="owner-inbox-count"
-                    className="absolute top-0 right-0 rounded-full bg-brand-800 px-1 text-tiny text-white empty:hidden"
-                  >
-                    {config.inboxBadge}
-                  </span>
-                </Link>
+                <OwnerInboxPopover badge={config.inboxBadge} />
                 <Link
                   href={config.profileHref}
                   aria-label="Open account settings"

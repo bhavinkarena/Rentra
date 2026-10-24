@@ -4,6 +4,7 @@ import {
   cancellationSteps,
   checkoutStage,
   clockTime,
+  holdClock,
   localDay,
   mayLaunchCheckout,
   shortDay,
@@ -61,4 +62,17 @@ test('payment opens only for a live, unpaid, linked-or-ready hold', () => {
   assert.equal(mayLaunchCheckout(held, 0), false);
   assert.equal(mayLaunchCheckout({ ...held, executionState: 'dispatched' }, 30), false);
   assert.equal(mayLaunchCheckout({ ...held, paymentState: 'succeeded' }, 30), false);
+});
+
+test('request to book: no payment while the owner decides; declined and approved stages', () => {
+  const held = { state: 'held', executionState: 'ready', paymentState: 'created' };
+  assert.equal(checkoutStage({ ...held, approval: 'pending' }, 3600), 'awaiting');
+  assert.equal(checkoutStage({ ...held, approval: 'pending' }, 0), 'expired');
+  assert.equal(mayLaunchCheckout({ ...held, approval: 'pending' }, 3600), false);
+  assert.equal(checkoutStage({ ...held, approval: 'approved' }, 3600), 'held');
+  assert.equal(mayLaunchCheckout({ ...held, approval: 'approved' }, 3600), true);
+  assert.equal(checkoutStage({ ...held, state: 'expired', approval: 'declined' }, 0), 'declined');
+  assert.equal(mayLaunchCheckout({ ...held, approval: null }, 60), true);
+  assert.equal(holdClock(581), '9:41');
+  assert.equal(holdClock(11 * 3600 + 5 * 60 + 9), '11h 05m');
 });
