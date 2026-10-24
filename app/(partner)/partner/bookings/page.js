@@ -41,7 +41,9 @@ export default async function BookingsPage({ searchParams }) {
   ) : null;
   // Request-to-book properties only; an older API without the route simply shows none.
   const pending = await settle(partnerApi.bookingRequests());
-  const requests = <BookingRequests requests={pending.data?.requests} />;
+  const requests = (
+    <BookingRequests requests={pending.data?.requests} failed={Boolean(pending.failure)} />
+  );
   if (partnerCacheEnabled() && user.cacheScope)
     return (
       <>

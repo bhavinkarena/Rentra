@@ -80,7 +80,13 @@ function RequestCard({ request }) {
 }
 
 /** Request-to-book properties: open requests waiting for the owner, soonest deadline first. */
-export default function BookingRequests({ requests = [] }) {
+export default function BookingRequests({ requests = [], failed = false }) {
+  if (failed)
+    return (
+      <p role="alert" className="mx-auto max-w-6xl px-4 pt-4 text-meta text-danger sm:px-6">
+        Booking requests could not load. Refresh the page to try again.
+      </p>
+    );
   if (!requests.length) return null;
   return (
     <section
