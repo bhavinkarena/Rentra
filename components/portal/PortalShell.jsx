@@ -264,7 +264,11 @@ function Sidebar({ config, pathname, rail, onNavigate, onToggleRail }) {
             {group.hideLabel ? null : rail ? (
               <span className="my-1 h-px w-6 bg-white/15" aria-hidden="true" />
             ) : (
-              <p className="mb-1.5 px-2.5 text-tiny font-semibold text-brand-200">{group.label}</p>
+              <p
+                className={`mb-1.5 px-2.5 text-tiny font-semibold ${group.labelClass ?? 'text-brand-200'}`}
+              >
+                {group.label}
+              </p>
             )}
             <div className={rail ? 'flex flex-col items-center gap-1' : 'space-y-0.5'}>
               {group.items.map((item) => (

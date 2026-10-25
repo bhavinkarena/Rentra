@@ -31,12 +31,17 @@ export default async function AdminLayout({ children }) {
         <WaitingApplicationsCount />
       </Suspense>
     ) : null;
+    const support = admin.capabilities?.includes('admin.support.read') ? (
+      <Suspense fallback={null}>
+        <OpenSupportCount />
+      </Suspense>
+    ) : null;
     return (
       <div className={portalFont.variable}>
         <AdminShell
           admin={admin}
           logoutAction={adminLogout}
-          counts={{ waitingApplications: applications }}
+          counts={{ waitingApplications: applications, waitingSupport: support }}
         >
           {children}
         </AdminShell>
@@ -68,6 +73,16 @@ async function WaitingApplicationsCount() {
     <>
       {result.submitted}
       <span className="sr-only"> waiting applications</span>
+    </>
+  ) : null;
+}
+
+async function OpenSupportCount() {
+  const result = await adminApi.support({ state: 'open' }).catch(() => null);
+  return result?.total > 0 ? (
+    <>
+      {result.total}
+      <span className="sr-only"> open support requests</span>
     </>
   ) : null;
 }

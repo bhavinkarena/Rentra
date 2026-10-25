@@ -4,38 +4,87 @@ import { adminSearchHref, permittedSearchTypes } from '@/lib/domain/admin-search
 import { searchAdminRecords } from '@/lib/actions/admin';
 import {
   Activity,
+  BarChart3,
+  BedDouble,
   Building2,
   CalendarDays,
-  ClipboardList,
+  ChartPie,
   CreditCard,
+  FileSearch,
   FileText,
+  Gavel,
+  HeartPulse,
+  Landmark,
   LayoutDashboard,
+  LibraryBig,
   LifeBuoy,
+  Lock,
+  Mail,
   MessageSquareText,
-  Settings,
+  Newspaper,
+  Percent,
+  ReceiptText,
+  RotateCcw,
+  Scale,
+  ScrollText,
   ShieldAlert,
+  ShieldCheck,
+  Star,
   TriangleAlert,
   UserRound,
   Users,
+  Wallet,
 } from 'lucide-react';
 import PortalShell from '@/components/portal/PortalShell';
 import OwnerGlobalSearch from '@/components/partner/OwnerGlobalSearch';
 import AdminSectionNav from './AdminSectionNav';
 import {
   adminRouteLabel,
-  adminSectionForPath,
+  adminTabMatches,
   permittedAdminSections,
 } from '@/lib/domain/admin-navigation';
 
 const ICONS = {
-  dashboard: LayoutDashboard,
-  reviews: ClipboardList,
-  bookings: CalendarDays,
-  people: Users,
-  finance: CreditCard,
-  operations: Activity,
-  settings: Settings,
-  help: LifeBuoy,
+  '/admin': LayoutDashboard,
+  '/admin/analytics': BarChart3,
+  '/admin/activity': Activity,
+  '/admin/applications': FileText,
+  '/admin/properties': Building2,
+  '/admin/reviews': Star,
+  '/admin/bookings': CalendarDays,
+  '/admin/booking-cases': ShieldAlert,
+  '/admin/clients': Users,
+  '/admin/customers': UserRound,
+  '/admin/finance': Wallet,
+  '/admin/finance/payments': ReceiptText,
+  '/admin/finance/refunds': RotateCcw,
+  '/admin/finance/statements': FileSearch,
+  '/admin/finance/payouts': Landmark,
+  '/admin/disputes': Gavel,
+  '/admin/finance/commission': Percent,
+  '/admin/finance/tax': Scale,
+  '/admin/finance/hotel-payouts': BedDouble,
+  '/admin/finance/hotel-analytics': ChartPie,
+  '/admin/operations': HeartPulse,
+  '/admin/notifications': Mail,
+  '/admin/privacy': Lock,
+  '/admin/audit': ScrollText,
+  '/admin/content': Newspaper,
+  '/admin/catalogues': LibraryBig,
+  '/admin/payments': CreditCard,
+  '/admin/security': ShieldCheck,
+  '/admin/support': MessageSquareText,
+};
+
+// Section heading colours on the dark sidebar, so groups scan at a glance.
+const HEADING_TONES = {
+  reviews: 'text-amber-300',
+  bookings: 'text-sky-300',
+  people: 'text-emerald-300',
+  finance: 'text-yellow-200',
+  'hotel-finance': 'text-orange-300',
+  operations: 'text-cyan-300',
+  settings: 'text-violet-300',
 };
 
 const SEARCH_SECTIONS = {
@@ -73,29 +122,26 @@ function initials(email) {
 export default function AdminShell({ children, admin, logoutAction, counts = {} }) {
   const capabilities = admin.capabilities ?? [];
   const sections = permittedAdminSections(capabilities);
-  const itemFor = (section) => ({
-    href: section.tabs[0].href,
-    label: section.label,
-    icon: ICONS[section.key],
-    wrap: true,
-    match: (pathname) => adminSectionForPath(pathname, sections)?.key === section.key,
-    badge: section.key === 'reviews' ? counts.waitingApplications : undefined,
-  });
-  const groups = [
-    {
-      label: 'Workspace',
-      hideLabel: true,
-      items: sections.filter((section) => !section.footer).map(itemFor),
-    },
-  ];
+  const groups = sections
+    .filter((section) => !section.footer)
+    .map((section) => ({
+      label: section.label,
+      hideLabel: section.key === 'dashboard',
+      labelClass: `uppercase tracking-wider ${HEADING_TONES[section.key] ?? ''}`,
+      items: section.tabs.map((entry) => ({
+        href: entry.href,
+        label: entry.short ?? entry.label,
+        icon: ICONS[entry.href],
+        match: (pathname) => adminTabMatches(pathname, entry),
+        badge:
+          entry.href === '/admin/applications'
+            ? counts.waitingApplications
+            : entry.href === '/admin/support'
+              ? counts.waitingSupport
+              : undefined,
+      })),
+    }));
   const footerItems = [{ href: '/admin/help', label: 'Help & guide', icon: LifeBuoy }];
-  if (capabilities.includes('admin.support.read'))
-    footerItems.push({
-      href: '/admin/support',
-      label: 'Support inbox',
-      icon: MessageSquareText,
-      badge: counts.waitingSupport,
-    });
   const searchTypes = permittedSearchTypes(capabilities);
   const searchable = searchTypes.length > 0;
   const searchLabel = `Search ${searchTypes.map((type) => type.label.toLowerCase()).join(', ')}`;

@@ -23,11 +23,11 @@ with sync_playwright() as p:
         for role, target, label in [
             ('full', '/admin/applications', 'Owner applications'),
             ('readonly', '/admin/applications', 'Owner applications'),
-            ('records', '/admin/bookings', 'Booking records'),
+            ('records', '/admin/bookings', 'All bookings'),
             ('customers', '/admin/customers', 'Customers'),
             ('finance', '/admin/finance/payments', 'Payments'),
             ('applications', '/admin/applications', 'Owner applications'),
-            ('empty', '/admin/help', 'Guide'),
+            ('empty', '/admin/help', 'Help & guide'),
         ]:
             context = browser.new_context(viewport={'width': 1280, 'height': 900}, reduced_motion='reduce')
             context.add_cookies([{'name': 'rentra_admin', 'value': fixture['tokens'][role], 'url': web}])
@@ -43,30 +43,31 @@ with sync_playwright() as p:
                 expect(page.locator(f'main a[href="{target}"]')).to_be_visible()
             passed(role + ' authorized home')
             if role == 'full':
-                expect(page.locator('aside nav[aria-label="Admin navigation"] a')).to_have_count(7)
-                expect(page.locator('aside nav[aria-label="Help and support"] a')).to_have_count(2)
-                passed('seven main destinations and footer Help/Support')
+                expect(page.locator('aside nav[aria-label="Admin navigation"] a')).to_have_count(29)
+                expect(page.locator('aside nav[aria-label="Admin navigation"] p')).to_have_text(
+                    ['Approvals', 'Bookings', 'People & support', 'Finance', 'Hotel finance', 'System', 'Settings'])
+                expect(page.locator('aside nav[aria-label="Help and support"] a')).to_have_count(1)
+                passed('grouped sidebar destinations and footer Help')
             if role in ['records', 'customers', 'finance', 'applications', 'empty']:
                 response = context.request.get(api + '/admin/applications')
                 assert response.status == (200 if role == 'applications' else 403)
                 passed(role + ' direct application API permissions')
             page.goto(web + target)
             page.wait_for_load_state('networkidle')
-            expect(page.locator('main nav[aria-label$=" sections"] a[aria-current="page"]')).to_have_count(1)
-            expect(page.locator('main nav[aria-label$=" sections"] a[aria-current="page"]')).to_have_text(label)
             expect(page.locator('aside a[aria-current="page"]')).to_have_count(1)
+            expect(page.locator('aside a[aria-current="page"]')).to_contain_text(label)
             if role in ['readonly', 'records', 'customers', 'finance', 'applications']:
                 expect(page.get_by_text('Read-only access', exact=False)).to_be_visible()
             passed(role + ' section navigation and read-only state')
             if role in ['records', 'customers', 'finance', 'applications']:
-                for link in page.locator('main nav[aria-label$=" sections"] a').all():
-                    assert link.get_attribute('href') in {
+                for link in page.locator('aside nav[aria-label="Admin navigation"] a').all():
+                    assert link.get_attribute('href') in ['/admin', '/admin/analytics', '/admin/activity'] + {
                         'records': ['/admin/bookings', '/admin/booking-cases'],
                         'customers': ['/admin/customers'],
-                        'finance': ['/admin/finance/payments', '/admin/finance/refunds', '/admin/finance/statements', '/admin/finance/payouts', '/admin/disputes'],
+                        'finance': ['/admin/finance', '/admin/finance/payments', '/admin/finance/refunds', '/admin/finance/statements', '/admin/finance/payouts', '/admin/disputes', '/admin/finance/commission', '/admin/finance/tax', '/admin/finance/hotel-payouts', '/admin/finance/hotel-analytics'],
                         'applications': ['/admin/applications'],
                     }[role]
-                passed(role + ' hides unauthorized tabs')
+                passed(role + ' hides unauthorized sidebar links')
             if role == 'full':
                 page.goto(web + '/admin?status=all&assignee=unassigned&q=Fixture&page=1&decided=approved')
                 page.wait_for_load_state('networkidle')
@@ -79,20 +80,19 @@ with sync_playwright() as p:
                 queue_link.click()
                 page.wait_for_url(web + f'/admin/applications/{fixture["application"]}?*')
                 page.wait_for_load_state('networkidle')
-                expect(page.locator('main nav[aria-label="Reviews & approvals sections"] a[aria-current="page"]')).to_have_text('Owner applications')
+                expect(page.locator('aside a[aria-current="page"]')).to_contain_text('Owner applications')
                 expect(page.locator('main nav[aria-label="Breadcrumb"] a[href="/admin/applications?assignee=unassigned&q=Fixture"]:visible')).to_be_visible()
                 passed('application detail parent and filtered breadcrumb')
                 page.screenshot(path=str(output / 'application-detail-1280.png'), full_page=True)
                 # Section changes discard incompatible application filters.
-                page.locator('main nav[aria-label="Reviews & approvals sections"]').get_by_role('link', name='Property review').click()
+                page.locator('aside nav[aria-label="Admin navigation"]').get_by_role('link', name='Property listings').click()
                 page.wait_for_url(web + '/admin/properties')
                 page.wait_for_load_state('networkidle')
                 assert urlparse(page.url).path == '/admin/properties' and not urlparse(page.url).query
                 passed('section change resets incompatible filters')
                 page.goto(web + '/admin/payments')
                 page.wait_for_load_state('networkidle')
-                expect(page.locator('aside a[aria-current="page"]')).to_have_text('Settings & content')
-                expect(page.locator('main nav[aria-label$=" sections"] a[aria-current="page"]')).to_have_text('Gateway settings')
+                expect(page.locator('aside a[aria-current="page"]')).to_have_text('Payment gateway')
                 passed('gateway settings separate from finance payments')
                 for width in [1280, 768, 360]:
                     page.set_viewport_size({'width': width, 'height': 900})
