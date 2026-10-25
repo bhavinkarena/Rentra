@@ -103,15 +103,24 @@ function LinesTable({ label, lines, held = false }) {
           <td className="px-4 py-3 whitespace-nowrap">
             {dateLabel(line.checkIn)} – {dateLabel(line.checkOut)}
           </td>
-          <td className={cell}>{money(line.roomMinor)}</td>
-          <td className={cell}>{money(line.gstToHotelMinor)}</td>
-          <td className={cell}>
-            {money(line.commissionMinor + line.commissionGstMinor)}
-            <span className="block text-tiny text-ink-600">{line.rateBps / 100}%</span>
-          </td>
-          <td className={cell}>{money(line.tcsMinor)}</td>
-          <td className={cell}>{money(line.tdsMinor)}</td>
-          <td className={`${cell} font-semibold`}>{money(line.netMinor)}</td>
+          {line.netMinor == null ? (
+            // Held before pricing (no commission rule yet): there are no amounts to show.
+            <td colSpan={6} className="px-4 py-3 text-meta text-ink-600">
+              Not priced yet
+            </td>
+          ) : (
+            <>
+              <td className={cell}>{money(line.roomMinor)}</td>
+              <td className={cell}>{money(line.gstToHotelMinor)}</td>
+              <td className={cell}>
+                {money(line.commissionMinor + line.commissionGstMinor)}
+                <span className="block text-tiny text-ink-600">{line.rateBps / 100}%</span>
+              </td>
+              <td className={cell}>{money(line.tcsMinor)}</td>
+              <td className={cell}>{money(line.tdsMinor)}</td>
+              <td className={`${cell} font-semibold`}>{money(line.netMinor)}</td>
+            </>
+          )}
           {held ? <td className="px-4 py-3 text-meta text-warning">{line.reason}</td> : null}
         </tr>
       ))}
