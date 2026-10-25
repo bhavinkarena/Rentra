@@ -4,7 +4,6 @@ Phase 1 ("Product & UX design") of [HOTEL-PLAN.md](../../HOTEL-PLAN.md). This fo
 
 - **Open the prototype:** `docs/design/hotels/index.html` in a browser (works from disk, no server needed).
 - **Switch states:** use the dark bar at the top of each screen, or add `?state=<name>`.
-- **Screenshots:** `shots/<screen>-<first state>-desktop.png` (1280 px) and `-mobile.png` (390 px), full page.
 - **Not production code.** Values come from [DESIGN.md](../../../DESIGN.md) tokens. Photos are striped placeholders; names, prices and counts are sample data.
 
 ## 1. Files
@@ -17,7 +16,6 @@ Phase 1 ("Product & UX design") of [HOTEL-PLAN.md](../../HOTEL-PLAN.md). This fo
 | `chrome.js` | Header with three vertical tabs, footer, owner/admin sidebar and phone bottom bar, prototype state bar |
 | `icons.js` | Entertainment draft icons plus hotel icons; `tab-hotel` is the new 32 px duotone vertical icon |
 | `*.html` | Hub + 14 screens (below) |
-| `shots/` | Screenshots of each screen's first state |
 
 ## 2. User flows
 
