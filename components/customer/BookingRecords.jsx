@@ -503,6 +503,12 @@ export function BookingDetail({
                 </p>
               )),
             )}
+            {/* Story 2.9: no bank-credit promise; provider limits and timing are not yet evidenced. */}
+            <p className="mt-2 text-tiny text-ink-600">
+              A refund is complete only when the payment provider confirms it. How long your bank
+              takes to show it depends on the provider and your bank; Rentra does not promise a
+              date.
+            </p>
           </section>
         ) : null}
         <section className={card}>
