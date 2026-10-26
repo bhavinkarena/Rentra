@@ -12,6 +12,15 @@ const actions = {
   availability: 'availability',
   rules: 'rules',
 };
+function removeRecoveredDraft(key) {
+  try {
+    sessionStorage.removeItem(key);
+    return true;
+  } catch {
+    // Browser recovery storage is optional; it must not interrupt server saves.
+    return false;
+  }
+}
 export default function DraftSave({ listing, step, pending, onVersion, onSaving }) {
   const [notice, setNotice] = useState(''),
     [restored, setRestored] = useState(false),
@@ -47,7 +56,10 @@ export default function DraftSave({ listing, step, pending, onVersion, onSaving 
       } catch {}
       sequence++;
     };
-    const saved = sessionStorage.getItem(key);
+    let saved;
+    try {
+      saved = sessionStorage.getItem(key);
+    } catch {}
     if (saved) {
       try {
         const entries = JSON.parse(saved);
@@ -118,7 +130,7 @@ export default function DraftSave({ listing, step, pending, onVersion, onSaving 
             `Saved ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}`,
           );
           if (sequence === saving) {
-            sessionStorage.removeItem(key);
+            removeRecoveredDraft(key);
             form.dispatchEvent(new Event('rentra:form-saved', { bubbles: true }));
           }
         } else {
@@ -128,7 +140,10 @@ export default function DraftSave({ listing, step, pending, onVersion, onSaving 
               ? 'Draft not saved yet — finish the fields to save'
               : result.error || 'Not saved — retry',
           );
-          if (['SESSION_EXPIRED', 'UNAUTHENTICATED', 'UNAUTHORIZED'].includes(result.code))
+          if (
+            result.status === 401 ||
+            ['SESSION_EXPIRED', 'UNAUTHENTICATED', 'UNAUTHORIZED'].includes(result.code)
+          )
             setExpired(true);
           if (['LISTING_CHANGED', 'CONFIG_CHANGED'].includes(result.code)) {
             blocked = true;
@@ -172,7 +187,7 @@ export default function DraftSave({ listing, step, pending, onVersion, onSaving 
     };
     const explicitSaved = () => {
       if (!busy.current) {
-        sessionStorage.removeItem(key);
+        removeRecoveredDraft(key);
         lastSaved = sequence;
       }
     };
@@ -213,7 +228,12 @@ export default function DraftSave({ listing, step, pending, onVersion, onSaving 
             type="button"
             className="min-h-11 underline"
             onClick={() => {
-              sessionStorage.removeItem(`rentra:draft:${listing.id}:${step}`);
+              if (!removeRecoveredDraft(`rentra:draft:${listing.id}:${step}`)) {
+                setNotice(
+                  'Could not discard recovered typing. Try again when browser storage is available.',
+                );
+                return;
+              }
               window.location.reload();
             }}
           >
