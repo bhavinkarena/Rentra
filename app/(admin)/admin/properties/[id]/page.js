@@ -93,6 +93,17 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
       ? published
       : data.submissions.find((s) => s.passNumber === (selected?.passNumber ?? 0) - 1);
   const changes = base && snap ? diffRevisions(base.snapshot, snap) : [];
+  const passOf = (submissionId) => {
+    const pass = data.submissions.find((s) => s.id === submissionId)?.passNumber;
+    return pass ? `Pass ${pass}` : 'Not linked to a revision';
+  };
+  const sitePassed = data.verifications.some(
+    (v) =>
+      v.submissionId === selected?.id &&
+      v.mode === 'physical' &&
+      v.status === 'completed' &&
+      v.outcome === 'passed',
+  );
   const canDecide = Boolean(
     current &&
     !historical &&
@@ -211,6 +222,18 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
               value: published
                 ? `Pass ${published.passNumber}, content version ${published.contentVersion}`
                 : 'Not published',
+            },
+            // Owner identity, property review and bookability are separate facts.
+            {
+              label: 'Owner identity',
+              value: data.property.applicationStatus
+                ? `Application ${data.property.applicationStatus.replaceAll('_', ' ')}`
+                : 'No application',
+            },
+            { label: 'Property review', value: statusLabel(data.property.status) },
+            {
+              label: 'Bookability',
+              value: data.publication.inventory.bookable ? 'Bookable' : 'Not bookable',
             },
           ]}
         />
@@ -411,17 +434,17 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
             <ul className="space-y-3 text-meta">
               {snap.documents.map((doc) => (
                 <li key={doc.id}>
-                  {doc.docType.replaceAll('_', ' ')} · {doc.status} ·{' '}
+                  {doc.docType.replaceAll('_', ' ')} · Status when submitted: {doc.status} ·{' '}
                   {doc.nameOnDocument ?? 'Name not provided'}
                   {!data.stale &&
                   selected.id === current?.id &&
                   admin.capabilities.includes('admin.documents.read') ? (
                     <Link
-                      className="ml-3 underline"
+                      className="ml-3 rounded-sm underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
                       href={`/admin/documents/${doc.id}`}
                       target="_blank"
                     >
-                      Open private document
+                      Open {doc.docType.replaceAll('_', ' ')} (opens in new tab)
                     </Link>
                   ) : (
                     <span className="ml-3 text-ink-500">
@@ -541,12 +564,13 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
                 <li key={v.id} className="text-meta">
                   <strong>
                     {VISIT_MODE[v.mode]} · {ist(v.scheduledAt)} ·{' '}
-                    {v.status === 'completed' ? v.outcome.replaceAll('_', ' ') : v.status}
+                    {v.status === 'completed'
+                      ? v.outcome.replaceAll('_', ' ')
+                      : `${v.status}, not a passed check`}
                   </strong>
                   <p className="mt-1 text-ink-600">
-                    {v.submissionId === data.publication.submissionId
-                      ? 'Current revision'
-                      : 'Earlier revision'}
+                    {passOf(v.submissionId)}
+                    {v.submissionId === selected?.id ? ' (revision shown)' : ''}
                     {v.recordedBy ? ` · recorded by ${v.recordedBy} ${ist(v.completedAt)}` : ''}
                     {v.cancelReason ? ` · ${v.cancelReason}` : ''}
                   </p>
@@ -563,6 +587,15 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
             </ul>
             {!data.verifications.length ? (
               <p className="text-meta">No verification scheduled yet.</p>
+            ) : null}
+            {selected && !sitePassed ? (
+              <p className="mt-3 text-meta font-semibold">
+                No completed site visit for pass {selected.passNumber}. A video call or accepted
+                document is not a physical inspection.
+                {data.verifications.some((v) => !v.submissionId && v.mode === 'physical')
+                  ? ' A site visit not linked to any revision is listed; it does not count for this pass.'
+                  : ''}
+              </p>
             ) : null}
           </SectionCard>
         </div>

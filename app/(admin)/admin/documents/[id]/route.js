@@ -14,5 +14,11 @@ import { proxyApiFile } from '@/lib/api/proxy';
  */
 export async function GET(request, { params }) {
   const { id } = await params; // Next 16: params is a Promise
-  return proxyApiFile(`/admin/documents/${id}/file`);
+  const response = await proxyApiFile(`/admin/documents/${id}/file`);
+  if (response.status < 500) return response;
+  // Say plainly that nothing was reviewed, and how to recover.
+  return new Response(
+    'This document could not be loaded, so it has not been reviewed. Close this tab and open it again from the property review. If it still fails, treat this evidence as unavailable for this revision.',
+    { status: response.status, headers: response.headers },
+  );
 }
