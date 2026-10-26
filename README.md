@@ -68,7 +68,9 @@ npm run ci
 VS Code recommendations and format-on-save settings are in `.vscode/`.
 Historical delivery reports and generated assets are excluded from formatting.
 
-See [architecture alignment](docs/architecture-alignment.md),
-[customer plan](docs/rentra-customer-plan.html),
-[design system](docs/rentra-design-system.html) and
-[delivery sessions](docs/rentra-customer-sessions.md).
+Shared plans, design and handoff live in [Rentra-Doc on GitHub](https://github.com/bhavinkarena/Rentra-Doc). For the local links below, check out `Rentra`, `rentra-backend` and `Rentra-Doc` as sibling directories.
+
+See [architecture alignment](../Rentra-Doc/frontend/docs/architecture-alignment.md),
+[customer plan](../Rentra-Doc/frontend/docs/rentra-customer-plan.html),
+[design system](../Rentra-Doc/frontend/docs/rentra-design-system.html) and
+[delivery sessions](../Rentra-Doc/frontend/docs/rentra-customer-sessions.md).

@@ -11,7 +11,7 @@ from playwright.sync_api import sync_playwright
 out = Path('.impeccable/redesign/phase-2')
 out.mkdir(parents=True, exist_ok=True)
 css = Path('app/globals.css').read_text(encoding='utf-8')
-design = Path('DESIGN.md').read_text(encoding='utf-8')
+design = (Path(__file__).resolve().parents[3] / 'Rentra-Doc/frontend/DESIGN.md').read_text(encoding='utf-8')
 sidecar = json.loads(Path('.impeccable/design.json').read_text(encoding='utf-8'))
 palette = dict(re.findall(r"^  ([\w-]+): '(#[0-9a-fA-F]{6})'$", design.split('typography:')[0], re.M))
 runtime_palette = dict(re.findall(r'--color-([\w-]+): (#[0-9a-fA-F]{6});', css))
