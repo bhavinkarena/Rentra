@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import RentraLoader from '@/components/ui/rentra-loader';
 import OtpDialog, { OtpInput } from '@/components/auth/OtpDialog';
 
-export default function CustomerLoginForm() {
+export default function CustomerLoginForm({ next = '' }) {
   const [open, setOpen] = useState(false);
   const [sent, send, sending] = useActionState(async (previous, formData) => {
     const result = await requestCustomerOtp(null, formData);
@@ -95,6 +95,7 @@ export default function CustomerLoginForm() {
         }
       >
         <form action={verify} key={sent?.challengeId} className="space-y-5">
+          <input type="hidden" name="next" value={next} />
           <input type="hidden" name="phone" value={sent?.phone ?? ''} />
           <OtpInput error={Boolean(verified?.error)} disabled={verifying} />
           {verified?.error && (

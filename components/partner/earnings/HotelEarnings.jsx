@@ -237,7 +237,8 @@ export default function HotelEarnings({ data }) {
           </dl>
           <p className="mt-4 text-tiny leading-5 text-ink-500">
             GST collected from guests is passed to you in full when you are GST registered; you file
-            it. Commission plus 18% GST is deducted. TCS 0.5% and TDS 0.1% appear in your GST and
+            it. Stays booked under the Rentra service fee (paid by guests) have no commission; older
+            stays keep their commission plus 18% GST. TCS 0.5% and TDS 0.1% appear in your GST and
             Form 26AS records.
           </p>
         </section>

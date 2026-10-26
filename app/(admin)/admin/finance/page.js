@@ -101,6 +101,11 @@ export default async function FinancePage() {
                 ['refunds', 'Refunds', 'Obligations and verified outcomes'],
                 ['statements', 'Statements', 'Monthly allocation and adjustment records'],
                 ['payouts', 'Payouts', 'Recorded funding and destination evidence'],
+                [
+                  'service-fee',
+                  'Service fee',
+                  'Rentra service fee: global rate and owner overrides',
+                ],
               ].map(([path, title, copy]) => (
                 <li key={path}>
                   <Link

@@ -1,6 +1,6 @@
 import CustomerNavigation from '@/components/customer/CustomerNavigation';
 import SiteChrome from '@/components/rentra/SiteChrome';
-import { redirect } from 'next/navigation';
+import SignInAgain from '@/components/customer/SignInAgain';
 import { ApiError } from '@/lib/api/client';
 import { failureKind } from '@/lib/domain/portal-state';
 import PortalState from '@/components/portal/PortalState';
@@ -19,7 +19,14 @@ export default async function CustomerLayout({ children }) {
     user = await requireCustomer();
   } catch (error) {
     if (!(error instanceof ApiError)) throw error;
-    if (error.status === 401) redirect('/login');
+    if (error.status === 401)
+      return (
+        <SiteChrome whatsapp={false}>
+          <div className={content}>
+            <SignInAgain />
+          </div>
+        </SiteChrome>
+      );
     return (
       <SiteChrome whatsapp={false}>
         <div className={content}>

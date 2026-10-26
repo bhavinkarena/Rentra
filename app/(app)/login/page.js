@@ -20,10 +20,15 @@ export const metadata = {
  * on (phone, role), not phone alone, so the same number can hold one
  * Customer and one Client account.
  */
-export default async function CustomerLoginPage() {
+export default async function CustomerLoginPage({ searchParams }) {
   const [user, admin] = await Promise.all([getCurrentUser(), getCurrentAdmin()]);
+  // Story 2.3: a customer page that needed sign-in; the API re-checks the path before using it.
+  const next = String((await searchParams)?.next ?? '');
   const conflict = admin || (user && user.role !== 'customer');
-  if (!conflict && user?.role === 'customer') redirect('/');
+  if (!conflict && user?.role === 'customer')
+    redirect(
+      /^\/(checkout|bookings|account|support|disputes|reviews)(\/[\w-]+)*$/.test(next) ? next : '/',
+    );
   return (
     <main>
       <AuthLayout>
@@ -51,7 +56,7 @@ export default async function CustomerLoginPage() {
             </Link>
           </div>
         ) : (
-          <CustomerLoginForm />
+          <CustomerLoginForm next={next} />
         )}
 
         <p className="mt-8 border-t border-border pt-6 text-meta text-ink-600">
