@@ -126,7 +126,9 @@ export default function PropertyReviewForm({
       >
         <legend className="text-h4 font-semibold">Decision on this submitted revision</legend>
         <p className="text-meta text-ink-600">
-          Approval moves this property to verification. It does not publish it or make it bookable.
+          Approval publishes the property automatically once the owner identity is approved and
+          bookable dates are open. Choose verification first only when a video call or site visit is
+          needed.
         </p>
         <label className="block text-meta font-semibold">
           Outcome
@@ -138,7 +140,8 @@ export default function PropertyReviewForm({
           >
             <option value="changes_requested">Request changes</option>
             <option value="rejected">Reject submission</option>
-            <option value="approved_for_visit">Approve for verification</option>
+            <option value="approved">Approve</option>
+            <option value="approved_for_visit">Approve after a verification visit</option>
           </select>
         </label>
         <label className="block text-meta font-semibold">

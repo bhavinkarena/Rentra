@@ -33,6 +33,7 @@ const OUTCOME = {
   changes_requested: 'changes requested',
   rejected: 'not approved',
   approved_for_visit: 'approved for verification',
+  approved: 'approved',
   passed: 'passed',
   failed: 'did not pass',
   no_show: 'missed',
