@@ -118,7 +118,15 @@ export function BookingDetail({
           ...(record.payments.some((p) => p.recoverable)
             ? [[`/checkout/${record.id}`, RefreshCw, 'View checkout and payment recovery']]
             : []),
-          ...(test ? [[`/bookings/${record.id}/cancel`, CircleX, 'Cancel visits']] : []),
+          ...(test
+            ? [
+                [
+                  `/bookings/${record.id}/cancel`,
+                  CircleX,
+                  record.stay ? 'Cancel or end stay early' : 'Cancel visits',
+                ],
+              ]
+            : []),
           ...(record.stay
             ? [
                 [`/bookings/${record.id}/voucher`, Ticket, 'Voucher'],
@@ -584,6 +592,15 @@ function StayRooms({ stay, card, headingIcon }) {
               <p className="font-semibold">
                 {room.name} · {room.plan?.name}
               </p>
+              {room.departedAt ? (
+                <p className="text-ink-600">
+                  Ended early: {time(room.departedAt)}.{' '}
+                  {room.inventoryEnd < stay.checkOut
+                    ? `Unused nights released from ${room.inventoryEnd}.`
+                    : 'No unused nights to release.'}{' '}
+                  Original booked dates retained.
+                </p>
+              ) : null}
               <p className="text-ink-600">
                 {room.guestName || 'Guest'} · {plural(room.adults, 'adult')}
                 {room.childAges?.length

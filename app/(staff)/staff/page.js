@@ -159,6 +159,16 @@ export default async function StaffHome({ searchParams }) {
                       {visit.state.replaceAll('_', ' ')}
                     </span>
                   </Link>
+                  {visit.rooms?.length ? (
+                    <ul className="px-4 pb-3 text-tiny text-ink-600">
+                      {visit.rooms.map((room, index) => (
+                        <li key={room.id}>
+                          Room {index + 1}: {room.name} / {room.state.replaceAll('_', ' ')}
+                          {room.departedAt ? ` / ended early ${ist(room.departedAt)}` : ''}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
                   {visit.guest ? (
                     // BOOK-06: visit day only, and only while the owner allows guest contact.
                     <div className="flex flex-wrap items-center justify-between gap-2 px-4 pb-4">

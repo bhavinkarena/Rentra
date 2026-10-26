@@ -98,6 +98,24 @@ export default async function StaffVisitPage({ params }) {
             {visit.guests} {visit.slot === 'hourly' ? 'player(s)' : 'guest(s)'}
             {visit.endsAt ? ` · ends ${ist(visit.endsAt, data.timeZone)} IST` : ''}
           </p>
+          {visit.rooms?.length ? (
+            <div className="text-meta">
+              <p>
+                Original booked guests: {visit.originalGuests}. Original dates:{' '}
+                {visit.rooms[0].checkIn} to {visit.rooms[0].checkOut}.
+              </p>
+              <ul>
+                {visit.rooms.map((room, index) => (
+                  <li key={room.id}>
+                    Room {index + 1}: {room.name} / {room.state.replaceAll('_', ' ')}
+                    {room.departedAt
+                      ? ` / ended early ${ist(room.departedAt, data.timeZone)}; ${room.inventoryEnd < room.checkOut ? `unused nights released from ${room.inventoryEnd}` : 'no unused nights to release'}`
+                      : ''}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
           <VisitEvidence
             visit={visit}
             orderId={data.orderId}

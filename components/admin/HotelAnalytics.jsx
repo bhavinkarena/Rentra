@@ -171,6 +171,11 @@ export function HotelAnalytics({ data, cityId }) {
   ];
   return (
     <AdminPage className="space-y-6">
+      <p className="text-meta text-ink-600">
+        Room revenue shows gross booked charges before tax and refunds, including charges retained
+        after early departure. Refunds are recorded separately; occupied room counts exclude unused
+        released nights.
+      </p>
       <AdminPageHeader
         title="Hotel analytics"
         description={`Stays from ${dateLabel(period.from)} to ${dateLabel(period.to)}.`}

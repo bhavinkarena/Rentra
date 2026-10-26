@@ -191,6 +191,11 @@ export default function HotelAnalytics({ data, hotelId }) {
   const k = data.kpis;
   return (
     <section className="space-y-5">
+      <p className="text-meta text-ink-600">
+        Room revenue shows gross booked charges before tax and refunds, including charges retained
+        after early departure. Refunds are recorded separately; occupied room counts exclude unused
+        released nights.
+      </p>
       <header>
         <Link
           href="/partner/earnings/hotels"

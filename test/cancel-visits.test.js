@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import test from 'node:test';
 import vm from 'node:vm';
 import swc from 'next/dist/build/swc/index.js';
+import { displayMoney } from '../lib/domain/display-money.js';
 
 const { code } = swc.transformSync(
   readFileSync(new URL('../components/customer/CancelVisits.jsx', import.meta.url), 'utf8'),
@@ -51,6 +52,8 @@ const preview = {
 function mount(
   commit = async () => ({ receipt: { ...preview, id: 'cancellation' } }),
   responsePreview = preview,
+  inputRecord = record,
+  moneyFormatter = (value) => `INR ${value}`,
 ) {
   const states = [],
     refs = [],
@@ -93,7 +96,7 @@ function mount(
     '@/lib/domain/pricing': { SLOTS: {} },
     '@/components/ui/page-header': { BackLink: 'a' },
     'lucide-react': { BedDouble: 'svg', Info: 'svg' },
-    './BookingDisplay': { displayMoney: (value) => `INR ${value}`, StateBadge: 'badge' },
+    './BookingDisplay': { displayMoney: moneyFormatter, StateBadge: 'badge' },
   };
   const fixture = { exports: {} };
   new vm.Script(code).runInNewContext({
@@ -110,7 +113,7 @@ function mount(
     previews,
     render() {
       si = ri = 0;
-      return fixture.exports.default({ record });
+      return fixture.exports.default({ record: inputRecord });
     },
   };
 }
@@ -233,4 +236,179 @@ test('legacy hotel preview states the applicable booked rule with room/tax charg
     assert.match(rendered, /Room and tax refund INR 500 , charge INR 500/);
     assert.doesNotMatch(rendered, /undefined|NaN|% of room/);
   }
+});
+
+const departurePreview = {
+  ...preview,
+  operation: 'early_departure',
+  requestedAt: '2026-10-02T09:00:00Z',
+  visits: [
+    {
+      ...preview.visits[0],
+      priorReserved: { rent: 10, tax: 1, fee: 1 },
+      roomDetails: [
+        {
+          id: 'a',
+          offered: true,
+          pct: 50,
+          consumedNights: ['2026-10-01', '2026-10-02'],
+          unusedNights: ['2026-10-03'],
+          original: { rent: 1000, tax: 100, fee: 50 },
+          unused: { rent: 500, tax: 50, fee: 25 },
+        },
+      ],
+    },
+  ],
+};
+test('payment notice uses the real currency formatter', () => {
+  const ui = mount(undefined, preview, record, displayMoney);
+  assert.ok(
+    text(ui.render())
+      .replace(/\s+/g, ' ')
+      .includes(`Actual bank refund: ${displayMoney(0)}`),
+  );
+  assert.match(displayMoney(0), /₹/);
+  assert.doesNotMatch(text(ui.render()), /refund: \?0/);
+});
+async function earlyPreview(ui) {
+  button(ui, 'End stay early').props.onClick();
+  checks(ui)[0].props.onChange({ target: { checked: true } });
+  checks(ui)[2].props.onChange({ target: { checked: false } });
+  await button(ui, 'Preview early departure').props.onClick();
+}
+test('early departure shows booked unused-night facts, explicit occupancy consent and truthful receipt', async () => {
+  const ui = mount(
+    async () => ({
+      receipt: { ...departurePreview, id: 'departure', departedAt: departurePreview.requestedAt },
+    }),
+    departurePreview,
+  );
+  await earlyPreview(ui);
+  assert.equal(ui.previews[0].operation, 'early_departure');
+  assert.equal(JSON.stringify(ui.previews[0].roomIds), JSON.stringify(['a']));
+  const rendered = text(ui.render()).replace(/\s+/g, ' ');
+  assert.match(rendered, /Consumed nights: 2026-10-01, 2026-10-02/);
+  assert.match(rendered, /Unused nights: 2026-10-03/);
+  assert.match(rendered, /Booked offer: 50%/);
+  assert.match(rendered, /Unused room INR 500 , tax INR 50 , allocated fee INR 25/);
+  assert.match(rendered, /Prior reserved refunds: room INR 10/);
+  assert.match(rendered, /explicitly end occupancy.*including when no refund is due/);
+  assert.doesNotMatch(rendered, /Only the selected visits are cancelled/);
+  assert.equal(button(ui, 'Confirm early departure').props.disabled, true);
+  checks(ui)
+    .at(-1)
+    .props.onChange({ target: { checked: true } });
+  await button(ui, 'Confirm early departure').props.onClick();
+  assert.match(text(ui.render()), /1 room\(s\) ended early/);
+  assert.match(text(ui.render()), /Early-departure.*reference/);
+  assert.doesNotMatch(text(ui.render()), /room\(s\) cancelled|Visits cancelled/);
+});
+test('operation changes clear consent, preview and lost-response retry; inactive cancellation selection resets', async () => {
+  const ui = mount(
+    async () => {
+      throw Error('lost');
+    },
+    departurePreview,
+    { ...record, visits: [{ ...record.visits[0], state: 'handed_over' }] },
+  );
+  assert.equal(checks(ui)[0].props.disabled, true);
+  await earlyPreview(ui);
+  checks(ui)
+    .at(-1)
+    .props.onChange({ target: { checked: true } });
+  await button(ui, 'Confirm early departure').props.onClick();
+  assert.match(text(ui.render()), /which rooms ended early/);
+  await button(ui, 'Confirm early departure').props.onClick();
+  assert.equal(ui.requests[0], ui.requests[1]);
+  button(ui, 'Cancel visits').props.onClick();
+  assert.equal(button(ui, 'Confirm cancellation'), undefined);
+  assert.equal(checks(ui)[0].props.checked, false);
+  assert.equal(button(ui, 'Preview cancellation').props.disabled, true);
+  button(ui, 'End stay early').props.onClick();
+  checks(ui)[0].props.onChange({ target: { checked: true } });
+  await button(ui, 'Preview early departure').props.onClick();
+  assert.equal(button(ui, 'Confirm early departure').props.disabled, true);
+  checks(ui)
+    .at(-1)
+    .props.onChange({ target: { checked: true } });
+  await button(ui, 'Confirm early departure').props.onClick();
+  assert.notEqual(ui.requests[2].idempotencyKey, ui.requests[0].idempotencyKey);
+});
+test('no-offer zero departure and server refusal never invent a completed refund', async () => {
+  const noOffer = {
+    ...departurePreview,
+    refundMinor: 0,
+    visits: [
+      {
+        ...departurePreview.visits[0],
+        roomDetails: [{ ...departurePreview.visits[0].roomDetails[0], offered: false, pct: 0 }],
+      },
+    ],
+  };
+  const ui = mount(
+    async () => ({
+      receipt: { ...noOffer, id: 'zero-departure', departedAt: noOffer.requestedAt },
+    }),
+    noOffer,
+  );
+  await earlyPreview(ui);
+  assert.match(text(ui.render()), /No booked offer: 0%/);
+  checks(ui)
+    .at(-1)
+    .props.onChange({ target: { checked: true } });
+  await button(ui, 'Confirm early departure').props.onClick();
+  assert.match(text(ui.render()), /No refund is due. No refund was requested/);
+  assert.match(text(ui.render()), /room\(s\) ended early/);
+  const rejected = mount(
+    async () => ({ error: 'Night boundary changed. Preview again.' }),
+    departurePreview,
+  );
+  await earlyPreview(rejected);
+  checks(rejected)
+    .at(-1)
+    .props.onChange({ target: { checked: true } });
+  await button(rejected, 'Confirm early departure').props.onClick();
+  assert.equal(button(rejected, 'Confirm early departure'), undefined);
+  assert.match(text(rejected.render()), /Night boundary changed/);
+});
+
+test('last booked room alongside departed rows submits explicit scope and retries the same command', async () => {
+  let attempts = 0;
+  const last = { ...departurePreview, visits: [{ ...departurePreview.visits[0], partial: false }] };
+  const ui = mount(
+    async () => {
+      if (!attempts++) throw Error('lost');
+      return { receipt: { ...last, id: 'last-departure', departedAt: last.requestedAt } };
+    },
+    last,
+    {
+      ...record,
+      stay: {
+        ...record.stay,
+        rooms: [
+          record.stay.rooms[0],
+          { ...record.stay.rooms[1], state: 'stayed', departedAt: '2026-10-02T08:00Z' },
+        ],
+      },
+    },
+  );
+  button(ui, 'End stay early').props.onClick();
+  assert.equal(checks(ui).length, 1, 'single booked room needs no room picker');
+  checks(ui)[0].props.onChange({ target: { checked: true } });
+  await button(ui, 'Preview early departure').props.onClick();
+  assert.deepEqual(JSON.parse(JSON.stringify(ui.previews[0])), {
+    orderId: 'order',
+    visitIds: ['stay'],
+    roomIds: ['a'],
+    operation: 'early_departure',
+  });
+  assert.equal(button(ui, 'Confirm early departure').props.disabled, true);
+  checks(ui)
+    .at(-1)
+    .props.onChange({ target: { checked: true } });
+  await button(ui, 'Confirm early departure').props.onClick();
+  await button(ui, 'Confirm early departure').props.onClick();
+  assert.equal(ui.requests[0], ui.requests[1]);
+  assert.match(text(ui.render()), /1 room\(s\) ended early/);
+  assert.doesNotMatch(text(ui.render()), /Your other rooms stay booked/);
 });
