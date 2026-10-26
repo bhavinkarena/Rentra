@@ -12,7 +12,7 @@ import { BedDouble, Info } from 'lucide-react';
 import { displayMoney as money, StateBadge } from './BookingDisplay';
 
 const pill =
-  'inline-flex min-h-10 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-semibold text-ink-800 transition-colors hover:border-brand-300 hover:bg-brand-50 disabled:opacity-50';
+  'inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-semibold text-ink-800 transition-colors hover:border-brand-300 hover:bg-brand-50 disabled:opacity-50';
 const visitLabel = (v) =>
   v.slot === 'hourly' || v.slot === 'stay'
     ? v.label
@@ -28,6 +28,13 @@ export default function CancelVisits({ record }) {
     [error, setError] = useState('');
   // A stay with several booked rooms can release just some of them.
   const bookedRooms = record.stay?.rooms.filter((room) => room.state === 'booked') ?? [];
+  const roomLabel = (id) => {
+    const index = record.stay.rooms.findIndex((room) => room.id === id);
+    const room = record.stay.rooms[index];
+    return room
+      ? `Room ${index + 1}: ${[room.name, room.plan?.name, room.guestName].filter(Boolean).join(' / ')}`
+      : 'Room';
+  };
   const [rooms, setRooms] = useState(() => bookedRooms.map((room) => room.id));
   const roomPick = bookedRooms.length > 1;
   const roomIds = roomPick && rooms.length < bookedRooms.length ? { roomIds: rooms } : {};
@@ -97,13 +104,14 @@ export default function CancelVisits({ record }) {
       {receipt ? (
         <section role="status" className="space-y-3 rounded-lg bg-brand-50 p-4 text-meta sm:p-5">
           <p>
-            {roomIds.roomIds
-              ? `${roomIds.roomIds.length} room(s) cancelled. Your other rooms stay booked.`
+            {receipt.visits.every((visit) => visit.roomIds)
+              ? `${receipt.visits.reduce((sum, visit) => sum + visit.rooms, 0)} room(s) cancelled.${receipt.visits.some((visit) => visit.partial) ? ' Your other rooms stay booked.' : ''}`
               : `${receipt.visits.length} visit(s) cancelled. Unselected visits are unchanged.`}
           </p>
           <p>
-            Test refund requested: {money(receipt.refundMinor)}. This is an obligation, not proof of
-            a completed refund.
+            {receipt.refundMinor > 0
+              ? `Test refund requested: ${money(receipt.refundMinor)}. This is an obligation, not proof of a completed refund.`
+              : 'No refund is due. No refund was requested.'}
           </p>
           <p className="font-mono text-tiny break-all">Cancellation reference: {receipt.id}</p>
           <p>
@@ -175,10 +183,14 @@ export default function CancelVisits({ record }) {
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-2 font-semibold">
                       <BedDouble className="size-4 shrink-0 text-brand-700" aria-hidden="true" />
-                      {room.name}
+                      {roomLabel(room.id)}
                     </span>
                     <span className="mt-0.5 block text-meta text-ink-600">
                       {[room.plan?.name, room.guestName].filter(Boolean).join(' · ')}
+                    </span>
+                    <span className="mt-0.5 block text-meta text-ink-600">
+                      {record.stay.checkIn} to {record.stay.checkOut}: room {money(room.roomMinor)},
+                      tax {money(room.taxMinor)}.
                     </span>
                   </span>
                 </label>
@@ -186,8 +198,9 @@ export default function CancelVisits({ record }) {
             </fieldset>
           ) : null}
           <p className="text-meta text-ink-600">
-            Started visits need operational help. Open your booking record and contact the host;
-            online cancellation will reject a started visit.
+            {record.stay
+              ? 'At or after check-in, online cancellation uses the booked percentage for each selected room when it allows a refund. Otherwise contact the host from your booking record.'
+              : 'Started visits need operational help. Open your booking record and contact the host.'}
           </p>
           <button
             disabled={busy || !selected.length || (roomPick && !rooms.length)}
@@ -204,8 +217,46 @@ export default function CancelVisits({ record }) {
                   <li key={v.id} className="flex flex-wrap justify-between gap-x-4 gap-y-1">
                     <span>
                       {v.date ? formatLocalDate(v.date) : 'Date not recorded'} ·{' '}
-                      <span className="capitalize">{v.tier}</span> policy ·{' '}
-                      {Math.round(v.rate * 100)}% rent entitlement
+                      {v.roomIds ? (
+                        <>
+                          {v.rooms} room(s) to cancel, using their booked policies.
+                          {v.roomDetails?.map((room) => (
+                            <span key={room.id} className="mt-1 block">
+                              {roomLabel(room.id)}:{' '}
+                              {Number.isInteger(room.pct) ? (
+                                `${room.pct}% of room, tax and allocated fee`
+                              ) : (
+                                <>
+                                  {room.rule === 'free'
+                                    ? `Free cancellation before the booked cutoff (${room.freeCancelHours} hours before check-in)`
+                                    : room.rule === 'full_stay'
+                                      ? 'Booked late rule: whole stay charged'
+                                      : 'Booked late rule: first night charged'}
+                                  . Room and tax refund {money(room.refundMinor)}, charge{' '}
+                                  {money(room.chargeMinor)}.
+                                </>
+                              )}
+                            </span>
+                          ))}
+                          <span className="mt-1 block">
+                            Policy entitlement: room {money(v.rent)}, tax {money(v.tax)}, allocated
+                            fee {money(v.fee)}.
+                          </span>
+                          <span className="mt-1 block">
+                            Retained rooms:{' '}
+                            {bookedRooms
+                              .filter((room) => !v.roomIds.includes(room.id))
+                              .map((room) => roomLabel(room.id))
+                              .join(', ') || 'None'}
+                            . Their dates, prices and terms stay unchanged.
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="capitalize">{v.tier}</span> policy:{' '}
+                          {Math.round(v.rate * 100)}% rent entitlement
+                        </>
+                      )}
                     </span>
                     <span className="tabular">
                       Test refund for this visit: {money(v.refundMinor)}
@@ -233,9 +284,10 @@ export default function CancelVisits({ record }) {
                   className="mt-1 block min-h-11 w-full rounded-lg border border-input bg-card p-3 text-base sm:text-sm"
                 />
               </label>
-              <label className="flex gap-3">
+              <label className="flex min-h-11 items-start gap-3 py-2">
                 <input
                   type="checkbox"
+                  disabled={busy}
                   checked={accepted}
                   onChange={(event) => setAccepted(event.target.checked)}
                   className="mt-0.5 size-5 accent-brand-600"
