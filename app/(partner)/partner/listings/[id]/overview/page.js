@@ -13,6 +13,7 @@ import RetryButton from '@/components/portal/RetryButton';
 import { SectionCard } from '@/components/portal/DetailLayout';
 import PropertyHub from '@/components/partner/property/PropertyHub';
 import SubmitForReview from '@/components/partner/property/SubmitForReview';
+import VideoEvidenceRequest from '@/components/partner/property/VideoEvidenceRequest';
 
 export const metadata = {
   title: 'Property overview',
@@ -306,9 +307,10 @@ export default async function PropertyOverviewPage({ params, searchParams }) {
   const listHref = safeReturnPath(query.from, '/partner/listings');
   const keep = listHref === '/partner/listings' ? '' : `?from=${encodeURIComponent(listHref)}`;
 
-  const [{ data, failure }, ops] = await Promise.all([
+  const [{ data, failure }, ops, evidence] = await Promise.all([
     settle(partnerApi.listing(id)),
     settle(partnerApi.overview(id)),
+    settle(partnerApi.evidenceRequests(id)),
   ]);
   if (failure) return <PortalState kind={failure} backHref={listHref} backLabel="All properties" />;
 
@@ -331,6 +333,8 @@ export default async function PropertyOverviewPage({ params, searchParams }) {
         pausedUntil={overview?.pausedUntil}
         ownerApproved={ownerApproved}
       />
+
+      <VideoEvidenceRequest id={id} evidence={evidence.data} />
 
       {ops.failure ? (
         <div

@@ -17,6 +17,7 @@ import {
 import { adminDateTime } from '@/lib/domain/admin-display';
 import { AdminPage, AdminTable } from '@/components/admin/AdminPrimitives';
 import PropertyReviewForm from '@/components/admin/PropertyReviewForm';
+import VideoEvidencePanel from '@/components/admin/VideoEvidencePanel';
 import VerificationPanel from '@/components/admin/VerificationPanel';
 import PropertyLifecyclePanel from '@/components/admin/PropertyLifecyclePanel';
 import { diffRevisions } from '@/lib/domain/revision-diff';
@@ -557,6 +558,14 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
                 Verification is scheduled after the submission is approved for verification.
               </p>
             ) : null}
+          </SectionCard>
+          <SectionCard title="Property video evidence">
+            <VideoEvidencePanel
+              id={id}
+              submissionId={!historical && !data.stale ? current?.id : null}
+              requests={data.evidenceRequests ?? []}
+              writable={admin.capabilities.includes('admin.properties.write')}
+            />
           </SectionCard>
           <SectionCard title="Verification history">
             <ul className="space-y-4">
