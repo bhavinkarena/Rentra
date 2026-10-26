@@ -181,6 +181,7 @@ export default async function SetupStepPage({ params }) {
           listing={listing}
           roomTypes={hotel.roomTypes}
           ratePlans={hotel.ratePlans}
+          hotelPolicy={hotel.cancellationPolicy}
         />
       ) : null}
       {stepId === 'terms' ? <TermsSection listing={listing} /> : null}

@@ -1,5 +1,6 @@
 'use client';
 import { useActionState, useState } from 'react';
+import CancellationPolicyEditor from './CancellationPolicyEditor';
 import { ArrowDown, ArrowUp, Copy, Plus, RotateCcw, Trash2 } from 'lucide-react';
 import {
   saveHotelGst,
@@ -37,11 +38,14 @@ const VIEWS = [
   ['courtyard', 'Courtyard'],
 ];
 const ROOM_NAMES = ['Standard', 'Deluxe', 'Super Deluxe', 'Executive', 'Suite', 'Family Room'];
+// Story 2.6: a rate uses the hotel default unless the owner picks other terms for it.
 const CANCELLATION = [
-  ['flexible', 'Flexible', 'Free until 24 hours before check-in, then the first night is charged'],
-  ['moderate', 'Moderate', 'Free until 3 days before check-in, then the first night is charged'],
-  ['strict', 'Strict', 'Free until 7 days before check-in, then the whole stay is charged'],
+  ['default', 'Hotel default', 'The cancellation refunds set for the whole hotel'],
+  ['flexible', 'Flexible', 'Full refund until 24 hours before check-in, then none'],
+  ['moderate', 'Moderate', 'Full refund until 3 days before check-in, then none'],
+  ['strict', 'Strict', 'Full refund until 7 days before check-in, then none'],
   ['non_refundable', 'Non-refundable', 'No refund after booking (usually a cheaper rate)'],
+  ['custom', 'Custom', 'Set this rate’s own refund windows'],
 ];
 const MEALS = [
   ['EP', 'Room only'],
@@ -455,12 +459,13 @@ const basePlan = (room) => ({
   weekend: '',
   adjustPct: 0,
   perGuest: 0,
-  cancellation: 'flexible',
+  cancellation: 'default',
   minNights: 1,
   isActive: true,
 });
 
-export function HotelRatesSection({ listing, roomTypes = [], ratePlans = [] }) {
+export function HotelRatesSection({ listing, roomTypes = [], ratePlans = [], hotelPolicy }) {
+  const [defaultPolicy, setDefaultPolicy] = useState(hotelPolicy);
   const [state, action, pending] = useActionState(saveHotelRates, {});
   const formId = useStepFormId();
   const rooms = roomTypes.filter((r) => r.isActive !== false);
@@ -487,6 +492,7 @@ export function HotelRatesSection({ listing, roomTypes = [], ratePlans = [] }) {
           derivedFrom: base.id ?? base.key,
           perGuest: 250,
           cancellation: base.cancellation,
+          cancellationPolicy: base.cancellationPolicy,
         },
       ]);
     else if (kind === 'nonref' && base)
@@ -522,6 +528,7 @@ export function HotelRatesSection({ listing, roomTypes = [], ratePlans = [] }) {
       adjustPct: Number(p.adjustPct) || 0,
       perGuest: Number(p.perGuest) || 0,
       cancellation: p.cancellation,
+      ...(p.cancellation === 'custom' ? { cancellationPolicy: p.cancellationPolicy } : {}),
       minNights: Number(p.minNights) || 1,
       sortOrder: index,
       isActive: p.isActive,
@@ -546,6 +553,20 @@ export function HotelRatesSection({ listing, roomTypes = [], ratePlans = [] }) {
         <input type="hidden" name="id" value={listing.id} />
         <VersionField listing={listing} states={[state]} />
         <input type="hidden" name="plans" value={JSON.stringify(payload)} />
+        <section className="rounded-lg border border-border bg-card p-4">
+          <h3 className="text-h4">Hotel cancellation default</h3>
+          <p className="mt-1 text-meta text-ink-600">
+            Every rate uses this unless you choose other terms for it. Breakfast or room differences
+            do not need their own copy. Accepted bookings keep the terms they were booked with.
+          </p>
+          <CancellationPolicyEditor
+            name="defaultPolicy"
+            rentalUnit="night"
+            value={defaultPolicy}
+            onChange={setDefaultPolicy}
+            idPrefix="hotel-default"
+          />
+        </section>
         <Errors state={state} />
         {rooms.map((room) => {
           const own = plans.filter((p) => p.roomTypeId === room.id && p.isActive);
@@ -667,7 +688,10 @@ export function HotelRatesSection({ listing, roomTypes = [], ratePlans = [] }) {
                           className={inputCls}
                           value={plan.cancellation}
                           onChange={(event) =>
-                            update(plan.key, { cancellation: event.target.value })
+                            update(plan.key, {
+                              cancellation: event.target.value,
+                              cancellationPolicy: plan.cancellationPolicy ?? defaultPolicy,
+                            })
                           }
                         >
                           {CANCELLATION.map(([value, label, text]) => (
@@ -677,6 +701,15 @@ export function HotelRatesSection({ listing, roomTypes = [], ratePlans = [] }) {
                           ))}
                         </select>
                       </Field>
+                      {plan.cancellation === 'custom' ? (
+                        <CancellationPolicyEditor
+                          name={`plan-${plan.key}-policy`}
+                          rentalUnit="night"
+                          value={plan.cancellationPolicy ?? defaultPolicy}
+                          onChange={(next) => update(plan.key, { cancellationPolicy: next })}
+                          idPrefix={`plan-${plan.key}`}
+                        />
+                      ) : null}
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <p className="text-meta text-ink-700" aria-live="polite">
                           {weekday >= 300

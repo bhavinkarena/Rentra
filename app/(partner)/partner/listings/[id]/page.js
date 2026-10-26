@@ -224,6 +224,7 @@ export default async function ListingBuilderPage(props) {
                   listing={listing}
                   roomTypes={hotel.roomTypes}
                   ratePlans={hotel.ratePlans}
+                  hotelPolicy={hotel.cancellationPolicy}
                 />
               </>
             ) : (

@@ -3,7 +3,8 @@ import { usePolicyAction, PolicyPreview } from './PolicyPreview';
 import { saveTerms } from '@/lib/actions/partner';
 import { sectionAnchorId } from '@/lib/domain/listing-steps';
 import { useStepFormId } from './chrome';
-import { VersionField, Input, Field, Section, SaveButton, inputCls } from './SectionPrimitives';
+import { VersionField, Input, Field, Section, SaveButton } from './SectionPrimitives';
+import CancellationPolicyEditor from './CancellationPolicyEditor';
 export function TermsSection({ listing }) {
   const { state, pending, preview, form } = usePolicyAction(saveTerms, listing);
   const e = state.errors ?? {};
@@ -33,30 +34,14 @@ export function TermsSection({ listing }) {
             className="w-32 tabular"
           />
         </Field>
-        <Field id="cancellationTier" label="Cancellation policy" error={e.cancellationTier}>
-          <select
-            id="cancellationTier"
-            name="cancellationTier"
-            defaultValue={listing.cancellationTier ?? 'moderate'}
-            className={inputCls}
-          >
-            {listing.rentalUnit === 'hour' ? (
-              <>
-                <option value="flexible">Flexible — full refund up to 4 hours before</option>
-                <option value="moderate">
-                  Moderate — full refund up to 24 hours, half up to 6 hours
-                </option>
-                <option value="strict">Strict — half up to 48 hours, none after</option>
-              </>
-            ) : (
-              <>
-                <option value="flexible">Flexible — full refund up to 3 days before</option>
-                <option value="moderate">Moderate — full refund up to 7 days, half after</option>
-                <option value="strict">Strict — half up to 7 days, none after</option>
-              </>
-            )}
-          </select>
-        </Field>
+        <CancellationPolicyEditor
+          rentalUnit={listing.rentalUnit}
+          value={listing.cancellationPolicy}
+          tierName="cancellationTier"
+          currentTier={listing.cancellationTier ?? 'moderate'}
+          idPrefix="terms-cancel"
+          error={e.cancellationPolicy}
+        />
         <p className="rounded-md border-l-4 border-info bg-info-bg p-3 text-tiny text-ink-700">
           Accepted bookings keep their original cancellation policy. Deposit collection and
           settlement policy remain separately governed; this estimate is not a collected balance.
@@ -103,30 +88,14 @@ export function TermsFields({ listing, e = {} }) {
           className="w-32 tabular"
         />
       </Field>
-      <Field id="cancellationTier" label="Cancellation policy" error={e.cancellationTier}>
-        <select
-          id="cancellationTier"
-          name="cancellationTier"
-          defaultValue={listing.cancellationTier ?? 'moderate'}
-          className={inputCls}
-        >
-          {listing.rentalUnit === 'hour' ? (
-            <>
-              <option value="flexible">Flexible — full refund up to 4 hours before</option>
-              <option value="moderate">
-                Moderate — full refund up to 24 hours, half up to 6 hours
-              </option>
-              <option value="strict">Strict — half up to 48 hours, none after</option>
-            </>
-          ) : (
-            <>
-              <option value="flexible">Flexible — full refund up to 3 days before</option>
-              <option value="moderate">Moderate — full refund up to 7 days, half after</option>
-              <option value="strict">Strict — half up to 7 days, none after</option>
-            </>
-          )}
-        </select>
-      </Field>
+      <CancellationPolicyEditor
+        rentalUnit={listing.rentalUnit}
+        value={listing.cancellationPolicy}
+        tierName="cancellationTier"
+        currentTier={listing.cancellationTier ?? 'moderate'}
+        idPrefix="wizard-cancel"
+        error={e.cancellationPolicy}
+      />
       <label className="flex min-h-11 items-center gap-2">
         <input
           type="checkbox"
