@@ -31,9 +31,18 @@ export default function SubmitForReview({
         }}
       >
         <input type="hidden" name="id" value={listing.id} />
-        {state.errors?._ ? (
+        {state.errors?._ || state.error ? (
+          // Story 1.6: a refused or failed resubmission is never shown as sent.
           <p role="alert" className="mb-2 text-meta text-danger">
-            {state.errors._}
+            {state.errors?._ ?? state.error}{' '}
+            {state.status === 401 ? (
+              <a
+                className="underline"
+                href={`/partner/login?next=${encodeURIComponent(`/partner/listings/${listing.id}/overview`)}`}
+              >
+                Sign in again
+              </a>
+            ) : null}
           </p>
         ) : null}
         <Button type="submit" size="lg" disabled={pending || !ownerApproved}>

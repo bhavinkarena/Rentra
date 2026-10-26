@@ -17,6 +17,7 @@ import {
   StatusBadge,
 } from '@/components/admin/AdminPrimitives';
 import Pagination from '@/components/ui/pagination';
+import ReviewerAlerts from '@/components/admin/ReviewerAlerts';
 
 const statuses = [
   'pending_review',
@@ -41,6 +42,7 @@ export default async function PropertyReviewQueue({ searchParams }) {
     }),
   );
   if (failure) return <PortalState kind={failure} />;
+  const alerts = await settle(adminApi.reviewerAlerts());
   const link = (change) => {
     const next = {
       status: data.status,
@@ -65,6 +67,13 @@ export default async function PropertyReviewQueue({ searchParams }) {
         title="Property review"
         description="Inspect a submitted revision, request corrections, or move it to verification. Publication follows in the verification workflow."
       />
+      {alerts.failure ? (
+        <p role="alert" className="mt-6 text-meta text-danger">
+          Your review alerts could not load. Reload the page to try again.
+        </p>
+      ) : (
+        <ReviewerAlerts alerts={alerts.data ?? []} />
+      )}
       <section aria-label="Property queue totals" className="mt-6 grid gap-3 sm:grid-cols-3">
         <AdminKpiCard
           label="Submitted for review"
