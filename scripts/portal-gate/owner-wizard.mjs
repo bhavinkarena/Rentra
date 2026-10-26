@@ -72,7 +72,7 @@ try {
   await check('Type creates one draft and never asks a field twice', async () => {
     await page.goto(web + '/partner/listings/new');
     await page.getByText('Step 1 of 11 · Type').waitFor();
-    await page.getByLabel('Category').selectOption({ label: 'Farmhouse' });
+    await page.getByLabel('Farmhouse or villa').check();
     await fits('type');
     await page.getByRole('button', { name: 'Continue' }).click();
     await step('location');
@@ -219,7 +219,7 @@ try {
     'Properties list resumes a draft at its step, and a draft can be deleted',
     async () => {
       await page.goto(web + '/partner/listings/new');
-      await page.getByLabel('Category').selectOption({ label: 'Farmhouse' });
+      await page.getByLabel('Farmhouse or villa').check();
       await page.getByRole('button', { name: 'Continue' }).click();
       await step('location');
       const draft = page.url().match(/listings\/([^/]+)\//)[1];
@@ -230,7 +230,7 @@ try {
       await page.goto(web + `/partner/listings/${draft}/setup/preview`);
       await page.getByRole('button', { name: 'Delete draft' }).click();
       await page.locator('dialog[open]').getByRole('button', { name: 'Delete draft' }).click();
-      await page.waitForURL(/\/partner\/listings$/);
+      await page.waitForURL(/\/partner\/listings\?deleted=1$/);
     },
   );
   assert.deepEqual(errors, []);

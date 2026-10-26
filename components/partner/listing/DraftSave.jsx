@@ -259,7 +259,14 @@ export default function DraftSave({ listing, step, pending, onVersion, onSaving 
         <button
           type="button"
           className="min-h-11 underline"
-          onClick={() => window.location.reload()}
+          onClick={() => {
+            // Stale typing would otherwise be restored over the newer server version.
+            if (!removeRecoveredDraft(`rentra:draft:${listing.id}:${step}`)) {
+              setNotice('Could not load latest. Try again when browser storage is available.');
+              return;
+            }
+            window.location.reload();
+          }}
         >
           Load latest
         </button>

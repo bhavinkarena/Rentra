@@ -208,6 +208,49 @@ test('a stale draft remains blocked until the owner loads the latest version', a
   ui.unmount();
 });
 
+test('Load latest drops stale typing so reload shows the newer server version', async () => {
+  const storageEntries = new Map();
+  const ui = mount({ storageEntries, result: { code: 'LISTING_CHANGED', error: 'Load latest' } });
+  ui.form.dispatchEvent(new Event('input'));
+  await ui.flush();
+  assert.ok(storageEntries.has('rentra:draft:draft-1:story'));
+  find(
+    ui.render(),
+    (node) => node.type === 'button' && node.props.children === 'Load latest',
+  ).props.onClick();
+  assert.equal(storageEntries.has('rentra:draft:draft-1:story'), false);
+  assert.equal(ui.reloads, 1);
+  ui.unmount();
+  const remounted = mount({ storageEntries });
+  await remounted.flush();
+  assert.equal(
+    find(remounted.render(), (node) => node.props?.children === 'Discard recovered typing'),
+    null,
+  );
+  remounted.unmount();
+});
+
+test('Load latest is refused, not looped, when stale typing cannot be removed', async () => {
+  const storageEntries = new Map();
+  const ui = mount({
+    storageEntries,
+    removeBlocked: true,
+    result: { code: 'LISTING_CHANGED', error: 'Load latest' },
+  });
+  ui.form.dispatchEvent(new Event('input'));
+  await ui.flush();
+  find(
+    ui.render(),
+    (node) => node.type === 'button' && node.props.children === 'Load latest',
+  ).props.onClick();
+  assert.equal(ui.reloads, 0);
+  assert.ok(storageEntries.has('rentra:draft:draft-1:story'));
+  assert.ok(
+    find(ui.render(), (node) => String(node.props?.children).startsWith('Could not load latest.')),
+  );
+  ui.unmount();
+});
+
 test('denied discard is explained without reloading and restoring the same typing', async () => {
   const ui = mount({ recovered: true, removeBlocked: true });
   await ui.flush();
