@@ -49,15 +49,20 @@ function ScheduleForm({ id, submissionId }) {
           </label>
           <FieldError message={errors.scheduledAt} />
           <label className="block text-meta font-semibold text-ink-700">
-            Note for the record (optional)
+            {mode === 'physical'
+              ? 'Why a site visit is needed and what to check'
+              : 'Note for the record (optional)'}
             <input
               name="note"
+              required={mode === 'physical'}
+              minLength={mode === 'physical' ? 10 : undefined}
               maxLength={500}
               value={note}
               onChange={(event) => setNote(event.target.value)}
               className={control}
             />
           </label>
+          <FieldError message={errors.note} />
         </>
       )}
     </CommandForm>
@@ -142,6 +147,7 @@ function OutcomeForm({ id, visit, checklist }) {
   const [outcome, setOutcome] = useState('passed');
   const [checked, setChecked] = useState([]);
   const [findings, setFindings] = useState('');
+  const [ownerMessage, setOwnerMessage] = useState('');
   const [lat, setLat] = useState('');
   const [lng, setLng] = useState('');
   return (
@@ -162,7 +168,7 @@ function OutcomeForm({ id, visit, checklist }) {
               className={control}
             >
               <option value="passed">Passed — evidence complete</option>
-              <option value="failed">Failed — return to the client with findings</option>
+              <option value="failed">Failed — return to the client to fix</option>
               <option value="no_show">No-show — close and reschedule</option>
             </select>
           </label>
@@ -196,7 +202,7 @@ function OutcomeForm({ id, visit, checklist }) {
                 <FieldError message={errors.checklist} />
               </fieldset>
               <label className="block text-meta font-semibold text-ink-700">
-                Findings (kept private; shown to the client only if the verification fails)
+                Findings (private to Rentra; never shown to the client)
                 <textarea
                   name="findings"
                   rows={4}
@@ -207,6 +213,24 @@ function OutcomeForm({ id, visit, checklist }) {
                 />
               </label>
               <FieldError message={errors.findings} />
+              {outcome === 'failed' ? (
+                <>
+                  <label className="block text-meta font-semibold text-ink-700">
+                    Message to the client (what to fix)
+                    <textarea
+                      name="ownerMessage"
+                      required
+                      minLength={10}
+                      rows={3}
+                      maxLength={1000}
+                      value={ownerMessage}
+                      onChange={(event) => setOwnerMessage(event.target.value)}
+                      className="mt-1 w-full rounded-md border border-input bg-card px-3 py-2 text-base md:text-sm"
+                    />
+                  </label>
+                  <FieldError message={errors.ownerMessage} />
+                </>
+              ) : null}
               {visit.mode === 'physical' ? (
                 <div className="grid gap-3 sm:grid-cols-2">
                   <label className="block text-meta font-semibold text-ink-700">

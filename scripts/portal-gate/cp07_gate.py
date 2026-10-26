@@ -57,7 +57,7 @@ with sync_playwright() as pw:
     admin, owner, limited, guest = context('admin'), context('owner'), context('limited'), context()
     base = f'{API}/admin/properties/{listing}'
     fake = str(uuid.uuid4())
-    schedule_body = {'submissionId': submission, 'mode': 'physical', 'scheduledAt': when(3)}
+    schedule_body = {'submissionId': submission, 'mode': 'physical', 'scheduledAt': when(3), 'note': 'Boundary wall differs from the photos.'}
 
     # Access control on every new command.
     for path in ['verifications', f'verifications/{fake}/reschedule', f'verifications/{fake}/cancel', f'verifications/{fake}/outcome', 'publish']:
@@ -80,19 +80,19 @@ with sync_playwright() as pw:
         page.get_by_role('heading', name='Schedule verification', exact=True).first.wait_for()
         check(f'blockers explain missing evidence {width}px', page.get_by_text('No passed verification of this exact revision is recorded.', exact=True).count() > 0)
         check(f'no publish action without evidence {width}px', page.get_by_role('button', name='Publish this revision').count() == 0)
-        check(f'tab keeps return context {width}px', 'from=' in page.get_by_role('link', name='History & activity', exact=True).first.get_attribute('href'))
+        check(f'tab keeps return context {width}px', 'from=' in page.get_by_role('link', name='History', exact=True).first.get_attribute('href'))
         scan(page, f'verification tab {width}px')
     page.set_viewport_size({'width': 1280, 'height': 950})
 
     # Schedule a physical visit through the UI; a past time is refused and the typed note survives.
     page.get_by_label('Site visit', exact=True).check()
-    page.get_by_label('Note for the record (optional)').fill('Owner prefers mornings')
+    page.get_by_label('Why a site visit is needed and what to check').fill('Owner prefers mornings; check the boundary wall')
     page.get_by_label('When (India time, IST)').fill('2020-01-01T10:00')
     page.get_by_role('button', name='Schedule verification', exact=True).click()
     page.get_by_text('Choose a time in the future.', exact=True).first.wait_for()
     check('past verification time refused', True)
     check('refused schedule keeps chosen mode', page.get_by_label('Site visit', exact=True).is_checked())
-    check('refused schedule keeps typed note', page.get_by_label('Note for the record (optional)').input_value() == 'Owner prefers mornings')
+    check('refused schedule keeps typed note', page.get_by_label('Why a site visit is needed and what to check').input_value() == 'Owner prefers mornings; check the boundary wall')
     page.get_by_label('When (India time, IST)').fill(when(3))
     page.get_by_role('button', name='Schedule verification', exact=True).click()
     page.get_by_role('heading', name='Record the outcome', exact=True).wait_for()
@@ -115,7 +115,7 @@ with sync_playwright() as pw:
     check('UI reschedule advances the visit version', admin.request.get(base).json()['data']['verifications'][0]['version'] == 2)
 
     # Evidence rules: an incomplete checklist and missing coordinates cannot pass.
-    findings = page.get_by_label('Findings (kept private; shown to the client only if the verification fails)')
+    findings = page.get_by_label('Findings (private to Rentra; never shown to the client)')
     findings.fill(FINDINGS)
     boxes = page.locator('input[name="checklist"]')
     for i in range(boxes.count() - 1):
