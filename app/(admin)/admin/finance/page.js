@@ -101,6 +101,7 @@ export default async function FinancePage() {
                 ['refunds', 'Refunds', 'Obligations and verified outcomes'],
                 ['statements', 'Statements', 'Monthly allocation and adjustment records'],
                 ['payouts', 'Payouts', 'Recorded funding and destination evidence'],
+                ['payout-modes', 'Payout mode', 'Global Auto/Manual mode and owner inheritance'],
                 [
                   'service-fee',
                   'Service fee',

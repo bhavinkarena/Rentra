@@ -185,6 +185,12 @@ export function Statement({
           wrap
         />
       ) : null}
+      {data.payoutMode && (
+        <p>
+          Effective payout mode: {data.payoutMode.mode} ({data.payoutMode.source}). Accounting
+          eligibility does not initiate a transfer. Provider and funding readiness are unavailable.
+        </p>
+      )}
       <Filters
         filters={f}
         activeTab={admin && active !== 'overview' ? active : undefined}

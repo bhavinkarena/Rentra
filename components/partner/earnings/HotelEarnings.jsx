@@ -61,7 +61,7 @@ function StatusBadge({ status, utr }) {
       ) : (
         <Clock className="size-3.5" aria-hidden="true" />
       )}
-      {done ? 'Settled' : 'Scheduled'}
+      {done ? 'Recorded complete' : 'Recorded pending'}
       {done && utr ? <span className="break-all">· UTR {utr}</span> : null}
     </span>
   );
@@ -111,15 +111,15 @@ function NextPayout({ next, environment }) {
   const held = next.lines.filter((line) => line.reason);
   const steps = [
     ['Paid by guests', `${next.lines.length} stays`, next.lines.length > 0],
-    ['Stay started', `${next.lines.length}`, next.lines.length > 0],
-    ['In Tuesday’s run', day(next.date), false],
+    ['Accounting review', `${next.lines.length} lines`, false],
+    ['Provider and funding gate', 'Unavailable', false],
     ['Settled with UTR', '—', false],
   ];
   return (
     <section className={card} aria-labelledby="next-payout-title">
       <div className="flex items-center justify-between gap-3">
         <h2 id="next-payout-title" className="text-h4 font-semibold text-ink-900">
-          Next payout
+          Accounting eligibility
         </h2>
         <Wallet className="size-5 text-ink-500" aria-hidden="true" />
       </div>
@@ -128,7 +128,7 @@ function NextPayout({ next, environment }) {
       </p>
       <p className="mt-1 flex flex-wrap items-center gap-x-2 text-meta text-ink-600">
         <CalendarCheck className="size-4" aria-hidden="true" />
-        {day(next.date)}
+        No bank settlement date promised
         {next.destination ? (
           <span className="flex items-center gap-1.5 break-all">
             <Landmark className="size-4 shrink-0" aria-hidden="true" />
@@ -193,7 +193,9 @@ export default function HotelEarnings({ data }) {
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
           <h1 className="text-h1 font-bold text-ink-900">Hotel earnings</h1>
-          <p className="text-meta text-ink-600">Stays, weekly Tuesday payouts and statements.</p>
+          <p className="text-meta text-ink-600">
+            Stays and accounting statements. Bank execution and funding readiness are unavailable.
+          </p>
         </div>
         <nav aria-label="Month" className="flex items-center gap-1">
           <Link
@@ -217,6 +219,12 @@ export default function HotelEarnings({ data }) {
       </header>
       <div className="flex flex-wrap items-center gap-3">
         <TestModeBadge environment={data.environment} />
+        {data.payoutMode && (
+          <p className="text-meta">
+            Effective payout mode: {data.payoutMode.mode} ({data.payoutMode.source}). Auto
+            configuration sends no money.
+          </p>
+        )}
         <Link href="/partner/earnings/hotels/analytics" className={`${textLink} text-tiny`}>
           <ArrowUpRight className="size-4" aria-hidden="true" />
           Hotel analytics
@@ -279,7 +287,7 @@ export default function HotelEarnings({ data }) {
           <EmptyState
             icon={FileText}
             title="No payout statements yet"
-            description="A statement appears here after each Tuesday payout run that includes your stays."
+            description="A statement appears after an authorized accounting run includes your stays. Test statements move no money."
           />
         )}
       </section>

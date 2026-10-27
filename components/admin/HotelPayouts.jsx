@@ -4,8 +4,8 @@ import { useRouter } from 'next/navigation';
 import {
   Banknote,
   BedDouble,
-  CalendarClock,
   CheckCircle2,
+  CalendarClock,
   FlaskConical,
   Landmark,
   Percent,
@@ -15,7 +15,6 @@ import {
   Wallet,
 } from 'lucide-react';
 import Link from '@/components/navigation/NavigationLink';
-import { fieldClass } from '@/components/ui/field';
 import { buttonVariants } from '@/components/ui/button';
 import { formatINRMinor } from '@/lib/domain/booking-money';
 import { executeHotelPayoutRun, settleHotelPayoutRun } from '@/lib/actions/hotel-finance';
@@ -27,14 +26,9 @@ import {
   StatusBadge,
 } from './AdminPrimitives';
 
-/**
- * Weekly hotel payout run (hotel plan, Phase 8). The preview is the statement;
- * "Make payout run" executes exactly that preview (by hash), then finance
- * records the bank UTR once the transfer is made.
- */
+/** Hotel accounting previews and explicitly unfunded Test statements. */
 const money = formatINRMinor;
 const button = buttonVariants({ size: 'default' });
-const outline = buttonVariants({ variant: 'outline', size: 'sm' });
 const dateLabel = (value) =>
   value
     ? new Date(`${value}T00:00:00Z`).toLocaleDateString('en-IN', {
@@ -157,7 +151,7 @@ function MakeRun({ preview }) {
           <div className="flex flex-wrap gap-2">
             <button type="button" disabled={pending} onClick={run} className={button}>
               <CheckCircle2 aria-hidden="true" />
-              Confirm run
+              Confirm Test statement
             </button>
             <button
               type="button"
@@ -172,7 +166,7 @@ function MakeRun({ preview }) {
       ) : (
         <button
           type="button"
-          disabled={!totals.stays}
+          disabled={!totals.stays || environment === 'live' || pending}
           onClick={() => {
             setResult(null);
             setConfirming(true);
@@ -180,7 +174,7 @@ function MakeRun({ preview }) {
           className={button}
         >
           <Send aria-hidden="true" />
-          Make payout run
+          Create unfunded Test statement
         </button>
       )}
       <div aria-live="polite">
@@ -194,7 +188,7 @@ function MakeRun({ preview }) {
         ) : null}
         {result?.ok ? (
           <p role="status" className="mt-3 text-meta text-success">
-            Run {result.runNumber} created. Record the bank UTR below once the transfer is made.
+            Test statement {result.runNumber} created. No money moved.
           </p>
         ) : null}
       </div>
@@ -202,55 +196,37 @@ function MakeRun({ preview }) {
   );
 }
 
-function RecordTransfer({ run }) {
+export function CloseTestStatement({ runId }) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
-  const [result, setResult] = useState(null);
   const [pending, startTransition] = useTransition();
-  if (!open)
-    return (
-      <button type="button" onClick={() => setOpen(true)} className={outline}>
-        <Banknote aria-hidden="true" />
-        Record transfer
-      </button>
-    );
+  const [result, setResult] = useState(null);
   return (
-    <form
-      className="flex flex-wrap items-end gap-2"
-      onSubmit={(event) => {
-        event.preventDefault();
-        const utr = String(new FormData(event.currentTarget).get('utr')).trim();
-        startTransition(async () => {
-          const outcome = await settleHotelPayoutRun(run.id, utr);
-          setResult(outcome);
-          if (outcome.ok) router.refresh();
-        });
-      }}
-    >
-      <label className="block text-tiny font-semibold">
-        Bank UTR for run {run.runNumber}
-        <input
-          name="utr"
-          required
-          minLength={6}
-          maxLength={32}
-          pattern="[A-Za-z0-9]{6,32}"
-          title="6 to 32 letters or digits"
-          autoComplete="off"
-          className={`${fieldClass} mt-1 w-48`}
-        />
-      </label>
-      <button disabled={pending} className={outline}>
-        Save
+    <div>
+      <button
+        type="button"
+        disabled={pending}
+        className={buttonVariants({ variant: 'outline' })}
+        onClick={() =>
+          startTransition(async () => {
+            try {
+              const outcome = await settleHotelPayoutRun(runId);
+              setResult(outcome);
+              if (outcome.ok) router.refresh();
+            } catch {
+              setResult({
+                error:
+                  'Closure outcome unavailable. Reload to check the statement before retrying.',
+              });
+            }
+          })
+        }
+      >
+        Close Test statement
       </button>
-      <span aria-live="polite" className="basis-full text-tiny">
-        {result?.error ? (
-          <span role="alert" className="text-danger">
-            {result.error}
-          </span>
-        ) : null}
-      </span>
-    </form>
+      <p className="text-tiny text-ink-600">Closes the unfunded statement. No money moves.</p>
+      {result?.error && <p role="alert">{result.error}</p>}
+      {result?.ok && <p role="status">Test statement closed. No bank transfer recorded.</p>}
+    </div>
   );
 }
 
@@ -277,13 +253,14 @@ export function HotelPayouts({ preview, runs }) {
     <AdminPage className="space-y-6">
       <AdminPageHeader
         title="Hotel payouts"
-        description="Weekly run every Tuesday. A stay is payable after check-in (or 24 h after check-in time). A Test run is a statement only and moves no money."
+        description="Confirmed bookings with verified capture can be accounting eligible before arrival. Provider execution and funding readiness are unavailable. Test statements move no money."
         action={<EnvironmentSwitch environment={environment} />}
       />
 
       <p className="flex items-center gap-2 text-meta text-ink-600">
         <CalendarClock className="size-4" aria-hidden="true" />
-        Payout date {dateLabel(preview.payoutDate)} · stays up to {dateLabel(preview.periodEnd)}
+        Accounting statement date {dateLabel(preview.payoutDate)} · as of{' '}
+        {dateLabel(preview.periodEnd)}
       </p>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -320,6 +297,15 @@ export function HotelPayouts({ preview, runs }) {
             <p className="flex items-center gap-2 text-tiny text-ink-600">
               <Landmark className="size-4" aria-hidden="true" />
               {owner.destination ?? 'No payout destination on file'}
+            </p>
+            <p className="text-meta text-ink-600">
+              Effective mode:{' '}
+              {preview.lines.find((line) => line.ownerId === owner.ownerId)?.payoutMode?.mode ??
+                'Unavailable'}{' '}
+              (
+              {preview.lines.find((line) => line.ownerId === owner.ownerId)?.payoutMode?.source ??
+                'unavailable'}
+              ). Configuration sends no money.
             </p>
             <LinesTable
               label={`Stays for ${owner.hotels.join(', ')}`}
@@ -364,11 +350,19 @@ export function HotelPayouts({ preview, runs }) {
               <td className={`${cell} font-semibold`}>{money(run.netMinor)}</td>
               <td className="px-4 py-3">
                 <StatusBadge tone={run.status === 'completed' ? 'success' : 'warning'}>
-                  {run.status === 'completed' ? 'Paid' : 'Scheduled'}
+                  {run.environment === 'test'
+                    ? run.status === 'completed'
+                      ? 'Closed Test statement'
+                      : 'Open Test statement'
+                    : run.status === 'completed'
+                      ? 'Recorded complete'
+                      : 'Recorded pending'}
                 </StatusBadge>
               </td>
               <td className="px-4 py-3 text-meta">
-                {run.utr ? (
+                {run.environment === 'test' && run.status !== 'completed' ? (
+                  <CloseTestStatement runId={run.id} />
+                ) : run.utr ? (
                   <>
                     <span className="tabular">{run.utr}</span>
                     {run.executedBy ? (
@@ -376,7 +370,7 @@ export function HotelPayouts({ preview, runs }) {
                     ) : null}
                   </>
                 ) : run.status === 'scheduled' ? (
-                  <RecordTransfer run={run} />
+                  <span>Bank execution unavailable</span>
                 ) : (
                   '—'
                 )}

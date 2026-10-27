@@ -54,6 +54,12 @@ export function PayoutStatus({ status }) {
   return (
     <PayoutPanel>
       <div className="mt-5">
+        {status.payoutMode && (
+          <p className="text-meta">
+            Effective payout mode: {status.payoutMode.mode} ({status.payoutMode.source}). Provider
+            execution and funding readiness are unavailable; Auto configuration sends no money.
+          </p>
+        )}
         <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-100 px-2.5 py-1 text-tiny font-medium text-ink-600">
           <span className="size-1.5 rounded-full bg-ink-500" aria-hidden="true" />
           Not active yet
