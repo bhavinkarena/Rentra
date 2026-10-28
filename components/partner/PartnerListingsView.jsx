@@ -4,6 +4,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import Link from '@/components/navigation/NavigationLink';
 import Pagination from '@/components/ui/pagination';
 import { Building2 } from 'lucide-react';
+import { formatINRMinor } from '@/lib/domain/booking-money';
 import CreateListingButton from '@/components/partner/CreateListingButton';
 import PropertyFilters from '@/components/partner/PropertyFilters';
 import PropertyCards from '@/components/partner/PropertyCards';
@@ -25,6 +26,20 @@ export default function PartnerListingsView({ summary, result, args, submitted, 
 
   return (
     <PortalPage>
+      {/* Story 2.20: owner-wide restriction while a Test repayment is overdue. */}
+      {summary.repaymentOverdue && (
+        <InlineAlert
+          className="mb-6"
+          action={
+            <Link href="/partner/earnings#repayment-due" className="font-semibold underline">
+              Pay now
+            </Link>
+          }
+        >
+          New bookings are stopped because a Test repayment is overdue (
+          {formatINRMinor(Number(summary.repaymentOutstandingMinor))}).
+        </InlineAlert>
+      )}
       {deleted && (
         <InlineAlert tone="success" className="mb-6">
           Draft deleted. It has been removed from your properties.

@@ -271,6 +271,11 @@ export default function OwnerRecoveries({ data }) {
                   )}
                 </td>
                 <td className={cell}>
+                  {row.overdue && (
+                    <span className="block font-semibold text-danger">
+                      Overdue - new bookings stopped (Test)
+                    </span>
+                  )}
                   {row.notice &&
                     (row.notice.receivedAt ? (
                       <span className="block">

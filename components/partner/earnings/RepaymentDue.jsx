@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { CircleAlert } from 'lucide-react';
 import { recordRepaymentNotice, verifyOwnerRepayment } from '@/lib/actions/partner';
 import { formatINRMinor } from '@/lib/domain/booking-money';
+import InlineAlert from '@/components/portal/InlineAlert';
 
 const day = (iso) =>
   new Date(iso).toLocaleDateString('en-IN', {
@@ -51,7 +52,8 @@ export default function RepaymentDue({ data }) {
   const ackKeys = useRef({});
   const [acking, setAcking] = useState('');
   const [ackError, setAckError] = useState('');
-  if (!shown.length) return null;
+  // Story 2.20: the overdue banner shows even when no link is open or under review.
+  if (!shown.length && !data?.overdue) return null;
   const acknowledge = async (recoveryId) => {
     setAcking(recoveryId);
     setAckError('');
@@ -133,52 +135,70 @@ export default function RepaymentDue({ data }) {
         <CircleAlert className="size-4 text-warning" aria-hidden="true" />
         Test repayment due
       </h2>
+      {data?.overdue ? (
+        <InlineAlert
+          action={
+            shown.length ? (
+              <a href="#repayment-pay" className="font-semibold underline">
+                Pay now
+              </a>
+            ) : (
+              'Rentra finance will send a new Test repayment link.'
+            )
+          }
+        >
+          New bookings are stopped because a Test repayment is overdue (
+          {formatINRMinor(Number(data.outstandingMinor))}).
+        </InlineAlert>
+      ) : null}
       <p className="text-meta text-ink-600">
         A guest rent refund was made after your Test payout. Razorpay Test only; no bank money
         moves.
       </p>
-      <ul className="divide-y divide-border">
-        {shown.map((link) => (
-          <li key={link.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-            <span className="text-meta">
-              {link.bookingRef} · {formatINRMinor(Number(link.amountMinor))} (Test)
-              {link.notice?.dueAt ? (
-                <span
-                  className={`block text-tiny ${link.notice.reminderDue ? 'font-semibold text-warning' : 'text-ink-500'}`}
-                >
-                  {link.notice.reminderDue
-                    ? `Reminder: due on ${day(link.notice.dueAt)} (Test)`
-                    : `Due on ${day(link.notice.dueAt)}`}
-                </span>
-              ) : null}
-            </span>
-            {link.notice && !link.notice.acknowledged ? (
-              <button
-                type="button"
-                disabled={Boolean(acking)}
-                onClick={() => acknowledge(link.recoveryId)}
-                className="min-h-11 rounded-md border border-border px-4 disabled:opacity-50"
-              >
-                {acking === link.recoveryId ? 'Acknowledging…' : 'Acknowledge'}
-              </button>
-            ) : null}
-            {link.state === 'open' ? (
-              <button
-                type="button"
-                disabled={!ready || Boolean(busy)}
-                onClick={() => pay(link)}
-                className="min-h-11 rounded-md bg-primary px-4 text-white disabled:opacity-50"
-              >
-                {busy === link.id ? 'Paying…' : 'Pay (Test)'}
-              </button>
-            ) : (
-              <span className="text-tiny text-ink-500">
-                Payment received; finance is reviewing it. The balance still shows as due.
+      {shown.length ? (
+        <ul id="repayment-pay" className="divide-y divide-border">
+          {shown.map((link) => (
+            <li key={link.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+              <span className="text-meta">
+                {link.bookingRef} · {formatINRMinor(Number(link.amountMinor))} (Test)
+                {link.notice?.dueAt ? (
+                  <span
+                    className={`block text-tiny ${link.notice.reminderDue ? 'font-semibold text-warning' : 'text-ink-500'}`}
+                  >
+                    {link.notice.reminderDue
+                      ? `Reminder: due on ${day(link.notice.dueAt)} (Test)`
+                      : `Due on ${day(link.notice.dueAt)}`}
+                  </span>
+                ) : null}
               </span>
-            )}
-          </li>
-        ))}
-      </ul>
+              {link.notice && !link.notice.acknowledged ? (
+                <button
+                  type="button"
+                  disabled={Boolean(acking)}
+                  onClick={() => acknowledge(link.recoveryId)}
+                  className="min-h-11 rounded-md border border-border px-4 disabled:opacity-50"
+                >
+                  {acking === link.recoveryId ? 'Acknowledging…' : 'Acknowledge'}
+                </button>
+              ) : null}
+              {link.state === 'open' ? (
+                <button
+                  type="button"
+                  disabled={!ready || Boolean(busy)}
+                  onClick={() => pay(link)}
+                  className="min-h-11 rounded-md bg-primary px-4 text-white disabled:opacity-50"
+                >
+                  {busy === link.id ? 'Paying…' : 'Pay (Test)'}
+                </button>
+              ) : (
+                <span className="text-tiny text-ink-500">
+                  Payment received; finance is reviewing it. The balance still shows as due.
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      ) : null}
       {ackError ? (
         <p role="alert" className="text-meta text-danger">
           {ackError}
