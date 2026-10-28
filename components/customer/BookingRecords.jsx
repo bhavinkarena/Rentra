@@ -343,6 +343,13 @@ export function BookingDetail({
                 {operational && v.operation && (
                   <p className="text-sm font-semibold">{v.operation.label}</p>
                 )}
+                {v.hostCancellationReason ? (
+                  // Story 2.15: the host cancelled; the guest is refunded everything paid.
+                  <p className="rounded-md bg-warning-bg p-3 text-meta text-ink-800">
+                    The host cancelled this stay: “{v.hostCancellationReason}” You are refunded
+                    everything you paid; see the refund status below.
+                  </p>
+                ) : null}
                 <dl className="grid gap-x-8 text-meta sm:grid-cols-2">
                   <Row label="Arrival">{time(v.startsAt, record.timeZone)}</Row>
                   <Row label="Departure">{time(v.endsAt, record.timeZone)}</Row>
