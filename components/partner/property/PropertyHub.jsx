@@ -131,7 +131,7 @@ export default function PropertyHub({
           {publicPath ? (
             <ShareButton title={title} text={title} url={new URL(publicPath, siteUrl).toString()} />
           ) : null}
-          {listing.status === 'live' ? <PauseButton listing={listing} upcoming={upcoming} /> : null}
+          {listing.status === 'live' ? <PauseButton listing={listing} /> : null}
         </div>
       </div>
       {listing.status === 'paused' ? (

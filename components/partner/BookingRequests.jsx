@@ -61,7 +61,10 @@ function RequestCard({ request }) {
             </button>
             <button
               type="button"
-              disabled={pending}
+              disabled={pending || request.canApprove === false}
+              aria-describedby={
+                request.canApprove === false ? `paused-${request.orderId}` : undefined
+              }
               onClick={() => decide(true)}
               className="inline-flex min-h-11 items-center gap-1.5 rounded-md bg-primary px-4 font-semibold text-white disabled:bg-muted"
             >
@@ -70,6 +73,14 @@ function RequestCard({ request }) {
           </div>
         )}
       </div>
+      {request.canApprove === false && !state.done ? (
+        // Story 2.14: a paused property takes no new approvals; declining still works.
+        <p id={`paused-${request.orderId}`} className="mt-2 text-meta text-ink-600">
+          {request.approveBlocked === 'paused'
+            ? 'Bookings are paused for this property. Resume bookings to accept, or decline the request.'
+            : 'This property is not taking bookings right now, so it cannot accept requests. You can still decline.'}
+        </p>
+      ) : null}
       {state.error ? (
         <p role="alert" className="mt-2 text-meta text-danger">
           {state.error}
