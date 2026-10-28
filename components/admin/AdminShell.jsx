@@ -59,6 +59,7 @@ const ICONS = {
   '/admin/finance/payments': ReceiptText,
   '/admin/finance/refunds': RotateCcw,
   '/admin/finance/statements': FileSearch,
+  '/admin/finance/owner-recoveries': RotateCcw,
   '/admin/finance/payouts': Landmark,
   '/admin/disputes': Gavel,
   '/admin/finance/commission': Percent,

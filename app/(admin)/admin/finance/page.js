@@ -103,6 +103,11 @@ export default async function FinancePage() {
                 ['payouts', 'Payouts', 'Recorded funding and destination evidence'],
                 ['payout-modes', 'Payout mode', 'Global Auto/Manual mode and owner inheritance'],
                 [
+                  'owner-recoveries',
+                  'Owner recoveries',
+                  'Test: owner obligations after guest refunds',
+                ],
+                [
                   'service-fee',
                   'Service fee',
                   'Rentra service fee: global rate and owner overrides',
