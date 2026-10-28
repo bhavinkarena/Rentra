@@ -214,9 +214,20 @@ export default function AdminBookingDetail({
                           { label: 'Expected', value: money(payment.expectedMinor) },
                           { label: 'Captured', value: money(payment.capturedMinor) },
                           { label: 'Refunded', value: money(payment.refundedMinor) },
+                          ...(payment.simulatedMinor != null
+                            ? [
+                                {
+                                  label: 'Simulation amount (not money)',
+                                  value: money(payment.simulatedMinor),
+                                },
+                              ]
+                            : []),
                           {
                             label: 'Actual bank collection',
-                            value: money(payment.actualBankMinor),
+                            value:
+                              payment.actualBankMinor == null && payment.environment !== 'live'
+                                ? 'Not applicable (not live)'
+                                : money(payment.actualBankMinor),
                           },
                         ]}
                       />

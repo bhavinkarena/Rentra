@@ -23,6 +23,7 @@ import {
   environmentLabel,
   earningsQuery,
   earningsTime,
+  payoutStateLabel,
 } from '@/lib/domain/owner-earnings';
 import EarningsChart from './EarningsChart';
 import EarningsLedger from './EarningsLedger';
@@ -206,7 +207,9 @@ export function EarningRows({ data }) {
             ) : null}
           </td>
           <td>
-            Not switched on yet
+            <span className="inline-block rounded-full bg-ink-100 px-2 py-0.5 text-tiny font-semibold text-ink-700">
+              {payoutStateLabel(row.payoutState)}
+            </span>
             {row.bookingLinkAvailable ? (
               <Link href={`/partner/bookings?booking=${row.orderId}`} className={textLink}>
                 Open booking

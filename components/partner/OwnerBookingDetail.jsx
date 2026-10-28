@@ -10,7 +10,13 @@ import CopyValue from './CopyValue';
 import { CreateCaseForm } from '@/components/booking/CaseForms';
 import { StateBadge } from '@/components/customer/BookingDisplay';
 import { displayMoney as money } from '@/lib/domain/display-money';
-import { EARNINGS_NOTICE } from '@/lib/domain/owner-earnings';
+import {
+  EARNINGS_NOTICE,
+  guestPaymentLabel,
+  moneyEnvironmentLabel,
+  payoutStateLabel,
+  refundLabel,
+} from '@/lib/domain/owner-earnings';
 import {
   ArrowLeft,
   Building2,
@@ -177,9 +183,9 @@ export default function OwnerBookingDetail({
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <StateBadge state={record.state} />
-              {record.payments.some((p) => p.environment === 'test') ? (
+              {moneyEnvironmentLabel(record.guestPayment?.environment) ? (
                 <span className="rounded-full bg-ink-100 px-2.5 py-0.5 text-tiny font-semibold text-ink-700">
-                  Test booking
+                  {moneyEnvironmentLabel(record.guestPayment.environment)} booking
                 </span>
               ) : null}
             </div>
@@ -387,7 +393,7 @@ export default function OwnerBookingDetail({
                 <dt className="text-ink-600">Rentra guest fee</dt>
                 <dd className="text-ink-700 tabular">{money(record.feeMinor)}</dd>
               </div>
-              {record.depositMinor ? (
+              {record.depositMinor != null ? (
                 <div className="flex justify-between gap-3">
                   <dt className="text-ink-600">Deposit (separate)</dt>
                   <dd className="text-ink-700 tabular">{money(record.depositMinor)}</dd>
@@ -397,25 +403,57 @@ export default function OwnerBookingDetail({
             <p className="mt-2 text-tiny text-ink-500">
               The guest fee is Rentra’s, not your earning.
             </p>
-            {record.payments.length ? (
-              <ul className="mt-4 space-y-2 border-t border-border pt-4">
-                {record.payments.map((p) => (
-                  <li key={p.id} className="text-meta">
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-ink-700">
-                        {p.environment === 'test' ? 'Test payment' : 'Payment'}
+            {record.guestPayment ? (
+              <dl className="mt-4 space-y-2 border-t border-border pt-4 text-meta">
+                <div className="flex justify-between gap-3">
+                  <dt className="text-ink-600">
+                    Guest payment
+                    {moneyEnvironmentLabel(record.guestPayment.environment)
+                      ? ` (${moneyEnvironmentLabel(record.guestPayment.environment)})`
+                      : ''}
+                  </dt>
+                  <dd className="text-right text-ink-900">
+                    {guestPaymentLabel(record.guestPayment.state)}
+                    <span className="block text-tiny text-ink-500 tabular">
+                      {money(record.guestPayment.receivedMinor)} of{' '}
+                      {money(record.guestPayment.dueMinor)}
+                    </span>
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-ink-600">Guest refunds</dt>
+                  <dd className="text-right text-ink-900">
+                    {refundLabel(record.guestPayment.refund.state)}
+                    {record.guestPayment.refund.state !== 'none' ? (
+                      <span className="block text-tiny text-ink-500 tabular">
+                        Requested {money(record.guestPayment.refund.requestedMinor)} · Refunded{' '}
+                        {money(record.guestPayment.refund.refundedMinor)}
                       </span>
-                      <StateBadge state={p.state} />
-                    </div>
-                    <p className="text-tiny text-ink-500 tabular">
-                      Captured {money(p.capturedMinor || 0)}
-                      {p.refundedMinor ? ` · Refunded ${money(p.refundedMinor)}` : ''} ·{' '}
-                      {p.provider}
-                      {p.providerOrderId ? ` · ${p.providerOrderId}` : ''}
-                    </p>
-                  </li>
+                    ) : null}
+                  </dd>
+                </div>
+                {record.guestPayment.mixedEnvironments ? (
+                  <p className="text-tiny text-ink-500">Other test payments exist.</p>
+                ) : null}
+                {record.visits.map((v) => (
+                  <div key={v.id} className="flex justify-between gap-3">
+                    <dt className="text-ink-600">
+                      Your payout{record.visits.length > 1 ? ` · ${v.reference}` : ''}
+                      {moneyEnvironmentLabel(v.payout?.environment)
+                        ? ` (${moneyEnvironmentLabel(v.payout.environment)})`
+                        : ''}
+                    </dt>
+                    <dd className="text-right text-ink-900">
+                      {payoutStateLabel(v.payout?.state)}
+                      {v.payout?.amountMinor != null ? (
+                        <span className="block text-tiny text-ink-500 tabular">
+                          {money(v.payout.amountMinor)}
+                        </span>
+                      ) : null}
+                    </dd>
+                  </div>
                 ))}
-              </ul>
+              </dl>
             ) : null}
             <div className="mt-4 flex flex-wrap gap-2 border-t border-border pt-4">
               {record.earningLines?.map((line, i) => (

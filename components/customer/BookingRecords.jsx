@@ -41,6 +41,7 @@ import {
   displayMoney as money,
   StateBadge,
 } from './BookingDisplay';
+import { moneyEnvironmentLabel } from '@/lib/domain/owner-earnings';
 export { BookingHistory } from './BookingHistory';
 
 const card = 'rounded-lg border border-border bg-card p-5 sm:p-6';
@@ -94,6 +95,7 @@ export function BookingDetail({
   listHref = base,
 }) {
   const test = record.payments.some((p) => p.environment === 'test');
+  const simulated = !test && record.payments.some((p) => p.environment === 'simulated');
   const confirmed = record.visits.some((v) =>
     ['confirmed', 'handed_over', 'returned', 'completed', 'disputed'].includes(v.state),
   );
@@ -179,8 +181,8 @@ export function BookingDetail({
               <h1 className="mt-3 text-h1">{record.title}</h1>
               <p className="mt-2 font-mono text-tiny break-all text-ink-500">
                 {confirmed
-                  ? test
-                    ? 'Test booking'
+                  ? test || simulated
+                    ? `${moneyEnvironmentLabel(test ? 'test' : 'simulated')} booking`
                     : operational
                       ? 'Booking'
                       : 'Your reservation'
@@ -220,6 +222,12 @@ export function BookingDetail({
           </div>
         </div>
       </header>
+      {simulated ? (
+        <p className="flex items-start gap-3 rounded-lg border border-info/20 bg-info-bg p-4 text-meta text-ink-800">
+          <FlaskConical className="mt-0.5 size-4 shrink-0 text-info" aria-hidden="true" />
+          Simulation booking. No money was collected. This record is not a receipt.
+        </p>
+      ) : null}
       {test ? (
         <p className="flex items-start gap-3 rounded-lg border border-info/20 bg-info-bg p-4 text-meta text-ink-800">
           <FlaskConical className="mt-0.5 size-4 shrink-0 text-info" aria-hidden="true" />
@@ -469,7 +477,7 @@ export function BookingDetail({
                   {p.provider} · {p.purpose} collection
                 </span>
                 <StateBadge state={p.state}>
-                  Payment ({p.environment}): {words(p.state)}
+                  Payment ({moneyEnvironmentLabel(p.environment) || 'Live'}): {words(p.state)}
                 </StateBadge>
               </div>
               <dl className="mt-2 text-meta">
@@ -480,13 +488,18 @@ export function BookingDetail({
                 </Row>
                 <Row label={`Expected ${p.environment} amount`}>{money(p.expectedMinor)}</Row>
                 <Row label={`Verified ${p.environment} capture`}>{money(p.capturedMinor)}</Row>
+                {p.simulatedMinor != null ? (
+                  <Row label="Simulation amount (not money)">{money(p.simulatedMinor)}</Row>
+                ) : null}
                 <Row
                   label={`${p.environment[0].toUpperCase()}${p.environment.slice(1)} refunds completed`}
                 >
                   {money(p.refundedMinor)}
                 </Row>
                 <Row label="Actual bank collection" strong>
-                  {money(p.actualBankMinor)}
+                  {p.actualBankMinor == null
+                    ? 'Not applicable (not live)'
+                    : money(p.actualBankMinor)}
                 </Row>
               </dl>
             </div>
@@ -508,7 +521,9 @@ export function BookingDetail({
                 <p key={`${p.id}-${index}`} className="text-meta">
                   {p.environment} refund: {refund.state} · requested {money(refund.expectedMinor)} ·
                   completed {money(refund.actualMinor)}
-                  {p.environment === 'test' ? ' · actual bank refund: ₹0' : ''}
+                  {p.environment !== 'live'
+                    ? ' · actual bank refund: not applicable (not live)'
+                    : ''}
                   {refund.providerRefundId
                     ? ` · provider reference: ${refund.providerRefundId}`
                     : ''}
@@ -616,7 +631,11 @@ function StayRooms({ stay, card, headingIcon }) {
               </p>
             </div>
             <p className="text-right tabular">
-              {money(room.roomMinor + room.taxMinor)}
+              {money(
+                room.roomMinor == null || room.taxMinor == null
+                  ? null
+                  : room.roomMinor + room.taxMinor,
+              )}
               <span className="block text-tiny text-ink-500">incl. {money(room.taxMinor)} tax</span>
             </p>
           </li>

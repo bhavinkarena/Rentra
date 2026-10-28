@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { customerApi } from '@/lib/api/endpoints';
 import { bookingTime as time } from '@/lib/domain/booking-record';
 import { MEAL_LABELS } from '@/lib/domain/hotel-ui';
+import { moneyEnvironmentLabel } from '@/lib/domain/owner-earnings';
 import { BackLink } from '@/components/ui/page-header';
 import PrintButton from '@/components/partner/earnings/PrintButton';
 import { displayMoney as money, totalPrice } from '@/components/customer/BookingDisplay';
@@ -21,7 +22,19 @@ export default async function VoucherPage({ params }) {
   const visit = record.visits[0] ?? {};
   const rooms = stay.rooms.filter((room) => !['released', 'no_show'].includes(room.state));
   const d = stay.details ?? {};
-  const paid = record.payments.reduce((sum, p) => sum + p.capturedMinor - p.refundedMinor, 0);
+  // Capture plus simulation, net of refunds; null (Not recorded) when nothing was collected.
+  const collected = record.payments.filter(
+    (p) => p.capturedMinor != null || p.simulatedMinor != null,
+  );
+  const paid = collected.length
+    ? collected.reduce(
+        (sum, p) => sum + (p.capturedMinor ?? 0) + (p.simulatedMinor ?? 0) - (p.refundedMinor ?? 0),
+        0,
+      )
+    : null;
+  const paidLabel = [...new Set(collected.map((p) => moneyEnvironmentLabel(p.environment)))]
+    .filter(Boolean)
+    .join(', ');
   const cell = 'border-b border-border py-2 pr-3 align-top';
   return (
     <article className="voucher-print mx-auto max-w-3xl space-y-6 text-meta wrap-break-word">
@@ -99,7 +112,7 @@ export default async function VoucherPage({ params }) {
           ['Rooms', stay.roomMinor],
           ['Taxes', stay.taxMinor],
           ['Booking total', totalPrice(record)],
-          ['Paid', paid],
+          [paidLabel ? `Paid (${paidLabel})` : 'Paid', paid],
         ].map(([label, value], index) => (
           <div
             key={label}
