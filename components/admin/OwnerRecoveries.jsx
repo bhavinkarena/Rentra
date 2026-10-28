@@ -1,7 +1,12 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { assignOwnerRecovery } from '@/lib/actions/hotel-finance';
+import {
+  assignOwnerRecovery,
+  checkOwnerRepaymentLink,
+  resolveOwnerRepaymentLink,
+  createOwnerRepaymentLink,
+} from '@/lib/actions/hotel-finance';
 import { formatINRMinor } from '@/lib/domain/booking-money';
 import { control } from './PropertyCommandForm';
 
@@ -35,6 +40,54 @@ export default function OwnerRecoveries({ data }) {
         router.refresh();
       }
     });
+  // One request key per row until success or a definite 4xx, so a retry after a lost response replays.
+  const [linkKeys, setLinkKeys] = useState({});
+  const link = (row) =>
+    startTransition(async () => {
+      // The retry replays the exact first payload (key + hash + version), not the refreshed row.
+      const body = linkKeys[row.sourceId] ?? {
+        hash: row.hash,
+        expectedVersion: row.version,
+        requestKey: crypto.randomUUID(),
+      };
+      setLinkKeys((keys) => ({ ...keys, [row.sourceId]: body }));
+      let outcome;
+      try {
+        outcome = await createOwnerRepaymentLink(row.sourceId, body);
+      } catch {
+        setResult({ error: 'Could not reach Rentra. Try again.' });
+        return;
+      }
+      if (outcome.ok || (outcome.status >= 400 && outcome.status < 500))
+        setLinkKeys(({ [row.sourceId]: _done, ...keys }) => keys);
+      setResult(outcome.ok ? { linked: outcome.result } : outcome);
+      router.refresh();
+    });
+  const check = (row) =>
+    startTransition(async () => {
+      let outcome;
+      try {
+        outcome = await checkOwnerRepaymentLink(row.sourceId);
+      } catch {
+        outcome = { error: 'Could not reach Rentra. Try again.' };
+      }
+      setResult(outcome.ok ? { checked: outcome.result.settled.length } : outcome);
+      router.refresh();
+    });
+  const [closing, setClosing] = useState(null);
+  const resolve = (row, reason) =>
+    startTransition(async () => {
+      let outcome;
+      try {
+        outcome = await resolveOwnerRepaymentLink(row.sourceId, { linkId: row.link.id, reason });
+      } catch {
+        setResult({ error: 'Could not reach Rentra. Try again.' });
+        return;
+      }
+      setResult(outcome.ok ? { closedLink: outcome.result } : outcome);
+      if (outcome.ok) setClosing(null);
+      router.refresh();
+    });
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-4 sm:p-6">
       <header>
@@ -49,6 +102,23 @@ export default function OwnerRecoveries({ data }) {
       </header>
       {!data.canWrite && (
         <p role="status">Read only. Finance write permission is required to assign.</p>
+      )}
+      {result?.linked && (
+        <p role="status">Test repayment link open for {money(result.linked.amountMinor)} (Test).</p>
+      )}
+      {result?.checked != null && (
+        <p role="status">
+          {result.checked
+            ? 'Captured Test payment found and settled.'
+            : 'No new captured Test payment. State unchanged.'}
+        </p>
+      )}
+      {result?.closedLink && (
+        <p role="status">
+          {result.closedLink.state === 'paid'
+            ? 'Captured Test payment found and settled.'
+            : 'Link closed (Test). Create a new Test repayment link when ready.'}
+        </p>
       )}
       {result?.ok && <p role="status">Assigned. Version {result.result.version}.</p>}
       {result?.error && (
@@ -69,6 +139,8 @@ export default function OwnerRecoveries({ data }) {
                 'Refunded after (Test)',
                 'Obligation (Test)',
                 'Reserved (Test)',
+                'Outstanding (Test)',
+                'Repayment link (Test)',
                 'Version',
                 '',
               ].map((h) => (
@@ -81,7 +153,7 @@ export default function OwnerRecoveries({ data }) {
           <tbody className="divide-y divide-border">
             {data.items.length === 0 && (
               <tr>
-                <td className={cell} colSpan={8}>
+                <td className={cell} colSpan={10}>
                   No Test recovery candidates.
                 </td>
               </tr>
@@ -101,6 +173,48 @@ export default function OwnerRecoveries({ data }) {
                   )}
                 </td>
                 <td className={cell}>{money(row.reservedMinor)}</td>
+                <td className={cell}>{money(row.outstandingMinor)}</td>
+                <td className={cell}>
+                  {row.link && (
+                    <span className="block">
+                      {row.link.state.replace('_', ' ')} · {money(row.link.amountMinor)} (Test)
+                      {row.link.excessMinor !== '0' &&
+                        ` · excess ${money(row.link.excessMinor)} (Test) to return`}
+                    </span>
+                  )}
+                  {row.recoveryId && row.outstandingMinor !== '0' && (
+                    <button
+                      type="button"
+                      disabled={pending || !data.canWrite}
+                      onClick={() => link(row)}
+                      className="min-h-11 rounded-md border border-border px-3 disabled:opacity-50"
+                    >
+                      {row.link?.state === 'open'
+                        ? 'Replace link (Test)'
+                        : 'Create Test repayment link'}
+                    </button>
+                  )}
+                  {row.link && row.link.state !== 'paid' && (
+                    <button
+                      type="button"
+                      disabled={pending || !data.canWrite}
+                      onClick={() => check(row)}
+                      className="mt-1 min-h-11 rounded-md border border-border px-3 disabled:opacity-50"
+                    >
+                      Check payment again (Test)
+                    </button>
+                  )}
+                  {row.link?.state === 'needs_review' && (
+                    <button
+                      type="button"
+                      disabled={pending || !data.canWrite}
+                      onClick={() => setClosing(row)}
+                      className="mt-1 min-h-11 rounded-md border border-border px-3 disabled:opacity-50"
+                    >
+                      Close link (Test)
+                    </button>
+                  )}
+                </td>
                 <td className={cell}>{row.version}</td>
                 <td className={cell}>
                   <button
@@ -120,6 +234,42 @@ export default function OwnerRecoveries({ data }) {
           </tbody>
         </table>
       </div>
+      {closing && (
+        <dialog open aria-labelledby="close-title" className="rounded-lg border border-border p-5">
+          <form
+            className="space-y-4"
+            onSubmit={(event) => {
+              event.preventDefault();
+              resolve(closing, new FormData(event.currentTarget).get('reason'));
+            }}
+          >
+            <h2 id="close-title" className="text-h3">
+              Close Test repayment link: {money(closing.link.amountMinor)} (Test)
+            </h2>
+            <p className="text-meta">
+              Razorpay Test is checked again first. A captured payment settles instead; what is due
+              never changes.
+            </p>
+            <label className="block text-meta font-semibold">
+              Reason
+              <textarea name="reason" required minLength={10} maxLength={500} className={control} />
+            </label>
+            <div className="flex gap-3">
+              <button disabled={pending} className="min-h-11 rounded-md bg-primary px-4 text-white">
+                Close link (Test)
+              </button>
+              <button
+                type="button"
+                disabled={pending}
+                onClick={() => setClosing(null)}
+                className="min-h-11 rounded-md border border-border px-4"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </dialog>
+      )}
       {open && (
         <dialog open aria-labelledby="assign-title" className="rounded-lg border border-border p-5">
           <form

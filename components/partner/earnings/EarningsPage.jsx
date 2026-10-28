@@ -35,5 +35,7 @@ export default async function EarningsPage({
         items: data.items.slice((data.filters.page - 1) * 30, data.filters.page * 30),
       }
     : data;
-  return <Earnings data={view} statement={statement} print={print} />;
+  // Story 2.18: Test repayment links are optional; a failure never blocks earnings.
+  const repayments = overview ? await partnerApi.repayments().catch(() => null) : null;
+  return <Earnings data={view} statement={statement} print={print} repayments={repayments} />;
 }

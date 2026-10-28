@@ -1,3 +1,4 @@
+import RepaymentDue from './RepaymentDue';
 import {
   ArrowDownToLine,
   ArrowUpRight,
@@ -255,7 +256,7 @@ function ReportActions({ filters, print }) {
     </details>
   );
 }
-export default function Earnings({ data, statement = false, print = false }) {
+export default function Earnings({ data, statement = false, print = false, repayments = null }) {
   const f = data.filters;
   return (
     <section className={`owner-earnings space-y-5 ${print ? 'owner-statement-print' : ''}`}>
@@ -284,6 +285,7 @@ export default function Earnings({ data, statement = false, print = false }) {
           </Link>
         </nav>
       ) : null}
+      {!print && !statement ? <RepaymentDue data={repayments} /> : null}
       {!print ? <EarningsFilters key={earningsQuery(f)} data={data} statement={statement} /> : null}
       <div className="flex flex-wrap items-center justify-between gap-2 text-tiny">
         <span
