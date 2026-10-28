@@ -23,6 +23,33 @@ const labels = {
 const query = (f) =>
   new URLSearchParams(Object.entries(f).filter(([, v]) => v !== '' && v != null)).toString();
 const baseFor = (admin) => (admin ? '/admin/finance' : '/partner');
+export function FixtureSummary({ value }) {
+  if (!value) return null;
+  return (
+    <section
+      aria-label="Local payout fixture"
+      className="space-y-2 rounded-md border border-border p-4"
+    >
+      <h3 className="text-h3">Local payout fixture · {value.state}</h3>
+      <p>
+        Source allocation: {value.sourceId} · Destination v{value.destinationVersion}
+      </p>
+      <p>
+        Expected fixture amount: {displayMoney(value.expectedMinor)} · Actual bank proceeds:{' '}
+        {displayMoney(value.actualBankMinor)}
+      </p>
+      <p>
+        Hypothetical remaining captured rent after refund reservations. This is not an approved net
+        owner payable calculation.
+      </p>
+      <p>
+        Simulated overlap exposure: {displayMoney(value.simulatedExposureMinor)} · Funding
+        authority: unset.
+      </p>
+      <p>No funded refund money or recovery debt is recorded by this fixture.</p>
+    </section>
+  );
+}
 function Filters({ filters, admin, properties = [], action, activeTab }) {
   return (
     <form
@@ -320,6 +347,7 @@ export function Statement({
                           View allocation <ArrowUpRight className="size-4" aria-hidden="true" />
                         </span>
                       </Link>
+                      <FixtureSummary value={r.fixture} />
                     </li>
                   ))}
                 </ul>
@@ -346,6 +374,7 @@ export function Statement({
                   {r.payout && (
                     <Link href={`${b}/payouts/${r.payout.id}`}>Payout · {r.payout.status}</Link>
                   )}
+                  <FixtureSummary value={r.fixture} />
                 </article>
               ))}
             </div>
@@ -398,6 +427,7 @@ export function Allocation({
         )}
       </p>
       <BookingLink row={row} admin={admin} capabilities={capabilities} />
+      <FixtureSummary value={row.fixture} />
       <dl
         className={
           admin
