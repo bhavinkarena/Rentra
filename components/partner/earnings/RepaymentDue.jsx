@@ -1,10 +1,18 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Script from 'next/script';
 import { useRouter } from 'next/navigation';
 import { CircleAlert } from 'lucide-react';
-import { verifyOwnerRepayment } from '@/lib/actions/partner';
+import { recordRepaymentNotice, verifyOwnerRepayment } from '@/lib/actions/partner';
 import { formatINRMinor } from '@/lib/domain/booking-money';
+
+const day = (iso) =>
+  new Date(iso).toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'Asia/Kolkata',
+  });
 
 // Story 2.18: Test repayment of a recorded owner obligation. Razorpay Test only; no bank money.
 export default function RepaymentDue({ data }) {
@@ -17,7 +25,49 @@ export default function RepaymentDue({ data }) {
   const items = data?.items ?? [];
   const open = items.filter((i) => i.state === 'open');
   const review = items.filter((i) => i.state === 'needs_review');
-  if (!open.length && !review.length) return null;
+  const shown = [...open, ...review];
+  // Story 2.19: seeing this panel is receipt evidence. One explicit POST per notice per page load.
+  const viewed = useRef(new Set());
+  const unseenKey = [
+    ...new Set(shown.filter((l) => l.notice && !l.notice.receivedAt).map((l) => l.recoveryId)),
+  ].join(',');
+  useEffect(() => {
+    if (!unseenKey) return;
+    const ids = unseenKey.split(',').filter((id) => !viewed.current.has(id));
+    if (!ids.length) return;
+    ids.forEach((id) => viewed.current.add(id));
+    Promise.all(
+      ids.map((id) =>
+        recordRepaymentNotice(id, 'view', { requestKey: crypto.randomUUID() })
+          .then((result) => {
+            // Failed: allow another view POST when the list or route changes.
+            if (result?.error) viewed.current.delete(id);
+          })
+          .catch(() => viewed.current.delete(id)),
+      ),
+    ).then(() => router.refresh());
+  }, [unseenKey, router]);
+  // One kept request key per notice so a retried acknowledge replays.
+  const ackKeys = useRef({});
+  const [acking, setAcking] = useState('');
+  const [ackError, setAckError] = useState('');
+  if (!shown.length) return null;
+  const acknowledge = async (recoveryId) => {
+    setAcking(recoveryId);
+    setAckError('');
+    ackKeys.current[recoveryId] ??= crypto.randomUUID();
+    try {
+      const result = await recordRepaymentNotice(recoveryId, 'ack', {
+        requestKey: ackKeys.current[recoveryId],
+      });
+      if (result?.error) setAckError(result.error);
+      else router.refresh();
+    } catch {
+      setAckError('Could not reach Rentra. Try again.');
+    } finally {
+      setAcking('');
+    }
+  };
   const verify = async (link, input) => {
     setBusy(link.id);
     try {
@@ -88,11 +138,30 @@ export default function RepaymentDue({ data }) {
         moves.
       </p>
       <ul className="divide-y divide-border">
-        {[...open, ...review].map((link) => (
+        {shown.map((link) => (
           <li key={link.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
             <span className="text-meta">
               {link.bookingRef} · {formatINRMinor(Number(link.amountMinor))} (Test)
+              {link.notice?.dueAt ? (
+                <span
+                  className={`block text-tiny ${link.notice.reminderDue ? 'font-semibold text-warning' : 'text-ink-500'}`}
+                >
+                  {link.notice.reminderDue
+                    ? `Reminder: due on ${day(link.notice.dueAt)} (Test)`
+                    : `Due on ${day(link.notice.dueAt)}`}
+                </span>
+              ) : null}
             </span>
+            {link.notice && !link.notice.acknowledged ? (
+              <button
+                type="button"
+                disabled={Boolean(acking)}
+                onClick={() => acknowledge(link.recoveryId)}
+                className="min-h-11 rounded-md border border-border px-4 disabled:opacity-50"
+              >
+                {acking === link.recoveryId ? 'Acknowledging…' : 'Acknowledge'}
+              </button>
+            ) : null}
             {link.state === 'open' ? (
               <button
                 type="button"
@@ -110,6 +179,11 @@ export default function RepaymentDue({ data }) {
           </li>
         ))}
       </ul>
+      {ackError ? (
+        <p role="alert" className="text-meta text-danger">
+          {ackError}
+        </p>
+      ) : null}
       {message ? (
         <p role="status" className="text-meta">
           {message}

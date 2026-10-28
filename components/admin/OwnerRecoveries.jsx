@@ -6,6 +6,7 @@ import {
   checkOwnerRepaymentLink,
   resolveOwnerRepaymentLink,
   createOwnerRepaymentLink,
+  confirmOwnerNoticeReceipt,
 } from '@/lib/actions/hotel-finance';
 import { formatINRMinor } from '@/lib/domain/booking-money';
 import { control } from './PropertyCommandForm';
@@ -13,6 +14,17 @@ import { control } from './PropertyCommandForm';
 // API sends integer paise as strings; amounts here stay within safe integers.
 const money = (minor) => formatINRMinor(Number(minor));
 const cell = 'px-3 py-2 text-left';
+const when = (iso) =>
+  new Date(iso).toLocaleString('en-IN', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: 'Asia/Kolkata',
+  });
+const VIA = {
+  portal_view: 'portal view',
+  owner_ack: 'owner acknowledged',
+  admin_confirmed: 'admin confirmed',
+};
 
 export default function OwnerRecoveries({ data }) {
   const router = useRouter();
@@ -88,6 +100,43 @@ export default function OwnerRecoveries({ data }) {
       if (outcome.ok) setClosing(null);
       router.refresh();
     });
+  // Story 2.19: one kept request key per row until success or a definite 4xx, so a retry replays.
+  const [receipt, setReceipt] = useState(null);
+  const [receiptKeys, setReceiptKeys] = useState({});
+  const confirmReceipt = (row, form) =>
+    startTransition(async () => {
+      const at = new Date(form.get('receivedAt'));
+      if (Number.isNaN(at.getTime())) {
+        setResult({ error: 'Enter a valid receipt date and time.' });
+        return;
+      }
+      const values = {
+        receivedAt: at.toISOString(),
+        reason: String(form.get('reason') ?? ''),
+        expectedVersion: row.notice.version,
+      };
+      // Reuse the kept key only for an identical retry; any changed value is a new request.
+      const kept = receiptKeys[row.sourceId];
+      const same =
+        kept &&
+        kept.receivedAt === values.receivedAt &&
+        kept.reason === values.reason &&
+        kept.expectedVersion === values.expectedVersion;
+      const body = same ? kept : { ...values, requestKey: crypto.randomUUID() };
+      setReceiptKeys((keys) => ({ ...keys, [row.sourceId]: body }));
+      let outcome;
+      try {
+        outcome = await confirmOwnerNoticeReceipt(row.sourceId, body);
+      } catch {
+        setResult({ error: 'Could not reach Rentra. Try again.' });
+        return;
+      }
+      if (outcome.ok || (outcome.status >= 400 && outcome.status < 500))
+        setReceiptKeys(({ [row.sourceId]: _done, ...keys }) => keys);
+      setResult(outcome.ok ? { received: outcome.result } : outcome);
+      if (outcome.ok || outcome.code === 'NOTICE_CHANGED') setReceipt(null);
+      router.refresh();
+    });
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-4 sm:p-6">
       <header>
@@ -120,12 +169,17 @@ export default function OwnerRecoveries({ data }) {
             : 'Link closed (Test). Create a new Test repayment link when ready.'}
         </p>
       )}
+      {result?.received && (
+        <p role="status">Receipt recorded. Due {when(result.received.dueAt)} (Test).</p>
+      )}
       {result?.ok && <p role="status">Assigned. Version {result.result.version}.</p>}
       {result?.error && (
         <p role="alert">
           {result.code === 'RECOVERY_CHANGED'
             ? 'Figures changed. The list was refreshed; review and assign again.'
-            : (Object.values(result.fields ?? {})[0] ?? result.error)}
+            : result.code === 'NOTICE_CHANGED'
+              ? 'The notice changed. The list was refreshed; review and confirm again.'
+              : (Object.values(result.fields ?? {})[0] ?? result.error)}
         </p>
       )}
       <div className="overflow-x-auto rounded-lg border border-border">
@@ -141,6 +195,7 @@ export default function OwnerRecoveries({ data }) {
                 'Reserved (Test)',
                 'Outstanding (Test)',
                 'Repayment link (Test)',
+                'Notice (Test)',
                 'Version',
                 '',
               ].map((h) => (
@@ -153,7 +208,7 @@ export default function OwnerRecoveries({ data }) {
           <tbody className="divide-y divide-border">
             {data.items.length === 0 && (
               <tr>
-                <td className={cell} colSpan={10}>
+                <td className={cell} colSpan={11}>
                   No Test recovery candidates.
                 </td>
               </tr>
@@ -215,6 +270,33 @@ export default function OwnerRecoveries({ data }) {
                     </button>
                   )}
                 </td>
+                <td className={cell}>
+                  {row.notice &&
+                    (row.notice.receivedAt ? (
+                      <span className="block">
+                        Received {when(row.notice.receivedAt)} (
+                        {VIA[row.notice.receivedVia] ?? row.notice.receivedVia})
+                        <span className="block text-ink-500">
+                          Reminder {when(row.notice.reminderAt)} · Due {when(row.notice.dueAt)}
+                        </span>
+                      </span>
+                    ) : (
+                      <span className="block text-ink-500">Issued; not received yet</span>
+                    ))}
+                  {row.notice && (
+                    <button
+                      type="button"
+                      disabled={pending || !data.canWrite}
+                      onClick={() => {
+                        setResult(null);
+                        setReceipt(row);
+                      }}
+                      className="mt-1 min-h-11 rounded-md border border-border px-3 disabled:opacity-50"
+                    >
+                      Confirm receipt (Test)
+                    </button>
+                  )}
+                </td>
                 <td className={cell}>{row.version}</td>
                 <td className={cell}>
                   <button
@@ -234,6 +316,50 @@ export default function OwnerRecoveries({ data }) {
           </tbody>
         </table>
       </div>
+      {receipt && (
+        <dialog
+          open
+          aria-labelledby="receipt-title"
+          className="rounded-lg border border-border p-5"
+        >
+          <form
+            className="space-y-4"
+            onSubmit={(event) => {
+              event.preventDefault();
+              confirmReceipt(receipt, new FormData(event.currentTarget));
+            }}
+          >
+            <h2 id="receipt-title" className="text-h3">
+              Confirm notice receipt (Test): {receipt.bookingRef}
+            </h2>
+            <p className="text-meta">
+              Only an earlier time moves the reminder (+5 days) and due date (+7 days). Amounts
+              never change.
+            </p>
+            <label className="block text-meta font-semibold">
+              Received at
+              <input type="datetime-local" name="receivedAt" required className={control} />
+            </label>
+            <label className="block text-meta font-semibold">
+              Reason
+              <textarea name="reason" required minLength={10} maxLength={500} className={control} />
+            </label>
+            <div className="flex gap-3">
+              <button disabled={pending} className="min-h-11 rounded-md bg-primary px-4 text-white">
+                Confirm receipt (Test)
+              </button>
+              <button
+                type="button"
+                disabled={pending}
+                onClick={() => setReceipt(null)}
+                className="min-h-11 rounded-md border border-border px-4"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </dialog>
+      )}
       {closing && (
         <dialog open aria-labelledby="close-title" className="rounded-lg border border-border p-5">
           <form
