@@ -60,6 +60,7 @@ const ICONS = {
   '/admin/finance/refunds': RotateCcw,
   '/admin/finance/statements': FileSearch,
   '/admin/finance/owner-recoveries': RotateCcw,
+  '/admin/finance/release-gates': ShieldAlert,
   '/admin/finance/payouts': Landmark,
   '/admin/disputes': Gavel,
   '/admin/finance/commission': Percent,

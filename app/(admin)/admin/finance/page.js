@@ -107,6 +107,7 @@ export default async function FinancePage() {
                   'Owner recoveries',
                   'Test: owner obligations after guest refunds',
                 ],
+                ['release-gates', 'Release gates', 'Read only: what still blocks Live money'],
                 [
                   'service-fee',
                   'Service fee',
