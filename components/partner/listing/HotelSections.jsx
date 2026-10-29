@@ -152,20 +152,26 @@ const blankRoom = (index, key = `new-${index}`) => ({
   roomCount: 1,
   extraAdult: 0,
   extraChild: 0,
+  extraAdultIncludesBedding: false,
   isActive: true,
   upcomingRooms: 0,
 });
 const roomFromApi = (row) => ({
   ...row,
   key: row.id,
-  extraPlaces: row.extraPlaces ?? [],
+  // Story 3.4: places saved before bedding prices show as free (fixed ₹0).
+  extraPlaces: (row.extraPlaces ?? []).map((p) => ({
+    ...p,
+    charge: p.charge ?? { mode: 'fixed', amount: 0 },
+  })),
+  extraAdultIncludesBedding: row.extraAdultIncludesBedding === true,
   amenities: row.amenities ?? [],
   sizeSqm: row.sizeSqm ?? '',
   view: row.view ?? '',
   isActive: row.isActive !== false,
 });
 
-/** Story 3.3: extra beds or mattresses; each sleeps one. A physical promise, not a price. */
+/** Story 3.3: extra beds or mattresses; each sleeps one. Story 3.4: each type's price per place per night. */
 function ExtraPlaces({ room, onChange }) {
   const places = room.extraPlaces;
   const set = (i, patch) => onChange(places.map((p, j) => (j === i ? { ...p, ...patch } : p)));
@@ -202,12 +208,53 @@ function ExtraPlaces({ room, onChange }) {
                 </option>
               ))}
             </select>
+            <select
+              aria-label={`Extra place ${i + 1} price type`}
+              className="min-h-11 rounded-md bg-transparent px-1 text-meta"
+              value={place.charge?.mode ?? 'fixed'}
+              onChange={(event) => set(i, { charge: { mode: event.target.value, amount: 0 } })}
+            >
+              <option value="fixed">₹ / night</option>
+              <option value="percent">% of room</option>
+            </select>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={place.charge?.mode === 'percent' ? 100 : 50000}
+              aria-label={`Extra place ${i + 1} price ${place.charge?.mode === 'percent' ? 'percent of the room-only rate' : 'in rupees per night'}`}
+              className="min-h-11 w-20 rounded-md border border-border bg-transparent px-2 text-meta"
+              value={place.charge?.amount ?? 0}
+              // A blank price never saves as ₹0: the browser blocks the submit and the hint below says why.
+              required
+              aria-invalid={place.charge?.amount === '' || undefined}
+              aria-describedby={
+                place.charge?.amount === '' ? `${room.key}-place-${i}-error` : undefined
+              }
+              onChange={(event) =>
+                set(i, {
+                  charge: {
+                    mode: place.charge?.mode ?? 'fixed',
+                    amount: event.target.value === '' ? '' : Number(event.target.value),
+                  },
+                })
+              }
+            />
             <IconButton
               label={`Remove extra place ${i + 1}`}
               onClick={() => onChange(places.filter((_, j) => j !== i))}
             >
               <Trash2 className="size-4" aria-hidden="true" />
             </IconButton>
+            {place.charge?.amount === '' ? (
+              <span
+                id={`${room.key}-place-${i}-error`}
+                role="alert"
+                className="pr-2 text-tiny text-danger"
+              >
+                Enter a price (0 for free)
+              </span>
+            ) : null}
           </span>
         ))}
         {places.length < 2 ? (
@@ -219,6 +266,7 @@ function ExtraPlaces({ room, onChange }) {
                 {
                   type: places.some((p) => p.type === 'extra_bed') ? 'mattress' : 'extra_bed',
                   count: 1,
+                  charge: { mode: 'fixed', amount: 0 },
                 },
               ])
             }
@@ -308,7 +356,12 @@ export function HotelRoomsSection({ listing, roomTypes = [], capacityWarnings = 
     ...(r.id ? { id: r.id } : {}),
     name: r.name.trim(),
     beds: r.beds.map((b) => ({ type: b.type, count: Number(b.count) || 1 })),
-    extraPlaces: r.extraPlaces.map((p) => ({ type: p.type, count: Number(p.count) || 1 })),
+    extraPlaces: r.extraPlaces.map((p) => ({
+      type: p.type,
+      count: Number(p.count) || 1,
+      charge: { mode: p.charge?.mode ?? 'fixed', amount: Number(p.charge?.amount) || 0 },
+    })),
+    extraAdultIncludesBedding: r.extraAdultIncludesBedding === true,
     sizeSqm: num(r.sizeSqm),
     view: r.view || null,
     maxAdults: Number(r.maxAdults) || 0,
@@ -497,6 +550,17 @@ export function HotelRoomsSection({ listing, roomTypes = [], capacityWarnings = 
                     </select>
                   </Field>
                 </div>
+                <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 text-meta">
+                  <input
+                    type="checkbox"
+                    className="size-5"
+                    checked={room.extraAdultIncludesBedding === true}
+                    onChange={(event) =>
+                      update(room.key, { extraAdultIncludesBedding: event.target.checked })
+                    }
+                  />
+                  Extra adult price includes bedding
+                </label>
 
                 <RoomFacilities
                   room={room}

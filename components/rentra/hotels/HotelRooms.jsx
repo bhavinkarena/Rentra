@@ -36,6 +36,7 @@ import {
   facilitySummary,
   formatInstant,
   humanize,
+  beddingLine,
   mealsLine,
   photoLabel,
   resolveInclusions,
@@ -727,6 +728,9 @@ function PlanRow({
               : 'No refund after booking'}
           </p>
         )}
+        {dated && live && beddingLine(live.bedding) ? (
+          <p className="mt-0.5 text-tiny text-ink-700">{beddingLine(live.bedding)}</p>
+        ) : null}
         {live && !live.bookable && live.message ? (
           <p className="mt-0.5 text-tiny text-ink-600">{live.message}</p>
         ) : null}
@@ -843,6 +847,9 @@ function StayRail({
               Total for {chosenRooms} room{chosenRooms === 1 ? '' : 's'}, incl.{' '}
               {formatINRMinor(quote.result.totals.taxMinor)} taxes
             </p>
+            {beddingLine(quote.result.lines) ? (
+              <p className="text-tiny text-ink-700">{beddingLine(quote.result.lines)}</p>
+            ) : null}
           </>
         ) : (
           <p className="text-meta text-ink-600">
