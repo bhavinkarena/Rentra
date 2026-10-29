@@ -96,6 +96,10 @@ const errors = {
   AWAITING_OWNER: 'The owner has not accepted this request yet. You can pay once they do.',
   IDEMPOTENCY_CONFLICT:
     'This quote already has a checkout request. Reload this page to recover it.',
+  PETS_UNCONFIRMED: 'Confirm your pets meet this stay’s pet rules before you pay.',
+  PETS_NOT_ALLOWED: 'This stay doesn’t allow pets. Return to your dates and set pets to 0.',
+  PETS_OVER_LIMIT: 'Too many pets for this stay. Return to your dates and lower the pet count.',
+  PETS_INVALID: 'Choose 0–5 pets. Return to your dates to fix the pet count.',
 };
 const STAGES = {
   held: {
@@ -218,6 +222,9 @@ export default function Checkout({ data }) {
     businessName: '',
   }));
   const [accepted, setAccepted] = useState(false);
+  // Story 3.9: declared pets need one tick on the listing's own rule before payment.
+  const declaredPets = quote.policy.pets ?? null;
+  const [petsConfirmed, setPetsConfirmed] = useState(false);
   const [message, setMessage] = useState('');
   const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
   // Which action is in flight: 'hold' | 'status' | 'pay' | 'verify'.
@@ -316,7 +323,7 @@ export default function Checkout({ data }) {
 
   async function submit(event) {
     event.preventDefault();
-    if (gate.current || !accepted || remaining <= 0) return;
+    if (gate.current || !accepted || (declaredPets && !petsConfirmed) || remaining <= 0) return;
     gate.current = true;
     setBusyAction('hold');
     setMessage('');
@@ -330,6 +337,7 @@ export default function Checkout({ data }) {
         accepted: true,
         idempotencyKey: quote.id,
         ...(stayCheckout ? { stay: guests } : { purpose }),
+        ...(declaredPets ? { petsConfirmed } : {}),
       });
       const held = receive(result, sequence);
       // The quote UUID is a stable request key across reloads and tabs. Persisted ownership is authoritative.
@@ -729,13 +737,15 @@ export default function Checkout({ data }) {
                 </Link>
                 . Carry a valid photo ID for every adult.
               </p>
-              <PetsNote policy={quote.policy.petPolicy?.policy} />
+              <PetsNote policy={quote.policy.petPolicy?.policy} pets={quote.policy.pets} />
               <TermsVersion quote={quote} />
             </Section>
           ) : (
             <Section icon={ScrollText} title={isHourly(quote) ? 'Venue rules' : 'House rules'}>
               <HouseRules rules={quote.policy.houseRules} />
-              {isHourly(quote) ? null : <PetsNote policy={quote.policy.petPolicy?.policy} />}
+              {isHourly(quote) ? null : (
+                <PetsNote policy={quote.policy.petPolicy?.policy} pets={quote.policy.pets} />
+              )}
               <TermsVersion quote={quote} />
             </Section>
           )}
@@ -813,6 +823,22 @@ export default function Checkout({ data }) {
                   </Link>
                 ))}
               </nav>
+              {declaredPets ? (
+                <CheckboxCard
+                  className="mt-5"
+                  checked={petsConfirmed}
+                  onCheckedChange={setPetsConfirmed}
+                  required
+                >
+                  <span className="block font-semibold text-ink-900">
+                    {declaredPets.confirmation}
+                  </span>
+                  <span className="mt-0.5 block text-ink-600">
+                    {declaredPets.count} pet{declaredPets.count === 1 ? '' : 's'} declared. Don’t
+                    count assistance animals.
+                  </span>
+                </CheckboxCard>
+              ) : null}
               <CheckboxCard
                 className="mt-5"
                 checked={accepted}

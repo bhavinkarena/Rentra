@@ -9,6 +9,7 @@ import { clockTime, localDay, shortDay } from '@/lib/domain/checkout-display';
 import SaveButton from '@/components/rentra/SaveButton';
 import VisitTypeFilter from '@/components/rentra/VisitTypeFilter';
 import QuoteSummary from './QuoteSummary';
+import PetsStepper from '@/components/rentra/PetsStepper';
 
 export default function BookingPriceBox({
   rentableId,
@@ -20,6 +21,8 @@ export default function BookingPriceBox({
   const {
     guests,
     setGuests,
+    pets = 0,
+    setPets,
     selectionReady,
     dates,
     slot,
@@ -127,12 +130,13 @@ export default function BookingPriceBox({
           <Popover.Trigger
             disabled={!selectionReady}
             className="flex min-h-14 w-full items-center justify-between rounded-b-xl border-t border-ink-300 px-4 py-2.5 text-left hover:bg-brand-50 disabled:opacity-50"
-            aria-label={`Guests per visit: ${guests}`}
+            aria-label={`Guests per visit: ${guests}${pets ? `, pets: ${pets}` : ''}`}
           >
             <span>
               <span className="block text-tiny font-bold uppercase">Guests per visit</span>
               <span className="mt-0.5 block text-sm">
                 {guests} guest{guests === 1 ? '' : 's'}
+                {pets ? ` · ${pets} pet${pets === 1 ? '' : 's'}` : ''}
               </span>
             </span>
             <ChevronDown className={`size-5 transition ${guestsOpen ? 'rotate-180' : ''}`} />
@@ -179,6 +183,13 @@ export default function BookingPriceBox({
                   This visit type allows {maxGuests} guests. Reduce your guest count to continue.
                 </p>
               )}
+              {setPets ? (
+                <PetsStepper
+                  value={pets}
+                  onChange={setPets}
+                  className="mt-3 border-t border-border pt-3"
+                />
+              ) : null}
               <div className="mt-3 text-right">
                 <Popover.Close className="min-h-11 text-sm font-semibold underline underline-offset-4">
                   Close

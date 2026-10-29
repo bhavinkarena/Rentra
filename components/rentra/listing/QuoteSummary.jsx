@@ -8,6 +8,7 @@ import { useRef, useState } from 'react';
 import { Info, Lock, ChevronDown } from 'lucide-react';
 import { useBookingQuote } from './BookingQuoteProvider';
 import { formatINRMinor } from '@/lib/domain/booking-money';
+import { splitPetFee } from '@/lib/domain/pet-policy';
 import { formatLocalDate } from '@/lib/domain/booking-dates';
 import { clockTime } from '@/lib/domain/checkout-display';
 
@@ -124,7 +125,14 @@ export default function QuoteSummary({ compact = false, onChooseDates }) {
           ) : null}
           <dl className="space-y-2 text-sm">
             {Object.entries({
-              [hourly ? 'Court rent' : 'Rent and extra guests']: quote.totals.rentMinor,
+              [hourly ? 'Court rent' : 'Rent and extra guests']: splitPetFee(
+                quote,
+                quote.totals.rentMinor,
+              ).rentMinor,
+              // Story 3.9: the declared pets' charge, its own row inside the total.
+              ...(splitPetFee(quote, 0).petMinor
+                ? { 'Pet fee': splitPetFee(quote, 0).petMinor }
+                : {}),
               'Platform fee': quote.totals.feeMinor,
             }).map(([label, amount]) => (
               <div key={label} className="flex justify-between gap-3 text-ink-700">

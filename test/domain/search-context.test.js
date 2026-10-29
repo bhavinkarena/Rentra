@@ -119,3 +119,12 @@ test('Story 3.1: login next accepts the search URL only as a same-origin path', 
   ])
     assert.equal(safeNext(bad), '/', String(bad));
 });
+
+test('Story 3.9: pets carry between farmhouse and hotel, and are dropped for venues', () => {
+  assert.equal(carry(`city=surat&dates=${d1}&guests=3&pets=2`, 'hotel').out.pets, '2');
+  assert.equal(carry(`vertical=hotel&city=surat&pets=1`, 'farmhouse').out.pets, '1');
+  const venue = carry(`city=surat&dates=${d1}&guests=3&pets=2`, 'entertainment');
+  assert.equal(venue.out.pets, undefined);
+  assert.ok(venue.dropped.includes('pets'));
+  assert.equal(carry(`city=surat&guests=3`, 'hotel').out.pets, undefined);
+});

@@ -31,6 +31,7 @@ import { formatINR } from '@/lib/domain/pricing';
 import { formatINRMinor } from '@/lib/domain/booking-money';
 import { addLocalDays, formatLocalDate, propertyToday } from '@/lib/domain/booking-dates';
 import { parseDiscoveryQuery } from '@/lib/domain/discovery';
+import PetsStepper from '@/components/rentra/PetsStepper';
 import {
   bedsLine,
   extraPlacesLine,
@@ -75,7 +76,9 @@ export default function HotelRooms({ code, rentableId, roomTypes, railId, fromPr
     () => parseDiscoveryQuery({ ...Object.fromEntries(params), vertical: 'hotel' }),
     [params],
   );
-  const stayKey = `${filters.checkin}|${filters.checkout}|${filters.rooms}|${filters.adults}|${filters.children.join(',')}`;
+  const stayKey = `${filters.checkin}|${filters.checkout}|${filters.rooms}|${filters.adults}|${filters.children.join(',')}|${filters.pets}`;
+  // Story 3.9: declared pets ride with every quote, only when there are any.
+  const petsPart = filters.pets ? { pets: filters.pets } : {};
   const [live, setLive] = useState({ key: '', data: null, error: '' });
   const [picked, setPicked] = useState({});
   const [quote, setQuote] = useState({ state: 'idle' });
@@ -106,6 +109,7 @@ export default function HotelRooms({ code, rentableId, roomTypes, railId, fromPr
           ...(saved.replacesOrderId ? { change: saved.replacesOrderId } : {}),
         });
         if (saved.children?.length) query.set('children', saved.children.join(','));
+        if (saved.pets) query.set('pets', String(saved.pets));
         router.replace(`${pathname}?${query}`, { scroll: false });
       }
     });
@@ -168,7 +172,12 @@ export default function HotelRooms({ code, rentableId, roomTypes, railId, fromPr
     const timer = setTimeout(() => {
       setQuote({ state: 'loading' });
       discoveryApi
-        .stayQuote(code, { checkIn: filters.checkin, checkOut: filters.checkout, rooms })
+        .stayQuote(code, {
+          checkIn: filters.checkin,
+          checkOut: filters.checkout,
+          rooms,
+          ...petsPart,
+        })
         .then((result) => current && setQuote({ state: 'ready', result }))
         .catch((error) => current && setQuote({ state: 'error', message: error.message }));
     }, 250);
@@ -194,6 +203,7 @@ export default function HotelRooms({ code, rentableId, roomTypes, railId, fromPr
           rooms: filters.rooms,
           adults: filters.adults,
           children: filters.children,
+          ...petsPart,
         });
         if (result?.error) setReserveError(result.error);
         return;
@@ -209,6 +219,7 @@ export default function HotelRooms({ code, rentableId, roomTypes, railId, fromPr
           childAges,
         })),
         ...(replacesOrderId ? { replacesOrderId } : {}),
+        ...petsPart,
       });
       if (result?.quote?.id) router.push(`/checkout/review/${result.quote.id}`);
       else setReserveError(result?.error ?? 'Could not start checkout. Try again.');
@@ -289,6 +300,7 @@ function StayForm({ filters, onApply }) {
   const [rooms, setRooms] = useState(filters.rooms);
   const [adults, setAdults] = useState(filters.adults);
   const [ages, setAges] = useState(filters.children);
+  const [pets, setPets] = useState(filters.pets ?? 0);
   const [open, setOpen] = useState(null);
   const [month, setMonth] = useState((filters.checkin || today).slice(0, 7));
   const [hoverDate, setHoverDate] = useState(null);
@@ -307,6 +319,7 @@ function StayForm({ filters, onApply }) {
       adults: String(next.adults ?? adults),
     });
     if (childAges.length) query.set('children', childAges.join(','));
+    if (pets) query.set('pets', String(pets));
     onApply(query.toString());
   };
   const selectNight = (date) => {
@@ -461,6 +474,7 @@ function StayForm({ filters, onApply }) {
             <span className="mt-0.5 block text-sm">
               {rooms} room{rooms === 1 ? '' : 's'} · {adults} adult{adults === 1 ? '' : 's'}
               {ages.length ? ` · ${ages.length} child${ages.length === 1 ? '' : 'ren'}` : ''}
+              {pets ? ` · ${pets} pet${pets === 1 ? '' : 's'}` : ''}
             </span>
           </span>
           <ChevronDown className={`size-5 transition ${open === 'party' ? 'rotate-180' : ''}`} />
@@ -514,6 +528,11 @@ function StayForm({ filters, onApply }) {
                 ))}
               </div>
             ) : null}
+            <PetsStepper
+              value={pets}
+              onChange={setPets}
+              className="mt-2 border-t border-border pt-2"
+            />
             <div className="mt-3 text-right">
               <Popover.Close className="min-h-11 text-sm font-semibold underline underline-offset-4">
                 Done
@@ -853,6 +872,11 @@ function StayRail({
               Total for {chosenRooms} room{chosenRooms === 1 ? '' : 's'}, incl.{' '}
               {formatINRMinor(quote.result.totals.taxMinor)} taxes
             </p>
+            {quote.result.pets?.totalMinor ? (
+              <p className="text-tiny text-ink-700">
+                Pet fee · {formatINRMinor(quote.result.pets.totalMinor)}
+              </p>
+            ) : null}
             {beddingLine(quote.result.lines) ? (
               <p className="text-tiny text-ink-700">{beddingLine(quote.result.lines)}</p>
             ) : null}

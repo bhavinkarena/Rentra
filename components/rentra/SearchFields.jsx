@@ -31,6 +31,7 @@ import {
 import { BOOKING_POLICY } from '@/lib/domain/booking-policy';
 import { SLOTS } from '@/lib/domain/pricing';
 import VisitTypeFilter from './VisitTypeFilter';
+import PetsStepper from './PetsStepper';
 import { discoveryApi } from '@/lib/api/endpoints';
 import { ActivityIcon } from './icons/activity-icons';
 import { clock12 as clock } from '@/lib/domain/vertical-ui';
@@ -72,6 +73,8 @@ export default function SearchFields({
   const play = vertical === 'entertainment';
   // Hotels search a check-in/check-out range, rooms and guests (hotel plan, Phase 6).
   const stayMode = vertical === 'hotel';
+  // Story 3.9: pets are a stay party field (farm/villa and hotel), never a venue one.
+  const petsOffered = vertical === 'farmhouse' || stayMode;
   const [active, setActive] = useState(null);
   const [hoverDate, setHoverDate] = useState(null);
   const dismissedByScroll = useRef(false);
@@ -113,6 +116,7 @@ export default function SearchFields({
     rooms: filters.rooms || 1,
     adults: filters.adults || 2,
     childAges: filters.children || [],
+    pets: filters.pets || 0,
   });
   const fields = draft || localFields;
   const { location, slot, mode, dates, guests, activity, date, start, duration } = fields;
@@ -627,6 +631,7 @@ export default function SearchFields({
       <input type="hidden" name="slot" value={slot} />
       <input type="hidden" name="mode" value={mode} />
       <input type="hidden" name="guests" value={guests} />
+      {petsOffered && fields.pets ? <input type="hidden" name="pets" value={fields.pets} /> : null}
       {mode === 'separate' ? (
         <input type="hidden" name="dates" value={dates.join(',')} />
       ) : (
@@ -747,7 +752,7 @@ export default function SearchFields({
       {panel(
         'guests',
         'Who',
-        `${guests} ${guests === 1 ? 'guest' : 'guests'}`,
+        `${guests} ${guests === 1 ? 'guest' : 'guests'}${petsOffered && fields.pets ? ` · ${fields.pets} ${fields.pets === 1 ? 'pet' : 'pets'}` : ''}`,
         Users,
         <>
           <div className="flex items-center justify-between gap-3 py-2">
@@ -788,6 +793,13 @@ export default function SearchFields({
               </button>
             </div>
           </div>
+          {petsOffered ? (
+            <PetsStepper
+              value={fields.pets || 0}
+              onChange={(value) => setField('pets', value)}
+              className="border-t border-border"
+            />
+          ) : null}
           <p className="mt-2 border-t border-border pt-3 text-meta text-ink-600">
             Find a place with room for your whole group.
           </p>
@@ -943,7 +955,7 @@ function StayFields({
   month,
   setMonth,
 }) {
-  const { location, stay, rooms, adults, childAges } = fields;
+  const { location, stay, rooms, adults, childAges, pets = 0 } = fields;
   const [query, setQuery] = useState('');
   const [hoverDate, setHoverDate] = useState(null);
   const lastDate = addLocalDays(today, 365);
@@ -988,7 +1000,7 @@ function StayFields({
       : `${formatLocalDate(checkin)} – choose check-out`
     : 'Add dates';
   const children = childAges.length;
-  const partyLabel = `${rooms} room${rooms === 1 ? '' : 's'} · ${adults} adult${adults === 1 ? '' : 's'}${children ? ` · ${children} child${children === 1 ? '' : 'ren'}` : ''}`;
+  const partyLabel = `${rooms} room${rooms === 1 ? '' : 's'} · ${adults} adult${adults === 1 ? '' : 's'}${children ? ` · ${children} child${children === 1 ? '' : 'ren'}` : ''}${pets ? ` · ${pets} pet${pets === 1 ? '' : 's'}` : ''}`;
 
   const choose = (value) => {
     setField('location', value);
@@ -1070,6 +1082,7 @@ function StayFields({
       <input type="hidden" name="rooms" value={rooms} />
       <input type="hidden" name="adults" value={adults} />
       {children ? <input type="hidden" name="children" value={childAges.join(',')} /> : null}
+      {pets ? <input type="hidden" name="pets" value={pets} /> : null}
 
       <div className="col-span-2 min-w-0 md:flex-[1.3]">
         {panel(
@@ -1349,6 +1362,11 @@ function StayFields({
               ))}
             </div>
           ) : null}
+          <PetsStepper
+            value={pets}
+            onChange={(value) => setField('pets', value)}
+            className="border-t border-border"
+          />
           <p className="mt-2 border-t border-border pt-3 text-meta text-ink-600">
             Child prices depend on age. Hotels confirm extra beds and cots.
           </p>

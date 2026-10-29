@@ -28,7 +28,12 @@ import Rating from '@/components/rentra/Rating';
 import { SLOT_ICONS } from '@/components/rentra/slot-icons';
 import { SLOTS, CANCELLATION_TIERS, CANCELLATION_TIERS_HOURLY } from '@/lib/domain/pricing';
 import { houseRuleLines } from '@/lib/domain/venue-rules';
-import { ASSISTANCE_ANIMALS_LINE, petPolicyLine } from '@/lib/domain/pet-policy';
+import {
+  ASSISTANCE_ANIMALS_LINE,
+  petDeclarationLine,
+  petPolicyLine,
+  splitPetFee,
+} from '@/lib/domain/pet-policy';
 import { formatINRMinor as money } from '@/lib/domain/booking-money';
 import {
   cancellationSteps,
@@ -282,14 +287,17 @@ export function PriceDetails({ quote, paid = false, titled = true }) {
   const later = payment.remainingMinor > 0;
   if (isStay(quote)) {
     const visit = quote.visits[0] ?? {};
+    // Story 3.9: a stay's pet fee is trip-level, outside the room amount.
+    const pet = { rentMinor: visit.roomMinor ?? 0, petMinor: quote.policy?.pets?.totalMinor ?? 0 };
     return (
       <div>
         {titled ? <h3 className="mb-3 text-sm font-semibold text-ink-900">Price details</h3> : null}
         <dl className="space-y-2 text-sm text-ink-700">
           <Line
             label={`${plural(visit.rooms?.length ?? 1, 'room')} · ${plural(visit.nights ?? 1, 'night')}`}
-            value={money(visit.roomMinor)}
+            value={money(pet.rentMinor)}
           />
+          {pet.petMinor ? <Line label="Pet fee" value={money(pet.petMinor)} /> : null}
           <Line label="Taxes (GST on room tariff)" value={money(visit.taxMinor)} />
           <Line
             label="Total"
@@ -322,8 +330,12 @@ export function PriceDetails({ quote, paid = false, titled = true }) {
               ? `Court rent · ${hours(quote.selection.durationMinutes)}`
               : `Rent · ${plural(quote.visits.length, 'visit')}`
           }
-          value={money(totals.rentMinor)}
+          value={money(splitPetFee(quote, totals.rentMinor).rentMinor)}
         />
+        {/* Story 3.9: the declared pets' charge, its own row inside the total. */}
+        {splitPetFee(quote, 0).petMinor ? (
+          <Line label="Pet fee" value={money(splitPetFee(quote, 0).petMinor)} />
+        ) : null}
         <Line label="Platform fee" value={money(totals.feeMinor)} />
         <Line
           label="Total"
@@ -619,13 +631,15 @@ const RULE_ICONS = [
 ];
 const ruleIcon = (rule) => RULE_ICONS.find(([pattern]) => pattern.test(rule))?.[1] ?? CircleCheck;
 
-/** Story 3.8: the accepted pet limits (no fee until Story 3.9) and the assistance-animal line. */
-export function PetsNote({ policy }) {
+/** Story 3.8/3.9: the accepted pet rule and fee, the guest's declared pets, and the assistance-animal line. */
+export function PetsNote({ policy, pets }) {
   return (
     <div className="mt-3 flex items-start gap-2.5 text-sm text-ink-700">
       <PawPrint className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
       <p>
-        {petPolicyLine(policy)}. {ASSISTANCE_ANIMALS_LINE}
+        {petPolicyLine(policy)}.{' '}
+        {pets?.count ? `You’re bringing ${petDeclarationLine(pets)}. ` : ''}
+        {ASSISTANCE_ANIMALS_LINE}
       </p>
     </div>
   );

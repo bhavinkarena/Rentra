@@ -77,6 +77,7 @@ const INITIAL_DRAFT = {
   rooms: 1,
   adults: 2,
   childAges: [],
+  pets: 0,
   dates: [],
   mode: 'single',
   slot: 'day',

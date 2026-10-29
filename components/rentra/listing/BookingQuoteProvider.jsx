@@ -18,6 +18,7 @@ export default function BookingQuoteProvider({ rentableId, defaultDate, defaultS
     dates: defaultDate ? [defaultDate] : [],
     slot: defaultSlot,
     guests: 1,
+    pets: 0,
     mode: 'single',
     anchor: null,
   });
@@ -31,35 +32,37 @@ export default function BookingQuoteProvider({ rentableId, defaultDate, defaultS
   const [accepted, setAccepted] = useState(null);
   const previous = useRef(null);
   const { dates, slot, guests } = selection;
-  const key = JSON.stringify([rentableId, dates, slot, guests, retry, identity?.isCustomer]);
+  const pets = selection.pets || 0;
+  // Story 3.9: pets ride with the selection only when declared, so pet-free requests are unchanged.
+  const party = pets ? { guests, pets } : { guests };
+  const key = JSON.stringify([rentableId, dates, slot, guests, pets, retry, identity?.isCustomer]);
   const current = response?.key === key ? response : null;
   const quote = current?.quote ?? null;
   const fingerprint = quote ? quoteReviewFingerprint(quote) : null;
 
   useEffect(() => {
     let active = true;
+    // Story 3.9: a search's pet count carries onto the listing even before dates are chosen.
+    const urlPets = Number(new URLSearchParams(window.location.search).get('pets'));
+    const restore = (restored) => {
+      if (restored)
+        setSelection({
+          ...restored,
+          mode: restored.dates.length > 1 ? 'separate' : 'single',
+          anchor: null,
+        });
+      else if (Number.isInteger(urlPets) && urlPets > 0 && urlPets <= 5)
+        setSelection((s) => ({ ...s, pets: urlPets }));
+    };
     restoreCustomerSelection(rentableId)
       .then((result) => {
         if (!active) return;
-        const restored =
-          selectionFromSavedUrl(window.location.search, rentableId) ?? result.selection;
-        if (restored)
-          setSelection({
-            ...restored,
-            mode: restored.dates.length > 1 ? 'separate' : 'single',
-            anchor: null,
-          });
+        restore(selectionFromSavedUrl(window.location.search, rentableId) ?? result.selection);
         setIdentity(result);
       })
       .catch(() => {
         if (!active) return;
-        const restored = selectionFromSavedUrl(window.location.search, rentableId);
-        if (restored)
-          setSelection({
-            ...restored,
-            mode: restored.dates.length > 1 ? 'separate' : 'single',
-            anchor: null,
-          });
+        restore(selectionFromSavedUrl(window.location.search, rentableId));
         setIdentity({ isCustomer: false });
       });
     return () => {
@@ -70,13 +73,15 @@ export default function BookingQuoteProvider({ rentableId, defaultDate, defaultS
   useEffect(() => {
     if (!identity) return;
     const url = new URL(window.location.href);
-    for (const field of ['dates', 'slot', 'guests']) url.searchParams.delete(field);
+    for (const field of ['dates', 'slot', 'guests', 'pets']) url.searchParams.delete(field);
     if (dates.length) {
-      const query = new URLSearchParams(savedListingHref('', { dates, slot, guests }).slice(1));
+      const query = new URLSearchParams(
+        savedListingHref('', { dates, slot, guests, pets }).slice(1),
+      );
       for (const [field, value] of query) url.searchParams.set(field, value);
     }
     window.history.replaceState(window.history.state, '', url);
-  }, [dates, slot, guests, identity]);
+  }, [dates, slot, guests, pets, identity]);
 
   useEffect(() => {
     if (!dates.length || !identity) return;
@@ -84,9 +89,9 @@ export default function BookingQuoteProvider({ rentableId, defaultDate, defaultS
     const timer = setTimeout(async () => {
       const started = performance.now();
       try {
-        const result = await requestBookingQuote({ rentableId, dates, slot, guests });
+        const result = await requestBookingQuote({ rentableId, dates, slot, ...party });
         if (active) {
-          const selectionKey = JSON.stringify([rentableId, dates, slot, guests]);
+          const selectionKey = JSON.stringify([rentableId, dates, slot, guests, pets]);
           const next = result.quote && quoteReviewFingerprint(result.quote);
           if (
             next &&
@@ -116,7 +121,8 @@ export default function BookingQuoteProvider({ rentableId, defaultDate, defaultS
       active = false;
       clearTimeout(timer);
     };
-  }, [rentableId, dates, slot, guests, key, identity]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `party` is derived from guests and pets.
+  }, [rentableId, dates, slot, guests, pets, key, identity]);
   useEffect(() => {
     if (!quote) return;
     const timer = setTimeout(
@@ -156,7 +162,7 @@ export default function BookingQuoteProvider({ rentableId, defaultDate, defaultS
     startLogin(async () => {
       setLoginError(null);
       // Let Next.js handle its redirect exception outside a catch.
-      const result = await beginCustomerLogin({ rentableId, dates, slot, guests });
+      const result = await beginCustomerLogin({ rentableId, dates, slot, ...party });
       if (result?.error) setLoginError(result.error);
     });
   return (
@@ -189,6 +195,8 @@ export default function BookingQuoteProvider({ rentableId, defaultDate, defaultS
         setMode: (mode) => update((s) => changeVisitMode(s, mode)),
         setSlot: (slot) => update((s) => ({ ...s, slot })),
         setGuests: (guests) => update((s) => ({ ...s, guests })),
+        pets,
+        setPets: (pets) => update((s) => ({ ...s, pets })),
         clearDates: () => update((s) => ({ ...s, dates: [], anchor: null })),
       }}
     >

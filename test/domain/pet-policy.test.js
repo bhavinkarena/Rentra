@@ -5,6 +5,8 @@ import {
   petPolicyLine,
   petPolicyProblem,
   publicPetPolicy,
+  petDeclarationLine,
+  splitPetFee,
 } from '../../lib/domain/pet-policy.js';
 
 const allowed = {
@@ -29,7 +31,18 @@ test('Story 3.8: mirror derives, validates and words the pet policy like the ser
   );
   assert.equal(
     petPolicyLine(publicPetPolicy(allowed)),
-    'Pets allowed: up to 2 dogs or cats under 25 kg',
+    'Pets allowed: up to 2 dogs or cats under 25 kg · ₹500 per pet per night',
   );
   assert.equal(petPolicyLine({ status: 'not_allowed' }), 'No pets');
+});
+
+test('Story 3.9: the pet fee is its own summary row inside the rent', () => {
+  const pets = { count: 2, confirmation: 'My pets are dogs', totalMinor: 40000 };
+  assert.deepEqual(splitPetFee({ policy: { pets } }, 250000), {
+    rentMinor: 210000,
+    petMinor: 40000,
+  });
+  assert.deepEqual(splitPetFee({ policy: {} }, 250000), { rentMinor: 250000, petMinor: 0 });
+  assert.equal(petDeclarationLine(pets), '2 pets · My pets are dogs');
+  assert.equal(petDeclarationLine(null), '');
 });
