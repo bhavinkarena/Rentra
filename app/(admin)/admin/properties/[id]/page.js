@@ -25,6 +25,7 @@ import { normalizePublicPhotos } from '@/lib/domain/listing-content';
 import { listingPath } from '@/lib/domain/listing-url';
 import { minuteToHhmm, WEEKDAYS } from '@/lib/domain/hourly';
 import { cotsLine, policyLine } from '@/lib/domain/hotel-ui';
+import { effectivePetPolicy, petPolicyLine } from '@/lib/domain/pet-policy';
 
 const tabs = [
   { key: 'submission', label: 'Submission' },
@@ -355,6 +356,24 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
                     ? hotelRules(snap.hotel?.profile)
                     : display(listing.houseRules)}
               </p>
+              {listing.rentalUnit === 'hour' ? null : (
+                <p className="mt-2 text-meta">
+                  {/* Story 3.8: the owner's effective pet policy, fee included (read-only). */}
+                  Pet policy:{' '}
+                  {petPolicyLine(
+                    effectivePetPolicy(
+                      listing.petPolicy,
+                      listing.rentalUnit === 'night'
+                        ? snap.hotel?.profile?.policies?.pets === true
+                        : listing.houseRules?.petsAllowed === true,
+                    ),
+                    { fee: true },
+                  )}
+                  {listing.petPolicy
+                    ? ''
+                    : ' (from the old yes/no answer; not reviewed by the owner)'}
+                </p>
+              )}
             </SectionCard>
             {base ? (
               <SectionCard

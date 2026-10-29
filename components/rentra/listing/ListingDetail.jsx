@@ -610,7 +610,7 @@ function HotelListing({ listing, preview = false }) {
             </Section>
 
             <Section id="policies" title="Hotel policies" className="mt-10">
-              <HotelPolicies hotel={listing.hotel} />
+              <HotelPolicies hotel={listing.hotel} petPolicy={listing.petPolicy} />
             </Section>
 
             <Section id="reviews" title="Reviews" className="mt-10">
@@ -675,7 +675,9 @@ function buildHotelJsonLd({ listing, crumbs }) {
       : undefined,
     checkinTime: listing.hotel?.checkIn,
     checkoutTime: listing.hotel?.checkOut,
-    petsAllowed: listing.hotel?.policies?.pets ?? undefined,
+    petsAllowed: listing.petPolicy
+      ? listing.petPolicy.status === 'allowed'
+      : (listing.hotel?.policies?.pets ?? undefined),
     numberOfRooms:
       (listing.roomTypes ?? []).reduce((sum, room) => sum + room.roomCount, 0) || undefined,
     priceRange: listing.price ? `From ${formatINR(listing.price)} per night` : undefined,

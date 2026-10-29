@@ -27,6 +27,7 @@ import Rating from '@/components/rentra/Rating';
 import TrustBadge from '@/components/rentra/TrustBadge';
 import { CANCELLATION_TIERS, calculateRefund, formatINR, SLOTS } from '@/lib/domain/pricing';
 import { subScoreLabels } from '@/lib/domain/vertical-ui';
+import { ASSISTANCE_ANIMALS_LINE } from '@/lib/domain/pet-policy';
 
 /**
  * The read-only half of the listing page. Server Components, every one —
@@ -278,6 +279,9 @@ export function HouseRules({ listing }) {
         <p className="text-meta text-ink-500">
           No house rules have been published. Confirm restrictions before planning your visit.
         </p>
+      ) : null}
+      {listing.petPolicy ? (
+        <p className="mt-3 text-meta text-ink-600">{ASSISTANCE_ANIMALS_LINE}</p>
       ) : null}
     </>
   );

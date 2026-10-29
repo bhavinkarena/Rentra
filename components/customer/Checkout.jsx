@@ -58,6 +58,7 @@ import {
   CancellationPolicy,
   HoldTimer,
   HouseRules,
+  PetsNote,
   PriceDetails,
   PropertyHeader,
   Section,
@@ -728,11 +729,13 @@ export default function Checkout({ data }) {
                 </Link>
                 . Carry a valid photo ID for every adult.
               </p>
+              <PetsNote policy={quote.policy.petPolicy?.policy} />
               <TermsVersion quote={quote} />
             </Section>
           ) : (
             <Section icon={ScrollText} title={isHourly(quote) ? 'Venue rules' : 'House rules'}>
               <HouseRules rules={quote.policy.houseRules} />
+              {isHourly(quote) ? null : <PetsNote policy={quote.policy.petPolicy?.policy} />}
               <TermsVersion quote={quote} />
             </Section>
           )}

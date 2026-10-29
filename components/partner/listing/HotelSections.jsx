@@ -23,6 +23,7 @@ import {
   roomSleeps,
 } from '@/lib/domain/hotel-ui';
 import { useStepFormId } from './chrome';
+import { PetPolicyFields } from './PetPolicyFields';
 import { Field, Input, SaveButton, Section, VersionField, inputCls } from './SectionPrimitives';
 
 /**
@@ -1593,9 +1594,13 @@ export function HotelRulesSection({ listing, profile }) {
           </div>
           {e.idTypes ? <p className="mt-1 text-meta text-danger">{e.idTypes}</p> : null}
         </fieldset>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <PetPolicyFields
+          saved={listing.petPolicy ?? null}
+          legacyAllowed={p.pets === true}
+          error={e.petPolicy ?? e._}
+        />
+        <div className="grid gap-4 sm:grid-cols-2">
           {[
-            ['pets', 'Pets allowed', p.pets],
             ['smoking', 'Smoking in rooms', p.smoking],
             ['parties', 'Parties allowed', p.parties],
           ].map(([name, legend, value]) => (

@@ -28,6 +28,7 @@ import Rating from '@/components/rentra/Rating';
 import { SLOT_ICONS } from '@/components/rentra/slot-icons';
 import { SLOTS, CANCELLATION_TIERS, CANCELLATION_TIERS_HOURLY } from '@/lib/domain/pricing';
 import { houseRuleLines } from '@/lib/domain/venue-rules';
+import { ASSISTANCE_ANIMALS_LINE, petPolicyLine } from '@/lib/domain/pet-policy';
 import { formatINRMinor as money } from '@/lib/domain/booking-money';
 import {
   cancellationSteps,
@@ -617,6 +618,18 @@ const RULE_ICONS = [
   [/time|hour|check-?in|check-?out|arriv|depart/i, Clock],
 ];
 const ruleIcon = (rule) => RULE_ICONS.find(([pattern]) => pattern.test(rule))?.[1] ?? CircleCheck;
+
+/** Story 3.8: the accepted pet limits (no fee until Story 3.9) and the assistance-animal line. */
+export function PetsNote({ policy }) {
+  return (
+    <div className="mt-3 flex items-start gap-2.5 text-sm text-ink-700">
+      <PawPrint className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+      <p>
+        {petPolicyLine(policy)}. {ASSISTANCE_ANIMALS_LINE}
+      </p>
+    </div>
+  );
+}
 
 export function HouseRules({ rules }) {
   // Farmhouse rules are a list; venue rules an object of choices.

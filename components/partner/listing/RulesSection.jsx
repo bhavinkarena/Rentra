@@ -3,6 +3,7 @@ import { useActionState } from 'react';
 import { Check } from 'lucide-react';
 import { saveRules } from '@/lib/actions/partner';
 import { TermsFields } from './TermsSection';
+import { PetPolicyFields } from './PetPolicyFields';
 import { useStepFormId, useIsWizard } from './chrome';
 import { VersionField, Input, Field, Section, SaveButton, inputCls } from './SectionPrimitives';
 const clock = (time) => {
@@ -71,18 +72,12 @@ export function RulesSection({ listing }) {
             />
           </Field>
         </div>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Field id="petsAllowed" label="Pets">
-            <select
-              id="petsAllowed"
-              name="petsAllowed"
-              defaultValue={r.petsAllowed ? 'yes' : 'no'}
-              className={inputCls}
-            >
-              <option value="no">Not allowed</option>
-              <option value="yes">Allowed</option>
-            </select>
-          </Field>
+        <PetPolicyFields
+          saved={listing.petPolicy ?? null}
+          legacyAllowed={r.petsAllowed === true}
+          error={e.petPolicy}
+        />
+        <div className="grid gap-4 sm:grid-cols-2">
           <Field id="alcoholAllowed" label="Alcohol">
             <select
               id="alcoholAllowed"

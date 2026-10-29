@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { ID_LABELS, SUPERVISION_LINE, policyLine } from '@/lib/domain/hotel-ui';
 import { clock12 } from '@/lib/domain/vertical-ui';
+import { ASSISTANCE_ANIMALS_LINE, petPolicyLine } from '@/lib/domain/pet-policy';
 
 /** Facts row (hotel plan §4.5): only declared fields. */
 export function HotelFactsRow({ listing }) {
@@ -44,7 +45,7 @@ export function HotelFactsRow({ listing }) {
 }
 
 /** Policies in plain sentences, generated from the owner's structured answers. */
-export function HotelPolicies({ hotel }) {
+export function HotelPolicies({ hotel, petPolicy = null }) {
   if (!hotel) return null;
   const p = hotel.policies ?? {};
   const ids = (p.idTypes ?? []).map((id) => ID_LABELS[id] ?? id);
@@ -76,8 +77,13 @@ export function HotelPolicies({ hotel }) {
             : 'The hotel does not accept unmarried couples.',
         ]
       : null,
-    p.pets != null
-      ? [PawPrint, 'Pets', p.pets ? 'Pets are allowed.' : 'Pets are not allowed.']
+    // Story 3.8: limits (no fee until Story 3.9) and the separate assistance-animal path.
+    petPolicy || p.pets != null
+      ? [
+          PawPrint,
+          'Pets',
+          `${petPolicy ? petPolicyLine(petPolicy) : p.pets ? 'Pets allowed' : 'No pets'}. ${ASSISTANCE_ANIMALS_LINE}`,
+        ]
       : null,
     p.smoking != null
       ? [
