@@ -24,6 +24,7 @@ import { diffRevisions } from '@/lib/domain/revision-diff';
 import { normalizePublicPhotos } from '@/lib/domain/listing-content';
 import { listingPath } from '@/lib/domain/listing-url';
 import { minuteToHhmm, WEEKDAYS } from '@/lib/domain/hourly';
+import { cotsLine, policyLine } from '@/lib/domain/hotel-ui';
 
 const tabs = [
   { key: 'submission', label: 'Submission' },
@@ -871,7 +872,9 @@ function hotelFacts(hotel) {
     rooms: rooms.reduce((sum, r) => sum + r.roomCount, 0),
     checkIn: clockOf(p?.checkInMinute),
     checkOut: clockOf(p?.checkOutMinute),
-    childrenFreeUnder: p?.childFreeAge,
+    children: p?.childPolicy
+      ? policyLine(p.childPolicy)
+      : `Free under ${p?.childFreeAge ?? '—'}; room extra child price after`,
     weekendNights: (p?.weekendNights ?? []).map((n) => NIGHT_NAMES[n]).join(', '),
     starRating: p?.starRating ?? 'Not star-rated',
     gst: p?.policies?.gstAnswered
@@ -966,6 +969,14 @@ function HotelSubmission({ hotel }) {
                   <td className="py-2 pr-3 tabular">{r.baseOccupancy}</td>
                   <td className="py-2 pr-3 tabular">
                     ₹{r.extraAdult} / ₹{r.extraChild}
+                    {r.childPolicy ? (
+                      <span className="block text-tiny text-ink-600">
+                        Own: {policyLine(r.childPolicy)}
+                      </span>
+                    ) : null}
+                    {r.cots?.count ? (
+                      <span className="block text-tiny text-ink-600">{cotsLine(r.cots)}</span>
+                    ) : null}
                   </td>
                   <td className="py-2">{r.isActive ? 'Active' : 'Removed'}</td>
                 </tr>

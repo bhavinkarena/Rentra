@@ -77,3 +77,78 @@ test('rates drawer is dirty only when the form really changed', async () => {
   assert.equal(formDirty(initial, { ...initial, value: '10' }), true);
   assert.equal(formDirty(initial, { ...initial, roomTypeIds: ['a'] }), true);
 });
+
+test('Story 3.6: child policy errors and plain-words disclosure', async () => {
+  const { policyProblem, policyLine, cotsLine, defaultChildPolicy } =
+    await import('../../lib/domain/hotel-ui.js');
+  const bands = [
+    { kind: 'infant', fromAge: 0, toAge: 1, rule: { type: 'free', amount: 0 } },
+    { kind: 'child', fromAge: 2, toAge: 11, rule: { type: 'fixed', amount: 500 } },
+  ];
+  const policy = { adultRateFromAge: 12, bands };
+  assert.equal(policyProblem(policy), null);
+  assert.equal(
+    policyProblem({ ...policy, bands: [bands[0], { ...bands[1], fromAge: 3 }] }),
+    'Age 2 is not covered',
+  );
+  assert.match(
+    policyProblem({
+      ...policy,
+      bands: [
+        { ...bands[1], fromAge: 0, toAge: 5 },
+        { ...bands[1], fromAge: 4 },
+      ],
+    }),
+    /two bands/,
+  );
+  assert.equal(policyProblem({ ...policy, adultRateFromAge: 14 }), 'Ages 12-13 are not covered');
+  assert.equal(
+    policyLine(policy).replace(/\s/g, ' '),
+    "Under 2: free · 2-11: ₹500/night · 12+: adult rate (for guests beyond the room's base occupancy; when only some children pay, the oldest pay first)",
+  );
+  assert.equal(
+    policyLine({ adultRateFromAge: 18, bands: [{ ...bands[0], toAge: 17 }] }),
+    'Under 18: free',
+  );
+  // Same checks as the API: blanks, ranges, free price, order.
+  assert.equal(
+    policyProblem({ ...policy, bands: [{ ...bands[0], toAge: '' }, bands[1]] }),
+    'Enter every age as a whole year from 0 to 17',
+  );
+  assert.match(
+    policyProblem({
+      ...policy,
+      bands: [bands[0], { ...bands[1], rule: { type: 'fixed', amount: '' } }],
+    }),
+    /whole rupees/,
+  );
+  assert.equal(
+    policyProblem({
+      ...policy,
+      bands: [{ ...bands[0], rule: { type: 'free', amount: 5 } }, bands[1]],
+    }),
+    'A free band has no price',
+  );
+  assert.equal(
+    policyProblem({ ...policy, bands: [bands[1], bands[0]] }),
+    'List the bands from youngest to oldest',
+  );
+  assert.equal(
+    policyProblem({
+      ...policy,
+      bands: [
+        { ...bands[1], toAge: 1, fromAge: 0 },
+        { ...bands[0], fromAge: 2, toAge: 11 },
+      ],
+    }),
+    'Infant bands come before child bands',
+  );
+  assert.equal(
+    policyProblem({ ...policy, adultRateFromAge: '' }),
+    'Adult rate starts between age 2 and 18',
+  );
+  assert.equal(cotsLine({ count: 1, amount: 0 }), '1 cot · free');
+  assert.equal(cotsLine({ count: 0 }), '');
+  assert.equal(policyProblem(defaultChildPolicy(6, 400)), null);
+  assert.equal(policyProblem(defaultChildPolicy(0, 0)), null);
+});

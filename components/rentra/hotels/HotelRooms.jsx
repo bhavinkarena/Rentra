@@ -9,6 +9,7 @@ import { requestStayQuote } from '@/lib/actions/customer';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   AlertTriangle,
+  Baby,
   BedDouble,
   CalendarDays,
   ChevronDown,
@@ -33,6 +34,8 @@ import { parseDiscoveryQuery } from '@/lib/domain/discovery';
 import {
   bedsLine,
   extraPlacesLine,
+  cotsLine,
+  policyLine,
   facilitySummary,
   formatInstant,
   humanize,
@@ -588,6 +591,9 @@ function RoomCard({ room, live, loading, dated, rooms, selection, chosenRooms, o
   const facts = [
     room.beds?.length ? [BedDouble, bedsLine(room.beds)] : null,
     room.extraPlaces?.length ? [BedDouble, extraPlacesLine(room.extraPlaces)] : null,
+    // Story 3.6: this room's effective child bands and cots, always visible.
+    room.childPolicy?.policy ? [Baby, `Children: ${policyLine(room.childPolicy.policy)}`] : null,
+    room.cots?.count ? [Baby, cotsLine(room.cots)] : null,
     room.sizeSqm ? [Ruler, `${room.sizeSqm} m²`] : null,
     [Users, `Up to ${room.maxOccupancy} guests`],
     room.view ? [Eye, `${humanize(room.view)} view`] : null,

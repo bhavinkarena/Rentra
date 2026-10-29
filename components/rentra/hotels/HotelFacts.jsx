@@ -12,7 +12,7 @@ import {
   PawPrint,
   Star,
 } from 'lucide-react';
-import { ID_LABELS } from '@/lib/domain/hotel-ui';
+import { ID_LABELS, SUPERVISION_LINE, policyLine } from '@/lib/domain/hotel-ui';
 import { clock12 } from '@/lib/domain/vertical-ui';
 
 /** Facts row (hotel plan §4.5): only declared fields. */
@@ -57,7 +57,8 @@ export function HotelPolicies({ hotel }) {
     [
       Baby,
       'Children',
-      `Children under ${hotel.childFreeAge} stay free using existing beds. Older children may be charged as extra guests.`,
+      // Story 3.6: the saved bands; without them each room lists its own (prices differ by room).
+      `${hotel.childPolicy ? `${policyLine(hotel.childPolicy)}.` : 'Child prices are listed with each room.'} ${SUPERVISION_LINE}.`,
     ],
     [
       IdCard,

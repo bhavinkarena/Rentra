@@ -151,6 +151,7 @@ export default async function SetupStepPage({ params }) {
           listing={listing}
           roomTypes={hotel.roomTypes}
           capacityWarnings={hotel.capacityWarnings}
+          profile={hotel.profile}
         />
       ) : null}
       {stepId === 'amenities' ? (
@@ -163,7 +164,7 @@ export default async function SetupStepPage({ params }) {
         <AvailabilitySection listing={listing} calendar={calendar} prices={prices} />
       ) : null}
       {stepId === 'availability' && model === 'night' ? (
-        <HotelStaySection listing={listing} profile={hotel.profile} />
+        <HotelStaySection listing={listing} profile={hotel.profile} roomTypes={hotel.roomTypes} />
       ) : null}
       {stepId === 'rules' && model !== 'night' ? <RulesSection listing={listing} /> : null}
       {stepId === 'rules' && model === 'night' ? (

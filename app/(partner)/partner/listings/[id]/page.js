@@ -214,6 +214,7 @@ export default async function ListingBuilderPage(props) {
                 listing={listing}
                 roomTypes={hotel.roomTypes}
                 capacityWarnings={hotel.capacityWarnings}
+                profile={hotel.profile}
               />
             ) : (
               <CapacitySection listing={listing} />
@@ -222,7 +223,11 @@ export default async function ListingBuilderPage(props) {
             {venue ? <HoursSection listing={listing} calendar={calendar} /> : null}
             {hotelListing ? (
               <>
-                <HotelStaySection listing={listing} profile={hotel.profile} />
+                <HotelStaySection
+                  listing={listing}
+                  profile={hotel.profile}
+                  roomTypes={hotel.roomTypes}
+                />
                 <HotelRulesSection listing={listing} profile={hotel.profile} />
                 <HotelRatesSection
                   listing={listing}

@@ -15,6 +15,10 @@ import {
   MEALS as MEAL_KEYS,
   MEAL_DEFAULTS,
   ROOM_FACILITIES,
+  SUPERVISION_LINE,
+  defaultChildPolicy,
+  policyLine,
+  policyProblem,
   resolveInclusions,
   roomSleeps,
 } from '@/lib/domain/hotel-ui';
@@ -135,6 +139,201 @@ function Segmented({ name, value, options, onChange, legend }) {
   );
 }
 
+/* ----------------------------------------------------------- child policy */
+
+const ageInput =
+  'min-h-11 w-16 rounded-md border border-border bg-transparent px-2 text-meta tabular';
+const toNum = (value) => (value === '' ? '' : Number(value));
+/** Numbers as the API wants them; blanks stay blank so the live check names them. */
+// Blanks stay blank (never 0): policyProblem names them and the save is blocked.
+const keep = (value) => (value === '' || value == null ? '' : Number(value));
+const policyPayload = (policy) => ({
+  adultRateFromAge: keep(policy.adultRateFromAge),
+  bands: policy.bands.map((b) => ({
+    kind: b.kind,
+    fromAge: keep(b.fromAge),
+    toAge: keep(b.toAge),
+    rule:
+      b.rule.type === 'free'
+        ? { type: 'free', amount: 0 }
+        : { type: 'fixed', amount: keep(b.rule.amount) },
+  })),
+});
+/** Story 3.6: the policy a room keeps when it holds its own child price: `policy` with its child-kind paid bands at `extraChild`. */
+const isChildPrice = (b) => b.kind === 'child' && b.rule.type === 'fixed';
+const withChildPrice = (policy, extraChild) => ({
+  ...policy,
+  // Only child-kind paid bands take the room's price; infant bands and other amounts stay as the owner set them.
+  bands: policy.bands.map((b) =>
+    isChildPrice(b) ? { ...b, rule: { type: 'fixed', amount: extraChild } } : b,
+  ),
+});
+/** One room as the rooms API takes it. */
+const roomPayload = (r, index) => ({
+  ...(r.id ? { id: r.id } : {}),
+  name: r.name.trim(),
+  beds: r.beds.map((b) => ({ type: b.type, count: Number(b.count) || 1 })),
+  extraPlaces: (r.extraPlaces ?? []).map((p) => ({
+    type: p.type,
+    count: Number(p.count) || 1,
+    charge: { mode: p.charge?.mode ?? 'fixed', amount: Number(p.charge?.amount) || 0 },
+  })),
+  extraAdultIncludesBedding: r.extraAdultIncludesBedding === true,
+  sizeSqm: r.sizeSqm === '' || r.sizeSqm == null ? null : Number(r.sizeSqm),
+  view: r.view || null,
+  maxAdults: Number(r.maxAdults) || 0,
+  maxChildren: Number(r.maxChildren) || 0,
+  maxOccupancy: Number(r.maxOccupancy) || 0,
+  baseOccupancy: Number(r.baseOccupancy) || 0,
+  roomCount: Number(r.roomCount) || 0,
+  extraAdult: Number(r.extraAdult) || 0,
+  extraChild: Number(r.extraChild) || 0,
+  childPolicy: r.childPolicy ? policyPayload(r.childPolicy) : null,
+  cots: { count: Number(r.cots?.count) || 0, amount: keep(r.cots?.amount ?? 0) },
+  amenities: r.amenities ?? [],
+  sortOrder: (index + 1) * 10,
+  isActive: r.isActive !== false,
+});
+
+/** Story 3.6: infant/child bands and the adult-rate age, with live gap/overlap errors. */
+function ChildPolicyEditor({ id, policy, onChange, error }) {
+  const set = (i, patch) =>
+    onChange({ ...policy, bands: policy.bands.map((b, j) => (j === i ? { ...b, ...patch } : b)) });
+  const problem = policyProblem(policyPayload(policy));
+  const last = policy.bands.at(-1);
+  return (
+    <div role="group" aria-labelledby={`${id}-title`} className="space-y-2">
+      <p id={`${id}-title`} className="text-meta font-semibold text-ink-800">
+        Child ages and prices{' '}
+        <span className="font-normal text-ink-600">
+          (per child per night, beyond the guests the price includes)
+        </span>
+      </p>
+      <ul className="space-y-2">
+        {policy.bands.map((band, i) => (
+          <li
+            key={i}
+            className="flex flex-wrap items-center gap-2 rounded-lg border border-border p-2"
+          >
+            <select
+              aria-label={`Band ${i + 1} kind`}
+              className="min-h-11 rounded-md bg-transparent px-1 text-meta"
+              value={band.kind}
+              onChange={(event) => set(i, { kind: event.target.value })}
+            >
+              <option value="infant">Infant</option>
+              <option value="child">Child</option>
+            </select>
+            <span className="text-meta text-ink-600">ages</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={17}
+              required
+              className={ageInput}
+              aria-label={`Band ${i + 1} from age`}
+              value={band.fromAge}
+              onChange={(event) => set(i, { fromAge: toNum(event.target.value) })}
+            />
+            <span aria-hidden="true">–</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={17}
+              required
+              className={ageInput}
+              aria-label={`Band ${i + 1} to age`}
+              value={band.toAge}
+              onChange={(event) => set(i, { toAge: toNum(event.target.value) })}
+            />
+            <select
+              aria-label={`Band ${i + 1} price`}
+              className="min-h-11 rounded-md bg-transparent px-1 text-meta"
+              value={band.rule.type}
+              onChange={(event) => set(i, { rule: { type: event.target.value, amount: 0 } })}
+            >
+              <option value="free">Free</option>
+              <option value="fixed">₹ / night</option>
+            </select>
+            {band.rule.type === 'fixed' ? (
+              <input
+                type="number"
+                inputMode="numeric"
+                min={0}
+                max={50000}
+                required
+                className="min-h-11 w-24 rounded-md border border-border bg-transparent px-2 text-meta tabular"
+                aria-label={`Band ${i + 1} price in rupees per night`}
+                value={band.rule.amount}
+                onChange={(event) =>
+                  set(i, { rule: { type: 'fixed', amount: toNum(event.target.value) } })
+                }
+              />
+            ) : null}
+            <IconButton
+              label={`Remove band ${i + 1}`}
+              disabled={policy.bands.length === 1}
+              onClick={() => onChange({ ...policy, bands: policy.bands.filter((_, j) => j !== i) })}
+            >
+              <Trash2 className="size-4" aria-hidden="true" />
+            </IconButton>
+          </li>
+        ))}
+      </ul>
+      <div className="flex flex-wrap items-center gap-3">
+        {policy.bands.length < 8 ? (
+          <button
+            type="button"
+            onClick={() => {
+              const from = Math.min(17, (Number(last?.toAge) || 0) + 1);
+              onChange({
+                ...policy,
+                bands: [
+                  ...policy.bands,
+                  { kind: 'child', fromAge: from, toAge: from, rule: { type: 'fixed', amount: 0 } },
+                ],
+              });
+            }}
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-dashed border-border px-3.5 text-meta font-semibold text-brand-700"
+          >
+            <Plus className="size-4" aria-hidden="true" /> Add age band
+          </button>
+        ) : null}
+        <label className="inline-flex min-h-11 items-center gap-2 text-meta">
+          Adult rate from age
+          <input
+            type="number"
+            inputMode="numeric"
+            min={2}
+            max={18}
+            required
+            className={ageInput}
+            value={policy.adultRateFromAge}
+            onChange={(event) =>
+              onChange({ ...policy, adultRateFromAge: toNum(event.target.value) })
+            }
+          />
+        </label>
+      </div>
+      <p className="text-meta text-ink-600">
+        {policy.adultRateFromAge === 18 || policy.adultRateFromAge === ''
+          ? '18 = no child pays the adult rate. '
+          : ''}
+        Minors on the adult rate still need an adult in the room. {SUPERVISION_LINE}.
+      </p>
+      {problem || error ? (
+        <p role="alert" className="text-meta font-medium text-danger">
+          {problem ?? error}
+        </p>
+      ) : (
+        <p className="text-meta text-ink-700">Guests see: {policyLine(policyPayload(policy))}</p>
+      )}
+    </div>
+  );
+}
+
 /* ------------------------------------------------------------------ rooms */
 
 const blankRoom = (index, key = `new-${index}`) => ({
@@ -153,6 +352,8 @@ const blankRoom = (index, key = `new-${index}`) => ({
   extraAdult: 0,
   extraChild: 0,
   extraAdultIncludesBedding: false,
+  childPolicy: null,
+  cots: { count: 0, amount: 0 },
   isActive: true,
   upcomingRooms: 0,
 });
@@ -165,6 +366,8 @@ const roomFromApi = (row) => ({
     charge: p.charge ?? { mode: 'fixed', amount: 0 },
   })),
   extraAdultIncludesBedding: row.extraAdultIncludesBedding === true,
+  childPolicy: row.childPolicy ?? null,
+  cots: { count: row.cots?.count ?? 0, amount: row.cots?.amount ?? 0 },
   amenities: row.amenities ?? [],
   sizeSqm: row.sizeSqm ?? '',
   view: row.view ?? '',
@@ -326,7 +529,102 @@ function RoomFacilities({ room, onChange }) {
   );
 }
 
-export function HotelRoomsSection({ listing, roomTypes = [], capacityWarnings = [] }) {
+/** Story 3.6: the property child policy or a room-specific one, plus cots for infants beyond max guests. */
+function RoomChildren({ room, onChange, propertyPolicy, childFreeAge }) {
+  const own = room.childPolicy != null;
+  return (
+    <div className="space-y-3 rounded-lg border border-border p-3">
+      <Segmented
+        name={`room-${room.key}-children`}
+        legend="Children"
+        value={own ? 'room' : 'property'}
+        options={[
+          ['property', 'Use property child policy'],
+          ['room', 'Room-specific policy'],
+        ]}
+        onChange={(value) =>
+          onChange({
+            childPolicy:
+              value === 'room'
+                ? withChildPrice(
+                    propertyPolicy ?? defaultChildPolicy(childFreeAge ?? 6, 0),
+                    Number(room.extraChild) || 0,
+                  )
+                : null,
+          })
+        }
+      />
+      {own ? (
+        <ChildPolicyEditor
+          id={`room-${room.key}-policy`}
+          policy={room.childPolicy}
+          onChange={(childPolicy) => onChange({ childPolicy })}
+        />
+      ) : null}
+      <div className="flex flex-wrap items-end gap-3">
+        {!own && !propertyPolicy ? (
+          <Field
+            id={`room-${room.key}-extraChild`}
+            label="Extra child ₹"
+            hint={`per night, age ${childFreeAge ?? 6}+`}
+          >
+            <Input
+              id={`room-${room.key}-extraChild`}
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={50000}
+              required
+              className="tabular"
+              value={room.extraChild}
+              onChange={(event) => onChange({ extraChild: toNum(event.target.value) })}
+            />
+          </Field>
+        ) : null}
+        <Field id={`room-${room.key}-cots`} label="Cots" hint="for infants beyond max guests">
+          <select
+            id={`room-${room.key}-cots`}
+            className={inputCls}
+            value={room.cots.count}
+            onChange={(event) =>
+              onChange({ cots: { ...room.cots, count: Number(event.target.value) } })
+            }
+          >
+            {[0, 1, 2, 3, 4].map((n) => (
+              <option key={n} value={n}>
+                {n === 0 ? 'No cots' : n}
+              </option>
+            ))}
+          </select>
+        </Field>
+        {room.cots.count ? (
+          <Field id={`room-${room.key}-cot-price`} label="Cot ₹" hint="per night, 0 = free">
+            <Input
+              id={`room-${room.key}-cot-price`}
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={50000}
+              required
+              className="tabular"
+              value={room.cots.amount}
+              onChange={(event) =>
+                onChange({ cots: { ...room.cots, amount: toNum(event.target.value) } })
+              }
+            />
+          </Field>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+export function HotelRoomsSection({
+  listing,
+  roomTypes = [],
+  capacityWarnings = [],
+  profile = null,
+}) {
   const [state, action, pending] = useActionState(saveHotelRooms, {});
   const [rooms, setRooms] = useState(() =>
     roomTypes.length ? roomTypes.map(roomFromApi) : [blankRoom(1, 'new-0')],
@@ -351,30 +649,9 @@ export function HotelRoomsSection({ listing, roomTypes = [], capacityWarnings = 
         ? rows.map((r) => (r.key === room.key ? { ...r, isActive: false } : r))
         : rows.filter((r) => r.key !== room.key),
     );
-  const num = (value) => (value === '' || value == null ? null : Number(value));
-  const payload = [...active, ...removed].map((r, index) => ({
-    ...(r.id ? { id: r.id } : {}),
-    name: r.name.trim(),
-    beds: r.beds.map((b) => ({ type: b.type, count: Number(b.count) || 1 })),
-    extraPlaces: r.extraPlaces.map((p) => ({
-      type: p.type,
-      count: Number(p.count) || 1,
-      charge: { mode: p.charge?.mode ?? 'fixed', amount: Number(p.charge?.amount) || 0 },
-    })),
-    extraAdultIncludesBedding: r.extraAdultIncludesBedding === true,
-    sizeSqm: num(r.sizeSqm),
-    view: r.view || null,
-    maxAdults: Number(r.maxAdults) || 0,
-    maxChildren: Number(r.maxChildren) || 0,
-    maxOccupancy: Number(r.maxOccupancy) || 0,
-    baseOccupancy: Number(r.baseOccupancy) || 0,
-    roomCount: Number(r.roomCount) || 0,
-    extraAdult: Number(r.extraAdult) || 0,
-    extraChild: Number(r.extraChild) || 0,
-    amenities: r.amenities ?? [],
-    sortOrder: (index + 1) * 10,
-    isActive: r.isActive,
-  }));
+  const payload = [...active, ...removed].map(roomPayload);
+  // Story 3.6: a blank or uncovered child band blocks the save; the editor names the problem.
+  const blocked = active.some((r) => r.childPolicy && policyProblem(policyPayload(r.childPolicy)));
   const numberField = (room, field, label, { min = 0, max = 500, hint } = {}) => (
     <Field id={`room-${room.key}-${field}`} label={label} hint={hint}>
       <Input
@@ -398,7 +675,12 @@ export function HotelRoomsSection({ listing, roomTypes = [], capacityWarnings = 
       state={state}
       pending={pending}
     >
-      <form id={useStepFormId()} action={action} className="space-y-4">
+      <form
+        id={useStepFormId()}
+        action={action}
+        className="space-y-4"
+        onSubmit={(event) => blocked && event.preventDefault()}
+      >
         <input type="hidden" name="id" value={listing.id} />
         <VersionField listing={listing} states={[state]} />
         <input type="hidden" name="rooms" value={JSON.stringify(payload)} />
@@ -530,10 +812,6 @@ export function HotelRoomsSection({ listing, roomTypes = [], capacityWarnings = 
                     max: 50000,
                     hint: 'per night',
                   })}
-                  {numberField(room, 'extraChild', 'Extra child ₹', {
-                    max: 50000,
-                    hint: 'per night',
-                  })}
                   {numberField(room, 'sizeSqm', 'Size m²', { min: 4, max: 2000, hint: 'optional' })}
                   <Field id={`room-${room.key}-view`} label="View">
                     <select
@@ -561,6 +839,13 @@ export function HotelRoomsSection({ listing, roomTypes = [], capacityWarnings = 
                   />
                   Extra adult price includes bedding
                 </label>
+
+                <RoomChildren
+                  room={room}
+                  propertyPolicy={profile?.childPolicy ?? null}
+                  childFreeAge={profile?.childFreeAge}
+                  onChange={(patch) => update(room.key, patch)}
+                />
 
                 <RoomFacilities
                   room={room}
@@ -1035,10 +1320,46 @@ export function HotelRatesSection({ listing, roomTypes = [], ratePlans = [], hot
 const hhmm = (minute) =>
   `${String(Math.floor(minute / 60)).padStart(2, '0')}:${String(minute % 60).padStart(2, '0')}`;
 
-export function HotelStaySection({ listing, profile }) {
+/**
+ * Story 3.6: rooms on the old rule (no own policy) and their extra child prices, most common first.
+ * A first property policy seeds that price, never ₹0.
+ */
+function fallbackPrices(roomTypes) {
+  const counts = new Map();
+  for (const r of roomTypes.filter((r) => r.isActive !== false && !r.childPolicy)) {
+    const price = Number(r.extraChild) || 0;
+    counts.set(price, (counts.get(price) ?? 0) + 1);
+  }
+  return [...counts].sort((a, b) => b[1] - a[1] || b[0] - a[0]).map(([price]) => price);
+}
+
+export function HotelStaySection({ listing, profile, roomTypes = [] }) {
   const [state, action, pending] = useActionState(saveHotelStay, {});
+  const [keepState, keepAction, keeping] = useActionState(saveHotelRooms, {});
   const weekend = profile?.weekendNights ?? [5, 6];
   const e = state.errors ?? {};
+  const prices = fallbackPrices(roomTypes);
+  // Story 3.6: an untouched editor sends nothing, so hotels on the old "under N free" rule keep each room's child price.
+  const [childPolicy, setChildPolicy] = useState(
+    () => profile?.childPolicy ?? defaultChildPolicy(profile?.childFreeAge ?? 6, prices[0] ?? 0),
+  );
+  const [touched, setTouched] = useState(Boolean(profile?.childPolicy));
+  const problem = policyProblem(policyPayload(childPolicy));
+  const kept = keepState?.ok === true;
+  // Only a first property policy replaces room prices; a saved one already applies.
+  const mixed = !profile?.childPolicy && !kept && prices.length > 1;
+  // The same bands the keep form replaces with each room's price.
+  const applied = childPolicy.bands.find(isChildPrice)?.rule.amount;
+  const keepRooms = [...roomTypes]
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+    .map((r) =>
+      r.isActive !== false && !r.childPolicy
+        ? {
+            ...r,
+            childPolicy: withChildPrice(policyPayload(childPolicy), Number(r.extraChild) || 0),
+          }
+        : r,
+    );
   return (
     <Section
       id="stay"
@@ -1047,9 +1368,14 @@ export function HotelStaySection({ listing, profile }) {
       state={state}
       pending={pending}
     >
-      <form id={useStepFormId()} action={action} className="space-y-5">
+      <form
+        id={useStepFormId()}
+        action={action}
+        className="space-y-5"
+        onSubmit={(event) => touched && problem && event.preventDefault()}
+      >
         <input type="hidden" name="id" value={listing.id} />
-        <VersionField listing={listing} states={[state]} />
+        <VersionField listing={listing} states={[state, keepState]} />
         <div className="grid gap-4 grid-cols-2">
           <Field id="checkInTime" label="Check-in from" error={e.checkInTime}>
             <Input
@@ -1071,23 +1397,6 @@ export function HotelStaySection({ listing, profile }) {
           </Field>
         </div>
         <div className="grid gap-4 grid-cols-2">
-          <Field
-            id="childFreeAge"
-            label="Children stay free under"
-            hint="years, using existing beds"
-            error={e.childFreeAge}
-          >
-            <Input
-              id="childFreeAge"
-              name="childFreeAge"
-              type="number"
-              inputMode="numeric"
-              min={0}
-              max={17}
-              defaultValue={profile?.childFreeAge ?? 5}
-              className="tabular"
-            />
-          </Field>
           <Field id="starRating" label="Star category" hint="optional, only if certified">
             <select
               id="starRating"
@@ -1103,6 +1412,55 @@ export function HotelStaySection({ listing, profile }) {
               ))}
             </select>
           </Field>
+        </div>
+        {touched ? (
+          <input
+            type="hidden"
+            name="childPolicy"
+            value={JSON.stringify(policyPayload(childPolicy))}
+          />
+        ) : null}
+        <div className="rounded-lg border border-border p-3">
+          <ChildPolicyEditor
+            id="childPolicy"
+            policy={childPolicy}
+            error={e['childPolicy.bands'] ?? e.childPolicy}
+            onChange={(next) => {
+              setTouched(true);
+              setChildPolicy(next);
+            }}
+          />
+          {mixed && touched ? (
+            <div
+              role="alert"
+              className="mt-2 rounded-md border border-warning/30 bg-warning-bg p-3 text-meta"
+            >
+              <p>
+                Rooms have different child prices ({prices.map((n) => `₹${n}`).join(', ')}). Saving
+                this policy applies ₹{applied ?? 0} to rooms without a room-specific policy.
+              </p>
+              <button
+                type="submit"
+                form="keep-room-child-prices"
+                disabled={keeping || Boolean(problem)}
+                className="mt-2 inline-flex min-h-11 items-center rounded-full border border-border px-4 font-semibold text-brand-700 disabled:opacity-40"
+              >
+                Keep each room&apos;s price
+              </button>
+            </div>
+          ) : null}
+          {kept ? (
+            <p role="status" className="mt-2 text-meta text-ink-700">
+              Each room now keeps its own child price as a room-specific policy.
+            </p>
+          ) : null}
+          <Errors state={keepState} />
+          {!touched ? (
+            <p className="mt-1 text-meta text-ink-600">
+              Until you change these bands, children under {profile?.childFreeAge ?? 6} stay free
+              and older children pay each room&apos;s extra child price.
+            </p>
+          ) : null}
         </div>
         <fieldset>
           <legend className="mb-1.5 text-meta font-semibold text-ink-800">
@@ -1130,6 +1488,12 @@ export function HotelStaySection({ listing, profile }) {
           </p>
         </fieldset>
         <SaveButton pending={pending} label="Save times" />
+      </form>
+      {/* Story 3.6: one click turns each room's current child price into its own room-specific policy. */}
+      <form id="keep-room-child-prices" action={keepAction} hidden>
+        <input type="hidden" name="id" value={listing.id} />
+        <VersionField listing={listing} states={[state, keepState]} />
+        <input type="hidden" name="rooms" value={JSON.stringify(keepRooms.map(roomPayload))} />
       </form>
     </Section>
   );
