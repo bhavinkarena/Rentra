@@ -42,6 +42,7 @@ import {
   StateBadge,
 } from './BookingDisplay';
 import { moneyEnvironmentLabel } from '@/lib/domain/owner-earnings';
+import { bookedRoomLine } from '@/lib/domain/hotel-ui';
 export { BookingHistory } from './BookingHistory';
 
 const card = 'rounded-lg border border-border bg-card p-5 sm:p-6';
@@ -614,6 +615,7 @@ function StayRooms({ stay, card, headingIcon }) {
               <p className="font-semibold">
                 {room.name} · {room.plan?.name}
               </p>
+              {room.room ? <p className="text-ink-600">{bookedRoomLine(room.room)}</p> : null}
               {room.departedAt ? (
                 <p className="text-ink-600">
                   Ended early: {time(room.departedAt)}.{' '}

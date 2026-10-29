@@ -14,3 +14,34 @@ test('facilitySummary shows 4 and counts the rest', () => {
 test('photoLabel is one-based', () => {
   assert.equal(photoLabel(1, 5), 'Photo 2 of 5');
 });
+
+test('Story 3.3: sleeping places and meal inclusions', async () => {
+  const { roomSleeps, extraPlacesLine, resolveInclusions, mealsLine } =
+    await import('../../lib/domain/hotel-ui.js');
+  assert.deepEqual(roomSleeps([{ type: 'double', count: 1 }], [{ type: 'extra_bed', count: 1 }]), {
+    inBeds: 2,
+    extra: 1,
+    total: 3,
+  });
+  assert.equal(
+    roomSleeps([
+      { type: 'single', count: 2 },
+      { type: 'sofa_bed', count: 1 },
+    ]).total,
+    3,
+  );
+  assert.equal(
+    extraPlacesLine([
+      { type: 'extra_bed', count: 1 },
+      { type: 'mattress', count: 2 },
+    ]),
+    '+1 Extra bed · +2 Mattresses',
+  );
+  assert.equal(mealsLine(resolveInclusions('CP', null)), 'Breakfast included');
+  assert.equal(mealsLine(resolveInclusions('EP', null)), 'Room only');
+  assert.equal(
+    mealsLine({ breakfast: true, lunch: false, dinner: true }),
+    'Breakfast and dinner included',
+  );
+  assert.equal(mealsLine(resolveInclusions('AP')), 'Breakfast, lunch and dinner included');
+});

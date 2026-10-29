@@ -210,7 +210,11 @@ export default async function ListingBuilderPage(props) {
             {venue ? (
               <VenueSection listing={listing} resources={resources} activities={categories} />
             ) : hotelListing ? (
-              <HotelRoomsSection listing={listing} roomTypes={hotel.roomTypes} />
+              <HotelRoomsSection
+                listing={listing}
+                roomTypes={hotel.roomTypes}
+                capacityWarnings={hotel.capacityWarnings}
+              />
             ) : (
               <CapacitySection listing={listing} />
             )}

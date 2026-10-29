@@ -10,6 +10,14 @@ import {
   saveRules,
 } from '@/lib/actions/partner';
 import { displayMoney } from '@/lib/domain/display-money';
+import {
+  EXTRA_PLACE_LABELS,
+  MEALS as MEAL_KEYS,
+  MEAL_DEFAULTS,
+  ROOM_FACILITIES,
+  resolveInclusions,
+  roomSleeps,
+} from '@/lib/domain/hotel-ui';
 import { useStepFormId } from './chrome';
 import { Field, Input, SaveButton, Section, VersionField, inputCls } from './SectionPrimitives';
 
@@ -133,6 +141,8 @@ const blankRoom = (index, key = `new-${index}`) => ({
   key,
   name: ROOM_NAMES[index] ?? `Room type ${index + 1}`,
   beds: [{ type: 'double', count: 1 }],
+  extraPlaces: [],
+  amenities: [],
   sizeSqm: '',
   view: '',
   maxAdults: 2,
@@ -148,12 +158,127 @@ const blankRoom = (index, key = `new-${index}`) => ({
 const roomFromApi = (row) => ({
   ...row,
   key: row.id,
+  extraPlaces: row.extraPlaces ?? [],
+  amenities: row.amenities ?? [],
   sizeSqm: row.sizeSqm ?? '',
   view: row.view ?? '',
   isActive: row.isActive !== false,
 });
 
-export function HotelRoomsSection({ listing, roomTypes = [] }) {
+/** Story 3.3: extra beds or mattresses; each sleeps one. A physical promise, not a price. */
+function ExtraPlaces({ room, onChange }) {
+  const places = room.extraPlaces;
+  const set = (i, patch) => onChange(places.map((p, j) => (j === i ? { ...p, ...patch } : p)));
+  return (
+    <div role="group" aria-label={`Extra sleeping places in ${room.name || 'this room type'}`}>
+      <p className="mb-1.5 text-meta font-semibold text-ink-800">
+        Extra sleeping places <span className="font-normal text-ink-600">(each sleeps 1)</span>
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {places.map((place, i) => (
+          <span
+            key={i}
+            className="inline-flex items-center gap-2 rounded-full border border-border py-1 pl-2 pr-1"
+          >
+            <select
+              aria-label={`Extra place ${i + 1} count`}
+              className="min-h-11 rounded-md bg-transparent px-1 text-meta"
+              value={place.count}
+              onChange={(event) => set(i, { count: Number(event.target.value) })}
+            >
+              {[1, 2, 3, 4].map((n) => (
+                <option key={n}>{n}</option>
+              ))}
+            </select>
+            <select
+              aria-label={`Extra place ${i + 1} type`}
+              className="min-h-11 rounded-md bg-transparent px-1 text-meta"
+              value={place.type}
+              onChange={(event) => set(i, { type: event.target.value })}
+            >
+              {Object.entries(EXTRA_PLACE_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+            <IconButton
+              label={`Remove extra place ${i + 1}`}
+              onClick={() => onChange(places.filter((_, j) => j !== i))}
+            >
+              <Trash2 className="size-4" aria-hidden="true" />
+            </IconButton>
+          </span>
+        ))}
+        {places.length < 2 ? (
+          <button
+            type="button"
+            onClick={() =>
+              onChange([
+                ...places,
+                {
+                  type: places.some((p) => p.type === 'extra_bed') ? 'mattress' : 'extra_bed',
+                  count: 1,
+                },
+              ])
+            }
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-dashed border-border px-3.5 text-meta font-semibold text-brand-700"
+          >
+            <Plus className="size-4" aria-hidden="true" /> Add extra bed or mattress
+          </button>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+/** Live check of the server rule: beds plus extra places must sleep every adult. */
+function CapacityLine({ room }) {
+  const { inBeds, extra, total } = roomSleeps(room.beds, room.extraPlaces);
+  const adults = Number(room.maxAdults) || 0;
+  const short = total < adults;
+  return (
+    <p className={`text-meta ${short ? 'font-medium text-danger' : 'text-ink-600'}`}>
+      Sleeps {inBeds} in beds{extra ? ` + ${extra} extra` : ''} = {total} adult
+      {total === 1 ? '' : 's'}
+      {short ? `. Add a sleeping place or lower max adults to ${total}.` : ''}
+    </p>
+  );
+}
+
+/** "In this room": room facilities, separate from the hotel-wide list. Unknown saved keys are kept. */
+function RoomFacilities({ room, onChange }) {
+  const chosen = new Set(room.amenities);
+  return (
+    <fieldset>
+      <legend className="mb-1.5 text-meta font-semibold text-ink-800">In this room</legend>
+      <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2 lg:grid-cols-3">
+        {ROOM_FACILITIES.map(([key, label]) => (
+          <label
+            key={key}
+            className="inline-flex min-h-11 cursor-pointer items-center gap-2 text-meta"
+          >
+            <input
+              type="checkbox"
+              className="size-5"
+              checked={chosen.has(key)}
+              onChange={(event) =>
+                onChange(
+                  event.target.checked
+                    ? [...room.amenities, key]
+                    : room.amenities.filter((a) => a !== key),
+                )
+              }
+            />
+            {label}
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
+
+export function HotelRoomsSection({ listing, roomTypes = [], capacityWarnings = [] }) {
   const [state, action, pending] = useActionState(saveHotelRooms, {});
   const [rooms, setRooms] = useState(() =>
     roomTypes.length ? roomTypes.map(roomFromApi) : [blankRoom(1, 'new-0')],
@@ -183,6 +308,7 @@ export function HotelRoomsSection({ listing, roomTypes = [] }) {
     ...(r.id ? { id: r.id } : {}),
     name: r.name.trim(),
     beds: r.beds.map((b) => ({ type: b.type, count: Number(b.count) || 1 })),
+    extraPlaces: r.extraPlaces.map((p) => ({ type: p.type, count: Number(p.count) || 1 })),
     sizeSqm: num(r.sizeSqm),
     view: r.view || null,
     maxAdults: Number(r.maxAdults) || 0,
@@ -224,6 +350,22 @@ export function HotelRoomsSection({ listing, roomTypes = [] }) {
         <VersionField listing={listing} states={[state]} />
         <input type="hidden" name="rooms" value={JSON.stringify(payload)} />
         <Errors state={state} />
+        {capacityWarnings.length ? (
+          <div
+            role="alert"
+            className="rounded-md border border-warning/30 bg-warning-bg p-3 text-meta"
+          >
+            <p className="font-semibold">Add a sleeping place or lower max adults</p>
+            <p className="text-ink-700">
+              Guests can still book these rooms, but your next save needs a bed for every adult.
+            </p>
+            <ul className="mt-1 list-disc pl-5">
+              {capacityWarnings.map((w) => (
+                <li key={w.roomTypeId}>{w.message}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
         <p role="status" className="text-meta text-ink-600">
           {active.length} room type{active.length === 1 ? '' : 's'} · {total} room
           {total === 1 ? '' : 's'} in total
@@ -314,6 +456,11 @@ export function HotelRoomsSection({ listing, roomTypes = [] }) {
                   </div>
                 </div>
 
+                <ExtraPlaces
+                  room={room}
+                  onChange={(extraPlaces) => update(room.key, { extraPlaces })}
+                />
+
                 <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
                   {numberField(room, 'maxAdults', 'Max adults', { min: 1, max: 12 })}
                   {numberField(room, 'maxChildren', 'Max children', { min: 0, max: 12 })}
@@ -324,6 +471,7 @@ export function HotelRoomsSection({ listing, roomTypes = [] }) {
                     hint: 'guests',
                   })}
                 </div>
+                <CapacityLine room={room} />
                 <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
                   {numberField(room, 'extraAdult', 'Extra adult ₹', {
                     max: 50000,
@@ -349,6 +497,11 @@ export function HotelRoomsSection({ listing, roomTypes = [] }) {
                     </select>
                   </Field>
                 </div>
+
+                <RoomFacilities
+                  room={room}
+                  onChange={(amenities) => update(room.key, { amenities })}
+                />
 
                 <div className="flex flex-wrap gap-2">
                   <IconButton
@@ -445,6 +598,58 @@ export function HotelRoomsSection({ listing, roomTypes = [] }) {
 
 /* ------------------------------------------------------------------ rates */
 
+const MEAL_WORDS = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner' };
+
+/**
+ * Story 3.3: what the meal plan includes. The code's minimum is fixed; the owner may add meals,
+ * and MP needs lunch or dinner picked. null means "use the default".
+ */
+function MealInclusions({ plan, onChange }) {
+  const minimum = MEAL_DEFAULTS[plan.mealPlan] ?? MEAL_DEFAULTS.EP;
+  const current = resolveInclusions(plan.mealPlan, plan.inclusions);
+  const overridden = MEAL_KEYS.some((meal) => current[meal] !== minimum[meal]);
+  const needsPick = plan.mealPlan === 'MP' && !current.lunch && !current.dinner;
+  const toggle = (meal, on) => {
+    const next = { ...current, [meal]: on };
+    onChange(MEAL_KEYS.some((m) => next[m] !== minimum[m]) ? next : null);
+  };
+  return (
+    <fieldset
+      className="rounded-md bg-ink-50 px-3 py-2"
+      aria-describedby={`plan-${plan.key}-meal-default`}
+    >
+      <legend className="sr-only">Meals included</legend>
+      <p id={`plan-${plan.key}-meal-default`} className="text-tiny text-ink-600">
+        Default for {plan.mealPlan}:{' '}
+        {MEAL_KEYS.filter((m) => minimum[m])
+          .map((m) => MEAL_WORDS[m].toLowerCase())
+          .join(', ') || 'no meals'}
+        {plan.mealPlan === 'MP' ? ' + lunch or dinner (choose)' : ''}
+        {overridden ? <span className="ml-2 font-semibold text-brand-700">Changed</span> : null}
+      </p>
+      <div className="flex flex-wrap gap-x-4">
+        {MEAL_KEYS.map((meal) => (
+          <label key={meal} className="inline-flex min-h-11 items-center gap-2 text-meta">
+            <input
+              type="checkbox"
+              className="size-5"
+              checked={current[meal]}
+              disabled={minimum[meal]}
+              onChange={(event) => toggle(meal, event.target.checked)}
+            />
+            {MEAL_WORDS[meal]}
+          </label>
+        ))}
+      </div>
+      {needsPick ? (
+        <p role="alert" className="text-tiny font-medium text-danger">
+          Choose lunch or dinner for this plan.
+        </p>
+      ) : null}
+    </fieldset>
+  );
+}
+
 /** GST at today's rate, per room per night (the API's tax slabs are the source of truth). */
 const withGst = (rupees) => Math.round(rupees * (rupees <= 7500 ? 1.05 : 1.18));
 
@@ -530,6 +735,7 @@ export function HotelRatesSection({ listing, roomTypes = [], ratePlans = [], hot
       cancellation: p.cancellation,
       ...(p.cancellation === 'custom' ? { cancellationPolicy: p.cancellationPolicy } : {}),
       minNights: Number(p.minNights) || 1,
+      inclusions: p.inclusions ?? null,
       sortOrder: index,
       isActive: p.isActive,
     }));
@@ -608,7 +814,9 @@ export function HotelRatesSection({ listing, roomTypes = [], ratePlans = [], hot
                             id={`plan-${plan.key}-meal`}
                             className={inputCls}
                             value={plan.mealPlan}
-                            onChange={(event) => update(plan.key, { mealPlan: event.target.value })}
+                            onChange={(event) =>
+                              update(plan.key, { mealPlan: event.target.value, inclusions: null })
+                            }
                           >
                             {MEALS.map(([value, label]) => (
                               <option key={value} value={value}>
@@ -618,6 +826,10 @@ export function HotelRatesSection({ listing, roomTypes = [], ratePlans = [], hot
                           </select>
                         </Field>
                       </div>
+                      <MealInclusions
+                        plan={plan}
+                        onChange={(inclusions) => update(plan.key, { inclusions })}
+                      />
                       {plan.derivedFrom ? (
                         <div className="grid gap-3 grid-cols-2">
                           <Field

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { customerApi } from '@/lib/api/endpoints';
 import { bookingTime as time } from '@/lib/domain/booking-record';
-import { MEAL_LABELS } from '@/lib/domain/hotel-ui';
+import { MEAL_LABELS, bookedRoomLine } from '@/lib/domain/hotel-ui';
 import { moneyEnvironmentLabel } from '@/lib/domain/owner-earnings';
 import { BackLink } from '@/components/ui/page-header';
 import PrintButton from '@/components/partner/earnings/PrintButton';
@@ -90,6 +90,11 @@ export default async function VoucherPage({ params }) {
                       .filter(Boolean)
                       .join(' · ')}
                   </span>
+                  {room.room ? (
+                    <span className="block text-tiny text-ink-600">
+                      {bookedRoomLine(room.room)}
+                    </span>
+                  ) : null}
                   <span className="block text-tiny text-ink-600">{rule(room.plan)}</span>
                 </td>
                 <td className={cell}>

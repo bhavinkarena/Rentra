@@ -31,12 +31,14 @@ import { formatINRMinor } from '@/lib/domain/booking-money';
 import { addLocalDays, formatLocalDate, propertyToday } from '@/lib/domain/booking-dates';
 import { parseDiscoveryQuery } from '@/lib/domain/discovery';
 import {
-  MEAL_LABELS,
   bedsLine,
+  extraPlacesLine,
   facilitySummary,
   formatInstant,
   humanize,
+  mealsLine,
   photoLabel,
+  resolveInclusions,
   splitParty,
 } from '@/lib/domain/hotel-ui';
 
@@ -584,6 +586,7 @@ function RoomCard({ room, live, loading, dated, rooms, selection, chosenRooms, o
   const { shown, more } = facilitySummary(amenities);
   const facts = [
     room.beds?.length ? [BedDouble, bedsLine(room.beds)] : null,
+    room.extraPlaces?.length ? [BedDouble, extraPlacesLine(room.extraPlaces)] : null,
     room.sizeSqm ? [Ruler, `${room.sizeSqm} m²`] : null,
     [Users, `Up to ${room.maxOccupancy} guests`],
     room.view ? [Eye, `${humanize(room.view)} view`] : null,
@@ -691,6 +694,7 @@ function PlanRow({
       ? live.terms.freeUntil
       : null;
   const max = Math.min(available - usedOfType, MAX_ROOMS - otherRooms);
+  const meals = mealsLine(plan.inclusions ?? resolveInclusions(plan.mealPlan));
   return (
     <li className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
       <div className="min-w-0">
@@ -699,10 +703,8 @@ function PlanRow({
             <Coffee className="size-4 text-brand-600" aria-hidden="true" />
           ) : null}
           {plan.name}
-          {plan.name !== MEAL_LABELS[plan.mealPlan] && plan.mealPlan !== 'EP' ? (
-            <span className="text-tiny font-normal text-ink-600">
-              · {MEAL_LABELS[plan.mealPlan]}
-            </span>
+          {plan.name !== meals && plan.mealPlan !== 'EP' ? (
+            <span className="text-tiny font-normal text-ink-600">· {meals}</span>
           ) : null}
         </p>
         {dated && live ? (

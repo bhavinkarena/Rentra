@@ -147,7 +147,11 @@ export default async function SetupStepPage({ params }) {
       {stepId === 'location' ? <LocationSection listing={listing} cities={cities} /> : null}
       {stepId === 'space' && model === 'slot' ? <CapacitySection listing={listing} /> : null}
       {stepId === 'space' && model === 'night' ? (
-        <HotelRoomsSection listing={listing} roomTypes={hotel.roomTypes} />
+        <HotelRoomsSection
+          listing={listing}
+          roomTypes={hotel.roomTypes}
+          capacityWarnings={hotel.capacityWarnings}
+        />
       ) : null}
       {stepId === 'amenities' ? (
         <AmenitiesSection listing={listing} catalogue={catalogue} selected={amenities} />
