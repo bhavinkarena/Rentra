@@ -68,3 +68,12 @@ test('Story 3.4: bedding line from the priced rooms', async () => {
     'Includes 1 extra bed',
   );
 });
+
+test('rates drawer is dirty only when the form really changed', async () => {
+  const { formDirty } = await import('../../lib/domain/hotel-ui.js');
+  const initial = { from: '2026-11-01', weekdays: [0, 1, 2], roomTypeIds: ['a', 'b'], value: '' };
+  assert.equal(formDirty(initial, { ...initial }), false);
+  assert.equal(formDirty(initial, { ...initial, weekdays: [2, 1, 0] }), false);
+  assert.equal(formDirty(initial, { ...initial, value: '10' }), true);
+  assert.equal(formDirty(initial, { ...initial, roomTypeIds: ['a'] }), true);
+});

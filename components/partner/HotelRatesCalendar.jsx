@@ -1,5 +1,5 @@
 'use client';
-import { useMemo, useState, useTransition } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight, Lock, Pencil, X } from 'lucide-react';
 import Link from '@/components/navigation/NavigationLink';
@@ -7,6 +7,7 @@ import { fieldClass } from '@/components/ui/field';
 import { buttonVariants } from '@/components/ui/button';
 import { changeHotelAri, changeStaffHotelAri } from '@/lib/actions/hotel-ops';
 import { displayMoney } from '@/lib/domain/display-money';
+import { formDirty } from '@/lib/domain/hotel-ui';
 
 /**
  * Rates & rooms for a hotel (hotel plan, Phase 5): room types × nights. Each
@@ -188,62 +189,83 @@ export default function HotelRatesCalendar({ propertyId, data, baseHref, staff =
           </thead>
           <tbody>
             {data.roomTypes.map((room) => (
-              <tr key={room.id}>
-                <th
-                  scope="row"
-                  className="sticky left-0 z-10 border-b border-border bg-card px-3 py-2 text-left font-semibold"
-                >
-                  {room.name}
-                  <span className="block text-tiny font-normal text-ink-600">
-                    {room.roomCount} rooms
-                  </span>
-                </th>
-                {room.nights.map((n) => {
-                  const past = n.date < data.today;
-                  return (
-                    <td
-                      key={n.date}
-                      className={`border-b border-l border-border p-0 text-center ${n.stopSell ? 'bg-ink-100' : ''}`}
-                    >
-                      <button
-                        type="button"
-                        disabled={past}
-                        onClick={() => open({ from: n.date, to: n.date, roomTypeIds: [room.id] })}
-                        aria-label={`${room.name}, ${dayLabel(n.date, { weekday: 'long', day: 'numeric', month: 'long' })}: ${n.stopSell ? 'closed' : `${n.open} of ${n.allotment} open`}, ${n.sold} booked${n.priceMinor ? `, ${displayMoney(n.priceMinor)}` : ''}. Edit`}
-                        className="flex min-h-16 w-full flex-col items-center justify-center gap-0.5 px-1 py-1 hover:bg-brand-50 disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent"
+              <Fragment key={room.id}>
+                <tr>
+                  <th
+                    scope="row"
+                    className="sticky left-0 z-10 border-b border-border bg-card px-3 py-2 text-left font-semibold"
+                  >
+                    {room.name}
+                    <span className="block text-tiny font-normal text-ink-600">
+                      {room.roomCount} rooms
+                    </span>
+                  </th>
+                  {room.nights.map((n) => {
+                    const past = n.date < data.today;
+                    return (
+                      <td
+                        key={n.date}
+                        className={`border-b border-l border-border p-0 text-center ${n.stopSell ? 'bg-ink-100' : ''}`}
                       >
-                        {n.stopSell ? (
-                          <Lock className="size-4 text-ink-600" aria-hidden="true" />
-                        ) : (
-                          <span
-                            className={`text-body font-bold ${n.open <= 2 ? 'text-warning' : 'text-ink-900'}`}
-                          >
-                            {n.open}
-                          </span>
-                        )}
-                        <span className="text-tiny text-ink-600">{n.sold} booked</span>
-                        {n.priceMinor ? (
-                          <span
-                            className={`rounded px-1 text-tiny ${n.customPrice ? 'bg-event-adjustment-bg text-event-adjustment' : 'text-ink-700'}`}
-                          >
-                            {displayMoney(n.priceMinor)}
-                          </span>
-                        ) : null}
-                        {n.minNights || n.closedToArrival ? (
-                          <span className="text-tiny text-ink-600">
-                            {[
-                              n.minNights ? `min ${n.minNights}` : null,
-                              n.closedToArrival ? 'no arrival' : null,
-                            ]
-                              .filter(Boolean)
-                              .join(' · ')}
-                          </span>
-                        ) : null}
-                      </button>
-                    </td>
-                  );
-                })}
-              </tr>
+                        <button
+                          type="button"
+                          disabled={past}
+                          onClick={() => open({ from: n.date, to: n.date, roomTypeIds: [room.id] })}
+                          aria-label={`${room.name}, ${dayLabel(n.date, { weekday: 'long', day: 'numeric', month: 'long' })}: ${n.stopSell ? 'closed' : `${n.open} of ${n.allotment} open`}, ${n.sold} booked${n.priceMinor ? `, ${displayMoney(n.priceMinor)}` : ''}. Edit`}
+                          className="flex min-h-16 w-full flex-col items-center justify-center gap-0.5 px-1 py-1 hover:bg-brand-50 disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent"
+                        >
+                          {n.stopSell ? (
+                            <Lock className="size-4 text-ink-600" aria-hidden="true" />
+                          ) : (
+                            <span
+                              className={`text-body font-bold ${n.open <= 2 ? 'text-warning' : 'text-ink-900'}`}
+                            >
+                              {n.open}
+                            </span>
+                          )}
+                          <span className="text-tiny text-ink-600">{n.sold} booked</span>
+                          {n.priceMinor ? (
+                            <span
+                              className={`rounded px-1 text-tiny ${n.customPrice ? 'bg-event-adjustment-bg text-event-adjustment' : 'text-ink-700'}`}
+                            >
+                              {displayMoney(n.priceMinor)}
+                            </span>
+                          ) : null}
+                          {n.minNights || n.closedToArrival ? (
+                            <span className="text-tiny text-ink-600">
+                              {[
+                                n.minNights ? `min ${n.minNights}` : null,
+                                n.closedToArrival ? 'no arrival' : null,
+                              ]
+                                .filter(Boolean)
+                                .join(' · ')}
+                            </span>
+                          ) : null}
+                        </button>
+                      </td>
+                    );
+                  })}
+                </tr>
+                {(room.derivedPlans ?? []).map((plan) => (
+                  <tr key={plan.id}>
+                    <th
+                      scope="row"
+                      className="sticky left-0 z-10 border-b border-border bg-card px-3 py-1 pl-6 text-left text-tiny font-normal text-ink-700"
+                    >
+                      {plan.name}
+                      <span className="block text-ink-600">Linked offer · follows base price</span>
+                    </th>
+                    {plan.prices.map((price, i) => (
+                      <td
+                        key={room.nights[i].date}
+                        className="border-b border-l border-border px-1 py-1 text-center text-tiny text-ink-700"
+                      >
+                        {displayMoney(price)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </Fragment>
             ))}
           </tbody>
         </table>
@@ -323,10 +345,80 @@ function EditDrawer({ initial, ops, data, propertyId, staff, onClose, onSaved })
   const [form, setForm] = useState(initial);
   const [result, setResult] = useState(null);
   const [pending, startTransition] = useTransition();
+  const [confirming, setConfirming] = useState(false);
+  const [notice, setNotice] = useState('');
+  const drawerRef = useRef(null);
+  const keepRef = useRef(null);
+  const dirty = formDirty(initial, form);
+  const requestClose = () => (dirty ? setConfirming(true) : onClose());
+  const cancelConfirm = () => {
+    setConfirming(false);
+    drawerRef.current?.focus();
+  };
+  // Focus moves into the drawer and returns to the cell that opened it.
+  useEffect(() => {
+    const opener = document.activeElement;
+    drawerRef.current?.focus();
+    // If a refresh replaced the opener, fall back to the grid.
+    return () =>
+      (opener?.isConnected
+        ? opener
+        : document.querySelector('[aria-label="Rates and rooms grid"]')
+      )?.focus?.();
+  }, []);
+  useEffect(() => {
+    if (confirming) keepRef.current?.focus();
+  }, [confirming]);
+  // Escape closes the drawer (asking first when dirty); with the confirm open it cancels only the confirm.
+  useEffect(() => {
+    const onKey = (event) => {
+      // Tab stays inside the drawer (the confirm traps its own Tab).
+      if (event.key === 'Tab' && !confirming && drawerRef.current) {
+        const items = [
+          ...drawerRef.current.querySelectorAll(
+            'button:not([disabled]), input:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+          ),
+        ].filter((el) => !el.closest('[role="alertdialog"]'));
+        if (!items.length) return;
+        const first = items[0];
+        const last = items.at(-1);
+        const inside = drawerRef.current.contains(document.activeElement);
+        if (
+          event.shiftKey &&
+          (!inside ||
+            document.activeElement === first ||
+            document.activeElement === drawerRef.current)
+        ) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && (!inside || document.activeElement === last)) {
+          event.preventDefault();
+          first.focus();
+        }
+        return;
+      }
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      if (confirming) cancelConfirm();
+      else requestClose();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  });
+  useEffect(() => {
+    if (!dirty) return undefined;
+    const guard = (event) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', guard);
+    return () => window.removeEventListener('beforeunload', guard);
+  }, [dirty]);
   const op = ops.find(([value]) => value === form.op) ?? ops[0];
   const set = (patch) => {
     setForm((f) => ({ ...f, ...patch }));
     setResult(null);
+    setNotice('');
   };
   const toggle = (key, value) =>
     set({
@@ -346,27 +438,38 @@ function EditDrawer({ initial, ops, data, propertyId, staff, onClose, onSaved })
   });
   const preview = (event) => {
     event.preventDefault();
+    setNotice('');
     startTransition(async () => setResult(await command(propertyId, payload({ preview: true }))));
   };
   const save = () =>
     startTransition(async () => {
-      const saved = await command(propertyId, payload({ previewHash: result.previewHash }));
+      const saved = await command(
+        propertyId,
+        payload({ previewHash: result.previewHash, expectedVersion: result.version }),
+      );
       if (saved.ok) onSaved();
-      else setResult(saved);
+      else if (saved.code === 'CALENDAR_CHANGED') {
+        // Someone else changed these nights since the preview: show the fresh preview instead.
+        setResult(await command(propertyId, payload({ preview: true })));
+        setNotice('Prices changed since your preview — review again.');
+      } else setResult(saved);
     });
+  const roomName = (id) => data.roomTypes.find((r) => r.id === id)?.name ?? '';
   const errors = result?.error ? [result.error, ...Object.values(result.fields ?? {}).flat()] : [];
   return (
     <div
       className="fixed inset-0 z-50 flex justify-end bg-ink-900/40"
       role="presentation"
-      onClick={onClose}
+      onClick={requestClose}
     >
       <aside
+        ref={drawerRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby="ari-drawer-title"
         onClick={(event) => event.stopPropagation()}
-        className="flex h-full w-full max-w-md flex-col bg-card shadow-xl max-sm:mt-auto max-sm:h-[88dvh] max-sm:rounded-t-2xl"
+        className="relative flex h-full w-full max-w-md flex-col bg-card shadow-xl outline-none max-sm:mt-auto max-sm:h-[88dvh] max-sm:rounded-t-2xl"
       >
         <header className="flex items-center justify-between border-b border-border p-4">
           <h2 id="ari-drawer-title" className="text-h3">
@@ -374,7 +477,7 @@ function EditDrawer({ initial, ops, data, propertyId, staff, onClose, onSaved })
           </h2>
           <button
             type="button"
-            onClick={onClose}
+            onClick={requestClose}
             aria-label="Close"
             className="inline-flex size-11 items-center justify-center rounded-full hover:bg-ink-50"
           >
@@ -501,19 +604,67 @@ function EditDrawer({ initial, ops, data, propertyId, staff, onClose, onSaved })
                 ))}
               </ul>
             ) : null}
-            {result?.preview ? (
-              <p className="rounded-md border-2 border-ink-900 p-3 text-meta">
-                This changes <strong>{result.cells}</strong> room-nights ({result.nights} night
-                {result.nights === 1 ? '' : 's'} × {result.roomTypes} room type
-                {result.roomTypes === 1 ? '' : 's'}). Existing bookings keep their price.
+            {notice ? (
+              <p
+                role="alert"
+                className="mb-2 rounded-md border border-warning/40 bg-warning-bg p-3 text-meta"
+              >
+                {notice}
               </p>
+            ) : null}
+            {result?.preview ? (
+              <div className="rounded-md border-2 border-ink-900 p-3 text-meta">
+                <p>
+                  This changes <strong>{result.cells}</strong> room-nights ({result.nights} night
+                  {result.nights === 1 ? '' : 's'} × {result.roomTypes} room type
+                  {result.roomTypes === 1 ? '' : 's'}). Existing bookings keep their price.
+                </p>
+                {result.changes?.length ? (
+                  <table className="mt-2 w-full text-tiny tabular">
+                    <caption className="sr-only">Prices before and after</caption>
+                    <thead>
+                      <tr className="text-left text-ink-600">
+                        <th scope="col">Night</th>
+                        <th scope="col">Room</th>
+                        <th scope="col" className="text-right">
+                          Now
+                        </th>
+                        <th scope="col" className="text-right">
+                          New
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {result.changes.map((c) => (
+                        <tr key={`${c.roomTypeId}:${c.night}`}>
+                          <td>
+                            {dayLabel(c.night, {
+                              weekday: 'short',
+                              day: 'numeric',
+                              month: 'short',
+                            })}
+                          </td>
+                          <td>{roomName(c.roomTypeId)}</td>
+                          <td className="text-right">{displayMoney(c.beforeMinor)}</td>
+                          <td className="text-right font-semibold">{displayMoney(c.afterMinor)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : null}
+                {result.changeCount > (result.changes?.length ?? 0) ? (
+                  <p className="mt-1 text-tiny text-ink-600">
+                    Showing the first {result.changes.length} of {result.changeCount}.
+                  </p>
+                ) : null}
+              </div>
             ) : null}
           </div>
         </form>
         <footer className="flex justify-end gap-2 border-t border-border p-4">
           <button
             type="button"
-            onClick={onClose}
+            onClick={requestClose}
             className={buttonVariants({ variant: 'outline' })}
           >
             Cancel
@@ -533,6 +684,46 @@ function EditDrawer({ initial, ops, data, propertyId, staff, onClose, onSaved })
             </button>
           )}
         </footer>
+        {confirming ? (
+          <div
+            className="absolute inset-0 z-10 flex items-center justify-center bg-ink-900/40 p-4"
+            role="presentation"
+            onClick={cancelConfirm}
+          >
+            <div
+              role="alertdialog"
+              aria-modal="true"
+              aria-labelledby="ari-discard-title"
+              onClick={(event) => event.stopPropagation()}
+              onKeyDown={(event) => {
+                // Keep Tab inside the two buttons.
+                if (event.key !== 'Tab') return;
+                const buttons = [...event.currentTarget.querySelectorAll('button')];
+                const at = buttons.indexOf(document.activeElement);
+                event.preventDefault();
+                buttons[(at + (event.shiftKey ? -1 : 1) + buttons.length) % buttons.length].focus();
+              }}
+              className="w-full max-w-xs rounded-lg bg-card p-4 shadow-xl"
+            >
+              <h3 id="ari-discard-title" className="font-semibold">
+                Discard changes?
+              </h3>
+              <div className="mt-4 flex justify-end gap-2">
+                <button
+                  ref={keepRef}
+                  type="button"
+                  onClick={cancelConfirm}
+                  className={buttonVariants({ variant: 'outline' })}
+                >
+                  Keep editing
+                </button>
+                <button type="button" onClick={onClose} className={button}>
+                  Discard
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </aside>
     </div>
   );

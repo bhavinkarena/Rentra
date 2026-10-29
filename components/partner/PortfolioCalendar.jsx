@@ -336,7 +336,7 @@ export default function PortfolioCalendar({
         <div className="space-y-2">
           <label className="block">
             <span className="mb-1.5 block text-tiny font-semibold text-ink-600">
-              {percent ? 'Change from base price' : 'New price for each slot'}
+              {percent ? 'Change from current price' : 'New price for each slot'}
             </span>
             <span className="relative block">
               <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-meta text-ink-500">
@@ -360,7 +360,7 @@ export default function PortfolioCalendar({
               checked={percent}
               onChange={(e) => setPercent(e.target.checked)}
             />
-            Use a percentage of the base price
+            Use a percentage of the current price
           </label>
         </div>
       )}
