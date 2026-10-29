@@ -73,7 +73,14 @@ const amenityGroups = [
   ['Comfort & essentials', ['ac_bedrooms', 'modular_kitchen', 'generator', 'parking', 'caretaker']],
 ];
 
-export default function DiscoveryFilters({ filters, registry, route, path, activeChips }) {
+export default function DiscoveryFilters({
+  filters,
+  registry,
+  route,
+  path,
+  activeChips,
+  query = {},
+}) {
   const [advanced, setAdvanced] = useState(false);
   const [budget, setBudget] = useState({ min: filters.min ?? '', max: filters.max ?? '' });
   const [amenities, setAmenities] = useState(filters.amenities);
@@ -151,14 +158,7 @@ export default function DiscoveryFilters({ filters, registry, route, path, activ
           items={verticalTabs(
             registry,
             route?.verticalCode ?? filters.vertical,
-            path === '/search'
-              ? (code) =>
-                  searchTabHref(code, {
-                    city: filters.city,
-                    area: filters.area,
-                    date: filters.dates[0],
-                  })
-              : undefined,
+            path === '/search' ? (code) => searchTabHref(code, query) : undefined,
           )}
         />
         <SearchFields

@@ -6,6 +6,7 @@ import CustomerLoginForm from '@/components/customer/CustomerLoginForm';
 import { getCurrentUser, getCurrentAdmin } from '@/lib/api/session';
 import { switchToCustomer } from '@/lib/actions/auth';
 import { redirect } from 'next/navigation';
+import { safeNext } from '@/lib/domain/safe-next';
 
 export const metadata = {
   title: 'Log in',
@@ -20,15 +21,13 @@ export const metadata = {
  * on (phone, role), not phone alone, so the same number can hold one
  * Customer and one Client account.
  */
+
 export default async function CustomerLoginPage({ searchParams }) {
   const [user, admin] = await Promise.all([getCurrentUser(), getCurrentAdmin()]);
   // Story 2.3: a customer page that needed sign-in; the API re-checks the path before using it.
   const next = String((await searchParams)?.next ?? '');
   const conflict = admin || (user && user.role !== 'customer');
-  if (!conflict && user?.role === 'customer')
-    redirect(
-      /^\/(checkout|bookings|account|support|disputes|reviews)(\/[\w-]+)*$/.test(next) ? next : '/',
-    );
+  if (!conflict && user?.role === 'customer') redirect(safeNext(next));
   return (
     <main>
       <AuthLayout>

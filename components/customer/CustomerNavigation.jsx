@@ -1,6 +1,7 @@
 'use client';
 import Link from '@/components/navigation/NavigationLink';
-import { usePathname } from 'next/navigation';
+import { Suspense } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { Heart, CalendarDays, CircleUserRound } from 'lucide-react';
 import { useSavedPlaces } from './SavedPlacesProvider';
 import AccountSwitchButton from '@/components/auth/AccountSwitchButton';
@@ -48,18 +49,49 @@ export default function CustomerNavigation({ authenticated = false, compact = fa
         >
           <ProfileAvatar name={identity?.name} photoUrl={identity?.photoUrl} />
         </Link>
+      ) : pathname === '/search' ? (
+        <Suspense fallback={<LogInButton />}>
+          <SearchLogIn />
+        </Suspense>
       ) : (
-        <AccountSwitchButton
-          role="customer"
-          ariaLabel="Log in"
-          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full px-3 transition-colors duration-150 hover:bg-ink-200 hover:text-brand-800 aria-[current=page]:bg-brand-600 aria-[current=page]:text-white aria-[current=page]:hover:bg-brand-700 motion-reduce:transition-none"
-        >
-          <CircleUserRound className="size-4.5" aria-hidden="true" />
-          <span className="customer-nav-label max-sm:sr-only sm:ml-2">
-            <span>Log in</span>
-          </span>
-        </AccountSwitchButton>
+        <LogInButton />
       )}
     </nav>
+  );
+}
+
+const logInClass =
+  'inline-flex min-h-11 min-w-11 items-center justify-center rounded-full px-3 transition-colors duration-150 hover:bg-ink-200 hover:text-brand-800 aria-[current=page]:bg-brand-600 aria-[current=page]:text-white aria-[current=page]:hover:bg-brand-700 motion-reduce:transition-none';
+const logInLabel = (
+  <>
+    <CircleUserRound className="size-4.5" aria-hidden="true" />
+    <span className="customer-nav-label max-sm:sr-only sm:ml-2">
+      <span>Log in</span>
+    </span>
+  </>
+);
+
+function LogInButton() {
+  return (
+    <AccountSwitchButton role="customer" ariaLabel="Log in" className={logInClass}>
+      {logInLabel}
+    </AccountSwitchButton>
+  );
+}
+
+/** Story 3.1: a guest signing in from search returns to the identical search. */
+function SearchLogIn() {
+  const query = new URLSearchParams(useSearchParams());
+  query.delete('dropped');
+  const params = query.toString();
+  const next = params ? `/search?${params}` : '/search';
+  return (
+    <Link
+      href={`/login?next=${encodeURIComponent(next)}`}
+      aria-label="Log in"
+      className={logInClass}
+    >
+      {logInLabel}
+    </Link>
   );
 }

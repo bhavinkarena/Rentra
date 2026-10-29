@@ -83,15 +83,10 @@ export function HeaderVerticalTabs({ registry: shared }) {
 
 function SearchVerticalTabs({ registry }) {
   const params = useSearchParams();
-  const place = {
-    city: params.get('city'),
-    area: params.get('area'),
-    date: params.get('date') || params.get('dates')?.split(',')[0],
-  };
   const items = verticalTabs(
     registry,
     pageVertical('/search', registry, params.get('vertical')),
-    (code) => searchTabHref(code, place),
+    (code) => searchTabHref(code, params),
   );
   return <HeaderSlot items={items} />;
 }

@@ -43,7 +43,8 @@ export default function HeaderSearch({ registry: shared }) {
     () => null,
   );
   // Discovery searches stay on the same path, so the query counts as a new page too.
-  const url = `${pathname}?${useSearchParams()}`;
+  const searchParams = useSearchParams();
+  const url = `${pathname}?${searchParams}`;
   const [seenPath, setSeenPath] = useState(url);
   const [draft] = useSearchDraft();
   const discovery = useDiscovery();
@@ -117,14 +118,7 @@ export default function HeaderSearch({ registry: shared }) {
   const categoryItems = verticalTabs(
     registry,
     stayHome ? 'hotel' : play ? 'entertainment' : 'farmhouse',
-    discovery
-      ? (code) =>
-          searchTabHref(code, {
-            city: discovery.route?.city?.slug || discovery.filters.city,
-            area: discovery.route?.area?.slug || discovery.filters.area,
-            date: dates[0],
-          })
-      : undefined,
+    discovery ? (code) => searchTabHref(code, searchParams) : undefined,
   );
   const where = location.title || 'Anywhere';
   const when =

@@ -15,9 +15,11 @@ import {
   areaDiscoveryPath,
   intentDiscoveryPath,
   intentsFor,
+  droppedNotice,
+  VERTICAL_LANDING_TITLES,
 } from '@/lib/domain/discovery';
 import { discoveryApi } from '@/lib/api/endpoints';
-import { CalendarX, MapPin, RefreshCw, SearchX, X } from 'lucide-react';
+import { CalendarX, Info, MapPin, RefreshCw, SearchX, X } from 'lucide-react';
 import Pagination from '@/components/ui/pagination';
 import SortSelect from './SortSelect';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -134,6 +136,42 @@ export default async function DiscoveryResults({ query, registry: registryInput,
       ? result.items[0].priceNote
       : null;
   const pill = cn(buttonVariants({ variant: 'outline' }), 'rounded-full px-5');
+  // Story 3.1: a category switch names what could not carry over (short-lived `dropped` param).
+  const notice =
+    typeof query.dropped === 'string' ? droppedNotice(query.dropped.split(','), vertical) : '';
+  // Zero results: nothing listed (inventory 0), filters exclude everything, or dates/party are booked out.
+  const filtered =
+    [filters.min, filters.max, filters.bedrooms].some((v) => v != null) ||
+    filters.amenities.length > 0 ||
+    ['verified', 'cancellation', 'freecancel', 'breakfast', 'couples', 'localid', 'rating'].some(
+      (key) => Boolean(filters[key]),
+    );
+  const noInventory = !play && !result.total && result.meta?.inventory === 0;
+  // Clearing filters keeps location, category, dates and party.
+  const clearFilters = href({
+    min: null,
+    max: null,
+    bedrooms: null,
+    verified: '',
+    cancellation: '',
+    amenities: [],
+    freecancel: '',
+    breakfast: '',
+    couples: '',
+    localid: '',
+    rating: '',
+  });
+  const chipLinks = chips.map(([key, label]) => (
+    <Link
+      key={key}
+      className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full bg-brand-50 px-3 text-tiny font-medium text-brand-900 transition-colors hover:bg-brand-100"
+      href={href(clearChip(key))}
+      aria-label={`Remove ${label}`}
+    >
+      {label}
+      <X className="size-3.5" aria-hidden="true" />
+    </Link>
+  ));
   // Nothing free, or no venue at all: where else has venues (only read when needed).
   const scopeSlug = route?.category?.slug ?? route?.vertical?.slug ?? filters.category;
   const otherCities =
@@ -180,6 +218,7 @@ export default async function DiscoveryResults({ query, registry: registryInput,
         registry={registry}
         route={route}
         path={path}
+        query={query}
         activeChips={
           chips.length ? (
             <div
@@ -187,21 +226,17 @@ export default async function DiscoveryResults({ query, registry: registryInput,
               role="group"
               aria-label="Active filters"
             >
-              {chips.map(([key, label]) => (
-                <Link
-                  key={key}
-                  className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full bg-brand-50 px-3 text-tiny font-medium text-brand-900 transition-colors hover:bg-brand-100"
-                  href={href(clearChip(key))}
-                  aria-label={`Remove ${label}`}
-                >
-                  {label}
-                  <X className="size-3.5" aria-hidden="true" />
-                </Link>
-              ))}
+              {chipLinks}
             </div>
           ) : null
         }
       />
+      {notice ? (
+        <p role="status" className="mt-4 flex items-center gap-2 text-meta text-ink-700">
+          <Info className="size-4 shrink-0 text-brand-600" aria-hidden="true" />
+          {notice}
+        </p>
+      ) : null}
       {messages.length > 0 && (
         <div
           role="alert"
@@ -224,13 +259,13 @@ export default async function DiscoveryResults({ query, registry: registryInput,
             tone="warning"
             icon={RefreshCw}
             title="Search is temporarily unavailable"
-            description="Your filters are in the address bar. Please try again."
+            description="Your search is kept. No prices or availability are shown until it loads."
           >
             <a
               className={cn(buttonVariants(), 'rounded-full px-5')}
-              href={href({ page: filters.page })}
+              href={`${path}?${new URLSearchParams(query)}`}
             >
-              Retry search
+              Try again
             </a>
           </EmptyState>
         </div>
@@ -338,20 +373,41 @@ export default async function DiscoveryResults({ query, registry: registryInput,
                 </AccountSwitchButton>
               </EmptyState>
             ) : null}
-            {!result.total && stayView ? (
+            {noInventory ? (
+              <EmptyState
+                as="h3"
+                icon={SearchX}
+                title={`No ${(activityName ?? VERTICAL_LANDING_TITLES[vertical] ?? 'places').toLowerCase()} listed in ${chipLabels.area || cityName || 'this area'} yet`}
+                description="New places join Rentra every week."
+              >
+                {filters.category && !route?.category ? (
+                  <Link className={pill} href={href({ category: '' })}>
+                    Browse all categories
+                  </Link>
+                ) : null}
+                {filters.area && !route?.area && cityName ? (
+                  <Link className={pill} href={href({ area: '' })}>
+                    <MapPin className="size-4" aria-hidden="true" />
+                    All of {cityName}
+                  </Link>
+                ) : null}
+              </EmptyState>
+            ) : null}
+            {!result.total && stayView && !noInventory ? (
               <EmptyState
                 as="h3"
                 icon={SearchX}
                 title={
-                  filters.checkin
+                  filters.checkin && !filtered
                     ? 'No rooms left for these dates and guests'
                     : 'No hotels match these filters'
                 }
                 description="Try other dates, fewer rooms, or remove a filter."
               >
+                {chipLinks}
                 {chips.length ? (
-                  <Link className={cn(buttonVariants(), 'rounded-full px-5')} href={path}>
-                    Clear {chips.length} filter{chips.length === 1 ? '' : 's'}
+                  <Link className={cn(buttonVariants(), 'rounded-full px-5')} href={clearFilters}>
+                    Clear filters
                   </Link>
                 ) : null}
                 {filters.checkin ? (
@@ -368,12 +424,20 @@ export default async function DiscoveryResults({ query, registry: registryInput,
                 ) : null}
               </EmptyState>
             ) : null}
-            {!result.total && !play && !stayView && (
+            {!result.total && !play && !stayView && !noInventory && (
               <EmptyState
                 as="h3"
                 icon={SearchX}
-                title="A different search could open up more places"
-                description="No places match these filters. Try a different location, fewer amenities or other dates."
+                title={
+                  !filtered && filters.dates.length
+                    ? 'Fully booked for these dates'
+                    : 'A different search could open up more places'
+                }
+                description={
+                  !filtered && filters.dates.length
+                    ? 'Places here are taken on every selected date. Try other dates.'
+                    : 'No places match these filters. Try a different location, fewer amenities or other dates.'
+                }
               >
                 {filters.dates.length ? (
                   <Link
@@ -383,9 +447,12 @@ export default async function DiscoveryResults({ query, registry: registryInput,
                     Try without dates
                   </Link>
                 ) : null}
-                <Link className={pill} href={path}>
-                  Clear filters
-                </Link>
+                {chipLinks}
+                {chips.length ? (
+                  <Link className={pill} href={clearFilters}>
+                    Clear filters
+                  </Link>
+                ) : null}
               </EmptyState>
             )}
             {stayView && result.total ? (

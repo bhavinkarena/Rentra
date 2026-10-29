@@ -31,7 +31,7 @@ export default function SavedPlaces() {
       {saved.mode === 'guest' ? (
         <p className="text-meta text-ink-600">
           Your saved places stay in this browser.{' '}
-          <Link href="/login" className="text-brand-700 underline">
+          <Link href="/login?next=%2Fsaved" className="text-brand-700 underline">
             Log in
           </Link>{' '}
           to keep them across devices.
@@ -40,7 +40,7 @@ export default function SavedPlaces() {
       {saved.mode === 'other' ? (
         <p>
           Saved accounts are for customers.{' '}
-          <Link href="/login" className="text-brand-700 underline">
+          <Link href="/login?next=%2Fsaved" className="text-brand-700 underline">
             Switch to customer login
           </Link>{' '}
           to continue.

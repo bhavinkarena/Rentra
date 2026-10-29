@@ -56,13 +56,13 @@ test('the active vertical comes from the page; pages without tabs give null', ()
     assert.equal(pageVertical(path, registry), null, path);
 });
 
-test('switching tabs on /search keeps where and the first date, nothing else', () => {
+test('switching tabs on /search carries the search context', () => {
   assert.equal(
-    searchTabHref('entertainment', { city: 'surat', area: 'vesu', date: '2026-10-04' }),
-    '/search?vertical=entertainment&city=surat&area=vesu&date=2026-10-04',
+    searchTabHref('entertainment', 'city=surat&area=vesu'),
+    '/search?vertical=entertainment&city=surat&area=vesu',
   );
   assert.equal(
-    searchTabHref('farmhouse', { city: 'surat', area: null, date: '' }),
+    searchTabHref('farmhouse', 'vertical=entertainment&city=surat'),
     '/search?city=surat',
   );
   assert.equal(searchTabHref('farmhouse', {}), '/search');
