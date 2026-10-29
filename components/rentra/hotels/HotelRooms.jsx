@@ -30,7 +30,15 @@ import { formatINR } from '@/lib/domain/pricing';
 import { formatINRMinor } from '@/lib/domain/booking-money';
 import { addLocalDays, formatLocalDate, propertyToday } from '@/lib/domain/booking-dates';
 import { parseDiscoveryQuery } from '@/lib/domain/discovery';
-import { MEAL_LABELS, bedsLine, formatInstant, humanize, splitParty } from '@/lib/domain/hotel-ui';
+import {
+  MEAL_LABELS,
+  bedsLine,
+  facilitySummary,
+  formatInstant,
+  humanize,
+  photoLabel,
+  splitParty,
+} from '@/lib/domain/hotel-ui';
 
 const MAX_ROOMS = 8;
 const MAX_NIGHTS = 30;
@@ -512,9 +520,68 @@ function StayForm({ filters, onApply }) {
   );
 }
 
+function RoomPhotos({ name, photos }) {
+  const [index, setIndex] = useState(0);
+  const list = photos ?? [];
+  if (!list.length) {
+    return (
+      <div className="flex aspect-[4/3] flex-col items-center justify-center gap-2 rounded-md bg-ink-100 p-4 text-center text-tiny text-ink-600">
+        <ImageOff className="size-6 text-ink-400" aria-hidden="true" />
+        No photo provided for this room
+      </div>
+    );
+  }
+  const i = Math.min(index, list.length - 1);
+  const photo = list[i];
+  const step = (delta) => setIndex((i + delta + list.length) % list.length);
+  const button =
+    'absolute top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-ink-900 shadow focus-visible:outline-2 focus-visible:outline-brand-600';
+  return (
+    <figure className="relative aspect-[4/3] overflow-hidden rounded-md bg-ink-100">
+      {/* eslint-disable-next-line @next/next/no-img-element -- Cloudinary URLs are already sized. */}
+      <img
+        src={photo.url}
+        alt={photo.alt || `${name} photo ${i + 1}`}
+        className="size-full object-cover"
+        loading={i === 0 ? 'eager' : 'lazy'}
+      />
+      {list.length > 1 ? (
+        <>
+          <button
+            type="button"
+            className={`${button} left-2`}
+            aria-label={`Previous photo of ${name}`}
+            onClick={() => step(-1)}
+          >
+            <ChevronLeft className="size-5" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className={`${button} right-2`}
+            aria-label={`Next photo of ${name}`}
+            onClick={() => step(1)}
+          >
+            <ChevronRight className="size-5" aria-hidden="true" />
+          </button>
+          <figcaption
+            aria-hidden="true"
+            className="absolute bottom-2 left-2 rounded bg-black/70 px-2 py-0.5 text-tiny font-semibold text-white"
+          >
+            {photoLabel(i, list.length)}
+          </figcaption>
+          <span className="sr-only" aria-live="polite">
+            {photoLabel(i, list.length)}
+          </span>
+        </>
+      ) : null}
+    </figure>
+  );
+}
+
 function RoomCard({ room, live, loading, dated, rooms, selection, chosenRooms, onCount }) {
-  const photo = room.photos?.[0];
   const left = live?.available;
+  const amenities = room.amenities ?? [];
+  const { shown, more } = facilitySummary(amenities);
   const facts = [
     room.beds?.length ? [BedDouble, bedsLine(room.beds)] : null,
     room.sizeSqm ? [Ruler, `${room.sizeSqm} m²`] : null,
@@ -523,72 +590,86 @@ function RoomCard({ room, live, loading, dated, rooms, selection, chosenRooms, o
   ].filter(Boolean);
   return (
     <article
-      className="overflow-hidden rounded-lg border border-border bg-card"
+      className="overflow-hidden rounded-lg border border-border bg-card lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]"
       aria-labelledby={`room-${room.id}`}
     >
-      <div className="flex gap-4 p-4">
-        <div className="relative hidden size-28 shrink-0 overflow-hidden rounded-md bg-ink-100 sm:block">
-          {photo ? (
-            // eslint-disable-next-line @next/next/no-img-element -- Cloudinary URLs are already sized.
-            <img
-              src={photo.url}
-              alt={photo.alt ?? room.name}
-              className="size-full object-cover"
-              loading="lazy"
-            />
-          ) : (
-            <ImageOff className="absolute inset-0 m-auto size-6 text-ink-400" aria-hidden="true" />
-          )}
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h3 id={`room-${room.id}`} className="text-h4 font-bold">
-              {room.name}
-            </h3>
-            {dated && live && left > 0 && left <= 3 ? (
-              <span className="text-tiny font-semibold text-warning">Only {left} left</span>
-            ) : null}
-          </div>
-          <ul className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-tiny text-ink-700">
-            {facts.map(([Icon, text]) => (
-              <li key={text} className="flex items-center gap-1">
-                <Icon className="size-3.5 text-brand-600" aria-hidden="true" />
-                {text}
-              </li>
-            ))}
-          </ul>
-          {room.amenities?.length ? (
-            <p className="mt-1.5 text-tiny text-ink-500">
-              {room.amenities.slice(0, 8).map(humanize).join(' · ')}
-            </p>
+      <div className="min-w-0 p-4">
+        <RoomPhotos
+          key={(room.photos ?? []).map((p) => p.url).join('|')}
+          name={room.name}
+          photos={room.photos}
+        />
+        <div className="mt-3 flex flex-wrap items-baseline justify-between gap-2">
+          <h3 id={`room-${room.id}`} className="text-h4 font-bold">
+            {room.name}
+          </h3>
+          {dated && live && left > 0 && left <= 3 ? (
+            <span className="text-tiny font-semibold text-warning">Only {left} left</span>
           ) : null}
         </div>
+        <ul className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-tiny text-ink-700">
+          {facts.map(([Icon, text]) => (
+            <li key={text} className="flex items-center gap-1">
+              <Icon className="size-3.5 text-brand-600" aria-hidden="true" />
+              {text}
+            </li>
+          ))}
+        </ul>
+        {amenities.length ? (
+          <details className="group mt-2 text-tiny">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 text-ink-600 [&::-webkit-details-marker]:hidden">
+              <span className="sr-only">Room details & facilities: </span>
+              <span className="min-w-0">
+                {shown.join(' · ')}
+                {more ? (
+                  <span className="ml-1 font-semibold text-ink-900 underline underline-offset-4">
+                    +{more} more
+                  </span>
+                ) : null}
+              </span>
+              <ChevronDown
+                className="size-4 shrink-0 transition-transform group-open:rotate-180"
+                aria-hidden="true"
+              />
+            </summary>
+            <p className="font-semibold text-ink-900">Room details & facilities</p>
+            <ul className="mt-1 grid grid-cols-1 gap-x-3 sm:grid-cols-2 gap-y-1 text-ink-700">
+              {amenities.map((slug) => (
+                <li key={slug} className="min-w-0 break-words">
+                  {humanize(slug)}
+                </li>
+              ))}
+            </ul>
+          </details>
+        ) : null}
       </div>
-      <ul className="divide-y divide-border border-t border-border">
-        {room.plans.map((plan) => (
-          <PlanRow
-            key={plan.id}
-            plan={plan}
-            live={live?.plans.find((p) => p.id === plan.id)}
-            available={left ?? 0}
-            loading={loading}
-            dated={dated}
-            rooms={rooms}
-            count={selection[plan.id] ?? 0}
-            otherRooms={chosenRooms - (selection[plan.id] ?? 0)}
-            usedOfType={(live?.plans ?? []).reduce(
-              (sum, p) => sum + (p.id === plan.id ? 0 : (selection[p.id] ?? 0)),
-              0,
-            )}
-            onCount={(count) => onCount(plan.id, count)}
-          />
-        ))}
-      </ul>
-      {dated && live && !left ? (
-        <p className="border-t border-border bg-ink-50 px-4 py-2 text-tiny font-semibold text-ink-700">
-          Sold out for your dates
-        </p>
-      ) : null}
+      <div className="min-w-0 lg:border-l lg:border-border">
+        <ul className="divide-y divide-border border-t border-border lg:border-t-0">
+          {room.plans.map((plan) => (
+            <PlanRow
+              key={plan.id}
+              plan={plan}
+              live={live?.plans.find((p) => p.id === plan.id)}
+              available={left ?? 0}
+              loading={loading}
+              dated={dated}
+              rooms={rooms}
+              count={selection[plan.id] ?? 0}
+              otherRooms={chosenRooms - (selection[plan.id] ?? 0)}
+              usedOfType={(live?.plans ?? []).reduce(
+                (sum, p) => sum + (p.id === plan.id ? 0 : (selection[p.id] ?? 0)),
+                0,
+              )}
+              onCount={(count) => onCount(plan.id, count)}
+            />
+          ))}
+        </ul>
+        {dated && live && !left ? (
+          <p className="border-t border-border bg-ink-50 px-4 py-2 text-tiny font-semibold text-ink-700">
+            Sold out for your dates
+          </p>
+        ) : null}
+      </div>
     </article>
   );
 }
