@@ -152,3 +152,27 @@ test('Story 3.6: child policy errors and plain-words disclosure', async () => {
   assert.equal(policyProblem(defaultChildPolicy(6, 400)), null);
   assert.equal(policyProblem(defaultChildPolicy(0, 0)), null);
 });
+
+test('Story 3.7: percent child bands validate and read as a share, never a ₹ amount', async () => {
+  const { policyProblem, policyLine } = await import('../../lib/domain/hotel-ui.js');
+  const policy = (kind, amount) => ({
+    adultRateFromAge: 12,
+    bands: [
+      { kind: 'infant', fromAge: 0, toAge: 1, rule: { type: 'free', amount: 0 } },
+      { kind, fromAge: 2, toAge: 11, rule: { type: 'percent', amount } },
+    ],
+  });
+  assert.equal(policyProblem(policy('child', 25)), null);
+  for (const amount of [0, 101, ''])
+    assert.match(policyProblem(policy('child', amount)), /percent/);
+  assert.equal(
+    policyProblem({
+      adultRateFromAge: 2,
+      bands: [{ kind: 'infant', fromAge: 0, toAge: 1, rule: { type: 'percent', amount: 25 } }],
+    }),
+    'Infant bands are free or a fixed price',
+  );
+  const line = policyLine(policy('child', 25));
+  assert.match(line, /2-11: 25% of the room price ÷ adults, per child\/night/);
+  assert.doesNotMatch(line.split(' (')[0], /₹/);
+});

@@ -156,7 +156,7 @@ const policyPayload = (policy) => ({
     rule:
       b.rule.type === 'free'
         ? { type: 'free', amount: 0 }
-        : { type: 'fixed', amount: keep(b.rule.amount) },
+        : { type: b.rule.type, amount: keep(b.rule.amount) },
   })),
 });
 /** Story 3.6: the policy a room keeps when it holds its own child price: `policy` with its child-kind paid bands at `extraChild`. */
@@ -219,7 +219,15 @@ function ChildPolicyEditor({ id, policy, onChange, error }) {
               aria-label={`Band ${i + 1} kind`}
               className="min-h-11 rounded-md bg-transparent px-1 text-meta"
               value={band.kind}
-              onChange={(event) => set(i, { kind: event.target.value })}
+              onChange={(event) =>
+                set(i, {
+                  kind: event.target.value,
+                  // Infants are free or fixed only (Story 3.7).
+                  ...(event.target.value === 'infant' && band.rule.type === 'percent'
+                    ? { rule: { type: 'free', amount: 0 } }
+                    : {}),
+                })
+              }
             >
               <option value="infant">Infant</option>
               <option value="child">Child</option>
@@ -256,7 +264,32 @@ function ChildPolicyEditor({ id, policy, onChange, error }) {
             >
               <option value="free">Free</option>
               <option value="fixed">₹ / night</option>
+              {band.kind === 'child' ? (
+                <option value="percent">% of room price ÷ adults</option>
+              ) : null}
             </select>
+            {band.rule.type === 'percent' ? (
+              <>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={100}
+                  required
+                  className="min-h-11 w-20 rounded-md border border-border bg-transparent px-2 text-meta tabular"
+                  aria-label={`Band ${i + 1} percent of the room price`}
+                  value={band.rule.amount}
+                  onChange={(event) =>
+                    set(i, { rule: { type: 'percent', amount: toNum(event.target.value) } })
+                  }
+                />
+                <span className="text-meta text-ink-600">%</span>
+                <p className="w-full text-meta text-ink-600">
+                  Per child per night: room price × % ÷ adults in the room. ₹4,000 room, 2 adults,
+                  25% = ₹500/child/night.
+                </p>
+              </>
+            ) : null}
             {band.rule.type === 'fixed' ? (
               <input
                 type="number"
