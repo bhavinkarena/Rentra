@@ -16,6 +16,7 @@ import {
 } from './AdminPrimitives';
 import Pagination from '@/components/ui/pagination';
 import { DetailHeader } from '@/components/portal/DetailLayout';
+import { StayIssueSummary, LateBadge } from '@/components/customer/StayIssueSummary';
 
 import { adminDateTime as time } from '@/lib/domain/admin-display';
 const categories = { ...supportCategories, ...ownerSupportCategories };
@@ -137,7 +138,9 @@ export function AdminSupportList({ data }) {
           {data.items.map((request) => (
             <tr key={request.id} className="hover:bg-ink-25">
               <td className="px-5 py-4">
-                <p className="font-semibold text-ink-900">{request.subject}</p>
+                <p className="font-semibold text-ink-900">
+                  {request.subject} {request.late && <LateBadge />}
+                </p>
                 <p className="text-tiny">
                   {request.participant === 'client' ? 'Owner' : 'Customer'} · {request.priority}
                   {request.assignedTo ? ' · Assigned' : ' · Unassigned'}
@@ -209,6 +212,11 @@ export function AdminSupportDetail({
         Participants: {record.participant === 'client' ? 'Owner' : 'Customer'} and Rentra support.
         Internal notes stay with admins.
       </p>
+      {record.context?.stayIssue && (
+        <div className="mt-4">
+          <StayIssueSummary issue={record.context.stayIssue} />
+        </div>
+      )}
       <nav className="flex flex-wrap gap-4 py-4">
         {capabilities.includes(record.clientId ? 'admin.clients.read' : 'admin.customers.read') && (
           <Link

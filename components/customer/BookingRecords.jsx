@@ -24,11 +24,13 @@ import {
   BedDouble,
   CalendarSync,
   Ticket,
+  TriangleAlert,
 } from 'lucide-react';
 import { randomUUID } from 'node:crypto';
 import { bookingTime as time } from '@/lib/domain/booking-record';
 import { formatLocalDate } from '@/lib/domain/booking-dates';
 import { SLOTS } from '@/lib/domain/pricing';
+import { recordIssueEligibility } from '@/lib/domain/stay-issue';
 import { BackLink } from '@/components/ui/page-header';
 import { VisitLifecycle } from './VisitLifecycle';
 import { VisitEvidence } from '@/components/booking/VisitEvidence';
@@ -114,6 +116,15 @@ export function BookingDetail({
           ],
         ]
       : [
+          ...(recordIssueEligibility(record).open
+            ? [
+                [
+                  `/support/new?order=${record.id}&topic=stay_issue`,
+                  TriangleAlert,
+                  'Report a problem',
+                ],
+              ]
+            : []),
           [`/support/new?order=${record.id}`, LifeBuoy, 'Get booking help'],
           [`/support/new?order=${record.id}&topic=change`, PenLine, 'Ask about a change'],
           [`/bookings/${record.id}/again`, Repeat, 'Book again'],

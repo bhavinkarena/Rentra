@@ -16,6 +16,7 @@ import OwnerContactStrip from '@/components/partner/OwnerContactStrip';
 import { BackLink, PageHeader } from '@/components/ui/page-header';
 import { EmptyState } from '@/components/ui/empty-state';
 import { StateBadge } from './BookingDisplay';
+import { StayIssueSummary } from './StayIssueSummary';
 const link = 'inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline';
 const primary = `${sharedButtonVariants({ shape: 'pill', size: 'default' })} `;
 const secondary =
@@ -183,6 +184,13 @@ export function SupportDetail({ record, admin = false, owner = false }) {
         <p className="mt-2 font-mono text-tiny break-all text-ink-500">{record.reference}</p>
       </header>
       {owner && <OwnerContactStrip />}
+      {record.category === 'stay_issue' && record.state === 'open' && !admin && (
+        <p role="status" className="rounded-lg bg-brand-50 p-4 text-meta text-ink-800">
+          We&apos;ve received your report. Support will review it; this does not cancel or refund
+          your booking. Reference {record.reference}.
+        </p>
+      )}
+      <StayIssueSummary issue={record.context?.stayIssue} />
       <section className="space-y-1 rounded-lg border border-border bg-card p-4 text-meta text-ink-700 sm:p-5">
         <h2 className="mb-2 font-semibold text-ink-900">Request context</h2>
         <p>

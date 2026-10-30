@@ -3,8 +3,9 @@ import { randomUUID } from 'node:crypto';
 import { notFound } from 'next/navigation';
 import { customerApi } from '@/lib/api/endpoints';
 import { ApiError } from '@/lib/api/client';
-import { OpenSupportForm } from '@/components/customer/SupportForms';
+import { OpenSupportForm, StayIssueForm } from '@/components/customer/SupportForms';
 import { PageHeader } from '@/components/ui/page-header';
+import { recordIssueEligibility } from '@/lib/domain/stay-issue';
 import { CalendarDays, Info } from 'lucide-react';
 export const metadata = { title: 'New support request', robots: { index: false, follow: false } };
 export default async function Page({ searchParams }) {
@@ -25,6 +26,26 @@ export default async function Page({ searchParams }) {
     privacy = account.requests.find((p) => p.id === query.privacy);
     if (!privacy || record) notFound();
   }
+  if (record && query.topic === 'stay_issue')
+    return (
+      <section className="mx-auto max-w-2xl space-y-5">
+        <PageHeader
+          className="mb-2"
+          back={{ href: `/bookings/${record.id}`, label: 'Booking' }}
+          title="Report a problem"
+          description={`Booking ${record.reference} · ${record.title}. Support reviews every report; you do not need to wait for the owner.`}
+        />
+        <div className="rounded-lg border border-border bg-card p-4 sm:p-6">
+          {recordIssueEligibility(record).open ? (
+            <StayIssueForm requestKey={randomUUID()} record={record} />
+          ) : (
+            <p role="status">
+              Reporting for this booking has closed. Use Get booking help for anything else.
+            </p>
+          )}
+        </div>
+      </section>
+    );
   return (
     <section className="mx-auto max-w-2xl space-y-5">
       <PageHeader

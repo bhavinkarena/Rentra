@@ -10,6 +10,13 @@ import { useRouter } from 'next/navigation';
 import { openSupport, replyCustomerSupport } from '@/lib/actions/customer';
 import { replyAdminSupport } from '@/lib/actions/admin';
 import { supportCategories, supportStates, ownerSupportCategories } from '@/lib/domain/help';
+import {
+  ISSUE_LABELS,
+  REMEDY_LABELS,
+  SKEW_MS,
+  isLateReport,
+  recordIssueEligibility,
+} from '@/lib/domain/stay-issue';
 const field = `${sharedFieldClass} mt-1 min-h-11`;
 const button = `${sharedButtonVariants({ shape: 'pill', size: 'default' })} `;
 function Result({ state }) {
@@ -43,16 +50,18 @@ export function OpenSupportForm({
   const [state, action, pending] = useActionState(owner ? openOwnerSupport : openSupport, {});
   const categories = Object.entries(owner ? ownerSupportCategories : supportCategories).filter(
     ([key]) =>
-      !owner && ['verification', 'account'].includes(key)
+      key === 'stay_issue'
         ? false
-        : pendingOwner
-          ? ['verification', 'account', 'other'].includes(key)
-          : owner
-            ? true
-            : privacyRequestId
-              ? key === 'privacy'
-              : orderId ||
-                ['privacy', 'other', ...(owner ? ['verification', 'account'] : [])].includes(key),
+        : !owner && ['verification', 'account'].includes(key)
+          ? false
+          : pendingOwner
+            ? ['verification', 'account', 'other'].includes(key)
+            : owner
+              ? true
+              : privacyRequestId
+                ? key === 'privacy'
+                : orderId ||
+                  ['privacy', 'other', ...(owner ? ['verification', 'account'] : [])].includes(key),
   );
   const [key] = useState(requestKey),
     [subject, setSubject] = useState(initialSubject),
@@ -243,6 +252,250 @@ export function SupportReplyForm({ record, requestKey, admin = false, owner = fa
         <button type="button" className="min-h-11 underline" onClick={() => router.refresh()}>
           Reload conversation
         </button>
+      )}
+    </form>
+  );
+}
+
+const issueCopy = {
+  LATE_REASON_REQUIRED: 'lateReason',
+  AFFECTED_INVALID: 'affected',
+  DISCOVERY_INVALID: 'discoveredAt',
+};
+/**
+ * Story 4.1: report a problem with a stay. Values stay in state, so a refused or failed
+ * submission keeps everything the guest entered; success redirects to the saved case.
+ */
+export function StayIssueForm({ requestKey, record }) {
+  const [state, action, pending] = useActionState(openSupport, {});
+  const [, startTransition] = useTransition();
+  const [key] = useState(requestKey);
+  const [v, setV] = useState({
+    issueType: '',
+    discoveredAt: '',
+    affected: [],
+    remedy: '',
+    remedyText: '',
+    lateReason: '',
+    body: '',
+  });
+  const [errors, setErrors] = useState({});
+  const set = (name) => (e) => setV((old) => ({ ...old, [name]: e.target.value }));
+  const late =
+    (v.discoveredAt && isLateReport(new Date(v.discoveredAt))) ||
+    state.code === 'LATE_REASON_REQUIRED' ||
+    v.lateReason.trim() !== '';
+  // Only visits that happened, and only each visit's own booked room types: every choice passes the API.
+  const roomNames = new Map((record.stay?.rooms || []).map((r) => [String(r.roomTypeId), r.name]));
+  const options = recordIssueEligibility(record).visits.flatMap((visit) => [
+    [visit.id, `${visit.reference} · ${visit.date}`],
+    ...[...new Set(visit.issue?.roomTypeIds || [])].map((id) => [
+      `${visit.id}|${id}`,
+      `${visit.reference} · ${roomNames.get(id) || 'Room'}`,
+    ]),
+  ]);
+  const serverField = issueCopy[state.code];
+  const shown = { ...(serverField ? { [serverField]: state.error } : {}), ...errors };
+  const describe = (name) => (shown[name] ? `issue-${name}-error` : undefined);
+  const fieldError = (name) =>
+    shown[name] ? (
+      <p id={`issue-${name}-error`} className="mt-1 text-meta text-danger">
+        {shown[name]}
+      </p>
+    ) : null;
+  function submit(event) {
+    event.preventDefault();
+    const found = {};
+    if (!v.issueType) found.issueType = 'Choose what went wrong.';
+    const at = new Date(v.discoveredAt);
+    if (!v.discoveredAt || Number.isNaN(at.getTime()))
+      found.discoveredAt = 'Enter when you found the problem.';
+    else if (at.getTime() > Date.now() + SKEW_MS)
+      found.discoveredAt = 'This time cannot be in the future.';
+    if (!v.affected.length) found.affected = 'Choose at least one visit or room.';
+    if (!v.remedy) found.remedy = 'Choose the fix you would like.';
+    if (v.remedy === 'other' && !v.remedyText.trim())
+      found.remedyText = 'Describe the fix you would like.';
+    if (late && v.lateReason.trim().length < 10)
+      found.lateReason = 'Tell us why you are reporting this now (at least 10 characters).';
+    if (v.body.trim().length < 10) found.body = 'Describe the problem in at least 10 characters.';
+    setErrors(found);
+    const first = Object.keys(found)[0];
+    if (first) {
+      event.currentTarget.querySelector(`[data-field="${first}"]`)?.focus();
+      return;
+    }
+    const data = new FormData(event.currentTarget);
+    data.set('discoveredAt', at.toISOString());
+    if (!v.lateReason.trim()) data.delete('lateReason');
+    if (v.remedy !== 'other') data.delete('remedyText');
+    startTransition(() => action(data));
+  }
+  return (
+    <form onSubmit={submit} noValidate className="space-y-5">
+      <input type="hidden" name="requestKey" value={key} />
+      <input type="hidden" name="orderId" value={record.id} />
+      <input type="hidden" name="category" value="stay_issue" />
+      <label className="block">
+        What went wrong?
+        <select
+          className={field}
+          name="issueType"
+          data-field="issueType"
+          value={v.issueType}
+          onChange={set('issueType')}
+          aria-invalid={Boolean(shown.issueType)}
+          aria-describedby={describe('issueType')}
+        >
+          <option value="">Choose…</option>
+          {Object.entries(ISSUE_LABELS).map(([k, label]) => (
+            <option key={k} value={k}>
+              {label}
+            </option>
+          ))}
+        </select>
+        {fieldError('issueType')}
+      </label>
+      <label className="block">
+        When did you find it? (your local time)
+        <input
+          className={field}
+          type="datetime-local"
+          name="discoveredAt"
+          data-field="discoveredAt"
+          value={v.discoveredAt}
+          onChange={set('discoveredAt')}
+          aria-invalid={Boolean(shown.discoveredAt)}
+          aria-describedby={describe('discoveredAt')}
+        />
+        {fieldError('discoveredAt')}
+      </label>
+      <fieldset aria-describedby={describe('affected')}>
+        <legend>What is affected?</legend>
+        {options.map(([value, label], index) => (
+          <label key={value} className="flex min-h-11 items-center gap-3">
+            <input
+              type="checkbox"
+              name="affected"
+              value={value}
+              className="size-5"
+              data-field={index === 0 ? 'affected' : undefined}
+              checked={v.affected.includes(value)}
+              onChange={(e) =>
+                setV((old) => ({
+                  ...old,
+                  affected: e.target.checked
+                    ? [...old.affected, value]
+                    : old.affected.filter((x) => x !== value),
+                }))
+              }
+            />
+            {label}
+          </label>
+        ))}
+        {fieldError('affected')}
+      </fieldset>
+      <label className="block">
+        What would fix it for you?
+        <select
+          className={field}
+          name="remedy"
+          data-field="remedy"
+          value={v.remedy}
+          onChange={set('remedy')}
+          aria-invalid={Boolean(shown.remedy)}
+          aria-describedby={describe('remedy')}
+        >
+          <option value="">Choose…</option>
+          {Object.entries(REMEDY_LABELS).map(([k, label]) => (
+            <option key={k} value={k}>
+              {label}
+            </option>
+          ))}
+        </select>
+        <span className="mt-1 block text-meta text-ink-600">
+          This is a request; support decides any remedy.
+        </span>
+        {fieldError('remedy')}
+      </label>
+      {v.remedy === 'other' && (
+        <label className="block">
+          Describe the fix
+          <input
+            className={field}
+            name="remedyText"
+            data-field="remedyText"
+            maxLength={500}
+            value={v.remedyText}
+            onChange={set('remedyText')}
+            aria-invalid={Boolean(shown.remedyText)}
+            aria-describedby={describe('remedyText')}
+          />
+          {fieldError('remedyText')}
+        </label>
+      )}
+      {late && (
+        <label className="block">
+          Why are you reporting this more than 72 hours after finding it?
+          <textarea
+            className={field}
+            name="lateReason"
+            data-field="lateReason"
+            rows={3}
+            maxLength={500}
+            value={v.lateReason}
+            onChange={set('lateReason')}
+            aria-invalid={Boolean(shown.lateReason)}
+            aria-describedby={describe('lateReason')}
+          />
+          <span className="mt-1 block text-meta text-ink-600">
+            Late reports are still reviewed.
+          </span>
+          {fieldError('lateReason')}
+        </label>
+      )}
+      <label className="block">
+        What happened?
+        <textarea
+          className={field}
+          name="body"
+          data-field="body"
+          rows={5}
+          maxLength={2000}
+          value={v.body}
+          onChange={set('body')}
+          aria-invalid={Boolean(shown.body)}
+          aria-describedby={describe('body')}
+        />
+        {fieldError('body')}
+      </label>
+      <label className="block">
+        Photos (optional, up to 3 JPG, PNG or WebP, 2MB each)
+        <input
+          className={field}
+          type="file"
+          name="photos"
+          onChange={preparePhotoInput}
+          multiple
+          accept="image/jpeg,image/png,image/webp"
+        />
+      </label>
+      <p className="text-meta">
+        You do not need to contact the owner first. Reporting a problem does not cancel or refund
+        your booking. Do not send access codes, OTPs or payment details.
+      </p>
+      <button className={button} disabled={pending}>
+        {pending ? <RentraLoader label="Sending…" /> : 'Report problem'}
+      </button>
+      {state.error && !serverField && (
+        <p role="alert" className="text-danger">
+          {state.error} Your report has not been saved; your answers are kept.
+        </p>
+      )}
+      {serverField && (
+        <p role="alert" className="text-danger">
+          Check the highlighted answer. Your report has not been saved.
+        </p>
       )}
     </form>
   );
