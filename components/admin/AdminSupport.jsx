@@ -1,6 +1,7 @@
 import Form from '@/components/navigation/NavigationForm';
 import Link from '@/components/navigation/NavigationLink';
 import SupportManagement from './SupportManagement';
+import IncidentRemedyPanel from './IncidentRemedyPanel';
 import { randomUUID } from 'node:crypto';
 import { CalendarDays, Clock3, Inbox, LifeBuoy, MessageSquareText } from 'lucide-react';
 import { supportCategories, ownerSupportCategories, supportStates } from '@/lib/domain/help';
@@ -351,6 +352,12 @@ export function AdminSupportDetail({
           {canWrite && (
             <section className="rounded-md border border-border bg-card p-5">
               <SupportManagement key={record.version} record={record} />
+            </section>
+          )}
+          {record.remedy && (
+            <section className="rounded-md border border-border bg-card p-5">
+              <h2 className="mb-3 text-h4 font-bold">Remedy</h2>
+              <IncidentRemedyPanel caseId={record.id} remedy={record.remedy} />
             </section>
           )}
           {record.alerts?.length > 0 && (
