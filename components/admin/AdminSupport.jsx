@@ -4,7 +4,7 @@ import SupportManagement from './SupportManagement';
 import { randomUUID } from 'node:crypto';
 import { CalendarDays, Clock3, Inbox, LifeBuoy, MessageSquareText } from 'lucide-react';
 import { supportCategories, ownerSupportCategories, supportStates } from '@/lib/domain/help';
-import { SupportReplyForm } from '@/components/customer/SupportForms';
+import { AdminSupportComposer } from '@/components/customer/SupportForms';
 import {
   AdminEmpty,
   AdminTable,
@@ -265,7 +265,7 @@ export function AdminSupportDetail({
       />
       <p className="mt-4">
         Participants: {record.participant === 'client' ? 'Owner' : 'Customer'} and Rentra support.
-        Internal notes stay with admins.
+        Private notes stay with admins.
       </p>
       {record.context?.stayIssue && (
         <div className="mt-4">
@@ -319,12 +319,12 @@ export function AdminSupportDetail({
             {record.messages.map((message) => (
               <li
                 key={message.id}
-                className={`max-w-full break-words rounded-lg p-4 sm:max-w-[85%] ${message.author === 'Rentra support' ? 'ml-auto bg-brand-50' : 'border border-border bg-ink-25'}`}
+                className={`max-w-full break-words rounded-lg p-4 sm:max-w-[85%] ${message.internal ? 'ml-auto border border-dashed border-ink-300 bg-ink-25' : message.author === 'Rentra support' ? 'ml-auto bg-brand-50' : 'border border-border bg-ink-25'}`}
               >
                 <div className="flex flex-wrap justify-between gap-2">
                   <p className="text-tiny font-bold text-ink-900">
                     {message.author}
-                    {message.internal ? ' · Internal note — admins only' : ''}
+                    {message.internal ? ' · Private note' : ''}
                   </p>
                   <p className="text-tiny text-ink-500">{time(message.at)}</p>
                 </div>
@@ -407,24 +407,21 @@ export function AdminSupportDetail({
               </div>
             </dl>
           </section>
-          {canWrite && (
-            <section className="rounded-lg border border-border bg-card p-5 shadow-xs">
-              <h2 className="mb-4 text-h4 font-bold">Reply and update</h2>
-              {canWrite && (
-                <SupportReplyForm
-                  key={record.version}
-                  record={{
-                    id: record.id,
-                    version: record.version,
-                    participant: record.participant,
-                    from: listHref,
-                  }}
-                  requestKey={randomUUID()}
-                  admin
-                />
-              )}
-            </section>
-          )}
+          <section className="rounded-lg border border-border bg-card p-5 shadow-xs">
+            <h2 className="mb-4 text-h4 font-bold">Reply or note</h2>
+            <AdminSupportComposer
+              record={{
+                id: record.id,
+                version: record.version,
+                participant: record.participant,
+                from: listHref,
+              }}
+              replyKey={randomUUID()}
+              noteKey={randomUUID()}
+              canReply={canWrite && record.canReply !== false}
+              noteCount={record.messages.filter((m) => m.internal).length}
+            />
+          </section>
         </aside>
       </div>
     </AdminPage>

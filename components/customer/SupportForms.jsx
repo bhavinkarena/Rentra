@@ -4,11 +4,11 @@ import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import { buttonVariants as sharedButtonVariants } from '@/components/ui/button';
 import RentraLoader from '@/components/ui/rentra-loader';
 
-import { useActionState, useState, useTransition } from 'react';
+import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { openOwnerSupport, replyOwnerSupport } from '@/lib/actions/partner';
 import { useRouter } from 'next/navigation';
 import { openSupport, replyCustomerSupport } from '@/lib/actions/customer';
-import { replyAdminSupport } from '@/lib/actions/admin';
+import { noteAdminSupport, replyAdminSupport } from '@/lib/actions/admin';
 import { supportCategories, supportStates, ownerSupportCategories } from '@/lib/domain/help';
 import {
   ISSUE_LABELS,
@@ -141,21 +141,40 @@ export function OpenSupportForm({
     </form>
   );
 }
-export function SupportReplyForm({ record, requestKey, admin = false, owner = false }) {
+export function SupportReplyForm({
+  record,
+  requestKey,
+  admin = false,
+  owner = false,
+  note = false,
+}) {
   const participant =
     record.participant === 'client'
       ? 'owner'
-      : record.participant || (owner ? 'owner' : 'customer');
+      : admin
+        ? 'guest'
+        : record.participant || (owner ? 'owner' : 'customer');
   const [state, action, pending] = useActionState(
-    admin ? replyAdminSupport : owner ? replyOwnerSupport : replyCustomerSupport,
+    note
+      ? noteAdminSupport
+      : admin
+        ? replyAdminSupport
+        : owner
+          ? replyOwnerSupport
+          : replyCustomerSupport,
     {},
   );
   const router = useRouter();
   const [, startTransition] = useTransition();
-  const [internal, setInternal] = useState(false);
   const [key] = useState(requestKey),
     [body, setBody] = useState(''),
     [status, setStatus] = useState(admin ? 'in_progress' : 'open');
+  const bodyRef = useRef(null);
+  // Focus the text on any refusal; the typed text stays in state.
+  useEffect(() => {
+    if (state.error || state.errors) bodyRef.current?.focus();
+  }, [state]);
+  const label = note ? 'Private note' : 'Your reply';
   return (
     <form
       onSubmit={(event) => {
@@ -167,29 +186,25 @@ export function SupportReplyForm({ record, requestKey, admin = false, owner = fa
     >
       <input type="hidden" name="id" value={record.id} />
       {admin && <input type="hidden" name="from" value={record.from || '/admin/support'} />}
-      <input type="hidden" name="version" value={record.version} />
+      {!note && <input type="hidden" name="version" value={record.version} />}
       <input type="hidden" name="requestKey" value={key} />
-      {admin && (
-        <label className="block">
-          Visibility
-          <select
-            className={field}
-            name="internal"
-            value={String(internal)}
-            onChange={(e) => setInternal(e.target.value === 'true')}
-          >
-            <option value="false">Reply to {participant}</option>
-            <option value="true">Internal note — admins only</option>
-          </select>
-        </label>
-      )}
+      {note ? (
+        <p className="rounded-md bg-ink-25 p-3 text-meta font-semibold text-ink-900">
+          Only Rentra admins can see this. It never changes the case status.
+        </p>
+      ) : admin ? (
+        <p className="rounded-md bg-brand-50 p-3 text-meta font-semibold text-brand-700">
+          Posted to the {participant}&apos;s support case.
+        </p>
+      ) : null}
       <label className="block">
-        {internal ? 'Internal note' : 'Your reply'}
+        {label}
         <textarea
+          ref={bodyRef}
           className={field}
           name="body"
           value={body}
-          aria-label={internal ? 'Internal note' : 'Your reply'}
+          aria-label={label}
           onChange={(e) => setBody(e.target.value)}
           rows={5}
           required
@@ -197,25 +212,25 @@ export function SupportReplyForm({ record, requestKey, admin = false, owner = fa
           maxLength={5000}
         />
       </label>
-      <label className="block">
-        Status after this reply
-        <select
-          className={field}
-          name="state"
-          disabled={internal}
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-        >
-          {Object.entries(supportStates)
-            .filter(([k]) => admin || ['open', 'resolved'].includes(k))
-            .map(([key, label]) => (
-              <option key={key} value={key}>
-                {key === 'open' ? 'Open — needs support' : label}
-              </option>
-            ))}
-        </select>
-      </label>
-      {internal && <input type="hidden" name="state" value="open" />}
+      {!note && (
+        <label className="block">
+          Status after this reply
+          <select
+            className={field}
+            name="state"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+          >
+            {Object.entries(supportStates)
+              .filter(([k]) => admin || ['open', 'resolved'].includes(k))
+              .map(([key, label]) => (
+                <option key={key} value={key}>
+                  {key === 'open' ? 'Open — needs support' : label}
+                </option>
+              ))}
+          </select>
+        </label>
+      )}
       <label className="block">
         Private photos
         <input
@@ -232,17 +247,17 @@ export function SupportReplyForm({ record, requestKey, admin = false, owner = fa
         payment credentials.
       </p>
       <p className="text-meta">
-        {internal
+        {note
           ? 'This note and its photos are visible only to authorized Rentra admins.'
-          : `Replies and photos are visible to this ${participant} and authorized Rentra staff.`}{' '}
-        Resolving this conversation does not cancel, refund or change a booking, or complete a
-        privacy request.
+          : `Replies and photos are visible to this ${participant} and authorized Rentra staff. Resolving this conversation does not cancel, refund or change a booking, or complete a privacy request.`}
       </p>
       <button className={button} disabled={pending}>
         {pending ? (
           <RentraLoader label="Saving…" />
-        ) : internal ? (
-          'Save internal note'
+        ) : note ? (
+          'Save private note'
+        ) : admin ? (
+          `Send to ${participant}`
         ) : (
           'Save reply and status'
         )}
@@ -254,6 +269,59 @@ export function SupportReplyForm({ record, requestKey, admin = false, owner = fa
         </button>
       )}
     </form>
+  );
+}
+
+/**
+ * Story 4.3: admin composer with two audiences. Both panels stay mounted (hidden), so
+ * switching tabs keeps each draft. Admins without support write see only the note tab.
+ */
+export function AdminSupportComposer({ record, replyKey, noteKey, canReply, noteCount }) {
+  const [chosen, setTab] = useState('reply');
+  const tab = canReply ? chosen : 'note';
+  const participant = record.participant === 'client' ? 'owner' : 'guest';
+  const tabs = [
+    ...(canReply ? [['reply', `Reply to ${participant}`]] : []),
+    ['note', 'Private note'],
+  ];
+  return (
+    <div>
+      <div role="tablist" aria-label="Message audience" className="mb-4 flex gap-2 border-b">
+        {tabs.map(([id, text]) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            id={`support-tab-${id}`}
+            aria-controls={`support-panel-${id}`}
+            aria-selected={tab === id}
+            onClick={() => setTab(id)}
+            className={`-mb-px min-h-11 border-b-2 px-3 text-meta font-semibold ${tab === id ? 'border-brand-700 text-brand-700' : 'border-transparent text-ink-500'}`}
+          >
+            {text}
+          </button>
+        ))}
+      </div>
+      {canReply && (
+        <div
+          role="tabpanel"
+          id="support-panel-reply"
+          aria-labelledby="support-tab-reply"
+          hidden={tab !== 'reply'}
+        >
+          <SupportReplyForm key={record.version} record={record} requestKey={replyKey} admin />
+        </div>
+      )}
+      <div
+        role="tabpanel"
+        id="support-panel-note"
+        aria-labelledby="support-tab-note"
+        hidden={tab !== 'note'}
+        className="rounded-md border border-dashed border-ink-300 p-3"
+      >
+        <SupportReplyForm key={noteCount} record={record} requestKey={noteKey} admin note />
+      </div>
+    </div>
   );
 }
 
