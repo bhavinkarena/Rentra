@@ -24,7 +24,8 @@ import { diffRevisions } from '@/lib/domain/revision-diff';
 import { normalizePublicPhotos } from '@/lib/domain/listing-content';
 import { listingPath } from '@/lib/domain/listing-url';
 import { minuteToHhmm, WEEKDAYS } from '@/lib/domain/hourly';
-import { cotsLine, policyLine } from '@/lib/domain/hotel-ui';
+import { bedsLine, cotsLine, policyLine } from '@/lib/domain/hotel-ui';
+import { cleaningFeeLine } from '@/lib/domain/apartment';
 import { effectivePetPolicy, petPolicyLine } from '@/lib/domain/pet-policy';
 
 const tabs = [
@@ -407,6 +408,9 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
           </div>
           {listing.rentalUnit === 'hour' ? <VenueSubmission snap={snap} listing={listing} /> : null}
           {listing.rentalUnit === 'night' ? <HotelSubmission hotel={snap.hotel} /> : null}
+          {listing.rentalUnit === 'unit_night' ? (
+            <ApartmentSubmission apartment={snap.apartment} />
+          ) : null}
           <SectionCard title="Photos">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {photos.map((photo, i) => (
@@ -517,6 +521,7 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
               canDecide={canDecide}
               venue={data.current?.snapshot?.listing?.rentalUnit === 'hour'}
               hotel={data.current?.snapshot?.listing?.rentalUnit === 'night'}
+              apartment={data.current?.snapshot?.listing?.rentalUnit === 'unit_night'}
               writable={!historical && admin.capabilities.includes('admin.properties.write')}
             />
           ) : (
@@ -1048,5 +1053,46 @@ function HotelSubmission({ hotel }) {
         </ul>
       </SectionCard>
     </>
+  );
+}
+
+/* ------------------------------------------------------------------ whole apartments (Story 3.10) */
+
+/** The submitted apartment profile, read-only. */
+function ApartmentSubmission({ apartment: a }) {
+  if (!a) return null;
+  const rupees = (n) => (n == null ? '—' : `₹${n.toLocaleString('en-IN')}`);
+  const weekdays = Object.entries(a.arrivalRules?.weekdays ?? {});
+  const ranges = a.arrivalRules?.ranges ?? [];
+  const rows = [
+    ['Bedrooms · bathrooms', `${a.bedrooms} · ${a.bathrooms}`],
+    ['Beds', bedsLine(a.beds ?? []) || '—'],
+    ['Guests', `Up to ${a.maxOccupants} (max ${a.maxAdults} adults, ${a.maxChildren} children)`],
+    ['Nights', `${a.minNights} to ${a.maxNights}`],
+    [
+      'Arrival-day minimums',
+      weekdays.length ? weekdays.map(([d, n]) => `${d} ${n}`).join(', ') : 'None',
+    ],
+    [
+      'Date minimums',
+      ranges.length ? ranges.map((r) => `${r.from} to ${r.to}: ${r.minNights}`).join('; ') : 'None',
+    ],
+    ['Check-in · check-out', `${a.checkInTime ?? '—'} · ${a.checkOutTime ?? '—'}`],
+    ['Turnover', a.turnoverNights ? `${a.turnoverNights} night(s) after each stay` : 'None'],
+    ['Price per night', `${rupees(a.weekday)} weekday · ${rupees(a.weekend)} weekend`],
+    ['Weekend nights', (a.weekendNights ?? []).map((n) => NIGHT_NAMES[n]).join(', ')],
+    ['Cleaning fee', cleaningFeeLine(a.cleaningFee ?? 0)],
+  ];
+  return (
+    <SectionCard title="Apartment">
+      <dl className="grid gap-x-4 gap-y-2 text-meta sm:grid-cols-[12rem_1fr]">
+        {rows.map(([label, value]) => (
+          <div key={label} className="contents">
+            <dt className="font-semibold text-ink-700">{label}</dt>
+            <dd>{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </SectionCard>
   );
 }

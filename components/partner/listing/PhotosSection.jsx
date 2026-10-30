@@ -199,7 +199,9 @@ export function PhotosSection({ listing, photos = [], roomTypes = [] }) {
       intro={
         listing.rentalUnit === 'night'
           ? 'Add at least eight photos of the actual hotel: outside, lobby, every room type, a bathroom and dining. Choose a cover first.'
-          : 'Add at least six photos of the actual property. Choose a cover, then show the spaces guests will use.'
+          : listing.rentalUnit === 'unit_night'
+            ? 'Add at least eight photos of the actual apartment: every room, the kitchen, a bathroom and the view. Choose a cover first.'
+            : 'Add at least six photos of the actual property. Choose a cover, then show the spaces guests will use.'
       }
     >
       <p role="status" className="text-meta">

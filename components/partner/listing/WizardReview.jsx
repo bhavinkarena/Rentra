@@ -1,3 +1,4 @@
+import { APARTMENT_LIVE_SOON } from '@/lib/domain/apartment';
 import Link from '@/components/navigation/NavigationLink';
 import { Check, CircleAlert, Circle } from 'lucide-react';
 import { chaptersFor, stepHref } from '@/lib/domain/listing-steps';
@@ -32,6 +33,14 @@ export default function WizardReview({
           ? 'Have a last look, then send it to us. We check every property before it goes live, within 2 working days. The decision appears on your dashboard.'
           : 'A few things still need finishing. Tap any of them to go straight there.'}
       </p>
+      {model === 'apartment' ? (
+        <p
+          role="note"
+          className="mt-3 max-w-prose rounded-md bg-brand-50 p-3 text-meta text-ink-800"
+        >
+          {APARTMENT_LIVE_SOON}
+        </p>
+      ) : null}
 
       <Link
         href={`/partner/listings/${listingId}/preview`}

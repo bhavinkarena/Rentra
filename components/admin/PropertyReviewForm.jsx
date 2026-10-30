@@ -43,6 +43,19 @@ const HOTEL_SECTIONS = [
   'ownership',
   'gst',
 ];
+/** Whole apartments (Story 3.10): unit, stay rules and one nightly price. */
+const APARTMENT_SECTIONS = [
+  'basics',
+  'location',
+  'capacity',
+  'amenities',
+  'stay',
+  'rules',
+  'pricing',
+  'terms',
+  'photos',
+  'ownership',
+];
 const SECTION_LABEL = {
   stay: 'check-in and check-out',
   gst: 'GST',
@@ -60,8 +73,15 @@ export default function PropertyReviewForm({
   writable,
   venue = false,
   hotel = false,
+  apartment = false,
 }) {
-  const sections = hotel ? HOTEL_SECTIONS : venue ? VENUE_SECTIONS : SLOT_SECTIONS;
+  const sections = apartment
+    ? APARTMENT_SECTIONS
+    : hotel
+      ? HOTEL_SECTIONS
+      : venue
+        ? VENUE_SECTIONS
+        : SLOT_SECTIONS;
   const [state, action, pending] = useActionState(propertyReviewCommand, {});
   const [, startTransition] = useTransition();
   const [reason, setReason] = useState('');

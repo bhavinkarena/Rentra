@@ -49,29 +49,38 @@ export function RulesSection({ listing }) {
       <form id={formId} action={action} className="space-y-4">
         <input type="hidden" name="id" value={listing.id} />
         <VersionField listing={listing} states={[state]} />
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field
-            id="checkInFrom"
-            label="Check-in window"
-            hint="Filled from your Availability times. Widen it if guests can arrive earlier or later."
-            error={e.checkInFrom}
-          >
-            <Input
+        {/* Story 3.10: an apartment's times come from its Stay rules. */}
+        {listing.rentalUnit === 'unit_night' ? (
+          e.checkInFrom ? (
+            <p role="alert" className="text-meta font-medium text-danger">
+              {e.checkInFrom}
+            </p>
+          ) : null
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field
               id="checkInFrom"
-              name="checkInFrom"
-              defaultValue={listing.checkInFrom || slotWindow(listing, 'startTime')}
-              placeholder="9 AM to 7 PM"
-            />
-          </Field>
-          <Field id="checkOutBy" label="Check-out window" error={e.checkOutBy}>
-            <Input
-              id="checkOutBy"
-              name="checkOutBy"
-              defaultValue={listing.checkOutBy || slotWindow(listing, 'endTime')}
-              placeholder="8 AM to 6 PM"
-            />
-          </Field>
-        </div>
+              label="Check-in window"
+              hint="Filled from your Availability times. Widen it if guests can arrive earlier or later."
+              error={e.checkInFrom}
+            >
+              <Input
+                id="checkInFrom"
+                name="checkInFrom"
+                defaultValue={listing.checkInFrom || slotWindow(listing, 'startTime')}
+                placeholder="9 AM to 7 PM"
+              />
+            </Field>
+            <Field id="checkOutBy" label="Check-out window" error={e.checkOutBy}>
+              <Input
+                id="checkOutBy"
+                name="checkOutBy"
+                defaultValue={listing.checkOutBy || slotWindow(listing, 'endTime')}
+                placeholder="8 AM to 6 PM"
+              />
+            </Field>
+          </div>
+        )}
         <PetPolicyFields
           saved={listing.petPolicy ?? null}
           legacyAllowed={r.petsAllowed === true}

@@ -24,6 +24,9 @@ import {
   HotelStaySection,
   HotelRulesSection,
   HotelGstForm,
+  ApartmentUnitSection,
+  ApartmentStaySection,
+  ApartmentPriceSection,
   SubmitBar,
   ReviewFlags,
 } from '@/components/partner/listing/ListingSections';
@@ -72,6 +75,7 @@ export default async function ListingBuilderPage(props) {
 
   const venue = data.listing.rentalUnit === 'hour';
   const hotelListing = data.listing.rentalUnit === 'night';
+  const apartmentListing = data.listing.rentalUnit === 'unit_night';
   const hotel = data.hotel ?? { profile: null, roomTypes: [], ratePlans: [] };
   const vertical = data.listing.vertical;
   const [catalogue, categories, cities, calendar] = await Promise.all([
@@ -216,6 +220,11 @@ export default async function ListingBuilderPage(props) {
                 capacityWarnings={hotel.capacityWarnings}
                 profile={hotel.profile}
               />
+            ) : apartmentListing ? (
+              <>
+                <ApartmentUnitSection listing={listing} apartment={data.apartment} />
+                <ApartmentStaySection listing={listing} apartment={data.apartment} />
+              </>
             ) : (
               <CapacitySection listing={listing} />
             )}
@@ -239,7 +248,9 @@ export default async function ListingBuilderPage(props) {
             ) : (
               <RulesSection listing={listing} />
             )}
-            {hotelListing ? null : venue ? (
+            {hotelListing ? null : apartmentListing ? (
+              <ApartmentPriceSection listing={listing} apartment={data.apartment} />
+            ) : venue ? (
               <HourlyPricingSection
                 listing={listing}
                 hourlyRates={hourlyRates}

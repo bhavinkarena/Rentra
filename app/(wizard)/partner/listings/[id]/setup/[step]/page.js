@@ -38,6 +38,9 @@ import {
   HotelStaySection,
   HotelRulesSection,
   HotelGstForm,
+  ApartmentUnitSection,
+  ApartmentStaySection,
+  ApartmentPriceSection,
 } from '@/components/partner/listing/ListingSections';
 
 export const metadata = {
@@ -81,7 +84,7 @@ export default async function SetupStepPage({ params }) {
         ? partnerApi.categories(vertical)
         : stepId === 'location'
           ? partnerApi.places()
-          : stepId === 'availability' && model !== 'night'
+          : stepId === 'availability' && !['night', 'apartment'].includes(model)
             ? partnerApi.listingHours(id)
             : Promise.resolve(null),
   );
@@ -108,7 +111,10 @@ export default async function SetupStepPage({ params }) {
       ? referenceResult.data
       : null;
   const cities = stepId === 'location' ? referenceResult.data : null;
-  const calendar = stepId === 'availability' && model !== 'night' ? referenceResult.data : null;
+  const calendar =
+    stepId === 'availability' && !['night', 'apartment'].includes(model)
+      ? referenceResult.data
+      : null;
 
   const next = nextStepId(stepId, model);
   const prev = prevStepId(stepId, model);
@@ -160,7 +166,16 @@ export default async function SetupStepPage({ params }) {
       {stepId === 'space' && model === 'hour' ? (
         <VenueSection listing={listing} resources={resources} activities={categories} />
       ) : null}
-      {stepId === 'availability' && model !== 'night' ? (
+      {stepId === 'space' && model === 'apartment' ? (
+        <ApartmentUnitSection listing={listing} apartment={data.apartment} />
+      ) : null}
+      {stepId === 'availability' && model === 'apartment' ? (
+        <ApartmentStaySection listing={listing} apartment={data.apartment} />
+      ) : null}
+      {stepId === 'pricing' && model === 'apartment' ? (
+        <ApartmentPriceSection listing={listing} apartment={data.apartment} />
+      ) : null}
+      {stepId === 'availability' && !['night', 'apartment'].includes(model) ? (
         <AvailabilitySection listing={listing} calendar={calendar} prices={prices} />
       ) : null}
       {stepId === 'availability' && model === 'night' ? (

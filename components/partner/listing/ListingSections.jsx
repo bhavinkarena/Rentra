@@ -22,3 +22,9 @@ export {
   HotelRulesSection,
   HotelGstForm,
 } from './HotelSections';
+// Whole apartments (Story 3.10).
+export {
+  ApartmentUnitSection,
+  ApartmentStaySection,
+  ApartmentPriceSection,
+} from './ApartmentSections';
