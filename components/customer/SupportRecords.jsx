@@ -9,7 +9,9 @@ import {
   supportStates,
   ownerSupportCategories,
   ownerSupportStates,
+  supportContact,
 } from '@/lib/domain/help';
+import { issuePriority } from '@/lib/domain/stay-issue';
 import { SupportReplyForm } from './SupportForms';
 import { ChevronRight, MessageSquare, Plus } from 'lucide-react';
 import OwnerContactStrip from '@/components/partner/OwnerContactStrip';
@@ -169,6 +171,51 @@ export function SupportList({ data, admin = false, owner = false }) {
     </section>
   );
 }
+/** Story 4.2: truthful next steps for an urgent stay issue — only configured contacts, never 24/7. */
+function UrgentContacts() {
+  const contact = supportContact();
+  const item = 'inline-flex min-h-11 items-center font-semibold underline';
+  return (
+    <section
+      aria-label="Urgent issue contacts"
+      className="space-y-2 rounded-lg border border-danger/40 bg-danger-bg p-4 text-meta text-ink-800"
+    >
+      <p className="font-semibold">Marked urgent. A person will reply within 12 hours.</p>
+      {(contact.phone || contact.whatsapp || contact.email) && (
+        <p className="flex flex-wrap items-center gap-x-4">
+          {contact.phone && (
+            <a className={item} href={`tel:${contact.phone}`}>
+              Call {contact.phone}
+            </a>
+          )}
+          {contact.whatsapp && (
+            <a
+              className={item}
+              href={`https://wa.me/${contact.whatsapp}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              WhatsApp
+            </a>
+          )}
+          {contact.email && (
+            <a className={item} href={`mailto:${contact.email}`}>
+              {contact.email}
+            </a>
+          )}
+          {contact.hours && <span>{contact.hours}</span>}
+        </p>
+      )}
+      <p>
+        In an emergency, call{' '}
+        <a className={item} href="tel:112">
+          112
+        </a>
+        .
+      </p>
+    </section>
+  );
+}
 export function SupportDetail({ record, admin = false, owner = false }) {
   const states = owner ? ownerSupportStates : supportStates;
   const categories = owner ? ownerSupportCategories : supportCategories;
@@ -190,6 +237,10 @@ export function SupportDetail({ record, admin = false, owner = false }) {
           your booking. Reference {record.reference}.
         </p>
       )}
+      {record.category === 'stay_issue' &&
+        record.state !== 'resolved' &&
+        !admin &&
+        issuePriority(record.context?.stayIssue?.issueType) === 'urgent' && <UrgentContacts />}
       <StayIssueSummary issue={record.context?.stayIssue} />
       <section className="space-y-1 rounded-lg border border-border bg-card p-4 text-meta text-ink-700 sm:p-5">
         <h2 className="mb-2 font-semibold text-ink-900">Request context</h2>

@@ -35,7 +35,11 @@ export default function ReviewerAlerts({ alerts }) {
           >
             <div className="min-w-0">
               <Link
-                href={`/admin/properties/${alert.propertyId}`}
+                href={
+                  alert.supportRequestId
+                    ? `/admin/support/${alert.supportRequestId}`
+                    : `/admin/properties/${alert.propertyId}`
+                }
                 className="font-semibold underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
               >
                 {alert.title}

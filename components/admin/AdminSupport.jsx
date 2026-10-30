@@ -20,6 +20,36 @@ import { StayIssueSummary, LateBadge } from '@/components/customer/StayIssueSumm
 
 import { adminDateTime as time } from '@/lib/domain/admin-display';
 const categories = { ...supportCategories, ...ownerSupportCategories };
+const VIEWS = {
+  all: 'All cases',
+  urgent: 'Urgent',
+  aged: 'No reply 12 h+',
+  unassigned: 'Unassigned',
+  failed_delivery: 'Alert email failed',
+};
+const EMAIL = {
+  pending: 'Email queued',
+  retry: 'Email retrying',
+  sending: 'Email sending',
+  sent: 'Email sent',
+  blocked: 'Email blocked',
+  failed: 'Email failed',
+};
+/** Story 4.2: whole hours a case has waited without a public reply, or null when not aged. */
+const agedHours = (r) =>
+  r.state === 'resolved' || r.firstResponseAt || !r.createdAt
+    ? null
+    : ((h) => (h >= 12 ? h : null))(Math.floor((Date.now() - new Date(r.createdAt)) / 3_600_000));
+function ResponseBadges({ request }) {
+  const hours = agedHours(request);
+  return (
+    <span className="mt-1 flex flex-wrap gap-1.5">
+      {request.priority === 'urgent' && <StatusBadge tone="danger">Urgent</StatusBadge>}
+      {hours != null && <StatusBadge tone="warning">Aged {hours}h</StatusBadge>}
+      {request.alertFailed && <StatusBadge tone="danger">Alert email failed</StatusBadge>}
+    </span>
+  );
+}
 const stateTone = (state) =>
   state === 'resolved'
     ? 'success'
@@ -30,7 +60,7 @@ const stateTone = (state) =>
         : 'danger';
 
 export function AdminSupportList({ data }) {
-  const listHref = `/admin/support?state=${encodeURIComponent(data.state)}&participant=${data.participant}&assignment=${data.assignment}&page=${data.page}`;
+  const listHref = `/admin/support?state=${encodeURIComponent(data.state)}&participant=${data.participant}&assignment=${data.assignment}&view=${data.view}&page=${data.page}`;
   const open = data.items.filter((item) => item.state === 'open').length;
   const waiting = data.items.filter((item) => item.state === 'waiting_customer').length;
   return (
@@ -93,6 +123,20 @@ export function AdminSupportList({ data }) {
               </select>
             </label>
             <label className="text-tiny font-semibold">
+              View
+              <select
+                className="ml-2 min-h-11 rounded-md border p-2 text-base md:text-sm bg-card text-foreground"
+                name="view"
+                defaultValue={data.view}
+              >
+                {Object.entries(VIEWS).map(([value, text]) => (
+                  <option key={value} value={value}>
+                    {text}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-tiny font-semibold">
               Participant
               <select
                 className="ml-2 min-h-11 rounded-md border p-2 text-base md:text-sm bg-card text-foreground"
@@ -116,7 +160,7 @@ export function AdminSupportList({ data }) {
                 <option value="unassigned">Unassigned</option>
               </select>
             </label>
-            <button className="min-h-10 rounded-md bg-primary px-4 text-tiny font-semibold text-white">
+            <button className="min-h-11 rounded-md bg-primary px-4 text-tiny font-semibold text-white">
               Filter
             </button>
           </Form>
@@ -140,6 +184,12 @@ export function AdminSupportList({ data }) {
               <td className="px-5 py-4">
                 <p className="font-semibold text-ink-900">
                   {request.subject} {request.late && <LateBadge />}
+                </p>
+                <ResponseBadges request={request} />
+                <p className="text-tiny text-ink-600">
+                  {request.firstResponseAt
+                    ? `First reply ${time(request.firstResponseAt)}`
+                    : 'No reply yet'}
                 </p>
                 <p className="text-tiny">
                   {request.participant === 'client' ? 'Owner' : 'Customer'} · {request.priority}
@@ -202,6 +252,11 @@ export function AdminSupportDetail({
           record.updatedAt
             ? { icon: Clock3, label: 'Updated', value: time(record.updatedAt) }
             : null,
+          {
+            icon: Clock3,
+            label: 'First reply',
+            value: record.firstResponseAt ? time(record.firstResponseAt) : 'No reply yet',
+          },
           {
             icon: MessageSquareText,
             value: `${record.messages.length} message${record.messages.length === 1 ? '' : 's'}`,
@@ -296,6 +351,20 @@ export function AdminSupportDetail({
           {canWrite && (
             <section className="rounded-md border border-border bg-card p-5">
               <SupportManagement key={record.version} record={record} />
+            </section>
+          )}
+          {record.alerts?.length > 0 && (
+            <section className="rounded-md border border-border bg-card p-4">
+              <h2 className="text-h4 font-bold">Alert delivery</h2>
+              <ul className="mt-2 space-y-2 text-tiny">
+                {record.alerts.map((a) => (
+                  <li key={a.id}>
+                    {a.kind === 'support_urgent' ? 'Urgent' : 'No reply'} · {a.admin} ·{' '}
+                    {EMAIL[a.emailState] ?? a.emailState}
+                    {a.emailFailure ? ` (${a.emailFailure})` : ''} · {time(a.at)}
+                  </li>
+                ))}
+              </ul>
             </section>
           )}
           <details className="rounded-md border border-border p-4">
