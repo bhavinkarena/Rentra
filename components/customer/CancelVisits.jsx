@@ -40,7 +40,10 @@ export default function CancelVisits({ record }) {
   const [rooms, setRooms] = useState(() => bookedRooms.map((room) => room.id));
   const roomPick = bookedRooms.length > 1;
   const roomIds =
-    departing || (roomPick && rooms.length < bookedRooms.length) ? { roomIds: rooms } : {};
+    // Story 3.11: a whole apartment has no rooms; its stay ends early as one unit.
+    (departing && bookedRooms.length) || (roomPick && rooms.length < bookedRooms.length)
+      ? { roomIds: rooms }
+      : {};
   const action = departing ? { operation } : {};
   const request = useRef(null),
     gate = useRef(false);

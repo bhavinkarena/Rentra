@@ -66,8 +66,10 @@ export default async function VoucherPage({ params }) {
         <div>
           <dt className="text-ink-600">Stay</dt>
           <dd className="font-semibold">
-            {stay.nights} night{stay.nights === 1 ? '' : 's'} · {rooms.length} room
-            {rooms.length === 1 ? '' : 's'}
+            {stay.nights} night{stay.nights === 1 ? '' : 's'} ·{' '}
+            {stay.apartment
+              ? `whole apartment · ${d.guestNames?.[0] ?? 'Guest'}`
+              : `${rooms.length} room${rooms.length === 1 ? '' : 's'}`}
           </dd>
         </div>
       </dl>
@@ -114,14 +116,24 @@ export default async function VoucherPage({ params }) {
       </div>
       <dl className="ml-auto max-w-xs space-y-1 tabular">
         {[
-          ['Rooms', stay.roomMinor],
-          ['Taxes', stay.taxMinor],
+          // Story 3.11: an apartment's nights, cleaning and pet rows as accepted.
+          ...(stay.apartment
+            ? [
+                ...stay.apartment.nightly.map((n) => [`Night of ${n.night}`, n.rateMinor]),
+                ['Cleaning fee', stay.apartment.cleaningMinor],
+                ...(stay.apartment.petMinor ? [['Pet fee', stay.apartment.petMinor]] : []),
+                ['Service fee', record.feeMinor],
+              ]
+            : [
+                ['Rooms', stay.roomMinor],
+                ['Taxes', stay.taxMinor],
+              ]),
           ['Booking total', totalPrice(record)],
           [paidLabel ? `Paid (${paidLabel})` : 'Paid', paid],
-        ].map(([label, value], index) => (
+        ].map(([label, value]) => (
           <div
             key={label}
-            className={`flex justify-between gap-4 ${index > 1 ? 'font-semibold' : ''}`}
+            className={`flex justify-between gap-4 ${label === 'Booking total' || label.startsWith('Paid') ? 'font-semibold' : ''}`}
           >
             <dt>{label}</dt>
             <dd>{money(value)}</dd>

@@ -18,20 +18,22 @@ const arrivalLabel = (value) =>
  */
 export default function StayGuestForm({ quote, value, onChange }) {
   const [gst, setGst] = useState(Boolean(value.gstin));
-  const rooms = quote.visits[0]?.rooms ?? [];
+  // Story 3.11: a whole apartment has one lead guest.
+  const apartment = quote.selection.kind === 'apartment';
+  const rooms = apartment ? [{ name: 'Lead guest' }] : (quote.visits[0]?.rooms ?? []);
   const set = (field, next) => onChange({ ...value, [field]: next });
   return (
     <div className="mt-5 space-y-5">
       <fieldset>
         <legend className="flex items-center gap-2 text-sm font-semibold">
           <BedDouble className="size-4 text-brand-700" aria-hidden="true" />
-          Guest name for each room
+          {apartment ? 'Lead guest name' : 'Guest name for each room'}
         </legend>
         <p className="mt-1 text-xs text-ink-600">As on the photo ID shown at check-in.</p>
         <div className="mt-2 grid gap-3 sm:grid-cols-2">
           {rooms.map((room, index) => (
             <label key={index} className="text-xs font-semibold text-ink-700">
-              Room {index + 1} · {room.name}
+              {apartment ? 'Full name' : `Room ${index + 1} · ${room.name}`}
               <input
                 required
                 minLength={2}

@@ -7,6 +7,7 @@ import { publicPhotoUrl } from '@/lib/domain/listing-content';
 import PortalState from '@/components/portal/PortalState';
 import PortfolioCalendar from '@/components/partner/PortfolioCalendar';
 import HotelRatesCalendar from '@/components/partner/HotelRatesCalendar';
+import ApartmentCalendar from '@/components/partner/ApartmentCalendar';
 import ListingStatusBadge from '@/components/partner/ListingStatusBadge';
 import PortalPage from '@/components/portal/PortalPage';
 import Pagination from '@/components/ui/pagination';
@@ -70,6 +71,16 @@ export default async function CalendarPage({ searchParams }) {
         partnerApi.hotelAri(propertyId, {
           from: isLocalDate(query.from) ? query.from : propertyToday(),
           days: 14,
+        }),
+      )
+    : null;
+  // Story 3.11: a whole apartment's nights, with block and unblock.
+  const apartment = calendar?.data?.items?.[0]?.rentalUnit === 'unit_night';
+  const apartmentNights = apartment
+    ? await settle(
+        partnerApi.apartmentCalendar(propertyId, {
+          from: isLocalDate(query.from) ? query.from : propertyToday(),
+          days: 42,
         }),
       )
     : null;
@@ -282,7 +293,17 @@ export default async function CalendarPage({ searchParams }) {
                   </Link>
                 </div>
               </div>
-              {calendar?.failure ? (
+              {apartment ? (
+                apartmentNights.failure ? (
+                  <PortalState kind={apartmentNights.failure} />
+                ) : (
+                  <ApartmentCalendar
+                    propertyId={propertyId}
+                    data={apartmentNights.data}
+                    baseHref={href({ property: propertyId })}
+                  />
+                )
+              ) : calendar?.failure ? (
                 <PortalState kind={calendar.failure} />
               ) : !calendar?.data?.items?.length ? (
                 <div className="rounded-lg border border-border bg-card p-6">

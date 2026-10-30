@@ -52,6 +52,8 @@ import {
 } from '@/components/rentra/listing/VenueSections';
 import { siteUrl } from '@/lib/seo/site-url';
 import HotelRooms from '@/components/rentra/hotels/HotelRooms';
+import ApartmentBooking from '@/components/rentra/listing/ApartmentBooking';
+import { cleaningFeeLine } from '@/lib/domain/apartment';
 import { preconnect } from 'react-dom';
 import { API_URL } from '@/lib/api/config';
 import {
@@ -77,6 +79,8 @@ function pickDefaults({ prices }) {
 
 export function ListingDetail({ listing, preview = false }) {
   if (listing.rentalUnit === 'hour') return <VenueListing listing={listing} preview={preview} />;
+  if (listing.rentalUnit === 'unit_night')
+    return <ApartmentListing listing={listing} preview={preview} />;
   if (listing.vertical === 'hotel') return <HotelListing listing={listing} preview={preview} />;
 
   // First paint must not wait for the inventory transaction. The calendar
@@ -536,6 +540,87 @@ export function hotelMetadata(listing) {
  * rooms with live rates, amenities, policies, reviews, location with nearby
  * landmarks. Rooms are priced in the browser from the API for the guest's stay.
  */
+/** Story 3.11: a whole apartment: the unit's facts left, the dated booking panel right. */
+function ApartmentListing({ listing, preview = false }) {
+  const shareUrl = listingUrl(siteUrl, listing.slug, listing.publicCode);
+  const a = listing.apartment;
+  const crumbs = [
+    { name: 'Home', href: '/' },
+    { name: listing.cityName, href: `/${listing.citySlug}/${listing.categorySlug}` },
+    { name: listing.title },
+  ];
+  const facts = a
+    ? [
+        `${a.bedrooms} bedroom${a.bedrooms === 1 ? '' : 's'}`,
+        `${a.bathrooms} bathroom${a.bathrooms === 1 ? '' : 's'}`,
+        `Up to ${a.maxOccupants} guests`,
+        `Check-in ${a.checkInTime} · check-out ${a.checkOutTime}`,
+        a.minNights > 1 ? `Minimum ${a.minNights} nights` : 'From 1 night',
+        cleaningFeeLine(a.cleaningFee),
+      ]
+    : [];
+  return (
+    <>
+      {!preview && <MeasuredView event="listing_viewed" />}
+      <div className="mx-auto max-w-(--container-page) px-4 py-6 sm:px-6">
+        <Breadcrumbs crumbs={crumbs} />
+        <div className="mt-4">
+          <PhotoGallery photos={listing.photos} title={listing.title} />
+        </div>
+        <div className="mt-8 grid items-start gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,1fr)_380px]">
+          <div className="min-w-0">
+            <ListingHeader listing={listing} shareUrl={shareUrl} fromText="" preview={preview} />
+            <ul className="mt-6 grid gap-2 text-meta text-ink-800 sm:grid-cols-2">
+              {facts.map((fact) => (
+                <li key={fact} className="rounded-lg bg-brand-50 px-3 py-2">
+                  {fact}
+                </li>
+              ))}
+            </ul>
+            {listing.description ? (
+              <Section id="about" title="About this apartment" className="mt-10">
+                <p className="max-w-prose text-body whitespace-pre-line [overflow-wrap:anywhere] text-ink-700">
+                  {listing.description}
+                </p>
+              </Section>
+            ) : null}
+            <Section id="amenities" title="What this apartment has" className="mt-10">
+              <AmenityGrid amenities={listing.amenities} />
+            </Section>
+            <Section id="rules" title="House rules" className="mt-10">
+              <HouseRules listing={listing} />
+            </Section>
+            <Section id="reviews" title="Reviews" className="mt-10">
+              <Reviews listing={listing} />
+            </Section>
+          </div>
+          <aside className="lg:sticky lg:top-20">
+            {preview || !a ? (
+              <p className="rounded-md border bg-card p-4 text-meta">
+                {preview
+                  ? 'Booking is disabled in this preview.'
+                  : 'This apartment is not taking bookings yet.'}
+              </p>
+            ) : (
+              <Suspense fallback={null}>
+                <ApartmentBooking rentableId={listing.id} apartment={a} />
+              </Suspense>
+            )}
+          </aside>
+        </div>
+        <Section id="location" title="Location" className="mt-12">
+          <LocationMap
+            areaName={listing.areaName}
+            cityName={listing.cityName}
+            center={listing.approximateLocation}
+            exact={false}
+          />
+        </Section>
+      </div>
+    </>
+  );
+}
+
 function HotelListing({ listing, preview = false }) {
   const shareUrl = listingUrl(siteUrl, listing.slug, listing.publicCode);
   const crumbs = [

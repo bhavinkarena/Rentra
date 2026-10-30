@@ -293,7 +293,12 @@ export default function HotelRooms({ code, rentableId, roomTypes, railId, fromPr
 }
 
 /** Dates and party; Apply rewrites the URL so the page, the back button and a shared link agree. */
-function StayForm({ filters, onApply }) {
+/**
+ * `apartment` (Story 3.11: { maxAdults, maxChildren, maxNights }) turns this into the whole-apartment form:
+ * no rooms, the apartment's own guest limits and up to its maximum nights.
+ */
+export function StayForm({ filters, onApply, apartment = null }) {
+  const maxNights = apartment?.maxNights ?? MAX_NIGHTS;
   const today = propertyToday();
   const lastDate = addLocalDays(today, 365);
   const [stay, setStay] = useState(filters.checkin ? [filters.checkin, filters.checkout] : []);
@@ -315,7 +320,7 @@ function StayForm({ filters, onApply }) {
     const query = new URLSearchParams({
       checkin: from,
       checkout: to,
-      rooms: String(next.rooms ?? rooms),
+      ...(apartment ? {} : { rooms: String(next.rooms ?? rooms) }),
       adults: String(next.adults ?? adults),
     });
     if (childAges.length) query.set('children', childAges.join(','));
@@ -411,7 +416,7 @@ function StayForm({ filters, onApply }) {
               </button>
               <p className="px-2 text-center text-tiny text-ink-600" aria-live="polite">
                 {stay.length === 1
-                  ? `Choose check-out (up to ${MAX_NIGHTS} nights)`
+                  ? `Choose check-out (up to ${maxNights} nights)`
                   : 'Choose your check-in date'}
               </p>
               <button
@@ -433,7 +438,7 @@ function StayForm({ filters, onApply }) {
                     lastDate={stay.length === 1 ? addLocalDays(lastDate, 1) : lastDate}
                     dates={stay}
                     mode="consecutive"
-                    maxSpan={MAX_NIGHTS}
+                    maxSpan={maxNights}
                     onSelect={selectNight}
                     hoverDate={hoverDate}
                     onPreview={setHoverDate}
@@ -466,13 +471,18 @@ function StayForm({ filters, onApply }) {
         }}
       >
         <Popover.Trigger
-          aria-label={`Rooms and guests: ${rooms} room${rooms === 1 ? '' : 's'}, ${guests} guests`}
+          aria-label={
+            apartment
+              ? `Guests: ${guests} guests`
+              : `Rooms and guests: ${rooms} room${rooms === 1 ? '' : 's'}, ${guests} guests`
+          }
           className="flex min-h-14 w-full items-center justify-between rounded-b-xl border-t border-ink-300 px-4 py-2.5 text-left hover:bg-brand-50"
         >
           <span>
-            <span className={cell}>Rooms &amp; guests</span>
+            <span className={cell}>{apartment ? 'Guests' : 'Rooms & guests'}</span>
             <span className="mt-0.5 block text-sm">
-              {rooms} room{rooms === 1 ? '' : 's'} · {adults} adult{adults === 1 ? '' : 's'}
+              {apartment ? '' : `${rooms} room${rooms === 1 ? '' : 's'} · `}
+              {adults} adult{adults === 1 ? '' : 's'}
               {ages.length ? ` · ${ages.length} child${ages.length === 1 ? '' : 'ren'}` : ''}
               {pets ? ` · ${pets} pet${pets === 1 ? '' : 's'}` : ''}
             </span>
@@ -484,19 +494,28 @@ function StayForm({ filters, onApply }) {
             align="end"
             sideOffset={8}
             collisionPadding={16}
-            aria-label="Select rooms and guests"
+            aria-label={apartment ? 'Select guests' : 'Select rooms and guests'}
             className="z-[70] w-[var(--radix-popover-trigger-width)] min-w-72 max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-card p-5 shadow-xl"
           >
-            {counter('Rooms', rooms, 1, MAX_ROOMS, (value) => {
-              setRooms(value);
-              if (adults < value) setAdults(value);
-            })}
-            {counter('Adults', adults, rooms, rooms * 6, setAdults, 'Age 18 or over')}
+            {apartment
+              ? null
+              : counter('Rooms', rooms, 1, MAX_ROOMS, (value) => {
+                  setRooms(value);
+                  if (adults < value) setAdults(value);
+                })}
+            {counter(
+              'Adults',
+              adults,
+              apartment ? 1 : rooms,
+              apartment ? apartment.maxAdults : rooms * 6,
+              setAdults,
+              'Age 18 or over',
+            )}
             {counter(
               'Children',
               ages.length,
               0,
-              rooms * 4,
+              apartment ? apartment.maxChildren : rooms * 4,
               (value) => setAges(value > ages.length ? [...ages, ''] : ages.slice(0, value)),
               'Age 0–17',
             )}

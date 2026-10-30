@@ -67,6 +67,7 @@ import {
   StayFacts,
   isHourly,
   isStay,
+  isApartment,
   Stepper,
   SummaryCard,
   TermsVersion,
@@ -99,6 +100,8 @@ const errors = {
   PETS_UNCONFIRMED: 'Confirm your pets meet this stay’s pet rules before you pay.',
   PETS_NOT_ALLOWED: 'This stay doesn’t allow pets. Return to your dates and set pets to 0.',
   PETS_OVER_LIMIT: 'Too many pets for this stay. Return to your dates and lower the pet count.',
+  // Story 3.11: another guest held these apartment dates first.
+  DATES_UNAVAILABLE: 'These dates were just taken. Return to your dates and choose another.',
   PETS_INVALID: 'Choose 0–5 pets. Return to your dates to fix the pet count.',
 };
 const STAGES = {
@@ -210,10 +213,11 @@ export default function Checkout({ data }) {
   // Request to book: the owner accepts before the guest can pay (instant book otherwise).
   const request = checkout ? Boolean(checkout.approval) : data.instantBook === false;
   const [purpose, setPurpose] = useState(data.purpose ?? '');
-  const stayCheckout = isStay(quote);
+  // Story 3.11: apartments collect the lead guest like a hotel stay.
+  const stayCheckout = isStay(quote) || isApartment(quote);
   // Hotel stays: one guest name per room (the first defaults to the account name), arrival, requests, GST.
   const [guests, setGuests] = useState(() => ({
-    guestNames: (quote.visits[0]?.rooms ?? []).map((_, index) =>
+    guestNames: (isApartment(quote) ? [{}] : (quote.visits[0]?.rooms ?? [])).map((_, index) =>
       index === 0 ? (contact.name ?? '') : '',
     ),
     arrivalTime: '',
@@ -728,7 +732,7 @@ export default function Checkout({ data }) {
             <CancellationPolicy quote={quote} now={serverNow} />
           </Section>
 
-          {stayCheckout ? (
+          {isStay(quote) ? (
             <Section icon={ScrollText} title="Hotel policies">
               <p className="text-sm text-ink-700">
                 Check-in and ID rules, couples, children and pets are on the{' '}

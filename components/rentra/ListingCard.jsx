@@ -178,11 +178,16 @@ function HotelFacts({ listing }) {
   ].filter(Boolean);
   return (
     <div className="mt-1.5 space-y-1 text-tiny text-ink-700">
-      {offer ? (
+      {offer || listing.rentalUnit === 'unit_night' ? (
         <p className="flex items-center gap-1.5">
           <BedDouble className="size-3.5 shrink-0 text-brand-600" aria-hidden="true" />
-          <span className="truncate">{offer.roomTypeName}</span>
-          {offer.meals ? (
+          <span className="truncate">
+            {/* Story 3.11: a whole apartment says what the guest gets, not a room type. */}
+            {listing.rentalUnit === 'unit_night'
+              ? `Whole apartment · ${listing.bedrooms} bedroom${listing.bedrooms === 1 ? '' : 's'}`
+              : offer.roomTypeName}
+          </span>
+          {offer?.meals ? (
             <>
               <Coffee className="ml-1 size-3.5 shrink-0 text-brand-600" aria-hidden="true" />
               <span className="truncate">{offer.meals}</span>

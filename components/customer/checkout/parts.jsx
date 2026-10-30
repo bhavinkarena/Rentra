@@ -53,6 +53,10 @@ const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
 export const isHourly = (quote) => quote.selection.kind === 'hourly';
 /** Hotel stay (hotel plan, Phase 7): check-in to check-out, rooms with their own rates. */
 export const isStay = (quote) => quote.selection.kind === 'stay';
+/** Story 3.11: a whole apartment, one unit for the dates. */
+export const isApartment = (quote) => quote.selection.kind === 'apartment';
+const apartmentGuests = (a) =>
+  `${plural(a.adults, 'adult')}${a.childAges?.length ? `, ${a.childAges.length} ${a.childAges.length === 1 ? 'child' : 'children'}` : ''}`;
 const MEALS = { EP: 'Room only', CP: 'Breakfast', MP: 'Breakfast + 1 meal', AP: 'All meals' };
 const stayGuests = (quote) => {
   const rooms = quote.visits[0]?.rooms ?? [];
@@ -204,7 +208,7 @@ function courtFact(quote) {
 export function StayFacts({ quote, row = false, className = '' }) {
   const SlotIcon = SLOT_ICONS[quote.selection.slot] ?? Clock;
   const visit = quote.visits[0] ?? {};
-  const rows = isStay(quote)
+  const rows = isApartment(quote)
     ? [
         [
           CalendarDays,
@@ -218,36 +222,58 @@ export function StayFacts({ quote, row = false, className = '' }) {
           shortDay(visit.endsAt, quote.timeZone),
           `By ${clockTime(visit.endsAt, quote.timeZone)} · ${plural(visit.nights ?? 1, 'night')}`,
         ],
+        [BedDouble, 'Stay', 'Whole apartment', 'Only your party'],
         [
-          BedDouble,
-          'Rooms',
-          plural(visit.rooms?.length ?? 1, 'room'),
-          stayRoomLines(quote).join(' · '),
+          Users,
+          'Guests',
+          apartmentGuests(visit.apartment ?? { adults: 1 }),
+          quote.policy?.pets ? plural(quote.policy.pets.count, 'pet') : 'No pets',
         ],
-        [Users, 'Guests', stayGuests(quote), 'across all rooms'],
       ]
-    : isHourly(quote)
+    : isStay(quote)
       ? [
-          [CalendarDays, 'Date', visitDates(quote), hours(quote.selection.durationMinutes)],
-          [Clock, 'Time', visitHours(quote), 'India time'],
-          [LayoutGrid, 'Court', ...courtFact(quote)],
           [
-            Dumbbell,
-            'Activity',
-            quote.visits[0]?.activity?.name ?? 'Activity',
-            plural(quote.selection.guests, 'player'),
+            CalendarDays,
+            'Check-in',
+            shortDay(visit.startsAt, quote.timeZone),
+            `From ${clockTime(visit.startsAt, quote.timeZone)}`,
           ],
+          [
+            CalendarDays,
+            'Check-out',
+            shortDay(visit.endsAt, quote.timeZone),
+            `By ${clockTime(visit.endsAt, quote.timeZone)} · ${plural(visit.nights ?? 1, 'night')}`,
+          ],
+          [
+            BedDouble,
+            'Rooms',
+            plural(visit.rooms?.length ?? 1, 'room'),
+            stayRoomLines(quote).join(' · '),
+          ],
+          [Users, 'Guests', stayGuests(quote), 'across all rooms'],
         ]
-      : [
-          [CalendarDays, 'Dates', visitDates(quote), plural(quote.visits.length, 'visit')],
-          [
-            SlotIcon,
-            'Visit type',
-            SLOTS[quote.selection.slot]?.label ?? 'Visit',
-            visitHours(quote),
-          ],
-          [Users, 'Guests', plural(quote.selection.guests, 'guest'), 'per visit'],
-        ];
+      : isHourly(quote)
+        ? [
+            [CalendarDays, 'Date', visitDates(quote), hours(quote.selection.durationMinutes)],
+            [Clock, 'Time', visitHours(quote), 'India time'],
+            [LayoutGrid, 'Court', ...courtFact(quote)],
+            [
+              Dumbbell,
+              'Activity',
+              quote.visits[0]?.activity?.name ?? 'Activity',
+              plural(quote.selection.guests, 'player'),
+            ],
+          ]
+        : [
+            [CalendarDays, 'Dates', visitDates(quote), plural(quote.visits.length, 'visit')],
+            [
+              SlotIcon,
+              'Visit type',
+              SLOTS[quote.selection.slot]?.label ?? 'Visit',
+              visitHours(quote),
+            ],
+            [Users, 'Guests', plural(quote.selection.guests, 'guest'), 'per visit'],
+          ];
   return (
     <dl
       className={`${row ? `grid gap-3 ${rows.length > 3 ? 'sm:grid-cols-2' : 'sm:grid-cols-3'} sm:gap-4` : 'space-y-3'} ${className}`}
@@ -285,6 +311,41 @@ function Line({ label, value, strong = false, className = '' }) {
 export function PriceDetails({ quote, paid = false, titled = true }) {
   const { totals, payment } = quote;
   const later = payment.remainingMinor > 0;
+  if (isApartment(quote)) {
+    const visit = quote.visits[0] ?? {};
+    const a = visit.apartment ?? { nightly: [] };
+    return (
+      <div>
+        {titled ? <h3 className="mb-3 text-sm font-semibold text-ink-900">Price details</h3> : null}
+        <dl className="space-y-2 text-sm text-ink-700">
+          {a.nightly.map((night) => (
+            <Line
+              key={night.night}
+              label={`Night of ${shortDay(`${night.night}T12:00:00+05:30`, quote.timeZone)}`}
+              value={money(night.rateMinor)}
+            />
+          ))}
+          <Line label="Cleaning fee" value={a.cleaningMinor ? money(a.cleaningMinor) : 'None'} />
+          {a.petMinor ? <Line label="Pet fee" value={money(a.petMinor)} /> : null}
+          <Line label="Service fee" value={money(totals.feeMinor)} />
+          <Line
+            label="Total"
+            value={money(totals.totalMinor)}
+            strong
+            className="border-t border-border pt-2.5"
+          />
+        </dl>
+        <dl className="mt-4 rounded-xl bg-brand-50 p-3.5 text-sm">
+          <div className="flex items-baseline justify-between gap-4 font-semibold text-brand-900">
+            <dt>{paid ? 'Paid in full' : 'Pay now, in full'}</dt>
+            <dd className="text-base tabular" data-money>
+              {money(payment.expectedMinor)}
+            </dd>
+          </div>
+        </dl>
+      </div>
+    );
+  }
   if (isStay(quote)) {
     const visit = quote.visits[0] ?? {};
     // Story 3.9: a stay's pet fee is trip-level, outside the room amount.

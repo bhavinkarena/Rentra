@@ -133,7 +133,7 @@ export function BookingDetail({
           ...(record.stay
             ? [
                 [`/bookings/${record.id}/voucher`, Ticket, 'Voucher'],
-                ...((record.stay?.listingHref ?? record.listingHref)
+                ...(!record.stay.apartment && (record.stay?.listingHref ?? record.listingHref)
                   ? [[changeHref(record), CalendarSync, 'Change dates or rooms']]
                   : []),
               ]
@@ -292,7 +292,24 @@ export function BookingDetail({
             <Wallet className={headingIcon} aria-hidden="true" />
             Price breakdown
           </h2>
-          {record.stay ? (
+          {record.stay?.apartment ? (
+            <dl className="text-meta">
+              {/* Story 3.11: the accepted nightly prices, cleaning and pet rows. */}
+              {record.stay.apartment.nightly.map((night) => (
+                <Row key={night.night} label={`Night of ${night.night}`}>
+                  {money(night.rateMinor)}
+                </Row>
+              ))}
+              <Row label="Cleaning fee">{money(record.stay.apartment.cleaningMinor)}</Row>
+              {record.stay.apartment.petMinor ? (
+                <Row label="Pet fee">{money(record.stay.apartment.petMinor)}</Row>
+              ) : null}
+              <Row label="Service fee">{money(record.feeMinor)}</Row>
+              <Row label="Total" strong>
+                {money(totalPrice(record))}
+              </Row>
+            </dl>
+          ) : record.stay ? (
             <dl className="text-meta">
               <Row label="Rooms">{money(record.stay.roomMinor)}</Row>
               <Row label="Taxes">{money(record.stay.taxMinor)}</Row>
@@ -313,7 +330,7 @@ export function BookingDetail({
             </dl>
           )}
         </section>
-        {record.stay ? (
+        {record.stay && !record.stay.apartment ? (
           <StayRooms stay={record.stay} card={card} headingIcon={headingIcon} />
         ) : null}
         <section className={`lg:col-span-2 ${card}`}>
