@@ -263,7 +263,7 @@ export default async function CalendarPage({ searchParams }) {
                   </span>
                 )}
                 <div className="min-w-0 flex-1">
-                  <h2 className="truncate text-h3 font-semibold text-ink-900">
+                  <h2 className="break-words text-h3 font-semibold text-ink-900">
                     {selected?.title || calendar?.data?.items?.[0]?.title || 'Untitled draft'}
                   </h2>
                   <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-meta text-ink-600">
@@ -276,7 +276,7 @@ export default async function CalendarPage({ searchParams }) {
                     ) : null}
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex w-full flex-wrap gap-2 sm:w-auto">
                   <Link
                     href={`/partner/listings/${propertyId}/booking-rules`}
                     className="inline-flex min-h-11 items-center gap-1.5 rounded-md border border-border px-3 text-meta font-semibold text-ink-800 hover:bg-ink-50"

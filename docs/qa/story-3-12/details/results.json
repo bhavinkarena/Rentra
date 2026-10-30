@@ -1,0 +1,419 @@
+{
+  "status": "completed",
+  "checks": [
+    {
+      "source": "browser",
+      "name": "1440: canonical hotel redirect retains declared pet",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: hotel child percent policy disclosed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: pet quote accepted through HTTP validation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: percentage child price uses room-local adults",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: two-night pet charge and one service fee included",
+      "ok": true,
+      "detail": {
+        "roomMinor": 585000,
+        "taxMinor": 29250,
+        "totalMinor": 675000,
+        "petMinor": 30000,
+        "feeMinor": 30750
+      }
+    },
+    {
+      "source": "browser",
+      "name": "1440: comparison and selection show complete total",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: pet fee disclosed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: meal offer keeps child percentage on room-only base",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: breakfast and pet total displayed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: hotel checkout retains complete amount without late fee",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: pet-limit refusal visible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: pet refusal: axe",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "1440: infant overflow refuses unconfirmed cot",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: cot refusal: axe",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "1440: needed extra bed charged per night",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: charged bedding disclosed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: category switch keeps location and pet",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: hotel party maps to farm guest count",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: incompatible child ages explicitly disclosed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: category return maps dates and party with pet retained",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: farm booking hands off to login",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: farm auth return retains date and party",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: farm auth return retains pets",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: farm authoritative checkout review reached",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: villa booking hands off to login",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: villa auth return retains date and party",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: villa auth return retains pets",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: villa authoritative checkout review reached",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: hotel preview shows before and after prices",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: hotel preview drawer: axe",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "1440: hotel drawer traps Tab",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: concurrent hotel save is refused and preview refreshed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: explicit reviewed retry saves hotel rates",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: canonical hotel redirect retains declared pet",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: hotel child percent policy disclosed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: pet quote accepted through HTTP validation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: percentage child price uses room-local adults",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: two-night pet charge and one service fee included",
+      "ok": true,
+      "detail": {
+        "roomMinor": 585000,
+        "taxMinor": 29250,
+        "totalMinor": 675000,
+        "petMinor": 30000,
+        "feeMinor": 30750
+      }
+    },
+    {
+      "source": "browser",
+      "name": "390: comparison and selection show complete total",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: pet fee disclosed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: meal offer keeps child percentage on room-only base",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: breakfast and pet total displayed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: hotel checkout retains complete amount without late fee",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: pet-limit refusal visible",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: pet refusal: axe",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "390: infant overflow refuses unconfirmed cot",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: cot refusal: axe",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "390: needed extra bed charged per night",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: charged bedding disclosed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: category switch keeps location and pet",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: hotel party maps to farm guest count",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: incompatible child ages explicitly disclosed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: category return maps dates and party with pet retained",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: farm booking hands off to login",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: farm auth return retains date and party",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: farm auth return retains pets",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: farm authoritative checkout review reached",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: villa booking hands off to login",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: villa auth return retains date and party",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: villa auth return retains pets",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: villa authoritative checkout review reached",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: hotel preview shows before and after prices",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: hotel preview drawer: axe",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "390: hotel drawer traps Tab",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: concurrent hotel save is refused and preview refreshed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: explicit reviewed retry saves hotel rates",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "no browser runtime or React hydration/key errors",
+      "ok": true,
+      "detail": []
+    }
+  ]
+}

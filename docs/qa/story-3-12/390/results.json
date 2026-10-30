@@ -1,0 +1,1030 @@
+{
+  "status": "completed",
+  "checks": [
+    {
+      "source": "browser",
+      "name": "farm: listing loads",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "farm: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "farm: primary targets 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "farm: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "farm: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "farm: primary targets 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "farm: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "farm: reflow 768",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "farm: primary targets 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "farm: axe 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "farm: reflow 1024",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "farm: primary targets 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "farm: axe 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "farm: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "farm: primary targets 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "farm: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "villa: listing loads",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "villa: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "villa: primary targets 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "villa: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "villa: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "villa: primary targets 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "villa: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "villa: reflow 768",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "villa: primary targets 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "villa: axe 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "villa: reflow 1024",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "villa: primary targets 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "villa: axe 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "villa: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "villa: primary targets 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "villa: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "apartment: listing loads",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "apartment: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "apartment: primary targets 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "apartment: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "apartment: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "apartment: primary targets 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "apartment: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "apartment: reflow 768",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "apartment: primary targets 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "apartment: axe 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "apartment: reflow 1024",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "apartment: primary targets 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "apartment: axe 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "apartment: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "apartment: primary targets 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "apartment: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "hotel dated results present",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "search: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "search: primary targets 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "search: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "search: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "search: primary targets 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "search: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "search: reflow 768",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "search: primary targets 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "search: axe 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "search: reflow 1024",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "search: primary targets 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "search: axe 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "search: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "search: primary targets 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "search: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "search navigation keeps dates",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "hotel: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "hotel: primary targets 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "hotel: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "hotel: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "hotel: primary targets 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "hotel: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "hotel: reflow 768",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "hotel: primary targets 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "hotel: axe 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "hotel: reflow 1024",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "hotel: primary targets 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "hotel: axe 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "hotel: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "hotel: primary targets 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "hotel: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "reload keeps dates",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "Tab moves focus to an interactive element",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "gallery keyboard next photo",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "gallery previous photo",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "full room facility list includes tenth facility",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "hotel 200% CSS zoom reflow",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "hotel reserve hands off to login",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "seeded authenticated return restores dates and age zero",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "apartment review reached through reserve",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "api observation of UI-created quote",
+      "name": "displayed apartment quote agrees with authoritative review",
+      "ok": true,
+      "detail": {
+        "displayedTotal": "₹11,865",
+        "amounts": {
+          "cleaningMinor": 100000,
+          "petMinor": 30000,
+          "feeMinor": 56500,
+          "totalMinor": 1186500
+        }
+      }
+    },
+    {
+      "source": "browser",
+      "name": "checkout displays accepted cleaning, pets, fee and total",
+      "ok": true,
+      "detail": {
+        "expected": [
+          "₹1,000",
+          "₹300",
+          "₹565",
+          "₹11,865"
+        ]
+      }
+    },
+    {
+      "source": "browser",
+      "name": "checkout-review: reflow 320",
+      "ok": true,
+      "detail": "1px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "checkout-review: primary targets 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "checkout-review: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "checkout-review: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "checkout-review: primary targets 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "checkout-review: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "checkout-review: reflow 768",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "checkout-review: primary targets 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "checkout-review: axe 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "checkout-review: reflow 1024",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "checkout-review: primary targets 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "checkout-review: axe 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "checkout-review: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "checkout-review: primary targets 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "checkout-review: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "apartment hold reached through UI",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "fake Test payment confirms through UI",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "fake provider observation",
+      "name": "fake capture equals accepted and displayed trip total",
+      "ok": true,
+      "detail": {
+        "capturedMinor": 1186500,
+        "totalMinor": 1186500
+      }
+    },
+    {
+      "source": "browser",
+      "name": "booking record identifies accepted apartment",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "booking-record: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "booking-record: primary targets 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "booking-record: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "booking-record: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "booking-record: primary targets 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "booking-record: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "booking-record: reflow 768",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "booking-record: primary targets 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "booking-record: axe 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "booking-record: reflow 1024",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "booking-record: primary targets 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "booking-record: axe 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "booking-record: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "booking-record: primary targets 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "booking-record: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "direct API record observation",
+      "name": "accepted record retains cleaning, pets, fee and total",
+      "ok": true,
+      "detail": {
+        "cleaningMinor": 100000,
+        "petMinor": 30000,
+        "feeMinor": 56500,
+        "totalMinor": 1186500
+      }
+    },
+    {
+      "source": "browser",
+      "name": "owner apartment calendar displayed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "owner-apartment: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "owner-apartment: primary targets 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-apartment: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-apartment: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "owner-apartment: primary targets 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-apartment: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-apartment: reflow 768",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "owner-apartment: primary targets 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-apartment: axe 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-apartment: reflow 1024",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "owner-apartment: primary targets 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-apartment: axe 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-apartment: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "owner-apartment: primary targets 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-apartment: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner blocks selected apartment nights through UI",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "owner partially unblocks through UI",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "owner hotel calendar identity",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "owner-hotel: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "owner-hotel: primary targets 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-hotel: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-hotel: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "owner-hotel: primary targets 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-hotel: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-hotel: reflow 768",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "owner-hotel: primary targets 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-hotel: axe 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-hotel: reflow 1024",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "owner-hotel: primary targets 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-hotel: axe 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-hotel: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "owner-hotel: primary targets 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-hotel: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "hotel drawer: axe",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "dirty hotel edit guarded on Escape",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "hotel discard confirmation: axe",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "Escape cancels discard and keeps drawer",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "no browser runtime or React hydration/key errors",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "actionWidth": 390,
+  "unexecuted": [
+    "Real devices",
+    "Screen readers",
+    "Field p75 performance",
+    "Load testing",
+    "Farm/villa booking and authentication browser flow",
+    "Category changes preserving party and pets in browser",
+    "Hotel offer/child/bedding/pet amount comparisons and cot/supervision refusals in browser",
+    "Cancellation and early departure in browser",
+    "Farm owner effective-price edits in browser"
+  ]
+}

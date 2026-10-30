@@ -56,10 +56,10 @@ const states = {
     'bg-[repeating-linear-gradient(135deg,var(--color-ink-100)_0_5px,var(--color-ink-50)_5px_10px)] text-ink-700',
     'bg-[repeating-linear-gradient(135deg,var(--color-ink-300)_0_3px,var(--color-ink-100)_3px_6px)]',
   ],
-  closed: ['Closed', Ban, 'text-ink-400', 'bg-ink-200'],
+  closed: ['Closed', Ban, 'text-ink-600', 'bg-ink-200'],
   too_soon: ['Too soon', Clock, 'text-ink-500', 'bg-ink-200'],
   beyond: ['Not open yet', Clock, 'text-ink-500', 'bg-ink-200'],
-  past: ['Past', Clock, 'text-ink-400', 'bg-ink-100'],
+  past: ['Past', Clock, 'text-ink-600', 'bg-ink-100'],
   problem: [
     'Needs attention',
     CircleAlert,
@@ -760,7 +760,7 @@ export default function PortfolioCalendar({
                     key={day}
                     type="button"
                     data-mini-day={day}
-                    className={`flex min-h-12 flex-col items-center justify-center gap-1 rounded-md text-meta tabular hover:bg-ink-50 ${outside ? 'text-ink-400' : 'text-ink-900'}`}
+                    className={`flex min-h-12 flex-col items-center justify-center gap-1 rounded-md text-meta tabular hover:bg-ink-50 ${outside ? 'text-ink-600' : 'text-ink-900'}`}
                     aria-label={`${dayText(day)}${on.length ? ': ' + on.map((d) => d[2]).join(', ') : ''}`}
                     onClick={() => open(property, day)}
                   >
@@ -825,7 +825,7 @@ export default function PortfolioCalendar({
                     view === 'agenda'
                       ? 'flex w-full items-start gap-4 px-4 py-3 hover:bg-ink-25'
                       : `min-h-28 p-1.5 ${view === 'multi' ? 'min-w-32' : ''} ${outside ? 'bg-ink-25' : 'bg-card'} hover:bg-brand-50/40`
-                  } ${picked ? 'bg-brand-50! ring-2 ring-brand-600 ring-inset' : ''} ${day < today ? 'opacity-70' : ''}`}
+                  } ${picked ? 'bg-brand-50! ring-2 ring-brand-600 ring-inset' : ''}`}
                   aria-label={`${property.title}, ${dayText(day)}${
                     property.rentalUnit === 'hour'
                       ? ''
@@ -911,7 +911,7 @@ export default function PortfolioCalendar({
                       <>
                         <span className="text-tiny text-ink-500 md:hidden">{dayText(day)}</span>
                         <span
-                          className={`hidden size-6 place-items-center rounded-full text-tiny font-semibold tabular md:grid ${isToday ? 'bg-brand-600 text-white' : outside ? 'text-ink-400' : 'text-ink-800'}`}
+                          className={`hidden size-6 place-items-center rounded-full text-tiny font-semibold tabular md:grid ${isToday ? 'bg-brand-600 text-white' : outside ? 'text-ink-600' : 'text-ink-800'}`}
                         >
                           {Number(day.slice(-2))}
                         </span>

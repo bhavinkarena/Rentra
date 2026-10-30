@@ -62,7 +62,8 @@ test('Story 3.1: hotel with children to farmhouse counts them as guests, drops r
     'farmhouse',
   );
   assert.deepEqual(out, { city: 'surat', mode: 'consecutive', guests: '5', dates: `${d1},${d2}` });
-  assert.deepEqual(dropped, ['rooms']);
+  assert.deepEqual(dropped, ['children', 'rooms']);
+  assert.match(droppedNotice(dropped, 'farmhouse'), /Child age information/);
 });
 
 test('Story 3.1: a hotel stay too long for farm visit dates drops check-out with a notice', () => {

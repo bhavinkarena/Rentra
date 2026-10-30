@@ -143,7 +143,7 @@ export default async function ListingPage({ params, searchParams }) {
     const path = listingPath(listing.slug, listing.publicCode);
     if (listing.vertical === 'hotel') {
       // Hotel links carry the stay; the rooms list validates it on arrival.
-      const keep = ['checkin', 'checkout', 'rooms', 'adults', 'children'];
+      const keep = ['checkin', 'checkout', 'rooms', 'adults', 'children', 'pets'];
       const kept = new URLSearchParams(
         keep.filter((k) => typeof query?.[k] === 'string').map((k) => [k, query[k]]),
       ).toString();

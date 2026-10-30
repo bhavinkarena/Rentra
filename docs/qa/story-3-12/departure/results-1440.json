@@ -1,0 +1,92 @@
+{
+  "status": "completed",
+  "checks": [
+    {
+      "source": "browser",
+      "name": "1440: departure preview: axe",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "1440: early departure preview reached through UI",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: preview identifies unused nights and retained charges",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: consumed and unused night partition displayed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: departure refund includes unused rent and refundable fee",
+      "ok": true,
+      "detail": {
+        "consumedNights": [
+          "2026-10-30"
+        ],
+        "unusedNights": [
+          "2026-10-31",
+          "2026-11-01"
+        ],
+        "unusedRentMinor": 1000000,
+        "unusedFeeMinor": 50000,
+        "refundMinor": 1050000
+      }
+    },
+    {
+      "source": "browser",
+      "name": "1440: early departure receipt returned",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: whole-apartment receipt never reports zero rooms",
+      "ok": true,
+      "detail": "The whole apartment stay ended early at 30 Oct 2026, 4:14 pm.\n\nTest refund requested: ₹10,500. This is an obligation, not proof of a completed refund.\n\nEarly-departure reference: 2ef04130-77ca-4d70-bb10-a8510a290dbb\n\nTrack refund status in your booking record. Processing continues even if new payments are disabled."
+    },
+    {
+      "source": "browser",
+      "name": "1440: departure receipt retains preview refund",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "direct SQL observation after browser commit",
+      "name": "1440: committed requested refund agrees with preview",
+      "ok": true,
+      "detail": {
+        "expected": 1050000,
+        "requested": 1050000
+      }
+    },
+    {
+      "source": "browser",
+      "name": "1440: departure receipt: axe",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "1440: completed apartment record readable",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "no browser runtime or React hydration/key errors",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "fixtureSetup": "Prepared fake Test booking, time-shifted locally with triggers restored before browser actions."
+}

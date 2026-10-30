@@ -1,0 +1,62 @@
+{
+  "status": "completed",
+  "checks": [
+    {
+      "source": "browser",
+      "name": "1440: cancellation preview: axe",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "1440: full apartment cancellation preview reconciles paid total",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: apartment cancellation receipt shown",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: cancellation receipt retains refund amount",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "direct SQL observation after browser commit",
+      "name": "1440: committed requested refund agrees with preview",
+      "ok": true,
+      "detail": {
+        "expected": 1606500,
+        "requested": 1606500
+      }
+    },
+    {
+      "source": "browser",
+      "name": "1440: cancellation receipt: axe",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "1440: cancelled booking record shown",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "direct API observation after browser cancellation",
+      "name": "1440: cancelled dates can be quoted again",
+      "ok": true
+    },
+    {
+      "source": "browser",
+      "name": "no browser runtime or React hydration/key errors",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "fixtureSetup": "Latest confirmed local Test apartment stay; SQL used only to locate the fixture."
+}

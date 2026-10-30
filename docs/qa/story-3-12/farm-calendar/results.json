@@ -1,0 +1,83 @@
+{
+  "status": "completed",
+  "checks": [
+    {
+      "source": "browser",
+      "name": "1440: property title is readable",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: farm fixed-price preview reached",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: farm change preview: axe",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "1440: farm percent preview uses effective override",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "1440: farm change preview: axe",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "1440: saved farm override survives reload",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: property title is readable",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: farm fixed-price preview reached",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: farm change preview: axe",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "390: farm percent preview uses effective override",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "390: farm change preview: axe",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "390: saved farm override survives reload",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "no browser runtime or React hydration/key errors",
+      "ok": true,
+      "detail": []
+    }
+  ]
+}

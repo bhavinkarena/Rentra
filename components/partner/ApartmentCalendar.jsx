@@ -14,7 +14,7 @@ const TONES = {
   blocked: 'bg-warning-bg text-ink-900',
 };
 const button =
-  'inline-flex min-h-11 items-center gap-1.5 rounded-md border border-border px-3 text-meta font-semibold disabled:opacity-40';
+  'inline-flex min-h-[44px]! items-center gap-1.5 rounded-md border border-border px-3 text-meta font-semibold disabled:opacity-40';
 
 /**
  * Story 3.11: a whole apartment's nights. Choose a first and last night (click or keyboard), review
@@ -101,7 +101,7 @@ export default function ApartmentCalendar({ propertyId, data, baseHref }) {
           </li>
         ))}
       </ul>
-      <ol className="grid grid-cols-7 gap-1.5" aria-label="Nights">
+      <ol className="grid grid-cols-4 gap-1.5 sm:grid-cols-7" aria-label="Nights">
         {calendar.nights.map((night) => {
           const selected = from && night.date >= from && night.date <= to;
           return (
@@ -114,7 +114,7 @@ export default function ApartmentCalendar({ propertyId, data, baseHref }) {
                 className={`flex min-h-14 w-full flex-col items-start rounded-md border p-1.5 text-left text-tiny ${TONES[night.state]} ${selected ? 'ring-2 ring-brand-600' : 'border-border'}`}
               >
                 <span className="font-semibold tabular">{Number(night.date.slice(8))}</span>
-                <span className="truncate">{LABELS[night.state]}</span>
+                <span className="break-words whitespace-normal">{LABELS[night.state]}</span>
               </button>
             </li>
           );

@@ -130,6 +130,7 @@ export default function HotelRooms({ code, rentableId, roomTypes, railId, fromPr
         rooms: filters.rooms,
         adults: filters.adults,
         ...(filters.children.length ? { children: filters.children.join(',') } : {}),
+        ...petsPart,
       })
       .then((data) => current && setLive({ key: stayKey, data, error: '' }))
       .catch(
@@ -894,6 +895,11 @@ function StayRail({
             {quote.result.pets?.totalMinor ? (
               <p className="text-tiny text-ink-700">
                 Pet fee · {formatINRMinor(quote.result.pets.totalMinor)}
+              </p>
+            ) : null}
+            {quote.result.totals.feeMinor != null ? (
+              <p className="text-tiny text-ink-700">
+                Rentra service fee · {formatINRMinor(quote.result.totals.feeMinor)}
               </p>
             ) : null}
             {beddingLine(quote.result.lines) ? (

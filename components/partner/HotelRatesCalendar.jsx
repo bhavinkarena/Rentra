@@ -17,7 +17,7 @@ import { formDirty } from '@/lib/domain/hotel-ui';
  * Front desk sees the same grid but can only open and close rooms.
  */
 const input = `${fieldClass} mt-1`;
-const button = buttonVariants({ shape: 'default', size: 'default' });
+const button = `${buttonVariants({ shape: 'default', size: 'default' })} min-h-[44px]!`;
 const WEEKDAYS = [
   [1, 'Mon'],
   [2, 'Tue'],

@@ -360,6 +360,7 @@ export function PriceDetails({ quote, paid = false, titled = true }) {
           />
           {pet.petMinor ? <Line label="Pet fee" value={money(pet.petMinor)} /> : null}
           <Line label="Taxes (GST on room tariff)" value={money(visit.taxMinor)} />
+          <Line label="Service fee" value={money(totals.feeMinor)} />
           <Line
             label="Total"
             value={money(totals.totalMinor)}
@@ -376,7 +377,7 @@ export function PriceDetails({ quote, paid = false, titled = true }) {
           </div>
         </dl>
         <p className="mt-3 text-xs text-ink-600">
-          No deposit and no fee. The hotel issues the tax invoice for your stay.
+          No deposit. The hotel issues the tax invoice for your stay.
         </p>
       </div>
     );

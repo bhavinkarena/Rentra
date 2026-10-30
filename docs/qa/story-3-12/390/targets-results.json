@@ -1,0 +1,157 @@
+{
+  "checks": [
+    {
+      "source": "browser",
+      "name": "apartment Block: primary target 320",
+      "ok": true,
+      "detail": {
+        "height": 44,
+        "width": 79.3125
+      }
+    },
+    {
+      "source": "browser",
+      "name": "apartment Unblock: primary target 320",
+      "ok": true,
+      "detail": {
+        "height": 44,
+        "width": 97.171875
+      }
+    },
+    {
+      "source": "browser",
+      "name": "apartment Block: primary target 390",
+      "ok": true,
+      "detail": {
+        "height": 44,
+        "width": 79.3125
+      }
+    },
+    {
+      "source": "browser",
+      "name": "apartment Unblock: primary target 390",
+      "ok": true,
+      "detail": {
+        "height": 44,
+        "width": 97.171875
+      }
+    },
+    {
+      "source": "browser",
+      "name": "apartment Block: primary target 768",
+      "ok": true,
+      "detail": {
+        "height": 44,
+        "width": 79.3125
+      }
+    },
+    {
+      "source": "browser",
+      "name": "apartment Unblock: primary target 768",
+      "ok": true,
+      "detail": {
+        "height": 44,
+        "width": 97.171875
+      }
+    },
+    {
+      "source": "browser",
+      "name": "apartment Block: primary target 1024",
+      "ok": true,
+      "detail": {
+        "height": 44,
+        "width": 79.3125
+      }
+    },
+    {
+      "source": "browser",
+      "name": "apartment Unblock: primary target 1024",
+      "ok": true,
+      "detail": {
+        "height": 44,
+        "width": 97.171875
+      }
+    },
+    {
+      "source": "browser",
+      "name": "apartment Block: primary target 1440",
+      "ok": true,
+      "detail": {
+        "height": 44,
+        "width": 79.3125
+      }
+    },
+    {
+      "source": "browser",
+      "name": "apartment Unblock: primary target 1440",
+      "ok": true,
+      "detail": {
+        "height": 44,
+        "width": 97.171875
+      }
+    },
+    {
+      "source": "browser",
+      "name": "hotel Change rates or rooms: primary target 320",
+      "ok": true,
+      "detail": {
+        "height": 44,
+        "width": 201.421875
+      }
+    },
+    {
+      "source": "browser",
+      "name": "hotel Change rates or rooms: primary target 390",
+      "ok": true,
+      "detail": {
+        "height": 44,
+        "width": 201.421875
+      }
+    },
+    {
+      "source": "browser",
+      "name": "hotel Change rates or rooms: primary target 768",
+      "ok": true,
+      "detail": {
+        "height": 44,
+        "width": 201.421875
+      }
+    },
+    {
+      "source": "browser",
+      "name": "hotel Change rates or rooms: primary target 1024",
+      "ok": true,
+      "detail": {
+        "height": 44,
+        "width": 201.421875
+      }
+    },
+    {
+      "source": "browser",
+      "name": "hotel Change rates or rooms: primary target 1440",
+      "ok": true,
+      "detail": {
+        "height": 44,
+        "width": 201.421875
+      }
+    },
+    {
+      "source": "browser",
+      "name": "no browser runtime or React hydration/key errors",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "actionWidth": 390,
+  "unexecuted": [
+    "Real devices",
+    "Screen readers",
+    "Field p75 performance",
+    "Load testing",
+    "Farm/villa booking and authentication browser flow",
+    "Category changes preserving party and pets in browser",
+    "Hotel offer/child/bedding/pet amount comparisons and cot/supervision refusals in browser",
+    "Cancellation and early departure in browser",
+    "Farm owner effective-price edits in browser"
+  ]
+}

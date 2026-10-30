@@ -182,7 +182,7 @@ export function ApartmentPrice({ quote }) {
     groups.set(`${label}|${night.rateMinor}`, group);
   }
   const row = (label, value, detail) => (
-    <div className="flex items-baseline justify-between gap-4">
+    <div key={label} className="flex items-baseline justify-between gap-4">
       <dt>
         {label}
         {detail ? <span className="block text-tiny text-ink-500">{detail}</span> : null}

@@ -19,6 +19,7 @@ const visitLabel = (v) =>
     : `${v.date ? formatLocalDate(v.date, { year: 'numeric' }) : 'Date not recorded'} · ${SLOTS[v.slot]?.label ?? v.slot.replaceAll('_', ' ')}`;
 
 export default function CancelVisits({ record }) {
+  const apartment = Boolean(record.stay?.apartment);
   const [selected, setSelected] = useState([]),
     [preview, setPreview] = useState(null),
     [receipt, setReceipt] = useState(null);
@@ -105,10 +106,14 @@ export default function CancelVisits({ record }) {
         <h1 className="mt-1 text-h1">
           {receipt
             ? receipt.operation === 'early_departure'
-              ? 'Selected rooms ended early'
+              ? apartment
+                ? 'Stay ended early'
+                : 'Selected rooms ended early'
               : 'Visits cancelled'
             : departing
-              ? 'End selected rooms early'
+              ? apartment
+                ? 'End stay early'
+                : 'End selected rooms early'
               : 'Cancel selected visits'}
         </h1>
         <h2 className="mt-1 text-ink-600">{record.title}</h2>
@@ -117,7 +122,7 @@ export default function CancelVisits({ record }) {
         <Info className="mt-0.5 size-4 shrink-0 text-info" aria-hidden="true" />
         <span>
           {departing || receipt?.operation === 'early_departure'
-            ? 'Explicit confirmation ends occupancy of selected rooms now, even when no refund is due. Only strictly unused nights are released. Refunds use the booked early-departure offer.'
+            ? `Explicit confirmation ends occupancy of ${apartment ? 'the whole apartment' : 'selected rooms'} now, even when no refund is due. Only strictly unused nights are released. Refunds use the booked early-departure offer.`
             : 'Only the selected visits are cancelled. Refund estimates use the accepted policy and verified Test amounts already collected.'}{' '}
           Actual bank refund: {money(0)}.
         </span>
@@ -126,7 +131,9 @@ export default function CancelVisits({ record }) {
         <section role="status" className="space-y-3 rounded-lg bg-brand-50 p-4 text-meta sm:p-5">
           <p>
             {receipt.operation === 'early_departure'
-              ? `${receipt.visits.reduce((sum, visit) => sum + visit.rooms, 0)} room(s) ended early at ${time(receipt.departedAt, record.timeZone)}.${receipt.visits.some((visit) => visit.partial) ? ' Your other rooms stay booked.' : ''}`
+              ? apartment
+                ? `The whole apartment stay ended early at ${time(receipt.departedAt, record.timeZone)}.`
+                : `${receipt.visits.reduce((sum, visit) => sum + visit.rooms, 0)} room(s) ended early at ${time(receipt.departedAt, record.timeZone)}.${receipt.visits.some((visit) => visit.partial) ? ' Your other rooms stay booked.' : ''}`
               : receipt.visits.every((visit) => visit.roomIds)
                 ? `${receipt.visits.reduce((sum, visit) => sum + visit.rooms, 0)} room(s) cancelled.${receipt.visits.some((visit) => visit.partial) ? ' Your other rooms stay booked.' : ''}`
                 : `${receipt.visits.length} visit(s) cancelled. Unselected visits are unchanged.`}
@@ -292,7 +299,19 @@ export default function CancelVisits({ record }) {
                   <li key={v.id} className="flex flex-wrap justify-between gap-x-4 gap-y-1">
                     <span>
                       {v.date ? formatLocalDate(v.date) : 'Date not recorded'} ·{' '}
-                      {v.roomIds ? (
+                      {apartment && departing ? (
+                        <>
+                          Whole apartment · booked offer: {v.apartment.pct}% of unused nights.
+                          <span className="mt-1 block">
+                            Consumed nights: {v.apartment.consumedNights.join(', ')}. Unused nights:{' '}
+                            {v.apartment.unusedNights.join(', ') || 'None'}.
+                          </span>
+                          <span className="mt-1 block">
+                            Cleaning kept: {money(v.apartment.keptCleaningMinor)}. Pet charge kept:{' '}
+                            {money(v.apartment.keptPetMinor)}.
+                          </span>
+                        </>
+                      ) : v.roomIds ? (
                         <>
                           {v.rooms} room(s) to {departing ? 'end early' : 'cancel'}, using their
                           booked policies.
@@ -398,7 +417,7 @@ export default function CancelVisits({ record }) {
                 />
                 <span>
                   {departing
-                    ? 'I accept this estimate and explicitly end occupancy of only these selected rooms now, including when no refund is due.'
+                    ? `I accept this estimate and explicitly end occupancy of ${apartment ? 'the whole apartment' : 'only these selected rooms'} now, including when no refund is due.`
                     : 'I accept this refund estimate and cancellation of only these visits.'}
                 </span>
               </label>
