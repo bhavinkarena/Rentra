@@ -2,9 +2,10 @@
 import OwnerReviewReply from '@/components/partner/OwnerReviewReply';
 import { fieldClass as sharedFieldClass } from '@/components/ui/field';
 import { useRouter } from 'next/navigation';
+import Link from '@/components/navigation/NavigationLink';
 import RentraLoader from '@/components/ui/rentra-loader';
 
-import { useActionState, useState, useTransition } from 'react';
+import { useActionState, useEffect, useState, useTransition } from 'react';
 import { submitCustomerReview, customerReviewReport } from '@/lib/actions/customer';
 import { ownerReviewReply, ownerReviewReport } from '@/lib/actions/partner';
 import { moderateCustomerReview, resolveReviewReport } from '@/lib/actions/admin';
@@ -18,11 +19,16 @@ function Result({ state }) {
     </>
   );
 }
-function Score({ name, label, required = false }) {
+function Score({ name, label, required = false, values }) {
   return (
     <label className="block">
       {label}
-      <select className={field} name={name} required={required} defaultValue="">
+      <select
+        className={field}
+        name={name}
+        required={required}
+        defaultValue={values?.[name] ? String(values[name]) : ''}
+      >
         <option value="">{required ? 'Choose a rating' : 'Not rated'}</option>
         {[1, 2, 3, 4, 5].map((n) => (
           <option key={n} value={n}>
@@ -33,79 +39,114 @@ function Score({ name, label, required = false }) {
     </label>
   );
 }
-export function CustomerReviewForm({ visits }) {
-  const [state, action, pending] = useActionState(submitCustomerReview, {});
+async function submitWithAttempt(previous, form) {
+  // Each attempt gets a new number so the form remounts with the returned values, even after an identical failure.
+  return { ...(await submitCustomerReview(previous, form)), attempt: (previous.attempt ?? 0) + 1 };
+}
+export function CustomerReviewForm({ visits, listingHref }) {
+  const [state, action, pending] = useActionState(submitWithAttempt, {});
+  const router = useRouter();
+  const saved = Boolean(state.state && !state.error);
+  useEffect(() => {
+    if (saved) router.refresh();
+  }, [saved, state.attempt, router]);
+  // A failed submit returns the entered values; a success starts a fresh form for any remaining visit.
+  const values = saved ? undefined : state.values;
   return (
-    <form action={action} className="space-y-4">
-      <label className="block">
-        Completed visit
-        <select name="visitId" required className={field}>
-          {visits.map((v) => (
-            <option value={v.id} key={v.id}>
-              {v.slot === 'hourly' ? v.label : `${v.date} · ${v.slot.replaceAll('_', ' ')}`} ·{' '}
-              {v.reference}
-            </option>
-          ))}
-        </select>
-      </label>
-      <Score name="rating" label="Overall rating" required />
-      <label className="block">
-        Your experience
-        <textarea className={field} name="body" required minLength={20} maxLength={3000} />
-      </label>
-      <details className="group">
-        <summary className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 font-semibold">
-          {visits[0]?.slot === 'stay' ? 'Rate your stay (optional)' : 'Optional ratings'}
-          <ChevronDown
-            className="size-4 transition-transform duration-150 group-open:rotate-180"
-            aria-hidden="true"
+    <>
+      {saved ? (
+        <div role="status" className="mb-4 space-y-1 rounded-lg border border-border p-3">
+          <p className="font-semibold">{state.message}</p>
+          {state.state === 'published' && listingHref ? (
+            <Link className="inline-flex min-h-11 items-center underline" href={listingHref}>
+              See it on the listing
+            </Link>
+          ) : null}
+        </div>
+      ) : null}
+      <form action={action} className="space-y-4" key={state.attempt ?? 0}>
+        <label className="block">
+          Completed visit
+          <select name="visitId" required className={field} defaultValue={values?.visitId}>
+            {visits.map((v) => (
+              <option value={v.id} key={v.id}>
+                {v.slot === 'hourly' ? v.label : `${v.date} · ${v.slot.replaceAll('_', ' ')}`} ·{' '}
+                {v.reference}
+              </option>
+            ))}
+          </select>
+        </label>
+        <Score values={values} name="rating" label="Overall rating" required />
+        <label className="block">
+          Your experience
+          <textarea
+            className={field}
+            name="body"
+            required
+            minLength={20}
+            maxLength={3000}
+            defaultValue={values?.body ?? ''}
           />
-        </summary>
-        {visits[0]?.slot === 'stay' ? (
-          /* Hotel stays (hotel plan, Phase 8): six sub-scores and who travelled. */
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Score name="cleanliness" label="Cleanliness" />
-            <Score name="staff" label="Staff and service" />
-            <Score name="location" label="Location" />
-            <Score name="comfort" label="Room comfort" />
-            <Score name="valueForMoney" label="Value for money" />
-            <Score name="facilities" label="Facilities" />
-            <label className="block sm:col-span-2">
-              Who travelled
-              <select className={field} name="travellerType" defaultValue="">
-                <option value="">Prefer not to say</option>
-                <option value="business">Business</option>
-                <option value="couple">Couple</option>
-                <option value="family">Family</option>
-                <option value="friends">Friends</option>
-                <option value="solo">Solo</option>
-              </select>
-            </label>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <Score name="cleanliness" label="Cleanliness" />
-            <Score
-              name="accuracy"
-              label={visits[0]?.slot === 'hourly' ? 'Court condition' : 'Listing accuracy'}
+        </label>
+        <details className="group">
+          <summary className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 font-semibold">
+            {visits[0]?.slot === 'stay' ? 'Rate your stay (optional)' : 'Optional ratings'}
+            <ChevronDown
+              className="size-4 transition-transform duration-150 group-open:rotate-180"
+              aria-hidden="true"
             />
-            <Score name="valueForMoney" label="Value for money" />
-          </div>
-        )}
-      </details>
-      <p className="text-meta">
-        Describe your own visit. Do not include phone numbers, access codes or other private
-        details. Reviews are checked under the same rules for every score; they are not published
-        immediately. You can submit one review per visit.
-      </p>
-      <button
-        disabled={pending}
-        className="min-h-11 rounded-full bg-primary px-5 font-semibold text-white transition-colors hover:bg-primary-hover disabled:bg-muted disabled:text-muted-foreground active:bg-brand-900"
-      >
-        {pending ? <RentraLoader label="Submitting…" /> : 'Submit review'}
-      </button>
-      <Result state={state} />
-    </form>
+          </summary>
+          {visits[0]?.slot === 'stay' ? (
+            /* Hotel stays (hotel plan, Phase 8): six sub-scores and who travelled. */
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Score values={values} name="cleanliness" label="Cleanliness" />
+              <Score values={values} name="staff" label="Staff and service" />
+              <Score values={values} name="location" label="Location" />
+              <Score values={values} name="comfort" label="Room comfort" />
+              <Score values={values} name="valueForMoney" label="Value for money" />
+              <Score values={values} name="facilities" label="Facilities" />
+              <label className="block sm:col-span-2">
+                Who travelled
+                <select
+                  className={field}
+                  name="travellerType"
+                  defaultValue={values?.travellerType ?? ''}
+                >
+                  <option value="">Prefer not to say</option>
+                  <option value="business">Business</option>
+                  <option value="couple">Couple</option>
+                  <option value="family">Family</option>
+                  <option value="friends">Friends</option>
+                  <option value="solo">Solo</option>
+                </select>
+              </label>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <Score values={values} name="cleanliness" label="Cleanliness" />
+              <Score
+                values={values}
+                name="accuracy"
+                label={visits[0]?.slot === 'hourly' ? 'Court condition' : 'Listing accuracy'}
+              />
+              <Score values={values} name="valueForMoney" label="Value for money" />
+            </div>
+          )}
+        </details>
+        <p className="text-meta">
+          Describe your own visit. Do not include phone numbers, links, access codes or other
+          private details. Every score is checked under the same rules, and most reviews go live
+          straight away. You can submit one review per visit.
+        </p>
+        <button
+          disabled={pending}
+          className="min-h-11 rounded-full bg-primary px-5 font-semibold text-white transition-colors hover:bg-primary-hover disabled:bg-muted disabled:text-muted-foreground active:bg-brand-900"
+        >
+          {pending ? <RentraLoader label="Submitting…" /> : 'Submit review'}
+        </button>
+        {saved ? null : <Result state={state} />}
+      </form>
+    </>
   );
 }
 export function ReviewControl(props) {

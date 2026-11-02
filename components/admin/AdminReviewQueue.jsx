@@ -60,6 +60,21 @@ export default function AdminReviewQueue({ data }) {
           <p className="mt-1 text-tiny text-ink-500">
             Moderation reasons are shared with the author
           </p>
+          <nav aria-label="Review filter" className="mt-3 flex gap-4 text-meta">
+            {[
+              ['all', 'All reviews', '/admin/reviews'],
+              ['auto_published', 'Auto-published', '/admin/reviews?tab=auto_published'],
+            ].map(([key, label, href]) => (
+              <Link
+                key={key}
+                href={href}
+                aria-current={data.tab === key ? 'page' : undefined}
+                className="inline-flex min-h-11 items-center underline aria-[current=page]:font-semibold aria-[current=page]:no-underline"
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
         </div>
         <AdminTable
           framed={false}
@@ -94,6 +109,13 @@ export default function AdminReviewQueue({ data }) {
                 <StatusBadge tone={tone(review.moderation_state)}>
                   {review.moderation_state}
                 </StatusBadge>
+                {review.moderation_reason?.startsWith('auto:') &&
+                review.moderation_reason !== 'auto:clean' ? (
+                  <p className="mt-2 text-tiny text-ink-600">
+                    Auto-flagged:{' '}
+                    {review.moderation_reason.slice(5).split(',').join(', ').replaceAll('_', ' ')}
+                  </p>
+                ) : null}
               </td>
               <td className="px-4 py-4">
                 <Link
@@ -110,8 +132,8 @@ export default function AdminReviewQueue({ data }) {
           <Pager
             page={data.page}
             hasNext={data.hasNext}
-            previousHref={`?page=${data.page - 1}`}
-            nextHref={`?page=${data.page + 1}`}
+            previousHref={`?page=${data.page - 1}${data.tab === 'auto_published' ? '&tab=auto_published' : ''}`}
+            nextHref={`?page=${data.page + 1}${data.tab === 'auto_published' ? '&tab=auto_published' : ''}`}
           />
         </footer>
       </section>

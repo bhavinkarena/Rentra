@@ -7,6 +7,9 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { StateBadge } from '@/components/customer/BookingDisplay';
 import { formatLocalDate } from '@/lib/domain/booking-dates';
 import { Star } from 'lucide-react';
+import Link from '@/components/navigation/NavigationLink';
+import { REVIEW_CHECKING_MESSAGE } from '@/lib/domain/status';
+import { listingPath } from '@/lib/domain/listing-url';
 export const metadata = { title: 'Review your visit', robots: { index: false, follow: false } };
 export default async function Reviews({ params }) {
   let data;
@@ -23,11 +26,14 @@ export default async function Reviews({ params }) {
         className="mb-2"
         back={{ href: `/bookings/${data.id}`, label: 'Back to booking' }}
         title="Review your visit"
-        description="Reviews require a real completed visit with recorded handover, return and completion. Cancelled, incomplete and simulation visits cannot be reviewed."
+        description="Review visits you completed in the last 30 days. Cancelled, no-show and test visits can't be reviewed."
       />
       {eligible.length ? (
         <div className="rounded-lg border border-border bg-card p-4 sm:p-6">
-          <CustomerReviewForm visits={eligible} />
+          <CustomerReviewForm
+            visits={eligible}
+            listingHref={listingPath(data.listing_slug, data.listing_code)}
+          />
         </div>
       ) : (
         <EmptyState icon={Star} title="No unreviewed eligible visits in this booking." />
@@ -46,7 +52,16 @@ export default async function Reviews({ params }) {
                 <StateBadge domain="review" state={v.moderation_state} />
               </div>
               <p className="whitespace-pre-wrap wrap-break-word text-ink-800">{v.body}</p>
-              {v.moderation_reason ? (
+              {v.moderation_state === 'published' ? (
+                <Link
+                  className="inline-flex min-h-11 items-center text-meta underline"
+                  href={listingPath(data.listing_slug, data.listing_code)}
+                >
+                  Your review is live — see it on the listing
+                </Link>
+              ) : v.moderation_state === 'pending' ? (
+                <p className="text-meta text-ink-600">{REVIEW_CHECKING_MESSAGE}</p>
+              ) : v.moderation_reason && !v.moderation_reason.startsWith('auto:') ? (
                 <p className="text-meta text-ink-600">Moderation reason: {v.moderation_reason}</p>
               ) : null}
             </li>
