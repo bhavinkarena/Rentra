@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { fieldClass } from '@/components/ui/field';
 import { buttonVariants } from '@/components/ui/button';
@@ -112,6 +113,7 @@ const REFUND_STATUS = {
   verified: 'Verified',
   failed: 'Failed',
   unknown: 'Outcome unknown — check',
+  needs_review: 'Needs review',
 };
 // 'cancelled' is reserved in the schema; no cancel path exists yet, so it is not labelled here.
 const OBLIGATION_STATE = { awaiting_payout: 'Awaiting owner payout', due: 'Due', repaid: 'Repaid' };
@@ -230,7 +232,22 @@ function ExecutionRows({ caseId, execution }) {
             <Line
               key={r.id}
               label={`Guest refund ${r.reference} (Test)`}
-              value={`${money(r.amountMinor)} · ${REFUND_STATUS[r.status] ?? r.status}`}
+              value={
+                <>
+                  {money(r.amountMinor)} ·{' '}
+                  {r.needsInvestigation ? (
+                    // The status itself is the investigation link (refund operations page).
+                    <Link
+                      href={`/admin/finance/refunds/${r.id}`}
+                      className="inline-flex min-h-11 items-center font-semibold text-danger underline"
+                    >
+                      {REFUND_STATUS[r.status] ?? r.status} — needs investigation
+                    </Link>
+                  ) : (
+                    (REFUND_STATUS[r.status] ?? r.status)
+                  )}
+                </>
+              }
             />
           ))
         ) : (
@@ -557,9 +574,14 @@ export default function IncidentRemedyPanel({ caseId, remedy }) {
                   rows={3}
                   value={reason}
                   onChange={(event) => setReason(event.target.value)}
+                  aria-describedby="remedy-reason-hint"
                   className={field}
                 />
               </label>
+              <p id="remedy-reason-hint" className="text-tiny text-ink-600">
+                The owner sees this reason if they fund the refund. Don&apos;t include guest
+                personal details.
+              </p>
               {Object.entries(state.errors ?? {})
                 .filter(([name]) => name !== 'reason')
                 .map(([name, message]) => (

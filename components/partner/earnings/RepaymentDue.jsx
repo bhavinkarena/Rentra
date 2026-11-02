@@ -15,6 +15,40 @@ const day = (iso) =>
     timeZone: 'Asia/Kolkata',
   });
 
+// Story 4.6: an executed owner-funded incident award, as the owner may see it (no guest data).
+const OBLIGATION_STATE = {
+  awaiting_payout: 'Awaiting your payout',
+  due: 'Due',
+  repaid: 'Repaid',
+  cancelled: 'Cancelled',
+};
+const LINK_STATE = {
+  open: 'link open',
+  needs_review: 'payment under review',
+  paid: 'paid',
+  replaced: 'link replaced',
+  expired: 'link expired',
+};
+function IncidentCase({ incident, obligation }) {
+  return (
+    <span className="block text-tiny text-ink-600">
+      Incident case {incident.reference} · {incident.outcome.targetPct}% refund, owner funded ·{' '}
+      {incident.reason}
+      {incident.outcome.superseded
+        ? ' · Decision since reconsidered — amount owed stands unless Rentra tells you otherwise'
+        : ''}
+      {obligation ? (
+        <>
+          {' '}
+          · you owe {formatINRMinor(Number(obligation.amountMinor))} (Test),{' '}
+          {OBLIGATION_STATE[obligation.state] ?? obligation.state}
+          {obligation.link ? `, ${LINK_STATE[obligation.link.state] ?? obligation.link.state}` : ''}
+        </>
+      ) : null}
+    </span>
+  );
+}
+
 // Story 2.18: Test repayment of a recorded owner obligation. Razorpay Test only; no bank money.
 export default function RepaymentDue({ data }) {
   const router = useRouter();
@@ -27,6 +61,10 @@ export default function RepaymentDue({ data }) {
   const open = items.filter((i) => i.state === 'open');
   const review = items.filter((i) => i.state === 'needs_review');
   const shown = [...open, ...review];
+  const linked = new Set(shown.map((l) => l.incidentObligationId).filter(Boolean));
+  const allIncidents = data?.incidents ?? [];
+  const incidents = allIncidents.filter((i) => !linked.has(i.obligation.id));
+  const obligationOf = (id) => allIncidents.find((i) => i.obligation.id === id)?.obligation;
   // Story 2.19: seeing this panel is receipt evidence. One explicit POST per notice per page load.
   const viewed = useRef(new Set());
   const unseenKey = [
@@ -53,7 +91,7 @@ export default function RepaymentDue({ data }) {
   const [acking, setAcking] = useState('');
   const [ackError, setAckError] = useState('');
   // Story 2.20: the overdue banner shows even when no link is open or under review.
-  if (!shown.length && !data?.overdue) return null;
+  if (!shown.length && !incidents.length && !data?.overdue) return null;
   const acknowledge = async (recoveryId) => {
     setAcking(recoveryId);
     setAckError('');
@@ -170,6 +208,12 @@ export default function RepaymentDue({ data }) {
                       : `Due on ${day(link.notice.dueAt)}`}
                   </span>
                 ) : null}
+                {link.incident ? (
+                  <IncidentCase
+                    incident={link.incident}
+                    obligation={obligationOf(link.incidentObligationId)}
+                  />
+                ) : null}
               </span>
               {link.notice && !link.notice.acknowledged ? (
                 <button
@@ -195,6 +239,15 @@ export default function RepaymentDue({ data }) {
                   Payment received; finance is reviewing it. The balance still shows as due.
                 </span>
               )}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {incidents.length ? (
+        <ul aria-label="Incident cases" className="divide-y divide-border">
+          {incidents.map((i) => (
+            <li key={i.obligation.id} className="py-2">
+              <IncidentCase incident={i} obligation={i.obligation} />
             </li>
           ))}
         </ul>

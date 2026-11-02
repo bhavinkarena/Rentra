@@ -19,6 +19,7 @@ import { BackLink, PageHeader } from '@/components/ui/page-header';
 import { EmptyState } from '@/components/ui/empty-state';
 import { StateBadge } from './BookingDisplay';
 import { StayIssueSummary } from './StayIssueSummary';
+import { formatINRMinor } from '@/lib/domain/booking-money';
 const link = 'inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline';
 const primary = `${sharedButtonVariants({ shape: 'pill', size: 'default' })} `;
 const secondary =
@@ -216,6 +217,58 @@ function UrgentContacts() {
     </section>
   );
 }
+// Story 4.6: the case outcome, separate from refund progress. No credit date is ever promised.
+const REFUND_STATE = {
+  queued: 'Queued',
+  sent: 'Sent to bank',
+  refunded: 'Refunded',
+  needs_attention: 'Needs attention — Rentra is checking',
+};
+function Resolution({ resolution }) {
+  const o = resolution.outcome;
+  const card = 'rounded-lg border border-border bg-card p-4 text-meta text-ink-700 sm:p-5';
+  return (
+    <>
+      <section className={card} aria-labelledby="case-decision">
+        <h2 id="case-decision" className="mb-2 font-semibold text-ink-900">
+          Decision
+        </h2>
+        {o.status === 'declined' ? (
+          <p>Declined. {o.reason}</p>
+        ) : o.status === 'approved' ? (
+          <p>
+            {o.targetPct}% refund approved{o.executed ? '.' : ' — refund being prepared.'}
+          </p>
+        ) : (
+          <p>Under review.</p>
+        )}
+        {o.earlierRefund ? <p className="mt-1">An earlier approved refund still stands.</p> : null}
+      </section>
+      {resolution.refunds.length ? (
+        <section className={card} aria-labelledby="case-refund">
+          <h2 id="case-refund" className="mb-2 font-semibold text-ink-900">
+            Refund
+          </h2>
+          <ul className="divide-y divide-border">
+            {resolution.refunds.map((r) => (
+              <li key={r.reference} className="flex flex-wrap justify-between gap-2 py-2">
+                <span>
+                  {formatINRMinor(Number(r.amountMinor))}{' '}
+                  <span className="font-mono text-tiny break-all text-ink-500">{r.reference}</span>
+                </span>
+                <span
+                  className={`font-semibold ${r.status === 'needs_attention' ? 'text-warning' : ''}`}
+                >
+                  {REFUND_STATE[r.status] ?? r.status}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+    </>
+  );
+}
 export function SupportDetail({ record, admin = false, owner = false }) {
   const states = owner ? ownerSupportStates : supportStates;
   const categories = owner ? ownerSupportCategories : supportCategories;
@@ -242,6 +295,7 @@ export function SupportDetail({ record, admin = false, owner = false }) {
         !admin &&
         issuePriority(record.context?.stayIssue?.issueType) === 'urgent' && <UrgentContacts />}
       <StayIssueSummary issue={record.context?.stayIssue} />
+      {!admin && !owner && record.resolution ? <Resolution resolution={record.resolution} /> : null}
       <section className="space-y-1 rounded-lg border border-border bg-card p-4 text-meta text-ink-700 sm:p-5">
         <h2 className="mb-2 font-semibold text-ink-900">Request context</h2>
         <p>
