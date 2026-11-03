@@ -47,11 +47,11 @@ export default function AdminReviewQueue({ data }) {
           tone="brand"
         />
         <AdminKpiCard
-          label="Loaded open reports"
-          value={data.reports.length}
-          hint="Reports returned by the current queue"
+          label="Open reports"
+          value={data.openReportsTotal ?? data.reports.length}
+          hint="All reports awaiting an outcome"
           icon={Flag}
-          tone={data.reports.length ? 'danger' : 'neutral'}
+          tone={(data.openReportsTotal ?? data.reports.length) ? 'danger' : 'neutral'}
         />
       </section>
       <section className="mt-6 overflow-hidden rounded-lg border border-border bg-card shadow-xs">

@@ -1,7 +1,11 @@
 import Link from '@/components/navigation/NavigationLink';
 import { ReviewControl } from './ReviewForms';
 import { adminDateTime as time } from '@/lib/domain/admin-display';
-import { EXPERIENCE_SCOPE_LABELS } from '@/lib/domain/status';
+import {
+  EXPERIENCE_SCOPE_LABELS,
+  REPORT_OUTCOME_LABELS,
+  REVIEW_REASON_LABELS,
+} from '@/lib/domain/status';
 import { AdminPageHeader, AdminReadOnly } from '@/components/admin/AdminPrimitives';
 const link = 'inline-flex min-h-11 items-center underline';
 export default function ReviewDetail({
@@ -106,14 +110,48 @@ export default function ReviewDetail({
               {report.state} · {time(report.created_at)}
             </p>
             <p className="whitespace-pre-wrap">{report.reason}</p>
-            {report.resolution && <p>Resolution: {report.resolution}</p>}
+            {report.attachments?.length > 0 && (
+              <ul className="flex flex-wrap gap-3" aria-label="Report evidence">
+                {report.attachments.map((a, i) => {
+                  const href = `${base}/reviews/reports/${report.id}/attachments/${a.id}`;
+                  return (
+                    <li key={a.id}>
+                      <a
+                        href={`${href}?download=1`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="block min-h-11"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element -- private proxied evidence */}
+                        <img
+                          src={href}
+                          alt={`Evidence photo ${i + 1}`}
+                          className="size-24 rounded-md border border-border object-cover"
+                        />
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            {report.outcome && (
+              <p>
+                <strong>{REPORT_OUTCOME_LABELS[report.outcome]}</strong>
+                {report.resolution ? ` · ${report.resolution}` : ''}
+              </p>
+            )}
             {admin && canWrite && report.state === 'open' && (
               <>
                 <p>
-                  Closing this report does not change publication. Use the separate moderation
-                  decision if a policy violation warrants removal.
+                  Not a violation keeps the review public and counted. Upheld hides or rejects it
+                  with a policy basis in the same step.
                 </p>
-                <ReviewControl kind="resolve" id={report.id} />
+                <ReviewControl
+                  kind="resolve"
+                  id={report.id}
+                  version={r.version}
+                  removed={['hidden', 'rejected'].includes(r.state)}
+                />
               </>
             )}
           </article>
@@ -140,10 +178,12 @@ export default function ReviewDetail({
               {h.after?.state && (
                 <p>
                   {h.before?.state || 'Earlier state not recorded'} → {h.after.state} ·{' '}
-                  {h.after.category?.replaceAll('_', ' ')}
+                  {REVIEW_REASON_LABELS[h.after.category] ?? h.after.category}
                 </p>
               )}
+              {h.after?.outcome && <p>Report outcome: {REPORT_OUTCOME_LABELS[h.after.outcome]}</p>}
               {h.after?.reason && <p>{h.after.reason}</p>}
+              {h.after?.note && <p>{h.after.note}</p>}
             </li>
           ))}
         </ol>

@@ -53,7 +53,7 @@ export default function ReviewQueue({ data, admin = false, embedded = false }) {
               </p>
               <p>Report: {r.reason}</p>
               <ReviewControl kind="moderate" id={r.review_id} version={r.version} />
-              <ReviewControl kind="resolve" id={r.id} />
+              <ReviewControl kind="resolve" id={r.id} version={r.version} />
             </div>
           ))}
         </section>

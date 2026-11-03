@@ -10,7 +10,11 @@ import { submitCustomerReview, customerReviewReport } from '@/lib/actions/custom
 import { ownerReviewReply, ownerReviewReport } from '@/lib/actions/partner';
 import { moderateCustomerReview, resolveReviewReport } from '@/lib/actions/admin';
 import { ChevronDown } from 'lucide-react';
-import { EXPERIENCE_SCOPE_LABELS } from '@/lib/domain/status';
+import {
+  EXPERIENCE_SCOPE_LABELS,
+  REVIEW_REASON_LABELS,
+  REPORT_OUTCOME_LABELS,
+} from '@/lib/domain/status';
 const field = `${sharedFieldClass} mt-1 min-h-11`;
 function Result({ state }) {
   return (
@@ -168,7 +172,7 @@ export function ReviewControl(props) {
     );
   return <OtherReviewControl {...props} />;
 }
-function OtherReviewControl({ kind, id, version, body = '' }) {
+function OtherReviewControl({ kind, id, version, body = '', removed = false }) {
   const fn = {
     moderate: moderateCustomerReview,
     reply: ownerReviewReply,
@@ -181,7 +185,13 @@ function OtherReviewControl({ kind, id, version, body = '' }) {
   const [edited, setEdited] = useState(false);
   const [, startTransition] = useTransition();
   const router = useRouter();
-  const guarded = ['reply', 'moderate'].includes(kind);
+  const [outcome, setOutcome] = useState('not_violation');
+  const [photoError, setPhotoError] = useState(null);
+  // Already hidden/rejected under a policy reason: upholding records that decision, no new step.
+  const upheld = kind === 'resolve' && outcome === 'upheld' && !removed;
+  // Upholding a report hides or rejects the review, so it shares the moderation preview step.
+  const guarded = ['reply', 'moderate'].includes(kind) || upheld;
+  const decides = kind === 'moderate' || upheld;
   const preview = edited ? null : state.preview;
   return (
     <form
@@ -190,6 +200,17 @@ function OtherReviewControl({ kind, id, version, body = '' }) {
       onSubmit={(event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
+        if (report) {
+          const photos = data.getAll('photos').filter((f) => f.size > 0);
+          const problem =
+            photos.length > 3
+              ? 'Attach up to 3 photos.'
+              : photos.some((f) => f.size > 2 * 1024 * 1024)
+                ? 'Keep each photo under 2 MB.'
+                : null;
+          setPhotoError(problem);
+          if (problem) return;
+        }
         if (guarded) {
           data.set('mode', preview ? 'apply' : 'preview');
           if (preview) data.set('previewToken', preview.token);
@@ -200,25 +221,47 @@ function OtherReviewControl({ kind, id, version, body = '' }) {
     >
       <input type="hidden" name="id" value={id} />
       <input type="hidden" name="version" value={version ?? 0} />
-      {kind === 'moderate' ? (
+      {kind === 'resolve' && (
+        <fieldset className="space-y-1">
+          <legend className="font-semibold">Outcome</legend>
+          <div className="flex flex-wrap gap-x-5">
+            {Object.entries(REPORT_OUTCOME_LABELS).map(([value, label]) => (
+              <label key={value} className="inline-flex min-h-11 items-center gap-2">
+                <input
+                  type="radio"
+                  name="outcome"
+                  value={value}
+                  checked={outcome === value}
+                  onChange={() => setOutcome(value)}
+                  className="size-5"
+                />
+                {label}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      )}
+      {decides ? (
         <label className="block">
           Publication decision
-          <select className={field} name="state" defaultValue="published">
-            <option value="published">Publish</option>
+          <select className={field} name="state" defaultValue={upheld ? 'hidden' : 'published'}>
+            {upheld ? null : <option value="published">Publish</option>}
             <option value="rejected">Reject for policy violation</option>
             <option value="hidden">Hide from public view</option>
           </select>
         </label>
       ) : null}
-      {kind === 'moderate' && (
+      {decides && (
         <label className="block">
           Policy basis
           <select className={field} name="category">
-            <option value="meets_policy">Meets policy, regardless of score</option>
-            <option value="private_information">Private information</option>
-            <option value="harassment">Harassment</option>
-            <option value="spam">Spam</option>
-            <option value="unrelated_content">Unrelated content</option>
+            {Object.entries(REVIEW_REASON_LABELS)
+              .filter(([value]) => !upheld || value !== 'meets_policy')
+              .map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
           </select>
         </label>
       )}
@@ -226,7 +269,7 @@ function OtherReviewControl({ kind, id, version, body = '' }) {
         {kind === 'reply'
           ? 'Owner reply'
           : kind === 'resolve'
-            ? 'Resolution'
+            ? 'Outcome note (shared with the reporter)'
             : report
               ? 'Report reason'
               : 'Policy reason (shared with author)'}
@@ -236,18 +279,40 @@ function OtherReviewControl({ kind, id, version, body = '' }) {
             kind === 'reply'
               ? 'Owner reply'
               : kind === 'resolve'
-                ? 'Resolution'
+                ? 'Outcome note (shared with the reporter)'
                 : report
                   ? 'Report reason'
                   : 'Policy reason (shared with author)'
           }
-          name={kind === 'reply' ? 'body' : kind === 'resolve' ? 'resolution' : 'reason'}
-          defaultValue={body}
+          name={kind === 'reply' ? 'body' : kind === 'resolve' ? 'note' : 'reason'}
+          defaultValue={state.values?.reason ?? body}
           required
           minLength={10}
           maxLength={kind === 'reply' ? 2000 : 1000}
         />
       </label>
+      {report && (
+        <label className="block">
+          Evidence photos or screenshots (optional, up to 3)
+          <input
+            className={`${field} py-2`}
+            type="file"
+            name="photos"
+            multiple
+            accept="image/jpeg,image/png,image/webp"
+            aria-invalid={photoError ? true : undefined}
+            aria-describedby={photoError ? `photos-error-${id}` : undefined}
+          />
+          {photoError && (
+            <span id={`photos-error-${id}`} role="alert" className="block text-meta text-danger">
+              {photoError}
+            </span>
+          )}
+          <span className="text-meta">
+            JPG, PNG or WebP, 2 MB each. Only Rentra staff see them.
+          </span>
+        </label>
+      )}
       <button
         disabled={pending}
         className="min-h-11 rounded-full border border-border px-5 font-semibold transition-colors hover:bg-ink-50 disabled:opacity-50"
@@ -285,7 +350,11 @@ function OtherReviewControl({ kind, id, version, body = '' }) {
               Public owner reply: {preview.ownerReply}
             </p>
           )}
+          {preview.values.category && (
+            <p>Policy basis: {REVIEW_REASON_LABELS[preview.values.category]}</p>
+          )}
           {preview.values.reason && <p>Reason shared with the author: {preview.values.reason}</p>}
+          {upheld && <p>Confirming also closes the report as Upheld.</p>}
           <p>Nothing has been saved.</p>
           <button type="button" className="min-h-11 underline" onClick={() => setEdited(true)}>
             Cancel preview
