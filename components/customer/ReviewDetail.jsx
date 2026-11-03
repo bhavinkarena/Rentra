@@ -1,6 +1,7 @@
 import Link from '@/components/navigation/NavigationLink';
 import { ReviewControl } from './ReviewForms';
 import { adminDateTime as time } from '@/lib/domain/admin-display';
+import { EXPERIENCE_SCOPE_LABELS } from '@/lib/domain/status';
 import { AdminPageHeader, AdminReadOnly } from '@/components/admin/AdminPrimitives';
 const link = 'inline-flex min-h-11 items-center underline';
 export default function ReviewDetail({
@@ -55,6 +56,7 @@ export default function ReviewDetail({
         <h2 className="text-h3">Original customer review</h2>
         <p>
           Visit {r.visitReference} · {r.visitDate}
+          {r.experienceScope ? ` · ${EXPERIENCE_SCOPE_LABELS[r.experienceScope]}` : ''}
         </p>
         <blockquote className="mt-3 whitespace-pre-wrap rounded-md border border-border p-4">
           {r.body}

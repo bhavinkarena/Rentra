@@ -28,6 +28,7 @@ import TrustBadge from '@/components/rentra/TrustBadge';
 import { CANCELLATION_TIERS, calculateRefund, formatINR, SLOTS } from '@/lib/domain/pricing';
 import { subScoreLabels } from '@/lib/domain/vertical-ui';
 import { ASSISTANCE_ANIMALS_LINE } from '@/lib/domain/pet-policy';
+import { EXPERIENCE_SCOPE_LABELS } from '@/lib/domain/status';
 
 /**
  * The read-only half of the listing page. Server Components, every one —
@@ -374,6 +375,11 @@ export function Reviews({ listing, noun = ['stay', 'stays'] }) {
                   })
                 : null}
             </p>
+            {r.experienceScope ? (
+              <p className="mt-1 text-tiny font-semibold text-ink-600">
+                {EXPERIENCE_SCOPE_LABELS[r.experienceScope]}
+              </p>
+            ) : null}
             {r.body ? (
               <p className="mt-2.5 whitespace-pre-wrap break-words text-body text-ink-700">
                 {r.body}

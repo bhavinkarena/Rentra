@@ -18,6 +18,7 @@ import OwnerContactStrip from '@/components/partner/OwnerContactStrip';
 import { BackLink, PageHeader } from '@/components/ui/page-header';
 import { EmptyState } from '@/components/ui/empty-state';
 import { StateBadge } from './BookingDisplay';
+import { EXPERIENCE_SCOPE_LABELS } from '@/lib/domain/status';
 import { StayIssueSummary } from './StayIssueSummary';
 import { formatINRMinor } from '@/lib/domain/booking-money';
 const link = 'inline-flex min-h-11 items-center font-semibold text-brand-700 hover:underline';
@@ -224,6 +225,41 @@ const REFUND_STATE = {
   refunded: 'Refunded',
   needs_attention: 'Needs attention — Rentra is checking',
 };
+/** Story 5.2: the admin's review eligibility decision per affected visit, with its reason. */
+function ReviewEligibility({ items, orderId }) {
+  return (
+    <section
+      className="rounded-lg border border-border bg-card p-4 text-meta text-ink-700 sm:p-5"
+      aria-labelledby="case-review-eligibility"
+    >
+      <h2 id="case-review-eligibility" className="mb-2 font-semibold text-ink-900">
+        Review eligibility
+      </h2>
+      <ul className="space-y-2">
+        {items.map((v) => (
+          <li key={v.visitId}>
+            <p className="font-semibold">
+              {v.visitReference} ·{' '}
+              {v.decision.decision === 'approved'
+                ? `You can review your arrival until ${new Date(v.decision.windowEndsAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' })}`
+                : 'Not eligible for a review'}
+            </p>
+            {v.decision.scope ? <p>{EXPERIENCE_SCOPE_LABELS[v.decision.scope]}</p> : null}
+            <p>Reason: {v.decision.reason}</p>
+          </li>
+        ))}
+      </ul>
+      {orderId && items.some((v) => v.decision.decision === 'approved') ? (
+        <Link
+          className="inline-flex min-h-11 items-center underline"
+          href={`/bookings/${orderId}/reviews`}
+        >
+          Review your arrival
+        </Link>
+      ) : null}
+    </section>
+  );
+}
 function Resolution({ resolution }) {
   const o = resolution.outcome;
   const card = 'rounded-lg border border-border bg-card p-4 text-meta text-ink-700 sm:p-5';
@@ -296,6 +332,9 @@ export function SupportDetail({ record, admin = false, owner = false }) {
         issuePriority(record.context?.stayIssue?.issueType) === 'urgent' && <UrgentContacts />}
       <StayIssueSummary issue={record.context?.stayIssue} />
       {!admin && !owner && record.resolution ? <Resolution resolution={record.resolution} /> : null}
+      {!admin && !owner && record.reviewEligibility?.length ? (
+        <ReviewEligibility items={record.reviewEligibility} orderId={record.orderId} />
+      ) : null}
       <section className="space-y-1 rounded-lg border border-border bg-card p-4 text-meta text-ink-700 sm:p-5">
         <h2 className="mb-2 font-semibold text-ink-900">Request context</h2>
         <p>

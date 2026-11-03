@@ -10,6 +10,7 @@ import { submitCustomerReview, customerReviewReport } from '@/lib/actions/custom
 import { ownerReviewReply, ownerReviewReport } from '@/lib/actions/partner';
 import { moderateCustomerReview, resolveReviewReport } from '@/lib/actions/admin';
 import { ChevronDown } from 'lucide-react';
+import { EXPERIENCE_SCOPE_LABELS } from '@/lib/domain/status';
 const field = `${sharedFieldClass} mt-1 min-h-11`;
 function Result({ state }) {
   return (
@@ -43,7 +44,8 @@ async function submitWithAttempt(previous, form) {
   // Each attempt gets a new number so the form remounts with the returned values, even after an identical failure.
   return { ...(await submitCustomerReview(previous, form)), attempt: (previous.attempt ?? 0) + 1 };
 }
-export function CustomerReviewForm({ visits, listingHref }) {
+/** `scope` (Story 5.2): an approved arrival exception — overall stars and text only. */
+export function CustomerReviewForm({ visits, listingHref, scope = null }) {
   const [state, action, pending] = useActionState(submitWithAttempt, {});
   const router = useRouter();
   const saved = Boolean(state.state && !state.error);
@@ -65,8 +67,14 @@ export function CustomerReviewForm({ visits, listingHref }) {
         </div>
       ) : null}
       <form action={action} className="space-y-4" key={state.attempt ?? 0}>
+        {scope ? (
+          <p className="rounded-md bg-ink-25 p-3 text-meta">
+            {EXPERIENCE_SCOPE_LABELS[scope]}. Rate only what you experienced on arrival; this review
+            shows that label and has no stay sub-scores.
+          </p>
+        ) : null}
         <label className="block">
-          Completed visit
+          {scope ? 'Visit' : 'Completed visit'}
           <select name="visitId" required className={field} defaultValue={values?.visitId}>
             {visits.map((v) => (
               <option value={v.id} key={v.id}>
@@ -88,51 +96,53 @@ export function CustomerReviewForm({ visits, listingHref }) {
             defaultValue={values?.body ?? ''}
           />
         </label>
-        <details className="group">
-          <summary className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 font-semibold">
-            {visits[0]?.slot === 'stay' ? 'Rate your stay (optional)' : 'Optional ratings'}
-            <ChevronDown
-              className="size-4 transition-transform duration-150 group-open:rotate-180"
-              aria-hidden="true"
-            />
-          </summary>
-          {visits[0]?.slot === 'stay' ? (
-            /* Hotel stays (hotel plan, Phase 8): six sub-scores and who travelled. */
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Score values={values} name="cleanliness" label="Cleanliness" />
-              <Score values={values} name="staff" label="Staff and service" />
-              <Score values={values} name="location" label="Location" />
-              <Score values={values} name="comfort" label="Room comfort" />
-              <Score values={values} name="valueForMoney" label="Value for money" />
-              <Score values={values} name="facilities" label="Facilities" />
-              <label className="block sm:col-span-2">
-                Who travelled
-                <select
-                  className={field}
-                  name="travellerType"
-                  defaultValue={values?.travellerType ?? ''}
-                >
-                  <option value="">Prefer not to say</option>
-                  <option value="business">Business</option>
-                  <option value="couple">Couple</option>
-                  <option value="family">Family</option>
-                  <option value="friends">Friends</option>
-                  <option value="solo">Solo</option>
-                </select>
-              </label>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <Score values={values} name="cleanliness" label="Cleanliness" />
-              <Score
-                values={values}
-                name="accuracy"
-                label={visits[0]?.slot === 'hourly' ? 'Court condition' : 'Listing accuracy'}
+        {scope ? null : (
+          <details className="group">
+            <summary className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 font-semibold">
+              {visits[0]?.slot === 'stay' ? 'Rate your stay (optional)' : 'Optional ratings'}
+              <ChevronDown
+                className="size-4 transition-transform duration-150 group-open:rotate-180"
+                aria-hidden="true"
               />
-              <Score values={values} name="valueForMoney" label="Value for money" />
-            </div>
-          )}
-        </details>
+            </summary>
+            {visits[0]?.slot === 'stay' ? (
+              /* Hotel stays (hotel plan, Phase 8): six sub-scores and who travelled. */
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Score values={values} name="cleanliness" label="Cleanliness" />
+                <Score values={values} name="staff" label="Staff and service" />
+                <Score values={values} name="location" label="Location" />
+                <Score values={values} name="comfort" label="Room comfort" />
+                <Score values={values} name="valueForMoney" label="Value for money" />
+                <Score values={values} name="facilities" label="Facilities" />
+                <label className="block sm:col-span-2">
+                  Who travelled
+                  <select
+                    className={field}
+                    name="travellerType"
+                    defaultValue={values?.travellerType ?? ''}
+                  >
+                    <option value="">Prefer not to say</option>
+                    <option value="business">Business</option>
+                    <option value="couple">Couple</option>
+                    <option value="family">Family</option>
+                    <option value="friends">Friends</option>
+                    <option value="solo">Solo</option>
+                  </select>
+                </label>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <Score values={values} name="cleanliness" label="Cleanliness" />
+                <Score
+                  values={values}
+                  name="accuracy"
+                  label={visits[0]?.slot === 'hourly' ? 'Court condition' : 'Listing accuracy'}
+                />
+                <Score values={values} name="valueForMoney" label="Value for money" />
+              </div>
+            )}
+          </details>
+        )}
         <p className="text-meta">
           Describe your own visit. Do not include phone numbers, links, access codes or other
           private details. Every score is checked under the same rules, and most reviews go live

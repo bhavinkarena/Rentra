@@ -2,6 +2,7 @@ import Form from '@/components/navigation/NavigationForm';
 import Link from '@/components/navigation/NavigationLink';
 import SupportManagement from './SupportManagement';
 import IncidentRemedyPanel from './IncidentRemedyPanel';
+import ReviewEligibilityPanel from './ReviewEligibilityPanel';
 import { randomUUID } from 'node:crypto';
 import { CalendarDays, Clock3, Inbox, LifeBuoy, MessageSquareText } from 'lucide-react';
 import { supportCategories, ownerSupportCategories, supportStates } from '@/lib/domain/help';
@@ -358,6 +359,16 @@ export function AdminSupportDetail({
             <section className="rounded-md border border-border bg-card p-5">
               <h2 className="mb-3 text-h4 font-bold">Remedy</h2>
               <IncidentRemedyPanel caseId={record.id} remedy={record.remedy} />
+            </section>
+          )}
+          {record.reviewEligibility?.length > 0 && (
+            <section className="rounded-md border border-border bg-card p-5">
+              <h2 className="mb-3 text-h4 font-bold">Review eligibility</h2>
+              <ReviewEligibilityPanel
+                caseId={record.id}
+                visits={record.reviewEligibility}
+                canDecide={record.canReply}
+              />
             </section>
           )}
           {record.alerts?.length > 0 && (

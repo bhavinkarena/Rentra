@@ -8,7 +8,7 @@ import { StateBadge } from '@/components/customer/BookingDisplay';
 import { formatLocalDate } from '@/lib/domain/booking-dates';
 import { Star } from 'lucide-react';
 import Link from '@/components/navigation/NavigationLink';
-import { REVIEW_CHECKING_MESSAGE } from '@/lib/domain/status';
+import { REVIEW_CHECKING_MESSAGE, EXPERIENCE_SCOPE_LABELS } from '@/lib/domain/status';
 import { listingPath } from '@/lib/domain/listing-url';
 export const metadata = { title: 'Review your visit', robots: { index: false, follow: false } };
 export default async function Reviews({ params }) {
@@ -19,15 +19,28 @@ export default async function Reviews({ params }) {
     if (e instanceof ApiError && [400, 403, 404].includes(e.status)) notFound();
     throw e;
   }
-  const eligible = data.visits.filter((v) => v.eligible && !v.review_id);
+  const open = data.visits.filter((v) => v.eligible && !v.review_id);
+  const eligible = open.filter((v) => !v.experience_scope);
+  // Story 5.2: visits with an approved arrival exception get their own scoped form each.
+  const arrivals = open.filter((v) => v.experience_scope);
   return (
     <section className="mx-auto max-w-2xl space-y-5">
       <PageHeader
         className="mb-2"
         back={{ href: `/bookings/${data.id}`, label: 'Back to booking' }}
         title="Review your visit"
-        description="Review visits you completed in the last 30 days. Cancelled, no-show and test visits can't be reviewed."
+        description="Review visits you completed in the last 30 days. Cancelled, no-show and test visits can't be reviewed unless Rentra approved an arrival review."
       />
+      {arrivals.map((v) => (
+        <div key={v.id} className="rounded-lg border border-border bg-card p-4 sm:p-6">
+          <h2 className="mb-3 text-h4 font-bold">Review your arrival</h2>
+          <CustomerReviewForm
+            visits={[v]}
+            scope={v.experience_scope}
+            listingHref={listingPath(data.listing_slug, data.listing_code)}
+          />
+        </div>
+      ))}
       {eligible.length ? (
         <div className="rounded-lg border border-border bg-card p-4 sm:p-6">
           <CustomerReviewForm
@@ -35,7 +48,7 @@ export default async function Reviews({ params }) {
             listingHref={listingPath(data.listing_slug, data.listing_code)}
           />
         </div>
-      ) : (
+      ) : arrivals.length ? null : (
         <EmptyState icon={Star} title="No unreviewed eligible visits in this booking." />
       )}
       <ul className="space-y-3">
@@ -51,6 +64,11 @@ export default async function Reviews({ params }) {
                 </h2>
                 <StateBadge domain="review" state={v.moderation_state} />
               </div>
+              {v.experience_scope ? (
+                <p className="text-meta font-semibold text-ink-600">
+                  {EXPERIENCE_SCOPE_LABELS[v.experience_scope]}
+                </p>
+              ) : null}
               <p className="whitespace-pre-wrap wrap-break-word text-ink-800">{v.body}</p>
               {v.moderation_state === 'published' ? (
                 <Link

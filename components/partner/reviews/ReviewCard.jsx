@@ -6,6 +6,7 @@ import Link from '@/components/navigation/NavigationLink';
 import OwnerReviewReply from '../OwnerReviewReply';
 import { ReviewControl } from '@/components/customer/ReviewForms';
 import { formatLocalDate } from '@/lib/domain/booking-dates';
+import { EXPERIENCE_SCOPE_LABELS } from '@/lib/domain/status';
 
 const date = (value) =>
   value
@@ -85,6 +86,11 @@ export default function ReviewCard({ review: r }) {
             {r.rating}/5
           </span>
         </div>
+        {r.experience_scope ? (
+          <p className="mt-2 text-meta font-semibold text-ink-600">
+            {EXPERIENCE_SCOPE_LABELS[r.experience_scope]}
+          </p>
+        ) : null}
         <p className="mt-3 max-w-[72ch] whitespace-pre-wrap break-words text-base leading-7 text-ink-800">
           {long && !full ? `${r.body.slice(0, 420)}…` : r.body || 'No written feedback.'}
         </p>
