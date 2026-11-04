@@ -1,0 +1,720 @@
+{
+  "status": "failed",
+  "actionWidth": 390,
+  "ranAt": "2026-11-04T10:48:57.079Z",
+  "passed": 114,
+  "failed": 1,
+  "checks": [
+    {
+      "source": "browser",
+      "name": "5.3 invitation listed in Booking updates",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.3 delivered by fake SMS adapter but still unread",
+      "ok": true,
+      "detail": "How was your visit?\n(unread)\n\n4 Nov, 4:18 pm · SMS: delivered\n\nE5-c849180f\n\nOpen booking\nMark as read"
+    },
+    {
+      "source": "service",
+      "name": "5.3 SMS body links to the reviews page, no case detail (service observation)",
+      "ok": true,
+      "detail": "Rentra: How was your visit at Review River Farm? Review it by 3 Dec 2026: http://127.0.0.1:3115/bookings/1a9bfad5-0153-4022-a531-0d5bf51c164c/reviews Update 288f81a7-e234-4bfd-997a-f6fc0eab2c4e."
+    },
+    {
+      "source": "browser",
+      "name": "53-notifications: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "53-notifications: action targets ≥44px 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "53-notifications: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "53-notifications: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "53-notifications: action targets ≥44px 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "53-notifications: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "53-notifications: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "53-notifications: action targets ≥44px 1440",
+      "ok": false,
+      "detail": [
+        "Mark as read 111x36px",
+        "Mark as read 111x36px"
+      ]
+    },
+    {
+      "source": "browser",
+      "name": "53-notifications: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "5.3 customer Mark as read sets Read",
+      "ok": true,
+      "detail": "How was your visit?\n\n4 Nov, 4:18 pm · SMS: delivered\n\nE5-c849180f\n\nOpen booking\nRead"
+    },
+    {
+      "source": "browser",
+      "name": "51-review-form: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "51-review-form: action targets ≥44px 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "51-review-form: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "51-review-form: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "51-review-form: action targets ≥44px 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "51-review-form: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "51-review-form: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "51-review-form: action targets ≥44px 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "51-review-form: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "5.1 clean review shown Live with listing link",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.1 clean review on public listing",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.3 invitation hidden after the guest reviewed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.1 failed submit keeps rating and text",
+      "ok": true,
+      "detail": "Check the highlighted fields."
+    },
+    {
+      "source": "browser",
+      "name": "5.1 flagged review shows checking message",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.1 flagged review still checking after reload",
+      "ok": true,
+      "detail": "Back to booking\nReview your visit\n\nReview visits you completed in the last 30 days. Cancelled, no-show and test visits can't be reviewed unless Rentra approved an arrival review.\n\nNo unreviewed eligible visits in this booking.\nTue, 3 Nov, 2026 ·\n5 out of 5\nBeing checked\n\nLovely farm, call the caretaker on 98765 43210 or see www.example-farm.in for directions.\n\nThanks — your review is being checked before it appears. This usually happens when it contains contact details, links or language our rules don't allow."
+    },
+    {
+      "source": "browser",
+      "name": "5.1 flagged review not public",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.1 1-star clean review published (no rating flag)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.1 admin queue: flagged review pending with reasons",
+      "ok": true,
+      "detail": "Review River Farm\n\n5 out of 5\n\n\t\n\nLovely farm, call the caretaker on 98765 43210 or see www.example-farm.in for directions.\n\n\t\nPending\n\nAuto-flagged: private information, spam\n\n\tView\nreview of Review River Farm"
+    },
+    {
+      "source": "browser",
+      "name": "51-admin-queue: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "51-admin-queue: action targets ≥44px 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "51-admin-queue: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "51-admin-queue: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "51-admin-queue: action targets ≥44px 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "51-admin-queue: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "51-admin-queue: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "51-admin-queue: action targets ≥44px 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "51-admin-queue: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "5.1 Auto-published filter lists clean reviews only",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.1 Auto-published tab marked current",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.2 no arrival form before a decision",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.2 admin panel: not eligible, no decision",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "52-admin-eligibility: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "52-admin-eligibility: action targets ≥44px 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "52-admin-eligibility: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "52-admin-eligibility: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "52-admin-eligibility: action targets ≥44px 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "52-admin-eligibility: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "52-admin-eligibility: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "52-admin-eligibility: action targets ≥44px 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "52-admin-eligibility: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "5.2 admin approves with scope and reason",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.2 guest case shows the decision and reason",
+      "ok": true,
+      "detail": "Back to support requests\nStay issue: Can't get in\nOpen\n\nSUP-652D70E827B44071\n\nWe've received your report. Support will review it; this does not cancel or refund your booking. Reference SUP-652D70E827B44071.\n\nMarked urgent. A person will reply within 12 hours.\n\nIn an emergency, call 112.\n\nReported problem: Can't get in\n\nFound 3 Nov 2026, 2:18 pm India time\n\nAffected: Vaf0da405-7 (2026-11-03)\n\nReque"
+    },
+    {
+      "source": "browser",
+      "name": "5.3 arrival exception invitation listed (approved inside 09:00-21:00 IST)",
+      "ok": true,
+      "detail": "2026-11-04T10:48:38.501Z"
+    },
+    {
+      "source": "browser",
+      "name": "5.2 guest sees \"Review your arrival\"",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.2 scoped form has no sub-scores",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "52-arrival-form: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "52-arrival-form: action targets ≥44px 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "52-arrival-form: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "52-arrival-form: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "52-arrival-form: action targets ≥44px 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "52-arrival-form: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "52-arrival-form: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "52-arrival-form: action targets ≥44px 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "52-arrival-form: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "5.2 scoped review public with label",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.2 admin sees the review is public",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.2 reviewed visit offers deny only",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.2 revoke removes the scoped review from public view",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.2 guest case shows the denial and reason",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.4 4 photos refused before upload",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.4 reporter sees own report, 2 photos, open",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "54-report: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "54-report: action targets ≥44px 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "54-report: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "54-report: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "54-report: action targets ≥44px 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "54-report: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "54-report: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "54-report: action targets ≥44px 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "54-report: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "5.4 report does not hide the review",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.4 owner has no delete/hide/veto control",
+      "ok": true,
+      "detail": [
+        "Back to reviews",
+        "Property detail",
+        "Booking and visit evidence",
+        "Post reply",
+        "Cancel",
+        "Delete reply",
+        ""
+      ]
+    },
+    {
+      "source": "browser",
+      "name": "5.4 owner sees own open report with evidence",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "54-owner-review: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "54-owner-review: action targets ≥44px 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "54-owner-review: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "54-owner-review: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "54-owner-review: action targets ≥44px 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "54-owner-review: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "54-owner-review: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "54-owner-review: action targets ≥44px 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "54-owner-review: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "5.4 admin open-report total 2",
+      "ok": true,
+      "detail": "Open reports\n\n2"
+    },
+    {
+      "source": "browser",
+      "name": "5.4 admin sees 3 evidence thumbnails that load",
+      "ok": true,
+      "detail": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "source": "browser",
+      "name": "54-admin-detail: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "54-admin-detail: action targets ≥44px 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "54-admin-detail: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "54-admin-detail: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "54-admin-detail: action targets ≥44px 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "54-admin-detail: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "54-admin-detail: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "54-admin-detail: action targets ≥44px 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "54-admin-detail: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "5.4 not_violation closes report, review stays public",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.4 manipulation reason offered, meets_policy not offered for Upheld",
+      "ok": true,
+      "detail": [
+        "Private information",
+        "Harassment",
+        "Spam",
+        "Unrelated content",
+        "Manipulation (fake, incentivised or conflicted review)"
+      ]
+    },
+    {
+      "source": "browser",
+      "name": "5.4 Upheld with hide closes report",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.4 hidden review left public listing",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.4 reporter sees Upheld outcome and note",
+      "ok": true,
+      "detail": "Report review or reply\n\nThis review is no longer public.\n\nTell us which content violates the review rules and why. A report is saved for staff review; it does not automatically remove content.\n\nYour report\n\nThis reads like a competitor review; the dates do not match any stay.\n\nEvidence photo 1\nEvidence photo 2\n\nUpheld · Upheld: booking records show this was not a genuine stay."
+    },
+    {
+      "source": "browser",
+      "name": "5.4 owner sees Not a violation outcome and note",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "5.4 other customer gets 404 for evidence",
+      "ok": true,
+      "detail": "404 /reviews/reports/cdbe9267-0089-4d4c-91bf-7d30368f9882/attachments/58687399-e854-4bc9-8b9d-898aafbc207d"
+    },
+    {
+      "source": "browser",
+      "name": "no runtime page errors",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "runner completed",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

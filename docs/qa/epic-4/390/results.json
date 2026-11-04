@@ -1,0 +1,676 @@
+{
+  "status": "passed",
+  "actionWidth": 390,
+  "ranAt": "2026-11-04T10:47:52.556Z",
+  "caseReference": "SUP-8987B41961C8430C",
+  "passed": 107,
+  "failed": 0,
+  "checks": [
+    {
+      "source": "browser",
+      "name": "4.1 booking detail opens intake with order preselected",
+      "ok": true,
+      "detail": "http://127.0.0.1:3114/support/new?order=6c108ad3-4c3e-48a4-a6c0-e44657bb6a2d&topic=stay_issue"
+    },
+    {
+      "source": "browser",
+      "name": "4.2 intake lists stranded type",
+      "ok": true,
+      "detail": [
+        "Choose…",
+        "Can't get in",
+        "Safety",
+        "I have nowhere to stay right now",
+        "Cleanliness",
+        "Not as described",
+        "Something is broken",
+        "Other"
+      ]
+    },
+    {
+      "source": "browser",
+      "name": "report-form: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "report-form: primary targets 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "report-form: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "report-form: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "report-form: primary targets 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "report-form: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "report-form: reflow 768",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "report-form: axe 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "report-form: reflow 1024",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "report-form: axe 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "report-form: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "report-form: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "4.1 empty submit focuses first error",
+      "ok": true,
+      "detail": "issueType"
+    },
+    {
+      "source": "browser",
+      "name": "4.1 empty submit shows field errors, nothing saved",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "4.1 late report without reason refused, values kept",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "4.1 acknowledgement with durable reference",
+      "ok": true,
+      "detail": "SUP-8987B41961C8430C"
+    },
+    {
+      "source": "browser",
+      "name": "4.2 urgent guest text, configured contacts and 112, no 24/7",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "sql",
+      "name": "4.1/4.2 saved urgent, 2 photos, alert raised, no refund or order change",
+      "ok": true,
+      "detail": {
+        "priority": "urgent",
+        "late": false,
+        "photos": 2,
+        "alerts": 2,
+        "order_state": "completed",
+        "refunds": 0
+      }
+    },
+    {
+      "source": "browser",
+      "name": "guest-urgent-case: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "guest-urgent-case: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "guest-urgent-case: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "guest-urgent-case: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "guest-urgent-case: reflow 768",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "guest-urgent-case: axe 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "guest-urgent-case: reflow 1024",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "guest-urgent-case: axe 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "guest-urgent-case: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "guest-urgent-case: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "4.1 plain request saved without urgent block",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "4.2 urgent view lists case with badge and no reply yet",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "admin-urgent-view: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "admin-urgent-view: primary targets 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "admin-urgent-view: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "admin-urgent-view: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "admin-urgent-view: primary targets 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "admin-urgent-view: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "admin-urgent-view: reflow 768",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "admin-urgent-view: axe 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "admin-urgent-view: reflow 1024",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "admin-urgent-view: axe 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "admin-urgent-view: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "admin-urgent-view: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "4.2 aged view lists 13h case",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "4.2 unassigned view lists new case",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "fixture",
+      "name": "fixture: alert email marked failed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "4.2 failed-delivery view lists case with badge",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "4.1 admin sees structured issue, photos and alert delivery",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "4.2 first reply shows none yet",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "4.3 note tab states admin-only audience",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "4.3 note saved, labelled private, first reply untouched",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "sql",
+      "name": "4.2/4.3 guest reply sets first response",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "4.3 guest sees reply, never the private note",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "4.3 support-read admin gets only the note tab, no remedy controls",
+      "ok": true,
+      "detail": [
+        "Private note"
+      ]
+    },
+    {
+      "source": "browser",
+      "name": "4.4 Test-mode label shown",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "4.6 guest sees Declined with reason, no refund block",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "4.4 preview: paid ₹1,080, additional ₹1,080, provider call at execution",
+      "ok": true,
+      "detail": "Preview\nPaid for chosen visits (verified)\n₹1,080 · rent ₹1,000 · fee ₹80 · tax ₹0\nEarlier refunds (verified)\n₹0\nRefunds in flight (counted)\n₹0\nCase and dispute reimbursements\nnone recorded\nCumulative target (100%)\n₹1,080\nAdditional guest refund due\n₹1,080\nProvider call\nYes, at execution\nOwner-funded: total owner responsibility\n₹1,080\nTotal Rentra responsibility\n₹0\nTax refunded — treatment pending accounting\n₹0\nIncrease for owner\n₹1,080\nReassigned from Rentra's earlier share\n₹0\nOwner liability exceeds original proceeds by\n₹80\nPayout state\npaid\nProjected owner recovery (projection)\n₹1,080"
+    },
+    {
+      "source": "sql",
+      "name": "4.4 active owner-funded 100% decision saved, history kept, no money moved",
+      "ok": true,
+      "detail": {
+        "kind": "award",
+        "target_pct": 100,
+        "responsibility": "owner_funded",
+        "total": 2,
+        "refunds": 0
+      }
+    },
+    {
+      "source": "browser",
+      "name": "4.6 guest sees approved award before execution, no refund line",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "4.5 confirm states refund and owner obligation",
+      "ok": true,
+      "detail": "Queue a Test guest refund of ₹1,080 and record an owner obligation of about ₹80? This runs once.\n\nConfirm and execute\nCancel"
+    },
+    {
+      "source": "browser",
+      "name": "4.5 execution rows: queued Test refund ₹1,080, owner obligation ₹80 due",
+      "ok": true,
+      "detail": "Award executed · 04 Nov 2026, 16:17 IST\nGuest refund TEST_REFUND_1d8ff25d-3170-40c2-a447-de0b4532d5b7 (Test)\n₹1,080 · Queued\nOwner incident obligation (Test)\n₹80 · Due\n\nReassigned fee ₹0 · owner fee share ₹80. Never deducted from a payout.\n\nCreate repayment link"
+    },
+    {
+      "source": "sql",
+      "name": "4.5 refund reason carries case prefix",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "4.5 admin created ₹80 incident repayment link",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "admin-case-executed: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "admin-case-executed: primary targets 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "admin-case-executed: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "admin-case-executed: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "admin-case-executed: primary targets 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "admin-case-executed: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "admin-case-executed: reflow 768",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "admin-case-executed: axe 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "admin-case-executed: reflow 1024",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "admin-case-executed: axe 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "admin-case-executed: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "admin-case-executed: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "4.6 guest Decision and separate Refund block: Queued",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "4.6 guest sees no owner responsibility or note",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "guest-case-decision: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "guest-case-decision: primary targets 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "guest-case-decision: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "guest-case-decision: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "guest-case-decision: primary targets 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "guest-case-decision: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "guest-case-decision: reflow 768",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "guest-case-decision: axe 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "guest-case-decision: reflow 1024",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "guest-case-decision: axe 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "guest-case-decision: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "guest-case-decision: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "4.6 owner sees incident case row with reference, outcome and reason",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "4.6 owner sees no guest details, photos or note",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "owner-earnings: reflow 320",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "owner-earnings: primary targets 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-earnings: axe 320",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-earnings: reflow 390",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "owner-earnings: primary targets 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-earnings: axe 390",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-earnings: reflow 768",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "owner-earnings: axe 768",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-earnings: reflow 1024",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "owner-earnings: axe 1024",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "browser",
+      "name": "owner-earnings: reflow 1440",
+      "ok": true,
+      "detail": "0px horizontal overflow"
+    },
+    {
+      "source": "browser",
+      "name": "owner-earnings: axe 1440",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "source": "fixture",
+      "name": "fixture: refund verified succeeded (stands in for provider verification)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "4.6 guest verified refund reads Refunded",
+      "ok": true,
+      "detail": "Refund\n₹1,080 TEST_REFUND_1d8ff25d-3170-40c2-a447-de0b4532d5b7\nRefunded"
+    },
+    {
+      "source": "browser",
+      "name": "no runtime or hydration errors",
+      "ok": true,
+      "detail": []
+    }
+  ]
+}
