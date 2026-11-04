@@ -309,7 +309,7 @@ export function AdminSupportDetail({
           <AdminReadOnly />
         </div>
       )}
-      <div className="mt-6 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="mt-6 grid grid-cols-[minmax(0,1fr)] items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
         <section className="overflow-hidden rounded-lg border border-border bg-card shadow-xs">
           <div className="border-b border-border px-5 py-4">
             <h2 className="text-h4 font-bold">Conversation</h2>
