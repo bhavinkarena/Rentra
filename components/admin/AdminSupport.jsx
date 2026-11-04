@@ -62,7 +62,7 @@ const stateTone = (state) =>
         : 'danger';
 
 export function AdminSupportList({ data }) {
-  const listHref = `/admin/support?state=${encodeURIComponent(data.state)}&participant=${data.participant}&assignment=${data.assignment}&view=${data.view}&page=${data.page}`;
+  const listHref = `/admin/support?state=${encodeURIComponent(data.state)}&participant=${data.participant}&assignment=${data.assignment}&view=${data.view}&page=${data.page}${data.property ? `&property=${data.property}` : ''}`;
   const open = data.items.filter((item) => item.state === 'open').length;
   const waiting = data.items.filter((item) => item.state === 'waiting_customer').length;
   return (
@@ -106,8 +106,21 @@ export function AdminSupportList({ data }) {
             <p className="mt-1 text-tiny text-ink-500">
               Most recently updated first · Loaded {time(new Date())}
             </p>
+            {data.property && (
+              <p className="mt-1 text-tiny font-semibold text-ink-700">
+                Showing one property&apos;s cases ·{' '}
+                <Link className="underline" href={`/admin/properties/${data.property}`}>
+                  Property
+                </Link>{' '}
+                ·{' '}
+                <Link className="underline" href="/admin/support">
+                  Clear
+                </Link>
+              </p>
+            )}
           </div>
           <Form action="/admin/support" className="flex flex-wrap items-end gap-2">
+            {data.property && <input type="hidden" name="property" value={data.property} />}
             <label className="text-tiny font-semibold text-ink-600">
               Status
               <select

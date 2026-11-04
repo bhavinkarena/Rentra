@@ -244,6 +244,24 @@ try {
     failed.includes(caseRef) && failed.includes('Alert email failed'),
   );
 
+  // ---- 0099: stay issues carry the booking's property; admins filter by it ----
+  const [{ property_id: propertyId }] =
+    await sql`SELECT property_id FROM support_request WHERE id=${caseId}`;
+  check('0099 stay issue stored with its booking property', Boolean(propertyId), '', 'sql');
+  await admin.goto(`${web}/admin/properties/${propertyId}`, { waitUntil: 'networkidle' });
+  await admin.getByRole('link', { name: 'Support cases →' }).click();
+  await admin.waitForURL(/\/admin\/support\?property=/);
+  await admin.waitForLoadState('networkidle');
+  const byProperty = await text(admin);
+  check(
+    '0099 property page links to its filtered support cases',
+    byProperty.includes(caseRef) && byProperty.includes("Showing one property's cases"),
+  );
+  await admin.goto(`${web}/admin/support?property=00000000-0000-4000-8000-000000000000`, {
+    waitUntil: 'networkidle',
+  });
+  check('0099 another property filter hides the case', !(await text(admin)).includes(caseRef));
+
   // ---- 4.3 private note vs guest reply ----
   await admin.goto(`${web}/admin/support/${caseId}`, { waitUntil: 'networkidle' });
   let detail = await text(admin);

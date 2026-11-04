@@ -164,6 +164,14 @@ export default async function PropertyReviewDetail({ params, searchParams }) {
                 Gate 1 application →
               </Link>
             ) : null}
+            {admin.capabilities.includes('admin.support.read') ? (
+              <Link
+                href={`/admin/support?property=${id}`}
+                className="inline-flex min-h-9 items-center rounded-md border border-border bg-card px-3 text-tiny font-semibold text-ink-800 hover:bg-ink-50"
+              >
+                Support cases →
+              </Link>
+            ) : null}
           </div>
         }
       />

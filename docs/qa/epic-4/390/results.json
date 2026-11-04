@@ -1,16 +1,16 @@
 {
   "status": "passed",
   "actionWidth": 390,
-  "ranAt": "2026-11-04T10:59:39.683Z",
-  "caseReference": "SUP-A0B573D171ED4ABC",
-  "passed": 107,
+  "ranAt": "2026-11-04T11:05:08.852Z",
+  "caseReference": "SUP-F7B00E86D66D442B",
+  "passed": 110,
   "failed": 0,
   "checks": [
     {
       "source": "browser",
       "name": "4.1 booking detail opens intake with order preselected",
       "ok": true,
-      "detail": "http://127.0.0.1:3114/support/new?order=566b3eaf-d880-4dd4-b3ff-e0b4ae9dbbc2&topic=stay_issue"
+      "detail": "http://127.0.0.1:3114/support/new?order=065716b9-333b-4d6b-8523-f2fc82e92604&topic=stay_issue"
     },
     {
       "source": "browser",
@@ -121,7 +121,7 @@
       "source": "browser",
       "name": "4.1 acknowledgement with durable reference",
       "ok": true,
-      "detail": "SUP-A0B573D171ED4ABC"
+      "detail": "SUP-F7B00E86D66D442B"
     },
     {
       "source": "browser",
@@ -311,6 +311,24 @@
       "detail": ""
     },
     {
+      "source": "sql",
+      "name": "0099 stay issue stored with its booking property",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "0099 property page links to its filtered support cases",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "0099 another property filter hides the case",
+      "ok": true,
+      "detail": ""
+    },
+    {
       "source": "browser",
       "name": "4.1 admin sees structured issue, photos and alert delivery",
       "ok": true,
@@ -400,7 +418,7 @@
       "source": "browser",
       "name": "4.5 execution rows: queued Test refund ₹1,080, owner obligation ₹80 due",
       "ok": true,
-      "detail": "Award executed · 04 Nov 2026, 16:29 IST\nGuest refund TEST_REFUND_5f23daaf-5d4a-4a71-9128-3b1d403f0f4a (Test)\n₹1,080 · Queued\nOwner incident obligation (Test)\n₹80 · Due\n\nReassigned fee ₹0 · owner fee share ₹80. Never deducted from a payout.\n\nCreate repayment link"
+      "detail": "Award executed · 04 Nov 2026, 16:34 IST\nGuest refund TEST_REFUND_c4e46854-a33d-4902-8b43-f6241ea2b68d (Test)\n₹1,080 · Queued\nOwner incident obligation (Test)\n₹80 · Due\n\nReassigned fee ₹0 · owner fee share ₹80. Never deducted from a payout.\n\nCreate repayment link"
     },
     {
       "source": "sql",
@@ -664,7 +682,7 @@
       "source": "browser",
       "name": "4.6 guest verified refund reads Refunded",
       "ok": true,
-      "detail": "Refund\n₹1,080 TEST_REFUND_5f23daaf-5d4a-4a71-9128-3b1d403f0f4a\nRefunded"
+      "detail": "Refund\n₹1,080 TEST_REFUND_c4e46854-a33d-4902-8b43-f6241ea2b68d\nRefunded"
     },
     {
       "source": "browser",

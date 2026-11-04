@@ -1,16 +1,16 @@
 {
   "status": "passed",
   "actionWidth": 1440,
-  "ranAt": "2026-11-04T10:48:20.002Z",
-  "caseReference": "SUP-43678555D44B4BA0",
-  "passed": 98,
+  "ranAt": "2026-11-04T11:04:39.643Z",
+  "caseReference": "SUP-4FB5691E340841C5",
+  "passed": 101,
   "failed": 0,
   "checks": [
     {
       "source": "browser",
       "name": "4.1 booking detail opens intake with order preselected",
       "ok": true,
-      "detail": "http://127.0.0.1:3114/support/new?order=af39380e-eca8-457a-b900-8adb2dd72d06&topic=stay_issue"
+      "detail": "http://127.0.0.1:3114/support/new?order=87b035bb-bc12-432b-920a-3fafe471ce7d&topic=stay_issue"
     },
     {
       "source": "browser",
@@ -109,13 +109,13 @@
       "source": "browser",
       "name": "4.1 acknowledgement with durable reference",
       "ok": true,
-      "detail": "SUP-43678555D44B4BA0"
+      "detail": "SUP-4FB5691E340841C5"
     },
     {
       "source": "browser",
       "name": "4.2 urgent guest text, configured contacts and 112, no 24/7",
       "ok": true,
-      "detail": ""
+      "detail": "{\"urgent\":true,\"phone\":true,\"email\":true,\"tel112\":1}"
     },
     {
       "source": "sql",
@@ -287,6 +287,24 @@
       "detail": ""
     },
     {
+      "source": "sql",
+      "name": "0099 stay issue stored with its booking property",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "0099 property page links to its filtered support cases",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "source": "browser",
+      "name": "0099 another property filter hides the case",
+      "ok": true,
+      "detail": ""
+    },
+    {
       "source": "browser",
       "name": "4.1 admin sees structured issue, photos and alert delivery",
       "ok": true,
@@ -370,7 +388,7 @@
       "source": "browser",
       "name": "4.5 execution rows: queued Test refund ₹1,080, owner obligation ₹80 due",
       "ok": true,
-      "detail": "Award executed · 04 Nov 2026, 16:18 IST\nGuest refund TEST_REFUND_7bd78f8c-fca1-47c7-8558-64a71e3a2fb8 (Test)\n₹1,080 · Queued\nOwner incident obligation (Test)\n₹80 · Due\n\nReassigned fee ₹0 · owner fee share ₹80. Never deducted from a payout.\n\nCreate repayment link"
+      "detail": "Award executed · 04 Nov 2026, 16:34 IST\nGuest refund TEST_REFUND_0d55939c-4284-4147-a4e3-9848491863e7 (Test)\n₹1,080 · Queued\nOwner incident obligation (Test)\n₹80 · Due\n\nReassigned fee ₹0 · owner fee share ₹80. Never deducted from a payout.\n\nCreate repayment link"
     },
     {
       "source": "sql",
@@ -598,7 +616,7 @@
       "source": "browser",
       "name": "4.6 guest unknown refund reads Needs attention with reference",
       "ok": true,
-      "detail": "Refund\n₹1,080 TEST_REFUND_7bd78f8c-fca1-47c7-8558-64a71e3a2fb8\nNeeds attention — Rentra is checking"
+      "detail": "Refund\n₹1,080 TEST_REFUND_0d55939c-4284-4147-a4e3-9848491863e7\nNeeds attention — Rentra is checking"
     },
     {
       "source": "browser",
@@ -610,7 +628,7 @@
       "source": "browser",
       "name": "4.6 refund operations page opens",
       "ok": true,
-      "detail": "http://127.0.0.1:3114/admin/finance/refunds/7bd78f8c-fca1-47c7-8558-64a71e3a2fb8"
+      "detail": "http://127.0.0.1:3114/admin/finance/refunds/0d55939c-4284-4147-a4e3-9848491863e7"
     },
     {
       "source": "browser",

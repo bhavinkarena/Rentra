@@ -14,18 +14,20 @@ This is desktop emulation. It does not certify WCAG 2.2 AA, native mobile browse
 
 ## Result
 
-Both runs passed on one fresh fixture: first 390, then 1440.
+Both runs passed on one fresh fixture. The latest replay (4 November 2026, after the touch `Button` fix and migration 0099's property filter) ran 1440 first, then 390.
 
 | Run | Passed | Failed | Browser | SQL observation | Fixture step |
 | --- | --- | --- | --- | --- | --- |
-| `390/results.json` | 107 | 0 | 101 | 4 | 2 |
-| `1440/results.json` | 98 | 0 | 92 | 4 | 2 |
+| `390/results.json` | 110 | 0 | 103 | 5 | 2 |
+| `1440/results.json` | 101 | 0 | 94 | 5 | 2 |
 
 Checks are labelled by `source`:
 - `sql` checks are read-only database observations, such as saved priority, photo count and alert count; the first-response time; the decision row; and the refund reason prefix.
 - `fixture` steps stand in for jobs or providers that cannot run locally. Each run has two:
   - marking the urgent alert email `failed`;
   - setting the executed Test refund to `unknown` (1440, as the dispatcher does on a provider error) or to verified `succeeded` (390).
+
+Since migration 0099, each run also checks that a stay issue stores its booking's property (SQL). It then checks in the browser that the admin property page's "Support cases" link lists the case, and that another property's filter hides it.
 
 ## Journeys per run
 
