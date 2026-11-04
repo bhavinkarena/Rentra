@@ -1,9 +1,9 @@
 {
-  "status": "failed",
+  "status": "passed",
   "actionWidth": 390,
-  "ranAt": "2026-11-04T10:48:57.079Z",
-  "passed": 114,
-  "failed": 1,
+  "ranAt": "2026-11-04T10:57:13.850Z",
+  "passed": 115,
+  "failed": 0,
   "checks": [
     {
       "source": "browser",
@@ -15,13 +15,13 @@
       "source": "browser",
       "name": "5.3 delivered by fake SMS adapter but still unread",
       "ok": true,
-      "detail": "How was your visit?\n(unread)\n\n4 Nov, 4:18 pm · SMS: delivered\n\nE5-c849180f\n\nOpen booking\nMark as read"
+      "detail": "How was your visit?\n(unread)\n\n4 Nov, 4:26 pm · SMS: delivered\n\nE5-5c6bb043\n\nOpen booking\nMark as read"
     },
     {
       "source": "service",
       "name": "5.3 SMS body links to the reviews page, no case detail (service observation)",
       "ok": true,
-      "detail": "Rentra: How was your visit at Review River Farm? Review it by 3 Dec 2026: http://127.0.0.1:3115/bookings/1a9bfad5-0153-4022-a531-0d5bf51c164c/reviews Update 288f81a7-e234-4bfd-997a-f6fc0eab2c4e."
+      "detail": "Rentra: How was your visit at Review River Farm? Review it by 3 Dec 2026: http://127.0.0.1:3115/bookings/ac9cbe11-dc7d-47a8-9512-df911883195c/reviews Update 84e3d6c0-df17-4353-8dbe-805fe0881f09."
     },
     {
       "source": "browser",
@@ -68,11 +68,8 @@
     {
       "source": "browser",
       "name": "53-notifications: action targets ≥44px 1440",
-      "ok": false,
-      "detail": [
-        "Mark as read 111x36px",
-        "Mark as read 111x36px"
-      ]
+      "ok": true,
+      "detail": []
     },
     {
       "source": "browser",
@@ -84,7 +81,7 @@
       "source": "browser",
       "name": "5.3 customer Mark as read sets Read",
       "ok": true,
-      "detail": "How was your visit?\n\n4 Nov, 4:18 pm · SMS: delivered\n\nE5-c849180f\n\nOpen booking\nRead"
+      "detail": "How was your visit?\n\n4 Nov, 4:26 pm · SMS: delivered\n\nE5-5c6bb043\n\nOpen booking\nRead"
     },
     {
       "source": "browser",
@@ -336,13 +333,13 @@
       "source": "browser",
       "name": "5.2 guest case shows the decision and reason",
       "ok": true,
-      "detail": "Back to support requests\nStay issue: Can't get in\nOpen\n\nSUP-652D70E827B44071\n\nWe've received your report. Support will review it; this does not cancel or refund your booking. Reference SUP-652D70E827B44071.\n\nMarked urgent. A person will reply within 12 hours.\n\nIn an emergency, call 112.\n\nReported problem: Can't get in\n\nFound 3 Nov 2026, 2:18 pm India time\n\nAffected: Vaf0da405-7 (2026-11-03)\n\nReque"
+      "detail": "Back to support requests\nStay issue: Can't get in\nOpen\n\nSUP-E963C47083824DA3\n\nWe've received your report. Support will review it; this does not cancel or refund your booking. Reference SUP-E963C47083824DA3.\n\nMarked urgent. A person will reply within 12 hours.\n\nIn an emergency, call 112.\n\nReported problem: Can't get in\n\nFound 3 Nov 2026, 2:26 pm India time\n\nAffected: Vab43c437-5 (2026-11-03)\n\nReque"
     },
     {
       "source": "browser",
       "name": "5.3 arrival exception invitation listed (approved inside 09:00-21:00 IST)",
       "ok": true,
-      "detail": "2026-11-04T10:48:38.501Z"
+      "detail": "2026-11-04T10:56:53.095Z"
     },
     {
       "source": "browser",
@@ -702,7 +699,7 @@
       "source": "browser",
       "name": "5.4 other customer gets 404 for evidence",
       "ok": true,
-      "detail": "404 /reviews/reports/cdbe9267-0089-4d4c-91bf-7d30368f9882/attachments/58687399-e854-4bc9-8b9d-898aafbc207d"
+      "detail": "404 /reviews/reports/96a9f1ed-198e-4d8c-8da5-0db7443be6b6/attachments/3511be5a-ab64-48ee-b8c1-c04b9b55d8d1"
     },
     {
       "source": "browser",

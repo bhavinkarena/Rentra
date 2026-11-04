@@ -181,6 +181,12 @@ try {
       ack.includes('support@fixture.invalid') &&
       (await guest.locator('a[href="tel:112"]').count()) === 1 &&
       !/24\s*\/\s*7/.test(ack),
+    JSON.stringify({
+      urgent: ack.includes('Marked urgent. A person will reply within 12 hours.'),
+      phone: ack.includes('Call +919000000111'),
+      email: ack.includes('support@fixture.invalid'),
+      tel112: await guest.locator('a[href="tel:112"]').count(),
+    }),
   );
   const [saved] =
     await sql`SELECT priority,late,(SELECT count(*)::int FROM support_attachment a JOIN support_message m ON m.id=a.message_id WHERE m.request_id=s.id) photos,

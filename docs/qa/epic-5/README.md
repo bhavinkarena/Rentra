@@ -14,18 +14,13 @@ Each key screen was also sampled for reflow, configured axe WCAG 2.1 A/AA (scope
 | Run | Passed | Failed | Browser | Service |
 | --- | --- | --- | --- | --- |
 | 1440 (mouse) | 115 | 0 | 114 | 1 |
-| 390 (touch) | 114 | 1 | 114 | 1 |
+| 390 (touch) | 115 | 0 | 114 | 1 |
 
 The single service observation per run is the SMS body produced by the fake Twilio adapter while the fixture was seeded. It is labelled `source: "service"` in the JSON.
 
-**Open finding (390 run): pre-existing and outside Epic 5 code.**
+**Resolved finding (390 run).** The first 390 run failed one check: in the touch context at 1440 px, the customer "Mark as read" button was 111×36 px. The shared `Button` `xs`/`sm`/`icon-xs`/`icon-sm` sizes shrank at the `md` breakpoint regardless of pointer type. They now shrink only for `md:pointer-fine:`, so touch screens keep 44 px at every width. The 390 run was repeated after that change on 4 November 2026: 115/115.
 
-- In the touch context at 1440 px, the customer "Mark as read" button on Booking updates is 111×36 px.
-- The shared `Button` `sm` size uses the `md:min-h-9` breakpoint, not a pointer query. A touch device at 768 px or wider (a tablet) therefore gets 36 px targets.
-- At 320 and 390 px it is 44 px. Under a mouse it meets 24 px.
-- It is not fixed here. It is a shared design-system decision that affects every `sm`/`xs` button, so it needs an owner decision (pointer-based or breakpoint-based density).
-
-No Epic 5 application defect was found, and no application code was changed.
+No Epic 5 application defect was found. The only application change is the shared `Button` density fix above.
 
 ## Journeys exercised (both runs)
 
